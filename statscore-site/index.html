@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STATScore™</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+
+<style>
+:root{
+--black:#05070a;
+--dark:#0b0f15;
+--text:#ffffff;
+--muted:#8f98a6;
+--red:#d61f26;
+}
+
+*{
+box-sizing:border-box;
+margin:0;
+padding:0;
+}
+
+html,body{
+height:100%;
+font-family:'Inter',sans-serif;
+background:var(--black);
+color:var(--text);
+}
+
+/* 🔥 STRUCTURE */
+.page{
+height:100vh;
+display:flex;
+flex-direction:column;
+}
+
+/* =========================
+   HERO — PRIMARY AUTHORITY
+========================= */
+.hero{
+flex:0 0 72%;
+background:#ffffff;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+overflow:hidden;
+}
+
+/* LOGO BEHAVIOR */
+.hero img{
+width:110%;
+max-width:none;
+height:auto;
+
+/* FORCE DOMINANCE */
+object-fit:cover;
+object-position:center;
+}
+
+/* =========================
+   ACCESS SECTION — SECONDARY
+========================= */
+.access{
+flex:1;
+background:linear-gradient(180deg, #0c1118, #07090d);
+
+display:flex;
+align-items:center;
+justify-content:center;
+text-align:center;
+}
+
+/* CONTENT */
+.access-inner{
+display:flex;
+flex-direction:column;
+align-items:center;
+gap:18px;
+}
+
+/* SMALLER HEADLINE */
+.headline{
+font-size:clamp(1.6rem, 2.5vw, 2.4rem);
+font-weight:800;
+letter-spacing:-0.03em;
+}
+
+/* SMALL BUTTON — NOT COMPETING */
+.enter{
+padding:14px 28px;
+font-size:0.85rem;
+font-weight:800;
+letter-spacing:0.18em;
+text-transform:uppercase;
+
+background:var(--red);
+border:none;
+border-radius:10px;
+color:#fff;
+cursor:pointer;
+
+transition:0.2s ease;
+}
+
+.enter:hover{
+background:#ef2b33;
+transform:translateY(-1px);
+}
+
+/* QUIET TEXT */
+.sub{
+font-size:0.9rem;
+color:var(--muted);
+}
+
+.sub strong{
+color:#fff;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+
+.hero{
+flex:0 0 65%;
+}
+
+.hero img{
+width:130%;
+}
+
+.headline{
+font-size:1.4rem;
+}
+
+.enter{
+padding:12px 22px;
+font-size:0.75rem;
+}
+}
+</style>
+</head>
+
+<body>
+
+<div class="page">
+
+  <!-- 🔥 HERO -->
+  <section class="hero">
+    <img src="statscore-logo.png" alt="STATScore Logo">
+  </section>
+
+  <!-- ACCESS -->
+  <section class="access">
+
+    <div class="access-inner">
+
+      <h1 class="headline">
+        Athlete Performance Starts Here
+      </h1>
+
+      <button class="enter" onclick="window.location.href='dashboard.html'">
+        Enter
+      </button>
+
+      <p class="sub">
+        Track it. Score it. <strong>Prove it.</strong>
+      </p>
+
+    </div>
+
+  </section>
+
+</div>
+
+</body>
+</html> 
+
+
+
+
+
+
+
+
+
+
+
+
