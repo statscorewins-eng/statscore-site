@@ -28,53 +28,49 @@
       --radius-xl:28px;
       --radius-lg:20px;
       --radius-md:14px;
-      --max:1480px;
     }
 
     *{box-sizing:border-box;margin:0;padding:0}
-    html,body{height:100%}
+    html,body{min-height:100%}
+
     body{
       font-family:'Inter',sans-serif;
       background:
         radial-gradient(circle at top, rgba(214,31,38,0.12), transparent 34%),
         linear-gradient(180deg, #0b0e13 0%, #06080c 100%);
       color:var(--text);
-      overflow:hidden;
+      overflow-y:auto;
+      overflow-x:hidden;
     }
 
     button,input,select,textarea{font:inherit}
     button{cursor:pointer}
 
     .app{
-      height:100vh;
+      min-height:100vh;
       width:100%;
       position:relative;
-      overflow:hidden;
     }
 
     .screen{
-      position:absolute;
-      inset:0;
-      opacity:0;
-      pointer-events:none;
-      transform:translateY(14px);
-      transition:opacity .35s ease, transform .35s ease;
-      display:flex;
-      flex-direction:column;
+      display:none;
+      min-height:100vh;
+      width:100%;
+      padding:0;
     }
+
     .screen.active{
-      opacity:1;
-      pointer-events:auto;
-      transform:translateY(0);
+      display:block;
     }
 
     .transition-wrap{
-      flex:1;
+      min-height:100vh;
       display:flex;
       align-items:center;
       justify-content:center;
       padding:24px;
     }
+
     .transition-card{
       width:min(760px,100%);
       border:1px solid var(--line);
@@ -84,32 +80,64 @@
       padding:42px 30px;
       text-align:center;
     }
+
     .transition-mark{
-      width:74px;height:74px;border-radius:50%;
+      width:74px;
+      height:74px;
+      border-radius:50%;
       margin:0 auto 24px;
-      display:grid;place-items:center;
+      display:grid;
+      place-items:center;
       background:rgba(214,31,38,0.12);
       border:1px solid rgba(214,31,38,0.28);
       position:relative;
       overflow:hidden;
     }
+
     .transition-mark::after{
-      content:"";position:absolute;inset:10px;border-radius:50%;
-      border:3px solid rgba(240,58,66,0.95);border-top-color:transparent;
+      content:"";
+      position:absolute;
+      inset:10px;
+      border-radius:50%;
+      border:3px solid rgba(240,58,66,0.95);
+      border-top-color:transparent;
       animation:spin 1s linear infinite;
     }
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .transition-label{font-size:.82rem;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:10px}
-    .transition-title{font-size:clamp(1.8rem,3vw,3rem);font-weight:900;letter-spacing:-0.05em;margin-bottom:10px}
-    .transition-copy{color:var(--muted);max-width:540px;margin:0 auto;line-height:1.6}
+
+    @keyframes spin{
+      to{transform:rotate(360deg)}
+    }
+
+    .transition-label{
+      font-size:.82rem;
+      letter-spacing:.24em;
+      text-transform:uppercase;
+      color:var(--muted);
+      font-weight:700;
+      margin-bottom:10px;
+    }
+
+    .transition-title{
+      font-size:clamp(1.8rem,3vw,3rem);
+      font-weight:900;
+      letter-spacing:-0.05em;
+      margin-bottom:10px;
+    }
+
+    .transition-copy{
+      color:var(--muted);
+      max-width:540px;
+      margin:0 auto;
+      line-height:1.6;
+    }
 
     .system-shell{
       min-height:100vh;
       display:grid;
       grid-template-columns:420px 1fr;
-      gap:0;
       background:linear-gradient(180deg,#0a0e14 0%,#06080c 100%);
     }
+
     .nace-panel{
       border-right:1px solid var(--line);
       background:
@@ -120,18 +148,46 @@
       flex-direction:column;
       min-width:0;
     }
-    .nace-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+
+    .nace-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:24px;
+    }
+
     .nace-badge{
-      display:inline-flex;align-items:center;gap:10px;
-      padding:10px 14px;border:1px solid var(--line-strong);border-radius:999px;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 14px;
+      border:1px solid var(--line-strong);
+      border-radius:999px;
       background:rgba(255,255,255,0.03);
-      font-weight:700;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;
+      font-weight:700;
+      font-size:.8rem;
+      letter-spacing:.14em;
+      text-transform:uppercase;
     }
-    .nace-dot{width:10px;height:10px;border-radius:50%;background:var(--red)}
+
+    .nace-dot{
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      background:var(--red);
+    }
+
     .phase-chip{
-      padding:8px 11px;border-radius:999px;border:1px solid var(--line);
-      color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.16em;font-weight:700;
+      padding:8px 11px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      color:var(--muted);
+      font-size:.72rem;
+      text-transform:uppercase;
+      letter-spacing:.16em;
+      font-weight:700;
     }
+
     .nace-message{
       border:1px solid var(--line);
       background:linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.02));
@@ -140,9 +196,30 @@
       box-shadow:var(--shadow);
       margin-bottom:18px;
     }
-    .nace-kicker{font-size:.72rem;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;font-weight:700;margin-bottom:12px}
-    .nace-title{font-size:1.65rem;font-weight:900;letter-spacing:-0.04em;line-height:1.05;margin-bottom:10px}
-    .nace-copy{color:var(--muted);line-height:1.7;font-size:.98rem}
+
+    .nace-kicker{
+      font-size:.72rem;
+      color:var(--muted);
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      font-weight:700;
+      margin-bottom:12px;
+    }
+
+    .nace-title{
+      font-size:1.65rem;
+      font-weight:900;
+      letter-spacing:-0.04em;
+      line-height:1.05;
+      margin-bottom:10px;
+    }
+
+    .nace-copy{
+      color:var(--muted);
+      line-height:1.7;
+      font-size:.98rem;
+    }
+
     .nace-guidance{
       margin-top:18px;
       border-top:1px solid var(--line);
@@ -151,24 +228,64 @@
       font-size:.96rem;
       line-height:1.7;
     }
-    .nace-status-stack{display:grid;gap:12px;margin-top:auto}
+
+    .nace-status-stack{
+      display:grid;
+      gap:12px;
+      margin-top:auto;
+    }
+
     .status-card{
       border:1px solid var(--line);
       border-radius:18px;
       padding:14px 15px;
       background:rgba(255,255,255,0.025);
     }
-    .status-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.16em;color:var(--muted-2);font-weight:700;margin-bottom:6px}
-    .status-value{font-size:.92rem;color:#edf2f8;font-weight:600}
+
+    .status-label{
+      font-size:.72rem;
+      text-transform:uppercase;
+      letter-spacing:.16em;
+      color:var(--muted-2);
+      font-weight:700;
+      margin-bottom:6px;
+    }
+
+    .status-value{
+      font-size:.92rem;
+      color:#edf2f8;
+      font-weight:600;
+    }
 
     .work-panel{
       padding:28px;
       min-width:0;
-      overflow:auto;
+      overflow:visible;
     }
-    .work-wrap{max-width:920px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
-    .view-title{font-size:clamp(1.9rem,3vw,3rem);font-weight:900;letter-spacing:-0.05em;line-height:1;margin-bottom:6px}
-    .view-sub{color:var(--muted);line-height:1.7;max-width:760px}
+
+    .work-wrap{
+      max-width:920px;
+      margin:0 auto;
+      display:flex;
+      flex-direction:column;
+      gap:20px;
+      padding-bottom:28px;
+    }
+
+    .view-title{
+      font-size:clamp(1.9rem,3vw,3rem);
+      font-weight:900;
+      letter-spacing:-0.05em;
+      line-height:1;
+      margin-bottom:6px;
+    }
+
+    .view-sub{
+      color:var(--muted);
+      line-height:1.7;
+      max-width:760px;
+    }
+
     .panel{
       border:1px solid var(--line);
       background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.025));
@@ -176,7 +293,13 @@
       box-shadow:var(--shadow);
       padding:24px;
     }
-    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+
+    .grid-3{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:16px;
+    }
+
     .choice-card{
       border:1px solid var(--line);
       background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
@@ -188,72 +311,322 @@
       justify-content:space-between;
       transition:transform .18s ease,border-color .18s ease,background .18s ease;
     }
-    .choice-card:hover{transform:translateY(-2px);border-color:rgba(214,31,38,0.42);background:linear-gradient(180deg, rgba(214,31,38,0.08), rgba(255,255,255,0.02))}
-    .choice-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-    .choice-role{font-size:1.24rem;font-weight:800;letter-spacing:-0.03em}
-    .choice-index{font-size:.78rem;font-weight:800;color:var(--muted-2);letter-spacing:.18em;text-transform:uppercase}
-    .choice-copy{color:var(--muted);line-height:1.6;font-size:.95rem;margin-top:10px}
-    .choice-btn{margin-top:18px;align-self:flex-start;height:44px;padding:0 18px;border:none;border-radius:12px;background:var(--red);color:#fff;font-size:.78rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
 
-    .form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
-    .field{display:flex;flex-direction:column;gap:8px}
-    .field.full{grid-column:1 / -1}
-    .label{font-size:.78rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+    .choice-card:hover{
+      transform:translateY(-2px);
+      border-color:rgba(214,31,38,0.42);
+      background:linear-gradient(180deg, rgba(214,31,38,0.08), rgba(255,255,255,0.02));
+    }
+
+    .choice-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .choice-role{
+      font-size:1.24rem;
+      font-weight:800;
+      letter-spacing:-0.03em;
+    }
+
+    .choice-index{
+      font-size:.78rem;
+      font-weight:800;
+      color:var(--muted-2);
+      letter-spacing:.18em;
+      text-transform:uppercase;
+    }
+
+    .choice-copy{
+      color:var(--muted);
+      line-height:1.6;
+      font-size:.95rem;
+      margin-top:10px;
+    }
+
+    .choice-btn{
+      margin-top:18px;
+      align-self:flex-start;
+      height:44px;
+      padding:0 18px;
+      border:none;
+      border-radius:12px;
+      background:var(--red);
+      color:#fff;
+      font-size:.78rem;
+      font-weight:800;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+    }
+
+    .form-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:16px;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .field.full{
+      grid-column:1 / -1;
+    }
+
+    .label{
+      font-size:.78rem;
+      font-weight:700;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+
     .input,.select,.textarea{
-      width:100%;border:1px solid rgba(255,255,255,0.09);background:#0b1017;color:#fff;
-      border-radius:14px;padding:15px 15px;outline:none;transition:border-color .18s ease, box-shadow .18s ease;
+      width:100%;
+      border:1px solid rgba(255,255,255,0.09);
+      background:#0b1017;
+      color:#fff;
+      border-radius:14px;
+      padding:15px 15px;
+      outline:none;
+      transition:border-color .18s ease, box-shadow .18s ease;
     }
-    .textarea{min-height:100px;resize:vertical}
-    .input:focus,.select:focus,.textarea:focus{border-color:rgba(214,31,38,0.55);box-shadow:0 0 0 4px rgba(214,31,38,0.12)}
-    .hint{color:var(--muted-2);font-size:.82rem;line-height:1.5}
 
-    .metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    .textarea{
+      min-height:100px;
+      resize:vertical;
+    }
 
-    .actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+    .input:focus,.select:focus,.textarea:focus{
+      border-color:rgba(214,31,38,0.55);
+      box-shadow:0 0 0 4px rgba(214,31,38,0.12);
+    }
+
+    .hint{
+      color:var(--muted-2);
+      font-size:.82rem;
+      line-height:1.5;
+    }
+
+    .metric-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:16px;
+    }
+
+    .actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      align-items:center;
+    }
+
     .btn-primary,.btn-secondary,.btn-ghost{
-      border:none;border-radius:14px;height:52px;padding:0 22px;font-weight:800;text-transform:uppercase;letter-spacing:.16em;font-size:.78rem;
+      border:none;
+      border-radius:14px;
+      min-height:52px;
+      padding:12px 22px;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.16em;
+      font-size:.78rem;
     }
-    .btn-primary{background:linear-gradient(180deg,var(--red-2),var(--red));color:#fff;box-shadow:0 16px 34px rgba(214,31,38,0.26)}
-    .btn-secondary{background:#fff;color:#0d1117}
-    .btn-ghost{background:rgba(255,255,255,0.04);color:#fff;border:1px solid var(--line)}
 
-    .progress-wrap{display:flex;flex-direction:column;gap:18px;align-items:center;justify-content:center;min-height:380px;text-align:center}
+    .btn-primary{
+      background:linear-gradient(180deg,var(--red-2),var(--red));
+      color:#fff;
+      box-shadow:0 16px 34px rgba(214,31,38,0.26);
+    }
+
+    .btn-secondary{
+      background:#fff;
+      color:#0d1117;
+    }
+
+    .btn-ghost{
+      background:rgba(255,255,255,0.04);
+      color:#fff;
+      border:1px solid var(--line);
+    }
+
+    .progress-wrap{
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+      align-items:center;
+      justify-content:center;
+      min-height:380px;
+      text-align:center;
+    }
+
     .progress-ring{
-      width:98px;height:98px;border-radius:50%;border:4px solid rgba(255,255,255,0.08);border-top-color:var(--red-2);
+      width:98px;
+      height:98px;
+      border-radius:50%;
+      border:4px solid rgba(255,255,255,0.08);
+      border-top-color:var(--red-2);
       animation:spin 1.05s linear infinite;
     }
-    .progress-title{font-size:2rem;font-weight:900;letter-spacing:-0.05em}
-    .progress-copy{max-width:560px;color:var(--muted);line-height:1.7}
+
+    .progress-title{
+      font-size:2rem;
+      font-weight:900;
+      letter-spacing:-0.05em;
+    }
+
+    .progress-copy{
+      max-width:560px;
+      color:var(--muted);
+      line-height:1.7;
+    }
 
     .score-hero{
-      display:grid;grid-template-columns:340px 1fr;gap:18px;
+      display:grid;
+      grid-template-columns:340px 1fr;
+      gap:18px;
     }
+
     .score-card{
       border:1px solid var(--line);
       border-radius:24px;
       background:linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.025));
       padding:24px;
     }
-    .score-kicker{font-size:.74rem;text-transform:uppercase;letter-spacing:.18em;color:var(--muted);font-weight:800;margin-bottom:10px}
-    .score-number{font-size:6rem;font-weight:900;letter-spacing:-0.08em;line-height:.9;margin-bottom:10px}
-    .score-tier{font-size:1.1rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
-    .score-band{color:var(--muted);margin-top:8px;font-size:.95rem}
-    .pill-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
-    .pill{padding:10px 12px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,0.03);font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#ecf1f7}
 
-    .domain-list{display:grid;gap:12px}
-    .domain-row{display:grid;grid-template-columns:210px 1fr 54px;gap:12px;align-items:center}
-    .domain-name{font-size:.88rem;color:#ecf1f7;font-weight:700}
-    .bar{height:12px;border-radius:999px;background:rgba(255,255,255,0.07);overflow:hidden}
-    .bar > span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--red),var(--red-2))}
-    .domain-score{font-size:.88rem;color:#fff;font-weight:800;text-align:right}
+    .score-kicker{
+      font-size:.74rem;
+      text-transform:uppercase;
+      letter-spacing:.18em;
+      color:var(--muted);
+      font-weight:800;
+      margin-bottom:10px;
+    }
 
-    .tag-block{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
-    .tag-card{border:1px solid var(--line);border-radius:20px;padding:18px;background:rgba(255,255,255,0.025)}
-    .tag-title{font-size:.78rem;color:var(--muted);font-weight:800;letter-spacing:.16em;text-transform:uppercase;margin-bottom:12px}
-    .tag-list{display:flex;flex-wrap:wrap;gap:10px}
-    .tag{padding:10px 12px;border-radius:999px;background:rgba(255,255,255,0.05);border:1px solid var(--line);font-size:.84rem;color:#f2f6fb;font-weight:600}
-    .tag.warn{background:rgba(215,167,46,0.12);border-color:rgba(215,167,46,0.22)}
+    .score-number{
+      font-size:6rem;
+      font-weight:900;
+      letter-spacing:-0.08em;
+      line-height:.9;
+      margin-bottom:10px;
+    }
+
+    .score-tier{
+      font-size:1.1rem;
+      font-weight:800;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+    }
+
+    .score-band{
+      color:var(--muted);
+      margin-top:8px;
+      font-size:.95rem;
+    }
+
+    .pill-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:18px;
+    }
+
+    .pill{
+      padding:10px 12px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,0.03);
+      font-size:.78rem;
+      font-weight:700;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:#ecf1f7;
+    }
+
+    .domain-list{
+      display:grid;
+      gap:12px;
+    }
+
+    .domain-row{
+      display:grid;
+      grid-template-columns:210px 1fr 54px;
+      gap:12px;
+      align-items:center;
+    }
+
+    .domain-name{
+      font-size:.88rem;
+      color:#ecf1f7;
+      font-weight:700;
+    }
+
+    .bar{
+      height:12px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.07);
+      overflow:hidden;
+    }
+
+    .bar > span{
+      display:block;
+      height:100%;
+      border-radius:999px;
+      background:linear-gradient(90deg,var(--red),var(--red-2));
+    }
+
+    .domain-score{
+      font-size:.88rem;
+      color:#fff;
+      font-weight:800;
+      text-align:right;
+    }
+
+    .tag-block{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:16px;
+    }
+
+    .tag-card{
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:18px;
+      background:rgba(255,255,255,0.025);
+    }
+
+    .tag-title{
+      font-size:.78rem;
+      color:var(--muted);
+      font-weight:800;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      margin-bottom:12px;
+    }
+
+    .tag-list{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .tag{
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.05);
+      border:1px solid var(--line);
+      font-size:.84rem;
+      color:#f2f6fb;
+      font-weight:600;
+    }
+
+    .tag.warn{
+      background:rgba(215,167,46,0.12);
+      border-color:rgba(215,167,46,0.22);
+    }
 
     .decision-box{
       border:1px solid var(--line);
@@ -264,45 +637,160 @@
       gap:20px;
       background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
     }
+
     .decision-state{
       border-radius:20px;
       padding:22px;
-      display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;
-      background:rgba(255,255,255,0.03);border:1px solid var(--line);
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
+      background:rgba(255,255,255,0.03);
+      border:1px solid var(--line);
     }
+
     .decision-state.eligible{background:rgba(31,184,116,0.1);border-color:rgba(31,184,116,0.3)}
     .decision-state.conditional{background:rgba(215,167,46,0.1);border-color:rgba(215,167,46,0.3)}
     .decision-state.hold{background:rgba(178,81,81,0.12);border-color:rgba(178,81,81,0.28)}
-    .decision-label{font-size:.76rem;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.16em;margin-bottom:12px}
-    .decision-main{font-size:1.5rem;font-weight:900;letter-spacing:-0.04em}
-    .decision-copy{color:var(--muted);line-height:1.7}
-    .action-list{margin-top:14px;display:grid;gap:10px}
-    .action-item{padding:13px 14px;border-radius:14px;background:rgba(255,255,255,0.03);border:1px solid var(--line);color:#ecf1f7}
 
-    .report-grid{display:grid;gap:18px}
-    .report-section{border:1px solid var(--line);border-radius:20px;padding:18px;background:rgba(255,255,255,0.025)}
-    .section-heading{font-size:.82rem;text-transform:uppercase;letter-spacing:.16em;color:var(--muted);font-weight:800;margin-bottom:14px}
-    .meta-grid,.identity-grid,.overview-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-    .kv{padding:14px;border-radius:14px;background:rgba(255,255,255,0.03);border:1px solid var(--line)}
-    .kv-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.16em;color:var(--muted-2);font-weight:800;margin-bottom:8px}
-    .kv-value{font-size:.96rem;color:#f3f6fb;font-weight:700;line-height:1.45}
+    .decision-label{
+      font-size:.76rem;
+      color:var(--muted);
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.16em;
+      margin-bottom:12px;
+    }
 
-    .footer-note{color:var(--muted-2);font-size:.82rem;line-height:1.6}
+    .decision-main{
+      font-size:1.5rem;
+      font-weight:900;
+      letter-spacing:-0.04em;
+    }
+
+    .decision-copy{
+      color:var(--muted);
+      line-height:1.7;
+    }
+
+    .action-list{
+      margin-top:14px;
+      display:grid;
+      gap:10px;
+    }
+
+    .action-item{
+      padding:13px 14px;
+      border-radius:14px;
+      background:rgba(255,255,255,0.03);
+      border:1px solid var(--line);
+      color:#ecf1f7;
+    }
+
+    .report-grid{
+      display:grid;
+      gap:18px;
+    }
+
+    .report-section{
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:18px;
+      background:rgba(255,255,255,0.025);
+    }
+
+    .section-heading{
+      font-size:.82rem;
+      text-transform:uppercase;
+      letter-spacing:.16em;
+      color:var(--muted);
+      font-weight:800;
+      margin-bottom:14px;
+    }
+
+    .meta-grid,.identity-grid,.overview-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:14px;
+    }
+
+    .kv{
+      padding:14px;
+      border-radius:14px;
+      background:rgba(255,255,255,0.03);
+      border:1px solid var(--line);
+    }
+
+    .kv-label{
+      font-size:.72rem;
+      text-transform:uppercase;
+      letter-spacing:.16em;
+      color:var(--muted-2);
+      font-weight:800;
+      margin-bottom:8px;
+    }
+
+    .kv-value{
+      font-size:.96rem;
+      color:#f3f6fb;
+      font-weight:700;
+      line-height:1.45;
+    }
+
+    .footer-note{
+      color:var(--muted-2);
+      font-size:.82rem;
+      line-height:1.6;
+    }
 
     @media (max-width: 1180px){
-      .system-shell{grid-template-columns:1fr}
-      .nace-panel{border-right:none;border-bottom:1px solid var(--line)}
-      .score-hero,.decision-box{grid-template-columns:1fr}
-      .grid-3,.metric-grid,.meta-grid,.identity-grid,.overview-grid,.tag-block{grid-template-columns:1fr}
-      .domain-row{grid-template-columns:1fr}
-      .domain-score{text-align:left}
+      .system-shell{
+        grid-template-columns:1fr;
+      }
+
+      .nace-panel{
+        border-right:none;
+        border-bottom:1px solid var(--line);
+      }
+
+      .score-hero,.decision-box{
+        grid-template-columns:1fr;
+      }
+
+      .grid-3,.metric-grid,.meta-grid,.identity-grid,.overview-grid,.tag-block{
+        grid-template-columns:1fr;
+      }
+
+      .domain-row{
+        grid-template-columns:1fr;
+      }
+
+      .domain-score{
+        text-align:left;
+      }
     }
+
     @media (max-width: 760px){
-      body{overflow:auto}
-      .panel,.transition-card,.nace-message{padding:18px}
-      .work-panel,.nace-panel{padding:18px}
-      .form-grid{grid-template-columns:1fr}
-      .score-number{font-size:4.4rem}
+      .panel,.transition-card,.nace-message{
+        padding:18px;
+      }
+
+      .work-panel,.nace-panel{
+        padding:18px;
+      }
+
+      .form-grid{
+        grid-template-columns:1fr;
+      }
+
+      .field.full{
+        grid-column:auto;
+      }
+
+      .score-number{
+        font-size:4.4rem;
+      }
     }
   </style>
 </head>
@@ -344,14 +832,16 @@
               <h1 class="view-title">Identity Gate</h1>
               <p class="view-sub">Choose the correct operating role. STATScore remains a controlled system. There is no open browsing path after entry.</p>
             </div>
+
             <div class="grid-3">
               <article class="choice-card">
                 <div>
                   <div class="choice-top"><div class="choice-role">Athlete</div><div class="choice-index">Primary</div></div>
                   <p class="choice-copy">Direct athlete submission for personal evaluation, progression tracking, and future recruiting-report eligibility.</p>
                 </div>
-                <button class="choice-btn" onclick="submitAthleteTest()">Select</button>
+                <button class="choice-btn" data-role="Athlete">Select</button>
               </article>
+
               <article class="choice-card">
                 <div>
                   <div class="choice-top"><div class="choice-role">Coach</div><div class="choice-index">Secondary</div></div>
@@ -359,6 +849,7 @@
                 </div>
                 <button class="choice-btn" data-role="Coach">Select</button>
               </article>
+
               <article class="choice-card">
                 <div>
                   <div class="choice-top"><div class="choice-role">Organization</div><div class="choice-index">Admin</div></div>
@@ -388,21 +879,24 @@
           <div class="nace-status-stack">
             <div class="status-card"><div class="status-label">Role</div><div class="status-value" id="statusRole2">Athlete</div></div>
             <div class="status-card"><div class="status-label">Minimum Requirement</div><div class="status-value">Identity + position + measurable data</div></div>
-            <div class="status-card"><div class="status-label">Storage Path</div><div class="status-value">Clearinghouse write spine v2</div></div>
+            <div class="status-card"><div class="status-label">Storage Path</div><div class="status-value">Clearinghouse write spine</div></div>
           </div>
         </aside>
+
         <main class="work-panel">
           <div class="work-wrap">
             <div>
               <h1 class="view-title">Structured Intake</h1>
-              <p class="view-sub">This GitHub deployment version is still using browser-side scoring logic. After backend wiring, this same screen will build the payload contract and submit into Supabase.</p>
+              <p class="view-sub">Enter athlete data to generate STATScore, apply CEP-001 logic, and prepare the recruiting-report path.</p>
             </div>
 
             <div class="panel">
               <div class="form-grid">
                 <div class="field"><label class="label">Full Name</label><input class="input" id="full_name" placeholder="Athlete full name" /></div>
                 <div class="field"><label class="label">Display Name</label><input class="input" id="display_name" placeholder="Display name" /></div>
-                <div class="field"><label class="label">Sport</label>
+
+                <div class="field">
+                  <label class="label">Sport</label>
                   <select class="select" id="sport">
                     <option value="Football">Football</option>
                     <option value="Basketball">Basketball</option>
@@ -411,12 +905,15 @@
                     <option value="Soccer">Soccer</option>
                   </select>
                 </div>
+
                 <div class="field"><label class="label">Primary Position</label><input class="input" id="primary_position" placeholder="QB, PG, WR, etc." /></div>
                 <div class="field"><label class="label">Secondary Position</label><input class="input" id="secondary_position" placeholder="Optional" /></div>
                 <div class="field"><label class="label">Age</label><input class="input" id="age" type="number" min="8" max="30" value="17" /></div>
                 <div class="field"><label class="label">Height</label><input class="input" id="height" placeholder="6'1&quot;" value="6'1&quot;" /></div>
                 <div class="field"><label class="label">Weight</label><input class="input" id="weight" placeholder="185" value="185" /></div>
-                <div class="field"><label class="label">Current Level</label>
+
+                <div class="field">
+                  <label class="label">Current Level</label>
                   <select class="select" id="current_level">
                     <option value="Youth">Youth</option>
                     <option value="Middle School">Middle School</option>
@@ -425,19 +922,23 @@
                     <option value="College">College</option>
                   </select>
                 </div>
+
                 <div class="field"><label class="label">Graduation Year</label><input class="input" id="graduation_year" type="number" value="2027" /></div>
                 <div class="field"><label class="label">School Name</label><input class="input" id="school_name" placeholder="School / academy" /></div>
                 <div class="field"><label class="label">Team Name</label><input class="input" id="team_name" placeholder="Team name" /></div>
                 <div class="field"><label class="label">Coach Name</label><input class="input" id="coach_name" placeholder="Coach name" /></div>
                 <div class="field"><label class="label">Coach Contact</label><input class="input" id="coach_contact" placeholder="coach@example.com" /></div>
                 <div class="field"><label class="label">GPA</label><input class="input" id="gpa" type="number" step="0.1" value="3.4" /></div>
-                <div class="field"><label class="label">Academic Status</label>
+
+                <div class="field">
+                  <label class="label">Academic Status</label>
                   <select class="select" id="academic_status">
                     <option value="eligible" selected>Eligible</option>
                     <option value="monitoring">Monitoring</option>
                     <option value="unknown">Unknown</option>
                   </select>
                 </div>
+
                 <div class="field full"><label class="label">Profile Summary</label><textarea class="textarea" id="bio_short" placeholder="Short profile note"></textarea></div>
               </div>
             </div>
@@ -447,15 +948,18 @@
                 <div class="label" style="margin-bottom:8px">Performance Metrics</div>
                 <div class="hint">These drive normalization, scoring domains, and CEP-001 integrity checks.</div>
               </div>
+
               <div class="metric-grid">
                 <div class="field"><label class="label">40 Yard Dash</label><input class="input" id="metric_40" type="number" step="0.01" value="4.85" /></div>
                 <div class="field"><label class="label">Vertical</label><input class="input" id="metric_vertical" type="number" step="0.1" value="32" /></div>
                 <div class="field"><label class="label">Awareness</label><input class="input" id="metric_awareness" type="number" min="0" max="100" value="84" /></div>
                 <div class="field"><label class="label">Mechanics</label><input class="input" id="metric_mechanics" type="number" min="0" max="100" value="81" /></div>
               </div>
+
               <div class="actions" style="margin-top:18px">
                 <button class="btn-primary" id="generateBtn">Generate STATScore</button>
                 <button class="btn-ghost" id="backToIdentityBtn">Back</button>
+                <span class="hint">This version submits to Supabase through the live Generate button.</span>
               </div>
             </div>
           </div>
@@ -473,12 +977,12 @@
           <div class="nace-message">
             <div class="nace-kicker">Processing State</div>
             <div class="nace-title">Evaluation in motion.</div>
-            <div class="nace-copy">STATScore is normalizing the intake, calculating weighted domains, generating flags and strengths, and applying CEP-001 governance to report release eligibility.</div>
+            <div class="nace-copy">STATScore is processing the intake, writing the athlete record, and preparing the next output state.</div>
             <div class="nace-guidance">Hold state. Do not interrupt the evaluation path.</div>
           </div>
           <div class="nace-status-stack">
-            <div class="status-card"><div class="status-label">Current Action</div><div class="status-value">Scoring athlete profile</div></div>
-            <div class="status-card"><div class="status-label">Gate</div><div class="status-value">CEP-001 pending</div></div>
+            <div class="status-card"><div class="status-label">Current Action</div><div class="status-value">Submitting to Supabase</div></div>
+            <div class="status-card"><div class="status-label">Gate</div><div class="status-value">Awaiting result</div></div>
             <div class="status-card"><div class="status-label">Output</div><div class="status-value">Score → Decision → Report Path</div></div>
           </div>
         </aside>
@@ -487,7 +991,7 @@
             <div class="panel progress-wrap">
               <div class="progress-ring"></div>
               <h1 class="progress-title">Analyzing Performance Profile...</h1>
-              <p class="progress-copy">The system is calculating Athletic Performance, Technical Skill, Game Function, Development Readiness, and Progression Signal, then checking recruiting-report release conditions.</p>
+              <p class="progress-copy">The system is sending the intake payload through the STATScore write spine and preparing the next stage.</p>
             </div>
           </div>
         </main>
@@ -513,6 +1017,7 @@
             <div class="status-card"><div class="status-label">Readiness</div><div class="status-value" id="statusReadiness">—</div></div>
           </div>
         </aside>
+
         <main class="work-panel">
           <div class="work-wrap">
             <div>
@@ -523,11 +1028,12 @@
             <div class="score-hero">
               <div class="score-card">
                 <div class="score-kicker">STATScore</div>
-                <div class="score-number" id="overallScore">82</div>
-                <div class="score-tier" id="tierText">Developing</div>
-                <div class="score-band" id="readinessBand">Readiness Band: Emerging</div>
+                <div class="score-number" id="overallScore">75</div>
+                <div class="score-tier" id="tierText">Operational</div>
+                <div class="score-band" id="readinessBand">Readiness Band: Active</div>
                 <div class="pill-row" id="scorePills"></div>
               </div>
+
               <div class="score-card">
                 <div class="score-kicker">Domain Breakdown</div>
                 <div class="domain-list" id="domainList"></div>
@@ -547,9 +1053,9 @@
 
             <div class="panel">
               <div class="label" style="margin-bottom:10px">Evaluation Summary</div>
-              <p class="view-sub" id="summaryText">Athlete demonstrates promising awareness and decision-making with additional verified testing needed.</p>
+              <p class="view-sub" id="summaryText">Initial intake submitted successfully.</p>
               <div class="actions" style="margin-top:18px">
-                <button class="btn-primary" id="toDecisionBtn">Run CEP-001 Gate</button>
+                <button class="btn-primary" id="toDecisionBtn">Continue</button>
                 <button class="btn-ghost" id="restartBtn1">Restart Intake</button>
               </div>
             </div>
@@ -568,29 +1074,34 @@
           <div class="nace-message">
             <div class="nace-kicker">Recruiting Governance</div>
             <div class="nace-title">Decision state assigned.</div>
-            <div class="nace-copy">CEP-001 does not create the score. It governs whether the athlete’s current evaluation state is suitable for recruiting-report release.</div>
+            <div class="nace-copy">This screen is preserved for the later CEP-001 release path.</div>
             <div class="nace-guidance" id="decisionGuidance">Integrity takes precedence over release.</div>
           </div>
           <div class="nace-status-stack">
-            <div class="status-card"><div class="status-label">Decision</div><div class="status-value" id="statusDecision">—</div></div>
-            <div class="status-card"><div class="status-label">Report Path</div><div class="status-value" id="statusReportPath">Pending</div></div>
-            <div class="status-card"><div class="status-label">Required Actions</div><div class="status-value" id="statusActionsCount">—</div></div>
+            <div class="status-card"><div class="status-label">Decision</div><div class="status-value" id="statusDecision">Pending CEP-001</div></div>
+            <div class="status-card"><div class="status-label">Report Path</div><div class="status-value" id="statusReportPath">Awaiting logic</div></div>
+            <div class="status-card"><div class="status-label">Required Actions</div><div class="status-value" id="statusActionsCount">Pending</div></div>
           </div>
         </aside>
+
         <main class="work-panel">
           <div class="work-wrap">
             <div>
               <h1 class="view-title">CEP-001 Decision Matrix</h1>
-              <p class="view-sub">Release is governed here. Athlete may keep the score regardless of recruiting-report release status.</p>
+              <p class="view-sub">This production shell is ready for the next CEP-001 logic pass after live intake submission is confirmed.</p>
             </div>
+
             <div class="decision-box">
-              <div class="decision-state" id="decisionStateBox">
+              <div class="decision-state conditional" id="decisionStateBox">
                 <div class="decision-label">Decision Status</div>
-                <div class="decision-main" id="decisionMain">Conditional</div>
+                <div class="decision-main" id="decisionMain">Pending</div>
               </div>
+
               <div>
-                <p class="decision-copy" id="decisionReason">Additional verified testing is required before recruiting report release.</p>
-                <div class="action-list" id="requiredActionsList"></div>
+                <p class="decision-copy" id="decisionReason">CEP-001 release logic will be rendered here after the next wiring pass.</p>
+                <div class="action-list" id="requiredActionsList">
+                  <div class="action-item">Complete live intake submission first.</div>
+                </div>
                 <div class="actions" style="margin-top:18px">
                   <button class="btn-primary" id="decisionContinueBtn">Continue</button>
                   <button class="btn-ghost" id="restartBtn2">Restart Intake</button>
@@ -611,24 +1122,30 @@
           </div>
           <div class="nace-message">
             <div class="nace-kicker">System Output</div>
-            <div class="nace-title" id="finalTitle">Recruiting report available.</div>
-            <div class="nace-copy" id="finalCopy">The current evaluation state is eligible for recruiting-report release.</div>
-            <div class="nace-guidance" id="finalGuidance">Proceed with the authorized next action.</div>
+            <div class="nace-title" id="finalTitle">Submission Complete.</div>
+            <div class="nace-copy" id="finalCopy">The intake has been written through Supabase. This screen is reserved for recruiting-report output and final routing.</div>
+            <div class="nace-guidance" id="finalGuidance">Proceed to the next build layer when ready.</div>
           </div>
           <div class="nace-status-stack">
-            <div class="status-card"><div class="status-label">Report Status</div><div class="status-value" id="reportStatusText">Draft ready</div></div>
-            <div class="status-card"><div class="status-label">Clearinghouse</div><div class="status-value">Snapshot path complete</div></div>
-            <div class="status-card"><div class="status-label">Available Actions</div><div class="status-value" id="availableActionsText">View / share / export later</div></div>
+            <div class="status-card"><div class="status-label">Report Status</div><div class="status-value" id="reportStatusText">Pending report logic</div></div>
+            <div class="status-card"><div class="status-label">Clearinghouse</div><div class="status-value">Snapshot path active</div></div>
+            <div class="status-card"><div class="status-label">Available Actions</div><div class="status-value" id="availableActionsText">Restart / proceed to next layer</div></div>
           </div>
         </aside>
+
         <main class="work-panel">
           <div class="work-wrap">
             <div>
-              <h1 class="view-title" id="reportViewTitle">Recruiting Report</h1>
-              <p class="view-sub" id="reportViewSub">Generated only when CEP-001 returns eligible. In other states, this screen becomes the controlled next-action surface.</p>
+              <h1 class="view-title" id="reportViewTitle">Output Path</h1>
+              <p class="view-sub" id="reportViewSub">This screen is reserved for the recruiting-report artifact and final action routing.</p>
             </div>
 
-            <div class="report-grid" id="reportContainer"></div>
+            <div class="report-grid" id="reportContainer">
+              <section class="report-section">
+                <div class="section-heading">Live Submission Confirmed</div>
+                <div class="footer-note">The system is now writing live intake submissions through Supabase. Next pass will render live score, CEP-001 decision, and report data here.</div>
+              </section>
+            </div>
 
             <div class="actions">
               <button class="btn-primary" id="restartBtn3">Run New Evaluation</button>
@@ -654,503 +1171,17 @@
     const state = {
       role: null,
       payload: null,
-      evaluation: null,
-      report: null
+      rpcResult: null
     };
 
     function showScreen(name){
       Object.values(screens).forEach(s => s.classList.remove('active'));
       screens[name].classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'instant' });
     }
 
     function titleCase(str=''){
       return str.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
-    }
-
-    function clamp(value, min, max){
-      return Math.max(min, Math.min(max, value));
-    }
-
-    function normalize40(time){
-      if (!time) return 45;
-      const max = 6.2;
-      const min = 4.3;
-      const pct = (max - time) / (max - min);
-      return Math.round(clamp(pct, 0, 1) * 100);
-    }
-
-    function normalizeVertical(vertical){
-      if (!vertical) return 45;
-      const min = 18;
-      const max = 42;
-      const pct = (vertical - min) / (max - min);
-      return Math.round(clamp(pct, 0, 1) * 100);
-    }
-
-    function computeEvaluation(payload){
-      const m40 = parseFloat(payload.metrics[0]?.metric_value_numeric ?? 0);
-      const vertical = parseFloat(payload.metrics[1]?.metric_value_numeric ?? 0);
-      const awareness = parseFloat(payload.metrics[2]?.metric_value_numeric ?? 50);
-      const mechanics = parseFloat(payload.metrics[3]?.metric_value_numeric ?? 50);
-      const gpa = parseFloat(payload.profile.gpa ?? 0);
-      const coachProvided = Boolean(payload.profile.coach_name);
-      const coachContact = Boolean(payload.profile.coach_contact);
-
-      const speedScore = normalize40(m40);
-      const explosionScore = normalizeVertical(vertical);
-      const academicsScore = Math.round(clamp((gpa / 4) * 100, 0, 100));
-      const athletic_performance = Math.round((speedScore * 0.58) + (explosionScore * 0.42));
-      const technical_skill = Math.round((mechanics * 0.65) + (awareness * 0.35));
-      const game_function = Math.round((awareness * 0.8) + (mechanics * 0.2));
-
-      let readinessBase = 58;
-      if (payload.athlete.full_name) readinessBase += 8;
-      if (payload.athlete.current_level) readinessBase += 5;
-      if (coachProvided) readinessBase += 8;
-      if (coachContact) readinessBase += 6;
-      if (gpa >= 2.5) readinessBase += 8;
-      if (m40 > 0 && vertical > 0) readinessBase += 6;
-      const development_readiness = clamp(Math.round(readinessBase), 0, 100);
-      const progression_signal = 55;
-
-      const overall = Math.round(
-        athletic_performance * 0.30 +
-        technical_skill * 0.25 +
-        game_function * 0.20 +
-        development_readiness * 0.15 +
-        progression_signal * 0.10
-      );
-
-      let tier = 'Early';
-      if (overall >= 90) tier = 'Elite';
-      else if (overall >= 80) tier = 'Strong';
-      else if (overall >= 70) tier = 'Developing';
-      else if (overall >= 60) tier = 'Foundational';
-
-      const flags = [];
-      const strengths = [];
-      const priorities = [];
-
-      if (speedScore >= 80) strengths.push('Acceleration');
-      if (awareness >= 82) strengths.push('Field awareness');
-      if (mechanics >= 80) strengths.push('Technical consistency');
-      if (academicsScore >= 82) strengths.push('Academic structure');
-
-      if (!coachProvided || !coachContact) {
-        flags.push('Missing coach validation');
-        priorities.push('Add coach validation');
-      }
-      if (m40 <= 0) {
-        flags.push('Missing verified speed metric');
-        priorities.push('Add verified speed testing');
-      } else if (payload.metrics[0].verification_status !== 'verified') {
-        flags.push('Needs verified speed metric');
-        priorities.push('Add verified speed testing');
-      }
-      if (gpa <= 0) {
-        flags.push('Incomplete academic status');
-        priorities.push('Add GPA and academic standing');
-      }
-      if (mechanics < 76) priorities.push('Improve mechanics consistency');
-      if (awareness < 78) priorities.push('Improve game processing and recognition');
-      if (!priorities.length) priorities.push('Maintain current development trajectory');
-
-      let readiness_band = 'Incomplete';
-      if (development_readiness >= 82 && flags.length <= 1) readiness_band = 'Ready';
-      else if (development_readiness >= 70 && flags.length <= 2) readiness_band = 'Emerging';
-      else if (development_readiness >= 60) readiness_band = 'Needs Validation';
-
-      let decision_status = 'hold';
-      let decision_reason = 'Profile is too incomplete or structurally weak for recruiting report release.';
-      let required_actions = [...new Set(priorities)];
-
-      const integrityRiskHigh = flags.length >= 3 || readiness_band === 'Incomplete';
-      const strongEligible = (overall >= 80 && (readiness_band === 'Ready' || (readiness_band === 'Emerging' && flags.length === 0)));
-
-      if (strongEligible) {
-        decision_status = 'eligible';
-        decision_reason = 'Profile is sufficiently complete, credible, and coherent for recruiting report release.';
-        required_actions = [];
-      } else if (!integrityRiskHigh) {
-        decision_status = 'conditional';
-        decision_reason = 'Evaluation is meaningful, but additional validation or structure is required before recruiting report release.';
-      }
-
-      const summary = `${payload.athlete.full_name || 'Athlete'} demonstrates ${strengths.length ? strengths.slice(0,2).join(' and ').toLowerCase() : 'developing athletic potential'}, with ${required_actions[0]?.toLowerCase() || 'continued structured growth'} required to strengthen the profile.`;
-
-      const evaluation = {
-        overall_score: overall,
-        tier,
-        readiness_band,
-        domains: {
-          athletic_performance,
-          technical_skill,
-          game_function,
-          development_readiness,
-          progression_signal
-        },
-        subscores: {
-          speed: speedScore,
-          awareness,
-          mechanics,
-          explosion: explosionScore,
-          academics: academicsScore
-        },
-        strengths: strengths.length ? strengths : ['Foundational profile structure'],
-        flags: flags.length ? flags : ['No critical release blockers detected'],
-        improvement_priorities: [...new Set(priorities)],
-        summary_text: summary,
-        cep001: {
-          decision_status,
-          decision_reason,
-          required_actions
-        }
-      };
-
-      return evaluation;
-    }
-
-    function buildPayload(){
-      const fullName = document.getElementById('full_name').value.trim();
-      const displayName = document.getElementById('display_name').value.trim() || fullName;
-      const sport = document.getElementById('sport').value;
-      const primaryPosition = document.getElementById('primary_position').value.trim();
-      const secondaryPosition = document.getElementById('secondary_position').value.trim();
-      const age = parseInt(document.getElementById('age').value, 10);
-      const height = document.getElementById('height').value.trim();
-      const weight = document.getElementById('weight').value.trim();
-      const currentLevel = document.getElementById('current_level').value;
-      const graduationYear = parseInt(document.getElementById('graduation_year').value, 10);
-      const schoolName = document.getElementById('school_name').value.trim();
-      const teamName = document.getElementById('team_name').value.trim();
-      const coachName = document.getElementById('coach_name').value.trim();
-      const coachContact = document.getElementById('coach_contact').value.trim();
-      const gpa = parseFloat(document.getElementById('gpa').value);
-      const academicStatus = document.getElementById('academic_status').value;
-      const bio = document.getElementById('bio_short').value.trim();
-      const forty = parseFloat(document.getElementById('metric_40').value);
-      const vertical = parseFloat(document.getElementById('metric_vertical').value);
-      const awareness = parseFloat(document.getElementById('metric_awareness').value);
-      const mechanics = parseFloat(document.getElementById('metric_mechanics').value);
-
-      return {
-        athlete: {
-          full_name: fullName,
-          display_name: displayName,
-          sport: sport,
-          primary_position: primaryPosition,
-          secondary_position: secondaryPosition,
-          age: age,
-          height: height,
-          weight: weight,
-          current_level: currentLevel,
-          city: 'Pensacola',
-          state_region: 'FL',
-          country: 'USA'
-        },
-        profile: {
-          graduation_year: graduationYear,
-          school_name: schoolName,
-          team_name: teamName,
-          gpa: gpa,
-          academic_status: academicStatus,
-          coach_name: coachName,
-          coach_contact: coachContact,
-          bio_short: bio,
-          ncaa_interest: true
-        },
-        intake: {
-          intake_version: 'v1',
-          snapshot_hash: `demo-${Date.now()}`,
-          source_role: (state.role || 'Athlete').toLowerCase(),
-          source_channel: 'nace_web_demo',
-          created_by_user_id: 'demo_user',
-          intake_data: {
-            forty_yard_dash: forty,
-            vertical,
-            awareness,
-            mechanics,
-            academic_status: academicStatus
-          }
-        },
-        metrics: [
-          { metric_category: 'speed', metric_name: '40_yard_dash', metric_value_numeric: forty, metric_unit: 'seconds', verification_status: 'unverified', context_note: 'Self-submitted demo metric' },
-          { metric_category: 'explosiveness', metric_name: 'vertical', metric_value_numeric: vertical, metric_unit: 'inches', verification_status: 'unverified', context_note: 'Self-submitted demo metric' },
-          { metric_category: 'game_function', metric_name: 'awareness', metric_value_numeric: awareness, metric_unit: 'score_100', verification_status: 'system_estimated', context_note: 'Demo slider-equivalent metric' },
-          { metric_category: 'technical_skill', metric_name: 'mechanics', metric_value_numeric: mechanics, metric_unit: 'score_100', verification_status: 'system_estimated', context_note: 'Demo slider-equivalent metric' }
-        ]
-      };
-    }
-
-    function renderScore(evalData, payload){
-      document.getElementById('overallScore').textContent = evalData.overall_score;
-      document.getElementById('tierText').textContent = evalData.tier;
-      document.getElementById('readinessBand').textContent = `Readiness Band: ${evalData.readiness_band}`;
-      document.getElementById('summaryText').textContent = evalData.summary_text;
-      document.getElementById('statusAthleteName').textContent = payload.athlete.full_name || 'Unnamed Athlete';
-      document.getElementById('statusTier').textContent = evalData.tier;
-      document.getElementById('statusReadiness').textContent = evalData.readiness_band;
-      document.getElementById('scoreGuidance').textContent = `Current role: ${state.role}. Athlete record is ready for CEP-001 governance review.`;
-
-      const pills = document.getElementById('scorePills');
-      pills.innerHTML = '';
-      [payload.athlete.sport, payload.athlete.primary_position, payload.athlete.current_level].forEach(item => {
-        const pill = document.createElement('div');
-        pill.className = 'pill';
-        pill.textContent = item;
-        pills.appendChild(pill);
-      });
-
-      const domainList = document.getElementById('domainList');
-      domainList.innerHTML = '';
-      Object.entries(evalData.domains).forEach(([name, score]) => {
-        const row = document.createElement('div');
-        row.className = 'domain-row';
-        row.innerHTML = `
-          <div class="domain-name">${titleCase(name)}</div>
-          <div class="bar"><span style="width:${score}%"></span></div>
-          <div class="domain-score">${score}</div>
-        `;
-        domainList.appendChild(row);
-      });
-
-      const strengthList = document.getElementById('strengthList');
-      strengthList.innerHTML = '';
-      evalData.strengths.forEach(item => {
-        const el = document.createElement('div');
-        el.className = 'tag';
-        el.textContent = item;
-        strengthList.appendChild(el);
-      });
-
-      const flagList = document.getElementById('flagList');
-      flagList.innerHTML = '';
-      evalData.flags.forEach(item => {
-        const el = document.createElement('div');
-        el.className = 'tag warn';
-        el.textContent = item;
-        flagList.appendChild(el);
-      });
-    }
-
-    function renderDecision(evalData){
-      const decision = evalData.cep001;
-      const box = document.getElementById('decisionStateBox');
-      box.className = `decision-state ${decision.decision_status}`;
-      document.getElementById('decisionMain').textContent = titleCase(decision.decision_status);
-      document.getElementById('decisionReason').textContent = decision.decision_reason;
-      document.getElementById('decisionGuidance').textContent = `${titleCase(decision.decision_status)} state assigned under CEP-001 governance.`;
-      document.getElementById('statusDecision').textContent = titleCase(decision.decision_status);
-      document.getElementById('statusReportPath').textContent = decision.decision_status === 'eligible' ? 'Recruiting report release authorized' : 'Recruiting report release not authorized';
-      document.getElementById('statusActionsCount').textContent = `${decision.required_actions.length} action${decision.required_actions.length === 1 ? '' : 's'}`;
-
-      const list = document.getElementById('requiredActionsList');
-      list.innerHTML = '';
-      if (!decision.required_actions.length) {
-        const item = document.createElement('div');
-        item.className = 'action-item';
-        item.textContent = 'No blocking actions. Current evaluation state supports recruiting-report release.';
-        list.appendChild(item);
-      } else {
-        decision.required_actions.forEach(action => {
-          const item = document.createElement('div');
-          item.className = 'action-item';
-          item.textContent = action;
-          list.appendChild(item);
-        });
-      }
-    }
-
-    function buildReport(evalData, payload){
-      return {
-        report_metadata: {
-          report_version: 'v1',
-          report_type: 'recruiting',
-          created_at: new Date().toISOString(),
-          statscore_version: 'v1',
-          cep_decision: evalData.cep001.decision_status
-        },
-        athlete_identity: {
-          full_name: payload.athlete.full_name,
-          display_name: payload.athlete.display_name,
-          sport: payload.athlete.sport,
-          primary_position: payload.athlete.primary_position,
-          secondary_position: payload.athlete.secondary_position,
-          age: payload.athlete.age,
-          graduation_year: payload.profile.graduation_year,
-          location: {
-            city: payload.athlete.city,
-            state_region: payload.athlete.state_region,
-            country: payload.athlete.country
-          }
-        },
-        profile_overview: {
-          height: payload.athlete.height,
-          weight: payload.athlete.weight,
-          current_level: payload.athlete.current_level,
-          school_name: payload.profile.school_name,
-          team_name: payload.profile.team_name,
-          gpa: payload.profile.gpa,
-          academic_status: payload.profile.academic_status,
-          ncaa_interest: payload.profile.ncaa_interest
-        },
-        performance_summary: {
-          key_metrics: payload.metrics.slice(0,2).map(m => ({
-            metric_name: m.metric_name,
-            value: m.metric_value_numeric,
-            unit: m.metric_unit,
-            verification_status: m.verification_status
-          })),
-          metric_notes: 'Evaluation reflects current submitted metrics and structured score factors.'
-        },
-        evaluation: {
-          overall_score: evalData.overall_score,
-          tier: evalData.tier,
-          readiness_band: evalData.readiness_band,
-          domain_scores: evalData.domains,
-          subscores: evalData.subscores
-        },
-        strengths_flags: {
-          strengths: evalData.strengths,
-          flags: evalData.flags
-        },
-        development: {
-          improvement_priorities: evalData.improvement_priorities,
-          recommended_focus: evalData.improvement_priorities[0] || 'Maintain current development structure'
-        },
-        readiness: {
-          status: evalData.cep001.decision_status,
-          summary: evalData.cep001.decision_status === 'eligible'
-            ? 'Athlete demonstrates structured performance indicators suitable for recruiting review.'
-            : 'Current evaluation state is not authorized for recruiting-report release.',
-          context_note: 'Evaluation reflects current data state and may evolve with additional verified inputs.'
-        }
-      };
-    }
-
-    function renderFinal(evalData, payload){
-      const reportContainer = document.getElementById('reportContainer');
-      reportContainer.innerHTML = '';
-      const decision = evalData.cep001.decision_status;
-      const eligible = decision === 'eligible';
-
-      document.getElementById('finalTitle').textContent = eligible ? 'Recruiting report available.' : 'Controlled next action required.';
-      document.getElementById('finalCopy').textContent = eligible
-        ? 'The current evaluation state is eligible for recruiting-report release.'
-        : 'Recruiting-report release is not authorized in the current evaluation state.';
-      document.getElementById('finalGuidance').textContent = eligible
-        ? 'Review the report schema below.'
-        : 'Use the action path below to improve profile integrity before rerunning evaluation.';
-      document.getElementById('reportStatusText').textContent = eligible ? 'Eligible / draft ready' : titleCase(decision);
-      document.getElementById('availableActionsText').textContent = eligible ? 'View recruiting report sections' : 'Complete actions and rerun';
-      document.getElementById('reportViewTitle').textContent = eligible ? 'Recruiting Report' : 'Next Actions';
-      document.getElementById('reportViewSub').textContent = eligible
-        ? 'Generated only when CEP-001 returns eligible. This is the structured recruiting artifact schema in UI form.'
-        : 'CEP-001 has protected report integrity. Complete the required actions below before release.';
-
-      if (!eligible) {
-        const wrap = document.createElement('div');
-        wrap.className = 'report-section';
-        wrap.innerHTML = `
-          <div class="section-heading">Required Actions</div>
-          <div class="action-list">
-            ${evalData.cep001.required_actions.map(a => `<div class="action-item">${a}</div>`).join('') || '<div class="action-item">No additional actions captured.</div>'}
-          </div>
-        `;
-        reportContainer.appendChild(wrap);
-        return;
-      }
-
-      state.report = buildReport(evalData, payload);
-      const report = state.report;
-
-      reportContainer.innerHTML = `
-        <section class="report-section">
-          <div class="section-heading">Report Metadata</div>
-          <div class="meta-grid">
-            <div class="kv"><div class="kv-label">Report Version</div><div class="kv-value">${report.report_metadata.report_version}</div></div>
-            <div class="kv"><div class="kv-label">STATScore Version</div><div class="kv-value">${report.report_metadata.statscore_version}</div></div>
-            <div class="kv"><div class="kv-label">CEP Decision</div><div class="kv-value">${titleCase(report.report_metadata.cep_decision)}</div></div>
-          </div>
-        </section>
-
-        <section class="report-section">
-          <div class="section-heading">Athlete Identity</div>
-          <div class="identity-grid">
-            <div class="kv"><div class="kv-label">Name</div><div class="kv-value">${report.athlete_identity.full_name}</div></div>
-            <div class="kv"><div class="kv-label">Sport</div><div class="kv-value">${report.athlete_identity.sport}</div></div>
-            <div class="kv"><div class="kv-label">Primary Position</div><div class="kv-value">${report.athlete_identity.primary_position}</div></div>
-            <div class="kv"><div class="kv-label">Secondary Position</div><div class="kv-value">${report.athlete_identity.secondary_position || '—'}</div></div>
-            <div class="kv"><div class="kv-label">Age</div><div class="kv-value">${report.athlete_identity.age}</div></div>
-            <div class="kv"><div class="kv-label">Graduation Year</div><div class="kv-value">${report.athlete_identity.graduation_year || '—'}</div></div>
-          </div>
-        </section>
-
-        <section class="report-section">
-          <div class="section-heading">Profile Overview</div>
-          <div class="overview-grid">
-            <div class="kv"><div class="kv-label">Height</div><div class="kv-value">${report.profile_overview.height || '—'}</div></div>
-            <div class="kv"><div class="kv-label">Weight</div><div class="kv-value">${report.profile_overview.weight || '—'}</div></div>
-            <div class="kv"><div class="kv-label">Current Level</div><div class="kv-value">${report.profile_overview.current_level || '—'}</div></div>
-            <div class="kv"><div class="kv-label">School</div><div class="kv-value">${report.profile_overview.school_name || '—'}</div></div>
-            <div class="kv"><div class="kv-label">Team</div><div class="kv-value">${report.profile_overview.team_name || '—'}</div></div>
-            <div class="kv"><div class="kv-label">GPA / Academic</div><div class="kv-value">${report.profile_overview.gpa || '—'} / ${titleCase(report.profile_overview.academic_status || 'unknown')}</div></div>
-          </div>
-        </section>
-
-        <section class="report-section">
-          <div class="section-heading">Performance Summary</div>
-          <div class="meta-grid">
-            ${report.performance_summary.key_metrics.map(m => `
-              <div class="kv"><div class="kv-label">${titleCase(m.metric_name)}</div><div class="kv-value">${m.value} ${m.unit}</div></div>
-            `).join('')}
-          </div>
-          <div class="footer-note" style="margin-top:12px">${report.performance_summary.metric_notes}</div>
-        </section>
-
-        <section class="report-section">
-          <div class="section-heading">STATScore Evaluation</div>
-          <div class="score-hero" style="grid-template-columns:260px 1fr;gap:16px">
-            <div class="score-card">
-              <div class="score-kicker">Overall Score</div>
-              <div class="score-number" style="font-size:4.4rem">${report.evaluation.overall_score}</div>
-              <div class="score-tier">${report.evaluation.tier}</div>
-              <div class="score-band">Readiness: ${report.evaluation.readiness_band}</div>
-            </div>
-            <div class="score-card">
-              <div class="score-kicker">Domain Scores</div>
-              <div class="domain-list">
-                ${Object.entries(report.evaluation.domain_scores).map(([k,v]) => `
-                  <div class="domain-row"><div class="domain-name">${titleCase(k)}</div><div class="bar"><span style="width:${v}%"></span></div><div class="domain-score">${v}</div></div>
-                `).join('')}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="report-section">
-          <div class="section-heading">Strengths & Flags</div>
-          <div class="tag-block">
-            <div class="tag-card"><div class="tag-title">Strengths</div><div class="tag-list">${report.strengths_flags.strengths.map(s => `<div class="tag">${s}</div>`).join('')}</div></div>
-            <div class="tag-card"><div class="tag-title">Flags</div><div class="tag-list">${report.strengths_flags.flags.map(f => `<div class="tag warn">${f}</div>`).join('')}</div></div>
-          </div>
-        </section>
-
-        <section class="report-section">
-          <div class="section-heading">Development Priorities</div>
-          <div class="action-list">
-            ${report.development.improvement_priorities.map(item => `<div class="action-item">${item}</div>`).join('')}
-          </div>
-          <div class="footer-note" style="margin-top:12px">Recommended focus: ${report.development.recommended_focus}</div>
-        </section>
-
-        <section class="report-section">
-          <div class="section-heading">Readiness Statement</div>
-          <div class="kv"><div class="kv-label">Status</div><div class="kv-value">${titleCase(report.readiness.status)}</div></div>
-          <div class="footer-note" style="margin-top:12px">${report.readiness.summary}</div>
-          <div class="footer-note" style="margin-top:8px">${report.readiness.context_note}</div>
-        </section>
-      `;
     }
 
     function goToIntake(role){
@@ -1161,44 +1192,114 @@
       showScreen('intake');
     }
 
-    function runEvaluation(){
-      const payload = buildPayload();
-      if (!payload.athlete.full_name || !payload.athlete.primary_position) {
-        alert('Enter athlete full name and primary position before generating STATScore.');
-        return;
-      }
-      state.payload = payload;
-      showScreen('processing');
-      setTimeout(() => {
-        state.evaluation = computeEvaluation(payload);
-        renderScore(state.evaluation, payload);
-        showScreen('score');
-      }, 1400);
-    }
-
     function restartFlow(){
       state.role = null;
       state.payload = null;
-      state.evaluation = null;
-      state.report = null;
+      state.rpcResult = null;
       showScreen('transition');
       setTimeout(() => showScreen('identity'), 800);
+    }
+
+    function buildPayload(){
+      return {
+        first_name: (document.getElementById('full_name').value || '').trim().split(' ')[0] || 'Live',
+        last_name: (document.getElementById('full_name').value || '').trim().split(' ').slice(1).join(' ') || 'Test',
+        sport: document.getElementById('sport').value || 'Football',
+        position: (document.getElementById('primary_position').value || '').trim() || 'WR',
+        graduation_year: parseInt(document.getElementById('graduation_year').value || '2026', 10)
+      };
+    }
+
+    function renderLiveResult(data){
+      document.getElementById('overallScore').textContent = data.score ?? 75;
+      document.getElementById('tierText').textContent = 'Operational';
+      document.getElementById('readinessBand').textContent = 'Readiness Band: Active';
+      document.getElementById('summaryText').textContent = `Athlete intake created successfully. Athlete ID: ${data.athlete_id || 'generated'}`;
+      document.getElementById('statusAthleteName').textContent = `${state.payload.first_name} ${state.payload.last_name}`.trim();
+      document.getElementById('statusTier').textContent = 'Operational';
+      document.getElementById('statusReadiness').textContent = 'Active';
+      document.getElementById('scoreGuidance').textContent = `Live Supabase submission completed for the ${state.role} lane.`;
+
+      const pills = document.getElementById('scorePills');
+      pills.innerHTML = `
+        <div class="pill">${state.payload.sport}</div>
+        <div class="pill">${state.payload.position}</div>
+        <div class="pill">${state.role}</div>
+      `;
+
+      const domainList = document.getElementById('domainList');
+      domainList.innerHTML = `
+        <div class="domain-row">
+          <div class="domain-name">Core Pipeline</div>
+          <div class="bar"><span style="width:100%"></span></div>
+          <div class="domain-score">100</div>
+        </div>
+        <div class="domain-row">
+          <div class="domain-name">Intake Write</div>
+          <div class="bar"><span style="width:100%"></span></div>
+          <div class="domain-score">100</div>
+        </div>
+        <div class="domain-row">
+          <div class="domain-name">Score Return</div>
+          <div class="bar"><span style="width:75%"></span></div>
+          <div class="domain-score">${data.score ?? 75}</div>
+        </div>
+      `;
+
+      document.getElementById('strengthList').innerHTML = `
+        <div class="tag">Live database write</div>
+        <div class="tag">Athlete created</div>
+        <div class="tag">Score returned</div>
+      `;
+
+      document.getElementById('flagList').innerHTML = `
+        <div class="tag warn">CEP-001 UI pending</div>
+        <div class="tag warn">Report rendering pending</div>
+      `;
+    }
+
+    async function submitGenerate(){
+      const fullName = (document.getElementById('full_name').value || '').trim();
+      const primaryPosition = (document.getElementById('primary_position').value || '').trim();
+
+      if (!fullName || !primaryPosition) {
+        alert('Enter athlete full name and primary position before generating STATScore.');
+        return;
+      }
+
+      state.payload = buildPayload();
+      showScreen('processing');
+
+      try {
+        const { data, error } = await window.supabaseClient.rpc('statscore_create_intake', {
+          payload: state.payload
+        });
+
+        if (error) {
+          console.error(error);
+          alert('Error: ' + error.message);
+          showScreen('intake');
+          return;
+        }
+
+        state.rpcResult = data;
+        renderLiveResult(data);
+        showScreen('score');
+      } catch (err) {
+        console.error(err);
+        alert('Error: ' + err.message);
+        showScreen('intake');
+      }
     }
 
     document.querySelectorAll('[data-role]').forEach(btn => {
       btn.addEventListener('click', () => goToIntake(btn.dataset.role));
     });
 
-    document.getElementById('generateBtn').addEventListener('click', runEvaluation);
+    document.getElementById('generateBtn').addEventListener('click', submitGenerate);
     document.getElementById('backToIdentityBtn').addEventListener('click', () => showScreen('identity'));
-    document.getElementById('toDecisionBtn').addEventListener('click', () => {
-      renderDecision(state.evaluation);
-      showScreen('decision');
-    });
-    document.getElementById('decisionContinueBtn').addEventListener('click', () => {
-      renderFinal(state.evaluation, state.payload);
-      showScreen('report');
-    });
+    document.getElementById('toDecisionBtn').addEventListener('click', () => showScreen('decision'));
+    document.getElementById('decisionContinueBtn').addEventListener('click', () => showScreen('report'));
     document.getElementById('backToScoreBtn').addEventListener('click', () => showScreen('score'));
 
     ['restartBtn1','restartBtn2','restartBtn3'].forEach(id => {
@@ -1208,38 +1309,13 @@
     setTimeout(() => showScreen('identity'), 1200);
   </script>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<script>
-const supabase = window.supabase.createClient(
-  "https://oyjmpbuxvfxusmbouldi.supabase.co",
-  "PASTE_YOUR_ANON_KEY_HERE"
-);
-
-window.submitAthleteTest = async function () {
-  alert("function started");
-
-  const payload = {
-    first_name: "Live",
-    last_name: "Test",
-    sport: "Football",
-    position: "WR",
-    graduation_year: 2026
-  };
-
-  const { data, error } = await supabase.rpc("statscore_create_intake", {
-    payload: payload
-  });
-
-  if (error) {
-    console.error(error);
-    alert("Error: " + error.message);
-    return;
-  }
-
-  alert("Score: " + data.score);
-};
-</script>
-
+  <script>
+    window.supabaseClient = window.supabase.createClient(
+      "https://oyjmpbuxvfxusmbouldi.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk"
+    );
+  </script>
 </body>
 </html> 
