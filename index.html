@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>  
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -111,51 +111,61 @@ text-shadow:
 }
 
 .enter{
-padding:13px 30px;
+position:relative;
+
+min-width:190px;
+
+padding:15px 34px;
 
 font-size:0.74rem;
 font-weight:800;
 letter-spacing:0.24em;
 text-transform:uppercase;
 
+background:transparent;
+
+color:#ffffff;
+
+border:1px solid #ff3a46;
+
+border-radius:2px;
+
+cursor:pointer;
+
+transition:
+background .18s ease,
+color .18s ease,
+transform .16s ease,
+border-color .16s ease;
+
+box-shadow:
+inset 0 0 0 1px rgba(255,255,255,0.03);
+}
+
+.enter:hover{
 background:
 linear-gradient(
 180deg,
 #ff4a54 0%,
-#dc1f2b 100%
+#d91d28 100%
 );
 
-border:
-1px solid rgba(255,255,255,0.12);
-
-border-radius:2px;
+border-color:#ff5963;
 
 color:#ffffff;
 
-cursor:pointer;
-
-box-shadow:
-0 1px 0 rgba(255,255,255,0.08) inset,
-0 0 0 1px rgba(0,0,0,0.28);
-
-transition:
-background .16s ease,
-transform .16s ease,
-border-color .16s ease;
+transform:translateY(-1px);
 }
 
-.enter:hover{
-transform:translateY(-1px);
-
+.enter:active{
 background:
 linear-gradient(
 180deg,
-#ff5660 0%,
-#e02230 100%
+#ff4a54 0%,
+#c81823 100%
 );
 
-border-color:
-rgba(255,255,255,0.18);
+transform:translateY(0);
 } 
 
 .sub{
