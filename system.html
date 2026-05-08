@@ -1,832 +1,1255 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>STATScore™ — National Athlete Infrastructure</title>
-  <style>
-    :root {
-      --white: #f7f7f2;
-      --white-2: #ece8df;
-      --ink: #090b0f;
-      --body: #0d1118;
-      --panel: #111823;
-      --panel-2: #151f2d;
-      --line: rgba(255,255,255,0.16);
-      --line-strong: rgba(255,255,255,0.32);
-      --muted: #9ca7b6;
-      --text: #e9edf3;
-      --red: #b70f1b;
-      --red-2: #e11b2b;
-      --gold: #c8a24a;
-      --green: #28b36b;
-      --blue: #4f7cff;
-      --shadow: rgba(0,0,0,0.38);
-      --max: 1220px;
-    }* { box-sizing: border-box; }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-html { scroll-behavior: smooth; }
+<title>STATScore™ — National Athlete Infrastructure</title>
 
-body {
-  margin: 0;
-  background: var(--body);
-  color: var(--text);
-  font-family: Arial, Helvetica, sans-serif;
-  letter-spacing: 0.01em;
+<style>
+
+:root{
+  --white:#f5f5f1;
+  --body:#0b1018;
+  --panel:#101826;
+  --panel2:#131d2d;
+  --line:rgba(255,255,255,0.12);
+  --line2:rgba(255,255,255,0.24);
+  --text:#eef2f7;
+  --muted:#9ba7b7;
+  --red:#d51d28;
+  --red2:#9f0f17;
+  --gold:#d1ab54;
+  --shadow:rgba(0,0,0,0.38);
+  --max:1240px;
 }
 
-a { color: inherit; text-decoration: none; }
+*{
+  box-sizing:border-box;
+}
 
-.page {
-  min-height: 100vh;
+body{
+  margin:0;
+  background:var(--body);
+  color:var(--text);
+  font-family:Arial, Helvetica, sans-serif;
+  letter-spacing:.01em;
+}
+
+a{
+  text-decoration:none;
+  color:inherit;
+}
+
+.page{
+  min-height:100vh;
   background:
-    linear-gradient(180deg, rgba(255,255,255,0.02), transparent 18%),
-    radial-gradient(circle at 12% 0%, rgba(183,15,27,0.16), transparent 35%),
-    radial-gradient(circle at 88% 20%, rgba(79,124,255,0.09), transparent 32%),
-    var(--body);
+  radial-gradient(circle at 10% 0%, rgba(213,29,40,.12), transparent 34%),
+  radial-gradient(circle at 90% 20%, rgba(80,120,255,.08), transparent 30%),
+  var(--body);
 }
 
-.authority-field {
-  background: var(--white);
-  color: var(--ink);
-  border-bottom: 6px solid var(--red);
-  position: relative;
-  overflow: hidden;
+/* =========================
+TOP WHITE AUTHORITY FIELD
+========================= */
+
+.authority-field{
+  background:var(--white);
+  color:#0a0d11;
+  border-top:4px solid var(--red);
+  border-bottom:5px solid var(--red);
 }
 
-.authority-field::before {
-  content: "";
-  position: absolute;
-  inset: 0;
+.topbar{
+  width:min(var(--max), calc(100% - 40px));
+  margin:0 auto;
+  padding:22px 0 18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:20px;
+}
+
+.brand-lock{
+  display:flex;
+  border:2px solid #111;
+  box-shadow:8px 8px 0 rgba(0,0,0,.08);
+}
+
+.brand-left{
+  background:#111722;
+  color:#fff;
+  padding:14px 18px;
+  font-weight:900;
+  letter-spacing:.12em;
+}
+
+.brand-right{
+  background:#fff;
+  color:#111;
+  padding:14px 18px;
+  font-weight:900;
+  text-transform:uppercase;
+}
+
+.system-status{
+  border:1px solid rgba(0,0,0,.28);
+  padding:12px 16px;
+  text-transform:uppercase;
+  font-size:.74rem;
+  letter-spacing:.16em;
+  font-weight:900;
+}
+
+.hero{
+  width:min(var(--max), calc(100% - 40px));
+  margin:0 auto;
+  padding:24px 0 54px;
+  display:grid;
+  grid-template-columns:1.2fr .8fr;
+  gap:36px;
+  align-items:start;
+}
+
+/* =========================
+LOGO CARD
+========================= */
+
+.logo-showcase{
+  margin-bottom:28px;
+}
+
+.logo-card{
+  position:relative;
+  background:linear-gradient(180deg,#121925,#06080d);
+  border:2px solid #111;
+  padding:22px;
+  box-shadow:12px 12px 0 rgba(0,0,0,.12);
+  overflow:hidden;
+}
+
+.logo-card::before{
+  content:"";
+  position:absolute;
+  inset:8px;
+  border:1px solid rgba(255,255,255,.15);
+}
+
+.logo-card::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  height:5px;
+  background:var(--red);
+}
+
+.statscore-logo{
+  width:100%;
+  display:block;
+}
+
+/* =========================
+HERO TEXT
+========================= */
+
+.hero h1{
+  margin:0;
+  font-size:clamp(3rem, 6vw, 6rem);
+  line-height:.9;
+  letter-spacing:-.08em;
+  text-transform:uppercase;
+  max-width:720px;
+}
+
+.hero p{
+  margin:20px 0 0;
+  max-width:760px;
+  font-size:1.15rem;
+  line-height:1.55;
+  color:#31353c;
+  font-weight:700;
+}
+
+/* =========================
+OPERATIONAL PANEL
+========================= */
+
+.hero-panel{
+  background:#fff;
+  border:2px solid #111;
+  padding:20px;
+  box-shadow:10px 10px 0 rgba(0,0,0,.12);
+}
+
+.eyebrow{
+  color:var(--red2);
+  font-weight:900;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  font-size:.72rem;
+  margin-bottom:16px;
+}
+
+.metrics{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+
+.metric{
+  border:1px solid rgba(0,0,0,.15);
+  padding:14px;
+  min-height:90px;
+}
+
+.metric b{
+  display:block;
+  font-size:2rem;
+  margin-bottom:8px;
+}
+
+.metric span{
+  text-transform:uppercase;
+  font-size:.7rem;
+  font-weight:900;
+  letter-spacing:.12em;
+  color:#47515f;
+  line-height:1.4;
+}
+
+/* =========================
+MAIN BODY
+========================= */
+
+.main{
+  width:min(var(--max), calc(100% - 40px));
+  margin:0 auto;
+  padding:42px 0 70px;
+}
+
+.section-head{
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  align-items:flex-end;
+  margin-bottom:20px;
+  border-bottom:1px solid var(--line2);
+  padding-bottom:18px;
+}
+
+.section-head h2{
+  margin:0;
+  font-size:clamp(2rem, 4vw, 3.4rem);
+  letter-spacing:-.05em;
+  text-transform:uppercase;
+}
+
+.section-head p{
+  margin:0;
+  max-width:620px;
+  color:var(--muted);
+  line-height:1.5;
+  font-weight:700;
+  text-align:right;
+}
+
+/* =========================
+GRID LAYOUT
+========================= */
+
+.grid{
+  display:grid;
+  grid-template-columns:1.1fr .9fr;
+  gap:18px;
+}
+
+.panel{
+  border:1px solid var(--line);
   background:
-    linear-gradient(135deg, rgba(0,0,0,0.06) 0 1px, transparent 1px 18px),
-    linear-gradient(90deg, transparent, rgba(183,15,27,0.08), transparent);
-  pointer-events: none;
+  linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015));
+  box-shadow:0 20px 40px var(--shadow);
 }
 
-.topbar {
-  width: min(var(--max), calc(100% - 36px));
-  margin: 0 auto;
-  padding: 18px 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  position: relative;
-  z-index: 1;
+.panel-head{
+  padding:16px 18px;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
 }
 
-.brand-lockup {
-  display: flex;
-  align-items: stretch;
-  gap: 0;
-  border: 2px solid #111;
-  box-shadow: 8px 8px 0 rgba(0,0,0,0.1);
+.panel-head strong{
+  text-transform:uppercase;
+  letter-spacing:.14em;
+  font-size:.76rem;
 }
 
-.brand-mark {
-  background: var(--ink);
-  color: var(--white);
-  padding: 12px 14px;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  border-right: 2px solid #111;
+.badge{
+  padding:8px 10px;
+  border:1px solid rgba(255,255,255,.2);
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  font-size:.66rem;
+  font-weight:900;
 }
 
-.brand-name {
-  padding: 12px 16px;
-  font-weight: 900;
-  letter-spacing: -0.03em;
-  font-size: 1.05rem;
-  text-transform: uppercase;
-  background: var(--white);
+.live{
+  border-color:rgba(40,179,107,.5);
+  color:#baf7d3;
 }
 
-.system-tag {
-  border: 1px solid rgba(0,0,0,0.35);
-  padding: 10px 12px;
-  text-transform: uppercase;
-  font-size: 0.72rem;
-  letter-spacing: 0.16em;
-  font-weight: 800;
-  background: rgba(255,255,255,0.45);
+.locked{
+  border-color:rgba(209,171,84,.45);
+  color:#ffe6a6;
 }
 
-.hero {
-  width: min(var(--max), calc(100% - 36px));
-  margin: 0 auto;
-  padding: 42px 0 46px;
-  display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
-  gap: 28px;
-  align-items: end;
-  position: relative;
-  z-index: 1;
+/* =========================
+PROFILE COMMAND
+========================= */
+
+.profile-wrap{
+  padding:18px;
 }
 
-.hero h1 {
-  margin: 0;
-  max-width: 760px;
-  font-size: clamp(2.5rem, 6vw, 5.85rem);
-  line-height: 0.9;
-  letter-spacing: -0.08em;
-  text-transform: uppercase;
+.profile-box{
+  border:1px solid var(--line2);
+  background:#0b1119;
+  padding:18px;
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:20px;
+  align-items:center;
 }
 
-.hero p {
-  margin: 18px 0 0;
-  max-width: 680px;
-  color: #2d3239;
-  font-size: clamp(1rem, 1.5vw, 1.22rem);
-  line-height: 1.55;
-  font-weight: 700;
+.profile-box h3{
+  margin:0;
+  font-size:2rem;
+  text-transform:uppercase;
+  letter-spacing:-.04em;
 }
 
-.hero-panel {
-  border: 2px solid #111;
-  background: #fff;
-  box-shadow: 10px 10px 0 rgba(0,0,0,0.14);
-  padding: 18px;
+.profile-box p{
+  margin:12px 0 0;
+  color:var(--muted);
+  line-height:1.5;
+  font-weight:700;
 }
 
-.hero-panel .eyebrow {
-  color: var(--red);
-  font-weight: 900;
-  letter-spacing: 0.16em;
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  margin-bottom: 16px;
+.btn{
+  min-height:52px;
+  padding:0 22px;
+  border:1px solid rgba(255,255,255,.18);
+  background:var(--red);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  box-shadow:6px 6px 0 rgba(0,0,0,.3);
 }
 
-.metrics-strip {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+.btn:hover{
+  background:#f0212e;
 }
 
-.metric {
-  border: 1px solid rgba(0,0,0,0.2);
-  padding: 12px;
-  min-height: 82px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+/* =========================
+ROLE GRID
+========================= */
+
+.role-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+  margin-top:14px;
 }
 
-.metric b {
-  font-size: 1.45rem;
-  letter-spacing: -0.04em;
+.role{
+  position:relative;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.02);
+  min-height:158px;
+  padding:18px;
 }
 
-.metric span {
-  color: #414852;
-  text-transform: uppercase;
-  font-size: 0.66rem;
-  letter-spacing: 0.12em;
-  font-weight: 800;
+.role::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  width:4px;
+  height:100%;
+  background:var(--red);
 }
 
-.control-body {
-  width: min(var(--max), calc(100% - 36px));
-  margin: 0 auto;
-  padding: 34px 0 56px;
+.role h4{
+  margin:0 0 12px;
+  text-transform:uppercase;
+  font-size:1.1rem;
 }
 
-.section-header {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 16px;
-  border-bottom: 1px solid var(--line-strong);
-  padding-bottom: 16px;
-  margin-bottom: 18px;
+.role p{
+  margin:0;
+  color:var(--muted);
+  line-height:1.45;
+  font-weight:700;
 }
 
-.section-header h2 {
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: -0.04em;
-  font-size: clamp(1.8rem, 3vw, 3rem);
+.role-link{
+  position:absolute;
+  right:18px;
+  bottom:18px;
+  font-size:.72rem;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  border-bottom:2px solid var(--red);
+  padding-bottom:4px;
 }
 
-.section-header p {
-  margin: 0;
-  max-width: 520px;
-  color: var(--muted);
-  line-height: 1.45;
-  font-weight: 700;
-  text-align: right;
-}
+/* =========================
+MULTIBOX
+========================= */
 
-.command-grid {
-  display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  gap: 18px;
-  align-items: start;
-}
-
-.panel {
-  background: linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.02));
-  border: 1px solid var(--line);
-  box-shadow: 0 20px 40px var(--shadow);
-}
-
-.panel-title {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  padding: 16px 18px;
-  border-bottom: 1px solid var(--line);
-  background: rgba(255,255,255,0.03);
-}
-
-.panel-title strong {
-  text-transform: uppercase;
-  font-size: 0.82rem;
-  letter-spacing: 0.16em;
-}
-
-.status-pill {
-  border: 1px solid var(--line-strong);
-  padding: 7px 10px;
-  font-size: 0.68rem;
-  text-transform: uppercase;
-  letter-spacing: 0.13em;
-  font-weight: 900;
-  color: var(--white-2);
-}
-
-.status-live { border-color: rgba(40,179,107,0.55); color: #bdf7d7; }
-.status-locked { border-color: rgba(200,162,74,0.55); color: #ffe5a3; }
-.status-restricted { border-color: rgba(225,27,43,0.55); color: #ffb8bf; }
-
-.build-profile {
-  padding: 20px;
-  display: grid;
-  gap: 16px;
-}
-
-.profile-action {
-  border: 1px solid var(--line-strong);
-  background: #0b0f15;
-  padding: 18px;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 20px;
-  align-items: center;
-}
-
-.profile-action h3 {
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: -0.03em;
-  font-size: clamp(1.4rem, 2vw, 2.2rem);
-}
-
-.profile-action p {
-  margin: 8px 0 0;
-  color: var(--muted);
-  line-height: 1.45;
-  font-weight: 700;
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 46px;
-  padding: 0 18px;
-  background: var(--red);
-  border: 1px solid rgba(255,255,255,0.2);
-  color: #fff;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  box-shadow: 6px 6px 0 rgba(0,0,0,0.35);
-  white-space: nowrap;
-  transition: transform 160ms ease, background 160ms ease;
-}
-
-.btn:hover { transform: translate(-2px, -2px); background: var(--red-2); }
-
-.role-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-
-.role-card {
-  position: relative;
-  min-height: 152px;
-  padding: 16px;
-  border: 1px solid var(--line);
-  background: linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.012));
-  overflow: hidden;
-}
-
-.role-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 5px;
-  height: 100%;
-  background: var(--red);
-  opacity: 0.9;
-}
-
-.role-card h4 {
-  margin: 0 0 10px 0;
-  padding-left: 4px;
-  text-transform: uppercase;
-  font-size: 1.02rem;
-  letter-spacing: 0.02em;
-}
-
-.role-card p {
-  margin: 0;
-  color: var(--muted);
-  line-height: 1.45;
-  font-size: 0.92rem;
-  font-weight: 700;
-}
-
-.role-card .card-link {
-  position: absolute;
-  right: 14px;
-  bottom: 14px;
-  color: #fff;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 0.67rem;
-  border-bottom: 1px solid var(--red-2);
-  padding-bottom: 4px;
-}
-
-.multibox-panel {
-  border: 1px solid rgba(200,162,74,0.45);
+.multibox{
+  border:1px solid rgba(209,171,84,.35);
   background:
-    linear-gradient(135deg, rgba(200,162,74,0.08), transparent 48%),
-    rgba(10,13,19,0.88);
+  linear-gradient(135deg, rgba(209,171,84,.08), transparent 40%),
+  rgba(0,0,0,.18);
 }
 
-.multibox-body { padding: 20px; }
-
-.multibox-body h3 {
-  margin: 0;
-  text-transform: uppercase;
-  font-size: clamp(1.8rem, 3vw, 3.2rem);
-  line-height: 0.95;
-  letter-spacing: -0.07em;
+.multibox-body{
+  padding:20px;
 }
 
-.multibox-body .definition {
-  margin: 14px 0 18px;
-  color: var(--white-2);
-  font-size: 1.02rem;
-  line-height: 1.5;
-  font-weight: 800;
+.multibox-body h3{
+  margin:0;
+  font-size:3rem;
+  line-height:.9;
+  letter-spacing:-.07em;
+  text-transform:uppercase;
 }
 
-.orchestration-stack {
-  display: grid;
-  gap: 10px;
+.multibox-body p{
+  margin:16px 0 22px;
+  font-size:1rem;
+  line-height:1.5;
+  font-weight:800;
 }
 
-.stack-item {
-  display: grid;
-  grid-template-columns: 34px 1fr;
-  gap: 12px;
-  align-items: start;
-  border: 1px solid var(--line);
-  padding: 12px;
-  background: rgba(255,255,255,0.025);
+.stack{
+  display:grid;
+  gap:10px;
 }
 
-.stack-index {
-  width: 34px;
-  height: 34px;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(200,162,74,0.5);
-  color: #ffe5a3;
-  font-weight: 900;
+.stack-item{
+  display:grid;
+  grid-template-columns:36px 1fr;
+  gap:12px;
+  border:1px solid var(--line);
+  padding:12px;
+  background:rgba(255,255,255,.02);
 }
 
-.stack-item b {
-  display: block;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-size: 0.82rem;
-  margin-bottom: 4px;
+.stack-num{
+  width:36px;
+  height:36px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(209,171,84,.5);
+  color:#ffe6a6;
+  font-weight:900;
 }
 
-.stack-item span {
-  color: var(--muted);
-  line-height: 1.35;
-  font-size: 0.9rem;
-  font-weight: 700;
+.stack-item b{
+  display:block;
+  margin-bottom:4px;
+  text-transform:uppercase;
+  font-size:.8rem;
+  letter-spacing:.08em;
 }
 
-.matrix-section {
-  margin-top: 18px;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
+.stack-item span{
+  color:var(--muted);
+  font-weight:700;
+  line-height:1.45;
 }
 
-.matrix-card {
-  border: 1px solid var(--line);
-  background: rgba(255,255,255,0.025);
-  padding: 18px;
-  min-height: 235px;
+/* =========================
+READINESS
+========================= */
+
+.readiness{
+  margin-top:18px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:18px;
 }
 
-.matrix-card h3 {
-  margin: 0 0 12px;
-  text-transform: uppercase;
-  letter-spacing: -0.03em;
-  font-size: 1.35rem;
+.ready{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.02);
+  padding:18px;
 }
 
-.matrix-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  gap: 8px;
+.ready h3{
+  margin:0 0 16px;
+  text-transform:uppercase;
+  font-size:1.5rem;
 }
 
-.matrix-list li {
-  border-left: 3px solid var(--red);
-  padding: 8px 0 8px 10px;
-  color: var(--muted);
-  font-size: 0.92rem;
-  line-height: 1.35;
-  font-weight: 700;
-  background: rgba(255,255,255,0.018);
+.ready ul{
+  list-style:none;
+  padding:0;
+  margin:0;
+  display:grid;
+  gap:10px;
 }
 
-.sports-row {
-  margin-top: 18px;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+.ready li{
+  padding:8px 0 8px 12px;
+  border-left:3px solid var(--red);
+  background:rgba(255,255,255,.015);
+  color:var(--muted);
+  font-weight:700;
 }
 
-.sport-card {
-  border: 1px solid var(--line);
-  background: #0b0f15;
-  min-height: 118px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  position: relative;
-  overflow: hidden;
+/* =========================
+SPORTS
+========================= */
+
+.sports{
+  margin-top:18px;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
 }
 
-.sport-card::after {
-  content: "";
-  position: absolute;
-  right: -18px;
-  top: -18px;
-  width: 70px;
-  height: 70px;
-  border: 1px solid rgba(255,255,255,0.12);
-  transform: rotate(45deg);
+.sport{
+  position:relative;
+  border:1px solid var(--line);
+  min-height:120px;
+  padding:18px;
+  background:#0b1119;
+  overflow:hidden;
 }
 
-.sport-card b {
-  text-transform: uppercase;
-  font-size: 1.12rem;
-  letter-spacing: -0.02em;
+.sport::after{
+  content:"";
+  position:absolute;
+  top:-18px;
+  right:-18px;
+  width:60px;
+  height:60px;
+  border:1px solid rgba(255,255,255,.12);
+  transform:rotate(45deg);
 }
 
-.sport-card span {
-  color: var(--muted);
-  text-transform: uppercase;
-  font-size: 0.68rem;
-  letter-spacing: 0.13em;
-  font-weight: 900;
+.sport b{
+  display:block;
+  font-size:1.2rem;
+  text-transform:uppercase;
+  margin-bottom:40px;
 }
 
-.trust-ladder {
-  margin-top: 18px;
-  border: 1px solid var(--line);
-  background: linear-gradient(90deg, rgba(183,15,27,0.08), rgba(255,255,255,0.02));
-  padding: 18px;
+.sport span{
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.14em;
+  font-size:.68rem;
+  font-weight:900;
 }
 
-.ladder-title {
-  display: flex;
-  justify-content: space-between;
-  gap: 14px;
-  align-items: center;
-  margin-bottom: 14px;
+/* =========================
+TRUST LADDER
+========================= */
+
+.trust{
+  margin-top:18px;
+  border:1px solid var(--line);
+  padding:18px;
+  background:
+  linear-gradient(90deg, rgba(213,29,40,.08), rgba(255,255,255,.015));
 }
 
-.ladder-title h3 {
-  margin: 0;
-  text-transform: uppercase;
-  font-size: 1.35rem;
-  letter-spacing: -0.03em;
+.trust-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
+  margin-bottom:16px;
 }
 
-.ladder {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
+.trust-head h3{
+  margin:0;
+  text-transform:uppercase;
+  font-size:1.6rem;
 }
 
-.ladder-step {
-  border: 1px solid var(--line);
-  padding: 12px;
-  min-height: 82px;
-  background: rgba(255,255,255,0.025);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+.ladder{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:10px;
 }
 
-.ladder-step small {
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  font-weight: 900;
-  font-size: 0.62rem;
+.step{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.02);
+  min-height:90px;
+  padding:14px;
 }
 
-.ladder-step b {
-  font-size: 0.9rem;
-  text-transform: uppercase;
-  line-height: 1.2;
+.step small{
+  display:block;
+  margin-bottom:14px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  font-size:.65rem;
+  font-weight:900;
 }
 
-footer {
-  width: min(var(--max), calc(100% - 36px));
-  margin: 0 auto;
-  padding: 28px 0 42px;
-  border-top: 1px solid var(--line);
-  color: var(--muted);
-  display: flex;
-  justify-content: space-between;
-  gap: 18px;
-  font-size: 0.78rem;
-  line-height: 1.5;
-  font-weight: 700;
+.step b{
+  text-transform:uppercase;
+  font-size:1rem;
 }
 
-@media (max-width: 980px) {
-  .hero,
-  .command-grid,
-  .matrix-section {
-    grid-template-columns: 1fr;
-  }
+/* =========================
+FOOTER
+========================= */
 
-  .section-header {
-    align-items: start;
-    flex-direction: column;
-  }
-
-  .section-header p { text-align: left; }
-
-  .sports-row,
-  .ladder {
-    grid-template-columns: repeat(2, 1fr);
-  }
+footer{
+  width:min(var(--max), calc(100% - 40px));
+  margin:0 auto;
+  padding:26px 0 50px;
+  border-top:1px solid var(--line);
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  color:var(--muted);
+  font-size:.82rem;
+  line-height:1.5;
+  font-weight:700;
 }
 
-@media (max-width: 620px) {
-  .topbar {
-    flex-direction: column;
-    align-items: stretch;
-  }
+/* =========================
+RESPONSIVE
+========================= */
 
-  .brand-lockup { width: 100%; }
-  .brand-name { flex: 1; }
-  .hero { padding-top: 28px; }
-  .metrics-strip,
-  .role-grid,
-  .sports-row,
-  .ladder {
-    grid-template-columns: 1fr;
-  }
+@media(max-width:980px){
 
-  .profile-action {
-    grid-template-columns: 1fr;
-  }
-
-  footer { flex-direction: column; }
+.hero,
+.grid,
+.readiness{
+  grid-template-columns:1fr;
 }
 
-  </style>
+.section-head{
+  flex-direction:column;
+  align-items:flex-start;
+}
+
+.section-head p{
+  text-align:left;
+}
+
+.sports,
+.ladder{
+  grid-template-columns:repeat(2,1fr);
+}
+
+}
+
+@media(max-width:640px){
+
+.topbar{
+  flex-direction:column;
+  align-items:stretch;
+}
+
+.metrics,
+.role-grid,
+.sports,
+.ladder{
+  grid-template-columns:1fr;
+}
+
+.profile-box{
+  grid-template-columns:1fr;
+}
+
+footer{
+  flex-direction:column;
+}
+
+}
+
+</style>
 </head>
+
 <body>
-  <main class="page">
-    <section class="authority-field">
-      <div class="topbar">
-        <a class="brand-lockup" href="index.html" aria-label="STATScore home">
-          <span class="brand-mark">PHNX</span>
-          <span class="brand-name">STATScore™</span>
-        </a>
-        <div class="system-tag">National Athlete Infrastructure · Controlled Access</div>
-      </div><div class="hero">
-    <div>
-      <h1>Build the Athlete Profile.</h1>
-      <p>
-        Governed athlete lifecycle infrastructure for performance intelligence, readiness tracking,
-        verified evaluation, role-aware communication, and national visibility routing.
-      </p>
-    </div>
-    <aside class="hero-panel" aria-label="System authority metrics">
-      <div class="eyebrow">Operational Scope</div>
-      <div class="metrics-strip">
-        <div class="metric"><b>04</b><span>Initial National Sports</span></div>
-        <div class="metric"><b>08</b><span>Operational Access Surfaces</span></div>
-        <div class="metric"><b>05</b><span>Verification Levels</span></div>
-        <div class="metric"><b>01</b><span>Truth Engine</span></div>
-      </div>
-    </aside>
-  </div>
+
+<main class="page">
+
+<!-- ======================================
+TOP WHITE FIELD
+====================================== -->
+
+<section class="authority-field">
+
+<div class="topbar">
+
+<div class="brand-lock">
+<div class="brand-left">PHNX</div>
+<div class="brand-right">STATScore™</div>
+</div>
+
+<div class="system-status">
+National Athlete Infrastructure · Controlled Access
+</div>
+
+</div>
+
+<!-- ======================================
+HERO
+====================================== -->
+
+<div class="hero">
+
+<div>
+
+<div class="logo-showcase">
+
+<div class="logo-card">
+
+<svg class="statscore-logo" viewBox="0 0 860 220">
+
+<defs>
+
+<linearGradient id="redGrad" x1="0" x2="1" y1="0" y2="1">
+<stop offset="0%" stop-color="#e52a2d"/>
+<stop offset="100%" stop-color="#a80c15"/>
+</linearGradient>
+
+<linearGradient id="darkGrad" x1="0" x2="1" y1="0" y2="1">
+<stop offset="0%" stop-color="#151922"/>
+<stop offset="100%" stop-color="#050608"/>
+</linearGradient>
+
+</defs>
+
+<g transform="translate(22 38)">
+
+<path d="M0 16 L42 0 H150 V42 H72 L108 72 L150 42 V96 L108 126 H0 L0 84 H78 L42 54 L0 84 Z"
+fill="url(#darkGrad)"/>
+
+<path d="M0 84 L42 54 L78 84 H150 V126 L108 156 H0 Z"
+fill="url(#redGrad)"
+opacity=".96"
+transform="translate(0 -30)"/>
+
+<path d="M42 54 H132 L90 84 H78 Z"
+fill="#f7f7f2"
+opacity=".95"/>
+
+</g>
+
+<text x="210"
+y="108"
+font-family="Arial Black, Arial, sans-serif"
+font-size="72"
+font-weight="900"
+letter-spacing="-4"
+fill="#f7f7f2">
+STAT
+</text>
+
+<text x="402"
+y="108"
+font-family="Arial Black, Arial, sans-serif"
+font-size="72"
+font-weight="900"
+letter-spacing="-4"
+fill="#e11b2b">
+SCORE
+</text>
+
+<text x="675"
+y="78"
+font-family="Arial, sans-serif"
+font-size="24"
+font-weight="900"
+fill="#f7f7f2">
+™
+</text>
+
+<text x="214"
+y="165"
+font-family="Arial, sans-serif"
+font-size="34"
+font-weight="800"
+letter-spacing="1"
+fill="#aeb4bd">
+Athlete Lifecycle System
+</text>
+
+</svg>
+
+</div>
+
+</div>
+
+<h1>
+Build the Athlete Profile.
+</h1>
+
+<p>
+Start the governed athlete registry:
+verified performance identity,
+readiness intelligence,
+NCAA-aware support,
+and controlled visibility for the athlete lifecycle.
+</p>
+
+</div>
+
+<!-- RIGHT PANEL -->
+
+<aside class="hero-panel">
+
+<div class="eyebrow">
+Operational Scope
+</div>
+
+<div class="metrics">
+
+<div class="metric">
+<b>04</b>
+<span>Initial National Sports</span>
+</div>
+
+<div class="metric">
+<b>08</b>
+<span>Operational Access Surfaces</span>
+</div>
+
+<div class="metric">
+<b>05</b>
+<span>Verification Levels</span>
+</div>
+
+<div class="metric">
+<b>01</b>
+<span>Truth Engine</span>
+</div>
+
+</div>
+
+</aside>
+
+</div>
+
 </section>
 
-<section class="control-body">
-  <div class="section-header">
-    <h2>National Access Grid</h2>
-    <p>
-      Each role enters a controlled surface. Multi-Box™ governs communication, permissions,
-      workflow routing, NCAA timing awareness, and visibility boundaries above every role.
-    </p>
-  </div>
+<!-- ======================================
+MAIN BODY
+====================================== -->
 
-  <div class="command-grid">
-    <section class="panel">
-      <div class="panel-title">
-        <strong>Profile Build Command</strong>
-        <span class="status-pill status-live">Active Build Surface</span>
-      </div>
-      <div class="build-profile">
-        <div class="profile-action">
-          <div>
-            <h3>Athlete Registry Intake</h3>
-            <p>
-              Start the governed athlete profile: sport, position/event, measurables, verified metrics,
-              readiness status, development path, and controlled visibility state.
-            </p>
-          </div>
-          <a class="btn" href="player-profile.html">Open Profile</a>
-        </div>
+<section class="main">
 
-        <div class="role-grid" aria-label="STATScore role access grid">
-          <article class="role-card">
-            <h4>Athlete</h4>
-            <p>Performance profile, verified metrics, readiness status, development pathway, visibility controls.</p>
-            <a class="card-link" href="player-profile.html">Enter</a>
-          </article>
+<div class="section-head">
 
-          <article class="role-card">
-            <h4>Parent</h4>
-            <p>Guardian oversight, consent states, communication approvals, academic visibility permissions.</p>
-            <a class="card-link" href="parent-dashboard.html">Enter</a>
-          </article>
+<h2>
+Choose Your Access Surface
+</h2>
 
-          <article class="role-card">
-            <h4>Coach</h4>
-            <p>Roster support, coach verification, development observations, program-level athlete context.</p>
-            <a class="card-link" href="coach-dashboard.html">Enter</a>
-          </article>
+<p>
+Select the correct role to enter the system.
+Multi-Box™ governs communication,
+permissions, workflow routing,
+NCAA timing awareness,
+and visibility boundaries above every role.
+</p>
 
-          <article class="role-card">
-            <h4>Counselor</h4>
-            <p>NCAA eligibility support, core-course review, academic readiness routing, transcript protection.</p>
-            <a class="card-link" href="eligibility.html">Enter</a>
-          </article>
+</div>
 
-          <article class="role-card">
-            <h4>Recruiter</h4>
-            <p>Controlled athlete discovery, communication window awareness, request routing, audit receipts.</p>
-            <a class="card-link" href="recruiter-access.html">Enter</a>
-          </article>
+<!-- GRID -->
 
-          <article class="role-card">
-            <h4>Program</h4>
-            <p>Organization profile, team readiness, event alignment, roster intelligence, verified participation.</p>
-            <a class="card-link" href="program-management.html">Enter</a>
-          </article>
+<div class="grid">
 
-          <article class="role-card">
-            <h4>Evaluator</h4>
-            <p>Evaluation authority, metric validation, trust weight, verified camp and combine submission layer.</p>
-            <a class="card-link" href="program-management.html#evaluators">Enter</a>
-          </article>
+<!-- LEFT -->
 
-          <article class="role-card">
-            <h4>Multi-Box™</h4>
-            <p>Communication, permission, and workflow orchestration above all operational roles.</p>
-            <a class="card-link" href="multibox.html">Command</a>
-          </article>
-        </div>
-      </div>
-    </section>
+<section class="panel">
 
-    <aside class="panel multibox-panel">
-      <div class="panel-title">
-        <strong>Orchestration Layer</strong>
-        <span class="status-pill status-locked">Above Roles</span>
-      </div>
-      <div class="multibox-body">
-        <h3>Multi-Box™</h3>
-        <p class="definition">
-          Communication + Permission + Workflow Orchestration Layer. This is not a user role, inbox,
-          or social messaging page. It governs who may see, request, approve, route, and communicate.
-        </p>
-        <div class="orchestration-stack">
-          <div class="stack-item">
-            <div class="stack-index">01</div>
-            <div><b>Permission Control</b><span>Parent, athlete, counselor, evaluator, and recruiter access boundaries.</span></div>
-          </div>
-          <div class="stack-item">
-            <div class="stack-index">02</div>
-            <div><b>NCAA-Aware Routing</b><span>Communication window awareness and restricted recruiter contact workflows.</span></div>
-          </div>
-          <div class="stack-item">
-            <div class="stack-index">03</div>
-            <div><b>Audit Receipts</b><span>Every sensitive visibility request, approval, denial, and communication event is logged.</span></div>
-          </div>
-          <div class="stack-item">
-            <div class="stack-index">04</div>
-            <div><b>Workflow Coordination</b><span>Organizations, families, schools, programs, and evaluators move through controlled paths.</span></div>
-          </div>
-        </div>
-      </div>
-    </aside>
-  </div>
+<div class="panel-head">
+<strong>Step 01 · Athlete Registry Command</strong>
+<span class="badge live">Start Here</span>
+</div>
 
-  <div class="matrix-section" aria-label="Readiness separation matrix">
-    <article class="matrix-card">
-      <h3>Athletic Readiness</h3>
-      <ul class="matrix-list">
-        <li>Sport-specific metric engines</li>
-        <li>Position and event logic</li>
-        <li>Development stage tracking</li>
-        <li>Verified evaluation weighting</li>
-      </ul>
-    </article>
-    <article class="matrix-card">
-      <h3>NCAA Eligibility</h3>
-      <ul class="matrix-list">
-        <li>Core-course tracking</li>
-        <li>Division readiness awareness</li>
-        <li>Academic data protection</li>
-        <li>Communication timing governance</li>
-      </ul>
-    </article>
-    <article class="matrix-card">
-      <h3>Admissions Readiness</h3>
-      <ul class="matrix-list">
-        <li>In-state path awareness</li>
-        <li>Out-of-state path awareness</li>
-        <li>Program fit routing</li>
-        <li>College preparation signal layer</li>
-      </ul>
-    </article>
-  </div>
+<div class="profile-wrap">
 
-  <div class="sports-row" aria-label="Initial national sports engines">
-    <article class="sport-card"><b>Football</b><span>Position Matrix</span></article>
-    <article class="sport-card"><b>Basketball</b><span>Role Matrix</span></article>
-    <article class="sport-card"><b>Baseball</b><span>Tool Matrix</span></article>
-    <article class="sport-card"><b>Track & Field</b><span>Event Matrix</span></article>
-  </div>
+<div class="profile-box">
 
-  <section class="trust-ladder" aria-label="PHNX Verified trust hierarchy">
-    <div class="ladder-title">
-      <h3>PHNX Verified Trust Ladder</h3>
-      <span class="status-pill status-restricted">Protected Evaluation Weight</span>
-    </div>
-    <div class="ladder">
-      <div class="ladder-step"><small>Level 01</small><b>Self Reported</b></div>
-      <div class="ladder-step"><small>Level 02</small><b>Coach Verified</b></div>
-      <div class="ladder-step"><small>Level 03</small><b>Evaluator Verified</b></div>
-      <div class="ladder-step"><small>Level 04</small><b>PHNX Verified</b></div>
-      <div class="ladder-step"><small>Level 05</small><b>Institutional Verified</b></div>
-    </div>
-  </section>
+<div>
+
+<h3>
+Create the Verified Athlete Identity
+</h3>
+
+<p>
+Begin with the athlete profile.
+This registry later connects:
+sport metrics,
+eligibility readiness,
+parent permissions,
+coach verification,
+and controlled recruiter visibility.
+</p>
+
+</div>
+
+<a href="player-profile.html" class="btn">
+Start Athlete Profile
+</a>
+
+</div>
+
+<!-- ROLE GRID -->
+
+<div class="role-grid">
+
+<div class="role">
+<h4>Athlete</h4>
+<p>
+Performance profile,
+verified metrics,
+readiness status,
+development pathway,
+visibility controls.
+</p>
+<a href="player-profile.html" class="role-link">Enter</a>
+</div>
+
+<div class="role">
+<h4>Parent</h4>
+<p>
+Guardian oversight,
+consent states,
+communication approvals,
+academic visibility permissions.
+</p>
+<a href="parent-dashboard.html" class="role-link">Enter</a>
+</div>
+
+<div class="role">
+<h4>Coach</h4>
+<p>
+Roster support,
+coach verification,
+development observations,
+program-level athlete context.
+</p>
+<a href="coach-dashboard.html" class="role-link">Enter</a>
+</div>
+
+<div class="role">
+<h4>Counselor</h4>
+<p>
+NCAA eligibility support,
+core-course review,
+academic readiness routing,
+transcript protection.
+</p>
+<a href="eligibility.html" class="role-link">Enter</a>
+</div>
+
+<div class="role">
+<h4>Recruiter</h4>
+<p>
+Controlled athlete discovery,
+communication window awareness,
+request routing,
+audit receipts.
+</p>
+<a href="recruiter-access.html" class="role-link">Enter</a>
+</div>
+
+<div class="role">
+<h4>Program</h4>
+<p>
+Organization profile,
+team readiness,
+event alignment,
+roster intelligence,
+verified participation.
+</p>
+<a href="program-management.html" class="role-link">Enter</a>
+</div>
+
+<div class="role">
+<h4>Evaluator</h4>
+<p>
+Evaluation authority,
+metric validation,
+trust weight,
+verified camp and combine submission layer.
+</p>
+<a href="evaluator.html" class="role-link">Enter</a>
+</div>
+
+<div class="role">
+<h4>Multi-Box™</h4>
+<p>
+Communication,
+permission,
+and workflow orchestration above all operational roles.
+</p>
+<a href="multibox.html" class="role-link">Command</a>
+</div>
+
+</div>
+
+</div>
+
 </section>
+
+<!-- RIGHT -->
+
+<aside class="panel multibox">
+
+<div class="panel-head">
+<strong>Orchestration Layer</strong>
+<span class="badge locked">Above Roles</span>
+</div>
+
+<div class="multibox-body">
+
+<h3>
+Multi-Box™
+</h3>
+
+<p>
+Communication + Permission + Workflow Orchestration Layer.
+This is NOT a user role,
+inbox,
+or social messaging page.
+It governs who may see,
+request,
+approve,
+route,
+and communicate.
+</p>
+
+<div class="stack">
+
+<div class="stack-item">
+<div class="stack-num">01</div>
+<div>
+<b>Permission Control</b>
+<span>
+Parent,
+athlete,
+counselor,
+evaluator,
+and recruiter access boundaries.
+</span>
+</div>
+</div>
+
+<div class="stack-item">
+<div class="stack-num">02</div>
+<div>
+<b>NCAA-Aware Routing</b>
+<span>
+Communication window awareness and restricted recruiter contact workflows.
+</span>
+</div>
+</div>
+
+<div class="stack-item">
+<div class="stack-num">03</div>
+<div>
+<b>Audit Receipts</b>
+<span>
+Every sensitive visibility request,
+approval,
+denial,
+and communication event is logged.
+</span>
+</div>
+</div>
+
+<div class="stack-item">
+<div class="stack-num">04</div>
+<div>
+<b>Workflow Coordination</b>
+<span>
+Organizations,
+families,
+schools,
+programs,
+and evaluators move through controlled paths.
+</span>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</aside>
+
+</div>
+
+<!-- READINESS -->
+
+<div class="readiness">
+
+<div class="ready">
+
+<h3>
+Step 02 · Athletic Readiness
+</h3>
+
+<ul>
+<li>Sport-specific metric engines</li>
+<li>Position and event logic</li>
+<li>Development stage tracking</li>
+<li>Verified evaluation weighting</li>
+</ul>
+
+</div>
+
+<div class="ready">
+
+<h3>
+Step 03 · NCAA Eligibility
+</h3>
+
+<ul>
+<li>Core-course tracking</li>
+<li>Division readiness awareness</li>
+<li>Academic data protection</li>
+<li>Communication timing governance</li>
+</ul>
+
+</div>
+
+<div class="ready">
+
+<h3>
+Step 04 · Admissions Readiness
+</h3>
+
+<ul>
+<li>In-state path awareness</li>
+<li>Out-of-state path awareness</li>
+<li>Program fit routing</li>
+<li>College preparation signal layer</li>
+</ul>
+
+</div>
+
+</div>
+
+<!-- SPORTS -->
+
+<div class="sports">
+
+<div class="sport">
+<b>Football</b>
+<span>Position Matrix</span>
+</div>
+
+<div class="sport">
+<b>Basketball</b>
+<span>Role Matrix</span>
+</div>
+
+<div class="sport">
+<b>Baseball</b>
+<span>Tool Matrix</span>
+</div>
+
+<div class="sport">
+<b>Track & Field</b>
+<span>Event Matrix</span>
+</div>
+
+</div>
+
+<!-- TRUST -->
+
+<section class="trust">
+
+<div class="trust-head">
+
+<h3>
+PHNX Verified Trust Ladder
+</h3>
+
+<span class="badge locked">
+Protected Evaluation Weight
+</span>
+
+</div>
+
+<div class="ladder">
+
+<div class="step">
+<small>Level 01</small>
+<b>Self Reported</b>
+</div>
+
+<div class="step">
+<small>Level 02</small>
+<b>Coach Verified</b>
+</div>
+
+<div class="step">
+<small>Level 03</small>
+<b>Evaluator Verified</b>
+</div>
+
+<div class="step">
+<small>Level 04</small>
+<b>PHNX Verified</b>
+</div>
+
+<div class="step">
+<small>Level 05</small>
+<b>Institutional Verified</b>
+</div>
+
+</div>
+
+</section>
+
+</section>
+
+<!-- FOOTER -->
 
 <footer>
-  <div>
-    <strong>STATScore™</strong><br />
-    Governed National Athlete Lifecycle Infrastructure System.
-  </div>
-  <div>
-    STATScore = Truth Engine · PHNX Sports Media = Visibility Engine<br />
-    Academic, eligibility, and communication layers remain protected by role-aware permission routing.
-  </div>
+
+<div>
+<strong>STATScore™</strong><br>
+Governed National Athlete Lifecycle Infrastructure System.
+</div>
+
+<div>
+STATScore = Truth Engine · PHNX Sports Media = Visibility Engine<br>
+Academic,
+eligibility,
+and communication layers remain protected through role-aware permissions.
+</div>
+
 </footer>
 
-  </main>
+</main>
+
 </body>
 </html> 
