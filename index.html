@@ -122,11 +122,16 @@ font-weight:800;
 letter-spacing:0.24em;
 text-transform:uppercase;
 
-background:transparent;
+background:
+linear-gradient(
+180deg,
+#ef3942 0%,
+#c81d28 100%
+);
 
 color:#ffffff;
 
-border:1px solid #ff3a46;
+border:1px solid rgba(255,255,255,0.10);
 
 border-radius:2px;
 
@@ -134,38 +139,26 @@ cursor:pointer;
 
 transition:
 background .18s ease,
-color .18s ease,
 transform .16s ease,
 border-color .16s ease;
 
 box-shadow:
-inset 0 0 0 1px rgba(255,255,255,0.03);
+inset 0 1px 0 rgba(255,255,255,0.06),
+0 0 0 1px rgba(0,0,0,0.22);
 }
 
 .enter:hover{
-background:
-linear-gradient(
-180deg,
-#ff4a54 0%,
-#d91d28 100%
-);
-
-border-color:#ff5963;
-
-color:#ffffff;
-
 transform:translateY(-1px);
-}
 
-.enter:active{
 background:
 linear-gradient(
 180deg,
 #ff4a54 0%,
-#c81823 100%
+#d61f2a 100%
 );
 
-transform:translateY(0);
+border-color:
+rgba(255,255,255,0.18);
 } 
 
 .sub{
