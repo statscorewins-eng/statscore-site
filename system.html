@@ -3,551 +3,314 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>STATScore™ System</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <title>STATScore™ — Athlete Intake</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
   <style>
     :root{
-      --bg:#06080c;
-      --bg-2:#0b1017;
-      --panel:#101722;
-      --panel-2:#141d29;
-      --panel-3:#0f151d;
-      --line:rgba(255,255,255,0.08);
-      --line-strong:rgba(255,255,255,0.16);
+      --bg:#050608;
+      --panel:#0b0f15;
+      --line:rgba(255,255,255,.11);
+      --line2:rgba(255,255,255,.18);
       --text:#f5f7fb;
-      --muted:#9ca7b8;
-      --muted-2:#778497;
-      --red:#d61f26;
-      --red-2:#ef4349;
-      --success:#1fb874;
-      --warn:#d7a72e;
-      --hold:#b25151;
-      --shadow:0 24px 60px rgba(0,0,0,0.34);
-      --radius-xl:28px;
-      --radius-lg:22px;
-      --radius-md:16px;
-      --radius-sm:12px;
-      --max:1220px;
+      --muted:#9aa5b3;
+      --red:#e50914;
+      --red2:#ff2935;
+      --gold:#f5c542;
+      --green:#27d17f;
+      --blue:#4aa3ff;
+      --shadow:0 28px 80px rgba(0,0,0,.55);
     }
 
     *{box-sizing:border-box;margin:0;padding:0}
-    html,body{min-height:100%}
 
     body{
-      font-family:'Inter',sans-serif;
-      color:var(--text);
+      min-height:100vh;
       background:
-        radial-gradient(circle at top, rgba(214,31,38,0.12), transparent 30%),
-        linear-gradient(180deg, #0a0e14 0%, #06080c 100%);
-      overflow-y:auto;
-      overflow-x:hidden;
+        radial-gradient(circle at 20% 5%,rgba(229,9,20,.18),transparent 30%),
+        radial-gradient(circle at 80% 45%,rgba(74,163,255,.10),transparent 34%),
+        linear-gradient(180deg,#090b10 0%,#050608 100%);
+      color:var(--text);
+      font-family:"Inter",Arial,sans-serif;
     }
 
-    button,input,select,textarea{font:inherit}
-    button{cursor:pointer}
-
-    .app{
-      min-height:100vh;
-      width:100%;
+    body:before{
+      content:"";
+      position:fixed;
+      inset:0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.032) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.032) 1px, transparent 1px);
+      background-size:72px 72px;
+      pointer-events:none;
+      opacity:.45;
     }
 
-    .screen{
-      display:none;
-      min-height:100vh;
-      width:100%;
+    .page{
+      position:relative;
+      width:min(1420px,94vw);
+      margin:auto;
+      padding:28px 0 48px;
     }
 
-    .screen.active{
-      display:block;
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:22px;
+      padding-bottom:28px;
     }
 
-    .transition-wrap{
-      min-height:100vh;
+    .brand{
       display:flex;
       align-items:center;
-      justify-content:center;
-      padding:28px;
+      gap:16px;
     }
 
-    .transition-card{
-      width:min(780px,100%);
-      border:1px solid var(--line);
-      border-radius:32px;
-      background:linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.02));
-      box-shadow:var(--shadow);
-      padding:48px 34px;
-      text-align:center;
+    .logo{
+      width:185px;
+      max-width:44vw;
+      height:auto;
+      filter:drop-shadow(0 0 24px rgba(229,9,20,.20));
     }
 
-    .transition-mark{
-      width:78px;
-      height:78px;
-      border-radius:50%;
-      margin:0 auto 24px;
-      background:rgba(214,31,38,0.10);
-      border:1px solid rgba(214,31,38,0.34);
-      position:relative;
-      overflow:hidden;
+    .brand-text{
+      border-left:1px solid var(--line2);
+      padding-left:16px;
     }
 
-    .transition-mark::after{
-      content:"";
-      position:absolute;
-      inset:10px;
-      border-radius:50%;
-      border:3px solid rgba(239,67,73,0.95);
-      border-top-color:transparent;
-      animation:spin 1s linear infinite;
-    }
-
-    @keyframes spin{
-      to{transform:rotate(360deg)}
-    }
-
-    .transition-label{
-      font-size:.82rem;
-      letter-spacing:.24em;
+    .kicker{
+      font-size:11px;
+      letter-spacing:.28em;
       text-transform:uppercase;
       color:var(--muted);
-      font-weight:800;
-      margin-bottom:10px;
+      font-weight:900;
     }
 
-    .transition-title{
-      font-size:clamp(1.9rem,3vw,3rem);
+    .brand-title{
+      font-family:"Anton",sans-serif;
+      font-size:26px;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+    }
+
+    .nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      justify-content:flex-end;
+    }
+
+    .nav a{
+      color:var(--text);
+      text-decoration:none;
+      border:1px solid var(--line);
+      padding:10px 14px;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      font-size:11px;
       font-weight:900;
-      letter-spacing:-0.05em;
+      background:rgba(255,255,255,.025);
+    }
+
+    .screen{display:none}
+    .screen.active{display:block}
+
+    .shell{
+      display:grid;
+      grid-template-columns:360px 1fr;
+      gap:28px;
+      align-items:start;
+    }
+
+    .side{
+      position:sticky;
+      top:20px;
+      border:1px solid var(--line2);
+      background:linear-gradient(145deg,rgba(14,18,27,.88),rgba(5,6,8,.76));
+      box-shadow:var(--shadow);
+      padding:24px;
+      min-height:650px;
+    }
+
+    .side-label{
+      color:var(--red2);
+      font-size:11px;
+      letter-spacing:.22em;
+      text-transform:uppercase;
+      font-weight:900;
+      margin-bottom:14px;
+    }
+
+    .side h2{
+      font-family:"Anton",sans-serif;
+      font-size:34px;
+      text-transform:uppercase;
+      line-height:1;
+      letter-spacing:.04em;
+      margin-bottom:16px;
+    }
+
+    .side p{
+      color:var(--muted);
+      line-height:1.65;
+      font-weight:650;
+    }
+
+    .side-card{
+      margin-top:20px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.025);
+      padding:16px;
+    }
+
+    .side-card strong{
+      display:block;
+      color:#fff;
+      margin-bottom:8px;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      font-size:11px;
+    }
+
+    .main{
+      min-width:0;
+      display:grid;
+      gap:26px;
+    }
+
+    .hero{
+      border:1px solid var(--line2);
+      background:linear-gradient(145deg,rgba(14,18,27,.86),rgba(5,6,8,.76));
+      box-shadow:var(--shadow);
+      padding:34px;
+    }
+
+    .hero-kicker{
+      color:var(--red2);
+      font-size:12px;
+      letter-spacing:.24em;
+      text-transform:uppercase;
+      font-weight:900;
       margin-bottom:12px;
     }
 
-    .transition-copy{
-      max-width:580px;
-      margin:0 auto;
-      color:var(--muted);
-      line-height:1.72;
-    }
-
-    .system-shell{
-      min-height:100vh;
-      display:grid;
-      grid-template-columns:390px 1fr;
-      background:linear-gradient(180deg,#0a0f16 0%,#06080c 100%);
-    }
-
-    .nace-panel{
-      border-right:1px solid var(--line);
-      background:
-        linear-gradient(180deg, rgba(255,255,255,0.03), transparent 24%),
-        linear-gradient(180deg,#101722 0%,#0a0f16 100%);
-      padding:28px 24px;
-      display:flex;
-      flex-direction:column;
-      min-width:0;
-    }
-
-    .nace-head{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom:24px;
-    }
-
-    .nace-badge{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      padding:10px 14px;
-      border:1px solid var(--line-strong);
-      border-radius:999px;
-      background:rgba(255,255,255,0.03);
-      font-size:.8rem;
-      font-weight:800;
-      letter-spacing:.14em;
+    h1,h2,h3{
+      font-family:"Anton",sans-serif;
       text-transform:uppercase;
+      letter-spacing:.04em;
+      font-weight:400;
     }
 
-    .nace-dot{
-      width:10px;
-      height:10px;
-      border-radius:50%;
-      background:var(--red);
-    }
-
-    .phase-chip{
-      padding:8px 11px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      color:var(--muted);
-      font-size:.72rem;
-      text-transform:uppercase;
-      letter-spacing:.16em;
-      font-weight:800;
-    }
-
-    .nace-message{
-      border:1px solid var(--line);
-      background:linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.02));
-      border-radius:24px;
-      padding:24px 20px;
-      box-shadow:var(--shadow);
+    h1{
+      font-size:clamp(42px,5vw,76px);
+      line-height:.92;
       margin-bottom:18px;
     }
 
-    .nace-kicker{
-      font-size:.72rem;
-      color:var(--muted);
-      letter-spacing:.18em;
-      text-transform:uppercase;
-      font-weight:800;
-      margin-bottom:12px;
-    }
-
-    .nace-title{
-      font-size:1.72rem;
-      font-weight:900;
-      letter-spacing:-0.04em;
-      line-height:1.02;
-      margin-bottom:10px;
-    }
-
-    .nace-copy{
-      color:var(--muted);
-      line-height:1.74;
-      font-size:.98rem;
-    }
-
-    .nace-guidance{
-      margin-top:18px;
-      border-top:1px solid var(--line);
-      padding-top:18px;
-      color:#e7edf5;
+    .hero p{
+      color:#cbd6e3;
+      font-size:16px;
       line-height:1.7;
-      font-size:.95rem;
-    }
-
-    .nace-status-stack{
-      display:grid;
-      gap:12px;
-      margin-top:auto;
-    }
-
-    .status-card{
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:14px 15px;
-      background:rgba(255,255,255,0.025);
-    }
-
-    .status-label{
-      font-size:.72rem;
-      text-transform:uppercase;
-      letter-spacing:.16em;
-      color:var(--muted-2);
-      font-weight:800;
-      margin-bottom:6px;
-    }
-
-    .status-value{
-      font-size:.94rem;
-      color:#edf2f8;
+      max-width:920px;
       font-weight:700;
-      line-height:1.55;
-    }
-
-    .work-panel{
-      min-width:0;
-      overflow:visible;
-      padding:28px;
-    }
-
-    .work-wrap{
-      width:100%;
-      max-width:var(--max);
-      margin:0 auto;
-      display:flex;
-      flex-direction:column;
-      gap:20px;
-      padding-bottom:34px;
-    }
-
-    .view-title{
-      font-size:clamp(2rem,3vw,3.2rem);
-      font-weight:900;
-      letter-spacing:-0.06em;
-      line-height:1;
-      margin-bottom:8px;
-    }
-
-    .view-sub{
-      color:var(--muted);
-      line-height:1.72;
-      max-width:900px;
-    }
-
-    .panel{
-      border:1px solid var(--line);
-      background:linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.02));
-      border-radius:26px;
-      box-shadow:var(--shadow);
-      padding:24px;
     }
 
     .grid-3{
       display:grid;
       grid-template-columns:repeat(3,1fr);
-      gap:16px;
+      gap:18px;
     }
 
-    .choice-card{
+    .card{
       border:1px solid var(--line);
-      background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
-      border-radius:24px;
-      padding:22px;
-      min-height:188px;
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.018));
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.08),
+        0 16px 36px rgba(0,0,0,.26);
+      padding:24px;
+      min-height:250px;
       display:flex;
       flex-direction:column;
       justify-content:space-between;
       transition:.18s ease;
     }
 
-    .choice-card:hover{
-      transform:translateY(-2px);
-      border-color:rgba(214,31,38,0.42);
-      background:linear-gradient(180deg, rgba(214,31,38,0.08), rgba(255,255,255,0.02));
+    .card:hover{
+      transform:translateY(-3px);
+      border-color:rgba(229,9,20,.48);
+      box-shadow:0 0 38px rgba(229,9,20,.16), var(--shadow);
     }
 
-    .choice-top{
+    .role-top{
       display:flex;
-      align-items:flex-start;
       justify-content:space-between;
-      gap:10px;
-    }
-
-    .choice-role{
-      font-size:1.24rem;
-      font-weight:900;
-      letter-spacing:-0.03em;
-    }
-
-    .choice-index{
-      font-size:.78rem;
-      font-weight:800;
-      color:var(--muted-2);
-      letter-spacing:.18em;
-      text-transform:uppercase;
-    }
-
-    .choice-copy{
-      color:var(--muted);
-      line-height:1.65;
-      font-size:.95rem;
-      margin-top:10px;
-    }
-
-    .choice-btn,
-    .btn-primary,
-    .btn-secondary,
-    .btn-ghost{
-      min-height:50px;
-      padding:12px 22px;
-      border:none;
-      border-radius:14px;
-      font-size:.78rem;
-      font-weight:800;
-      letter-spacing:.16em;
-      text-transform:uppercase;
-    }
-
-    .choice-btn,
-    .btn-primary{
-      background:linear-gradient(180deg,var(--red-2),var(--red));
-      color:#fff;
-      box-shadow:0 16px 34px rgba(214,31,38,0.24);
-    }
-
-    .btn-secondary{
-      background:#fff;
-      color:#10151d;
-    }
-
-    .btn-ghost{
-      background:rgba(255,255,255,0.04);
-      color:#fff;
-      border:1px solid var(--line);
-    }
-
-    .profile-layout{
-      display:grid;
-      grid-template-columns:320px 1fr;
-      gap:18px;
-      align-items:start;
-    }
-
-    .profile-side{
-      display:grid;
-      gap:18px;
-    }
-
-    .profile-card{
-      border:1px solid var(--line);
-      border-radius:24px;
-      padding:22px;
-      background:linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.02));
-      box-shadow:var(--shadow);
-    }
-
-    .headshot-frame{
-      width:100%;
-      aspect-ratio:4 / 5;
-      border-radius:20px;
-      border:1px solid var(--line-strong);
-      overflow:hidden;
-      background:
-        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015)),
-        linear-gradient(180deg,#121a26 0%,#0c121a 100%);
-      display:flex;
-      align-items:center;
-      justify-content:center;
+      gap:14px;
+      align-items:flex-start;
       margin-bottom:16px;
-      position:relative;
     }
 
-    .headshot-frame img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      display:block;
-    }
-
-    .headshot-empty{
-      text-align:center;
-      color:var(--muted);
-      padding:20px;
-      font-size:.94rem;
-      line-height:1.6;
-    }
-
-    .upload-wrap{
-      display:grid;
-      gap:10px;
-    }
-
-    .upload-label{
-      font-size:.78rem;
-      font-weight:800;
-      letter-spacing:.16em;
+    .role-name{
+      font-family:"Anton",sans-serif;
+      font-size:36px;
       text-transform:uppercase;
-      color:var(--muted);
-    }
-
-    .file-input{
-      width:100%;
-      border:1px dashed rgba(255,255,255,0.18);
-      border-radius:14px;
-      padding:14px;
-      background:#0c121a;
-      color:#fff;
-      outline:none;
-    }
-
-    .file-note{
-      color:var(--muted-2);
-      font-size:.82rem;
-      line-height:1.55;
-    }
-
-    .identity-header{
-      display:grid;
-      gap:18px;
-    }
-
-    .identity-top{
-      display:grid;
-      gap:8px;
-    }
-
-    .profile-name{
-      font-size:2.2rem;
-      font-weight:900;
-      letter-spacing:-0.06em;
       line-height:1;
     }
 
-    .profile-handle{
-      color:var(--muted);
-      font-size:1rem;
-      line-height:1.5;
-    }
-
-    .profile-meta{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-    }
-
-    .meta-chip{
-      padding:10px 12px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,0.03);
-      color:#eef3fb;
-      font-size:.78rem;
-      font-weight:800;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-    }
-
-    .identity-grid{
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:14px;
-    }
-
-    .stat-box{
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:14px;
-      background:rgba(255,255,255,0.025);
-    }
-
-    .stat-label{
-      font-size:.7rem;
-      letter-spacing:.16em;
-      text-transform:uppercase;
-      color:var(--muted-2);
-      font-weight:800;
-      margin-bottom:8px;
-    }
-
-    .stat-value{
-      font-size:1.02rem;
-      font-weight:800;
-      color:#f3f7fc;
-      line-height:1.35;
-    }
-
-    .section-title{
-      font-size:.82rem;
-      font-weight:800;
+    .role-tag{
+      font-size:10px;
       letter-spacing:.18em;
       text-transform:uppercase;
+      color:var(--blue);
+      font-weight:900;
+    }
+
+    .card p{
       color:var(--muted);
-      margin-bottom:14px;
+      line-height:1.6;
+      font-weight:700;
+      margin-bottom:20px;
     }
 
-    .subpanel{
-      border:1px solid var(--line);
-      border-radius:22px;
-      padding:18px;
-      background:rgba(255,255,255,0.02);
+    .btn{
+      width:100%;
+      border:1px solid var(--red2);
+      background:linear-gradient(90deg,#b90009,var(--red2),#b90009);
+      color:white;
+      padding:16px 18px;
+      text-transform:uppercase;
+      letter-spacing:.13em;
+      font-size:12px;
+      font-weight:900;
+      cursor:pointer;
+      box-shadow:0 0 28px rgba(229,9,20,.22);
     }
 
-    .stack{
-      display:grid;
-      gap:18px;
+    .panel{
+      border:1px solid var(--line2);
+      background:linear-gradient(145deg,rgba(14,18,27,.82),rgba(5,6,8,.72));
+      box-shadow:var(--shadow);
+      padding:28px;
+    }
+
+    .section-head{
+      display:flex;
+      justify-content:space-between;
+      gap:20px;
+      border-bottom:1px solid var(--line);
+      padding-bottom:18px;
+      margin-bottom:22px;
+      align-items:flex-end;
+    }
+
+    .section-head h2{font-size:36px}
+    .section-head p{
+      color:var(--muted);
+      line-height:1.6;
+      font-weight:700;
+      max-width:620px;
     }
 
     .form-grid{
@@ -556,46 +319,36 @@
       gap:16px;
     }
 
-    .field{
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-    }
+    .field{display:flex;flex-direction:column;gap:8px}
+    .field.full{grid-column:1/-1}
 
-    .field.full{
-      grid-column:1 / -1;
-    }
-
-    .label{
-      font-size:.78rem;
-      font-weight:800;
-      letter-spacing:.14em;
+    label{
+      font-size:11px;
+      letter-spacing:.16em;
       text-transform:uppercase;
-      color:var(--muted);
+      color:var(--blue);
+      font-weight:900;
     }
 
-    .input,.select,.textarea{
+    input,select,textarea{
       width:100%;
-      border:1px solid rgba(255,255,255,0.10);
-      background:#0b1017;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.035);
       color:#fff;
-      border-radius:14px;
-      padding:15px 15px;
+      padding:15px;
       outline:none;
-      transition:.18s ease;
+      font-weight:700;
+      border-radius:0;
     }
 
-    .textarea{
-      min-height:108px;
-      resize:vertical;
+    textarea{min-height:110px;resize:vertical}
+
+    input:focus,select:focus,textarea:focus{
+      border-color:rgba(229,9,20,.65);
+      box-shadow:0 0 0 3px rgba(229,9,20,.12);
     }
 
-    .input:focus,.select:focus,.textarea:focus,.file-input:focus{
-      border-color:rgba(214,31,38,0.56);
-      box-shadow:0 0 0 4px rgba(214,31,38,0.12);
-    }
-
-    .metric-grid{
+    .metrics{
       display:grid;
       grid-template-columns:repeat(4,1fr);
       gap:16px;
@@ -604,1145 +357,469 @@
     .actions{
       display:flex;
       flex-wrap:wrap;
-      gap:12px;
+      gap:14px;
       align-items:center;
+      margin-top:22px;
     }
 
-    .hint{
-      color:var(--muted-2);
-      font-size:.83rem;
-      line-height:1.58;
-    }
-
-    .progress-wrap{
-      display:flex;
-      flex-direction:column;
-      gap:18px;
-      align-items:center;
-      justify-content:center;
-      min-height:400px;
-      text-align:center;
-    }
-
-    .progress-ring{
-      width:98px;
-      height:98px;
-      border-radius:50%;
-      border:4px solid rgba(255,255,255,0.08);
-      border-top-color:var(--red-2);
-      animation:spin 1.05s linear infinite;
-    }
-
-    .progress-title{
-      font-size:2rem;
+    .action-primary{
+      min-width:280px;
+      border:1px solid var(--red2);
+      background:linear-gradient(90deg,#b90009,var(--red2),#b90009);
+      color:white;
+      padding:16px 22px;
+      text-transform:uppercase;
+      letter-spacing:.13em;
+      font-size:12px;
       font-weight:900;
-      letter-spacing:-0.05em;
+      cursor:pointer;
     }
 
-    .progress-copy{
-      max-width:560px;
+    .action-ghost{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.035);
+      color:#fff;
+      padding:16px 22px;
+      text-transform:uppercase;
+      letter-spacing:.13em;
+      font-size:12px;
+      font-weight:900;
+      cursor:pointer;
+    }
+
+    .note{
       color:var(--muted);
-      line-height:1.72;
+      font-size:13px;
+      line-height:1.55;
+      max-width:520px;
+      font-weight:700;
     }
 
-    .score-hero{
+    .score-box{
       display:grid;
-      grid-template-columns:340px 1fr;
-      gap:18px;
+      grid-template-columns:260px 1fr;
+      gap:22px;
+      align-items:stretch;
     }
 
     .score-card{
-      border:1px solid var(--line);
-      border-radius:24px;
-      background:linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.025));
+      border:1px solid rgba(229,9,20,.45);
+      background:linear-gradient(145deg,rgba(229,9,20,.14),rgba(255,255,255,.025));
       padding:24px;
-      box-shadow:var(--shadow);
+      text-align:center;
     }
 
-    .score-kicker{
-      font-size:.74rem;
+    .score-label{
+      font-size:10px;
+      letter-spacing:.20em;
       text-transform:uppercase;
-      letter-spacing:.18em;
       color:var(--muted);
-      font-weight:800;
+      font-weight:900;
       margin-bottom:10px;
     }
 
     .score-number{
-      font-size:6rem;
-      font-weight:900;
-      letter-spacing:-0.08em;
+      font-family:"Anton",sans-serif;
+      font-size:86px;
       line-height:.9;
-      margin-bottom:10px;
     }
 
-    .score-tier{
-      font-size:1.1rem;
-      font-weight:800;
-      letter-spacing:.06em;
+    .score-status{
+      color:var(--gold);
       text-transform:uppercase;
+      font-size:12px;
+      font-weight:900;
+      margin-top:10px;
+      letter-spacing:.10em;
     }
 
-    .score-band{
+    .result-copy{
       color:var(--muted);
-      margin-top:8px;
-      font-size:.95rem;
-    }
-
-    .pill-row{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      margin-top:18px;
-    }
-
-    .pill{
-      padding:10px 12px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,0.03);
-      font-size:.78rem;
-      font-weight:800;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-      color:#edf2fb;
-    }
-
-    .domain-list{
-      display:grid;
-      gap:12px;
-    }
-
-    .domain-row{
-      display:grid;
-      grid-template-columns:210px 1fr 54px;
-      gap:12px;
-      align-items:center;
-    }
-
-    .domain-name{
-      font-size:.88rem;
-      color:#edf2fb;
+      line-height:1.65;
       font-weight:700;
     }
 
-    .bar{
-      height:12px;
-      border-radius:999px;
-      background:rgba(255,255,255,0.07);
-      overflow:hidden;
-    }
-
-    .bar > span{
-      display:block;
-      height:100%;
-      border-radius:999px;
-      background:linear-gradient(90deg,var(--red),var(--red-2));
-    }
-
-    .domain-score{
-      font-size:.88rem;
-      color:#fff;
-      font-weight:800;
-      text-align:right;
-    }
-
-    .tag-block{
-      display:grid;
-      grid-template-columns:repeat(2,1fr);
-      gap:16px;
-    }
-
-    .tag-card{
-      border:1px solid var(--line);
-      border-radius:20px;
-      padding:18px;
-      background:rgba(255,255,255,0.025);
-      box-shadow:var(--shadow);
-    }
-
-    .tag-title{
-      font-size:.78rem;
-      color:var(--muted);
-      font-weight:800;
-      letter-spacing:.16em;
-      text-transform:uppercase;
-      margin-bottom:12px;
-    }
-
-    .tag-list{
+    .badge-row{
       display:flex;
+      gap:10px;
       flex-wrap:wrap;
-      gap:10px;
+      margin-top:18px;
     }
 
-    .tag{
-      padding:10px 12px;
-      border-radius:999px;
-      background:rgba(255,255,255,0.05);
+    .badge{
       border:1px solid var(--line);
-      font-size:.84rem;
-      color:#f2f6fb;
-      font-weight:600;
-    }
-
-    .tag.warn{
-      background:rgba(215,167,46,0.12);
-      border-color:rgba(215,167,46,0.22);
-    }
-
-    .decision-box{
-      border:1px solid var(--line);
-      border-radius:24px;
-      padding:24px;
-      display:grid;
-      grid-template-columns:220px 1fr;
-      gap:20px;
-      background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
-      box-shadow:var(--shadow);
-    }
-
-    .decision-state{
-      border-radius:20px;
-      padding:22px;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      align-items:center;
-      text-align:center;
-      background:rgba(255,255,255,0.03);
-      border:1px solid var(--line);
-    }
-
-    .decision-state.conditional{
-      background:rgba(215,167,46,0.10);
-      border-color:rgba(215,167,46,0.28);
-    }
-
-    .decision-label{
-      font-size:.76rem;
-      color:var(--muted);
-      font-weight:800;
+      padding:9px 12px;
+      background:rgba(255,255,255,.035);
+      color:#e8eef7;
+      font-size:11px;
+      letter-spacing:.11em;
       text-transform:uppercase;
-      letter-spacing:.16em;
-      margin-bottom:12px;
-    }
-
-    .decision-main{
-      font-size:1.5rem;
       font-weight:900;
-      letter-spacing:-0.04em;
     }
 
-    .decision-copy{
-      color:var(--muted);
-      line-height:1.72;
+    .badge.red{border-color:rgba(229,9,20,.55);background:rgba(229,9,20,.12)}
+    .badge.green{border-color:rgba(39,209,127,.45);color:#c9ffe3;background:rgba(39,209,127,.08)}
+    .badge.gold{border-color:rgba(245,197,66,.50);color:#ffeaa0;background:rgba(245,197,66,.08)}
+
+    @media(max-width:1120px){
+      .shell,.score-box{grid-template-columns:1fr}
+      .side{position:relative;top:auto;min-height:auto}
+      .grid-3,.metrics{grid-template-columns:1fr}
     }
 
-    .action-list{
-      margin-top:14px;
-      display:grid;
-      gap:10px;
-    }
-
-    .action-item{
-      padding:13px 14px;
-      border-radius:14px;
-      background:rgba(255,255,255,0.03);
-      border:1px solid var(--line);
-      color:#ecf1f7;
-    }
-
-    .report-grid{
-      display:grid;
-      gap:18px;
-    }
-
-    .report-section{
-      border:1px solid var(--line);
-      border-radius:20px;
-      padding:18px;
-      background:rgba(255,255,255,0.025);
-      box-shadow:var(--shadow);
-    }
-
-    .section-heading{
-      font-size:.82rem;
-      text-transform:uppercase;
-      letter-spacing:.16em;
-      color:var(--muted);
-      font-weight:800;
-      margin-bottom:14px;
-    }
-
-    .footer-note{
-      color:var(--muted-2);
-      font-size:.84rem;
-      line-height:1.65;
-    }
-
-    @media (max-width: 1280px){
-      .system-shell{
-        grid-template-columns:1fr;
-      }
-
-      .nace-panel{
-        border-right:none;
-        border-bottom:1px solid var(--line);
-      }
-
-      .profile-layout,
-      .score-hero,
-      .decision-box{
-        grid-template-columns:1fr;
-      }
-
-      .grid-3,
-      .metric-grid,
-      .tag-block{
-        grid-template-columns:1fr;
-      }
-
-      .identity-grid{
-        grid-template-columns:repeat(2,1fr);
-      }
-
-      .domain-row{
-        grid-template-columns:1fr;
-      }
-
-      .domain-score{
-        text-align:left;
-      }
-    }
-
-    @media (max-width: 760px){
-      .work-panel,.nace-panel{
-        padding:18px;
-      }
-
-      .panel,.profile-card,.subpanel,.transition-card,.nace-message,.score-card,.tag-card,.report-section{
-        padding:18px;
-      }
-
-      .form-grid,
-      .identity-grid{
-        grid-template-columns:1fr;
-      }
-
-      .field.full{
-        grid-column:auto;
-      }
-
-      .profile-name{
-        font-size:1.85rem;
-      }
-
-      .score-number{
-        font-size:4.5rem;
-      }
-
-      .choice-card{
-        min-height:auto;
-      }
+    @media(max-width:760px){
+      .topbar,.section-head{flex-direction:column;align-items:flex-start}
+      .form-grid{grid-template-columns:1fr}
+      .field.full{grid-column:auto}
+      .hero,.panel,.side{padding:22px}
+      .logo{width:150px}
     }
   </style>
 </head>
+
 <body>
-  <div class="app">
-    <section class="screen active" id="screen-transition">
-      <div class="transition-wrap">
-        <div class="transition-card">
-          <div class="transition-mark"></div>
-          <div class="transition-label">Initializing System</div>
-          <h2 class="transition-title">Initializing Athlete Profile...</h2>
-          <p class="transition-copy">STATScore is loading the guided evaluation environment. NACE will control intake sequence, evaluation flow, and recruiting-report governance.</p>
+  <main class="page">
+
+    <header class="topbar">
+      <div class="brand">
+        <img src="statscore-logo.png" alt="STATScore Logo" class="logo">
+        <div class="brand-text">
+          <div class="kicker">Athlete Lifecycle System</div>
+          <div class="brand-title">Player Intake</div>
         </div>
       </div>
-    </section>
 
-    <section class="screen" id="screen-identity">
-      <div class="system-shell">
-        <aside class="nace-panel">
-          <div class="nace-head">
-            <div class="nace-badge"><span class="nace-dot"></span> NACE Active</div>
-            <div class="phase-chip">Phase 01</div>
+      <nav class="nav">
+        <a href="index.html">Entry</a>
+        <a href="player-profile.html">Profile</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+      </nav>
+    </header>
+
+    <section class="screen active" id="roleScreen">
+      <div class="shell">
+        <aside class="side">
+          <div class="side-label">STATScore Guidance</div>
+          <h2>Choose Your Lane</h2>
+          <p>
+            Start with the role that best matches who is entering the athlete information.
+            This controls the intake path, trust level, and profile workflow.
+          </p>
+
+          <div class="side-card">
+            <strong>Player-first design</strong>
+            Athlete data becomes a verified profile, recruiting signal, development snapshot, and exposure pathway.
           </div>
 
-          <div class="nace-message">
-            <div class="nace-kicker">System Guidance</div>
-            <div class="nace-title">Select your role.</div>
-            <div class="nace-copy">This system evaluates athlete performance, readiness, and trajectory. Role selection determines intake logic, authority scope, and downstream reporting behavior.</div>
-            <div class="nace-guidance">Proceed with the role that most accurately reflects who is entering the athlete data.</div>
-          </div>
-
-          <div class="nace-status-stack">
-            <div class="status-card"><div class="status-label">Current Lane</div><div class="status-value" id="statusRole">Unassigned</div></div>
-            <div class="status-card"><div class="status-label">System State</div><div class="status-value">Awaiting role selection</div></div>
-            <div class="status-card"><div class="status-label">Output Path</div><div class="status-value">Score → CEP-001 → Report Eligibility</div></div>
-          </div>
-        </aside>
-
-        <main class="work-panel">
-          <div class="work-wrap">
-            <div>
-              <h1 class="view-title">Identity Gate</h1>
-              <p class="view-sub">Choose the correct operating role. STATScore remains a controlled system. There is no open browsing path after entry.</p>
-            </div>
-
-            <div class="grid-3">
-              <article class="choice-card">
-                <div>
-                  <div class="choice-top"><div class="choice-role">Athlete</div><div class="choice-index">Primary</div></div>
-                  <p class="choice-copy">Direct athlete submission for personal evaluation, progression tracking, and future recruiting-report eligibility.</p>
-                </div>
-                <button class="choice-btn" data-role="Athlete">Select</button>
-              </article>
-
-              <article class="choice-card">
-                <div>
-                  <div class="choice-top"><div class="choice-role">Coach</div><div class="choice-index">Secondary</div></div>
-                  <p class="choice-copy">Coach-led athlete submission with structured oversight, observational context, and higher trust weighting.</p>
-                </div>
-                <button class="choice-btn" data-role="Coach">Select</button>
-              </article>
-
-              <article class="choice-card">
-                <div>
-                  <div class="choice-top"><div class="choice-role">Organization</div><div class="choice-index">Admin</div></div>
-                  <p class="choice-copy">Program, academy, or team intake path for supervised athlete records, organization-level management, and later dashboard routing.</p>
-                </div>
-                <button class="choice-btn" data-role="Organization">Select</button>
-              </article>
-            </div>
-          </div>
-        </main>
-      </div>
-    </section>
-
-    <section class="screen" id="screen-intake">
-      <div class="system-shell">
-        <aside class="nace-panel">
-          <div class="nace-head">
-            <div class="nace-badge"><span class="nace-dot"></span> NACE Intake</div>
-            <div class="phase-chip">Phase 02</div>
-          </div>
-
-          <div class="nace-message">
-            <div class="nace-kicker">Professional Profile Intake</div>
-            <div class="nace-title">Build the athlete dossier.</div>
-            <div class="nace-copy">This intake creates the athlete identity record, profile layer, evaluation snapshot, and CEP-001 decision path. The layout is structured to feel like a professional team profile, not a generic form.</div>
-            <div class="nace-guidance" id="nacePrompt">Enter athlete identity, presentation profile, performance metrics, and recruiting visibility data in a controlled manner.</div>
-          </div>
-
-          <div class="nace-status-stack">
-            <div class="status-card"><div class="status-label">Role</div><div class="status-value" id="statusRole2">Athlete</div></div>
-            <div class="status-card"><div class="status-label">Minimum Requirement</div><div class="status-value">Name + City/State + Position + Metrics</div></div>
-            <div class="status-card"><div class="status-label">Profile Standard</div><div class="status-value">Professional team profile intake</div></div>
+          <div class="side-card">
+            <strong>Protected academics</strong>
+            Grades, transcripts, and eligibility details remain permission-controlled.
           </div>
         </aside>
 
-        <main class="work-panel">
-          <div class="work-wrap">
-            <div>
-              <h1 class="view-title">Professional Team Profile Intake</h1>
-              <p class="view-sub">This intake is structured like an athlete dossier. The profile layer is presentation-grade, while the performance engine remains protected and separate from perception-based bias.</p>
-            </div>
+        <main class="main">
+          <section class="hero">
+            <div class="hero-kicker">STATScore Intake Gate</div>
+            <h1>Build The Athlete Profile</h1>
+            <p>
+              Create a verified athlete record for performance tracking, recruiting visibility,
+              NCAA readiness, highlight exposure, and PHNX Sports development pathways.
+            </p>
+          </section>
 
-            <div class="profile-layout">
-              <div class="profile-side">
-                <div class="profile-card">
-                  <div class="headshot-frame" id="headshotPreview">
-                    <div class="headshot-empty">No headshot selected.<br>Upload a professional player photo.</div>
-                  </div>
-
-                  <div class="upload-wrap">
-                    <label class="upload-label">Athlete Headshot</label>
-                    <input class="file-input" id="headshot" type="file" accept="image/*">
-                    <div class="file-note">Use a clean player headshot or professional profile photo. This supports identity and presentation only. It does not affect scoring.</div>
-                  </div>
-                </div>
-
-                <div class="profile-card">
-                  <div class="section-title">Exposure Layer</div>
-                  <div class="stack">
-                    <div class="field">
-                      <label class="label">Instagram</label>
-                      <input class="input" id="instagram" placeholder="@athlete" />
-                    </div>
-                    <div class="field">
-                      <label class="label">X (Twitter)</label>
-                      <input class="input" id="twitter" placeholder="@athlete" />
-                    </div>
-                    <div class="field">
-                      <label class="label">Hudl / Highlight Link</label>
-                      <input class="input" id="highlight_link" placeholder="https://..." />
-                    </div>
-                  </div>
-                  <div class="hint" style="margin-top:12px;">These fields support visibility and verification only. They are non-scoring fields.</div>
-                </div>
-              </div>
-
-              <div class="stack">
-                <div class="profile-card identity-header">
-                  <div class="identity-top">
-                    <div class="profile-name" id="profileNamePreview">Athlete Name</div>
-                    <div class="profile-handle" id="profileHandlePreview">@displayname</div>
-                    <div class="profile-meta" id="profileMetaPreview">
-                      <div class="meta-chip">Football</div>
-                      <div class="meta-chip">Position</div>
-                      <div class="meta-chip">City, State</div>
-                      <div class="meta-chip">Class 2027</div>
-                    </div>
-                  </div>
-
-                  <div class="identity-grid">
-                    <div class="stat-box">
-                      <div class="stat-label">Current Level</div>
-                      <div class="stat-value" id="currentLevelPreview">HS</div>
-                    </div>
-                    <div class="stat-box">
-                      <div class="stat-label">School</div>
-                      <div class="stat-value" id="schoolPreview">School</div>
-                    </div>
-                    <div class="stat-box">
-                      <div class="stat-label">Team</div>
-                      <div class="stat-value" id="teamPreview">Team</div>
-                    </div>
-                    <div class="stat-box">
-                      <div class="stat-label">Academic Status</div>
-                      <div class="stat-value" id="academicPreview">Eligible</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="profile-card">
-                  <div class="section-title">Identity & Location</div>
-                  <div class="form-grid">
-                    <div class="field">
-                      <label class="label">Full Name</label>
-                      <input class="input" id="full_name" placeholder="Athlete full name" />
-                    </div>
-
-                    <div class="field">
-                      <label class="label">Display Name</label>
-                      <input class="input" id="display_name" placeholder="@display or public athlete tag" />
-                    </div>
-
-                    <div class="field">
-                      <label class="label">City</label>
-                      <input class="input" id="city" placeholder="Pensacola" />
-                    </div>
-
-                    <div class="field">
-                      <label class="label">State</label>
-                      <input class="input" id="state_region" placeholder="FL" />
-                    </div>
-
-                    <div class="field">
-                      <label class="label">Sport</label>
-                      <select class="select" id="sport">
-                        <option value="Football">Football</option>
-                        <option value="Basketball">Basketball</option>
-                        <option value="Baseball">Baseball</option>
-                        <option value="Track & Field">Track &amp; Field</option>
-                        <option value="Soccer">Soccer</option>
-                      </select>
-                    </div>
-
-                    <div class="field">
-                      <label class="label">Primary Position</label>
-                      <input class="input" id="primary_position" placeholder="QB, PG, WR, etc." />
-                    </div>
-
-                    <div class="field">
-                      <label class="label">Secondary Position</label>
-                      <input class="input" id="secondary_position" placeholder="Optional" />
-                    </div>
-
-                    <div class="field">
-                      <label class="label">Age</label>
-                      <input class="input" id="age" type="number" min="8" max="30" value="17" />
-                    </div>
-                  </div>
-                </div>
-
-                <div class="profile-card">
-                  <div class="section-title">Roster Snapshot</div>
-                  <div class="form-grid">
-                    <div class="field">
-                      <label class="label">Height</label>
-                      <input class="input" id="height" placeholder="6'1&quot;" value="6'1&quot;" />
-                    </div>
-
-                    <div class="field">
-                      <label class="label">Weight</label>
-                      <input class="input" id="weight" placeholder="185" value="185" />
-                    </div>
-
-                    <div class="field">
-                      <label class="label">Current Level</label>
-                      <select class="select" id="current_level">
-                        <option value="Youth">Youth</option>
-                        <option value="Middle School">Middle School</option>
-                        <option value="HS" selected>HS</option>
-                        <option value="Prep">Prep</option>
-                        <option value="College">College</option>
-                      </select>
-                    </div>
-
-                    <div class="field">
-                      <label class="label">Graduation Year</label>
-                      <input class="input" id="graduation_year" type="number" value="2027" />
-                    </div>
-
-                    <div class="field">
-                      <label class="label">School Name</label>
-                      <input class="input" id="school_name" placeholder="School / academy" />
-                    </div>
-
-                    <div class="field">
-                      <label class="label">Team Name</label>
-                      <input class="input" id="team_name" placeholder="Team name" />
-                    </div>
-
-                    <div class="field">
-                      <label class="label">GPA</label>
-                      <input class="input" id="gpa" type="number" step="0.1" value="3.4" />
-                    </div>
-
-                    <div class="field">
-                      <label class="label">Academic Status</label>
-                      <select class="select" id="academic_status">
-                        <option value="eligible" selected>Eligible</option>
-                        <option value="monitoring">Monitoring</option>
-                        <option value="unknown">Unknown</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="profile-card">
-                  <div class="section-title">Coach / Organization Contact</div>
-                  <div class="form-grid">
-                    <div class="field">
-                      <label class="label">Coach Name</label>
-                      <input class="input" id="coach_name" placeholder="Coach name" />
-                    </div>
-
-                    <div class="field">
-                      <label class="label">Coach Contact</label>
-                      <input class="input" id="coach_contact" placeholder="coach@example.com" />
-                    </div>
-
-                    <div class="field full">
-                      <label class="label">Profile Summary</label>
-                      <textarea class="textarea" id="bio_short" placeholder="Short scouting-style profile summary"></textarea>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="profile-card">
-                  <div class="section-title">Performance Metrics</div>
-                  <div class="hint" style="margin-bottom:16px;">These drive normalization, scoring domains, and CEP-001 integrity checks.</div>
-
-                  <div class="metric-grid">
-                    <div class="field">
-                      <label class="label">40 Yard Dash</label>
-                      <input class="input" id="metric_40" type="number" step="0.01" value="4.85" />
-                    </div>
-
-                    <div class="field">
-                      <label class="label">Vertical</label>
-                      <input class="input" id="metric_vertical" type="number" step="0.1" value="32" />
-                    </div>
-
-                    <div class="field">
-                      <label class="label">Awareness</label>
-                      <input class="input" id="metric_awareness" type="number" min="0" max="100" value="84" />
-                    </div>
-
-                    <div class="field">
-                      <label class="label">Mechanics</label>
-                      <input class="input" id="metric_mechanics" type="number" min="0" max="100" value="81" />
-                    </div>
-                  </div>
-
-                  <div class="actions" style="margin-top:18px">
-                    <button class="btn-primary" id="generateBtn">Generate STATScore</button>
-                    <button class="btn-ghost" id="backToIdentityBtn">Back</button>
-                    <span class="hint">This version submits to Supabase through the live Generate button.</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </main>
-      </div>
-    </section>
-
-    <section class="screen" id="screen-processing">
-      <div class="system-shell">
-        <aside class="nace-panel">
-          <div class="nace-head">
-            <div class="nace-badge"><span class="nace-dot"></span> NACE Processing</div>
-            <div class="phase-chip">Phase 03</div>
-          </div>
-
-          <div class="nace-message">
-            <div class="nace-kicker">Processing State</div>
-            <div class="nace-title">Evaluating athlete profile.</div>
-            <div class="nace-copy">STATScore is processing the intake, writing the athlete record, and preparing the next output state.</div>
-            <div class="nace-guidance">Hold state. Do not interrupt the evaluation path.</div>
-          </div>
-
-          <div class="nace-status-stack">
-            <div class="status-card"><div class="status-label">Current Action</div><div class="status-value">Submitting to Supabase</div></div>
-            <div class="status-card"><div class="status-label">Pipeline</div><div class="status-value">Profile → Intake → Score</div></div>
-            <div class="status-card"><div class="status-label">Output</div><div class="status-value">Score → Decision → Report Path</div></div>
-          </div>
-        </aside>
-
-        <main class="work-panel">
-          <div class="work-wrap">
-            <div class="panel progress-wrap">
-              <div class="progress-ring"></div>
-              <h1 class="progress-title">Analyzing Professional Profile...</h1>
-              <p class="progress-copy">The system is sending the intake payload through the STATScore write spine and preparing the next stage.</p>
-            </div>
-          </div>
-        </main>
-      </div>
-    </section>
-
-    <section class="screen" id="screen-score">
-      <div class="system-shell">
-        <aside class="nace-panel">
-          <div class="nace-head">
-            <div class="nace-badge"><span class="nace-dot"></span> NACE Output</div>
-            <div class="phase-chip">Phase 04</div>
-          </div>
-
-          <div class="nace-message">
-            <div class="nace-kicker">Evaluation Complete</div>
-            <div class="nace-title">Review results.</div>
-            <div class="nace-copy">STATScore has completed the athlete evaluation. Review the score, tier, readiness band, strengths, flags, and domain breakdown before advancing into recruiting governance.</div>
-            <div class="nace-guidance" id="scoreGuidance">The athlete record now has a structured evaluation state.</div>
-          </div>
-
-          <div class="nace-status-stack">
-            <div class="status-card"><div class="status-label">Athlete</div><div class="status-value" id="statusAthleteName">—</div></div>
-            <div class="status-card"><div class="status-label">Tier</div><div class="status-value" id="statusTier">—</div></div>
-            <div class="status-card"><div class="status-label">Readiness</div><div class="status-value" id="statusReadiness">—</div></div>
-          </div>
-        </aside>
-
-        <main class="work-panel">
-          <div class="work-wrap">
-            <div>
-              <h1 class="view-title">STATScore Evaluation</h1>
-              <p class="view-sub">This screen represents the performance truth layer. Score exists before report release. CEP-001 governs whether recruiting output is allowed.</p>
-            </div>
-
-            <div class="score-hero">
-              <div class="score-card">
-                <div class="score-kicker">STATScore</div>
-                <div class="score-number" id="overallScore">75</div>
-                <div class="score-tier" id="tierText">Operational</div>
-                <div class="score-band" id="readinessBand">Readiness Band: Active</div>
-                <div class="pill-row" id="scorePills"></div>
-              </div>
-
-              <div class="score-card">
-                <div class="score-kicker">Domain Breakdown</div>
-                <div class="domain-list" id="domainList"></div>
-              </div>
-            </div>
-
-            <div class="tag-block">
-              <div class="tag-card">
-                <div class="tag-title">Strengths</div>
-                <div class="tag-list" id="strengthList"></div>
-              </div>
-
-              <div class="tag-card">
-                <div class="tag-title">Flags</div>
-                <div class="tag-list" id="flagList"></div>
-              </div>
-            </div>
-
-            <div class="panel">
-              <div class="section-title">Evaluation Summary</div>
-              <p class="view-sub" id="summaryText">Initial intake submitted successfully.</p>
-              <div class="actions" style="margin-top:18px">
-                <button class="btn-primary" id="toDecisionBtn">Continue</button>
-                <button class="btn-ghost" id="restartBtn1">Restart Intake</button>
-              </div>
-            </div>
-          </div>
-        </main>
-      </div>
-    </section>
-
-    <section class="screen" id="screen-decision">
-      <div class="system-shell">
-        <aside class="nace-panel">
-          <div class="nace-head">
-            <div class="nace-badge"><span class="nace-dot"></span> CEP-001 Gate</div>
-            <div class="phase-chip">Phase 05</div>
-          </div>
-
-          <div class="nace-message">
-            <div class="nace-kicker">Recruiting Governance</div>
-            <div class="nace-title">Decision state assigned.</div>
-            <div class="nace-copy">This screen is preserved for the later CEP-001 release path.</div>
-            <div class="nace-guidance" id="decisionGuidance">Integrity takes precedence over release.</div>
-          </div>
-
-          <div class="nace-status-stack">
-            <div class="status-card"><div class="status-label">Decision</div><div class="status-value" id="statusDecision">Pending CEP-001</div></div>
-            <div class="status-card"><div class="status-label">Report Path</div><div class="status-value" id="statusReportPath">Awaiting logic</div></div>
-            <div class="status-card"><div class="status-label">Required Actions</div><div class="status-value" id="statusActionsCount">Pending</div></div>
-          </div>
-        </aside>
-
-        <main class="work-panel">
-          <div class="work-wrap">
-            <div>
-              <h1 class="view-title">CEP-001 Decision Matrix</h1>
-              <p class="view-sub">This production shell is ready for the next CEP-001 logic pass after live intake submission is confirmed.</p>
-            </div>
-
-            <div class="decision-box">
-              <div class="decision-state conditional" id="decisionStateBox">
-                <div class="decision-label">Decision Status</div>
-                <div class="decision-main" id="decisionMain">Pending</div>
-              </div>
-
+          <section class="grid-3">
+            <article class="card">
               <div>
-                <p class="decision-copy" id="decisionReason">CEP-001 release logic will be rendered here after the next wiring pass.</p>
-                <div class="action-list" id="requiredActionsList">
-                  <div class="action-item">Complete live intake submission first.</div>
+                <div class="role-top">
+                  <div class="role-name">Athlete</div>
+                  <div class="role-tag">Primary</div>
                 </div>
-                <div class="actions" style="margin-top:18px">
-                  <button class="btn-primary" id="decisionContinueBtn">Continue</button>
-                  <button class="btn-ghost" id="restartBtn2">Restart Intake</button>
-                </div>
+                <p>For athletes or parents creating a personal player profile, performance record, and recruiting visibility path.</p>
               </div>
-            </div>
-          </div>
+              <button class="btn" onclick="selectRole('Athlete')">Start Athlete Profile</button>
+            </article>
+
+            <article class="card">
+              <div>
+                <div class="role-top">
+                  <div class="role-name">Coach</div>
+                  <div class="role-tag">Verified Input</div>
+                </div>
+                <p>For coaches entering or supporting athlete information with higher trust and evaluation context.</p>
+              </div>
+              <button class="btn" onclick="selectRole('Coach')">Start Coach Entry</button>
+            </article>
+
+            <article class="card">
+              <div>
+                <div class="role-top">
+                  <div class="role-name">Program</div>
+                  <div class="role-tag">Team / Org</div>
+                </div>
+                <p>For teams, academies, and organizations building supervised athlete records and roster pipelines.</p>
+              </div>
+              <button class="btn" onclick="selectRole('Program')">Start Program Entry</button>
+            </article>
+          </section>
         </main>
       </div>
     </section>
 
-    <section class="screen" id="screen-report">
-      <div class="system-shell">
-        <aside class="nace-panel">
-          <div class="nace-head">
-            <div class="nace-badge"><span class="nace-dot"></span> Final Routing</div>
-            <div class="phase-chip">Phase 06</div>
+    <section class="screen" id="intakeScreen">
+      <div class="shell">
+        <aside class="side">
+          <div class="side-label">Active Lane</div>
+          <h2 id="activeRole">Athlete</h2>
+          <p>
+            Enter clean athlete information. The public profile will show verified identity,
+            performance signals, recruiting projection, and protected academic readiness.
+          </p>
+
+          <div class="side-card">
+            <strong>Minimum Required</strong>
+            Name, sport, position, city/state, class year, and baseline performance metrics.
           </div>
 
-          <div class="nace-message">
-            <div class="nace-kicker">System Output</div>
-            <div class="nace-title" id="finalTitle">Submission Complete.</div>
-            <div class="nace-copy" id="finalCopy">The intake has been written through Supabase. This screen is reserved for recruiting-report output and final routing.</div>
-            <div class="nace-guidance" id="finalGuidance">Proceed to the next build layer when ready.</div>
-          </div>
-
-          <div class="nace-status-stack">
-            <div class="status-card"><div class="status-label">Report Status</div><div class="status-value" id="reportStatusText">Pending report logic</div></div>
-            <div class="status-card"><div class="status-label">Clearinghouse</div><div class="status-value">Snapshot path active</div></div>
-            <div class="status-card"><div class="status-label">Available Actions</div><div class="status-value" id="availableActionsText">Restart / proceed to next layer</div></div>
+          <div class="side-card">
+            <strong>Next Output</strong>
+            STATScore snapshot → player profile → exposure/recruiting pathway.
           </div>
         </aside>
 
-        <main class="work-panel">
-          <div class="work-wrap">
-            <div>
-              <h1 class="view-title">Output Path</h1>
-              <p class="view-sub">This screen is reserved for the recruiting-report artifact and final action routing.</p>
+        <main class="main">
+          <section class="hero">
+            <div class="hero-kicker">Player Profile Intake</div>
+            <h1>Enter Athlete Data</h1>
+            <p>
+              This is the first live layer of STATScore. The information entered here becomes the foundation for the athlete profile.
+            </p>
+          </section>
+
+          <section class="panel">
+            <div class="section-head">
+              <h2>Identity</h2>
+              <p>Basic athlete identity and roster information.</p>
             </div>
 
-            <div class="report-grid" id="reportContainer">
-              <section class="report-section">
-                <div class="section-heading">Live Submission Confirmed</div>
-                <div class="footer-note">The system is now writing live intake submissions through Supabase. Next pass will render live score, CEP-001 decision, and report data here.</div>
-              </section>
+            <div class="form-grid">
+              <div class="field">
+                <label>Full Name</label>
+                <input id="full_name" placeholder="Caleb Willoughby">
+              </div>
+
+              <div class="field">
+                <label>Display Name</label>
+                <input id="display_name" placeholder="@athlete">
+              </div>
+
+              <div class="field">
+                <label>Sport</label>
+                <select id="sport">
+                  <option>Football</option>
+                  <option>Basketball</option>
+                  <option>Baseball</option>
+                  <option>Track & Field</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label>Primary Position / Event</label>
+                <input id="primary_position" placeholder="RB, PG, 100m, Long Jump">
+              </div>
+
+              <div class="field">
+                <label>City</label>
+                <input id="city" placeholder="Pensacola">
+              </div>
+
+              <div class="field">
+                <label>State</label>
+                <input id="state_region" placeholder="FL">
+              </div>
+
+              <div class="field">
+                <label>School / Program</label>
+                <input id="school_name" placeholder="Pensacola Catholic">
+              </div>
+
+              <div class="field">
+                <label>Class Year</label>
+                <input id="graduation_year" type="number" value="2027">
+              </div>
+
+              <div class="field">
+                <label>Height</label>
+                <input id="height" placeholder="5'10&quot;">
+              </div>
+
+              <div class="field">
+                <label>Weight</label>
+                <input id="weight" placeholder="185">
+              </div>
+
+              <div class="field">
+                <label>GPA Signal</label>
+                <input id="gpa" type="number" step="0.1" value="3.3">
+              </div>
+
+              <div class="field">
+                <label>Academic Status</label>
+                <select id="academic_status">
+                  <option>On Track</option>
+                  <option>Needs Review</option>
+                  <option>At Risk</option>
+                  <option>Unknown</option>
+                </select>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="section-head">
+              <h2>Performance</h2>
+              <p>Initial measurable data for the first STATScore snapshot.</p>
+            </div>
+
+            <div class="metrics">
+              <div class="field">
+                <label>40 Yard Dash</label>
+                <input id="metric_40" type="number" step="0.01" value="4.85">
+              </div>
+
+              <div class="field">
+                <label>Vertical</label>
+                <input id="metric_vertical" type="number" step="0.1" value="32">
+              </div>
+
+              <div class="field">
+                <label>Awareness</label>
+                <input id="metric_awareness" type="number" min="0" max="100" value="84">
+              </div>
+
+              <div class="field">
+                <label>Mechanics</label>
+                <input id="metric_mechanics" type="number" min="0" max="100" value="81">
+              </div>
             </div>
 
             <div class="actions">
-              <button class="btn-primary" id="restartBtn3">Run New Evaluation</button>
-              <button class="btn-ghost" id="backToScoreBtn">Back to Score</button>
+              <button class="action-primary" onclick="generateScore()">Generate STATScore</button>
+              <button class="action-ghost" onclick="showScreen('roleScreen')">Back</button>
+              <div class="note">
+                Supabase write remains available through the existing RPC path once anon key is inserted.
+              </div>
             </div>
-          </div>
+          </section>
         </main>
       </div>
     </section>
-  </div>
+
+    <section class="screen" id="scoreScreen">
+      <div class="shell">
+        <aside class="side">
+          <div class="side-label">Evaluation Result</div>
+          <h2>Profile Created</h2>
+          <p>
+            The athlete now has a STATScore snapshot and can move toward profile rendering,
+            recruiter visibility, eligibility review, and PHNX Sports exposure.
+          </p>
+
+          <div class="side-card">
+            <strong>Protected Data</strong>
+            Academic detail requires authorized access.
+          </div>
+        </aside>
+
+        <main class="main">
+          <section class="hero">
+            <div class="hero-kicker">STATScore Snapshot</div>
+            <h1 id="resultName">Athlete Profile</h1>
+            <p id="resultMeta">Performance profile generated.</p>
+          </section>
+
+          <section class="panel score-box">
+            <div class="score-card">
+              <div class="score-label">STATScore</div>
+              <div class="score-number" id="scoreNumber">87.4</div>
+              <div class="score-status">Profile Snapshot</div>
+            </div>
+
+            <div>
+              <h2 style="font-size:34px;margin-bottom:14px;">Recruiting Intelligence Ready</h2>
+              <p class="result-copy">
+                This athlete record can now feed the player profile page, ranking layer,
+                eligibility status, development plan, and PHNX Sports exposure pipeline.
+              </p>
+
+              <div class="badge-row">
+                <div class="badge red">STATScore Generated</div>
+                <div class="badge gold">Player Profile Ready</div>
+                <div class="badge green">Academic Signal Protected</div>
+                <div class="badge">Recruiter View Pending</div>
+              </div>
+
+              <div class="actions">
+                <button class="action-primary" onclick="window.location.href='player-profile.html'">View Player Profile</button>
+                <button class="action-ghost" onclick="showScreen('intakeScreen')">Edit Intake</button>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </section>
+
+  </main>
 
   <script>
-    const screens = {
-      transition: document.getElementById('screen-transition'),
-      identity: document.getElementById('screen-identity'),
-      intake: document.getElementById('screen-intake'),
-      processing: document.getElementById('screen-processing'),
-      score: document.getElementById('screen-score'),
-      decision: document.getElementById('screen-decision'),
-      report: document.getElementById('screen-report')
-    };
+    const state = { role: "Athlete" };
 
-    const state = {
-      role: null,
-      payload: null,
-      rpcResult: null,
-      headshotDataUrl: null
-    };
-
-    function showScreen(name){
-      Object.values(screens).forEach(s => s.classList.remove('active'));
-      screens[name].classList.add('active');
+    function showScreen(id){
+      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
       window.scrollTo(0,0);
     }
 
-    function safeVal(id){
-      const el = document.getElementById(id);
-      return el ? el.value.trim() : '';
-    }
-
-    function bindPreviewField(id){
-      const el = document.getElementById(id);
-      if (!el) return;
-      const eventName = el.tagName === 'SELECT' ? 'change' : 'input';
-      el.addEventListener(eventName, updateProfilePreview);
-    }
-
-    function updateProfilePreview(){
-      const fullName = safeVal('full_name') || 'Athlete Name';
-      const displayName = safeVal('display_name');
-      const sport = safeVal('sport') || 'Football';
-      const position = safeVal('primary_position') || 'Position';
-      const city = safeVal('city');
-      const stateRegion = safeVal('state_region');
-      const graduationYear = safeVal('graduation_year') || '2027';
-      const currentLevel = safeVal('current_level') || 'HS';
-      const school = safeVal('school_name') || 'School';
-      const team = safeVal('team_name') || 'Team';
-      const academic = safeVal('academic_status') || 'Eligible';
-
-      document.getElementById('profileNamePreview').textContent = fullName;
-
-      let handle = '@displayname';
-      if (displayName) {
-        handle = displayName.startsWith('@') ? displayName : `@${displayName}`;
-      }
-      document.getElementById('profileHandlePreview').textContent = handle;
-
-      const locationText = city || stateRegion
-        ? `${city || 'City'}${city && stateRegion ? ', ' : ''}${stateRegion || 'State'}`
-        : 'City, State';
-
-      document.getElementById('profileMetaPreview').innerHTML = `
-        <div class="meta-chip">${sport}</div>
-        <div class="meta-chip">${position}</div>
-        <div class="meta-chip">${locationText}</div>
-        <div class="meta-chip">Class ${graduationYear}</div>
-      `;
-
-      document.getElementById('currentLevelPreview').textContent = currentLevel;
-      document.getElementById('schoolPreview').textContent = school;
-      document.getElementById('teamPreview').textContent = team;
-      document.getElementById('academicPreview').textContent = academic.charAt(0).toUpperCase() + academic.slice(1);
-    }
-
-    function handleHeadshotChange(e){
-      const file = e.target.files && e.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(evt){
-        state.headshotDataUrl = evt.target.result;
-        document.getElementById('headshotPreview').innerHTML = `<img src="${evt.target.result}" alt="Athlete Headshot">`;
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function goToIntake(role){
+    function selectRole(role){
       state.role = role;
-      document.getElementById('statusRole').textContent = role;
-      document.getElementById('statusRole2').textContent = role;
-      document.getElementById('nacePrompt').textContent = `${role} intake selected. Enter athlete identity, presentation profile, performance metrics, and recruiting visibility data to create the athlete dossier.`;
-      showScreen('intake');
+      document.getElementById("activeRole").textContent = role;
+      showScreen("intakeScreen");
     }
 
-    function restartFlow(){
-      state.role = null;
-      state.payload = null;
-      state.rpcResult = null;
-      state.headshotDataUrl = null;
-
-      const file = document.getElementById('headshot');
-      if (file) file.value = '';
-
-      const preview = document.getElementById('headshotPreview');
-      if (preview) {
-        preview.innerHTML = `<div class="headshot-empty">No headshot selected.<br>Upload a professional player photo.</div>`;
-      }
-
-      showScreen('transition');
-      setTimeout(() => showScreen('identity'), 800);
+    function val(id){
+      const el = document.getElementById(id);
+      return el ? el.value.trim() : "";
     }
 
-    function buildPayload(){
-      const fullName = safeVal('full_name');
-      const nameParts = fullName.split(' ').filter(Boolean);
+    function generateScore(){
+      const name = val("full_name") || "Athlete Profile";
+      const sport = val("sport") || "Football";
+      const pos = val("primary_position") || "Position";
+      const city = val("city") || "City";
+      const region = val("state_region") || "State";
+      const year = val("graduation_year") || "2027";
 
-      return {
-        first_name: nameParts[0] || 'Live',
-        last_name: nameParts.slice(1).join(' ') || 'Test',
-        sport: safeVal('sport') || 'Football',
-        position: safeVal('primary_position') || 'WR',
-        graduation_year: parseInt(safeVal('graduation_year') || '2026', 10),
-        city: safeVal('city'),
-        state_region: safeVal('state_region'),
-        display_name: safeVal('display_name'),
-        secondary_position: safeVal('secondary_position'),
-        age: safeVal('age'),
-        height: safeVal('height'),
-        weight: safeVal('weight'),
-        current_level: safeVal('current_level'),
-        school_name: safeVal('school_name'),
-        team_name: safeVal('team_name'),
-        gpa: safeVal('gpa'),
-        academic_status: safeVal('academic_status'),
-        instagram: safeVal('instagram'),
-        twitter: safeVal('twitter'),
-        highlight_link: safeVal('highlight_link'),
-        coach_name: safeVal('coach_name'),
-        coach_contact: safeVal('coach_contact'),
-        bio_short: safeVal('bio_short'),
-        metric_40: safeVal('metric_40'),
-        metric_vertical: safeVal('metric_vertical'),
-        metric_awareness: safeVal('metric_awareness'),
-        metric_mechanics: safeVal('metric_mechanics'),
-        headshot: state.headshotDataUrl ? 'local-preview-loaded' : ''
-      };
+      document.getElementById("resultName").textContent = name;
+      document.getElementById("resultMeta").textContent =
+        `${pos} · ${sport} · Class of ${year} · ${city}, ${region}`;
+
+      const awareness = Number(val("metric_awareness") || 80);
+      const mechanics = Number(val("metric_mechanics") || 80);
+      const vertical = Number(val("metric_vertical") || 30);
+      const forty = Number(val("metric_40") || 4.9);
+
+      let score = Math.round(
+        (awareness * .35) +
+        (mechanics * .35) +
+        (Math.min(vertical, 40) * 1.1) +
+        ((5.3 - Math.min(forty,5.3)) * 18)
+      );
+
+      score = Math.max(55, Math.min(99, score));
+      document.getElementById("scoreNumber").textContent = score.toFixed(1);
+
+      showScreen("scoreScreen");
     }
-
-    function renderLiveResult(data){
-      const athleteName = `${state.payload.first_name} ${state.payload.last_name}`.trim();
-      const location = [state.payload.city, state.payload.state_region].filter(Boolean).join(', ');
-
-      document.getElementById('overallScore').textContent = data.score ?? 75;
-      document.getElementById('tierText').textContent = 'Operational';
-      document.getElementById('readinessBand').textContent = 'Readiness Band: Active';
-      document.getElementById('summaryText').textContent = `Athlete intake submitted successfully. Athlete ID: ${data.athlete_id || 'generated'}. Professional profile layer captured for ${athleteName}.`;
-      document.getElementById('statusAthleteName').textContent = athleteName || 'Unnamed Athlete';
-      document.getElementById('statusTier').textContent = 'Operational';
-      document.getElementById('statusReadiness').textContent = 'Active';
-      document.getElementById('scoreGuidance').textContent = `Live Supabase submission completed for the ${state.role} lane.`;
-
-      document.getElementById('scorePills').innerHTML = `
-        <div class="pill">${state.payload.sport}</div>
-        <div class="pill">${state.payload.position}</div>
-        <div class="pill">${state.role}</div>
-        <div class="pill">${location || 'Location captured'}</div>
-      `;
-
-      document.getElementById('domainList').innerHTML = `
-        <div class="domain-row">
-          <div class="domain-name">Core Pipeline</div>
-          <div class="bar"><span style="width:100%"></span></div>
-          <div class="domain-score">100</div>
-        </div>
-        <div class="domain-row">
-          <div class="domain-name">Profile Layer</div>
-          <div class="bar"><span style="width:100%"></span></div>
-          <div class="domain-score">100</div>
-        </div>
-        <div class="domain-row">
-          <div class="domain-name">Score Return</div>
-          <div class="bar"><span style="width:${data.score ?? 75}%"></span></div>
-          <div class="domain-score">${data.score ?? 75}</div>
-        </div>
-      `;
-
-      document.getElementById('strengthList').innerHTML = `
-        <div class="tag">Live database write</div>
-        <div class="tag">Professional profile captured</div>
-        <div class="tag">Score returned</div>
-      `;
-
-      document.getElementById('flagList').innerHTML = `
-        <div class="tag warn">CEP-001 UI pending</div>
-        <div class="tag warn">Report rendering pending</div>
-      `;
-    }
-
-    async function submitGenerate(){
-      const fullName = safeVal('full_name');
-      const primaryPosition = safeVal('primary_position');
-      const city = safeVal('city');
-      const stateRegion = safeVal('state_region');
-
-      if (!fullName || !primaryPosition || !city || !stateRegion) {
-        alert('Enter athlete full name, city, state, and primary position before generating STATScore.');
-        return;
-      }
-
-      state.payload = buildPayload();
-      showScreen('processing');
-
-      try {
-        const { data, error } = await window.supabaseClient.rpc('statscore_create_intake', {
-          payload: state.payload
-        });
-
-        if (error) {
-          console.error(error);
-          alert('Error: ' + error.message);
-          showScreen('intake');
-          return;
-        }
-
-        state.rpcResult = data;
-        renderLiveResult(data);
-        showScreen('score');
-      } catch (err) {
-        console.error(err);
-        alert('Error: ' + err.message);
-        showScreen('intake');
-      }
-    }
-
-    document.querySelectorAll('[data-role]').forEach(btn => {
-      btn.addEventListener('click', () => goToIntake(btn.dataset.role));
-    });
-
-    ['full_name','display_name','sport','primary_position','city','state_region','graduation_year','current_level','school_name','team_name','academic_status']
-      .forEach(bindPreviewField);
-
-    document.getElementById('headshot').addEventListener('change', handleHeadshotChange);
-    document.getElementById('generateBtn').addEventListener('click', submitGenerate);
-    document.getElementById('backToIdentityBtn').addEventListener('click', () => showScreen('identity'));
-    document.getElementById('toDecisionBtn').addEventListener('click', () => showScreen('decision'));
-    document.getElementById('decisionContinueBtn').addEventListener('click', () => showScreen('report'));
-    document.getElementById('backToScoreBtn').addEventListener('click', () => showScreen('score'));
-
-    ['restartBtn1','restartBtn2','restartBtn3'].forEach(id => {
-      document.getElementById(id).addEventListener('click', restartFlow);
-    });
-
-    updateProfilePreview();
-    setTimeout(() => showScreen('identity'), 1200);
-  </script>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    window.supabaseClient = window.supabase.createClient(
-      "https://oyjmpbuxvfxusmbouldi.supabase.co",
-      "PASTE_YOUR_ANON_KEY_HERE"
-    );
   </script>
 </body>
 </html> 
