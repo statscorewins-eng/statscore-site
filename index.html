@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -112,38 +112,51 @@ text-shadow:
 
 .enter{
 padding:13px 30px;
+
 font-size:0.74rem;
 font-weight:800;
 letter-spacing:0.24em;
 text-transform:uppercase;
-background:linear-gradient(
+
+background:
+linear-gradient(
 180deg,
-#ff4b55 0%,
-#ff2f3c 45%,
-#d91522 100%
+#ff4a54 0%,
+#dc1f2b 100%
 );
-border:1px solid rgba(255,255,255,0.12);
-border-radius:3px;
+
+border:
+1px solid rgba(255,255,255,0.12);
+
+border-radius:2px;
+
 color:#ffffff;
+
 cursor:pointer;
+
 box-shadow:
-0 0 0 1px rgba(255,255,255,0.04),
-0 0 18px rgba(255,59,71,0.38),
-0 10px 30px rgba(217,21,34,0.34);
+0 1px 0 rgba(255,255,255,0.08) inset,
+0 0 0 1px rgba(0,0,0,0.28);
+
 transition:
-transform .18s ease,
-box-shadow .18s ease,
-filter .18s ease;
+background .16s ease,
+transform .16s ease,
+border-color .16s ease;
 }
 
 .enter:hover{
 transform:translateY(-1px);
-filter:brightness(1.08);
-box-shadow:
-0 0 0 1px rgba(255,255,255,0.08),
-0 0 24px rgba(255,59,71,0.52),
-0 14px 34px rgba(217,21,34,0.45);
-}
+
+background:
+linear-gradient(
+180deg,
+#ff5660 0%,
+#e02230 100%
+);
+
+border-color:
+rgba(255,255,255,0.18);
+} 
 
 .sub{
 font-size:0.9rem;
@@ -168,8 +181,13 @@ width:130%;
 }
 
 .headline{
-font-size:1.4rem;
-}
+font-size:clamp(1.4rem, 2vw, 2rem);
+font-weight:650;
+letter-spacing:-0.045em;
+line-height:1.02;
+
+color:#ffffff;
+} 
 
 .enter{
 padding:12px 22px;
