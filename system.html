@@ -3,37 +3,35 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>STATScore™ — System</title>
+<title>STATScore™ — System Command Surface</title>
 
 <style>
 :root{
   --white:#f4f4ef;
-  --ink:#080b10;
-  --dark:#070d15;
-  --dark2:#0b1320;
-  --panel:#101a29;
-  --panel2:#132033;
-  --line:rgba(255,255,255,.14);
+  --ink:#070a0f;
+  --dark:#050911;
+  --dark2:#09111d;
+  --panel:#0d1726;
+  --panel2:#111f33;
+  --line:rgba(255,255,255,.16);
   --line2:rgba(255,255,255,.28);
-  --text:#eef3f8;
-  --muted:#a9b6c8;
+  --text:#eef5f8;
+  --muted:#9fb1c4;
   --red:#d51d28;
-  --red2:#941017;
-  --blue:#4a8dff;
-  --gold:#c9a45b;
+  --red2:#8c0d15;
+  --gold:#caa85a;
+  --blue:#3c86ff;
   --green:#22b573;
-  --max:1240px;
+  --max:1280px;
 }
 
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box;}
 
 body{
   margin:0;
-  font-family:Arial, Helvetica, sans-serif;
   background:var(--dark);
   color:var(--text);
+  font-family:Arial, Helvetica, sans-serif;
 }
 
 a{
@@ -43,59 +41,89 @@ a{
 
 .page{
   min-height:100vh;
-  background:var(--dark);
+  background:
+    radial-gradient(circle at 15% 0%, rgba(213,29,40,.16), transparent 32%),
+    radial-gradient(circle at 90% 20%, rgba(60,134,255,.13), transparent 36%),
+    linear-gradient(180deg,#050911 0%,#08111d 50%,#050911 100%);
 }
 
-/* =========================
-   WHITE AUTHORITY HEADER
-========================= */
+/* WHITE AUTHORITY HEADER */
 
 .header{
   background:var(--white);
   color:var(--ink);
   border-top:4px solid var(--red);
   border-bottom:5px solid var(--red);
+  position:relative;
+  z-index:5;
 }
 
 .header-inner{
-  width:min(var(--max), calc(100% - 40px));
+  width:min(var(--max), calc(100% - 42px));
   margin:0 auto;
-  padding:24px 0;
+  min-height:142px;
   display:flex;
-  align-items:center;
+  align-items:flex-end;
   justify-content:space-between;
-  gap:24px;
+  gap:22px;
+  padding:24px 0 22px;
 }
 
+/* FOLDER TAB LOGO */
+
 .logo-tab{
-  width:330px;
-  max-width:48vw;
-  padding:12px 16px;
-  border:2px solid #111;
+  width:350px;
+  height:118px;
+  position:relative;
   background:#fff;
-  box-shadow:8px 8px 0 rgba(0,0,0,.12);
+  border:2px solid #111;
+  box-shadow:
+    12px 12px 0 rgba(0,0,0,.14),
+    inset 0 0 0 1px rgba(255,255,255,.7);
   display:flex;
   align-items:center;
   justify-content:center;
+  padding:18px 22px;
+  clip-path:polygon(0 0,88% 0,100% 33%,100% 100%,0 100%);
+}
+
+.logo-tab::before{
+  content:"";
+  position:absolute;
+  inset:8px;
+  border:1px solid rgba(0,0,0,.18);
+  clip-path:polygon(0 0,88% 0,100% 33%,100% 100%,0 100%);
+  pointer-events:none;
+}
+
+.logo-tab::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  height:5px;
+  background:var(--red);
 }
 
 .logo-tab img{
   width:100%;
   height:auto;
   display:block;
+  position:relative;
+  z-index:2;
 }
 
 .header-right{
   display:flex;
-  align-items:center;
-  gap:12px;
-  flex-wrap:wrap;
-  justify-content:flex-end;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:14px;
 }
 
 .header-tag{
-  border:1px solid rgba(0,0,0,.34);
-  padding:12px 16px;
+  border:1px solid rgba(0,0,0,.35);
+  padding:13px 18px;
   font-size:.72rem;
   font-weight:900;
   letter-spacing:.16em;
@@ -109,8 +137,8 @@ a{
 }
 
 .nav a{
-  border:1px solid rgba(0,0,0,.28);
-  padding:10px 12px;
+  border:1px solid rgba(0,0,0,.3);
+  padding:12px 16px;
   font-size:.68rem;
   font-weight:900;
   letter-spacing:.12em;
@@ -118,123 +146,153 @@ a{
   background:rgba(255,255,255,.38);
 }
 
-/* =========================
-   DARK OPERATIONAL BODY
-========================= */
-
-.main{
-  background:
-    radial-gradient(circle at 12% 0%, rgba(213,29,40,.16), transparent 34%),
-    radial-gradient(circle at 88% 10%, rgba(72,123,210,.12), transparent 34%),
-    linear-gradient(180deg,#0b111b 0%, #070d15 100%);
-  padding:38px 0 70px;
+.nav a:hover{
+  background:#111;
+  color:#fff;
 }
 
-.shell{
-  width:min(var(--max), calc(100% - 40px));
+/* COMMAND BODY */
+
+.command-body{
+  width:min(var(--max), calc(100% - 42px));
   margin:0 auto;
+  padding:40px 0 72px;
 }
 
-/* =========================
-   ORIENTATION ROW
-========================= */
+/* TOP COMMAND BAND */
 
-.orientation{
+.command-band{
   display:grid;
-  grid-template-columns:1.12fr .88fr;
+  grid-template-columns:1.15fr .85fr;
   gap:18px;
   align-items:stretch;
 }
 
-.box{
+.command-card{
+  position:relative;
   border:1px solid var(--line);
-  background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.015));
-  box-shadow:0 22px 44px rgba(0,0,0,.35);
+  background:
+    linear-gradient(135deg, rgba(213,29,40,.11), transparent 28%),
+    linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.018));
+  box-shadow:0 24px 48px rgba(0,0,0,.38);
+  overflow:hidden;
 }
 
-.orientation-main{
-  min-height:330px;
-  padding:28px;
+.command-card::before{
+  content:"";
+  position:absolute;
+  inset:12px;
+  border:1px solid rgba(255,255,255,.08);
+  pointer-events:none;
+}
+
+.command-card::after{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  width:5px;
+  height:100%;
+  background:var(--red);
+}
+
+.command-main{
+  min-height:360px;
+  padding:34px 34px 28px 38px;
   display:flex;
   flex-direction:column;
   justify-content:space-between;
 }
 
 .kicker{
-  color:#ffb8bf;
+  color:#ffb6bd;
   font-size:.72rem;
   font-weight:900;
-  letter-spacing:.18em;
+  letter-spacing:.22em;
   text-transform:uppercase;
   margin-bottom:18px;
 }
 
-.orientation-main h1{
+.command-main h1{
   margin:0;
   max-width:760px;
-  font-size:clamp(3rem,6vw,6.4rem);
-  line-height:.88;
-  letter-spacing:-.08em;
+  font-size:clamp(3.7rem,7vw,7.8rem);
+  line-height:.83;
+  letter-spacing:-.085em;
   text-transform:uppercase;
 }
 
-.orientation-main p{
-  margin:22px 0 0;
+.command-main p{
+  margin:24px 0 0;
   max-width:760px;
   color:var(--muted);
   font-size:1.08rem;
   line-height:1.55;
-  font-weight:700;
+  font-weight:800;
 }
 
 .lifecycle{
-  margin-top:26px;
   display:flex;
   flex-wrap:wrap;
   gap:8px;
+  margin-top:28px;
 }
 
 .lifecycle span{
   border:1px solid var(--line);
-  background:rgba(255,255,255,.025);
-  padding:10px 12px;
-  color:var(--text);
+  background:rgba(255,255,255,.03);
+  padding:10px 13px;
   font-size:.68rem;
   font-weight:900;
-  letter-spacing:.12em;
+  letter-spacing:.13em;
   text-transform:uppercase;
 }
+
+/* SYSTEM OVERVIEW */
 
 .overview{
-  padding:20px;
+  padding:24px;
 }
 
-.box-title{
-  color:#ffb8bf;
+.panel-title{
+  color:#ffb6bd;
   font-size:.72rem;
   font-weight:900;
-  letter-spacing:.18em;
+  letter-spacing:.2em;
   text-transform:uppercase;
-  margin-bottom:16px;
+  margin-bottom:18px;
 }
 
-.metrics{
+.metric-grid{
   display:grid;
   grid-template-columns:repeat(2,1fr);
-  gap:10px;
+  gap:12px;
 }
 
 .metric{
-  min-height:112px;
+  min-height:126px;
   border:1px solid var(--line);
-  background:rgba(255,255,255,.02);
-  padding:16px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.015));
+  padding:18px;
+  position:relative;
+}
+
+.metric::after{
+  content:"";
+  position:absolute;
+  right:-1px;
+  bottom:-1px;
+  width:32px;
+  height:32px;
+  border-right:2px solid rgba(255,255,255,.18);
+  border-bottom:2px solid rgba(255,255,255,.18);
 }
 
 .metric b{
   display:block;
-  font-size:2rem;
-  margin-bottom:10px;
+  font-size:2.3rem;
+  margin-bottom:12px;
 }
 
 .metric span{
@@ -242,18 +300,16 @@ a{
   color:var(--muted);
   font-size:.68rem;
   font-weight:900;
-  letter-spacing:.12em;
+  letter-spacing:.13em;
   text-transform:uppercase;
   line-height:1.4;
 }
 
-/* =========================
-   SECTION HEADER
-========================= */
+/* SECTION HEADER */
 
 .section-head{
-  margin:30px 0 18px;
-  padding-bottom:16px;
+  margin:34px 0 18px;
+  padding:0 0 18px;
   border-bottom:1px solid var(--line2);
   display:flex;
   justify-content:space-between;
@@ -263,9 +319,9 @@ a{
 
 .section-head h2{
   margin:0;
-  font-size:clamp(2.4rem,4.5vw,4rem);
-  line-height:1;
-  letter-spacing:-.06em;
+  font-size:clamp(2.8rem,5vw,4.8rem);
+  line-height:.95;
+  letter-spacing:-.065em;
   text-transform:uppercase;
 }
 
@@ -274,19 +330,24 @@ a{
   max-width:620px;
   color:var(--muted);
   line-height:1.5;
-  font-weight:700;
+  font-weight:800;
   text-align:right;
 }
 
-/* =========================
-   ACCESS AREA
-========================= */
+/* ACCESS GRID */
 
-.access{
+.access-grid{
   display:grid;
   grid-template-columns:1.1fr .9fr;
   gap:18px;
   align-items:start;
+}
+
+.box{
+  border:1px solid var(--line);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.015));
+  box-shadow:0 22px 44px rgba(0,0,0,.34);
 }
 
 .box-head{
@@ -301,7 +362,7 @@ a{
 .box-head strong{
   font-size:.76rem;
   font-weight:900;
-  letter-spacing:.14em;
+  letter-spacing:.15em;
   text-transform:uppercase;
 }
 
@@ -321,7 +382,7 @@ a{
 
 .badge.special{
   color:#ffe4a0;
-  border-color:rgba(201,164,91,.55);
+  border-color:rgba(202,168,90,.55);
 }
 
 .box-body{
@@ -330,8 +391,8 @@ a{
 
 .profile-start{
   border:1px solid var(--line2);
-  background:#090f18;
-  padding:18px;
+  background:#08101a;
+  padding:20px;
   display:grid;
   grid-template-columns:1fr auto;
   gap:20px;
@@ -340,36 +401,36 @@ a{
 
 .profile-start h3{
   margin:0;
-  font-size:1.9rem;
-  letter-spacing:-.04em;
+  max-width:460px;
+  font-size:2rem;
+  line-height:1;
+  letter-spacing:-.045em;
   text-transform:uppercase;
 }
 
 .profile-start p{
-  margin:10px 0 0;
+  margin:12px 0 0;
   color:var(--muted);
   line-height:1.5;
-  font-weight:700;
+  font-weight:800;
 }
 
 .btn{
-  min-height:52px;
-  padding:0 22px;
+  min-height:54px;
+  padding:0 24px;
   display:flex;
   align-items:center;
   justify-content:center;
-  background:var(--red);
+  background:linear-gradient(180deg,#f0444d,#b91520);
   color:#fff;
   font-weight:900;
-  letter-spacing:.08em;
+  letter-spacing:.09em;
   text-transform:uppercase;
-  box-shadow:6px 6px 0 rgba(0,0,0,.35);
+  box-shadow:7px 7px 0 rgba(0,0,0,.36);
   white-space:nowrap;
 }
 
-/* =========================
-   ROLE CARDS
-========================= */
+/* ROLE CARDS */
 
 .role-grid{
   margin-top:14px;
@@ -379,21 +440,33 @@ a{
 }
 
 .role{
+  min-height:156px;
   position:relative;
-  min-height:152px;
   border:1px solid var(--line);
-  background:rgba(255,255,255,.022);
+  background:rgba(255,255,255,.024);
   padding:18px;
+  overflow:hidden;
 }
 
 .role::before{
   content:"";
   position:absolute;
-  left:0;
   top:0;
-  width:4px;
+  left:0;
+  width:5px;
   height:100%;
   background:var(--red);
+}
+
+.role::after{
+  content:"";
+  position:absolute;
+  right:-18px;
+  top:-18px;
+  width:58px;
+  height:58px;
+  border:1px solid rgba(255,255,255,.11);
+  transform:rotate(45deg);
 }
 
 .role h4{
@@ -405,8 +478,8 @@ a{
 .role p{
   margin:0;
   color:var(--muted);
-  font-weight:700;
   line-height:1.45;
+  font-weight:800;
 }
 
 .role a{
@@ -429,21 +502,19 @@ a{
   border-bottom-color:var(--gold);
 }
 
-/* =========================
-   MULTI-BOX
-========================= */
+/* MULTIBOX */
 
 .multibox{
-  border-color:rgba(201,164,91,.46);
+  border-color:rgba(202,168,90,.46);
   background:
-    linear-gradient(135deg, rgba(201,164,91,.08), transparent 42%),
+    linear-gradient(135deg, rgba(202,168,90,.09), transparent 42%),
     rgba(255,255,255,.02);
 }
 
 .multibox h3{
   margin:0;
-  font-size:2.7rem;
-  line-height:.95;
+  font-size:3rem;
+  line-height:.92;
   letter-spacing:-.07em;
   text-transform:uppercase;
 }
@@ -453,7 +524,7 @@ a{
   color:var(--muted);
   font-size:1rem;
   line-height:1.55;
-  font-weight:800;
+  font-weight:850;
 }
 
 .stack{
@@ -464,7 +535,7 @@ a{
 
 .stack-item{
   border:1px solid var(--line);
-  background:rgba(255,255,255,.02);
+  background:rgba(255,255,255,.023);
   padding:12px;
   display:grid;
   grid-template-columns:36px 1fr;
@@ -476,7 +547,7 @@ a{
   height:36px;
   display:grid;
   place-items:center;
-  border:1px solid rgba(201,164,91,.56);
+  border:1px solid rgba(202,168,90,.58);
   color:#ffe4a0;
   font-weight:900;
 }
@@ -491,13 +562,11 @@ a{
 
 .stack-item span{
   color:var(--muted);
-  font-weight:700;
+  font-weight:800;
   line-height:1.45;
 }
 
-/* =========================
-   READINESS / SPORTS / TRUST
-========================= */
+/* READINESS */
 
 .readiness{
   margin-top:18px;
@@ -509,12 +578,12 @@ a{
 .ready{
   border:1px solid var(--line);
   background:rgba(255,255,255,.022);
-  padding:18px;
+  padding:20px;
 }
 
 .ready h3{
   margin:0 0 14px;
-  font-size:1.3rem;
+  font-size:1.35rem;
   text-transform:uppercase;
 }
 
@@ -528,11 +597,13 @@ a{
 
 .ready li{
   border-left:3px solid var(--red);
-  background:rgba(255,255,255,.015);
-  padding:8px 0 8px 12px;
+  background:rgba(255,255,255,.018);
+  padding:9px 0 9px 12px;
   color:var(--muted);
-  font-weight:700;
+  font-weight:800;
 }
+
+/* SPORTS */
 
 .sports{
   margin-top:18px;
@@ -542,15 +613,28 @@ a{
 }
 
 .sport{
-  min-height:118px;
+  min-height:120px;
   border:1px solid var(--line);
-  background:#090f18;
+  background:#08101a;
   padding:18px;
+  position:relative;
+  overflow:hidden;
+}
+
+.sport::after{
+  content:"";
+  position:absolute;
+  right:-18px;
+  top:-18px;
+  width:62px;
+  height:62px;
+  border:1px solid rgba(255,255,255,.11);
+  transform:rotate(45deg);
 }
 
 .sport b{
   display:block;
-  margin-bottom:38px;
+  margin-bottom:40px;
   font-size:1.15rem;
   text-transform:uppercase;
 }
@@ -563,11 +647,14 @@ a{
   text-transform:uppercase;
 }
 
+/* TRUST */
+
 .trust{
   margin-top:18px;
   border:1px solid var(--line);
-  background:linear-gradient(90deg, rgba(213,29,40,.08), rgba(255,255,255,.015));
-  padding:18px;
+  background:
+    linear-gradient(90deg, rgba(213,29,40,.08), rgba(255,255,255,.015));
+  padding:20px;
 }
 
 .trust-head{
@@ -580,7 +667,7 @@ a{
 
 .trust h3{
   margin:0;
-  font-size:1.55rem;
+  font-size:1.6rem;
   text-transform:uppercase;
 }
 
@@ -591,7 +678,7 @@ a{
 }
 
 .step{
-  min-height:88px;
+  min-height:90px;
   border:1px solid var(--line);
   background:rgba(255,255,255,.022);
   padding:14px;
@@ -611,12 +698,10 @@ a{
   text-transform:uppercase;
 }
 
-/* =========================
-   FOOTER
-========================= */
+/* FOOTER */
 
 footer{
-  width:min(var(--max), calc(100% - 40px));
+  width:min(var(--max), calc(100% - 42px));
   margin:0 auto;
   padding:26px 0 50px;
   border-top:1px solid var(--line);
@@ -626,18 +711,26 @@ footer{
   color:var(--muted);
   font-size:.82rem;
   line-height:1.5;
-  font-weight:700;
+  font-weight:800;
 }
 
-/* =========================
-   RESPONSIVE
-========================= */
+/* RESPONSIVE */
 
 @media(max-width:980px){
-  .orientation,
-  .access,
+  .header-inner,
+  .header-right{
+    align-items:flex-start;
+  }
+
+  .header-inner,
+  .command-band,
+  .access-grid,
   .readiness{
     grid-template-columns:1fr;
+  }
+
+  .header-inner{
+    flex-direction:column;
   }
 
   .section-head{
@@ -656,27 +749,16 @@ footer{
 }
 
 @media(max-width:640px){
-  .header-inner{
-    flex-direction:column;
-    align-items:flex-start;
-  }
-
   .logo-tab{
     width:100%;
     max-width:100%;
   }
 
-  .header-right{
-    width:100%;
-    justify-content:flex-start;
-  }
-
   .nav{
-    width:100%;
-    overflow-x:auto;
+    flex-wrap:wrap;
   }
 
-  .metrics,
+  .metric-grid,
   .role-grid,
   .sports,
   .ladder{
@@ -720,239 +802,220 @@ footer{
   </div>
 </header>
 
-<section class="main">
-  <div class="shell">
+<section class="command-body">
 
-    <section class="orientation">
+  <section class="command-band">
 
-      <div class="box orientation-main">
-        <div>
-          <div class="kicker">Athlete Lifecycle System</div>
+    <div class="command-card command-main">
+      <div>
+        <div class="kicker">Athlete Lifecycle System</div>
 
-          <h1>Build the Athlete Profile.</h1>
+        <h1>Build the Athlete Profile.</h1>
 
-          <p>
-            Start the verified athlete profile for recruiting visibility,
-            performance tracking, college readiness, and controlled communication.
-          </p>
-        </div>
-
-        <div class="lifecycle">
-          <span>Profile</span>
-          <span>Verification</span>
-          <span>Readiness</span>
-          <span>Eligibility</span>
-          <span>Visibility</span>
-          <span>Recruiting</span>
-        </div>
+        <p>
+          Start the verified athlete profile for recruiting visibility,
+          performance tracking, college readiness, and controlled communication.
+        </p>
       </div>
 
-      <aside class="box overview">
-        <div class="box-title">System Overview</div>
-
-        <div class="metrics">
-          <div class="metric"><b>04</b><span>Initial National Sports</span></div>
-          <div class="metric"><b>08</b><span>User Access Areas</span></div>
-          <div class="metric"><b>05</b><span>Verification Levels</span></div>
-          <div class="metric"><b>01</b><span>Verified Athlete System</span></div>
-        </div>
-      </aside>
-
-    </section>
-
-    <div class="section-head">
-      <h2>Select Your Role</h2>
-      <p>
-        Choose the role that matches your place in the athlete lifecycle.
-        Each role enters a controlled area with the right tools, visibility, and permissions.
-      </p>
+      <div class="lifecycle">
+        <span>Profile</span>
+        <span>Verification</span>
+        <span>Readiness</span>
+        <span>Eligibility</span>
+        <span>Visibility</span>
+        <span>Recruiting</span>
+      </div>
     </div>
 
-    <section class="access">
+    <aside class="command-card overview">
+      <div class="panel-title">System Overview</div>
 
-      <div class="box">
-        <div class="box-head">
-          <strong>Athlete Profile Setup</strong>
-          <span class="badge start">Start Here</span>
-        </div>
-
-        <div class="box-body">
-          <div class="profile-start">
-            <div>
-              <h3>Create the Verified Athlete Profile</h3>
-              <p>
-                Begin with the athlete profile. This connects performance details,
-                readiness information, parent permissions, coach verification,
-                and recruiting visibility.
-              </p>
-            </div>
-
-            <a href="player-profile.html" class="btn">Start Athlete Profile</a>
-          </div>
-
-          <div class="role-grid">
-
-            <div class="role">
-              <h4>Athlete</h4>
-              <p>Create and manage your profile, performance details, readiness path, and visibility settings.</p>
-              <a href="player-profile.html">Enter</a>
-            </div>
-
-            <div class="role">
-              <h4>Parent</h4>
-              <p>Review permissions, support readiness steps, and manage guardian approval areas.</p>
-              <a href="parent-dashboard.html">Enter</a>
-            </div>
-
-            <div class="role">
-              <h4>Coach</h4>
-              <p>Support athlete verification, roster context, development notes, and program-level information.</p>
-              <a href="coach-dashboard.html">Enter</a>
-            </div>
-
-            <div class="role">
-              <h4>Counselor</h4>
-              <p>Support academic readiness, eligibility tracking, and protected education-related information.</p>
-              <a href="eligibility.html">Enter</a>
-            </div>
-
-            <div class="role">
-              <h4>Recruiter</h4>
-              <p>View approved athlete visibility areas and request access through controlled recruiting pathways.</p>
-              <a href="recruiter-access.html">Enter</a>
-            </div>
-
-            <div class="role">
-              <h4>Program</h4>
-              <p>Manage team, event, roster, and organization-level athlete development information.</p>
-              <a href="program-management.html">Enter</a>
-            </div>
-
-            <div class="role">
-              <h4>Evaluator</h4>
-              <p>Submit verified measurements, event results, evaluation notes, and trusted athlete assessments.</p>
-              <a href="evaluator.html">Enter</a>
-            </div>
-
-            <div class="role multi">
-              <h4>Multi-Box™</h4>
-              <p>Manage communication permissions, visibility requests, and controlled system coordination.</p>
-              <a href="multibox.html">Command</a>
-            </div>
-
-          </div>
-        </div>
+      <div class="metric-grid">
+        <div class="metric"><b>04</b><span>Initial National Sports</span></div>
+        <div class="metric"><b>08</b><span>User Access Areas</span></div>
+        <div class="metric"><b>05</b><span>Verification Levels</span></div>
+        <div class="metric"><b>01</b><span>Verified Athlete System</span></div>
       </div>
+    </aside>
 
-      <aside class="box multibox">
-        <div class="box-head">
-          <strong>Communication & Permissions</strong>
-          <span class="badge special">Above Roles</span>
-        </div>
+  </section>
 
-        <div class="box-body">
-          <h3>Multi-Box™</h3>
-
-          <p>
-            Multi-Box™ controls who may communicate, what information may be seen,
-            and how recruiting visibility is managed. It is not a chat feed or social messaging page.
-          </p>
-
-          <div class="stack">
-            <div class="stack-item">
-              <div class="num">01</div>
-              <div>
-                <b>Permission Control</b>
-                <span>Parent, athlete, counselor, evaluator, and recruiter access boundaries.</span>
-              </div>
-            </div>
-
-            <div class="stack-item">
-              <div class="num">02</div>
-              <div>
-                <b>Recruiting Contact Rules</b>
-                <span>Communication access follows controlled recruiting and athlete visibility rules.</span>
-              </div>
-            </div>
-
-            <div class="stack-item">
-              <div class="num">03</div>
-              <div>
-                <b>Approval Tracking</b>
-                <span>Visibility requests, approvals, denials, and important communication events are recorded.</span>
-              </div>
-            </div>
-
-            <div class="stack-item">
-              <div class="num">04</div>
-              <div>
-                <b>System Coordination</b>
-                <span>Families, schools, programs, recruiters, and evaluators move through controlled pathways.</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </aside>
-
-    </section>
-
-    <section class="readiness">
-
-      <div class="ready">
-        <h3>Athletic Readiness</h3>
-        <ul>
-          <li>Sport-specific performance details</li>
-          <li>Position and event tracking</li>
-          <li>Development stage awareness</li>
-          <li>Verified evaluation support</li>
-        </ul>
-      </div>
-
-      <div class="ready">
-        <h3>Eligibility Readiness</h3>
-        <ul>
-          <li>Core-course awareness</li>
-          <li>Division readiness support</li>
-          <li>Protected academic information</li>
-          <li>Recruiting communication awareness</li>
-        </ul>
-      </div>
-
-      <div class="ready">
-        <h3>College Readiness</h3>
-        <ul>
-          <li>In-state path awareness</li>
-          <li>Out-of-state path awareness</li>
-          <li>Program fit support</li>
-          <li>College preparation signals</li>
-        </ul>
-      </div>
-
-    </section>
-
-    <section class="sports">
-      <div class="sport"><b>Football</b><span>Position Tracking</span></div>
-      <div class="sport"><b>Basketball</b><span>Role Tracking</span></div>
-      <div class="sport"><b>Baseball</b><span>Tool Tracking</span></div>
-      <div class="sport"><b>Track & Field</b><span>Event Tracking</span></div>
-    </section>
-
-    <section class="trust">
-      <div class="trust-head">
-        <h3>PHNX Verified Trust Ladder</h3>
-        <span class="badge special">Evaluation Confidence</span>
-      </div>
-
-      <div class="ladder">
-        <div class="step"><small>Level 01</small><b>Self Reported</b></div>
-        <div class="step"><small>Level 02</small><b>Coach Verified</b></div>
-        <div class="step"><small>Level 03</small><b>Evaluator Verified</b></div>
-        <div class="step"><small>Level 04</small><b>PHNX Verified</b></div>
-        <div class="step"><small>Level 05</small><b>Institutional Verified</b></div>
-      </div>
-    </section>
-
+  <div class="section-head">
+    <h2>Select Your Role</h2>
+    <p>
+      Choose the role that matches your place in the athlete lifecycle.
+      Each role enters a controlled area with the right tools, visibility, and permissions.
+    </p>
   </div>
+
+  <section class="access-grid">
+
+    <div class="box">
+      <div class="box-head">
+        <strong>Athlete Profile Setup</strong>
+        <span class="badge start">Start Here</span>
+      </div>
+
+      <div class="box-body">
+        <div class="profile-start">
+          <div>
+            <h3>Create the Verified Athlete Profile</h3>
+            <p>
+              Begin with the athlete profile. This connects performance details,
+              readiness information, parent permissions, coach verification,
+              and recruiting visibility.
+            </p>
+          </div>
+
+          <a href="player-profile.html" class="btn">Start Athlete Profile</a>
+        </div>
+
+        <div class="role-grid">
+          <div class="role">
+            <h4>Athlete</h4>
+            <p>Create and manage your profile, performance details, readiness path, and visibility settings.</p>
+            <a href="player-profile.html">Enter</a>
+          </div>
+
+          <div class="role">
+            <h4>Parent</h4>
+            <p>Review permissions, support readiness steps, and manage guardian approval areas.</p>
+            <a href="parent-dashboard.html">Enter</a>
+          </div>
+
+          <div class="role">
+            <h4>Coach</h4>
+            <p>Support athlete verification, roster context, development notes, and program-level information.</p>
+            <a href="coach-dashboard.html">Enter</a>
+          </div>
+
+          <div class="role">
+            <h4>Counselor</h4>
+            <p>Support academic readiness, eligibility tracking, and protected education-related information.</p>
+            <a href="eligibility.html">Enter</a>
+          </div>
+
+          <div class="role">
+            <h4>Recruiter</h4>
+            <p>View approved athlete visibility areas and request access through controlled recruiting pathways.</p>
+            <a href="recruiter-access.html">Enter</a>
+          </div>
+
+          <div class="role">
+            <h4>Program</h4>
+            <p>Manage team, event, roster, and organization-level athlete development information.</p>
+            <a href="program-management.html">Enter</a>
+          </div>
+
+          <div class="role">
+            <h4>Evaluator</h4>
+            <p>Submit verified measurements, event results, evaluation notes, and trusted athlete assessments.</p>
+            <a href="evaluator.html">Enter</a>
+          </div>
+
+          <div class="role multi">
+            <h4>Multi-Box™</h4>
+            <p>Manage communication permissions, visibility requests, and controlled system coordination.</p>
+            <a href="multibox.html">Command</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="box multibox">
+      <div class="box-head">
+        <strong>Communication & Permissions</strong>
+        <span class="badge special">Above Roles</span>
+      </div>
+
+      <div class="box-body">
+        <h3>Multi-Box™</h3>
+        <p>
+          Multi-Box™ controls who may communicate, what information may be seen,
+          and how recruiting visibility is managed. It is not a chat feed or social messaging page.
+        </p>
+
+        <div class="stack">
+          <div class="stack-item">
+            <div class="num">01</div>
+            <div><b>Permission Control</b><span>Parent, athlete, counselor, evaluator, and recruiter access boundaries.</span></div>
+          </div>
+
+          <div class="stack-item">
+            <div class="num">02</div>
+            <div><b>Recruiting Contact Rules</b><span>Communication access follows controlled recruiting and athlete visibility rules.</span></div>
+          </div>
+
+          <div class="stack-item">
+            <div class="num">03</div>
+            <div><b>Approval Tracking</b><span>Visibility requests, approvals, denials, and important communication events are recorded.</span></div>
+          </div>
+
+          <div class="stack-item">
+            <div class="num">04</div>
+            <div><b>System Coordination</b><span>Families, schools, programs, recruiters, and evaluators move through controlled pathways.</span></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </section>
+
+  <section class="readiness">
+    <div class="ready">
+      <h3>Athletic Readiness</h3>
+      <ul>
+        <li>Sport-specific performance details</li>
+        <li>Position and event tracking</li>
+        <li>Development stage awareness</li>
+        <li>Verified evaluation support</li>
+      </ul>
+    </div>
+
+    <div class="ready">
+      <h3>Eligibility Readiness</h3>
+      <ul>
+        <li>Core-course awareness</li>
+        <li>Division readiness support</li>
+        <li>Protected academic information</li>
+        <li>Recruiting communication awareness</li>
+      </ul>
+    </div>
+
+    <div class="ready">
+      <h3>College Readiness</h3>
+      <ul>
+        <li>In-state path awareness</li>
+        <li>Out-of-state path awareness</li>
+        <li>Program fit support</li>
+        <li>College preparation signals</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sports">
+    <div class="sport"><b>Football</b><span>Position Tracking</span></div>
+    <div class="sport"><b>Basketball</b><span>Role Tracking</span></div>
+    <div class="sport"><b>Baseball</b><span>Tool Tracking</span></div>
+    <div class="sport"><b>Track & Field</b><span>Event Tracking</span></div>
+  </section>
+
+  <section class="trust">
+    <div class="trust-head">
+      <h3>PHNX Verified Trust Ladder</h3>
+      <span class="badge special">Evaluation Confidence</span>
+    </div>
+
+    <div class="ladder">
+      <div class="step"><small>Level 01</small><b>Self Reported</b></div>
+      <div class="step"><small>Level 02</small><b>Coach Verified</b></div>
+      <div class="step"><small>Level 03</small><b>Evaluator Verified</b></div>
+      <div class="step"><small>Level 04</small><b>PHNX Verified</b></div>
+      <div class="step"><small>Level 05</small><b>Institutional Verified</b></div>
+    </div>
+  </section>
+
 </section>
 
 <footer>
