@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>  
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -288,17 +288,16 @@ a{text-decoration:none;color:inherit;}
   overflow:hidden;
 }
 
-.hero:after{
-  content:"S";
-  position:absolute;
-  right:18px;
-  top:34px;
-  font-family:Impact, "Arial Black", sans-serif;
-  font-size:315px;
-  font-weight:900;
-  color:rgba(255,255,255,.04);
-  line-height:1;
-}
+.hero-watermark{
+    position:absolute;
+    right:-120px;
+    top:40px;
+    width:520px;
+    opacity:0.05;
+    filter:grayscale(100%) brightness(140%);
+    pointer-events:none;
+    z-index:0;
+} 
 
 .hero h1{
   position:relative;
@@ -703,6 +702,11 @@ a{text-decoration:none;color:inherit;}
 
 <article class="panel hero">
   <div class="label">Athlete Lifecycle System</div>
+  <img
+    src="sc_emblem.png"
+    alt=""
+    class="hero-watermark"
+/> 
   <h1>Build the Athlete <span>Profile.</span></h1>
   <p>Start the verified athlete profile for recruiting visibility, performance tracking, college readiness, and controlled communication.</p>
   <a class="btn" href="player-profile.html">Start Athlete Profile ›</a>
