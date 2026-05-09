@@ -1,4 +1,4 @@
-<!DOCTYPE html>   
+<!DOCTYPE html>    
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -265,8 +265,26 @@ a{text-decoration:none;color:inherit;}
     inset 0 0 0 1px rgba(255,255,255,.035),
     inset 0 18px 30px rgba(255,255,255,.025),
     0 18px 42px rgba(0,0,0,.9);
-}
-
+  position:relative;
+  overflow:hidden;
+  
+  }
+  
+.panel:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255,255,255,.045),
+      transparent 18%,
+      transparent 82%,
+      rgba(255,255,255,.025)
+    );
+} 
+  
 .label{
   color:var(--red);
   font-size:.74rem;
@@ -324,6 +342,7 @@ a{text-decoration:none;color:inherit;}
 }
 
 .btn{
+  margin-top: 8px;
   position:relative;
   z-index:2;
   display:inline-flex;
@@ -479,7 +498,7 @@ a{text-decoration:none;color:inherit;}
 }
 
 .arrow{
-  color:var(--red);
+  color:rgba(224,23,33,.82);
   font-size:1.45rem;
   font-weight:900;
 }
@@ -522,7 +541,9 @@ a{text-decoration:none;color:inherit;}
 .ready b{
   display:block;
   text-transform:uppercase;
-  font-size:.88rem;
+  font-size:.8rem;
+  letter-spacing:.03em;
+  
 }
 
 .ready p{
@@ -575,7 +596,9 @@ a{text-decoration:none;color:inherit;}
 
 .flow-step span{
   color:var(--muted);
-  font-size:.68rem;
+  font-size:.62rem;
+  letter-spacing:.03em;
+  
 }
 
 .flow-btn{
@@ -605,6 +628,7 @@ a{text-decoration:none;color:inherit;}
   font-size:.76rem;
   letter-spacing:.08em;
   text-transform:uppercase;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
 }
 
 .footer-logo img{width:185px;}
