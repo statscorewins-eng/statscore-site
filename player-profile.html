@@ -7,20 +7,19 @@
 
 <style>
 :root{
-  --red:#ff1f2d;
-  --red-deep:#b20812;
-  --red-dark:#660308;
-  --black:#000;
-  --panel:#030303;
-  --panel2:#080808;
-  --white:#f4f4ef;
-  --silver:#d9dce2;
-  --text:#f2f2f2;
-  --muted:#b9b9b9;
+  --red:#ff2b1f;
+  --red2:#b90710;
+  --gold:#f4c542;
+  --green:#25d366;
+  --black:#020202;
+  --ink:#05070b;
+  --panel:rgba(7,10,16,.78);
+  --panel2:rgba(10,16,24,.62);
   --line:rgba(255,255,255,.18);
-  --line-strong:rgba(255,255,255,.34);
-  --green:#2bdc65;
-  --gold:#d8b765;
+  --line2:rgba(255,255,255,.32);
+  --text:#f4f4f1;
+  --muted:#aebdcc;
+  --blue:#8fd8ff;
   --max:1536px;
 }
 
@@ -33,30 +32,61 @@ html,body{
   font-family:Arial, Helvetica, sans-serif;
 }
 
-a{text-decoration:none;color:inherit;}
+body{
+  min-height:100vh;
+}
+
+a{
+  color:inherit;
+  text-decoration:none;
+}
 
 .shell{
   width:min(var(--max),100%);
   margin:0 auto;
   min-height:100vh;
   background:#000;
+  position:relative;
+  overflow:hidden;
+}
+
+/* BACKGROUND — TEMPLATE SAFE */
+.page-bg{
+  position:fixed;
+  inset:0;
+  z-index:0;
+  background:
+    linear-gradient(90deg,rgba(0,0,0,.92),rgba(0,0,0,.62),rgba(0,0,0,.88)),
+    radial-gradient(circle at 65% 28%,rgba(20,74,120,.28),transparent 34%),
+    repeating-linear-gradient(135deg,rgba(255,255,255,.025) 0,rgba(255,255,255,.025) 1px,transparent 1px,transparent 7px),
+    #020407;
+  pointer-events:none;
+}
+
+.page-bg:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.48)),
+    radial-gradient(circle at 45% 60%,rgba(255,255,255,.06),transparent 30%);
 }
 
 /* HEADER */
-
 .header{
-  height:88px;
-  background:linear-gradient(180deg,#ffffff,#e9e9e6);
+  height:92px;
+  background:linear-gradient(180deg,#fff,#eeeeec);
   display:grid;
-  grid-template-columns:390px 1fr 410px;
+  grid-template-columns:430px 1fr 410px;
   align-items:center;
   border-bottom:2px solid var(--red);
   position:relative;
+  z-index:5;
 }
 
-.logo-plate{
-  height:88px;
-  background:linear-gradient(145deg,#171717,#050505 65%,#000);
+.logo-tab{
+  height:92px;
+  background:linear-gradient(145deg,#181818,#070707 65%,#000);
   clip-path:polygon(0 0,78% 0,100% 100%,0 100%);
   display:flex;
   align-items:center;
@@ -65,18 +95,18 @@ a{text-decoration:none;color:inherit;}
   box-shadow:inset 0 0 22px rgba(255,255,255,.08);
 }
 
-.logo-plate:before{
+.logo-tab:before{
   content:"";
   position:absolute;
   top:0;
   left:0;
-  width:140px;
+  width:145px;
   height:16px;
   background:var(--red);
   clip-path:polygon(0 0,92% 0,100% 100%,0 100%);
 }
 
-.logo-plate:after{
+.logo-tab:after{
   content:"";
   position:absolute;
   bottom:0;
@@ -84,20 +114,22 @@ a{text-decoration:none;color:inherit;}
   right:34px;
   height:3px;
   background:var(--red);
+  box-shadow:0 0 14px rgba(255,43,31,.8);
 }
 
-.logo-plate img{
+.logo-tab img{
   width:292px;
   filter:drop-shadow(0 8px 14px rgba(0,0,0,.9));
 }
 
 .header-title{
   text-align:center;
-  color:#101010;
+  color:#16202a;
   font-weight:900;
-  font-size:.78rem;
-  letter-spacing:.29em;
+  font-size:.82rem;
+  letter-spacing:.34em;
   text-transform:uppercase;
+  line-height:1.45;
 }
 
 .header-nav{
@@ -107,7 +139,7 @@ a{text-decoration:none;color:inherit;}
   gap:24px;
   padding-right:24px;
   height:100%;
-  color:#111;
+  color:#151515;
 }
 
 .header-nav a{
@@ -125,448 +157,320 @@ a{text-decoration:none;color:inherit;}
 }
 
 .user-icon{
-  width:30px;
-  height:30px;
-  border:3px solid #111;
+  width:31px;
+  height:31px;
+  border:3px solid #141414;
   border-radius:50%;
+}
+
+/* PROFILE TITLE UNDER LOGO/TAB */
+.profile-title{
   position:relative;
+  z-index:4;
+  padding:28px 38px 18px;
+  border-bottom:1px solid rgba(255,255,255,.1);
 }
 
-.user-icon:before{
-  content:"";
-  position:absolute;
-  top:5px;
-  left:8px;
-  width:8px;
-  height:8px;
-  border-radius:50%;
-  background:#111;
+.profile-title .kicker{
+  color:var(--red);
+  font-size:.78rem;
+  font-weight:900;
+  letter-spacing:.28em;
+  text-transform:uppercase;
 }
 
-.user-icon:after{
-  content:"";
-  position:absolute;
-  bottom:5px;
-  left:4px;
-  width:16px;
-  height:8px;
-  border-radius:10px 10px 0 0;
-  background:#111;
+.profile-title h1{
+  margin:8px 0 0;
+  font-size:clamp(2.8rem,4.9vw,5.2rem);
+  line-height:.88;
+  letter-spacing:-.045em;
+  font-weight:900;
+  text-transform:uppercase;
+  color:#f6f7f2;
+  text-shadow:0 5px 14px rgba(0,0,0,.9);
 }
 
 /* MAIN */
-
 .main{
-  background:
-    radial-gradient(circle at 48% 12%,rgba(255,255,255,.045),transparent 25%),
-    radial-gradient(circle at 10% 2%,rgba(255,31,45,.12),transparent 24%),
-    repeating-linear-gradient(135deg,rgba(255,255,255,.016) 0,rgba(255,255,255,.016) 1px,transparent 1px,transparent 7px),
-    linear-gradient(180deg,#000 0%,#020202 55%,#000 100%);
-  padding:18px 14px 0;
+  position:relative;
+  z-index:3;
+  padding:14px 34px 0;
 }
 
-/* RECORD TITLE BAR */
-
-.record-bar{
+/* TOP GRID */
+.profile-grid{
   display:grid;
-  grid-template-columns:390px 1fr 260px;
-  align-items:end;
+  grid-template-columns:35% 39% 26%;
   gap:14px;
-  margin-bottom:14px;
-}
-
-.record-tab{
-  height:86px;
-  background:
-    linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.02) 18%,rgba(0,0,0,.35) 70%),
-    linear-gradient(180deg,#202020,#080808 65%,#020202);
-  border:1px solid rgba(255,255,255,.25);
-  border-bottom:3px solid var(--red);
-  clip-path:polygon(0 0,78% 0,100% 100%,0 100%);
-  display:flex;
-  align-items:center;
-  padding-left:24px;
-  position:relative;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.22),
-    0 16px 36px rgba(0,0,0,.85);
-}
-
-.record-tab:before{
-  content:"";
-  position:absolute;
-  top:0;
-  left:0;
-  width:148px;
-  height:16px;
-  background:var(--red);
-  clip-path:polygon(0 0,92% 0,100% 100%,0 100%);
-}
-
-.record-tab img{
-  width:286px;
-  position:relative;
-  z-index:2;
-}
-
-.record-title{
-  min-height:86px;
-  border:1px solid rgba(255,255,255,.18);
-  background:
-    linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.012)),
-    #030303;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  padding:0 28px;
-  position:relative;
-  overflow:hidden;
-}
-
-.record-title:after{
-  content:"PLAYER PROFILE";
-  position:absolute;
-  right:22px;
-  bottom:-4px;
-  font-size:4.8rem;
-  font-weight:900;
-  letter-spacing:-.08em;
-  color:rgba(255,255,255,.035);
-}
-
-.record-title small{
-  color:var(--red);
-  font-size:.72rem;
-  font-weight:900;
-  letter-spacing:.22em;
-  text-transform:uppercase;
-  position:relative;
-  z-index:2;
-}
-
-.record-title h1{
-  margin:6px 0 0;
-  font-family:"Arial Narrow","Helvetica Neue Condensed",Arial,sans-serif;
-  font-size:2.8rem;
-  line-height:.95;
-  letter-spacing:-.045em;
-  text-transform:uppercase;
-  position:relative;
-  z-index:2;
-}
-
-.demo-tag{
-  height:52px;
-  border:1px solid rgba(255,255,255,.2);
-  color:#ddd;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:.72rem;
-  font-weight:900;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  background:#050505;
-  margin-bottom:0;
 }
 
 /* PANELS */
-
 .panel{
   background:
-    linear-gradient(145deg,rgba(255,255,255,.052),rgba(255,255,255,.012)),
-    repeating-linear-gradient(135deg,rgba(255,255,255,.012) 0,rgba(255,255,255,.012) 1px,transparent 1px,transparent 7px),
-    #030303;
-  border:1px solid rgba(255,255,255,.18);
-  border-radius:5px;
+    linear-gradient(145deg,rgba(255,255,255,.052),rgba(255,255,255,.008)),
+    rgba(6,10,16,.66);
+  border:1px solid var(--line);
   box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,.035),
-    inset 0 18px 30px rgba(255,255,255,.025),
-    0 18px 42px rgba(0,0,0,.9);
+    inset 0 0 0 1px rgba(255,255,255,.025),
+    0 18px 42px rgba(0,0,0,.72);
   position:relative;
-  overflow:hidden;
-}
-
-.panel:after{
-  content:"";
-  position:absolute;
-  inset:0;
-  pointer-events:none;
-  background:
-    linear-gradient(
-      135deg,
-      rgba(255,255,255,.03),
-      transparent 18%,
-      transparent 82%,
-      rgba(255,255,255,.02)
-    );
 }
 
 .label{
   color:var(--red);
   font-size:.72rem;
   font-weight:900;
-  letter-spacing:.2em;
+  letter-spacing:.24em;
   text-transform:uppercase;
 }
 
-/* HERO ATHLETE RECORD */
-
-.profile-hero{
-  display:grid;
-  grid-template-columns:36% 39% 25%;
-  gap:14px;
-}
-
-.athlete-card{
-  min-height:520px;
-  padding:18px;
-  display:flex;
-  flex-direction:column;
+/* IMAGE CARD */
+.image-card{
+  padding:16px 16px 12px;
+  min-height:430px;
 }
 
 .photo-frame{
-  flex:1;
-  min-height:360px;
-  border:1px solid rgba(255,255,255,.22);
+  height:342px;
+  border:1px solid rgba(143,216,255,.42);
   background:
-    radial-gradient(circle at 50% 22%,rgba(255,255,255,.08),transparent 26%),
-    linear-gradient(180deg,#151515,#050505 70%);
+    radial-gradient(circle at 50% 28%,rgba(143,216,255,.18),transparent 34%),
+    linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.01)),
+    rgba(0,0,0,.34);
+  overflow:hidden;
+  margin-top:18px;
   display:flex;
   align-items:flex-end;
   justify-content:center;
-  position:relative;
+}
+
+.photo-frame img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center top;
+  filter:contrast(1.08) saturate(1.02);
+}
+
+.athlete-caption{
+  display:grid;
+  grid-template-columns:1fr auto;
+  align-items:center;
+  gap:14px;
+  padding-top:12px;
+}
+
+.athlete-caption b{
+  display:block;
+  font-size:1.12rem;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+
+.athlete-caption span{
+  display:block;
+  margin-top:4px;
+  color:var(--blue);
+  font-size:.73rem;
+  font-weight:900;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+
+.verify-badge{
+  border:2px solid var(--green);
+  color:var(--green);
+  padding:10px 16px;
+  font-size:.68rem;
+  font-weight:900;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+}
+
+/* IDENTITY CARD */
+.identity-card{
+  padding:24px 26px;
+  min-height:430px;
   overflow:hidden;
 }
 
-.photo-frame:before{
-  content:"ATHLETE IMAGE";
-  position:absolute;
-  top:18px;
-  left:18px;
-  color:rgba(255,255,255,.22);
-  font-size:.68rem;
-  font-weight:900;
-  letter-spacing:.18em;
-}
-
-.photo-frame:after{
-  content:"";
-  position:absolute;
-  width:220px;
-  height:360px;
-  bottom:0;
-  border-radius:120px 120px 20px 20px;
-  background:
-    linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02)),
-    #111;
-  box-shadow:0 0 0 1px rgba(255,255,255,.12);
-}
-
-.athlete-stamp{
-  margin-top:12px;
-  display:grid;
-  grid-template-columns:1fr auto;
-  gap:10px;
-  align-items:center;
-}
-
-.athlete-stamp b{
-  display:block;
-  font-size:1.1rem;
-  text-transform:uppercase;
-  letter-spacing:.04em;
-}
-
-.athlete-stamp span{
-  color:var(--muted);
-  font-size:.78rem;
-  text-transform:uppercase;
-  letter-spacing:.08em;
-}
-
-.verify-pill{
-  border:1px solid rgba(43,220,101,.45);
-  color:var(--green);
-  padding:8px 10px;
-  font-size:.68rem;
-  font-weight:900;
-  letter-spacing:.1em;
-  text-transform:uppercase;
-}
-
-/* ATHLETE ID */
-
-.identity{
-  min-height:520px;
-  padding:26px;
-}
-
-.identity .demo{
-  color:#ddd;
-  font-size:.68rem;
-  letter-spacing:.18em;
-  text-transform:uppercase;
-  font-weight:900;
-  margin-bottom:16px;
-}
-
-.identity h2{
-  margin:10px 0 6px;
-  font-family:"Arial Narrow","Helvetica Neue Condensed",Arial,sans-serif;
-  font-size:clamp(3.2rem,5vw,5rem);
-  line-height:.9;
-  letter-spacing:-.045em;
-  text-transform:uppercase;
-}
-
-.identity h2 span{
+.identity-kicker{
   color:var(--red);
-  display:block;
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.24em;
+  text-transform:uppercase;
 }
 
-.player-meta{
+.identity-note{
+  color:#bff4ff;
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  margin-top:4px;
+}
+
+.athlete-name{
+  margin:24px 0 12px;
+  font-size:clamp(3rem,5vw,5.3rem);
+  line-height:.88;
+  letter-spacing:-.05em;
+  text-transform:uppercase;
+  font-weight:900;
+}
+
+.athlete-name span{
+  display:block;
+  color:var(--red);
+  background:linear-gradient(180deg,#ff5829,#ff2b1f 48%,#b90710);
+  -webkit-background-clip:text;
+  color:transparent;
+}
+
+.tags{
   display:flex;
   flex-wrap:wrap;
   gap:8px;
-  margin:16px 0 20px;
+  margin-top:14px;
 }
 
-.player-meta span{
-  border:1px solid rgba(255,255,255,.18);
-  padding:9px 11px;
-  font-size:.72rem;
+.tag{
+  border:1px solid rgba(143,216,255,.48);
+  padding:10px 14px;
+  font-size:.7rem;
   font-weight:900;
   letter-spacing:.08em;
   text-transform:uppercase;
-  color:#ddd;
-  background:#050505;
-}
-
-.star-row{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  margin:18px 0;
+  background:rgba(0,0,0,.22);
 }
 
 .stars{
-  color:var(--gold);
-  font-size:1.5rem;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin:20px 0 18px;
+  font-size:1rem;
+  font-weight:900;
   letter-spacing:.08em;
+  text-transform:uppercase;
 }
 
-.star-label{
-  color:#fff;
-  font-size:.9rem;
-  font-weight:900;
-  text-transform:uppercase;
+.stars .star{
+  color:var(--gold);
   letter-spacing:.08em;
 }
 
 .projection{
   border-left:4px solid var(--red);
-  padding:12px 0 12px 16px;
-  margin-top:18px;
-  background:rgba(255,31,45,.04);
+  background:linear-gradient(90deg,rgba(255,43,31,.18),rgba(255,255,255,.05),transparent);
+  padding:16px 18px;
+  margin-top:8px;
 }
 
 .projection small{
   color:var(--red);
-  font-size:.68rem;
+  display:block;
   font-weight:900;
-  letter-spacing:.18em;
+  letter-spacing:.22em;
   text-transform:uppercase;
+  margin-bottom:8px;
 }
 
 .projection b{
-  display:block;
-  margin-top:5px;
-  font-size:1.25rem;
+  font-size:1.5rem;
   text-transform:uppercase;
 }
 
-.summary{
-  margin-top:18px;
-  color:#ddd;
-  line-height:1.55;
-  font-size:.98rem;
-  max-width:620px;
+.identity-card p{
+  margin:16px 0 0;
+  color:#e8f7ff;
+  line-height:1.42;
+  font-weight:700;
+  font-size:.95rem;
 }
 
-/* SCORE PANEL */
-
-.score-panel{
-  min-height:520px;
-  padding:22px;
+/* SCORE CARD */
+.score-card{
+  padding:24px 18px;
+  min-height:430px;
+  text-align:center;
 }
 
-.score-circle{
-  margin:18px auto 16px;
-  width:205px;
-  height:205px;
+.score-ring{
+  width:180px;
+  height:180px;
+  margin:28px auto 22px;
   border-radius:50%;
-  border:2px solid rgba(255,255,255,.22);
+  border:14px solid rgba(255,255,255,.16);
+  background:
+    radial-gradient(circle at center,rgba(255,255,255,.08),rgba(0,0,0,.18)),
+    conic-gradient(var(--red) 0 26%,var(--gold) 26% 77%,rgba(255,255,255,.12) 77% 100%);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.score-inner{
+  width:124px;
+  height:124px;
+  border-radius:50%;
+  background:rgba(2,3,6,.86);
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  background:
-    radial-gradient(circle,rgba(255,31,45,.14),transparent 58%),
-    #050505;
-  box-shadow:
-    inset 0 0 35px rgba(255,255,255,.04),
-    0 18px 36px rgba(0,0,0,.7);
+  border:1px solid rgba(255,255,255,.24);
 }
 
-.score-circle small{
+.score-inner small{
   color:var(--red);
-  font-size:.68rem;
   font-weight:900;
-  letter-spacing:.18em;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  font-size:.58rem;
+}
+
+.score-inner b{
+  font-size:3.1rem;
+  line-height:1;
+}
+
+.score-inner span{
+  color:#fff;
+  font-size:.62rem;
+  font-weight:900;
+  letter-spacing:.14em;
   text-transform:uppercase;
 }
 
-.score-circle b{
-  font-family:"Arial Narrow","Helvetica Neue Condensed",Arial,sans-serif;
-  font-size:4.4rem;
-  line-height:.92;
-  transform:scaleX(.78);
-}
-
-.score-circle span{
-  color:#ddd;
-  font-size:.72rem;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-}
-
-.score-note{
-  text-align:center;
-  color:var(--muted);
+.score-card p{
+  max-width:250px;
+  margin:0 auto 20px;
+  color:#d6efff;
+  line-height:1.38;
   font-size:.78rem;
-  line-height:1.45;
-  margin-bottom:18px;
+  font-weight:700;
 }
 
 .action-stack{
   display:grid;
   gap:10px;
+  margin-top:10px;
 }
 
 .action{
-  min-height:48px;
-  border:1px solid rgba(255,255,255,.18);
-  background:#050505;
-  color:#fff;
+  height:46px;
+  border:1px solid rgba(255,255,255,.32);
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:0 14px;
+  padding:0 18px;
+  color:#fff;
+  text-transform:uppercase;
   font-size:.72rem;
   font-weight:900;
-  letter-spacing:.12em;
-  text-transform:uppercase;
+  letter-spacing:.1em;
 }
 
 .action.primary{
@@ -574,65 +478,63 @@ a{text-decoration:none;color:inherit;}
   color:var(--red);
 }
 
-/* INTELLIGENCE GRID */
-
-.intel-grid{
-  margin-top:14px;
+/* METRICS */
+.metrics{
   display:grid;
   grid-template-columns:repeat(4,1fr);
   gap:14px;
+  margin-top:14px;
 }
 
-.metric-card{
-  min-height:164px;
-  padding:18px;
+.metric{
+  padding:18px 20px;
+  min-height:132px;
+  background:rgba(7,12,20,.58);
+  border:1px solid var(--line);
 }
 
-.metric-card b{
-  display:block;
-  font-family:"Arial Narrow","Helvetica Neue Condensed",Arial,sans-serif;
-  font-size:2.65rem;
-  transform:scaleX(.78);
-  transform-origin:left center;
-  line-height:.9;
-}
-
-.metric-card span{
+.metric h3{
+  margin:0;
   color:var(--red);
+  font-size:.7rem;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+}
+
+.metric b{
   display:block;
   margin-top:8px;
-  font-size:.72rem;
-  font-weight:900;
-  letter-spacing:.14em;
-  text-transform:uppercase;
+  font-size:2.5rem;
+  line-height:1;
 }
 
-.metric-card p{
-  color:var(--muted);
-  font-size:.8rem;
-  line-height:1.4;
+.metric p{
   margin:12px 0 0;
+  color:#c7f3ff;
+  font-size:.78rem;
+  line-height:1.35;
+  font-weight:700;
 }
 
-/* LOWER */
-
+/* LOWER SYSTEM */
 .lower-grid{
-  margin-top:14px;
   display:grid;
-  grid-template-columns:34% 33% 33%;
+  grid-template-columns:40% 34% 26%;
   gap:14px;
+  margin-top:14px;
 }
 
-.section{
-  min-height:310px;
-  padding:20px;
+.block{
+  padding:26px;
+  min-height:260px;
 }
 
-.section h3{
-  margin:10px 0 16px;
-  font-size:1.3rem;
+.block h2{
+  margin:5px 0 18px;
+  font-size:2.1rem;
+  line-height:1;
+  letter-spacing:-.035em;
   text-transform:uppercase;
-  letter-spacing:.02em;
 }
 
 .list{
@@ -641,222 +543,247 @@ a{text-decoration:none;color:inherit;}
 }
 
 .list-item{
-  border:1px solid rgba(255,255,255,.16);
-  background:#050505;
-  padding:12px;
+  border:1px solid var(--line2);
+  padding:13px 14px;
+  background:rgba(0,0,0,.18);
 }
 
 .list-item b{
   display:block;
-  font-size:.82rem;
   text-transform:uppercase;
-  margin-bottom:4px;
+  font-size:.86rem;
 }
 
 .list-item span{
-  color:var(--muted);
-  font-size:.78rem;
-  line-height:1.35;
-}
-
-/* VISIBILITY BAR */
-
-.visibility{
-  margin-top:14px;
-  display:grid;
-  grid-template-columns:180px repeat(5,1fr) 210px;
-  min-height:72px;
-  border:1px solid rgba(255,255,255,.17);
-  background:#020202;
-  align-items:center;
-}
-
-.visibility-title{
-  color:var(--red);
-  padding-left:22px;
-  font-size:.82rem;
-  font-weight:900;
-  letter-spacing:.14em;
-  text-transform:uppercase;
-}
-
-.vis-step{
-  border-left:1px solid rgba(255,255,255,.14);
-  padding:0 16px;
-}
-
-.vis-step b{
   display:block;
-  font-size:.72rem;
+  color:#c7f3ff;
+  font-size:.78rem;
+  line-height:1.3;
+  margin-top:4px;
+  font-weight:700;
+}
+
+/* PERFORMANCE TRAITS */
+.traits{
+  margin-top:14px;
+  padding:18px 22px 20px;
+  border:1px solid var(--line);
+  background:rgba(6,10,18,.45);
+}
+
+.traits h2{
+  margin:5px 0 18px;
+  font-size:2.2rem;
   text-transform:uppercase;
 }
 
-.vis-step span{
-  color:var(--muted);
-  font-size:.68rem;
+.trait{
+  display:grid;
+  grid-template-columns:130px 1fr 28px;
+  align-items:center;
+  gap:8px;
+  margin:8px 0;
 }
 
-.share-btn{
-  height:42px;
+.trait-name{
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+
+.bar{
+  height:5px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.1);
+  position:relative;
+}
+
+.bar span{
+  position:absolute;
+  left:0;
+  top:0;
+  bottom:0;
+  background:linear-gradient(90deg,var(--red),var(--gold));
+}
+
+.trait-score{
+  font-weight:900;
+  font-size:.92rem;
+  letter-spacing:.06em;
+}
+
+/* FLOW */
+.flow{
+  margin-top:14px;
+  min-height:76px;
+  display:grid;
+  grid-template-columns:170px repeat(5,1fr) 190px;
+  align-items:center;
+  border:1px solid var(--line);
+  background:rgba(4,7,12,.62);
+}
+
+.flow-title{
+  color:var(--red);
+  padding-left:24px;
+  font-size:.98rem;
+  font-weight:900;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+
+.flow-step{
+  border-left:1px solid rgba(255,255,255,.16);
+  padding:0 18px;
+}
+
+.flow-step b{
+  display:block;
+  font-size:.75rem;
+  text-transform:uppercase;
+}
+
+.flow-step span{
+  display:block;
+  color:#c7f3ff;
+  font-size:.68rem;
+  margin-top:3px;
+}
+
+.flow-btn{
   margin-right:14px;
+  height:42px;
   border:1px solid var(--red);
   color:var(--red);
   display:flex;
   align-items:center;
   justify-content:center;
   text-transform:uppercase;
-  font-size:.72rem;
+  font-size:.7rem;
   font-weight:900;
   letter-spacing:.12em;
 }
 
 /* FOOTER */
-
 .footer{
-  height:64px;
   margin-top:12px;
-  border-top:2px solid rgba(255,255,255,.16);
+  height:74px;
   display:grid;
-  grid-template-columns:220px 1fr 300px 260px;
+  grid-template-columns:220px 1fr 330px 260px;
   align-items:center;
-  gap:24px;
-  color:var(--muted);
-  font-size:.76rem;
-  letter-spacing:.08em;
+  gap:22px;
+  border-top:1px solid var(--line);
+  color:#d6efff;
+  font-size:.75rem;
   text-transform:uppercase;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+  letter-spacing:.08em;
 }
 
-.footer-logo img{width:185px;}
+.footer img{
+  width:185px;
+}
 
-.secure{
+.demo{
   color:var(--green);
-  display:flex;
-  align-items:center;
-  gap:8px;
+  font-weight:900;
 }
 
 /* RESPONSIVE */
-
 @media(max-width:1100px){
   .header{
-    height:78px;
-    grid-template-columns:300px 1fr 300px;
+    grid-template-columns:340px 1fr;
+    height:auto;
   }
 
-  .logo-plate{
-    height:78px;
-    padding-left:18px;
+  .logo-tab{
+    height:82px;
   }
 
-  .logo-plate img{width:230px;}
+  .logo-tab img{
+    width:230px;
+  }
 
   .header-title{
-    font-size:.66rem;
-    letter-spacing:.22em;
+    font-size:.7rem;
   }
 
   .header-nav{
-    gap:14px;
-    padding-right:14px;
+    grid-column:1 / -1;
+    justify-content:center;
+    padding:12px;
+    background:#f4f4f1;
   }
 
-  .record-bar,
-  .profile-hero,
-  .intel-grid,
+  .profile-grid,
   .lower-grid{
     grid-template-columns:1fr;
   }
 
-  .record-tab{
-    height:78px;
+  .metrics{
+    grid-template-columns:repeat(2,1fr);
   }
 
-  .record-tab img{width:250px;}
-
-  .visibility{
+  .flow{
     grid-template-columns:1fr;
-    padding:16px;
-    gap:12px;
+    padding:14px;
+    gap:10px;
   }
 
-  .vis-step{
+  .flow-step{
     border-left:none;
     border-top:1px solid rgba(255,255,255,.14);
-    padding:12px 0 0;
+    padding:10px 0;
   }
 
   .footer{
-    grid-template-columns:180px 1fr 210px 220px;
+    grid-template-columns:1fr;
+    height:auto;
+    padding:18px;
+    text-align:center;
   }
 }
 
-@media(max-width:720px){
-  .header{
-    height:70px;
-    grid-template-columns:190px 1fr;
-  }
-
-  .logo-plate{
-    height:70px;
-    padding-left:12px;
-  }
-
-  .logo-plate img{width:165px;}
-
-  .header-title{
-    font-size:.56rem;
-    letter-spacing:.16em;
-    padding-right:10px;
-  }
-
-  .header-nav{display:none;}
-
+@media(max-width:640px){
   .main{
-    padding:12px 8px 0;
+    padding:12px;
   }
 
-  .record-title h1{
-    font-size:2.3rem;
+  .profile-title{
+    padding:22px 16px 14px;
   }
 
-  .identity h2{
-    font-size:3.4rem;
+  .profile-title h1{
+    font-size:3rem;
   }
 
-  .score-circle{
-    width:180px;
-    height:180px;
-  }
-
-  .photo-frame{
-    min-height:320px;
-  }
-
-  .footer{
-    height:auto;
-    padding:16px 0;
+  .metrics{
     grid-template-columns:1fr;
-    gap:10px;
-    text-align:center;
   }
 
-  .footer-logo img{width:160px;}
+  .athlete-name{
+    font-size:3.1rem;
+  }
 
-  .secure{justify-content:center;}
+  .trait{
+    grid-template-columns:105px 1fr 28px;
+  }
 }
 </style>
 </head>
 
 <body>
+<div class="page-bg"></div>
+
 <div class="shell">
 
 <header class="header">
-  <a class="logo-plate" href="system.html">
+  <a class="logo-tab" href="index.html">
     <img src="sc_logo_black.png" alt="STATScore">
   </a>
 
-  <div class="header-title">National Athlete Infrastructure • Controlled Access</div>
+  <div class="header-title">
+    National Athlete Infrastructure •<br />Controlled Access
+  </div>
 
   <nav class="header-nav">
     <a href="index.html">Entry</a>
@@ -867,78 +794,78 @@ a{text-decoration:none;color:inherit;}
   </nav>
 </header>
 
-<main class="main">
-
-<section class="record-bar">
-  <div class="record-tab">
-    <img src="sc_logo_black.png" alt="STATScore">
-  </div>
-
-  <div class="record-title">
-    <small>Verified Athlete Intelligence Record</small>
-    <h1>Player Profile</h1>
-  </div>
-
-  <div class="demo-tag">Demo Profile</div>
+<section class="profile-title">
+  <div class="kicker">Verified Athlete Intelligence Record</div>
+  <h1>Player Profile</h1>
 </section>
 
-<section class="profile-hero">
+<main class="main">
 
-  <article class="panel athlete-card">
-    <div class="photo-frame"></div>
+<section class="profile-grid">
 
-    <div class="athlete-stamp">
+  <article class="panel image-card">
+    <div class="label">Athlete Image</div>
+
+    <div class="photo-frame">
+      <img src="athlete-placeholder.png" alt="Athlete profile image">
+    </div>
+
+    <div class="athlete-caption">
       <div>
-        <b>Caleb Monroe</b>
-        <span>WR · Class of 2027</span>
+        <b>Athlete Name</b>
+        <span>Position • Class Year</span>
       </div>
-      <div class="verify-pill">Verified</div>
+      <div class="verify-badge">Verified</div>
     </div>
   </article>
 
-  <article class="panel identity">
-    <div class="label">Athlete Identity</div>
-    <div class="demo">Sample data only · scoring pending live snapshot</div>
+  <article class="panel identity-card">
+    <div class="identity-kicker">Athlete Identity</div>
+    <div class="identity-note">Official score requires completed Snapshot</div>
 
-    <h2>Caleb <span>Monroe</span></h2>
-
-    <div class="player-meta">
-      <span>Wide Receiver</span>
-      <span>6'1"</span>
-      <span>184 lbs</span>
-      <span>Pensacola, FL</span>
-      <span>Northwest Florida</span>
-      <span>Class of 2027</span>
+    <div class="athlete-name">
+      Athlete
+      <span>Profile</span>
     </div>
 
-    <div class="star-row">
-      <div class="stars">★★★★</div>
-      <div class="star-label">4-Star Prospect Signal</div>
+    <div class="tags">
+      <div class="tag">Position</div>
+      <div class="tag">Height</div>
+      <div class="tag">Weight</div>
+      <div class="tag">City, State</div>
+      <div class="tag">School / Program</div>
+      <div class="tag">Class Year</div>
+    </div>
+
+    <div class="stars">
+      <div class="star">☆☆☆☆☆</div>
+      <div>Prospect Signal Pending</div>
     </div>
 
     <div class="projection">
       <small>Projection Lane</small>
-      <b>FBS / Power 4 Watchlist</b>
+      <b>Pending Verified Snapshot</b>
     </div>
 
-    <p class="summary">
-      Explosive perimeter athlete with verified showcase upside, strong route-development trajectory,
-      and high-level recruiting visibility potential. This demo profile represents how a completed
-      STATScore Snapshot may display public athlete intelligence.
+    <p>
+      This public profile is designed to package verified athlete identity, performance,
+      visibility, readiness, and controlled recruiting access after official STATScore intake.
     </p>
   </article>
 
-  <aside class="panel score-panel">
+  <aside class="panel score-card">
     <div class="label">STATScore Intelligence</div>
 
-    <div class="score-circle">
-      <small>STATScore™</small>
-      <b>87.4</b>
-      <span>Demo Output</span>
+    <div class="score-ring">
+      <div class="score-inner">
+        <small>STATScore™</small>
+        <b>--</b>
+        <span>Pending</span>
+      </div>
     </div>
 
-    <p class="score-note">
-      Demonstration score only. Official production score requires Snapshot intake, verification, and rules-based calculation.
+    <p>
+      Official production score requires Snapshot intake, verification, and rules-based calculation.
     </p>
 
     <div class="action-stack">
@@ -950,86 +877,167 @@ a{text-decoration:none;color:inherit;}
 
 </section>
 
-<section class="intel-grid">
+<section class="metrics">
+  <div class="metric">
+    <h3>Speed Index</h3>
+    <b>--</b>
+    <p>Acceleration and separation potential based on verified performance indicators.</p>
+  </div>
 
-  <article class="panel metric-card">
-    <span>Speed Index</span>
-    <b>91</b>
-    <p>Acceleration and separation potential based on submitted performance indicators.</p>
-  </article>
-
-  <article class="panel metric-card">
-    <span>Explosiveness</span>
-    <b>88</b>
+  <div class="metric">
+    <h3>Explosiveness</h3>
+    <b>--</b>
     <p>Change-of-direction, burst, vertical threat, and field-opening potential.</p>
-  </article>
+  </div>
 
-  <article class="panel metric-card">
-    <span>Readiness</span>
-    <b>84</b>
+  <div class="metric">
+    <h3>Readiness</h3>
+    <b>--</b>
     <p>Development stage, training maturity, coach validation, and readiness trajectory.</p>
-  </article>
+  </div>
 
-  <article class="panel metric-card">
-    <span>Visibility</span>
-    <b>79</b>
+  <div class="metric">
+    <h3>Visibility</h3>
+    <b>--</b>
     <p>Recruiting exposure readiness, profile completeness, and verified access status.</p>
-  </article>
-
+  </div>
 </section>
 
 <section class="lower-grid">
 
-  <article class="panel section">
+  <article class="panel block">
     <div class="label">Verified Highlights</div>
-    <h3>Proof Layer</h3>
+    <h2>Proof Layer</h2>
 
     <div class="list">
-      <div class="list-item"><b>Game Film</b><span>Primary highlight reel slot and verified clip sequence.</span></div>
-      <div class="list-item"><b>Camp / Combine</b><span>Event results and showcase appearances connect here.</span></div>
-      <div class="list-item"><b>Media Exposure</b><span>PHNX Sports Media routing and public feature eligibility.</span></div>
+      <div class="list-item">
+        <b>Game Film</b>
+        <span>Primary highlight reel slot and verified clip sequence.</span>
+      </div>
+      <div class="list-item">
+        <b>Camp / Combine</b>
+        <span>Event results and showcase appearances connect here.</span>
+      </div>
+      <div class="list-item">
+        <b>Media Exposure</b>
+        <span>PHNX Sports media routing and public feature eligibility.</span>
+      </div>
     </div>
   </article>
 
-  <article class="panel section">
+  <article class="panel block">
     <div class="label">Recruiting Visibility</div>
-    <h3>Controlled Access</h3>
+    <h2>Controlled Access</h2>
 
     <div class="list">
-      <div class="list-item"><b>Recruiter View</b><span>Public profile visible. Extended access requires request approval.</span></div>
-      <div class="list-item"><b>Contact Status</b><span>Communication routed through Multi-Box™ permissions.</span></div>
-      <div class="list-item"><b>Exposure Lane</b><span>FBS / Power 4 Watchlist signal shown for demo purposes.</span></div>
+      <div class="list-item">
+        <b>Recruiter View</b>
+        <span>Public profile visible. Extended access requires request approval.</span>
+      </div>
+      <div class="list-item">
+        <b>Contact Status</b>
+        <span>Communication routed through Multi-Box™ permissions.</span>
+      </div>
+      <div class="list-item">
+        <b>Exposure Lane</b>
+        <span>Recruiting and media visibility lane generated after verification.</span>
+      </div>
     </div>
   </article>
 
-  <article class="panel section">
+  <article class="panel block">
     <div class="label">Development Pathway</div>
-    <h3>Next Movement</h3>
+    <h2>Next Movement</h2>
 
     <div class="list">
-      <div class="list-item"><b>Primary Focus</b><span>Route polish, release package, verified timed speed, academic readiness.</span></div>
-      <div class="list-item"><b>Verification Need</b><span>Coach confirmation, event metrics, GPA / eligibility status.</span></div>
-      <div class="list-item"><b>Next Snapshot</b><span>Run official STATScore intake once production system is active.</span></div>
+      <div class="list-item">
+        <b>Primary Focus</b>
+        <span>Development priority generated from verified Snapshot data.</span>
+      </div>
+      <div class="list-item">
+        <b>Verification Need</b>
+        <span>Coach confirmation, event metrics, GPA / eligibility status.</span>
+      </div>
+      <div class="list-item">
+        <b>Next Snapshot</b>
+        <span>Run official STATScore intake once production system is active.</span>
+      </div>
     </div>
   </article>
 
 </section>
 
-<section class="visibility">
-  <div class="visibility-title">Visibility Path</div>
-  <div class="vis-step"><b>Profile</b><span>Public Share</span></div>
-  <div class="vis-step"><b>Snapshot</b><span>Data Intake</span></div>
-  <div class="vis-step"><b>Verification</b><span>Trust Layer</span></div>
-  <div class="vis-step"><b>Multi-Box™</b><span>Permissions</span></div>
-  <div class="vis-step"><b>Recruiting</b><span>Controlled Reach</span></div>
-  <a class="share-btn" href="#">Copy Share Link ›</a>
+<section class="traits">
+  <div class="label">Position Breakdown</div>
+  <h2>Performance Traits</h2>
+
+  <div class="trait">
+    <div class="trait-name">Vision</div>
+    <div class="bar"><span style="width:0%"></span></div>
+    <div class="trait-score">--</div>
+  </div>
+
+  <div class="trait">
+    <div class="trait-name">Burst</div>
+    <div class="bar"><span style="width:0%"></span></div>
+    <div class="trait-score">--</div>
+  </div>
+
+  <div class="trait">
+    <div class="trait-name">Contact Balance</div>
+    <div class="bar"><span style="width:0%"></span></div>
+    <div class="trait-score">--</div>
+  </div>
+
+  <div class="trait">
+    <div class="trait-name">Ball Security</div>
+    <div class="bar"><span style="width:0%"></span></div>
+    <div class="trait-score">--</div>
+  </div>
+
+  <div class="trait">
+    <div class="trait-name">Open Field Ability</div>
+    <div class="bar"><span style="width:0%"></span></div>
+    <div class="trait-score">--</div>
+  </div>
+</section>
+
+<section class="flow">
+  <div class="flow-title">Visibility Path</div>
+
+  <div class="flow-step">
+    <b>Profile</b>
+    <span>Public Share</span>
+  </div>
+
+  <div class="flow-step">
+    <b>Snapshot</b>
+    <span>Data Intake</span>
+  </div>
+
+  <div class="flow-step">
+    <b>Verification</b>
+    <span>Trust Layer</span>
+  </div>
+
+  <div class="flow-step">
+    <b>Multi-Box™</b>
+    <span>Permissions</span>
+  </div>
+
+  <div class="flow-step">
+    <b>Recruiting</b>
+    <span>Controlled Reach</span>
+  </div>
+
+  <a class="flow-btn" href="#">Copy Share Link ›</a>
 </section>
 
 <footer class="footer">
-  <div class="footer-logo"><img src="sc_logo_black.png" alt="STATScore"></div>
+  <div><img src="sc_logo_black.png" alt="STATScore"></div>
   <div>Public Athlete Intelligence Record</div>
-  <div class="secure">✓ Demo · Not Official Scoring</div>
-  <div>© STATScore Systems<br>All Rights Reserved.</div>
+  <div class="demo">✓ Production Template · Official Scoring Pending</div>
+  <div>© STATScore Systems<br />All Rights Reserved.</div>
 </footer>
 
 </main>
