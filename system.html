@@ -8,8 +8,8 @@
 <style>
 :root{
   --black:#020202;
-  --black2:#050505;
-  --panel:#050505;
+  --panel:#030303;
+  --panel2:#08090c;
   --white:#f4f4f1;
   --text:#f4f4f4;
   --muted:#b8b8b8;
@@ -30,10 +30,7 @@ body{
   font-family:Arial, Helvetica, sans-serif;
 }
 
-a{
-  color:inherit;
-  text-decoration:none;
-}
+a{color:inherit;text-decoration:none;}
 
 .shell{
   width:min(var(--max),100%);
@@ -42,9 +39,7 @@ a{
   background:#020202;
 }
 
-/* =========================
-   WHITE HEADER
-========================= */
+/* HEADER */
 
 .header{
   height:108px;
@@ -154,27 +149,22 @@ a{
   left:4px;
 }
 
-/* =========================
-   MAIN BLACK COMMAND SURFACE
-========================= */
+/* MAIN */
 
 .main{
   background:
     radial-gradient(circle at 42% 18%, rgba(255,255,255,.035), transparent 26%),
     linear-gradient(180deg,#000000 0%,#050505 42%,#020202 100%);
-  padding:24px 14px 0;
+  padding:26px 18px 0;
 }
 
-/* =========================
-   REAL FOLDER TAB RAIL
-========================= */
+/* FOLDER TABS */
 
 .tab-rail{
   height:92px;
   display:flex;
   align-items:flex-end;
   border-bottom:3px solid var(--red);
-  padding-left:0;
   overflow:hidden;
   position:relative;
 }
@@ -198,40 +188,32 @@ a{
   align-items:center;
   justify-content:flex-start;
   gap:10px;
-
-  background:
-    linear-gradient(180deg,#242424 0%,#111 46%,#050505 100%);
-
+  background:linear-gradient(180deg,#242424 0%,#111 46%,#050505 100%);
   border:1px solid rgba(255,255,255,.28);
   border-bottom:none;
-
   color:#f4f4f4;
   text-transform:uppercase;
   font-size:.9rem;
   font-weight:900;
   letter-spacing:.04em;
-
   position:relative;
   margin-right:-18px;
   z-index:2;
-
   border-radius:10px 16px 0 0;
-
-  clip-path:polygon(
-    0 22%,
-    4% 8%,
-    78% 8%,
-    84% 0,
-    94% 0,
-    100% 100%,
-    0 100%
-  );
-
+  clip-path:polygon(0 22%,4% 8%,78% 8%,84% 0,94% 0,100% 100%,0 100%);
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.22),
     inset 0 -1px 0 rgba(0,0,0,.75),
     0 -4px 12px rgba(255,255,255,.04),
     0 10px 24px rgba(0,0,0,.65);
+}
+
+.tab svg{
+  width:18px;
+  height:18px;
+  stroke:currentColor;
+  stroke-width:2.2;
+  fill:none;
 }
 
 .tab::before{
@@ -256,55 +238,43 @@ a{
 
 .tab.active{
   height:78px;
-  background:
-    linear-gradient(180deg,#e11a24 0%,#b50f18 48%,#7f080f 100%);
+  background:linear-gradient(180deg,#e11a24 0%,#b50f18 48%,#7f080f 100%);
   border-color:rgba(255,255,255,.38);
   z-index:12;
   color:#fff;
-
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.28),
     0 0 0 1px rgba(224,24,34,.35),
     0 14px 34px rgba(0,0,0,.72);
 }
 
-.tab.active::before{
-  background:rgba(255,255,255,.24);
-}
-
 .tab.multi{
   margin-left:auto;
   min-width:198px;
   border-color:rgba(224,24,34,.8);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.2),
-    0 0 0 1px rgba(224,24,34,.25),
-    0 12px 30px rgba(0,0,0,.7);
 }
 
-/* =========================
-   CONTENT GRID
-========================= */
+/* CONTENT */
 
 .content{
   display:grid;
   grid-template-columns:46% 29% 25%;
-  gap:14px;
-  padding-top:14px;
+  gap:18px;
+  padding-top:16px;
 }
 
 .panel{
   border:1px solid rgba(255,255,255,.16);
   background:
-    linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.012)),
+    linear-gradient(145deg,rgba(255,255,255,.07),rgba(255,255,255,.018)),
     repeating-linear-gradient(
       135deg,
-      rgba(255,255,255,.018) 0px,
-      rgba(255,255,255,.018) 1px,
+      rgba(255,255,255,.012) 0px,
+      rgba(255,255,255,.012) 1px,
       transparent 1px,
-      transparent 6px
+      transparent 7px
     ),
-    #050505;
+    #030303;
   border-radius:4px;
   box-shadow:
     0 18px 42px rgba(0,0,0,.72),
@@ -319,13 +289,11 @@ a{
   text-transform:uppercase;
 }
 
-/* =========================
-   HERO
-========================= */
+/* HERO */
 
 .hero{
   min-height:410px;
-  padding:28px 34px;
+  padding:34px 38px;
   position:relative;
   overflow:hidden;
 }
@@ -377,13 +345,11 @@ a{
   letter-spacing:.12em;
 }
 
-/* =========================
-   OVERVIEW
-========================= */
+/* OVERVIEW */
 
 .overview{
   min-height:410px;
-  padding:24px 20px;
+  padding:28px 24px;
 }
 
 .metric-grid{
@@ -396,7 +362,7 @@ a{
 .metric{
   min-height:136px;
   border:1px solid var(--line);
-  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.012));
+  background:#08090c;
   display:flex;
   flex-direction:column;
   justify-content:center;
@@ -405,10 +371,13 @@ a{
   padding:16px;
 }
 
-.metric-icon{
-  color:var(--red);
-  font-size:2rem;
+.icon-red{
+  width:36px;
+  height:36px;
   margin-bottom:8px;
+  stroke:var(--red);
+  stroke-width:2.2;
+  fill:none;
 }
 
 .metric b{
@@ -425,13 +394,11 @@ a{
   text-transform:uppercase;
 }
 
-/* =========================
-   MULTI-BOX RIGHT RAIL
-========================= */
+/* MULTI-BOX */
 
 .multibox{
   grid-row:span 2;
-  padding:22px 18px;
+  padding:26px 22px;
   border-color:rgba(224,24,34,.44);
 }
 
@@ -460,7 +427,7 @@ a{
 .mb-item{
   min-height:74px;
   border:1px solid var(--line);
-  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.012));
+  background:#08090c;
   display:grid;
   grid-template-columns:54px 1fr 20px;
   align-items:center;
@@ -468,10 +435,12 @@ a{
   padding:12px;
 }
 
-.mb-icon{
-  color:#fff;
-  font-size:1.65rem;
-  text-align:center;
+.mb-icon svg{
+  width:30px;
+  height:30px;
+  stroke:#fff;
+  stroke-width:2.2;
+  fill:none;
 }
 
 .mb-item b{
@@ -507,14 +476,12 @@ a{
   letter-spacing:.14em;
 }
 
-/* =========================
-   READINESS MODULE
-========================= */
+/* READINESS */
 
 .readiness{
   grid-column:1 / span 2;
   min-height:205px;
-  padding:22px 26px;
+  padding:26px 30px;
 }
 
 .readiness-grid{
@@ -528,13 +495,15 @@ a{
   border-right:1px solid var(--line);
 }
 
-.ready:last-child{
-  border-right:none;
-}
+.ready:last-child{border-right:none;}
 
-.ready-icon{
-  font-size:2.1rem;
+.ready svg{
+  width:34px;
+  height:34px;
   margin-bottom:10px;
+  stroke:#fff;
+  stroke-width:2.2;
+  fill:none;
 }
 
 .ready b{
@@ -558,9 +527,7 @@ a{
   letter-spacing:.12em;
 }
 
-/* =========================
-   SYSTEM FLOW
-========================= */
+/* FLOW */
 
 .flow{
   grid-column:1 / -1;
@@ -613,9 +580,7 @@ a{
   letter-spacing:.12em;
 }
 
-/* =========================
-   FOOTER
-========================= */
+/* FOOTER */
 
 .footer{
   height:70px;
@@ -631,17 +596,24 @@ a{
   text-transform:uppercase;
 }
 
-.footer-logo img{
-  width:190px;
-}
+.footer-logo img{width:190px;}
 
 .secure{
   color:var(--green);
+  display:flex;
+  align-items:center;
+  gap:8px;
 }
 
-/* =========================
-   RESPONSIVE
-========================= */
+.secure svg{
+  width:18px;
+  height:18px;
+  stroke:var(--green);
+  stroke-width:2.2;
+  fill:none;
+}
+
+/* RESPONSIVE */
 
 @media(max-width:1000px){
   .header{
@@ -649,9 +621,7 @@ a{
     height:auto;
   }
 
-  .header-title{
-    display:none;
-  }
+  .header-title{display:none;}
 
   .header-nav{
     justify-content:flex-start;
@@ -712,14 +682,38 @@ a{
 <main class="main">
 
 <nav class="tab-rail">
-  <a class="tab active" href="player-profile.html">☄ Athlete</a>
-  <a class="tab" href="parent-dashboard.html">● Parent</a>
-  <a class="tab" href="coach-dashboard.html">▰ Coach</a>
-  <a class="tab" href="eligibility.html">▣ Counselor</a>
-  <a class="tab" href="recruiter-access.html">◉ Recruiter</a>
-  <a class="tab" href="program-management.html">▥ Program</a>
-  <a class="tab" href="evaluator.html">☑ Evaluator</a>
-  <a class="tab multi" href="multibox.html">▣ Multi-Box™</a>
+  <a class="tab active" href="player-profile.html">
+    <svg viewBox="0 0 24 24"><path d="M12 21v-6M8 8a4 4 0 1 1 8 0a4 4 0 0 1-8 0Z"/><path d="M4 21c1.5-4 14.5-4 16 0"/></svg>
+    Athlete
+  </a>
+  <a class="tab" href="parent-dashboard.html">
+    <svg viewBox="0 0 24 24"><path d="M16 11a4 4 0 1 0-8 0"/><path d="M3 21c1.4-5 16.6-5 18 0"/><path d="M18 8h3M19.5 6.5v3"/></svg>
+    Parent
+  </a>
+  <a class="tab" href="coach-dashboard.html">
+    <svg viewBox="0 0 24 24"><path d="M4 15l8-8 8 8"/><path d="M7 14v7h10v-7"/></svg>
+    Coach
+  </a>
+  <a class="tab" href="eligibility.html">
+    <svg viewBox="0 0 24 24"><path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+    Counselor
+  </a>
+  <a class="tab" href="recruiter-access.html">
+    <svg viewBox="0 0 24 24"><path d="M3 12h18"/><path d="M12 3v18"/><circle cx="12" cy="12" r="7"/></svg>
+    Recruiter
+  </a>
+  <a class="tab" href="program-management.html">
+    <svg viewBox="0 0 24 24"><path d="M4 21h16"/><path d="M6 21V9l6-4 6 4v12"/><path d="M9 21v-6h6v6"/></svg>
+    Program
+  </a>
+  <a class="tab" href="evaluator.html">
+    <svg viewBox="0 0 24 24"><path d="M6 3h12v18H6z"/><path d="m8 12 3 3 5-6"/></svg>
+    Evaluator
+  </a>
+  <a class="tab multi" href="multibox.html">
+    <svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+    Multi-Box™
+  </a>
 </nav>
 
 <section class="content">
@@ -745,25 +739,25 @@ a{
 
     <div class="metric-grid">
       <div class="metric">
-        <div class="metric-icon">◎</div>
+        <svg class="icon-red" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><path d="M12 5v14M5 12h14"/></svg>
         <b>04</b>
         <span>Initial National Sports</span>
       </div>
 
       <div class="metric">
-        <div class="metric-icon">●</div>
+        <svg class="icon-red" viewBox="0 0 24 24"><path d="M16 11a4 4 0 1 0-8 0"/><path d="M3 21c1.4-5 16.6-5 18 0"/></svg>
         <b>08</b>
         <span>User Access Areas</span>
       </div>
 
       <div class="metric">
-        <div class="metric-icon">◆</div>
+        <svg class="icon-red" viewBox="0 0 24 24"><path d="M12 3 4 7v6c0 5 3.5 7.5 8 8 4.5-.5 8-3 8-8V7l-8-4Z"/><path d="m8.5 12 2.5 2.5L16 9"/></svg>
         <b>05</b>
         <span>Verification Levels</span>
       </div>
 
       <div class="metric">
-        <div class="metric-icon">▣</div>
+        <svg class="icon-red" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
         <b>01</b>
         <span>Verified Athlete System</span>
       </div>
@@ -776,56 +770,38 @@ a{
 
     <div class="mb-list">
       <div class="mb-item">
-        <div class="mb-icon">●</div>
-        <div>
-          <b>Parent Approval</b>
-          <span>Manage guardian access and approvals.</span>
-        </div>
+        <div class="mb-icon"><svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/><path d="M4 21c1.2-5.2 14.8-5.2 16 0"/></svg></div>
+        <div><b>Parent Approval</b><span>Manage guardian access and approvals.</span></div>
         <div class="arrow">›</div>
       </div>
 
       <div class="mb-item">
-        <div class="mb-icon">●</div>
-        <div>
-          <b>Recruiter Requests</b>
-          <span>Control recruiter visibility and access requests.</span>
-        </div>
+        <div class="mb-icon"><svg viewBox="0 0 24 24"><path d="M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M16 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M3 21c1-4 9-4 10 0"/><path d="M11 21c1-4 9-4 10 0"/></svg></div>
+        <div><b>Recruiter Requests</b><span>Control recruiter visibility and access requests.</span></div>
         <div class="arrow">›</div>
       </div>
 
       <div class="mb-item">
-        <div class="mb-icon">◉</div>
-        <div>
-          <b>Visibility Rules</b>
-          <span>Set visibility levels and communication boundaries.</span>
-        </div>
+        <div class="mb-icon"><svg viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <div><b>Visibility Rules</b><span>Set visibility levels and communication boundaries.</span></div>
         <div class="arrow">›</div>
       </div>
 
       <div class="mb-item">
-        <div class="mb-icon">▢</div>
-        <div>
-          <b>Message Windows</b>
-          <span>Manage communication windows and channels.</span>
-        </div>
+        <div class="mb-icon"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H7l-3 3V5Z"/><path d="M8 9h8M8 12h5"/></svg></div>
+        <div><b>Message Windows</b><span>Manage communication windows and channels.</span></div>
         <div class="arrow">›</div>
       </div>
 
       <div class="mb-item">
-        <div class="mb-icon">▰</div>
-        <div>
-          <b>Counselor Access</b>
-          <span>Allow school counselor secure access.</span>
-        </div>
+        <div class="mb-icon"><svg viewBox="0 0 24 24"><path d="M4 7 12 3l8 4-8 4-8-4Z"/><path d="M6 10v5c0 2 12 2 12 0v-5"/></svg></div>
+        <div><b>Counselor Access</b><span>Allow school counselor secure access.</span></div>
         <div class="arrow">›</div>
       </div>
 
       <div class="mb-item">
-        <div class="mb-icon">☰</div>
-        <div>
-          <b>Audit Trail</b>
-          <span>Track activity, actions, and system logs.</span>
-        </div>
+        <div class="mb-icon"><svg viewBox="0 0 24 24"><path d="M5 6h14M5 12h14M5 18h14"/></svg></div>
+        <div><b>Audit Trail</b><span>Track activity, actions, and system logs.</span></div>
         <div class="arrow">›</div>
       </div>
     </div>
@@ -838,28 +814,28 @@ a{
 
     <div class="readiness-grid">
       <div class="ready">
-        <div class="ready-icon">◇</div>
+        <svg viewBox="0 0 24 24"><path d="M12 3 4 7v6c0 5 3.5 7.5 8 8 4.5-.5 8-3 8-8V7l-8-4Z"/></svg>
         <b>Verification</b>
         <p>Document verification, identity, academic, and eligibility status.</p>
         <a href="eligibility.html">View Status ›</a>
       </div>
 
       <div class="ready">
-        <div class="ready-icon">▥</div>
+        <svg viewBox="0 0 24 24"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-8"/><path d="M22 20V7"/></svg>
         <b>Readiness</b>
         <p>Academic readiness, performance data, and development tracking.</p>
         <a href="eligibility.html">View Status ›</a>
       </div>
 
       <div class="ready">
-        <div class="ready-icon">✓</div>
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>
         <b>Eligibility</b>
         <p>Eligibility awareness, NCAA clearinghouse, and compliance tracking.</p>
         <a href="eligibility.html">View Status ›</a>
       </div>
 
       <div class="ready">
-        <div class="ready-icon">▣</div>
+        <svg viewBox="0 0 24 24"><path d="M4 21h16"/><path d="M6 21V9l6-4 6 4v12"/><path d="M9 21v-6h6v6"/></svg>
         <b>College Pathway</b>
         <p>Target schools, program fit, scholarship info, and recruiting opportunities.</p>
         <a href="recruiter-access.html">View Status ›</a>
@@ -889,7 +865,10 @@ a{
 
   <div>National Athlete Infrastructure</div>
 
-  <div class="secure">System Secure</div>
+  <div class="secure">
+    <svg viewBox="0 0 24 24"><path d="M12 3 4 7v6c0 5 3.5 7.5 8 8 4.5-.5 8-3 8-8V7l-8-4Z"/><path d="m8.5 12 2.5 2.5L16 9"/></svg>
+    System Secure
+  </div>
 
   <div>© STATScore Systems<br>All Rights Reserved.</div>
 </footer>
