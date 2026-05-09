@@ -1,202 +1,436 @@
-<!DOCTYPE html>  
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
 <title>STATScore™</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
 <style>
+
 :root{
---black:#05070a;
---dark:#0b0f15;
+
+/* CORE */
+--black:#040506;
+--dark:#090c11;
+--panel:#0d1117;
 --text:#ffffff;
---muted:#9ca6b8;
---red:#ff2f3c;
---red-dark:#d91522;
+--muted:#98a3b6;
+
+/* STATSCORE RED SYSTEM */
+--red:#e11d2e;
+--red-bright:#ff3245;
+--red-deep:#93131d;
+--red-shadow:#4e0910;
+
 }
+
+/* =========================
+RESET
+========================= */
 
 *{
-box-sizing:border-box;
 margin:0;
 padding:0;
+box-sizing:border-box;
 }
 
-html,body{
+html,
+body{
 height:100%;
 font-family:'Inter',sans-serif;
 background:var(--black);
 color:var(--text);
+overflow:hidden;
 }
+
+/* =========================
+PAGE
+========================= */
 
 .page{
 height:100vh;
 display:flex;
 flex-direction:column;
+background:#000;
 }
 
 /* =========================
-   HERO — PRIMARY AUTHORITY
+HERO
 ========================= */
+
 .hero{
+
 flex:0 0 72%;
-background:#ffffff;
+
+position:relative;
+
 display:flex;
 align-items:center;
 justify-content:center;
+
 overflow:hidden;
-position:relative;
+
+background:
+linear-gradient(
+180deg,
+#ffffff 0%,
+#f7f7f7 100%
+);
+
 }
 
+/* LOWER SHADOW BLEND */
 .hero::after{
+
 content:"";
+
+position:absolute;
+left:0;
+right:0;
+bottom:0;
+
+height:120px;
+
+background:
+linear-gradient(
+180deg,
+rgba(0,0,0,0) 0%,
+rgba(0,0,0,.08) 45%,
+rgba(0,0,0,.22) 100%
+);
+
+pointer-events:none;
+}
+
+/* SOFT EDGE SHADOW */
+.hero::before{
+
+content:"";
+
 position:absolute;
 inset:0;
-border-bottom:1px solid rgba(255,255,255,.18);
-box-shadow:inset 0 -24px 50px rgba(0,0,0,.08);
+
+box-shadow:
+inset 0 -28px 50px rgba(0,0,0,.08);
+
 pointer-events:none;
 }
 
 .hero img{
+
 width:110%;
-max-width:none;
 height:auto;
+
 object-fit:cover;
 object-position:center;
+
+filter:
+contrast(1.02)
+saturate(1.03);
+
 }
 
 /* =========================
-   ACCESS SECTION
+ACCESS SECTION
 ========================= */
+
 .access{
+
 flex:1;
-background:
-linear-gradient(180deg, #0d1420 0%, #07090d 100%);
+
+position:relative;
+
 display:flex;
 align-items:center;
 justify-content:center;
-text-align:center;
-position:relative;
+
 overflow:hidden;
+
+background:
+
+linear-gradient(
+180deg,
+#111722 0%,
+#090c11 42%,
+#040506 100%
+);
+
 }
 
+/* RED ATMOSPHERIC GLOW */
 .access::before{
+
 content:"";
+
 position:absolute;
 inset:0;
+
 background:
-radial-gradient(circle at 50% 0%, rgba(255,47,60,.18), transparent 38%),
-linear-gradient(90deg, transparent, rgba(255,255,255,.035), transparent);
+
+radial-gradient(
+circle at 50% -10%,
+rgba(225,29,46,.34),
+transparent 42%
+),
+
+linear-gradient(
+90deg,
+transparent,
+rgba(255,255,255,.025),
+transparent
+);
+
 pointer-events:none;
 }
 
+/* SUBTLE TOP RED LINE */
+.access::after{
+
+content:"";
+
+position:absolute;
+
+top:0;
+left:0;
+right:0;
+
+height:1px;
+
+background:
+linear-gradient(
+90deg,
+transparent,
+rgba(255,50,69,.75),
+transparent
+);
+
+box-shadow:
+0 0 12px rgba(255,50,69,.28);
+
+}
+
+/* =========================
+CONTENT
+========================= */
+
 .access-inner{
+
 position:relative;
 z-index:2;
+
 display:flex;
 flex-direction:column;
 align-items:center;
+
 gap:18px;
+
+padding:20px;
+
 }
+
+/* =========================
+HEADLINE
+========================= */
 
 .headline{
+
 font-size:clamp(1.45rem, 2vw, 2.1rem);
-font-weight:700;
-letter-spacing:-0.04em;
-line-height:1.05;
+
+font-weight:800;
+
+letter-spacing:-0.045em;
+line-height:1.02;
+
 color:#ffffff;
+
 text-shadow:
-0 0 24px rgba(255,255,255,0.08);
+0 0 18px rgba(255,255,255,.08);
+
 }
 
+/* =========================
+BUTTON
+========================= */
+
 .enter{
+
 position:relative;
 
 min-width:190px;
 
 padding:15px 34px;
 
-font-size:0.74rem;
-font-weight:800;
-letter-spacing:0.24em;
-text-transform:uppercase;
+font-size:.74rem;
+font-weight:900;
 
-background:
-linear-gradient(
-180deg,
-#ef3942 0%,
-#c81d28 100%
-);
+letter-spacing:.24em;
+text-transform:uppercase;
 
 color:#ffffff;
 
-border:1px solid rgba(255,255,255,0.10);
+background:
+
+linear-gradient(
+180deg,
+#ff3347 0%,
+#da1f2f 40%,
+#a41220 100%
+);
+
+border:1px solid rgba(255,50,69,.9);
 
 border-radius:2px;
 
 cursor:pointer;
 
 transition:
-background .18s ease,
 transform .16s ease,
-border-color .16s ease;
+box-shadow .16s ease,
+border-color .16s ease,
+background .16s ease;
 
 box-shadow:
-inset 0 1px 0 rgba(255,255,255,0.06),
-0 0 0 1px rgba(0,0,0,0.22);
+
+0 0 0 1px rgba(0,0,0,.42),
+
+0 10px 24px rgba(0,0,0,.42),
+
+0 0 18px rgba(225,29,46,.18),
+
+inset 0 1px 0 rgba(255,255,255,.08),
+
+inset 0 -12px 20px rgba(0,0,0,.22);
+
 }
 
-.enter:hover{
-transform:translateY(-1px);
+/* INNER RED SHEEN */
+.enter::before{
+
+content:"";
+
+position:absolute;
+left:0;
+right:0;
+top:0;
+
+height:40%;
 
 background:
 linear-gradient(
 180deg,
-#ff4a54 0%,
-#d61f2a 100%
+rgba(255,255,255,.12),
+rgba(255,255,255,0)
+);
+
+pointer-events:none;
+}
+
+/* HOVER */
+.enter:hover{
+
+transform:translateY(-1px);
+
+background:
+
+linear-gradient(
+180deg,
+#ff4456 0%,
+#e02132 40%,
+#b01423 100%
 );
 
 border-color:
-rgba(255,255,255,0.18);
-} 
+rgba(255,255,255,.18);
+
+box-shadow:
+
+0 0 0 1px rgba(0,0,0,.45),
+
+0 14px 34px rgba(0,0,0,.48),
+
+0 0 28px rgba(255,50,69,.22),
+
+inset 0 1px 0 rgba(255,255,255,.08),
+
+inset 0 -12px 20px rgba(0,0,0,.24);
+
+}
+
+/* CLICK */
+.enter:active{
+
+transform:translateY(1px);
+
+}
+
+/* =========================
+SUBTEXT
+========================= */
 
 .sub{
-font-size:0.9rem;
-color:var(--muted);
+
+font-size:.92rem;
+
 font-weight:600;
+
+color:var(--muted);
+
 letter-spacing:.01em;
+
 }
 
 .sub strong{
+
 color:#ffffff;
 font-weight:900;
+
 }
 
-/* MOBILE */
+/* =========================
+MOBILE
+========================= */
+
 @media(max-width:768px){
+
 .hero{
 flex:0 0 65%;
 }
 
 .hero img{
-width:130%;
+width:132%;
 }
 
 .headline{
-font-size:clamp(1.4rem, 2vw, 2rem);
-font-weight:650;
-letter-spacing:-0.045em;
+
+font-size:clamp(1.4rem, 2vw, 1.95rem);
+
+font-weight:750;
+
+letter-spacing:-0.05em;
+
 line-height:1.02;
 
-color:#ffffff;
-} 
+}
 
 .enter{
-padding:12px 22px;
-font-size:0.72rem;
+
+padding:13px 24px;
+
+font-size:.71rem;
+
+min-width:175px;
+
 }
+
+.sub{
+font-size:.86rem;
 }
+
+}
+
 </style>
 </head>
 
@@ -204,23 +438,40 @@ font-size:0.72rem;
 
 <div class="page">
 
-  <section class="hero">
-    <img src="statscore-logo.png" alt="STATScore Logo">
-  </section>
+    <!-- HERO -->
+    <section class="hero">
 
-  <section class="access">
-    <div class="access-inner">
-      <h1 class="headline">Athlete Performance Starts Here</h1>
+        <img
+            src="statscore-logo.png"
+            alt="STATScore Logo"
+        >
 
-      <button class="enter" onclick="window.location.href='system.html'">
-        Enter
-      </button>
+    </section>
 
-      <p class="sub">
-        Track it. Score it. <strong>Prove it.</strong>
-      </p>
-    </div>
-  </section>
+    <!-- ACCESS -->
+    <section class="access">
+
+        <div class="access-inner">
+
+            <h1 class="headline">
+                Athlete Performance Starts Here
+            </h1>
+
+            <button
+                class="enter"
+                onclick="window.location.href='system.html'"
+            >
+                Enter
+            </button>
+
+            <p class="sub">
+                Track it. Score it.
+                <strong>Prove it.</strong>
+            </p>
+
+        </div>
+
+    </section>
 
 </div>
 
