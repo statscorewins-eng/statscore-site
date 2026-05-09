@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>  
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -138,79 +138,51 @@ ACCESS SECTION
 ========================= */
 
 .access{
+  flex:1;
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
 
-flex:1;
+  background:
+    linear-gradient(
+      180deg,
+      #10141b 0%,
+      #0a0d12 48%,
+      #05070a 100%
+    );
 
-position:relative;
-
-display:flex;
-align-items:center;
-justify-content:center;
-
-overflow:hidden;
-
-background:
-
-linear-gradient(
-180deg,
-#111722 0%,
-#090c11 42%,
-#040506 100%
-);
-
+  border-top:1px solid rgba(255,47,60,.28);
 }
 
-/* RED ATMOSPHERIC GLOW */
 .access::before{
+  content:"";
+  position:absolute;
+  inset:0;
 
-content:"";
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.015),
+      rgba(255,255,255,0)
+    );
 
-position:absolute;
-inset:0;
-
-background:
-
-radial-gradient(
-circle at 50% -10%,
-rgba(225,29,46,.34),
-transparent 42%
-),
-
-linear-gradient(
-90deg,
-transparent,
-rgba(255,255,255,.025),
-transparent
-);
-
-pointer-events:none;
+  pointer-events:none;
 }
 
-/* SUBTLE TOP RED LINE */
 .access::after{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  height:1px;
 
-content:"";
+  background:rgba(255,47,60,.75);
 
-position:absolute;
-
-top:0;
-left:0;
-right:0;
-
-height:1px;
-
-background:
-linear-gradient(
-90deg,
-transparent,
-rgba(255,50,69,.75),
-transparent
-);
-
-box-shadow:
-0 0 12px rgba(255,50,69,.28);
-
-}
+  pointer-events:none;
+} 
 
 /* =========================
 CONTENT
@@ -292,70 +264,21 @@ background .16s ease,
 border-color .16s ease;
 
 box-shadow:
-
-0 0 0 1px rgba(0,0,0,.38),
-
-0 10px 20px rgba(0,0,0,.28),
-
-inset 0 1px 0 rgba(255,255,255,.05),
-
-inset 0 -10px 18px rgba(0,0,0,.24);
-
-}
-
-/* TOP METAL SHEEN */
-.enter::before{
-
-content:"";
-
-position:absolute;
-
-left:0;
-right:0;
-top:0;
-
-height:38%;
-
-background:
-
-linear-gradient(
-180deg,
-rgba(255,255,255,.07),
-rgba(255,255,255,0)
-);
-
-pointer-events:none;
-
-}
+  0 0 0 1px rgba(0,0,0,.35); 
 
 /* HOVER */
 .enter:hover{
 
-transform:translateY(-1px);
+  background:
+    linear-gradient(
+      180deg,
+      #d92a36 0%,
+      #b31d28 100%
+    );
 
-background:
-
-linear-gradient(
-180deg,
-#ff3a4b 0%,
-#d52030 42%,
-#a81320 100%
-);
-
-border-color:#991320;
-
-box-shadow:
-
-0 0 0 1px rgba(0,0,0,.42),
-
-0 12px 24px rgba(0,0,0,.34),
-
-inset 0 1px 0 rgba(255,255,255,.06),
-
-inset 0 -10px 18px rgba(0,0,0,.26);
-
-}
-
+  border-color:rgba(255,255,255,.10);
+} 
+    
 /* CLICK */
 .enter:active{
 
