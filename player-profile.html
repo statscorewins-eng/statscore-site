@@ -1,914 +1,1038 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>STATScore — Player Profile</title>
-
-  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-
-  <style>
-    :root{
-      --bg:#050608;
-      --panel:#0b0f15;
-      --panel2:#101722;
-      --line:rgba(255,255,255,.10);
-      --line2:rgba(255,255,255,.18);
-      --text:#f5f7fb;
-      --muted:#9aa5b3;
-      --red:#e50914;
-      --red2:#ff2935;
-      --white:#ffffff;
-      --black:#030405;
-      --gold:#f5c542;
-      --green:#27d17f;
-      --blue:#4aa3ff;
-      --shadow:0 28px 80px rgba(0,0,0,.55);
-    }
-
-    *{box-sizing:border-box;margin:0;padding:0}
-
-    body{
-      background:
-        radial-gradient(circle at 18% 10%, rgba(229,9,20,.20), transparent 32%),
-        radial-gradient(circle at 85% 35%, rgba(255,255,255,.08), transparent 30%),
-        linear-gradient(180deg,#090b10 0%,#050608 100%);
-      color:var(--text);
-      font-family:"Inter",Arial,sans-serif;
-      min-height:100vh;
-    }
-
-    body:before{
-      content:"";
-      position:fixed;
-      inset:0;
-      background-image:
-        linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
-      background-size:72px 72px;
-      pointer-events:none;
-      opacity:.45;
-    }
-
-    .page{
-      position:relative;
-      width:min(1420px,94vw);
-      margin:auto;
-      padding:28px 0 48px;
-    }
-
-    .topbar{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:20px;
-      padding:16px 0 24px;
-    }
-
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:14px;
-    }
-
-    .mark{
-      width:48px;
-      height:48px;
-      border:1px solid rgba(255,255,255,.22);
-      background:linear-gradient(145deg,#161b24,#050608);
-      display:grid;
-      place-items:center;
-      box-shadow:0 0 28px rgba(229,9,20,.22);
-      font-family:"Anton",sans-serif;
-      color:var(--red2);
-      font-size:24px;
-    }
-
-    .brand-kicker{
-      font-size:11px;
-      letter-spacing:.28em;
-      text-transform:uppercase;
-      color:var(--muted);
-      font-weight:800;
-    }
-
-    .brand-title{
-      font-family:"Anton",sans-serif;
-      letter-spacing:.06em;
-      font-size:25px;
-      text-transform:uppercase;
-    }
-
-    .nav{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-
-    .nav a{
-      color:var(--text);
-      text-decoration:none;
-      border:1px solid var(--line);
-      padding:10px 14px;
-      text-transform:uppercase;
-      letter-spacing:.12em;
-      font-size:11px;
-      font-weight:900;
-      background:rgba(255,255,255,.025);
-    }
-
-    .hero{
-      display:grid;
-      grid-template-columns:440px 1fr;
-      gap:28px;
-      margin-bottom:26px;
-    }
-
-    .player-card{
-      position:relative;
-      min-height:690px;
-      border:1px solid var(--line2);
-      overflow:hidden;
-      background:
-        linear-gradient(180deg, rgba(229,9,20,.18), rgba(0,0,0,.20)),
-        linear-gradient(145deg,#151a23,#06080d);
-      box-shadow:var(--shadow);
-    }
-
-    .player-photo{
-      position:absolute;
-      inset:0;
-      background:
-        linear-gradient(180deg, transparent 0%, rgba(0,0,0,.25) 42%, rgba(0,0,0,.88) 100%),
-        url("athlete-placeholder.jpg");
-      background-size:cover;
-      background-position:center;
-      opacity:.72;
-    }
-
-    .player-card:before{
-      content:"";
-      position:absolute;
-      inset:18px;
-      border:1px solid rgba(255,255,255,.14);
-      z-index:2;
-      pointer-events:none;
-    }
-
-    .player-overlay{
-      position:absolute;
-      z-index:3;
-      left:28px;
-      right:28px;
-      bottom:30px;
-    }
-
-    .verified{
-      display:inline-flex;
-      margin-bottom:14px;
-      border:1px solid rgba(255,255,255,.28);
-      background:rgba(229,9,20,.18);
-      color:#fff;
-      padding:9px 13px;
-      text-transform:uppercase;
-      letter-spacing:.15em;
-      font-size:11px;
-      font-weight:900;
-      box-shadow:0 0 24px rgba(229,9,20,.25);
-    }
-
-    .player-name{
-      font-family:"Anton",sans-serif;
-      font-size:64px;
-      line-height:.92;
-      letter-spacing:.02em;
-      text-transform:uppercase;
-      text-shadow:0 12px 35px rgba(0,0,0,.65);
-    }
-
-    .player-meta{
-      margin-top:14px;
-      color:#dce3ee;
-      font-size:15px;
-      line-height:1.65;
-      font-weight:800;
-      text-transform:uppercase;
-      letter-spacing:.08em;
-    }
-
-    .stars{
-      margin-top:16px;
-      color:var(--gold);
-      font-size:24px;
-      letter-spacing:.08em;
-    }
-
-    .hero-main{
-      border:1px solid var(--line2);
-      background:linear-gradient(145deg,rgba(14,18,27,.86),rgba(5,6,8,.76));
-      box-shadow:var(--shadow);
-      padding:30px;
-      display:flex;
-      flex-direction:column;
-      gap:22px;
-    }
-
-    .headline-row{
-      display:flex;
-      justify-content:space-between;
-      gap:20px;
-      align-items:flex-start;
-      border-bottom:1px solid var(--line);
-      padding-bottom:22px;
-    }
-
-    .profile-kicker{
-      color:var(--red2);
-      font-size:12px;
-      letter-spacing:.24em;
-      text-transform:uppercase;
-      font-weight:900;
-      margin-bottom:10px;
-    }
-
-    h1,h2,h3{
-      font-family:"Anton",sans-serif;
-      text-transform:uppercase;
-      letter-spacing:.04em;
-      font-weight:400;
-    }
-
-    .profile-title{
-      font-size:52px;
-      line-height:.95;
-    }
-
-    .profile-sub{
-      color:var(--muted);
-      margin-top:14px;
-      max-width:680px;
-      line-height:1.65;
-      font-weight:650;
-    }
-
-    .score-core{
-      min-width:190px;
-      border:1px solid rgba(229,9,20,.45);
-      background:
-        linear-gradient(145deg,rgba(229,9,20,.14),rgba(255,255,255,.025));
-      padding:18px;
-      text-align:center;
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.08),
-        0 20px 45px rgba(0,0,0,.32);
-    }
-
-    .score-label{
-      font-size:10px;
-      letter-spacing:.20em;
-      text-transform:uppercase;
-      color:var(--muted);
-      font-weight:900;
-      margin-bottom:8px;
-    }
-
-    .score{
-      font-family:"Anton",sans-serif;
-      font-size:72px;
-      line-height:.9;
-    }
-
-    .score-status{
-      color:var(--gold);
-      text-transform:uppercase;
-      font-size:12px;
-      font-weight:900;
-      margin-top:8px;
-      letter-spacing:.10em;
-    }
-
-    .rank-grid{
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:14px;
-    }
-
-    .rank-tile,.deep-card,.metric-card,.readiness-card{
-      border:1px solid var(--line);
-      background:
-        linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.018));
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.08),
-        0 16px 36px rgba(0,0,0,.26);
-    }
-
-    .rank-tile{
-      padding:18px;
-      min-height:112px;
-    }
-
-    .tile-label{
-      font-size:10px;
-      letter-spacing:.18em;
-      text-transform:uppercase;
-      color:var(--muted);
-      font-weight:900;
-      margin-bottom:10px;
-    }
-
-    .tile-value{
-      font-size:26px;
-      font-weight:900;
-      line-height:1.1;
-    }
-
-    .tile-note{
-      color:var(--muted);
-      margin-top:6px;
-      font-size:12px;
-      font-weight:700;
-    }
-
-    .badge-row{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-
-    .badge{
-      border:1px solid rgba(255,255,255,.18);
-      padding:9px 12px;
-      background:rgba(255,255,255,.035);
-      color:#e8eef7;
-      font-size:11px;
-      letter-spacing:.11em;
-      text-transform:uppercase;
-      font-weight:900;
-    }
-
-    .badge.red{border-color:rgba(229,9,20,.55);color:#fff;background:rgba(229,9,20,.12)}
-    .badge.green{border-color:rgba(39,209,127,.45);color:#c9ffe3;background:rgba(39,209,127,.08)}
-    .badge.gold{border-color:rgba(245,197,66,.50);color:#ffeaa0;background:rgba(245,197,66,.08)}
-
-    .layout{
-      display:grid;
-      grid-template-columns:1fr 360px;
-      gap:28px;
-      align-items:start;
-    }
-
-    .section{
-      border:1px solid var(--line2);
-      background:linear-gradient(145deg,rgba(14,18,27,.82),rgba(5,6,8,.72));
-      box-shadow:var(--shadow);
-      padding:28px;
-      margin-bottom:26px;
-    }
-
-    .section-head{
-      display:flex;
-      justify-content:space-between;
-      gap:16px;
-      align-items:flex-end;
-      margin-bottom:22px;
-      border-bottom:1px solid var(--line);
-      padding-bottom:18px;
-    }
-
-    .section h2{
-      font-size:34px;
-    }
-
-    .section-note{
-      color:var(--muted);
-      max-width:540px;
-      line-height:1.55;
-      font-weight:650;
-      font-size:14px;
-    }
-
-    .metric-grid{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:16px;
-    }
-
-    .metric-card{
-      padding:20px;
-      min-height:158px;
-      position:relative;
-      overflow:hidden;
-    }
-
-    .metric-card:after{
-      content:"";
-      position:absolute;
-      top:0;
-      right:0;
-      width:52px;
-      height:100%;
-      background:linear-gradient(90deg,transparent,rgba(229,9,20,.09));
-      transform:skewX(-18deg);
-    }
-
-    .metric-value{
-      font-family:"Anton",sans-serif;
-      font-size:42px;
-      line-height:1;
-      margin-bottom:10px;
-    }
-
-    .metric-title{
-      text-transform:uppercase;
-      letter-spacing:.10em;
-      font-size:12px;
-      font-weight:900;
-      color:#fff;
-    }
-
-    .metric-copy{
-      color:var(--muted);
-      margin-top:10px;
-      line-height:1.55;
-      font-size:13px;
-      font-weight:650;
-    }
-
-    .bar-list{
-      display:grid;
-      gap:15px;
-    }
-
-    .bar-row{
-      display:grid;
-      grid-template-columns:180px 1fr 52px;
-      gap:14px;
-      align-items:center;
-    }
-
-    .bar-name{
-      text-transform:uppercase;
-      letter-spacing:.12em;
-      color:#dbe4ee;
-      font-size:12px;
-      font-weight:900;
-    }
-
-    .bar-track{
-      height:14px;
-      background:rgba(255,255,255,.06);
-      border:1px solid var(--line);
-      box-shadow:inset 0 2px 7px rgba(0,0,0,.65);
-      overflow:hidden;
-    }
-
-    .bar-fill{
-      height:100%;
-      background:linear-gradient(90deg,var(--red),#ff6b72,var(--gold));
-      box-shadow:0 0 18px rgba(229,9,20,.35);
-    }
-
-    .bar-score{
-      font-weight:900;
-      color:#fff;
-      text-align:right;
-    }
-
-    .readiness-grid{
-      display:grid;
-      grid-template-columns:1.1fr .9fr;
-      gap:18px;
-    }
-
-    .readiness-card{
-      padding:22px;
-    }
-
-    .status-big{
-      font-family:"Anton",sans-serif;
-      font-size:46px;
-      color:var(--green);
-      text-transform:uppercase;
-      line-height:1;
-      margin-bottom:14px;
-    }
-
-    .readiness-list{
-      display:grid;
-      gap:12px;
-    }
-
-    .readiness-row{
-      display:flex;
-      justify-content:space-between;
-      gap:16px;
-      border-bottom:1px solid var(--line);
-      padding-bottom:11px;
-      color:#dce4ef;
-      font-weight:800;
-    }
-
-    .readiness-row span:first-child{
-      color:var(--muted);
-      text-transform:uppercase;
-      letter-spacing:.12em;
-      font-size:11px;
-      font-weight:900;
-    }
-
-    .media-grid{
-      display:grid;
-      grid-template-columns:1.4fr .6fr;
-      gap:18px;
-    }
-
-    .video-box{
-      min-height:330px;
-      border:1px solid var(--line);
-      background:
-        linear-gradient(180deg,rgba(0,0,0,.12),rgba(0,0,0,.75)),
-        url("highlight-placeholder.jpg");
-      background-size:cover;
-      background-position:center;
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.08),
-        0 22px 55px rgba(0,0,0,.35);
-      display:flex;
-      align-items:end;
-      padding:24px;
-    }
-
-    .play-title{
-      font-family:"Anton",sans-serif;
-      font-size:34px;
-      text-transform:uppercase;
-      line-height:1;
-    }
-
-    .play-copy{
-      color:var(--muted);
-      margin-top:10px;
-      font-weight:700;
-    }
-
-    .side{
-      position:sticky;
-      top:20px;
-      display:grid;
-      gap:20px;
-    }
-
-    .side-card{
-      border:1px solid var(--line2);
-      background:linear-gradient(145deg,rgba(14,18,27,.86),rgba(5,6,8,.76));
-      box-shadow:var(--shadow);
-      padding:24px;
-    }
-
-    .side-card h3{
-      font-size:25px;
-      margin-bottom:14px;
-    }
-
-    .side-card p{
-      color:var(--muted);
-      line-height:1.6;
-      font-weight:650;
-    }
-
-    .action{
-      display:block;
-      text-align:center;
-      border:1px solid var(--red2);
-      color:white;
-      background:linear-gradient(90deg,#b90009,var(--red2),#b90009);
-      padding:16px 18px;
-      text-decoration:none;
-      text-transform:uppercase;
-      letter-spacing:.13em;
-      font-size:12px;
-      font-weight:900;
-      margin-top:16px;
-      box-shadow:0 0 28px rgba(229,9,20,.22);
-    }
-
-    .locked{
-      border:1px solid rgba(245,197,66,.45);
-      background:rgba(245,197,66,.07);
-      padding:14px;
-      color:#ffe8a0;
-      font-weight:850;
-      line-height:1.55;
-      margin-top:14px;
-    }
-
-    .event-list{
-      display:grid;
-      gap:12px;
-    }
-
-    .event{
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.025);
-      padding:14px;
-    }
-
-    .event strong{
-      display:block;
-      margin-bottom:6px;
-      color:#fff;
-    }
-
-    .event span{
-      color:var(--muted);
-      font-size:13px;
-      font-weight:700;
-    }
-
-    .footer{
-      border-top:1px solid var(--line);
-      margin-top:24px;
-      padding-top:20px;
-      color:var(--muted);
-      display:flex;
-      justify-content:center;
-      gap:14px;
-      flex-wrap:wrap;
-      font-size:12px;
-      font-weight:700;
-    }
-
-    @media(max-width:1120px){
-      .hero,.layout,.readiness-grid,.media-grid{grid-template-columns:1fr}
-      .player-card{min-height:540px}
-      .side{position:relative;top:auto}
-      .rank-grid,.metric-grid{grid-template-columns:repeat(2,1fr)}
-    }
-
-    @media(max-width:720px){
-      .page{width:92vw;padding-top:14px}
-      .topbar,.headline-row,.section-head{flex-direction:column;align-items:flex-start}
-      .nav{justify-content:flex-start}
-      .player-name{font-size:46px}
-      .profile-title{font-size:40px}
-      .rank-grid,.metric-grid{grid-template-columns:1fr}
-      .bar-row{grid-template-columns:1fr}
-      .bar-score{text-align:left}
-      .hero-main,.section,.side-card{padding:22px}
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>STATScore™ — Player Profile</title>
+
+<style>
+:root{
+  --red:#ff1f2d;
+  --red-deep:#b20812;
+  --red-dark:#660308;
+  --black:#000;
+  --panel:#030303;
+  --panel2:#080808;
+  --white:#f4f4ef;
+  --silver:#d9dce2;
+  --text:#f2f2f2;
+  --muted:#b9b9b9;
+  --line:rgba(255,255,255,.18);
+  --line-strong:rgba(255,255,255,.34);
+  --green:#2bdc65;
+  --gold:#d8b765;
+  --max:1536px;
+}
+
+*{box-sizing:border-box;}
+
+html,body{
+  margin:0;
+  background:#000;
+  color:var(--text);
+  font-family:Arial, Helvetica, sans-serif;
+}
+
+a{text-decoration:none;color:inherit;}
+
+.shell{
+  width:min(var(--max),100%);
+  margin:0 auto;
+  min-height:100vh;
+  background:#000;
+}
+
+/* HEADER */
+
+.header{
+  height:88px;
+  background:linear-gradient(180deg,#ffffff,#e9e9e6);
+  display:grid;
+  grid-template-columns:390px 1fr 410px;
+  align-items:center;
+  border-bottom:2px solid var(--red);
+  position:relative;
+}
+
+.logo-plate{
+  height:88px;
+  background:linear-gradient(145deg,#171717,#050505 65%,#000);
+  clip-path:polygon(0 0,78% 0,100% 100%,0 100%);
+  display:flex;
+  align-items:center;
+  padding-left:26px;
+  position:relative;
+  box-shadow:inset 0 0 22px rgba(255,255,255,.08);
+}
+
+.logo-plate:before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  width:140px;
+  height:16px;
+  background:var(--red);
+  clip-path:polygon(0 0,92% 0,100% 100%,0 100%);
+}
+
+.logo-plate:after{
+  content:"";
+  position:absolute;
+  bottom:0;
+  left:0;
+  right:34px;
+  height:3px;
+  background:var(--red);
+}
+
+.logo-plate img{
+  width:292px;
+  filter:drop-shadow(0 8px 14px rgba(0,0,0,.9));
+}
+
+.header-title{
+  text-align:center;
+  color:#101010;
+  font-weight:900;
+  font-size:.78rem;
+  letter-spacing:.29em;
+  text-transform:uppercase;
+}
+
+.header-nav{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:24px;
+  padding-right:24px;
+  height:100%;
+  color:#111;
+}
+
+.header-nav a{
+  font-weight:900;
+  font-size:.75rem;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  padding-bottom:12px;
+  border-bottom:2px solid transparent;
+}
+
+.header-nav a.active{
+  color:var(--red);
+  border-bottom-color:var(--red);
+}
+
+.user-icon{
+  width:30px;
+  height:30px;
+  border:3px solid #111;
+  border-radius:50%;
+  position:relative;
+}
+
+.user-icon:before{
+  content:"";
+  position:absolute;
+  top:5px;
+  left:8px;
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#111;
+}
+
+.user-icon:after{
+  content:"";
+  position:absolute;
+  bottom:5px;
+  left:4px;
+  width:16px;
+  height:8px;
+  border-radius:10px 10px 0 0;
+  background:#111;
+}
+
+/* MAIN */
+
+.main{
+  background:
+    radial-gradient(circle at 48% 12%,rgba(255,255,255,.045),transparent 25%),
+    radial-gradient(circle at 10% 2%,rgba(255,31,45,.12),transparent 24%),
+    repeating-linear-gradient(135deg,rgba(255,255,255,.016) 0,rgba(255,255,255,.016) 1px,transparent 1px,transparent 7px),
+    linear-gradient(180deg,#000 0%,#020202 55%,#000 100%);
+  padding:18px 14px 0;
+}
+
+/* RECORD TITLE BAR */
+
+.record-bar{
+  display:grid;
+  grid-template-columns:390px 1fr 260px;
+  align-items:end;
+  gap:14px;
+  margin-bottom:14px;
+}
+
+.record-tab{
+  height:86px;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.02) 18%,rgba(0,0,0,.35) 70%),
+    linear-gradient(180deg,#202020,#080808 65%,#020202);
+  border:1px solid rgba(255,255,255,.25);
+  border-bottom:3px solid var(--red);
+  clip-path:polygon(0 0,78% 0,100% 100%,0 100%);
+  display:flex;
+  align-items:center;
+  padding-left:24px;
+  position:relative;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.22),
+    0 16px 36px rgba(0,0,0,.85);
+}
+
+.record-tab:before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  width:148px;
+  height:16px;
+  background:var(--red);
+  clip-path:polygon(0 0,92% 0,100% 100%,0 100%);
+}
+
+.record-tab img{
+  width:286px;
+  position:relative;
+  z-index:2;
+}
+
+.record-title{
+  min-height:86px;
+  border:1px solid rgba(255,255,255,.18);
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.012)),
+    #030303;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:0 28px;
+  position:relative;
+  overflow:hidden;
+}
+
+.record-title:after{
+  content:"PLAYER PROFILE";
+  position:absolute;
+  right:22px;
+  bottom:-4px;
+  font-size:4.8rem;
+  font-weight:900;
+  letter-spacing:-.08em;
+  color:rgba(255,255,255,.035);
+}
+
+.record-title small{
+  color:var(--red);
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  position:relative;
+  z-index:2;
+}
+
+.record-title h1{
+  margin:6px 0 0;
+  font-family:"Arial Narrow","Helvetica Neue Condensed",Arial,sans-serif;
+  font-size:2.8rem;
+  line-height:.95;
+  letter-spacing:-.045em;
+  text-transform:uppercase;
+  position:relative;
+  z-index:2;
+}
+
+.demo-tag{
+  height:52px;
+  border:1px solid rgba(255,255,255,.2);
+  color:#ddd;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  background:#050505;
+  margin-bottom:0;
+}
+
+/* PANELS */
+
+.panel{
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.052),rgba(255,255,255,.012)),
+    repeating-linear-gradient(135deg,rgba(255,255,255,.012) 0,rgba(255,255,255,.012) 1px,transparent 1px,transparent 7px),
+    #030303;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:5px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.035),
+    inset 0 18px 30px rgba(255,255,255,.025),
+    0 18px 42px rgba(0,0,0,.9);
+  position:relative;
+  overflow:hidden;
+}
+
+.panel:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255,255,255,.03),
+      transparent 18%,
+      transparent 82%,
+      rgba(255,255,255,.02)
+    );
+}
+
+.label{
+  color:var(--red);
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+}
+
+/* HERO ATHLETE RECORD */
+
+.profile-hero{
+  display:grid;
+  grid-template-columns:36% 39% 25%;
+  gap:14px;
+}
+
+.athlete-card{
+  min-height:520px;
+  padding:18px;
+  display:flex;
+  flex-direction:column;
+}
+
+.photo-frame{
+  flex:1;
+  min-height:360px;
+  border:1px solid rgba(255,255,255,.22);
+  background:
+    radial-gradient(circle at 50% 22%,rgba(255,255,255,.08),transparent 26%),
+    linear-gradient(180deg,#151515,#050505 70%);
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  position:relative;
+  overflow:hidden;
+}
+
+.photo-frame:before{
+  content:"ATHLETE IMAGE";
+  position:absolute;
+  top:18px;
+  left:18px;
+  color:rgba(255,255,255,.22);
+  font-size:.68rem;
+  font-weight:900;
+  letter-spacing:.18em;
+}
+
+.photo-frame:after{
+  content:"";
+  position:absolute;
+  width:220px;
+  height:360px;
+  bottom:0;
+  border-radius:120px 120px 20px 20px;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02)),
+    #111;
+  box-shadow:0 0 0 1px rgba(255,255,255,.12);
+}
+
+.athlete-stamp{
+  margin-top:12px;
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:10px;
+  align-items:center;
+}
+
+.athlete-stamp b{
+  display:block;
+  font-size:1.1rem;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+
+.athlete-stamp span{
+  color:var(--muted);
+  font-size:.78rem;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+
+.verify-pill{
+  border:1px solid rgba(43,220,101,.45);
+  color:var(--green);
+  padding:8px 10px;
+  font-size:.68rem;
+  font-weight:900;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+
+/* ATHLETE ID */
+
+.identity{
+  min-height:520px;
+  padding:26px;
+}
+
+.identity .demo{
+  color:#ddd;
+  font-size:.68rem;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  font-weight:900;
+  margin-bottom:16px;
+}
+
+.identity h2{
+  margin:10px 0 6px;
+  font-family:"Arial Narrow","Helvetica Neue Condensed",Arial,sans-serif;
+  font-size:clamp(3.2rem,5vw,5rem);
+  line-height:.9;
+  letter-spacing:-.045em;
+  text-transform:uppercase;
+}
+
+.identity h2 span{
+  color:var(--red);
+  display:block;
+}
+
+.player-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin:16px 0 20px;
+}
+
+.player-meta span{
+  border:1px solid rgba(255,255,255,.18);
+  padding:9px 11px;
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:#ddd;
+  background:#050505;
+}
+
+.star-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin:18px 0;
+}
+
+.stars{
+  color:var(--gold);
+  font-size:1.5rem;
+  letter-spacing:.08em;
+}
+
+.star-label{
+  color:#fff;
+  font-size:.9rem;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+
+.projection{
+  border-left:4px solid var(--red);
+  padding:12px 0 12px 16px;
+  margin-top:18px;
+  background:rgba(255,31,45,.04);
+}
+
+.projection small{
+  color:var(--red);
+  font-size:.68rem;
+  font-weight:900;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+}
+
+.projection b{
+  display:block;
+  margin-top:5px;
+  font-size:1.25rem;
+  text-transform:uppercase;
+}
+
+.summary{
+  margin-top:18px;
+  color:#ddd;
+  line-height:1.55;
+  font-size:.98rem;
+  max-width:620px;
+}
+
+/* SCORE PANEL */
+
+.score-panel{
+  min-height:520px;
+  padding:22px;
+}
+
+.score-circle{
+  margin:18px auto 16px;
+  width:205px;
+  height:205px;
+  border-radius:50%;
+  border:2px solid rgba(255,255,255,.22);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  background:
+    radial-gradient(circle,rgba(255,31,45,.14),transparent 58%),
+    #050505;
+  box-shadow:
+    inset 0 0 35px rgba(255,255,255,.04),
+    0 18px 36px rgba(0,0,0,.7);
+}
+
+.score-circle small{
+  color:var(--red);
+  font-size:.68rem;
+  font-weight:900;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+}
+
+.score-circle b{
+  font-family:"Arial Narrow","Helvetica Neue Condensed",Arial,sans-serif;
+  font-size:4.4rem;
+  line-height:.92;
+  transform:scaleX(.78);
+}
+
+.score-circle span{
+  color:#ddd;
+  font-size:.72rem;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+
+.score-note{
+  text-align:center;
+  color:var(--muted);
+  font-size:.78rem;
+  line-height:1.45;
+  margin-bottom:18px;
+}
+
+.action-stack{
+  display:grid;
+  gap:10px;
+}
+
+.action{
+  min-height:48px;
+  border:1px solid rgba(255,255,255,.18);
+  background:#050505;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 14px;
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+
+.action.primary{
+  border-color:var(--red);
+  color:var(--red);
+}
+
+/* INTELLIGENCE GRID */
+
+.intel-grid{
+  margin-top:14px;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
+}
+
+.metric-card{
+  min-height:164px;
+  padding:18px;
+}
+
+.metric-card b{
+  display:block;
+  font-family:"Arial Narrow","Helvetica Neue Condensed",Arial,sans-serif;
+  font-size:2.65rem;
+  transform:scaleX(.78);
+  transform-origin:left center;
+  line-height:.9;
+}
+
+.metric-card span{
+  color:var(--red);
+  display:block;
+  margin-top:8px;
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+
+.metric-card p{
+  color:var(--muted);
+  font-size:.8rem;
+  line-height:1.4;
+  margin:12px 0 0;
+}
+
+/* LOWER */
+
+.lower-grid{
+  margin-top:14px;
+  display:grid;
+  grid-template-columns:34% 33% 33%;
+  gap:14px;
+}
+
+.section{
+  min-height:310px;
+  padding:20px;
+}
+
+.section h3{
+  margin:10px 0 16px;
+  font-size:1.3rem;
+  text-transform:uppercase;
+  letter-spacing:.02em;
+}
+
+.list{
+  display:grid;
+  gap:10px;
+}
+
+.list-item{
+  border:1px solid rgba(255,255,255,.16);
+  background:#050505;
+  padding:12px;
+}
+
+.list-item b{
+  display:block;
+  font-size:.82rem;
+  text-transform:uppercase;
+  margin-bottom:4px;
+}
+
+.list-item span{
+  color:var(--muted);
+  font-size:.78rem;
+  line-height:1.35;
+}
+
+/* VISIBILITY BAR */
+
+.visibility{
+  margin-top:14px;
+  display:grid;
+  grid-template-columns:180px repeat(5,1fr) 210px;
+  min-height:72px;
+  border:1px solid rgba(255,255,255,.17);
+  background:#020202;
+  align-items:center;
+}
+
+.visibility-title{
+  color:var(--red);
+  padding-left:22px;
+  font-size:.82rem;
+  font-weight:900;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+
+.vis-step{
+  border-left:1px solid rgba(255,255,255,.14);
+  padding:0 16px;
+}
+
+.vis-step b{
+  display:block;
+  font-size:.72rem;
+  text-transform:uppercase;
+}
+
+.vis-step span{
+  color:var(--muted);
+  font-size:.68rem;
+}
+
+.share-btn{
+  height:42px;
+  margin-right:14px;
+  border:1px solid var(--red);
+  color:var(--red);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-transform:uppercase;
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.12em;
+}
+
+/* FOOTER */
+
+.footer{
+  height:64px;
+  margin-top:12px;
+  border-top:2px solid rgba(255,255,255,.16);
+  display:grid;
+  grid-template-columns:220px 1fr 300px 260px;
+  align-items:center;
+  gap:24px;
+  color:var(--muted);
+  font-size:.76rem;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+}
+
+.footer-logo img{width:185px;}
+
+.secure{
+  color:var(--green);
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:1100px){
+  .header{
+    height:78px;
+    grid-template-columns:300px 1fr 300px;
+  }
+
+  .logo-plate{
+    height:78px;
+    padding-left:18px;
+  }
+
+  .logo-plate img{width:230px;}
+
+  .header-title{
+    font-size:.66rem;
+    letter-spacing:.22em;
+  }
+
+  .header-nav{
+    gap:14px;
+    padding-right:14px;
+  }
+
+  .record-bar,
+  .profile-hero,
+  .intel-grid,
+  .lower-grid{
+    grid-template-columns:1fr;
+  }
+
+  .record-tab{
+    height:78px;
+  }
+
+  .record-tab img{width:250px;}
+
+  .visibility{
+    grid-template-columns:1fr;
+    padding:16px;
+    gap:12px;
+  }
+
+  .vis-step{
+    border-left:none;
+    border-top:1px solid rgba(255,255,255,.14);
+    padding:12px 0 0;
+  }
+
+  .footer{
+    grid-template-columns:180px 1fr 210px 220px;
+  }
+}
+
+@media(max-width:720px){
+  .header{
+    height:70px;
+    grid-template-columns:190px 1fr;
+  }
+
+  .logo-plate{
+    height:70px;
+    padding-left:12px;
+  }
+
+  .logo-plate img{width:165px;}
+
+  .header-title{
+    font-size:.56rem;
+    letter-spacing:.16em;
+    padding-right:10px;
+  }
+
+  .header-nav{display:none;}
+
+  .main{
+    padding:12px 8px 0;
+  }
+
+  .record-title h1{
+    font-size:2.3rem;
+  }
+
+  .identity h2{
+    font-size:3.4rem;
+  }
+
+  .score-circle{
+    width:180px;
+    height:180px;
+  }
+
+  .photo-frame{
+    min-height:320px;
+  }
+
+  .footer{
+    height:auto;
+    padding:16px 0;
+    grid-template-columns:1fr;
+    gap:10px;
+    text-align:center;
+  }
+
+  .footer-logo img{width:160px;}
+
+  .secure{justify-content:center;}
+}
+</style>
 </head>
 
 <body>
-  <main class="page">
+<div class="shell">
 
-    <header class="topbar">
-      <div class="brand">
-        <div class="mark">S</div>
-        <div>
-          <div class="brand-kicker">STATScore Athlete Lifecycle System</div>
-          <div class="brand-title">Player Profile</div>
-        </div>
-      </div>
+<header class="header">
+  <a class="logo-plate" href="system.html">
+    <img src="sc_logo_black.png" alt="STATScore">
+  </a>
 
-      <nav class="nav">
-        <a href="#">Profile</a>
-        <a href="#">Rankings</a>
-        <a href="#">Eligibility</a>
-        <a href="#">Recruiting</a>
-      </nav>
-    </header>
+  <div class="header-title">National Athlete Infrastructure • Controlled Access</div>
 
-    <section class="hero">
-      <div class="player-card">
-        <div class="player-photo"></div>
-        <div class="player-overlay">
-          <div class="verified">PHNX Verified Athlete</div>
-          <div class="player-name">Caleb<br>Willoughby</div>
-          <div class="player-meta">
-            RB · Pensacola Catholic · Class of 2027<br>
-            5'10&quot; · 185 lbs · Pensacola, FL
-          </div>
-          <div class="stars">★★★★☆</div>
-        </div>
-      </div>
+  <nav class="header-nav">
+    <a href="index.html">Entry</a>
+    <a class="active" href="player-profile.html">Profile</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="terms.html">Terms</a>
+    <div class="user-icon"></div>
+  </nav>
+</header>
 
-      <div class="hero-main">
-        <div class="headline-row">
-          <div>
-            <div class="profile-kicker">Football · Running Back</div>
-            <h1 class="profile-title">Verified Athlete Intelligence Profile</h1>
-            <p class="profile-sub">
-              A recruiter-ready athlete identity built from verified performance, academic readiness,
-              competitive projection, and PHNX Sports exposure pathways.
-            </p>
-          </div>
+<main class="main">
 
-          <div class="score-core">
-            <div class="score-label">STATScore</div>
-            <div class="score">87.4</div>
-            <div class="score-status">4-Star Prospect</div>
-          </div>
-        </div>
+<section class="record-bar">
+  <div class="record-tab">
+    <img src="sc_logo_black.png" alt="STATScore">
+  </div>
 
-        <div class="rank-grid">
-          <div class="rank-tile">
-            <div class="tile-label">State RB Rank</div>
-            <div class="tile-value">#7</div>
-            <div class="tile-note">Florida profile lane</div>
-          </div>
+  <div class="record-title">
+    <small>Verified Athlete Intelligence Record</small>
+    <h1>Player Profile</h1>
+  </div>
 
-          <div class="rank-tile">
-            <div class="tile-label">Regional Rank</div>
-            <div class="tile-value">#12</div>
-            <div class="tile-note">Gulf Coast region</div>
-          </div>
+  <div class="demo-tag">Demo Profile</div>
+</section>
 
-          <div class="rank-tile">
-            <div class="tile-label">Projection</div>
-            <div class="tile-value">D2 / FCS</div>
-            <div class="tile-note">Rising trajectory</div>
-          </div>
+<section class="profile-hero">
 
-          <div class="rank-tile">
-            <div class="tile-label">NCAA Status</div>
-            <div class="tile-value" style="color:var(--green)">On Track</div>
-            <div class="tile-note">Protected academic layer</div>
-          </div>
-        </div>
+  <article class="panel athlete-card">
+    <div class="photo-frame"></div>
 
-        <div class="badge-row">
-          <div class="badge red">PHNX Verified</div>
-          <div class="badge gold">Elite Speed Index</div>
-          <div class="badge green">NCAA Eligible Track</div>
-          <div class="badge">Coach Verified</div>
-          <div class="badge">Recruiter View Enabled</div>
-        </div>
-      </div>
-    </section>
-
-    <section class="layout">
+    <div class="athlete-stamp">
       <div>
-
-        <section class="section">
-          <div class="section-head">
-            <h2>Verified Performance Metrics</h2>
-            <p class="section-note">
-              Public score is backed by measurable athlete intelligence, not opinion-only ranking.
-            </p>
-          </div>
-
-          <div class="metric-grid">
-            <div class="metric-card">
-              <div class="metric-value">4.58</div>
-              <div class="metric-title">40-Yard Dash</div>
-              <div class="metric-copy">Verified speed baseline with elite regional running back projection.</div>
-            </div>
-
-            <div class="metric-card">
-              <div class="metric-value">34"</div>
-              <div class="metric-title">Vertical</div>
-              <div class="metric-copy">Explosion marker supporting burst, cut acceleration, and finish power.</div>
-            </div>
-
-            <div class="metric-card">
-              <div class="metric-value">4.21</div>
-              <div class="metric-title">Shuttle</div>
-              <div class="metric-copy">Change-of-direction score relevant to backfield movement and open-field cuts.</div>
-            </div>
-          </div>
-        </section>
-
-        <section class="section">
-          <div class="section-head">
-            <h2>Running Back Breakdown</h2>
-            <p class="section-note">
-              Position-specific grading reflects football traits, production value, and competitive impact.
-            </p>
-          </div>
-
-          <div class="bar-list">
-            <div class="bar-row"><div class="bar-name">Vision</div><div class="bar-track"><div class="bar-fill" style="width:88%"></div></div><div class="bar-score">88</div></div>
-            <div class="bar-row"><div class="bar-name">Burst</div><div class="bar-track"><div class="bar-fill" style="width:91%"></div></div><div class="bar-score">91</div></div>
-            <div class="bar-row"><div class="bar-name">Contact Balance</div><div class="bar-track"><div class="bar-fill" style="width:84%"></div></div><div class="bar-score">84</div></div>
-            <div class="bar-row"><div class="bar-name">Ball Security</div><div class="bar-track"><div class="bar-fill" style="width:86%"></div></div><div class="bar-score">86</div></div>
-            <div class="bar-row"><div class="bar-name">Open Field Ability</div><div class="bar-track"><div class="bar-fill" style="width:89%"></div></div><div class="bar-score">89</div></div>
-            <div class="bar-row"><div class="bar-name">Pass Protection</div><div class="bar-track"><div class="bar-fill" style="width:76%"></div></div><div class="bar-score">76</div></div>
-          </div>
-        </section>
-
-        <section class="section">
-          <div class="section-head">
-            <h2>NCAA Readiness</h2>
-            <p class="section-note">
-              Academic detail is protected. Public view displays readiness signals only.
-            </p>
-          </div>
-
-          <div class="readiness-grid">
-            <div class="readiness-card">
-              <div class="status-big">On Track</div>
-              <p class="section-note">
-                Athlete currently shows a positive college-readiness trajectory.
-                Full grade and transcript detail requires authorized access.
-              </p>
-              <div class="locked">
-                Academic records, transcripts, and course details are restricted to athlete, parent/guardian,
-                counselor, and approved recruiter access.
-              </div>
-            </div>
-
-            <div class="readiness-card">
-              <div class="readiness-list">
-                <div class="readiness-row"><span>Core Courses</span><strong>Progressing</strong></div>
-                <div class="readiness-row"><span>GPA Status</span><strong>Verified Track</strong></div>
-                <div class="readiness-row"><span>Transcript</span><strong>Permission Required</strong></div>
-                <div class="readiness-row"><span>Risk Level</span><strong style="color:var(--green)">Low</strong></div>
-                <div class="readiness-row"><span>Division Projection</span><strong>D2 / FCS Path</strong></div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="section">
-          <div class="section-head">
-            <h2>Highlights & Exposure</h2>
-            <p class="section-note">
-              Player media feeds PHNX Sports visibility, leaderboards, spotlights, and recruiter discovery.
-            </p>
-          </div>
-
-          <div class="media-grid">
-            <div class="video-box">
-              <div>
-                <div class="play-title">Top Plays</div>
-                <div class="play-copy">Highlight film, game moments, and PHNX Sports feature-ready clips.</div>
-              </div>
-            </div>
-
-            <div class="event-list">
-              <div class="event"><strong>PHNX Verified Combine</strong><span>Event metric validation pending.</span></div>
-              <div class="event"><strong>Regional Watchlist</strong><span>Eligible for Gulf Coast RB leaderboard.</span></div>
-              <div class="event"><strong>Recruiting Signal</strong><span>Profile trend marked rising.</span></div>
-              <div class="event"><strong>Media Route</strong><span>Ready for Spider highlight distribution.</span></div>
-            </div>
-          </div>
-        </section>
-
+        <b>Caleb Monroe</b>
+        <span>WR · Class of 2027</span>
       </div>
+      <div class="verify-pill">Verified</div>
+    </div>
+  </article>
 
-      <aside class="side">
-        <div class="side-card">
-          <h3>Recruiter View</h3>
-          <p>
-            Recruiters see verified public data, recruiting projection, profile trend,
-            communication status, and academic readiness signal.
-          </p>
-          <div class="locked">
-            Transcript and grade access require athlete/parent authorization.
-          </div>
-          <a class="action" href="#">Request Access</a>
-        </div>
+  <article class="panel identity">
+    <div class="label">Athlete Identity</div>
+    <div class="demo">Sample data only · scoring pending live snapshot</div>
 
-        <div class="side-card">
-          <h3>Communication Status</h3>
-          <div class="readiness-list">
-            <div class="readiness-row"><span>Recruiter Window</span><strong>Open</strong></div>
-            <div class="readiness-row"><span>Parent Visibility</span><strong>Required</strong></div>
-            <div class="readiness-row"><span>Coach Contact</span><strong>Enabled</strong></div>
-            <div class="readiness-row"><span>Academic Sharing</span><strong>Restricted</strong></div>
-          </div>
-        </div>
+    <h2>Caleb <span>Monroe</span></h2>
 
-        <div class="side-card">
-          <h3>Development Focus</h3>
-          <p>
-            Recommended improvement priorities are pass protection, lower-body strength,
-            and verified event testing to strengthen national projection.
-          </p>
-          <a class="action" href="#">View Development Plan</a>
-        </div>
+    <div class="player-meta">
+      <span>Wide Receiver</span>
+      <span>6'1"</span>
+      <span>184 lbs</span>
+      <span>Pensacola, FL</span>
+      <span>Northwest Florida</span>
+      <span>Class of 2027</span>
+    </div>
 
-        <div class="side-card">
-          <h3>PHNX Exposure</h3>
-          <p>
-            Eligible athletes can be routed into leaderboards, prospect spotlights,
-            camp recommendations, and PHNX Sports media distribution.
-          </p>
-          <a class="action" href="#">Generate Spotlight</a>
-        </div>
-      </aside>
-    </section>
+    <div class="star-row">
+      <div class="stars">★★★★</div>
+      <div class="star-label">4-Star Prospect Signal</div>
+    </div>
 
-    <footer class="footer">
-      <span>© PHNX Sports / STATScore</span>
-      <span>|</span>
-      <span>Verified Athlete Intelligence</span>
-      <span>|</span>
-      <span>Protected Academic Data</span>
-    </footer>
+    <div class="projection">
+      <small>Projection Lane</small>
+      <b>FBS / Power 4 Watchlist</b>
+    </div>
 
-  </main>
+    <p class="summary">
+      Explosive perimeter athlete with verified showcase upside, strong route-development trajectory,
+      and high-level recruiting visibility potential. This demo profile represents how a completed
+      STATScore Snapshot may display public athlete intelligence.
+    </p>
+  </article>
+
+  <aside class="panel score-panel">
+    <div class="label">STATScore Intelligence</div>
+
+    <div class="score-circle">
+      <small>STATScore™</small>
+      <b>87.4</b>
+      <span>Demo Output</span>
+    </div>
+
+    <p class="score-note">
+      Demonstration score only. Official production score requires Snapshot intake, verification, and rules-based calculation.
+    </p>
+
+    <div class="action-stack">
+      <a class="action primary" href="#">Share Profile <span>›</span></a>
+      <a class="action" href="#">Request Verification <span>›</span></a>
+      <a class="action" href="#">View Snapshot Path <span>›</span></a>
+    </div>
+  </aside>
+
+</section>
+
+<section class="intel-grid">
+
+  <article class="panel metric-card">
+    <span>Speed Index</span>
+    <b>91</b>
+    <p>Acceleration and separation potential based on submitted performance indicators.</p>
+  </article>
+
+  <article class="panel metric-card">
+    <span>Explosiveness</span>
+    <b>88</b>
+    <p>Change-of-direction, burst, vertical threat, and field-opening potential.</p>
+  </article>
+
+  <article class="panel metric-card">
+    <span>Readiness</span>
+    <b>84</b>
+    <p>Development stage, training maturity, coach validation, and readiness trajectory.</p>
+  </article>
+
+  <article class="panel metric-card">
+    <span>Visibility</span>
+    <b>79</b>
+    <p>Recruiting exposure readiness, profile completeness, and verified access status.</p>
+  </article>
+
+</section>
+
+<section class="lower-grid">
+
+  <article class="panel section">
+    <div class="label">Verified Highlights</div>
+    <h3>Proof Layer</h3>
+
+    <div class="list">
+      <div class="list-item"><b>Game Film</b><span>Primary highlight reel slot and verified clip sequence.</span></div>
+      <div class="list-item"><b>Camp / Combine</b><span>Event results and showcase appearances connect here.</span></div>
+      <div class="list-item"><b>Media Exposure</b><span>PHNX Sports Media routing and public feature eligibility.</span></div>
+    </div>
+  </article>
+
+  <article class="panel section">
+    <div class="label">Recruiting Visibility</div>
+    <h3>Controlled Access</h3>
+
+    <div class="list">
+      <div class="list-item"><b>Recruiter View</b><span>Public profile visible. Extended access requires request approval.</span></div>
+      <div class="list-item"><b>Contact Status</b><span>Communication routed through Multi-Box™ permissions.</span></div>
+      <div class="list-item"><b>Exposure Lane</b><span>FBS / Power 4 Watchlist signal shown for demo purposes.</span></div>
+    </div>
+  </article>
+
+  <article class="panel section">
+    <div class="label">Development Pathway</div>
+    <h3>Next Movement</h3>
+
+    <div class="list">
+      <div class="list-item"><b>Primary Focus</b><span>Route polish, release package, verified timed speed, academic readiness.</span></div>
+      <div class="list-item"><b>Verification Need</b><span>Coach confirmation, event metrics, GPA / eligibility status.</span></div>
+      <div class="list-item"><b>Next Snapshot</b><span>Run official STATScore intake once production system is active.</span></div>
+    </div>
+  </article>
+
+</section>
+
+<section class="visibility">
+  <div class="visibility-title">Visibility Path</div>
+  <div class="vis-step"><b>Profile</b><span>Public Share</span></div>
+  <div class="vis-step"><b>Snapshot</b><span>Data Intake</span></div>
+  <div class="vis-step"><b>Verification</b><span>Trust Layer</span></div>
+  <div class="vis-step"><b>Multi-Box™</b><span>Permissions</span></div>
+  <div class="vis-step"><b>Recruiting</b><span>Controlled Reach</span></div>
+  <a class="share-btn" href="#">Copy Share Link ›</a>
+</section>
+
+<footer class="footer">
+  <div class="footer-logo"><img src="sc_logo_black.png" alt="STATScore"></div>
+  <div>Public Athlete Intelligence Record</div>
+  <div class="secure">✓ Demo · Not Official Scoring</div>
+  <div>© STATScore Systems<br>All Rights Reserved.</div>
+</footer>
+
+</main>
+</div>
 </body>
 </html> 
