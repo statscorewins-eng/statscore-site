@@ -3,113 +3,136 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>STATScore™ — Athlete Lifecycle System</title>
+<title>STATScore™ — National Athlete Infrastructure</title>
 
 <style>
 :root{
-  --black:#000;
-  --panel:#020202;
-  --panel2:#060607;
   --white:#f4f4f1;
-  --text:#f4f4f4;
-  --muted:#b8b8b8;
+  --black:#000;
+  --black2:#030303;
+  --black3:#08090b;
+  --panel:#050607;
+  --panel2:#0a0c0f;
   --red:#e01822;
-  --red2:#8d0b12;
+  --red2:#9e0b12;
+  --red3:#5f0509;
+  --text:#f2f2f2;
+  --muted:#a9a9a9;
   --line:rgba(255,255,255,.18);
-  --line2:rgba(255,255,255,.32);
-  --green:#27d45a;
+  --line2:rgba(255,255,255,.3);
+  --green:#28d461;
   --max:1536px;
 }
 
 *{box-sizing:border-box;}
 
-body{
+html,body{
   margin:0;
   background:#000;
   color:var(--text);
   font-family:Arial, Helvetica, sans-serif;
 }
 
-a{color:inherit;text-decoration:none;}
+a{text-decoration:none;color:inherit;}
 
 .shell{
   width:min(var(--max),100%);
   margin:0 auto;
   min-height:100vh;
   background:#000;
+  overflow:hidden;
 }
 
 /* HEADER */
 
 .header{
-  height:96px;
-  background:var(--white);
-  color:#050505;
+  height:94px;
+  background:
+    linear-gradient(180deg,#ffffff 0%,#efefec 100%);
   display:grid;
-  grid-template-columns:385px 1fr 420px;
+  grid-template-columns:395px 1fr 410px;
   align-items:center;
-  border-bottom:3px solid var(--red);
+  border-bottom:2px solid var(--red);
+  position:relative;
 }
 
-.logo-tab{
-  height:96px;
-  background:linear-gradient(180deg,#111317,#030405);
+.header::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:-4px;
+  height:2px;
+  background:rgba(224,24,34,.65);
+  box-shadow:0 0 12px rgba(224,24,34,.55);
+}
+
+.logo-plate{
+  height:94px;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.09),transparent 18%),
+    linear-gradient(145deg,#13161b 0%,#050607 60%,#020202 100%);
   clip-path:polygon(0 0,78% 0,100% 100%,0 100%);
   display:flex;
   align-items:center;
   padding-left:24px;
   position:relative;
+  border-right:1px solid rgba(0,0,0,.5);
 }
 
-.logo-tab::before{
+.logo-plate::before{
   content:"";
   position:absolute;
   top:0;
   left:0;
-  width:148px;
+  width:150px;
   height:18px;
-  background:var(--red);
+  background:linear-gradient(90deg,var(--red),var(--red2));
   clip-path:polygon(0 0,90% 0,100% 100%,0 100%);
 }
 
-.logo-tab::after{
+.logo-plate::after{
   content:"";
   position:absolute;
   left:0;
-  right:28px;
+  right:32px;
   bottom:0;
   height:3px;
-  background:var(--red);
+  background:linear-gradient(90deg,var(--red),rgba(224,24,34,.2));
+  box-shadow:0 0 14px rgba(224,24,34,.45);
 }
 
-.logo-tab img{
+.logo-plate img{
   width:292px;
   position:relative;
   z-index:2;
+  filter:drop-shadow(0 10px 18px rgba(0,0,0,.65));
 }
 
 .header-title{
   text-align:center;
+  color:#111;
   font-size:.82rem;
   font-weight:900;
-  letter-spacing:.3em;
+  letter-spacing:.31em;
   text-transform:uppercase;
 }
 
 .header-nav{
+  height:100%;
   display:flex;
   align-items:center;
   justify-content:flex-end;
-  gap:22px;
+  gap:24px;
   padding-right:24px;
-  height:100%;
+  color:#111;
 }
 
 .header-nav a{
-  font-size:.76rem;
+  font-size:.75rem;
   font-weight:900;
-  letter-spacing:.12em;
   text-transform:uppercase;
+  letter-spacing:.12em;
   padding-bottom:12px;
   border-bottom:2px solid transparent;
 }
@@ -122,7 +145,7 @@ a{color:inherit;text-decoration:none;}
 .user-icon{
   width:29px;
   height:29px;
-  border:3px solid #000;
+  border:3px solid #111;
   border-radius:50%;
   position:relative;
 }
@@ -133,7 +156,7 @@ a{color:inherit;text-decoration:none;}
   width:8px;
   height:8px;
   border-radius:50%;
-  background:#000;
+  background:#111;
   top:5px;
   left:8px;
 }
@@ -144,29 +167,31 @@ a{color:inherit;text-decoration:none;}
   width:16px;
   height:8px;
   border-radius:10px 10px 0 0;
-  background:#000;
+  background:#111;
   bottom:5px;
   left:4px;
 }
 
-/* MAIN */
+/* MAIN MATERIAL */
 
 .main{
   background:
-    radial-gradient(circle at 44% 16%, rgba(255,255,255,.028), transparent 24%),
-    linear-gradient(180deg,#000 0%,#030303 48%,#000 100%);
-  padding:18px 14px 0;
+    radial-gradient(circle at 16% 4%,rgba(224,24,34,.12),transparent 24%),
+    radial-gradient(circle at 58% 20%,rgba(255,255,255,.035),transparent 25%),
+    repeating-linear-gradient(135deg,rgba(255,255,255,.018) 0px,rgba(255,255,255,.018) 1px,transparent 1px,transparent 7px),
+    linear-gradient(180deg,#000 0%,#030303 45%,#000 100%);
+  padding:20px 14px 0;
 }
 
-/* TAB RAIL */
+/* REAL FOLDER TABS */
 
 .tab-rail{
-  height:82px;
+  height:86px;
   display:flex;
   align-items:flex-end;
+  position:relative;
   border-bottom:3px solid var(--red);
   overflow:hidden;
-  position:relative;
 }
 
 .tab-rail::before{
@@ -177,38 +202,61 @@ a{color:inherit;text-decoration:none;}
   bottom:0;
   height:1px;
   background:rgba(255,255,255,.18);
-  z-index:20;
+  z-index:40;
 }
 
-.tab{
-  height:58px;
-  min-width:166px;
-  padding:0 22px 0 24px;
+.folder-tab{
+  height:62px;
+  min-width:168px;
+  margin-right:-24px;
+  position:relative;
+  z-index:2;
   display:flex;
   align-items:center;
-  justify-content:flex-start;
   gap:10px;
-  background:linear-gradient(180deg,#232323 0%,#101010 48%,#030303 100%);
-  border:1px solid rgba(255,255,255,.28);
-  border-bottom:none;
-  color:#f4f4f4;
-  text-transform:uppercase;
-  font-size:.88rem;
+  padding:0 25px 0 26px;
+  color:#f1f1f1;
+  font-size:.86rem;
   font-weight:900;
-  letter-spacing:.04em;
-  position:relative;
-  margin-right:-24px;
-  z-index:2;
-  border-radius:10px 16px 0 0;
-  clip-path:polygon(0 22%,4% 8%,78% 8%,84% 0,94% 0,100% 100%,0 100%);
+  letter-spacing:.05em;
+  text-transform:uppercase;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.12),transparent 18%),
+    linear-gradient(180deg,#272727 0%,#111 48%,#030303 100%);
+  border:1px solid rgba(255,255,255,.22);
+  border-bottom:none;
+  clip-path:polygon(0 22%,4% 8%,76% 8%,82% 0,94% 0,100% 100%,0 100%);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.22),
-    inset 0 -1px 0 rgba(0,0,0,.78),
-    0 -4px 12px rgba(255,255,255,.035),
-    0 10px 24px rgba(0,0,0,.72);
+    inset 0 1px 0 rgba(255,255,255,.25),
+    inset 0 -1px 0 rgba(0,0,0,.8),
+    0 -4px 10px rgba(255,255,255,.035),
+    0 12px 26px rgba(0,0,0,.8);
 }
 
-.tab svg{
+.folder-tab::before{
+  content:"";
+  position:absolute;
+  top:7px;
+  left:10px;
+  right:20px;
+  height:1px;
+  background:rgba(255,255,255,.22);
+}
+
+.folder-tab::after{
+  content:"";
+  position:absolute;
+  top:0;
+  right:8px;
+  width:46px;
+  height:24px;
+  border-top:1px solid rgba(255,255,255,.18);
+  border-right:1px solid rgba(255,255,255,.12);
+  transform:skewX(25deg);
+  opacity:.8;
+}
+
+.folder-tab svg{
   width:18px;
   height:18px;
   stroke:currentColor;
@@ -217,45 +265,34 @@ a{color:inherit;text-decoration:none;}
   flex:none;
 }
 
-.tab::before{
-  content:"";
-  position:absolute;
-  inset:5px 7px auto 7px;
-  height:1px;
-  background:rgba(255,255,255,.22);
-}
-
-.tab::after{
-  content:"";
-  position:absolute;
-  right:9px;
-  top:9px;
-  width:24px;
-  height:18px;
-  border-top:1px solid rgba(255,255,255,.16);
-  border-right:1px solid rgba(255,255,255,.12);
-  transform:skewX(24deg);
-}
-
-.tab.active{
-  height:72px;
-  background:linear-gradient(180deg,#e11a24 0%,#b50f18 48%,#76070d 100%);
+.folder-tab.active{
+  height:74px;
+  min-width:185px;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.16),transparent 18%),
+    linear-gradient(180deg,#ee202b 0%,#b90f18 48%,#73070d 100%);
   border-color:rgba(255,255,255,.38);
-  z-index:12;
   color:#fff;
+  z-index:20;
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.28),
-    0 0 0 1px rgba(224,24,34,.35),
-    0 14px 34px rgba(0,0,0,.75);
+    inset 0 1px 0 rgba(255,255,255,.34),
+    inset 0 -2px 0 rgba(0,0,0,.45),
+    0 0 0 1px rgba(224,24,34,.45),
+    0 14px 34px rgba(0,0,0,.82);
 }
 
-.tab.multi{
+.folder-tab.multi{
   margin-left:auto;
   min-width:200px;
-  border-color:rgba(224,24,34,.82);
+  border-color:rgba(224,24,34,.75);
+  color:#f3f3f3;
 }
 
-/* CONTENT */
+.folder-tab.multi::before{
+  background:rgba(224,24,34,.35);
+}
+
+/* CONTENT GRID */
 
 .content{
   display:grid;
@@ -266,20 +303,15 @@ a{color:inherit;text-decoration:none;}
 
 .panel{
   border:1px solid rgba(255,255,255,.16);
+  border-radius:5px;
   background:
     linear-gradient(145deg,rgba(255,255,255,.052),rgba(255,255,255,.012)),
-    repeating-linear-gradient(
-      135deg,
-      rgba(255,255,255,.01) 0px,
-      rgba(255,255,255,.01) 1px,
-      transparent 1px,
-      transparent 7px
-    ),
+    repeating-linear-gradient(135deg,rgba(255,255,255,.012) 0px,rgba(255,255,255,.012) 1px,transparent 1px,transparent 7px),
     #020202;
-  border-radius:4px;
   box-shadow:
-    0 18px 42px rgba(0,0,0,.8),
-    inset 0 0 0 1px rgba(255,255,255,.035);
+    0 18px 42px rgba(0,0,0,.82),
+    inset 0 0 0 1px rgba(255,255,255,.035),
+    inset 0 18px 32px rgba(255,255,255,.025);
 }
 
 .label{
@@ -294,29 +326,39 @@ a{color:inherit;text-decoration:none;}
 
 .hero{
   min-height:372px;
-  padding:26px 34px;
+  padding:28px 34px;
   position:relative;
   overflow:hidden;
+}
+
+.hero::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle at 20% 10%,rgba(255,255,255,.05),transparent 30%);
+  pointer-events:none;
 }
 
 .hero::after{
   content:"S";
   position:absolute;
-  right:18px;
-  top:48px;
-  font-size:300px;
+  right:20px;
+  top:42px;
+  font-size:305px;
   font-weight:900;
-  color:rgba(255,255,255,.035);
+  color:rgba(255,255,255,.04);
   line-height:1;
 }
 
 .hero h1{
-  margin:16px 0 16px;
+  margin:18px 0 16px;
   font-size:clamp(3.7rem,5.8vw,5.95rem);
   line-height:.86;
   letter-spacing:-.08em;
   text-transform:uppercase;
   font-weight:900;
+  position:relative;
+  z-index:2;
 }
 
 .hero h1 span{
@@ -330,6 +372,8 @@ a{color:inherit;text-decoration:none;}
   font-size:.98rem;
   line-height:1.5;
   margin:0 0 20px;
+  position:relative;
+  z-index:2;
 }
 
 .btn{
@@ -344,6 +388,15 @@ a{color:inherit;text-decoration:none;}
   font-size:.8rem;
   font-weight:900;
   letter-spacing:.12em;
+  position:relative;
+  z-index:2;
+  background:rgba(224,24,34,.035);
+}
+
+.btn:hover{
+  background:var(--red);
+  color:#fff;
+  box-shadow:0 0 22px rgba(224,24,34,.35);
 }
 
 /* OVERVIEW */
@@ -362,14 +415,17 @@ a{color:inherit;text-decoration:none;}
 
 .metric{
   min-height:124px;
-  border:1px solid var(--line);
-  background:#060607;
+  border:1px solid rgba(255,255,255,.18);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.012)),
+    #050506;
   display:flex;
   flex-direction:column;
   justify-content:center;
   align-items:center;
   text-align:center;
   padding:14px;
+  box-shadow:inset 0 0 24px rgba(255,255,255,.025);
 }
 
 .icon-red{
@@ -395,12 +451,23 @@ a{color:inherit;text-decoration:none;}
   text-transform:uppercase;
 }
 
-/* MULTI-BOX */
+/* MULTI BOX */
 
 .multibox{
   grid-row:span 2;
   padding:22px 18px;
   border-color:rgba(224,24,34,.44);
+  position:relative;
+}
+
+.multibox::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  bottom:0;
+  width:2px;
+  background:linear-gradient(180deg,var(--red),transparent);
 }
 
 .multibox h2{
@@ -427,8 +494,10 @@ a{color:inherit;text-decoration:none;}
 
 .mb-item{
   min-height:68px;
-  border:1px solid var(--line);
-  background:#060607;
+  border:1px solid rgba(255,255,255,.16);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01)),
+    #050506;
   display:grid;
   grid-template-columns:50px 1fr 18px;
   align-items:center;
@@ -493,7 +562,7 @@ a{color:inherit;text-decoration:none;}
 
 .ready{
   padding:0 20px;
-  border-right:1px solid var(--line);
+  border-right:1px solid rgba(255,255,255,.2);
 }
 
 .ready:last-child{border-right:none;}
@@ -536,7 +605,7 @@ a{color:inherit;text-decoration:none;}
   display:grid;
   grid-template-columns:145px repeat(6,1fr) 165px;
   align-items:center;
-  border:1px solid var(--line);
+  border:1px solid rgba(255,255,255,.16);
   background:#030304;
   margin-top:12px;
 }
@@ -570,7 +639,7 @@ a{color:inherit;text-decoration:none;}
 .flow-btn{
   height:40px;
   margin-right:14px;
-  border:1px solid var(--line2);
+  border:1px solid rgba(255,255,255,.3);
   color:var(--red);
   display:flex;
   align-items:center;
@@ -586,7 +655,7 @@ a{color:inherit;text-decoration:none;}
 .footer{
   height:64px;
   margin-top:12px;
-  border-top:1px solid var(--line);
+  border-top:1px solid rgba(255,255,255,.16);
   display:grid;
   grid-template-columns:220px 1fr 300px 260px;
   align-items:center;
@@ -663,7 +732,7 @@ a{color:inherit;text-decoration:none;}
 <div class="shell">
 
 <header class="header">
-  <a class="logo-tab" href="index.html">
+  <a class="logo-plate" href="index.html">
     <img src="sc_logo_black.png" alt="STATScore">
   </a>
 
@@ -683,42 +752,42 @@ a{color:inherit;text-decoration:none;}
 <main class="main">
 
 <nav class="tab-rail">
-  <a class="tab active" href="player-profile.html">
+  <a class="folder-tab active" href="player-profile.html">
     <svg viewBox="0 0 24 24"><path d="M12 21v-6M8 8a4 4 0 1 1 8 0a4 4 0 0 1-8 0Z"/><path d="M4 21c1.5-4 14.5-4 16 0"/></svg>
     Athlete
   </a>
 
-  <a class="tab" href="parent-dashboard.html">
-    <svg viewBox="0 0 24 24"><path d="M16 11a4 4 0 1 0-8 0"/><path d="M3 21c1.4-5 16.6-5 18 0"/><path d="M18 8h3M19.5 6.5v3"/></svg>
+  <a class="folder-tab" href="parent-dashboard.html">
+    <svg viewBox="0 0 24 24"><path d="M16 11a4 4 0 1 0-8 0"/><path d="M3 21c1.4-5 16.6-5 18 0"/></svg>
     Parent
   </a>
 
-  <a class="tab" href="coach-dashboard.html">
+  <a class="folder-tab" href="coach-dashboard.html">
     <svg viewBox="0 0 24 24"><path d="M4 15l8-8 8 8"/><path d="M7 14v7h10v-7"/></svg>
     Coach
   </a>
 
-  <a class="tab" href="eligibility.html">
+  <a class="folder-tab" href="eligibility.html">
     <svg viewBox="0 0 24 24"><path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
     Counselor
   </a>
 
-  <a class="tab" href="recruiter-access.html">
+  <a class="folder-tab" href="recruiter-access.html">
     <svg viewBox="0 0 24 24"><path d="M3 12h18"/><path d="M12 3v18"/><circle cx="12" cy="12" r="7"/></svg>
     Recruiter
   </a>
 
-  <a class="tab" href="program-management.html">
+  <a class="folder-tab" href="program-management.html">
     <svg viewBox="0 0 24 24"><path d="M4 21h16"/><path d="M6 21V9l6-4 6 4v12"/><path d="M9 21v-6h6v6"/></svg>
     Program
   </a>
 
-  <a class="tab" href="evaluator.html">
+  <a class="folder-tab" href="evaluator.html">
     <svg viewBox="0 0 24 24"><path d="M6 3h12v18H6z"/><path d="m8 12 3 3 5-6"/></svg>
     Evaluator
   </a>
 
-  <a class="tab multi" href="multibox.html">
+  <a class="folder-tab multi" href="multibox.html">
     <svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
     Multi-Box™
   </a>
@@ -728,17 +797,11 @@ a{color:inherit;text-decoration:none;}
 
   <article class="panel hero">
     <div class="label">Athlete Lifecycle System</div>
-
-    <h1>
-      Build the Athlete
-      <span>Profile.</span>
-    </h1>
-
+    <h1>Build the Athlete <span>Profile.</span></h1>
     <p>
       Start the verified athlete profile for recruiting visibility,
       performance tracking, college readiness, and controlled communication.
     </p>
-
     <a class="btn" href="player-profile.html">Start Athlete Profile ›</a>
   </article>
 
@@ -853,31 +916,24 @@ a{color:inherit;text-decoration:none;}
 
   <section class="flow">
     <div class="flow-title">System Flow</div>
-
     <div class="flow-step"><b>Profile</b><span>Create & Build</span></div>
     <div class="flow-step"><b>Verification</b><span>Verify Identity</span></div>
     <div class="flow-step"><b>Readiness</b><span>Track & Prepare</span></div>
     <div class="flow-step"><b>Eligibility</b><span>Maintain Compliance</span></div>
     <div class="flow-step"><b>Visibility</b><span>Control Access</span></div>
     <div class="flow-step"><b>Recruiting</b><span>Connect & Engage</span></div>
-
     <a class="flow-btn" href="player-profile.html">View Full Flow ›</a>
   </section>
 
 </section>
 
 <footer class="footer">
-  <div class="footer-logo">
-    <img src="sc_logo_black.png" alt="STATScore">
-  </div>
-
+  <div class="footer-logo"><img src="sc_logo_black.png" alt="STATScore"></div>
   <div>National Athlete Infrastructure</div>
-
   <div class="secure">
     <svg viewBox="0 0 24 24"><path d="M12 3 4 7v6c0 5 3.5 7.5 8 8 4.5-.5 8-3 8-8V7l-8-4Z"/><path d="m8.5 12 2.5 2.5L16 9"/></svg>
     System Secure
   </div>
-
   <div>© STATScore Systems<br>All Rights Reserved.</div>
 </footer>
 
