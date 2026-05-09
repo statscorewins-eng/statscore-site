@@ -3,33 +3,33 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>STATScore™ — System Command Surface</title>
+<title>STATScore™ — Athlete Lifecycle System</title>
 
 <style>
 :root{
+  --black:#05070b;
+  --black2:#090d14;
+  --black3:#101722;
+  --panel:#111a27;
+  --panel2:#162131;
   --white:#f4f4ef;
-  --ink:#070a0f;
-  --dark:#050911;
-  --dark2:#09111d;
-  --panel:#0d1726;
-  --panel2:#111f33;
-  --line:rgba(255,255,255,.16);
-  --line2:rgba(255,255,255,.28);
-  --text:#eef5f8;
-  --muted:#9fb1c4;
-  --red:#d51d28;
+  --text:#eef3f8;
+  --muted:#9da9b8;
+  --red:#d71927;
   --red2:#8c0d15;
-  --gold:#caa85a;
-  --blue:#3c86ff;
-  --green:#22b573;
+  --line:rgba(255,255,255,.14);
+  --line2:rgba(255,255,255,.26);
+  --shadow:rgba(0,0,0,.45);
   --max:1280px;
 }
 
-*{box-sizing:border-box;}
+*{
+  box-sizing:border-box;
+}
 
 body{
   margin:0;
-  background:var(--dark);
+  background:var(--black);
   color:var(--text);
   font-family:Arial, Helvetica, sans-serif;
 }
@@ -42,58 +42,53 @@ a{
 .page{
   min-height:100vh;
   background:
-    radial-gradient(circle at 15% 0%, rgba(213,29,40,.16), transparent 32%),
-    radial-gradient(circle at 90% 20%, rgba(60,134,255,.13), transparent 36%),
-    linear-gradient(180deg,#050911 0%,#08111d 50%,#050911 100%);
+    radial-gradient(circle at 14% 0%, rgba(215,25,39,.16), transparent 34%),
+    radial-gradient(circle at 86% 18%, rgba(255,255,255,.06), transparent 28%),
+    linear-gradient(180deg,#05070b 0%,#0a1019 48%,#05070b 100%);
 }
 
-/* WHITE AUTHORITY HEADER */
+/* =========================
+   WHITE AUTHORITY HEADER
+========================= */
 
 .header{
   background:var(--white);
-  color:var(--ink);
+  color:#080a0f;
   border-top:4px solid var(--red);
   border-bottom:5px solid var(--red);
-  position:relative;
-  z-index:5;
 }
 
 .header-inner{
   width:min(var(--max), calc(100% - 42px));
   margin:0 auto;
-  min-height:142px;
+  min-height:126px;
+  padding:22px 0;
   display:flex;
-  align-items:flex-end;
   justify-content:space-between;
-  gap:22px;
-  padding:24px 0 22px;
+  align-items:flex-end;
+  gap:24px;
 }
 
-/* FOLDER TAB LOGO */
-
 .logo-tab{
-  width:350px;
-  height:118px;
-  position:relative;
+  width:360px;
+  height:104px;
   background:#fff;
   border:2px solid #111;
-  box-shadow:
-    12px 12px 0 rgba(0,0,0,.14),
-    inset 0 0 0 1px rgba(255,255,255,.7);
+  padding:18px 24px;
   display:flex;
   align-items:center;
   justify-content:center;
-  padding:18px 22px;
-  clip-path:polygon(0 0,88% 0,100% 33%,100% 100%,0 100%);
+  position:relative;
+  clip-path:polygon(0 0,86% 0,100% 32%,100% 100%,0 100%);
+  box-shadow:12px 12px 0 rgba(0,0,0,.13);
 }
 
 .logo-tab::before{
   content:"";
   position:absolute;
   inset:8px;
-  border:1px solid rgba(0,0,0,.18);
-  clip-path:polygon(0 0,88% 0,100% 33%,100% 100%,0 100%);
-  pointer-events:none;
+  border:1px solid rgba(0,0,0,.16);
+  clip-path:polygon(0 0,86% 0,100% 32%,100% 100%,0 100%);
 }
 
 .logo-tab::after{
@@ -108,122 +103,161 @@ a{
 
 .logo-tab img{
   width:100%;
-  height:auto;
   display:block;
   position:relative;
   z-index:2;
 }
 
-.header-right{
+.header-meta{
   display:flex;
   flex-direction:column;
   align-items:flex-end;
-  gap:14px;
+  gap:12px;
 }
 
-.header-tag{
-  border:1px solid rgba(0,0,0,.35);
-  padding:13px 18px;
+.header-status{
+  border:1px solid rgba(0,0,0,.32);
+  background:rgba(255,255,255,.5);
+  padding:12px 16px;
+  text-transform:uppercase;
   font-size:.72rem;
   font-weight:900;
   letter-spacing:.16em;
-  text-transform:uppercase;
-  background:rgba(255,255,255,.48);
 }
 
-.nav{
+.header-nav{
   display:flex;
   gap:8px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
 }
 
-.nav a{
-  border:1px solid rgba(0,0,0,.3);
-  padding:12px 16px;
+.header-nav a{
+  border:1px solid rgba(0,0,0,.24);
+  padding:10px 13px;
+  background:rgba(255,255,255,.38);
+  text-transform:uppercase;
   font-size:.68rem;
   font-weight:900;
   letter-spacing:.12em;
-  text-transform:uppercase;
-  background:rgba(255,255,255,.38);
 }
 
-.nav a:hover{
-  background:#111;
-  color:#fff;
-}
+/* =========================
+   COMMAND SURFACE
+========================= */
 
-/* COMMAND BODY */
-
-.command-body{
+.command{
   width:min(var(--max), calc(100% - 42px));
   margin:0 auto;
-  padding:40px 0 72px;
+  padding:28px 0 54px;
 }
 
-/* TOP COMMAND BAND */
+/* ROLE TAB RAIL */
 
-.command-band{
+.tab-rail{
+  display:flex;
+  align-items:flex-end;
+  gap:0;
+  margin:0 0 22px;
+  overflow-x:auto;
+  padding-top:10px;
+}
+
+.role-tab{
+  min-width:142px;
+  height:58px;
+  padding:0 18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(180deg,#171f2b,#0a0f17);
+  border:1px solid var(--line2);
+  border-bottom:4px solid rgba(255,255,255,.08);
+  color:var(--text);
+  text-transform:uppercase;
+  font-size:.74rem;
+  font-weight:900;
+  letter-spacing:.12em;
+  clip-path:polygon(0 18%,88% 18%,100% 0,100% 100%,0 100%);
+  margin-right:-8px;
+  position:relative;
+  box-shadow:0 10px 28px rgba(0,0,0,.34);
+}
+
+.role-tab.active{
+  background:linear-gradient(180deg,#d71927,#8c0d15);
+  border-color:rgba(255,255,255,.38);
+  height:68px;
+  z-index:10;
+}
+
+.role-tab.multibox{
+  border-color:rgba(215,25,39,.68);
+  box-shadow:0 0 0 1px rgba(215,25,39,.25), 0 12px 30px rgba(0,0,0,.42);
+}
+
+/* TOP GRID */
+
+.top-grid{
   display:grid;
-  grid-template-columns:1.15fr .85fr;
-  gap:18px;
+  grid-template-columns:1.05fr .58fr .74fr;
+  gap:16px;
   align-items:stretch;
 }
 
-.command-card{
+.panel{
   position:relative;
   border:1px solid var(--line);
-  background:
-    linear-gradient(135deg, rgba(213,29,40,.11), transparent 28%),
-    linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.018));
-  box-shadow:0 24px 48px rgba(0,0,0,.38);
+  background:linear-gradient(180deg,rgba(255,255,255,.052),rgba(255,255,255,.018));
+  box-shadow:0 22px 46px var(--shadow);
   overflow:hidden;
 }
 
-.command-card::before{
+.panel::before{
   content:"";
   position:absolute;
-  inset:12px;
-  border:1px solid rgba(255,255,255,.08);
+  inset:10px;
+  border:1px solid rgba(255,255,255,.055);
   pointer-events:none;
 }
 
-.command-card::after{
+.panel-red-left::after{
   content:"";
   position:absolute;
-  left:0;
   top:0;
+  left:0;
   width:5px;
   height:100%;
   background:var(--red);
 }
 
-.command-main{
+.hero{
   min-height:360px;
-  padding:34px 34px 28px 38px;
+  padding:32px 34px 28px 40px;
   display:flex;
   flex-direction:column;
   justify-content:space-between;
 }
 
 .kicker{
-  color:#ffb6bd;
+  color:#ffb3bb;
+  text-transform:uppercase;
   font-size:.72rem;
   font-weight:900;
-  letter-spacing:.22em;
-  text-transform:uppercase;
+  letter-spacing:.2em;
   margin-bottom:18px;
 }
 
-.command-main h1{
+.hero h1{
   margin:0;
-  max-width:760px;
-  font-size:clamp(3.7rem,7vw,7.8rem);
-  line-height:.83;
-  letter-spacing:-.085em;
+  font-size:clamp(3.2rem,6vw,6.9rem);
+  line-height:.84;
+  letter-spacing:-.08em;
   text-transform:uppercase;
 }
 
-.command-main p{
-  margin:24px 0 0;
+.hero p{
+  margin:22px 0 0;
   max-width:760px;
   color:var(--muted);
   font-size:1.08rem;
@@ -231,98 +265,184 @@ a{
   font-weight:800;
 }
 
-.lifecycle{
+.primary-action{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  margin-top:24px;
+}
+
+.flow{
   display:flex;
   flex-wrap:wrap;
-  gap:8px;
-  margin-top:28px;
+  gap:7px;
 }
 
-.lifecycle span{
+.flow span{
   border:1px solid var(--line);
   background:rgba(255,255,255,.03);
-  padding:10px 13px;
-  font-size:.68rem;
-  font-weight:900;
-  letter-spacing:.13em;
+  padding:9px 11px;
   text-transform:uppercase;
+  font-size:.66rem;
+  font-weight:900;
+  letter-spacing:.11em;
 }
 
-/* SYSTEM OVERVIEW */
+.btn{
+  display:inline-flex;
+  min-height:52px;
+  align-items:center;
+  justify-content:center;
+  padding:0 22px;
+  background:linear-gradient(180deg,#f0333e,#a80f19);
+  color:#fff;
+  text-transform:uppercase;
+  font-size:.76rem;
+  font-weight:900;
+  letter-spacing:.1em;
+  box-shadow:7px 7px 0 rgba(0,0,0,.35);
+  white-space:nowrap;
+}
+
+/* OVERVIEW */
 
 .overview{
-  padding:24px;
+  padding:22px;
 }
 
-.panel-title{
-  color:#ffb6bd;
+.panel-label{
+  color:#ffb3bb;
+  text-transform:uppercase;
   font-size:.72rem;
   font-weight:900;
-  letter-spacing:.2em;
-  text-transform:uppercase;
-  margin-bottom:18px;
+  letter-spacing:.18em;
+  margin-bottom:16px;
 }
 
-.metric-grid{
+.metrics{
   display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:12px;
+  grid-template-columns:1fr;
+  gap:10px;
 }
 
 .metric{
-  min-height:126px;
+  min-height:76px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
   border:1px solid var(--line);
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.015));
-  padding:18px;
-  position:relative;
-}
-
-.metric::after{
-  content:"";
-  position:absolute;
-  right:-1px;
-  bottom:-1px;
-  width:32px;
-  height:32px;
-  border-right:2px solid rgba(255,255,255,.18);
-  border-bottom:2px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.025);
+  padding:14px;
 }
 
 .metric b{
-  display:block;
-  font-size:2.3rem;
-  margin-bottom:12px;
+  font-size:2rem;
 }
 
 .metric span{
-  display:block;
+  max-width:150px;
   color:var(--muted);
-  font-size:.68rem;
-  font-weight:900;
-  letter-spacing:.13em;
   text-transform:uppercase;
-  line-height:1.4;
+  font-size:.66rem;
+  line-height:1.35;
+  font-weight:900;
+  letter-spacing:.11em;
+  text-align:right;
 }
 
-/* SECTION HEADER */
+/* MULTI BOX */
+
+.multibox-panel{
+  padding:22px;
+  border-color:rgba(215,25,39,.45);
+  background:
+    linear-gradient(135deg,rgba(215,25,39,.13),transparent 40%),
+    linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.018));
+}
+
+.multibox-title{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:14px;
+  margin-bottom:16px;
+}
+
+.multibox-title h2{
+  margin:0;
+  text-transform:uppercase;
+  font-size:2.45rem;
+  line-height:.88;
+  letter-spacing:-.07em;
+}
+
+.lock-pill{
+  border:1px solid rgba(215,25,39,.55);
+  color:#ffb3bb;
+  padding:7px 9px;
+  text-transform:uppercase;
+  font-size:.62rem;
+  font-weight:900;
+  letter-spacing:.12em;
+  white-space:nowrap;
+}
+
+.multibox-panel p{
+  margin:0 0 16px;
+  color:var(--muted);
+  line-height:1.5;
+  font-weight:800;
+}
+
+.mb-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:8px;
+}
+
+.mb-item{
+  min-height:70px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.025);
+  padding:11px;
+}
+
+.mb-item b{
+  display:block;
+  color:#fff;
+  text-transform:uppercase;
+  font-size:.7rem;
+  letter-spacing:.1em;
+  margin-bottom:5px;
+}
+
+.mb-item span{
+  color:var(--muted);
+  font-size:.78rem;
+  line-height:1.35;
+  font-weight:700;
+}
+
+/* MAIN ROLE SECTION */
 
 .section-head{
-  margin:34px 0 18px;
-  padding:0 0 18px;
+  margin:28px 0 16px;
+  padding-bottom:14px;
   border-bottom:1px solid var(--line2);
   display:flex;
   justify-content:space-between;
   align-items:flex-end;
-  gap:24px;
+  gap:20px;
 }
 
 .section-head h2{
   margin:0;
-  font-size:clamp(2.8rem,5vw,4.8rem);
+  text-transform:uppercase;
+  font-size:clamp(2.3rem,4.5vw,4.4rem);
   line-height:.95;
   letter-spacing:-.065em;
-  text-transform:uppercase;
 }
 
 .section-head p{
@@ -334,260 +454,101 @@ a{
   text-align:right;
 }
 
-/* ACCESS GRID */
-
-.access-grid{
-  display:grid;
-  grid-template-columns:1.1fr .9fr;
-  gap:18px;
-  align-items:start;
-}
-
-.box{
-  border:1px solid var(--line);
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.015));
-  box-shadow:0 22px 44px rgba(0,0,0,.34);
-}
-
-.box-head{
-  padding:16px 18px;
-  border-bottom:1px solid var(--line);
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:14px;
-}
-
-.box-head strong{
-  font-size:.76rem;
-  font-weight:900;
-  letter-spacing:.15em;
-  text-transform:uppercase;
-}
-
-.badge{
-  border:1px solid var(--line2);
-  padding:8px 10px;
-  font-size:.66rem;
-  font-weight:900;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-}
-
-.badge.start{
-  color:#baf7d3;
-  border-color:rgba(34,181,115,.55);
-}
-
-.badge.special{
-  color:#ffe4a0;
-  border-color:rgba(202,168,90,.55);
-}
-
-.box-body{
-  padding:18px;
-}
-
-.profile-start{
-  border:1px solid var(--line2);
-  background:#08101a;
-  padding:20px;
-  display:grid;
-  grid-template-columns:1fr auto;
-  gap:20px;
-  align-items:center;
-}
-
-.profile-start h3{
-  margin:0;
-  max-width:460px;
-  font-size:2rem;
-  line-height:1;
-  letter-spacing:-.045em;
-  text-transform:uppercase;
-}
-
-.profile-start p{
-  margin:12px 0 0;
-  color:var(--muted);
-  line-height:1.5;
-  font-weight:800;
-}
-
-.btn{
-  min-height:54px;
-  padding:0 24px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:linear-gradient(180deg,#f0444d,#b91520);
-  color:#fff;
-  font-weight:900;
-  letter-spacing:.09em;
-  text-transform:uppercase;
-  box-shadow:7px 7px 0 rgba(0,0,0,.36);
-  white-space:nowrap;
-}
-
-/* ROLE CARDS */
-
 .role-grid{
-  margin-top:14px;
   display:grid;
-  grid-template-columns:repeat(2,1fr);
+  grid-template-columns:repeat(4,1fr);
   gap:12px;
 }
 
-.role{
-  min-height:156px;
+.role-card{
+  min-height:190px;
   position:relative;
   border:1px solid var(--line);
-  background:rgba(255,255,255,.024);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.016));
   padding:18px;
   overflow:hidden;
+  box-shadow:0 18px 34px rgba(0,0,0,.28);
 }
 
-.role::before{
+.role-card::before{
   content:"";
   position:absolute;
   top:0;
   left:0;
-  width:5px;
-  height:100%;
+  height:5px;
+  width:100%;
   background:var(--red);
 }
 
-.role::after{
+.role-card::after{
   content:"";
   position:absolute;
-  right:-18px;
-  top:-18px;
-  width:58px;
-  height:58px;
-  border:1px solid rgba(255,255,255,.11);
+  top:-22px;
+  right:-22px;
+  width:74px;
+  height:74px;
+  border:1px solid rgba(255,255,255,.1);
   transform:rotate(45deg);
 }
 
-.role h4{
+.role-card h3{
   margin:0 0 10px;
-  font-size:1.08rem;
   text-transform:uppercase;
+  font-size:1.08rem;
+  letter-spacing:-.02em;
 }
 
-.role p{
+.role-card p{
   margin:0;
   color:var(--muted);
-  line-height:1.45;
+  line-height:1.42;
+  font-size:.92rem;
   font-weight:800;
 }
 
-.role a{
+.role-card a{
   position:absolute;
   right:18px;
   bottom:16px;
   border-bottom:2px solid var(--red);
   padding-bottom:4px;
-  font-size:.72rem;
+  text-transform:uppercase;
+  font-size:.7rem;
   font-weight:900;
   letter-spacing:.12em;
-  text-transform:uppercase;
 }
 
-.role.multi::before{
-  background:var(--gold);
-}
-
-.role.multi a{
-  border-bottom-color:var(--gold);
-}
-
-/* MULTIBOX */
-
-.multibox{
-  border-color:rgba(202,168,90,.46);
+.role-card.special{
+  border-color:rgba(215,25,39,.55);
   background:
-    linear-gradient(135deg, rgba(202,168,90,.09), transparent 42%),
-    rgba(255,255,255,.02);
+    linear-gradient(135deg,rgba(215,25,39,.13),transparent 45%),
+    linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.018));
 }
 
-.multibox h3{
-  margin:0;
-  font-size:3rem;
-  line-height:.92;
-  letter-spacing:-.07em;
-  text-transform:uppercase;
-}
+/* LOWER SYSTEM MODULES */
 
-.multibox p{
-  margin:16px 0 0;
-  color:var(--muted);
-  font-size:1rem;
-  line-height:1.55;
-  font-weight:850;
-}
-
-.stack{
-  margin-top:18px;
-  display:grid;
-  gap:10px;
-}
-
-.stack-item{
-  border:1px solid var(--line);
-  background:rgba(255,255,255,.023);
-  padding:12px;
-  display:grid;
-  grid-template-columns:36px 1fr;
-  gap:12px;
-}
-
-.num{
-  width:36px;
-  height:36px;
-  display:grid;
-  place-items:center;
-  border:1px solid rgba(202,168,90,.58);
-  color:#ffe4a0;
-  font-weight:900;
-}
-
-.stack-item b{
-  display:block;
-  margin-bottom:4px;
-  font-size:.8rem;
-  letter-spacing:.08em;
-  text-transform:uppercase;
-}
-
-.stack-item span{
-  color:var(--muted);
-  font-weight:800;
-  line-height:1.45;
-}
-
-/* READINESS */
-
-.readiness{
+.module-row{
   margin-top:18px;
   display:grid;
   grid-template-columns:repeat(3,1fr);
-  gap:18px;
+  gap:16px;
 }
 
-.ready{
+.module{
+  min-height:230px;
   border:1px solid var(--line);
   background:rgba(255,255,255,.022);
-  padding:20px;
+  padding:18px;
 }
 
-.ready h3{
+.module h3{
   margin:0 0 14px;
-  font-size:1.35rem;
   text-transform:uppercase;
+  font-size:1.25rem;
 }
 
-.ready ul{
+.module ul{
   list-style:none;
   padding:0;
   margin:0;
@@ -595,17 +556,17 @@ a{
   gap:10px;
 }
 
-.ready li{
+.module li{
   border-left:3px solid var(--red);
-  background:rgba(255,255,255,.018);
-  padding:9px 0 9px 12px;
+  padding:8px 0 8px 12px;
   color:var(--muted);
+  background:rgba(255,255,255,.016);
   font-weight:800;
 }
 
-/* SPORTS */
+/* SPORTS BAR */
 
-.sports{
+.sports-bar{
   margin-top:18px;
   display:grid;
   grid-template-columns:repeat(4,1fr);
@@ -613,124 +574,83 @@ a{
 }
 
 .sport{
-  min-height:120px;
+  min-height:112px;
   border:1px solid var(--line);
-  background:#08101a;
+  background:#080e16;
   padding:18px;
-  position:relative;
-  overflow:hidden;
-}
-
-.sport::after{
-  content:"";
-  position:absolute;
-  right:-18px;
-  top:-18px;
-  width:62px;
-  height:62px;
-  border:1px solid rgba(255,255,255,.11);
-  transform:rotate(45deg);
 }
 
 .sport b{
   display:block;
-  margin-bottom:40px;
-  font-size:1.15rem;
   text-transform:uppercase;
+  margin-bottom:34px;
 }
 
 .sport span{
   color:var(--muted);
-  font-size:.68rem;
-  font-weight:900;
-  letter-spacing:.13em;
   text-transform:uppercase;
-}
-
-/* TRUST */
-
-.trust{
-  margin-top:18px;
-  border:1px solid var(--line);
-  background:
-    linear-gradient(90deg, rgba(213,29,40,.08), rgba(255,255,255,.015));
-  padding:20px;
-}
-
-.trust-head{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:16px;
-  margin-bottom:16px;
-}
-
-.trust h3{
-  margin:0;
-  font-size:1.6rem;
-  text-transform:uppercase;
-}
-
-.ladder{
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  gap:10px;
-}
-
-.step{
-  min-height:90px;
-  border:1px solid var(--line);
-  background:rgba(255,255,255,.022);
-  padding:14px;
-}
-
-.step small{
-  display:block;
-  margin-bottom:12px;
-  color:var(--muted);
-  font-size:.65rem;
+  font-size:.66rem;
   font-weight:900;
   letter-spacing:.12em;
-  text-transform:uppercase;
-}
-
-.step b{
-  text-transform:uppercase;
 }
 
 /* FOOTER */
 
-footer{
-  width:min(var(--max), calc(100% - 42px));
-  margin:0 auto;
-  padding:26px 0 50px;
-  border-top:1px solid var(--line);
+.footer{
+  margin-top:22px;
+  border-top:1px solid var(--line2);
+  border-bottom:4px solid var(--red);
+  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.015));
+  padding:18px 20px;
   display:flex;
   justify-content:space-between;
+  align-items:center;
   gap:20px;
+}
+
+.footer strong{
+  display:block;
+  text-transform:uppercase;
+  font-size:.82rem;
+  letter-spacing:.12em;
+  margin-bottom:5px;
+}
+
+.footer span{
   color:var(--muted);
   font-size:.82rem;
-  line-height:1.5;
   font-weight:800;
 }
 
 /* RESPONSIVE */
 
-@media(max-width:980px){
-  .header-inner,
-  .header-right{
-    align-items:flex-start;
-  }
-
-  .header-inner,
-  .command-band,
-  .access-grid,
-  .readiness{
+@media(max-width:1100px){
+  .top-grid{
     grid-template-columns:1fr;
   }
 
+  .role-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .module-row{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:720px){
   .header-inner{
     flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .logo-tab{
+    width:100%;
+    max-width:100%;
+  }
+
+  .header-meta{
+    align-items:flex-start;
   }
 
   .section-head{
@@ -742,35 +662,20 @@ footer{
     text-align:left;
   }
 
-  .sports,
-  .ladder{
-    grid-template-columns:repeat(2,1fr);
-  }
-}
-
-@media(max-width:640px){
-  .logo-tab{
-    width:100%;
-    max-width:100%;
-  }
-
-  .nav{
-    flex-wrap:wrap;
-  }
-
-  .metric-grid,
-  .role-grid,
-  .sports,
-  .ladder{
-    grid-template-columns:1fr;
-  }
-
-  .profile-start{
-    grid-template-columns:1fr;
-  }
-
-  footer{
+  .primary-action{
+    align-items:flex-start;
     flex-direction:column;
+  }
+
+  .role-grid,
+  .sports-bar,
+  .mb-grid{
+    grid-template-columns:1fr;
+  }
+
+  .footer{
+    flex-direction:column;
+    align-items:flex-start;
   }
 }
 </style>
@@ -783,17 +688,16 @@ footer{
   <div class="header-inner">
 
     <a class="logo-tab" href="index.html" aria-label="STATScore Home">
-      <img src="sc_logo_black.png" alt="STATScore™ Athlete Lifecycle System">
+      <img src="sc_logo_black.png" alt="STATScore">
     </a>
 
-    <div class="header-right">
-      <div class="header-tag">
-        National Athlete Infrastructure · Controlled Access
-      </div>
+    <div class="header-meta">
+      <div class="header-status">National Athlete Infrastructure · Controlled Access</div>
 
-      <nav class="nav">
+      <nav class="header-nav">
         <a href="index.html">Entry</a>
         <a href="player-profile.html">Profile</a>
+        <a href="multibox.html">Multi-Box</a>
         <a href="privacy.html">Privacy</a>
         <a href="terms.html">Terms</a>
       </nav>
@@ -802,11 +706,22 @@ footer{
   </div>
 </header>
 
-<section class="command-body">
+<section class="command">
 
-  <section class="command-band">
+  <nav class="tab-rail" aria-label="STATScore access lanes">
+    <a class="role-tab active" href="player-profile.html">Athlete</a>
+    <a class="role-tab" href="parent-dashboard.html">Parent</a>
+    <a class="role-tab" href="coach-dashboard.html">Coach</a>
+    <a class="role-tab" href="eligibility.html">Counselor</a>
+    <a class="role-tab" href="recruiter-access.html">Recruiter</a>
+    <a class="role-tab" href="program-management.html">Program</a>
+    <a class="role-tab" href="evaluator.html">Evaluator</a>
+    <a class="role-tab multibox" href="multibox.html">Multi-Box™</a>
+  </nav>
 
-    <div class="command-card command-main">
+  <section class="top-grid">
+
+    <article class="panel panel-red-left hero">
       <div>
         <div class="kicker">Athlete Lifecycle System</div>
 
@@ -818,24 +733,77 @@ footer{
         </p>
       </div>
 
-      <div class="lifecycle">
-        <span>Profile</span>
-        <span>Verification</span>
-        <span>Readiness</span>
-        <span>Eligibility</span>
-        <span>Visibility</span>
-        <span>Recruiting</span>
+      <div class="primary-action">
+        <div class="flow">
+          <span>Profile</span>
+          <span>Verification</span>
+          <span>Readiness</span>
+          <span>Eligibility</span>
+          <span>Visibility</span>
+          <span>Recruiting</span>
+        </div>
+
+        <a class="btn" href="player-profile.html">Start Profile</a>
       </div>
-    </div>
+    </article>
 
-    <aside class="command-card overview">
-      <div class="panel-title">System Overview</div>
+    <aside class="panel overview">
+      <div class="panel-label">System Overview</div>
 
-      <div class="metric-grid">
-        <div class="metric"><b>04</b><span>Initial National Sports</span></div>
-        <div class="metric"><b>08</b><span>User Access Areas</span></div>
-        <div class="metric"><b>05</b><span>Verification Levels</span></div>
-        <div class="metric"><b>01</b><span>Verified Athlete System</span></div>
+      <div class="metrics">
+        <div class="metric">
+          <b>04</b>
+          <span>Initial National Sports</span>
+        </div>
+
+        <div class="metric">
+          <b>08</b>
+          <span>User Access Areas</span>
+        </div>
+
+        <div class="metric">
+          <b>05</b>
+          <span>Verification Levels</span>
+        </div>
+
+        <div class="metric">
+          <b>01</b>
+          <span>Verified Athlete System</span>
+        </div>
+      </div>
+    </aside>
+
+    <aside class="panel multibox-panel">
+      <div class="multibox-title">
+        <h2>Multi-Box™</h2>
+        <span class="lock-pill">Protected</span>
+      </div>
+
+      <p>
+        The controlled communication and permissions layer for athlete visibility,
+        parent approval, recruiter requests, counselor access, and audit tracking.
+      </p>
+
+      <div class="mb-grid">
+        <div class="mb-item">
+          <b>Parent Approval</b>
+          <span>Guardian permission and visibility controls.</span>
+        </div>
+
+        <div class="mb-item">
+          <b>Recruiter Requests</b>
+          <span>Controlled access and contact routing.</span>
+        </div>
+
+        <div class="mb-item">
+          <b>Message Windows</b>
+          <span>Timing-aware communication boundaries.</span>
+        </div>
+
+        <div class="mb-item">
+          <b>Audit Trail</b>
+          <span>Recorded approvals, denials, and access events.</span>
+        </div>
       </div>
     </aside>
 
@@ -844,126 +812,66 @@ footer{
   <div class="section-head">
     <h2>Select Your Role</h2>
     <p>
-      Choose the role that matches your place in the athlete lifecycle.
-      Each role enters a controlled area with the right tools, visibility, and permissions.
+      Choose the lane that matches your place in the athlete lifecycle.
+      Each tab opens a controlled area with the correct visibility, permissions, and next actions.
     </p>
   </div>
 
-  <section class="access-grid">
+  <section class="role-grid">
 
-    <div class="box">
-      <div class="box-head">
-        <strong>Athlete Profile Setup</strong>
-        <span class="badge start">Start Here</span>
-      </div>
+    <article class="role-card">
+      <h3>Athlete</h3>
+      <p>Create your verified profile, track performance details, monitor readiness, and manage approved visibility.</p>
+      <a href="player-profile.html">Enter</a>
+    </article>
 
-      <div class="box-body">
-        <div class="profile-start">
-          <div>
-            <h3>Create the Verified Athlete Profile</h3>
-            <p>
-              Begin with the athlete profile. This connects performance details,
-              readiness information, parent permissions, coach verification,
-              and recruiting visibility.
-            </p>
-          </div>
+    <article class="role-card">
+      <h3>Parent</h3>
+      <p>Review guardian approvals, academic visibility, recruiting access, and communication permissions.</p>
+      <a href="parent-dashboard.html">Enter</a>
+    </article>
 
-          <a href="player-profile.html" class="btn">Start Athlete Profile</a>
-        </div>
+    <article class="role-card">
+      <h3>Coach</h3>
+      <p>Support roster context, athlete verification, performance notes, and development tracking.</p>
+      <a href="coach-dashboard.html">Enter</a>
+    </article>
 
-        <div class="role-grid">
-          <div class="role">
-            <h4>Athlete</h4>
-            <p>Create and manage your profile, performance details, readiness path, and visibility settings.</p>
-            <a href="player-profile.html">Enter</a>
-          </div>
+    <article class="role-card">
+      <h3>Counselor</h3>
+      <p>Support eligibility awareness, protected academic review, readiness tracking, and student pathway support.</p>
+      <a href="eligibility.html">Enter</a>
+    </article>
 
-          <div class="role">
-            <h4>Parent</h4>
-            <p>Review permissions, support readiness steps, and manage guardian approval areas.</p>
-            <a href="parent-dashboard.html">Enter</a>
-          </div>
+    <article class="role-card">
+      <h3>Recruiter</h3>
+      <p>View approved athlete visibility areas and request access through controlled recruiting pathways.</p>
+      <a href="recruiter-access.html">Enter</a>
+    </article>
 
-          <div class="role">
-            <h4>Coach</h4>
-            <p>Support athlete verification, roster context, development notes, and program-level information.</p>
-            <a href="coach-dashboard.html">Enter</a>
-          </div>
+    <article class="role-card">
+      <h3>Program</h3>
+      <p>Manage organization, team, roster, camp, combine, and athlete development information.</p>
+      <a href="program-management.html">Enter</a>
+    </article>
 
-          <div class="role">
-            <h4>Counselor</h4>
-            <p>Support academic readiness, eligibility tracking, and protected education-related information.</p>
-            <a href="eligibility.html">Enter</a>
-          </div>
+    <article class="role-card">
+      <h3>Evaluator</h3>
+      <p>Submit trusted measurements, event results, evaluation notes, and verification support.</p>
+      <a href="evaluator.html">Enter</a>
+    </article>
 
-          <div class="role">
-            <h4>Recruiter</h4>
-            <p>View approved athlete visibility areas and request access through controlled recruiting pathways.</p>
-            <a href="recruiter-access.html">Enter</a>
-          </div>
-
-          <div class="role">
-            <h4>Program</h4>
-            <p>Manage team, event, roster, and organization-level athlete development information.</p>
-            <a href="program-management.html">Enter</a>
-          </div>
-
-          <div class="role">
-            <h4>Evaluator</h4>
-            <p>Submit verified measurements, event results, evaluation notes, and trusted athlete assessments.</p>
-            <a href="evaluator.html">Enter</a>
-          </div>
-
-          <div class="role multi">
-            <h4>Multi-Box™</h4>
-            <p>Manage communication permissions, visibility requests, and controlled system coordination.</p>
-            <a href="multibox.html">Command</a>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <aside class="box multibox">
-      <div class="box-head">
-        <strong>Communication & Permissions</strong>
-        <span class="badge special">Above Roles</span>
-      </div>
-
-      <div class="box-body">
-        <h3>Multi-Box™</h3>
-        <p>
-          Multi-Box™ controls who may communicate, what information may be seen,
-          and how recruiting visibility is managed. It is not a chat feed or social messaging page.
-        </p>
-
-        <div class="stack">
-          <div class="stack-item">
-            <div class="num">01</div>
-            <div><b>Permission Control</b><span>Parent, athlete, counselor, evaluator, and recruiter access boundaries.</span></div>
-          </div>
-
-          <div class="stack-item">
-            <div class="num">02</div>
-            <div><b>Recruiting Contact Rules</b><span>Communication access follows controlled recruiting and athlete visibility rules.</span></div>
-          </div>
-
-          <div class="stack-item">
-            <div class="num">03</div>
-            <div><b>Approval Tracking</b><span>Visibility requests, approvals, denials, and important communication events are recorded.</span></div>
-          </div>
-
-          <div class="stack-item">
-            <div class="num">04</div>
-            <div><b>System Coordination</b><span>Families, schools, programs, recruiters, and evaluators move through controlled pathways.</span></div>
-          </div>
-        </div>
-      </div>
-    </aside>
+    <article class="role-card special">
+      <h3>Multi-Box™</h3>
+      <p>Command permissions, communication controls, visibility requests, parent approvals, and audit trails.</p>
+      <a href="multibox.html">Command</a>
+    </article>
 
   </section>
 
-  <section class="readiness">
-    <div class="ready">
+  <section class="module-row">
+
+    <article class="module">
       <h3>Athletic Readiness</h3>
       <ul>
         <li>Sport-specific performance details</li>
@@ -971,9 +879,9 @@ footer{
         <li>Development stage awareness</li>
         <li>Verified evaluation support</li>
       </ul>
-    </div>
+    </article>
 
-    <div class="ready">
+    <article class="module">
       <h3>Eligibility Readiness</h3>
       <ul>
         <li>Core-course awareness</li>
@@ -981,9 +889,9 @@ footer{
         <li>Protected academic information</li>
         <li>Recruiting communication awareness</li>
       </ul>
-    </div>
+    </article>
 
-    <div class="ready">
+    <article class="module">
       <h3>College Readiness</h3>
       <ul>
         <li>In-state path awareness</li>
@@ -991,43 +899,30 @@ footer{
         <li>Program fit support</li>
         <li>College preparation signals</li>
       </ul>
-    </div>
+    </article>
+
   </section>
 
-  <section class="sports">
+  <section class="sports-bar">
     <div class="sport"><b>Football</b><span>Position Tracking</span></div>
     <div class="sport"><b>Basketball</b><span>Role Tracking</span></div>
     <div class="sport"><b>Baseball</b><span>Tool Tracking</span></div>
     <div class="sport"><b>Track & Field</b><span>Event Tracking</span></div>
   </section>
 
-  <section class="trust">
-    <div class="trust-head">
-      <h3>PHNX Verified Trust Ladder</h3>
-      <span class="badge special">Evaluation Confidence</span>
+  <footer class="footer">
+    <div>
+      <strong>STATScore™</strong>
+      <span>National athlete lifecycle infrastructure · verified profile · controlled visibility.</span>
     </div>
 
-    <div class="ladder">
-      <div class="step"><small>Level 01</small><b>Self Reported</b></div>
-      <div class="step"><small>Level 02</small><b>Coach Verified</b></div>
-      <div class="step"><small>Level 03</small><b>Evaluator Verified</b></div>
-      <div class="step"><small>Level 04</small><b>PHNX Verified</b></div>
-      <div class="step"><small>Level 05</small><b>Institutional Verified</b></div>
+    <div>
+      <strong>Secure · Verified · Controlled</strong>
+      <span>Role-based tabs protect academics, grades, parent approvals, communication, and recruiting access.</span>
     </div>
-  </section>
+  </footer>
 
 </section>
-
-<footer>
-  <div>
-    <strong>STATScore™</strong><br>
-    Verified athlete profile and readiness infrastructure.
-  </div>
-
-  <div>
-    STATScore supports athlete profiles, verification, readiness, eligibility awareness, and controlled recruiting visibility.
-  </div>
-</footer>
 
 </main>
 </body>
