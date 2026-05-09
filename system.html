@@ -7,10 +7,9 @@
 
 <style>
 :root{
-  --black:#020304;
-  --black2:#07090c;
-  --panel:#0a0c10;
-  --panel2:#111318;
+  --black:#020202;
+  --black2:#050505;
+  --panel:#050505;
   --white:#f4f4f1;
   --text:#f4f4f4;
   --muted:#b8b8b8;
@@ -40,11 +39,12 @@ a{
   width:min(var(--max),100%);
   margin:0 auto;
   min-height:100vh;
-  background:#000;
-  border:1px solid rgba(255,255,255,.12);
+  background:#020202;
 }
 
-/* HEADER */
+/* =========================
+   WHITE HEADER
+========================= */
 
 .header{
   height:108px;
@@ -75,6 +75,16 @@ a{
   height:20px;
   background:var(--red);
   clip-path:polygon(0 0,90% 0,100% 100%,0 100%);
+}
+
+.logo-tab::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:26px;
+  bottom:0;
+  height:3px;
+  background:var(--red);
 }
 
 .logo-tab img{
@@ -144,58 +154,137 @@ a{
   left:4px;
 }
 
-/* MAIN */
+/* =========================
+   MAIN BLACK COMMAND SURFACE
+========================= */
 
 .main{
   background:
-    radial-gradient(circle at 18% 0%,rgba(224,24,34,.12),transparent 28%),
-    linear-gradient(180deg,#020304 0%,#07090c 100%);
+    radial-gradient(circle at 42% 18%, rgba(255,255,255,.035), transparent 26%),
+    linear-gradient(180deg,#000000 0%,#050505 42%,#020202 100%);
   padding:24px 14px 0;
 }
 
-/* TAB RAIL */
+/* =========================
+   REAL FOLDER TAB RAIL
+========================= */
 
 .tab-rail{
-  height:82px;
+  height:92px;
   display:flex;
   align-items:flex-end;
   border-bottom:3px solid var(--red);
+  padding-left:0;
   overflow:hidden;
+  position:relative;
+}
+
+.tab-rail::before{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  height:1px;
+  background:rgba(255,255,255,.18);
+  z-index:20;
 }
 
 .tab{
-  height:62px;
-  min-width:158px;
-  padding:0 22px;
+  height:64px;
+  min-width:168px;
+  padding:0 24px 0 26px;
   display:flex;
   align-items:center;
-  justify-content:center;
+  justify-content:flex-start;
   gap:10px;
-  background:linear-gradient(180deg,#1b1d21,#07080a);
-  border:1px solid rgba(255,255,255,.24);
+
+  background:
+    linear-gradient(180deg,#242424 0%,#111 46%,#050505 100%);
+
+  border:1px solid rgba(255,255,255,.28);
   border-bottom:none;
-  clip-path:polygon(0 14%,82% 14%,90% 0,100% 100%,0 100%);
-  margin-right:-14px;
+
+  color:#f4f4f4;
   text-transform:uppercase;
   font-size:.9rem;
   font-weight:900;
   letter-spacing:.04em;
+
   position:relative;
+  margin-right:-18px;
+  z-index:2;
+
+  border-radius:10px 16px 0 0;
+
+  clip-path:polygon(
+    0 22%,
+    4% 8%,
+    78% 8%,
+    84% 0,
+    94% 0,
+    100% 100%,
+    0 100%
+  );
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.22),
+    inset 0 -1px 0 rgba(0,0,0,.75),
+    0 -4px 12px rgba(255,255,255,.04),
+    0 10px 24px rgba(0,0,0,.65);
+}
+
+.tab::before{
+  content:"";
+  position:absolute;
+  inset:5px 7px auto 7px;
+  height:1px;
+  background:rgba(255,255,255,.22);
+}
+
+.tab::after{
+  content:"";
+  position:absolute;
+  right:9px;
+  top:9px;
+  width:24px;
+  height:18px;
+  border-top:1px solid rgba(255,255,255,.16);
+  border-right:1px solid rgba(255,255,255,.12);
+  transform:skewX(24deg);
 }
 
 .tab.active{
-  height:74px;
-  background:linear-gradient(180deg,#d71927,#8c0d15);
-  z-index:10;
+  height:78px;
+  background:
+    linear-gradient(180deg,#e11a24 0%,#b50f18 48%,#7f080f 100%);
+  border-color:rgba(255,255,255,.38);
+  z-index:12;
+  color:#fff;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.28),
+    0 0 0 1px rgba(224,24,34,.35),
+    0 14px 34px rgba(0,0,0,.72);
+}
+
+.tab.active::before{
+  background:rgba(255,255,255,.24);
 }
 
 .tab.multi{
   margin-left:auto;
-  min-width:190px;
-  border-color:rgba(224,24,34,.7);
+  min-width:198px;
+  border-color:rgba(224,24,34,.8);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.2),
+    0 0 0 1px rgba(224,24,34,.25),
+    0 12px 30px rgba(0,0,0,.7);
 }
 
-/* CONTENT GRID */
+/* =========================
+   CONTENT GRID
+========================= */
 
 .content{
   display:grid;
@@ -205,12 +294,21 @@ a{
 }
 
 .panel{
-  border:1px solid var(--line);
+  border:1px solid rgba(255,255,255,.16);
   background:
-    linear-gradient(145deg,rgba(255,255,255,.05),rgba(255,255,255,.014)),
-    #050608;
+    linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.012)),
+    repeating-linear-gradient(
+      135deg,
+      rgba(255,255,255,.018) 0px,
+      rgba(255,255,255,.018) 1px,
+      transparent 1px,
+      transparent 6px
+    ),
+    #050505;
   border-radius:4px;
-  box-shadow:0 18px 42px rgba(0,0,0,.58), inset 0 0 0 1px rgba(255,255,255,.04);
+  box-shadow:
+    0 18px 42px rgba(0,0,0,.72),
+    inset 0 0 0 1px rgba(255,255,255,.035);
 }
 
 .label{
@@ -221,7 +319,9 @@ a{
   text-transform:uppercase;
 }
 
-/* HERO */
+/* =========================
+   HERO
+========================= */
 
 .hero{
   min-height:410px;
@@ -277,7 +377,9 @@ a{
   letter-spacing:.12em;
 }
 
-/* OVERVIEW */
+/* =========================
+   OVERVIEW
+========================= */
 
 .overview{
   min-height:410px;
@@ -323,7 +425,9 @@ a{
   text-transform:uppercase;
 }
 
-/* MULTI BOX */
+/* =========================
+   MULTI-BOX RIGHT RAIL
+========================= */
 
 .multibox{
   grid-row:span 2;
@@ -403,7 +507,9 @@ a{
   letter-spacing:.14em;
 }
 
-/* READINESS */
+/* =========================
+   READINESS MODULE
+========================= */
 
 .readiness{
   grid-column:1 / span 2;
@@ -452,7 +558,9 @@ a{
   letter-spacing:.12em;
 }
 
-/* FLOW */
+/* =========================
+   SYSTEM FLOW
+========================= */
 
 .flow{
   grid-column:1 / -1;
@@ -505,7 +613,9 @@ a{
   letter-spacing:.12em;
 }
 
-/* FOOTER */
+/* =========================
+   FOOTER
+========================= */
 
 .footer{
   height:70px;
@@ -529,7 +639,9 @@ a{
   color:var(--green);
 }
 
-/* RESPONSIVE */
+/* =========================
+   RESPONSIVE
+========================= */
 
 @media(max-width:1000px){
   .header{
