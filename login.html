@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STATScore — Identity Access</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --red: #ff4d2d;
+      --dark-red: #240000;
+      --panel: rgba(12,12,12,0.82);
+      --line: rgba(255,255,255,0.12);
+      --text: #f3f3f3;
+      --muted: #9a9a9a;
+      --green: #53ff6f;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      min-height: 100vh;
+      overflow: hidden;
+      background:
+        linear-gradient(
+          180deg,
+          #240000 0%,
+          #140000 35%,
+          #080808 100%
+        );
+      color: var(--text);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        repeating-linear-gradient(
+          90deg,
+          rgba(255,255,255,0.02) 0px,
+          rgba(255,255,255,0.02) 1px,
+          transparent 1px,
+          transparent 120px
+        );
+      pointer-events: none;
+    }
+
+    .watermark {
+      position: absolute;
+      width: 760px;
+      opacity: 0.055;
+      pointer-events: none;
+      user-select: none;
+      filter: saturate(0);
+    }
+
+    .access-shell {
+      width: 100%;
+      max-width: 540px;
+      position: relative;
+      z-index: 2;
+      padding: 24px;
+    }
+
+    .top-label {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .top-label .system {
+      font-size: 14px;
+      letter-spacing: 5px;
+      color: var(--red);
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .top-label .sub {
+      font-size: 12px;
+      letter-spacing: 3px;
+      color: #d6d6d6;
+      line-height: 1.7;
+    }
+
+    .login-card {
+      background: var(--panel);
+      border: 1px solid rgba(255,77,45,0.28);
+      backdrop-filter: blur(10px);
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+      box-shadow:
+        0 0 50px rgba(0,0,0,0.45),
+        0 0 20px rgba(255,77,45,0.08);
+    }
+
+    .login-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--red), transparent);
+    }
+
+    .card-title {
+      font-size: 42px;
+      font-weight: 900;
+      line-height: 0.95;
+      margin-bottom: 14px;
+    }
+
+    .card-title span {
+      color: var(--red);
+    }
+
+    .card-copy {
+      color: #d0d0d0;
+      line-height: 1.7;
+      font-size: 14px;
+      margin-bottom: 30px;
+    }
+
+    .field-group {
+      margin-bottom: 18px;
+    }
+
+    .field-label {
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: #cfcfcf;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .field-input {
+      width: 100%;
+      height: 58px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: white;
+      padding: 0 18px;
+      font-size: 15px;
+      outline: none;
+      transition: 0.25s ease;
+    }
+
+    .field-input:focus {
+      border-color: rgba(255,77,45,0.65);
+      background: rgba(255,255,255,0.05);
+      box-shadow: 0 0 20px rgba(255,77,45,0.12);
+    }
+
+    .access-btn {
+      width: 100%;
+      height: 62px;
+      border: 1px solid var(--red);
+      background: linear-gradient(180deg,#ff5f42,#d73417);
+      color: white;
+      font-weight: 900;
+      letter-spacing: 3px;
+      font-size: 13px;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: 0.25s ease;
+    }
+
+    .access-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 25px rgba(255,77,45,0.25);
+    }
+
+    .notice {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+      text-align: center;
+    }
+
+    .demo-box {
+      margin-top: 32px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 24px;
+    }
+
+    .demo-title {
+      color: var(--red);
+      font-size: 12px;
+      letter-spacing: 4px;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    .demo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .demo-item {
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.02);
+      padding: 14px;
+    }
+
+    .demo-role {
+      color: white;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+
+    .demo-email {
+      color: #8ed8ff;
+      font-size: 12px;
+      word-break: break-word;
+    }
+
+    .clearance-screen {
+      position: fixed;
+      inset: 0;
+      background:
+        linear-gradient(
+          180deg,
+          #160000 0%,
+          #090909 100%
+        );
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      flex-direction: column;
+    }
+
+    .clearance-screen.active {
+      display: flex;
+    }
+
+    .clearance-logo {
+      width: 150px;
+      opacity: 0.18;
+      margin-bottom: 42px;
+    }
+
+    .clearance-step {
+      font-size: 13px;
+      letter-spacing: 4px;
+      color: white;
+      margin: 12px 0;
+      opacity: 0.18;
+      transition: 0.4s ease;
+    }
+
+    .clearance-step.active {
+      opacity: 1;
+      color: var(--green);
+      transform: scale(1.03);
+    }
+
+    .final-status {
+      margin-top: 36px;
+      color: var(--red);
+      font-weight: 900;
+      letter-spacing: 4px;
+      font-size: 15px;
+      opacity: 0;
+      transition: 0.4s ease;
+    }
+
+    .final-status.visible {
+      opacity: 1;
+    }
+
+    @media (max-width: 700px) {
+      .watermark {
+        width: 520px;
+      }
+
+      .login-card {
+        padding: 28px;
+      }
+
+      .card-title {
+        font-size: 34px;
+      }
+
+      .demo-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <img src="sc_emblem.png" class="watermark" alt="STATScore Emblem">
+
+  <div class="access-shell">
+
+    <div class="top-label">
+      <div class="system">STATScore IDENTITY ACCESS</div>
+      <div class="sub">
+        NATIONAL ATHLETE INFRASTRUCTURE<br>
+        CONTROLLED ACCESS LAYER
+      </div>
+    </div>
+
+    <div class="login-card">
+
+      <div class="card-title">
+        ACCESS <span>SYSTEM</span>
+      </div>
+
+      <div class="card-copy">
+        Authorized profile visibility, recruiting access,
+        eligibility tracking, and athlete intelligence routing
+        are governed through the STATScore access layer.
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">EMAIL</div>
+        <input id="email" class="field-input" type="email" placeholder="Enter authorized email">
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">PASSWORD</div>
+        <input id="password" class="field-input" type="password" placeholder="Enter password">
+      </div>
+
+      <button class="access-btn" onclick="startClearanceSequence()">
+        ACCESS SYSTEM
+      </button>
+
+      <div class="notice">
+        Authorized visibility only.<br>
+        All access attempts are monitored and routed through
+        STATScore governance controls.
+      </div>
+
+      <div class="demo-box">
+
+        <div class="demo-title">
+          DEMO ACCESS LAYERS
+        </div>
+
+        <div class="demo-grid">
+
+          <div class="demo-item">
+            <div class="demo-role">ATHLETE</div>
+            <div class="demo-email">athlete.demo@statscore.com</div>
+          </div>
+
+          <div class="demo-item">
+            <div class="demo-role">PARENT</div>
+            <div class="demo-email">parent.demo@statscore.com</div>
+          </div>
+
+          <div class="demo-item">
+            <div class="demo-role">RECRUITER</div>
+            <div class="demo-email">recruiter.demo@statscore.com</div>
+          </div>
+
+          <div class="demo-item">
+            <div class="demo-role">EVALUATOR</div>
+            <div class="demo-email">evaluator.demo@statscore.com</div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="clearance-screen" id="clearanceScreen">
+
+    <img src="sc_emblem.png" class="clearance-logo" alt="STATScore Emblem">
+
+    <div class="clearance-step" id="step1">
+      VERIFYING IDENTITY
+    </div>
+
+    <div class="clearance-step" id="step2">
+      RESOLVING ACCESS ROLE
+    </div>
+
+    <div class="clearance-step" id="step3">
+      CHECKING VISIBILITY CLEARANCE
+    </div>
+
+    <div class="clearance-step" id="step4">
+      LOADING AUTHORIZED SYSTEM
+    </div>
+
+    <div class="final-status" id="finalStatus">
+      SYSTEM ACCESS GRANTED
+    </div>
+
+  </div>
+
+  <script>
+
+    function activateStep(id) {
+      document.getElementById(id).classList.add('active');
+    }
+
+    function startClearanceSequence() {
+
+      const screen = document.getElementById('clearanceScreen');
+      const finalStatus = document.getElementById('finalStatus');
+
+      screen.classList.add('active');
+
+      setTimeout(() => {
+        activateStep('step1');
+      }, 500);
+
+      setTimeout(() => {
+        activateStep('step2');
+      }, 1500);
+
+      setTimeout(() => {
+        activateStep('step3');
+      }, 2500);
+
+      setTimeout(() => {
+        activateStep('step4');
+      }, 3500);
+
+      setTimeout(() => {
+        finalStatus.classList.add('visible');
+      }, 4500);
+
+      setTimeout(() => {
+        window.location.href = 'system.html';
+      }, 5800);
+    }
+
+  </script>
+
+</body>
+</html> 
