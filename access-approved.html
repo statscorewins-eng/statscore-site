@@ -1,917 +1,865 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-<title>STATScore™ — Access Approved</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-
-<style>
-
-:root{
-
---bg:#070b11;
---panel:#0d1420;
---panel-2:#101826;
---line:#223048;
-
---white:#f3f7ff;
---text:#d8e2f0;
---muted:#7d8ea8;
-
---red:#ff4d4d;
---red-dark:#b32626;
-
---blue:#59c8ff;
---blue-soft:#86d8ff;
-
---green:#28ff88;
---green-soft:#7dffb5;
-
---yellow:#ffd24d;
-
-}
-
-/* =========================
-RESET
-========================= */
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-}
-
-html,
-body{
-background:var(--bg);
-font-family:Arial, Helvetica, sans-serif;
-color:var(--text);
-}
-
-/* =========================
-PAGE
-========================= */
-
-.page{
-width:100%;
-min-height:100vh;
-background:
-radial-gradient(circle at top, rgba(70,120,255,.12), transparent 35%),
-linear-gradient(180deg,#09111a 0%,#06090f 100%);
-}
-
-/* =========================
-TOP SHELL
-========================= */
-
-.top-shell{
-height:96px;
-background:#f5f7fa;
-border-bottom:2px solid var(--red);
-display:flex;
-align-items:center;
-justify-content:space-between;
-padding:0 28px;
-overflow:hidden;
-position:relative;
-}
-
-.logo-tab{
-width:380px;
-height:100%;
-background:#131821;
-clip-path:polygon(0 0, 82% 0, 100% 100%, 0 100%);
-display:flex;
-align-items:center;
-padding-left:22px;
-border-top:8px solid var(--red);
-}
-
-.logo-tab img{
-width:245px;
-height:auto;
-display:block;
-}
-
-.center-title{
-text-align:center;
-position:absolute;
-left:50%;
-transform:translateX(-50%);
-}
-
-.center-title .top{
-font-size:12px;
-font-weight:900;
-letter-spacing:.42em;
-color:#23344f;
-text-transform:uppercase;
-}
-
-.center-title .bottom{
-font-size:12px;
-font-weight:900;
-letter-spacing:.34em;
-color:#3d5778;
-text-transform:uppercase;
-margin-top:4px;
-}
-
-.top-nav{
-display:flex;
-gap:18px;
-align-items:center;
-font-size:13px;
-font-weight:800;
-text-transform:uppercase;
-letter-spacing:.08em;
-}
-
-.top-nav span{
-color:#1f2d40;
-opacity:.8;
-}
-
-.top-nav .active{
-color:var(--red);
-position:relative;
-}
-
-.top-nav .active::after{
-content:"";
-position:absolute;
-left:0;
-bottom:-8px;
-width:100%;
-height:2px;
-background:var(--red);
-}
-
-/* =========================
-MAIN
-========================= */
-
-.main{
-padding:34px 28px 24px;
-}
-
-.section-label{
-color:var(--red);
-font-size:13px;
-font-weight:900;
-letter-spacing:.34em;
-text-transform:uppercase;
-margin-bottom:10px;
-}
-
-.page-title{
-font-size:72px;
-line-height:.9;
-font-weight:900;
-color:#ffffff;
-letter-spacing:-.05em;
-text-transform:uppercase;
-margin-bottom:28px;
-}
-
-.page-title span{
-display:block;
-color:var(--green);
-}
-
-/* =========================
-GRID
-========================= */
-
-.grid{
-display:grid;
-grid-template-columns:1fr 360px;
-gap:18px;
-align-items:start;
-}
-
-/* =========================
-PANELS
-========================= */
-
-.panel{
-background:
-linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.01));
-border:1px solid rgba(110,140,190,.22);
-position:relative;
-overflow:hidden;
-}
-
-.panel::before{
-content:"";
-position:absolute;
-inset:0;
-background:
-linear-gradient(180deg,rgba(255,255,255,.03),transparent);
-pointer-events:none;
-}
-
-.panel-inner{
-padding:22px;
-position:relative;
-z-index:2;
-}
-
-/* =========================
-APPROVAL HERO
-========================= */
-
-.approval-grid{
-display:grid;
-grid-template-columns:280px 1fr;
-gap:20px;
-}
-
-.image-box{
-height:360px;
-border:1px solid rgba(130,160,220,.28);
-display:flex;
-align-items:center;
-justify-content:center;
-color:#6f84a5;
-font-weight:800;
-letter-spacing:.18em;
-text-transform:uppercase;
-background:
-linear-gradient(180deg,rgba(255,255,255,.01),rgba(255,255,255,.02));
-}
-
-.approval-title{
-font-size:62px;
-line-height:.92;
-font-weight:900;
-letter-spacing:-.05em;
-text-transform:uppercase;
-margin-bottom:22px;
-}
-
-.approval-title .green{
-color:var(--green);
-}
-
-.metrics{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:12px;
-margin-bottom:16px;
-}
-
-.metric{
-border:1px solid rgba(120,150,210,.24);
-padding:14px;
-background:rgba(255,255,255,.015);
-}
-
-.metric-label{
-font-size:11px;
-font-weight:900;
-letter-spacing:.18em;
-text-transform:uppercase;
-color:var(--blue);
-margin-bottom:6px;
-}
-
-.metric-value{
-font-size:18px;
-font-weight:900;
-color:#fff;
-}
-
-.approved-bar{
-display:inline-flex;
-align-items:center;
-padding:12px 18px;
-border:1px solid rgba(40,255,136,.55);
-color:var(--green);
-font-weight:900;
-letter-spacing:.16em;
-text-transform:uppercase;
-font-size:13px;
-margin-top:4px;
-margin-bottom:18px;
-background:rgba(40,255,136,.06);
-}
-
-.description{
-font-size:15px;
-line-height:1.7;
-color:#dbe5f4;
-max-width:900px;
-}
-
-/* =========================
-RIGHT PANEL
-========================= */
-
-.side-title{
-font-size:54px;
-line-height:.92;
-font-weight:900;
-text-transform:uppercase;
-letter-spacing:-.05em;
-color:#ffffff;
-margin-bottom:14px;
-}
-
-.side-copy{
-font-size:15px;
-line-height:1.65;
-color:#7fe4ff;
-font-weight:700;
-margin-bottom:22px;
-}
-
-.status-table{
-border:1px solid rgba(120,150,210,.24);
-}
-
-.status-row{
-display:flex;
-justify-content:space-between;
-padding:14px 16px;
-border-bottom:1px solid rgba(120,150,210,.14);
-font-size:14px;
-font-weight:900;
-text-transform:uppercase;
-}
-
-.status-row:last-child{
-border-bottom:none;
-}
-
-.status-row .left{
-color:#bfe7ff;
-}
-
-.status-row .right{
-color:var(--green-soft);
-}
-
-/* =========================
-SYSTEM BOXES
-========================= */
-
-.system-grid{
-margin-top:18px;
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:16px;
-}
-
-.system-box{
-border:1px solid rgba(120,150,210,.22);
-padding:22px;
-background:rgba(255,255,255,.015);
-}
-
-.system-box h3{
-font-size:16px;
-font-weight:900;
-letter-spacing:.16em;
-text-transform:uppercase;
-margin-bottom:14px;
-color:var(--red);
-}
-
-.system-box p{
-font-size:15px;
-line-height:1.7;
-color:#bde9ff;
-}
-
-.system-box .status{
-margin-top:20px;
-padding-top:14px;
-border-top:1px solid rgba(120,150,210,.18);
-display:flex;
-justify-content:space-between;
-font-size:13px;
-font-weight:900;
-letter-spacing:.12em;
-text-transform:uppercase;
-}
-
-.system-box .status .live{
-color:var(--green);
-}
-
-/* =========================
-BUTTON STACK
-========================= */
-
-.button-stack{
-margin-top:22px;
-display:flex;
-flex-direction:column;
-gap:14px;
-}
-
-.btn{
-height:62px;
-border:none;
-cursor:pointer;
-font-size:15px;
-font-weight:900;
-letter-spacing:.14em;
-text-transform:uppercase;
-display:flex;
-align-items:center;
-justify-content:space-between;
-padding:0 22px;
-background:#101725;
-color:#fff;
-border:1px solid rgba(120,150,210,.24);
-transition:.18s ease;
-}
-
-.btn:hover{
-transform:translateY(-1px);
-}
-
-.btn.red{
-border-color:rgba(255,77,77,.55);
-color:#ff8d8d;
-}
-
-.btn.green{
-border-color:rgba(40,255,136,.55);
-color:var(--green);
-}
-
-.btn.blue{
-border-color:rgba(89,200,255,.45);
-color:#8de4ff;
-}
-
-/* =========================
-FLOW
-========================= */
-
-.flow{
-margin-top:24px;
-border:1px solid rgba(120,150,210,.18);
-padding:18px 20px;
-display:grid;
-grid-template-columns:180px repeat(5,1fr) 190px;
-gap:18px;
-align-items:center;
-background:rgba(255,255,255,.015);
-}
-
-.flow-title{
-font-size:18px;
-font-weight:900;
-letter-spacing:.14em;
-text-transform:uppercase;
-color:var(--red);
-}
-
-.flow-step{
-border-left:1px solid rgba(120,150,210,.18);
-padding-left:16px;
-}
-
-.flow-step b{
-display:block;
-font-size:15px;
-font-weight:900;
-color:#fff;
-margin-bottom:4px;
-text-transform:uppercase;
-}
-
-.flow-step span{
-font-size:14px;
-color:#cde3ff;
-}
-
-.flow-btn{
-height:58px;
-display:flex;
-align-items:center;
-justify-content:space-between;
-padding:0 18px;
-border:1px solid rgba(255,77,77,.45);
-color:#ff9a9a;
-font-weight:900;
-letter-spacing:.14em;
-text-transform:uppercase;
-}
-
-/* =========================
-FOOTER
-========================= */
-
-.footer{
-margin-top:16px;
-height:74px;
-border:1px solid rgba(120,150,210,.18);
-display:flex;
-align-items:center;
-justify-content:space-between;
-padding:0 20px;
-background:rgba(255,255,255,.015);
-}
-
-.footer-left{
-display:flex;
-align-items:center;
-gap:18px;
-}
-
-.footer-left img{
-width:140px;
-height:auto;
-display:block;
-}
-
-.footer-center{
-font-size:22px;
-font-weight:900;
-letter-spacing:.08em;
-text-transform:uppercase;
-color:#e9f4ff;
-}
-
-.footer-status{
-font-size:18px;
-font-weight:900;
-color:var(--green);
-text-transform:uppercase;
-}
-
-.footer-right{
-text-align:right;
-font-size:14px;
-font-weight:800;
-line-height:1.5;
-text-transform:uppercase;
-}
-
-/* =========================
-RESPONSIVE
-========================= */
-
-@media(max-width:1200px){
-
-.grid{
-grid-template-columns:1fr;
-}
-
-.flow{
-grid-template-columns:1fr;
-}
-
-.approval-grid{
-grid-template-columns:1fr;
-}
-
-.metrics{
-grid-template-columns:1fr 1fr;
-}
-
-.system-grid{
-grid-template-columns:1fr;
-}
-
-.page-title{
-font-size:52px;
-}
-
-.approval-title{
-font-size:46px;
-}
-
-}
-
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STATScore™ — Access Approved</title>
+
+  <style>
+    :root{
+      --bg:#0b111b;
+      --panel:#101826;
+      --panel-2:#0f1723;
+      --line:#233047;
+      --line-soft:#1b2638;
+
+      --red:#ff4d2d;
+      --red-soft:#ff6b4a;
+
+      --green:#57ff84;
+      --green-soft:#34d66b;
+
+      --yellow:#ffd84d;
+
+      --blue:#69d2ff;
+      --white:#f4f4ef;
+      --text:#d7e1f3;
+      --muted:#8291aa;
+    }
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+    }
+
+    body{
+      background:var(--bg);
+      color:var(--text);
+      font-family:Arial, Helvetica, sans-serif;
+    }
+
+    a{
+      text-decoration:none;
+      color:inherit;
+    }
+
+    /* =======================================================
+       HEADER
+    ======================================================= */
+
+    .top-shell{
+      background:var(--white);
+      border-bottom:2px solid var(--red);
+      display:flex;
+      align-items:stretch;
+      min-height:112px;
+    }
+
+    .logo-panel{
+      width:420px;
+      background:#1a1f29;
+      position:relative;
+      display:flex;
+      align-items:center;
+      padding:20px 30px;
+      overflow:hidden;
+    }
+
+    .logo-panel:after{
+      content:"";
+      position:absolute;
+      top:0;
+      right:-120px;
+      width:240px;
+      height:100%;
+      background:#1a1f29;
+      transform:skewX(-40deg);
+      border-left:1px solid #30384a;
+    }
+
+    .logo-panel img{
+      width:260px;
+      position:relative;
+      z-index:2;
+    }
+
+    .top-center{
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:10px 40px;
+    }
+
+    .top-center h1{
+      color:#243248;
+      font-size:14px;
+      line-height:1.7;
+      letter-spacing:6px;
+      font-weight:900;
+    }
+
+    .top-nav{
+      width:420px;
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:28px;
+      padding-right:35px;
+    }
+
+    .top-nav a{
+      font-size:14px;
+      font-weight:800;
+      color:#1f2d40;
+      letter-spacing:2px;
+    }
+
+    .top-nav .active{
+      color:var(--red);
+      border-bottom:2px solid var(--red);
+      padding-bottom:10px;
+    }
+
+    .header-line{
+      height:3px;
+      background:var(--red);
+    }
+
+    /* =======================================================
+       MAIN
+    ======================================================= */
+
+    .main{
+      padding:34px;
+    }
+
+    .page-grid{
+      display:grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap:24px;
+    }
+
+    .panel{
+      background:
+      linear-gradient(
+        180deg,
+        rgba(255,255,255,0.015),
+        rgba(255,255,255,0.01)
+      );
+
+      border:1px solid var(--line);
+      position:relative;
+    }
+
+    .panel-inner{
+      padding:28px;
+    }
+
+    .section-label{
+      color:var(--red);
+      font-size:14px;
+      font-weight:900;
+      letter-spacing:5px;
+      margin-bottom:14px;
+    }
+
+    .hero-title{
+      font-size:82px;
+      line-height:.9;
+      font-weight:900;
+      color:var(--white);
+      margin-bottom:30px;
+    }
+
+    .approved{
+      color:#6eff5f;
+    }
+
+    .hero-grid{
+      display:grid;
+      grid-template-columns:340px 1fr;
+      gap:24px;
+    }
+
+    .image-box{
+      min-height:420px;
+      border:1px solid var(--line);
+      background:#0d1420;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#7f8ca4;
+      font-size:14px;
+      letter-spacing:4px;
+      font-weight:700;
+    }
+
+    .profile-box{
+      border:1px solid var(--line);
+      padding:28px;
+      background:rgba(255,255,255,0.015);
+    }
+
+    .profile-title{
+      font-size:68px;
+      line-height:.92;
+      font-weight:900;
+      margin-bottom:24px;
+    }
+
+    .green{
+      color:#6eff5f;
+    }
+
+    .status-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:14px;
+      margin-bottom:20px;
+    }
+
+    .status-card{
+      border:1px solid var(--line);
+      padding:16px;
+      background:rgba(255,255,255,0.01);
+    }
+
+    .status-card h4{
+      color:var(--blue);
+      font-size:12px;
+      letter-spacing:2px;
+      margin-bottom:10px;
+    }
+
+    .status-card p{
+      font-size:16px;
+      font-weight:800;
+      color:#ffffff;
+    }
+
+    .approval-banner{
+      border:2px solid var(--green);
+      color:var(--green);
+      font-weight:900;
+      letter-spacing:3px;
+      padding:16px 18px;
+      margin-top:12px;
+      margin-bottom:18px;
+      display:inline-block;
+    }
+
+    .description{
+      color:#d7e1f3;
+      line-height:1.8;
+      font-size:18px;
+    }
+
+    /* =======================================================
+       RIGHT CONTROL PANEL
+    ======================================================= */
+
+    .control-top{
+      border:1px solid var(--line);
+      padding:14px 18px;
+      margin-bottom:18px;
+      text-align:center;
+      color:#7cfb9f;
+      font-size:13px;
+      font-weight:900;
+      letter-spacing:3px;
+    }
+
+    .control-panel{
+      border:1px solid var(--line);
+      padding:26px;
+    }
+
+    .control-panel h2{
+      font-size:54px;
+      line-height:.92;
+      font-weight:900;
+      margin-bottom:18px;
+      color:#ffffff;
+    }
+
+    .control-panel p{
+      color:var(--blue);
+      line-height:1.7;
+      font-size:17px;
+      margin-bottom:24px;
+      font-weight:700;
+    }
+
+    .control-list{
+      border-top:1px solid var(--line);
+    }
+
+    .control-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      border-bottom:1px solid var(--line);
+      padding:18px 0;
+      gap:20px;
+    }
+
+    .control-row span{
+      font-size:14px;
+      letter-spacing:1px;
+      font-weight:900;
+      color:#dce7fb;
+    }
+
+    .control-row strong{
+      font-size:14px;
+      letter-spacing:1px;
+      font-weight:900;
+    }
+
+    .approved-text{
+      color:#57ff84;
+    }
+
+    /* =======================================================
+       LOWER GRID
+    ======================================================= */
+
+    .lower-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:24px;
+      margin-top:24px;
+    }
+
+    .info-box{
+      border:1px solid var(--line);
+      padding:24px;
+      min-height:220px;
+    }
+
+    .info-box h3{
+      color:var(--red);
+      font-size:14px;
+      letter-spacing:4px;
+      margin-bottom:18px;
+    }
+
+    .info-box p{
+      color:#8fe7ff;
+      line-height:1.8;
+      font-size:17px;
+      margin-bottom:20px;
+    }
+
+    .info-status{
+      margin-top:20px;
+      padding-top:14px;
+      border-top:1px solid var(--line);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      font-weight:900;
+      letter-spacing:2px;
+    }
+
+    /* =======================================================
+       ACTIONS
+    ======================================================= */
+
+    .action-stack{
+      margin-top:24px;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+
+    .action-btn{
+      border:2px solid;
+      padding:18px 22px;
+      font-size:18px;
+      font-weight:900;
+      letter-spacing:2px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      transition:.2s;
+    }
+
+    .action-btn:hover{
+      transform:translateX(3px);
+    }
+
+    .red-btn{
+      border-color:var(--red);
+      color:#ff9d8a;
+    }
+
+    .green-btn{
+      border-color:var(--green);
+      color:var(--green);
+    }
+
+    .blue-btn{
+      border-color:var(--blue);
+      color:var(--blue);
+    }
+
+    /* =======================================================
+       RELEASE BAR
+    ======================================================= */
+
+    .release-bar{
+      margin-top:28px;
+      border:1px solid var(--line);
+      display:grid;
+      grid-template-columns:repeat(6,1fr);
+    }
+
+    .release-item{
+      padding:20px;
+      border-right:1px solid var(--line);
+    }
+
+    .release-item:last-child{
+      border-right:none;
+    }
+
+    .release-item h5{
+      color:#ffffff;
+      font-size:12px;
+      letter-spacing:2px;
+      margin-bottom:10px;
+    }
+
+    .release-item p{
+      color:#b9c8e0;
+      font-size:15px;
+      font-weight:700;
+    }
+
+    /* =======================================================
+       FOOTER
+    ======================================================= */
+
+    .footer{
+      margin-top:26px;
+      border:1px solid var(--line);
+      background:#101826;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:18px 24px;
+    }
+
+    .footer-left{
+      display:flex;
+      align-items:center;
+      gap:20px;
+    }
+
+    .footer-left img{
+      width:100px;
+    }
+
+    .footer-title{
+      color:#ffffff;
+      font-size:18px;
+      font-weight:900;
+      letter-spacing:2px;
+    }
+
+    .footer-status{
+      color:#57ff84;
+      font-size:18px;
+      font-weight:900;
+      letter-spacing:2px;
+    }
+
+    .footer-right{
+      text-align:right;
+      color:#ffffff;
+      font-weight:900;
+      line-height:1.5;
+      letter-spacing:2px;
+    }
+
+    @media(max-width:1400px){
+
+      .page-grid{
+        grid-template-columns:1fr;
+      }
+
+      .hero-grid{
+        grid-template-columns:1fr;
+      }
+
+      .lower-grid{
+        grid-template-columns:1fr;
+      }
+
+      .release-bar{
+        grid-template-columns:repeat(2,1fr);
+      }
+
+      .top-shell{
+        flex-direction:column;
+      }
+
+      .logo-panel,
+      .top-nav{
+        width:100%;
+      }
+    }
+
+  </style>
 </head>
 
 <body>
 
-<div class="page">
+  <!-- =====================================================
+       HEADER
+  ====================================================== -->
 
-    <!-- TOP -->
-    <header class="top-shell">
+  <div class="top-shell">
 
-        <div class="logo-tab">
-            <img src="statscore_logo_v3.png" alt="STATScore">
-        </div>
+    <div class="logo-panel">
+      <img src="sc_logo_black.png" alt="STATScore">
+    </div>
 
-        <div class="center-title">
-            <div class="top">
-                National Athlete Infrastructure •
-            </div>
-            <div class="bottom">
-                Approved Visibility Layer
-            </div>
-        </div>
+    <div class="top-center">
+      <h1>
+        NATIONAL ATHLETE INFRASTRUCTURE •<br>
+        CONTROLLED ACCESS
+      </h1>
+    </div>
 
-        <div class="top-nav">
-            <span>Entry</span>
-            <span>Verification</span>
-            <span class="active">Approved</span>
-            <span>Profile</span>
-        </div>
+    <div class="top-nav">
+      <a href="system.html">ENTRY</a>
+      <a href="verification-request.html">VERIFICATION</a>
+      <a class="active" href="#">APPROVED</a>
+      <a href="#">PRIVACY</a>
+      <a href="#">TERMS</a>
+    </div>
 
-    </header>
+  </div>
 
-    <!-- MAIN -->
-    <main class="main">
+  <div class="header-line"></div>
 
-        <div class="section-label">
-            Verification Cleared & Controlled Release
-        </div>
+  <!-- =====================================================
+       MAIN
+  ====================================================== -->
 
-        <div class="page-title">
-            Access
-            <span>Approved</span>
-        </div>
+  <div class="main">
 
-        <section class="grid">
+    <div class="page-grid">
 
-            <!-- LEFT -->
-            <div class="panel">
-                <div class="panel-inner">
+      <!-- LEFT -->
+      <div class="panel">
 
-                    <div class="approval-grid">
+        <div class="panel-inner">
 
-                        <div class="image-box">
-                            Athlete Image
-                        </div>
+          <div class="section-label">
+            VERIFIED CLEARANCE & CONTROLLED RELEASE
+          </div>
 
-                        <div>
+          <div class="hero-title">
+            ACCESS<br>
+            <span class="approved">APPROVED</span>
+          </div>
 
-                            <div class="approval-title">
-                                Athlete
-                                <span class="green">Visibility Record</span>
-                            </div>
+          <div class="hero-grid">
 
-                            <div class="metrics">
-
-                                <div class="metric">
-                                    <div class="metric-label">Profile Status</div>
-                                    <div class="metric-value">Approved</div>
-                                </div>
-
-                                <div class="metric">
-                                    <div class="metric-label">Trust Review</div>
-                                    <div class="metric-value">Verified</div>
-                                </div>
-
-                                <div class="metric">
-                                    <div class="metric-label">Visibility Tier</div>
-                                    <div class="metric-value">Public</div>
-                                </div>
-
-                                <div class="metric">
-                                    <div class="metric-label">Guardian</div>
-                                    <div class="metric-value">Authorized</div>
-                                </div>
-
-                                <div class="metric">
-                                    <div class="metric-label">Recruiter Access</div>
-                                    <div class="metric-value">Enabled</div>
-                                </div>
-
-                                <div class="metric">
-                                    <div class="metric-label">Trust Score</div>
-                                    <div class="metric-value">Issued</div>
-                                </div>
-
-                            </div>
-
-                            <div class="approved-bar">
-                                Visibility Authorization Active
-                            </div>
-
-                            <div class="description">
-                                Athlete profile has completed trust review, verification routing, guardian authorization, and controlled visibility approval. Public profile visibility, recruiter access, and evaluation distribution are now governed through the STATScore visibility infrastructure layer.
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
+            <div class="image-box">
+              ATHLETE IMAGE
             </div>
 
-            <!-- RIGHT -->
-            <aside class="panel">
-                <div class="panel-inner">
+            <div class="profile-box">
 
-                    <div class="side-title">
-                        System
-                        Release
-                    </div>
+              <div class="profile-title">
+                ATHLETE<br>
+                <span class="green">VISIBILITY<br>RECORD</span>
+              </div>
 
-                    <div class="side-copy">
-                        Athlete profile visibility has been approved through the STATScore Trust Layer. Controlled exposure, evaluator routing, and profile access permissions are now active.
-                    </div>
+              <div class="status-grid">
 
-                    <div class="status-table">
-
-                        <div class="status-row">
-                            <div class="left">Profile Visibility</div>
-                            <div class="right">Approved</div>
-                        </div>
-
-                        <div class="status-row">
-                            <div class="left">Trust Review</div>
-                            <div class="right">Verified</div>
-                        </div>
-
-                        <div class="status-row">
-                            <div class="left">Guardian Approval</div>
-                            <div class="right">Authorized</div>
-                        </div>
-
-                        <div class="status-row">
-                            <div class="left">Recruiter Access</div>
-                            <div class="right">Enabled</div>
-                        </div>
-
-                        <div class="status-row">
-                            <div class="left">Public Access</div>
-                            <div class="right">Live</div>
-                        </div>
-
-                    </div>
-
-                    <div class="button-stack">
-
-                        <button class="btn red">
-                            Route Recruiter Access
-                            <span>›</span>
-                        </button>
-
-                        <button class="btn blue">
-                            Continue Evaluation
-                            <span>›</span>
-                        </button>
-
-                        <button
-                            class="btn green"
-                            onclick="window.location.href='player-profile.html'"
-                        >
-                            View Public Profile
-                            <span>›</span>
-                        </button>
-
-                    </div>
-
-                </div>
-            </aside>
-
-        </section>
-
-        <!-- SYSTEM -->
-        <section class="system-grid">
-
-            <div class="system-box">
-
-                <h3>
-                    Visibility Authorization
-                </h3>
-
-                <p>
-                    Athlete profile distribution, recruiter discovery, controlled public visibility, and institutional routing permissions are now active through approved trust governance.
-                </p>
-
-                <div class="status">
-                    <span>Status</span>
-                    <span class="live">LIVE</span>
+                <div class="status-card">
+                  <h4>PROFILE STATUS</h4>
+                  <p>Approved</p>
                 </div>
 
-            </div>
-
-            <div class="system-box">
-
-                <h3>
-                    Recruiter Distribution
-                </h3>
-
-                <p>
-                    Verified evaluator, coach, and recruiter access lanes are now permitted according to profile authorization level and trust visibility controls.
-                </p>
-
-                <div class="status">
-                    <span>Status</span>
-                    <span class="live">ENABLED</span>
+                <div class="status-card">
+                  <h4>TRUST REVIEW</h4>
+                  <p>Verified</p>
                 </div>
 
-            </div>
-
-            <div class="system-box">
-
-                <h3>
-                    Trust Completion
-                </h3>
-
-                <p>
-                    Identity review, guardian approval, evidence routing, and profile governance validation have successfully completed the STATScore trust pipeline.
-                </p>
-
-                <div class="status">
-                    <span>Status</span>
-                    <span class="live">VERIFIED</span>
+                <div class="status-card">
+                  <h4>VISIBILITY TIER</h4>
+                  <p>Public</p>
                 </div>
 
-            </div>
-
-            <div class="system-box">
-
-                <h3>
-                    Public Profile Release
-                </h3>
-
-                <p>
-                    Athlete visibility has transitioned from restricted review state into approved profile release under controlled visibility governance rules.
-                </p>
-
-                <div class="status">
-                    <span>Status</span>
-                    <span class="live">AUTHORIZED</span>
+                <div class="status-card">
+                  <h4>GUARDIAN</h4>
+                  <p>Authorized</p>
                 </div>
 
+                <div class="status-card">
+                  <h4>RECRUITER ACCESS</h4>
+                  <p>Enabled</p>
+                </div>
+
+                <div class="status-card">
+                  <h4>TRUST SCORE</h4>
+                  <p>Issued</p>
+                </div>
+
+              </div>
+
+              <div class="approval-banner">
+                VISIBILITY AUTHORIZATION ACTIVE
+              </div>
+
+              <div class="description">
+                Athlete profile has completed trust review,
+                verification routing, guardian authorization,
+                and controlled visibility approval.
+                Public profile visibility, recruiter access,
+                and evaluation distribution are now governed
+                through the STATScore visibility infrastructure layer.
+              </div>
+
             </div>
 
-        </section>
+          </div>
 
-        <!-- FLOW -->
-        <section class="flow">
+          <!-- LOWER GRID -->
 
-            <div class="flow-title">
-                Release Path
+          <div class="lower-grid">
+
+            <div class="info-box">
+
+              <h3>VISIBILITY AUTHORIZATION</h3>
+
+              <p>
+                Athlete profile distribution, recruiter
+                discovery, controlled public visibility,
+                and institutional routing permissions
+                are now active through approved trust governance.
+              </p>
+
+              <div class="info-status">
+                <span>STATUS</span>
+                <strong class="approved-text">LIVE</strong>
+              </div>
+
             </div>
 
-            <div class="flow-step">
-                <b>Intake</b>
-                <span>Snapshot</span>
+            <div class="info-box">
+
+              <h3>RECRUITER DISTRIBUTION</h3>
+
+              <p>
+                Verified evaluator, coach, and recruiter
+                access lanes are now permitted according
+                to profile authorization level and trust
+                visibility controls.
+              </p>
+
+              <div class="info-status">
+                <span>STATUS</span>
+                <strong class="approved-text">ENABLED</strong>
+              </div>
+
             </div>
 
-            <div class="flow-step">
-                <b>Trust</b>
-                <span>Verification</span>
+            <div class="info-box">
+
+              <h3>TRUST COMPLETION</h3>
+
+              <p>
+                Identity review, guardian approval,
+                evidence routing, and profile governance
+                validation have successfully completed
+                the STATScore trust pipeline.
+              </p>
+
+              <div class="info-status">
+                <span>STATUS</span>
+                <strong class="approved-text">VERIFIED</strong>
+              </div>
+
             </div>
 
-            <div class="flow-step">
-                <b>Permission</b>
-                <span>Guardian Control</span>
+            <div class="info-box">
+
+              <h3>PUBLIC PROFILE RELEASE</h3>
+
+              <p>
+                Athlete visibility has transitioned
+                from restricted review state into
+                approved profile release under
+                controlled visibility governance rules.
+              </p>
+
+              <div class="info-status">
+                <span>STATUS</span>
+                <strong class="approved-text">AUTHORIZED</strong>
+              </div>
+
             </div>
 
-            <div class="flow-step">
-                <b>Authorization</b>
-                <span>Visibility Approval</span>
+          </div>
+
+          <!-- RELEASE BAR -->
+
+          <div class="release-bar">
+
+            <div class="release-item">
+              <h5>INTAKE</h5>
+              <p>Snapshot</p>
             </div>
 
-            <div class="flow-step">
-                <b>Profile</b>
-                <span>Public Release</span>
+            <div class="release-item">
+              <h5>TRUST</h5>
+              <p>Verification</p>
             </div>
 
-            <div
-                class="flow-btn"
-                onclick="window.location.href='player-profile.html'"
-            >
-                View Profile
+            <div class="release-item">
+              <h5>PERMISSION</h5>
+              <p>Guardian Control</p>
+            </div>
+
+            <div class="release-item">
+              <h5>AUTHORIZATION</h5>
+              <p>Visibility Approval</p>
+            </div>
+
+            <div class="release-item">
+              <h5>PROFILE</h5>
+              <p>Public Release</p>
+            </div>
+
+            <div class="release-item">
+              <a class="action-btn red-btn" href="player-profile.html">
+                VIEW PROFILE
                 <span>›</span>
+              </a>
             </div>
 
-        </section>
+          </div>
 
-        <!-- FOOTER -->
-        <footer class="footer">
+        </div>
 
-            <div class="footer-left">
-                <img src="statscore_logo_v3.png" alt="STATScore">
-                <div class="footer-center">
-                    Official Visibility Authorization Layer
-                </div>
+      </div>
+
+      <!-- RIGHT -->
+
+      <div class="panel">
+
+        <div class="panel-inner">
+
+          <div class="control-top">
+            ACCESS REVIEW ACTIVE
+          </div>
+
+          <div class="control-panel">
+
+            <h2>
+              SYSTEM<br>
+              RELEASE
+            </h2>
+
+            <p>
+              Athlete profile visibility has been approved
+              through the STATScore Trust Layer.
+              Controlled exposure, evaluator routing,
+              and profile access permissions are now active.
+            </p>
+
+            <div class="control-list">
+
+              <div class="control-row">
+                <span>PROFILE VISIBILITY</span>
+                <strong class="approved-text">APPROVED</strong>
+              </div>
+
+              <div class="control-row">
+                <span>TRUST REVIEW</span>
+                <strong class="approved-text">VERIFIED</strong>
+              </div>
+
+              <div class="control-row">
+                <span>GUARDIAN APPROVAL</span>
+                <strong class="approved-text">AUTHORIZED</strong>
+              </div>
+
+              <div class="control-row">
+                <span>RECRUITER ACCESS</span>
+                <strong class="approved-text">ENABLED</strong>
+              </div>
+
+              <div class="control-row">
+                <span>PUBLIC ACCESS</span>
+                <strong class="approved-text">LIVE</strong>
+              </div>
+
             </div>
 
-            <div class="footer-status">
-                Visibility Governance Active
+            <div class="action-stack">
+
+              <a class="action-btn red-btn" href="#">
+                ROUTE RECRUITER ACCESS
+                <span>›</span>
+              </a>
+
+              <a class="action-btn blue-btn" href="#">
+                CONTINUE EVALUATION
+                <span>›</span>
+              </a>
+
+              <a class="action-btn green-btn" href="player-profile.html">
+                VIEW PUBLIC PROFILE
+                <span>›</span>
+              </a>
+
             </div>
 
-            <div class="footer-right">
-                © STATScore Systems<br>
-                All Rights Reserved.
-            </div>
+          </div>
 
-        </footer>
+        </div>
 
-    </main>
+      </div>
 
-</div>
+    </div>
+
+    <!-- FOOTER -->
+
+    <div class="footer">
+
+      <div class="footer-left">
+
+        <img src="sc_logo_black.png" alt="STATScore">
+
+        <div class="footer-title">
+          OFFICIAL VISIBILITY AUTHORIZATION LAYER
+        </div>
+
+      </div>
+
+      <div class="footer-status">
+        VISIBILITY GOVERNANCE ACTIVE
+      </div>
+
+      <div class="footer-right">
+        © STATSCORE SYSTEMS<br>
+        ALL RIGHTS RESERVED
+      </div>
+
+    </div>
+
+  </div>
 
 </body>
 </html> 
