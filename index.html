@@ -12,20 +12,17 @@
 
 :root{
 
-/* CORE */
---black:#040506;
---dark:#090c11;
---panel:#0d1117;
---text:#ffffff;
---muted:#98a3b6;
+  --logo-white:#ecebe6;
 
-/* MATCHED LOGO COLORS */
---logo-white:#f2f2f0;
+  --black:#05070a;
+  --dark:#0b1018;
 
-/* RED PULLED FROM LOGO */
---red:#df2b2a;
---red-hover:#c81f22;
---red-deep:#8f1116;
+  --text:#ffffff;
+  --muted:#9ea7b5;
+
+  --red:#e02020;
+  --red-bright:#ff3434;
+  --red-deep:#991414;
 
 }
 
@@ -34,18 +31,19 @@ RESET
 ========================= */
 
 *{
-margin:0;
-padding:0;
-box-sizing:border-box;
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
 }
 
 html,
 body{
-height:100%;
-font-family:'Inter',sans-serif;
-background:var(--logo-white);
-color:var(--text);
-overflow:hidden;
+  height:100%;
+  overflow:hidden;
+
+  font-family:'Inter',sans-serif;
+
+  background:var(--logo-white);
 }
 
 /* =========================
@@ -53,10 +51,12 @@ PAGE
 ========================= */
 
 .page{
-height:100vh;
-display:flex;
-flex-direction:column;
-background:var(--logo-white);
+  height:100vh;
+
+  display:flex;
+  flex-direction:column;
+
+  background:var(--logo-white);
 }
 
 /* =========================
@@ -65,73 +65,29 @@ HERO
 
 .hero{
 
-flex:0 0 72%;
+  flex:0 0 72%;
 
-position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 
-display:flex;
-align-items:center;
-justify-content:center;
+  overflow:hidden;
 
-overflow:hidden;
+  background:var(--logo-white);
 
-/* EXACT MATCH TO LOGO BACKGROUND */
-background:var(--logo-white);
-
-}
-
-/* LOWER SHADOW BLEND */
-.hero::after{
-
-content:"";
-
-position:absolute;
-left:0;
-right:0;
-bottom:0;
-
-height:90px;
-
-background:
-linear-gradient(
-180deg,
-rgba(0,0,0,0) 0%,
-rgba(0,0,0,.03) 60%,
-rgba(0,0,0,.10) 100%
-);
-
-pointer-events:none;
-}
-
-/* SOFT EDGE SHADOW */
-.hero::before{
-
-content:"";
-
-position:absolute;
-inset:0;
-
-box-shadow:
-inset 0 -18px 35px rgba(0,0,0,.04);
-
-pointer-events:none;
 }
 
 .hero img{
 
-display:block;
+  width:100%;
+  max-width:1900px;
 
-width:min(76vw,1040px);
+  height:auto;
 
-height:auto;
+  display:block;
 
-object-fit:contain;
-object-position:center;
-
-filter:
-contrast(1.01)
-brightness(1.01)
-saturate(.98);
+  object-fit:contain;
+  object-position:center;
 
 }
 
@@ -141,58 +97,42 @@ ACCESS SECTION
 
 .access{
 
-flex:1;
+  flex:1;
 
-position:relative;
+  position:relative;
 
-display:flex;
-align-items:center;
-justify-content:center;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 
-overflow:hidden;
+  overflow:hidden;
 
-background:
-linear-gradient(
-180deg,
-#121722 0%,
-#0b1018 45%,
-#05070a 100%
-);
+  background:
+    linear-gradient(
+      180deg,
+      #151c28 0%,
+      #0d1420 45%,
+      #06090d 100%
+    );
 
-border-top:1px solid rgba(223,43,42,.35);
+  border-top:1px solid rgba(224,32,32,.45);
 
-}
-
-.access::before{
-
-content:"";
-
-position:absolute;
-inset:0;
-
-background:
-linear-gradient(
-180deg,
-rgba(255,255,255,.015),
-rgba(255,255,255,0)
-);
-
-pointer-events:none;
 }
 
 .access::after{
 
-content:"";
+  content:"";
 
-position:absolute;
-top:0;
-left:0;
-right:0;
-height:1px;
+  position:absolute;
 
-background:rgba(223,43,42,.9);
+  top:0;
+  left:0;
+  right:0;
 
-pointer-events:none;
+  height:1px;
+
+  background:rgba(255,52,52,.9);
+
 }
 
 /* =========================
@@ -201,16 +141,16 @@ CONTENT
 
 .access-inner{
 
-position:relative;
-z-index:2;
+  position:relative;
+  z-index:2;
 
-display:flex;
-flex-direction:column;
-align-items:center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
 
-gap:18px;
+  gap:18px;
 
-padding:20px;
+  padding:20px;
 
 }
 
@@ -220,17 +160,17 @@ HEADLINE
 
 .headline{
 
-font-size:clamp(1.45rem, 2vw, 2.1rem);
+  font-size:clamp(1.45rem, 2vw, 2.15rem);
 
-font-weight:800;
+  font-weight:800;
 
-letter-spacing:-0.045em;
-line-height:1.02;
+  letter-spacing:-0.045em;
+  line-height:1.02;
 
-color:#ffffff;
+  color:#ffffff;
 
-text-shadow:
-0 0 18px rgba(255,255,255,.08);
+  text-shadow:
+    0 0 18px rgba(255,255,255,.08);
 
 }
 
@@ -240,60 +180,57 @@ BUTTON
 
 .enter{
 
-position:relative;
+  position:relative;
 
-min-width:190px;
+  min-width:190px;
 
-padding:15px 34px;
+  padding:15px 34px;
 
-font-size:.74rem;
-font-weight:900;
+  font-size:.74rem;
+  font-weight:900;
 
-letter-spacing:.24em;
-text-transform:uppercase;
+  letter-spacing:.24em;
+  text-transform:uppercase;
 
-color:#ffffff;
+  color:#ffffff;
 
-background:
-linear-gradient(
-180deg,
-#f03a38 0%,
-#df2b2a 42%,
-#b1181c 100%
-);
+  background:
+    linear-gradient(
+      180deg,
+      #ff3a3a 0%,
+      #e02020 48%,
+      #b01515 100%
+    );
 
-border:1px solid #7f0f13;
+  border:1px solid #7a0d0d;
 
-border-radius:2px;
+  border-radius:2px;
 
-cursor:pointer;
+  cursor:pointer;
 
-transition:
-transform .16s ease,
-background .16s ease,
-border-color .16s ease;
+  transition:
+    transform .16s ease,
+    background .16s ease;
 
-box-shadow:
-0 0 0 1px rgba(0,0,0,.35),
-0 10px 28px rgba(223,43,42,.18);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,.35),
+    0 12px 30px rgba(224,32,32,.18);
 
 }
 
 .enter:hover{
 
-background:
-linear-gradient(
-180deg,
-#ff4745 0%,
-#d92326 100%
-);
-
-border-color:rgba(255,255,255,.10);
+  background:
+    linear-gradient(
+      180deg,
+      #ff4b4b 0%,
+      #cf1919 100%
+    );
 
 }
 
 .enter:active{
-transform:translateY(1px);
+  transform:translateY(1px);
 }
 
 /* =========================
@@ -302,21 +239,19 @@ SUBTEXT
 
 .sub{
 
-font-size:.92rem;
+  font-size:.92rem;
 
-font-weight:600;
+  font-weight:600;
 
-color:var(--muted);
+  color:var(--muted);
 
-letter-spacing:.01em;
+  letter-spacing:.01em;
 
 }
 
 .sub strong{
-
-color:#ffffff;
-font-weight:900;
-
+  color:#ffffff;
+  font-weight:900;
 }
 
 /* =========================
@@ -325,39 +260,37 @@ MOBILE
 
 @media(max-width:768px){
 
-.hero{
-flex:0 0 65%;
-}
+  .hero{
+    flex:0 0 65%;
+  }
 
-.hero img{
-width:118%;
-}
+  .hero img{
+    width:138%;
+  }
 
-.headline{
+  .headline{
 
-font-size:clamp(1.4rem, 2vw, 1.95rem);
+    font-size:clamp(1.35rem,2vw,1.9rem);
 
-font-weight:750;
+    line-height:1.05;
 
-letter-spacing:-0.05em;
+    text-align:center;
 
-line-height:1.02;
+  }
 
-}
+  .enter{
 
-.enter{
+    min-width:170px;
 
-padding:13px 24px;
+    padding:13px 24px;
 
-font-size:.71rem;
+    font-size:.7rem;
 
-min-width:175px;
+  }
 
-}
-
-.sub{
-font-size:.86rem;
-}
+  .sub{
+    font-size:.84rem;
+  }
 
 }
 
@@ -368,40 +301,40 @@ font-size:.86rem;
 
 <div class="page">
 
-    <!-- HERO -->
-    <section class="hero">
+  <!-- HERO -->
+  <section class="hero">
 
-        <img
-            src="statscore_logo_v2.png"
-            alt="STATScore Logo"
-        >
+    <img
+      src="statscore_logo_v3.png"
+      alt="STATScore Logo"
+    >
 
-    </section>
+  </section>
 
-    <!-- ACCESS -->
-    <section class="access">
+  <!-- ACCESS -->
+  <section class="access">
 
-        <div class="access-inner">
+    <div class="access-inner">
 
-            <h1 class="headline">
-                Athlete Performance Starts Here
-            </h1>
+      <h1 class="headline">
+        Athlete Performance Starts Here
+      </h1>
 
-            <button
-                class="enter"
-                onclick="window.location.href='system.html'"
-            >
-                Enter
-            </button>
+      <button
+        class="enter"
+        onclick="window.location.href='system.html'"
+      >
+        Enter
+      </button>
 
-            <p class="sub">
-                Track it. Score it.
-                <strong>Prove it.</strong>
-            </p>
+      <p class="sub">
+        Track it. Score it.
+        <strong>Prove it.</strong>
+      </p>
 
-        </div>
+    </div>
 
-    </section>
+  </section>
 
 </div>
 
