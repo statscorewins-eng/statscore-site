@@ -2,771 +2,910 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
 <title>STATScore — Verification Request</title>
 
 <style>
-:root{
-  --red:#ff3b30;
-  --red2:#9e0f16;
-  --black:#05070b;
-  --panel:#0d1118;
-  --panel2:#121722;
-  --line:rgba(255,255,255,.08);
-  --soft:rgba(255,255,255,.05);
-  --text:#f3f6fb;
-  --muted:#9fb2c8;
-  --cyan:#8fe7ff;
-  --green:#32d27a;
-  --yellow:#ffc857;
-}
+/* =========================================================
+   STATScore LOCKED SHELL CONTINUATION
+   CONTINUATION MODE OF player-profile.html
+========================================================= */
 
 *{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+:root{
+    --bg:#070b12;
+    --panel:#0e1623;
+    --panel-2:#121d2d;
+    --line:#24344d;
+    --line-soft:#1a2638;
+    --red:#ff4d2d;
+    --red-dark:#b8331c;
+    --white:#f4f7fb;
+    --text:#c8d3e2;
+    --blue:#73d6ff;
+    --green:#4cff88;
+    --yellow:#ffc247;
 }
 
 body{
-  background:
-    linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px),
-    radial-gradient(circle at top, #1a2230 0%, #07090d 55%);
-  background-size:40px 40px,40px 40px,100% 100%;
-  color:var(--text);
-  font-family:Arial, Helvetica, sans-serif;
+    background:
+        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px),
+        #070b12;
+    background-size:40px 40px;
+    color:var(--white);
+    font-family:Arial, Helvetica, sans-serif;
 }
 
-a{
-  text-decoration:none;
-  color:inherit;
+/* =========================================================
+   HEADER
+========================================================= */
+
+.top-shell{
+    display:grid;
+    grid-template-columns:340px 1fr;
+    height:118px;
+    border-bottom:2px solid var(--red);
 }
 
-.shell{
-  width:100%;
-  min-height:100vh;
+.brand-panel{
+    background:#111723;
+    position:relative;
+    border-right:1px solid #1c2737;
+    overflow:hidden;
 }
 
-/* HEADER */
-
-.topbar{
-  height:122px;
-  background:#f3f5f7;
-  color:#111;
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  border-bottom:2px solid var(--red);
+.brand-panel:before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+        linear-gradient(135deg,
+        rgba(255,77,45,.16),
+        transparent 45%);
 }
 
-.logo-wrap{
-  width:440px;
-  height:122px;
-  background:linear-gradient(135deg,#20242c 0%,#12161d 100%);
-  clip-path:polygon(0 0, 86% 0, 100% 100%, 0% 100%);
-  border-bottom:4px solid var(--red);
-  display:flex;
-  align-items:center;
-  padding-left:28px;
+.brand-inner{
+    position:absolute;
+    left:28px;
+    top:24px;
 }
 
-.logo-wrap img{
-  width:240px;
+.logo{
+    font-size:48px;
+    font-weight:900;
+    line-height:.8;
+    color:var(--red);
+    letter-spacing:-4px;
 }
 
-.top-center{
-  flex:1;
-  text-align:center;
-  padding-top:22px;
+.logo-row{
+    display:flex;
+    align-items:center;
+    gap:14px;
 }
 
-.top-center h2{
-  font-size:15px;
-  letter-spacing:6px;
-  font-weight:900;
+.brand-title{
+    font-size:20px;
+    font-weight:900;
+    letter-spacing:1px;
 }
 
-.top-center p{
-  margin-top:6px;
-  font-size:15px;
-  letter-spacing:5px;
-  font-weight:700;
+.brand-title span{
+    color:var(--red);
+}
+
+.brand-sub{
+    margin-top:3px;
+    font-size:13px;
+    color:#9eb0c7;
+    letter-spacing:1px;
+}
+
+.brand-bar{
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:0;
+    height:3px;
+    background:var(--red);
+}
+
+.authority-panel{
+    background:#f3f5f8;
+    color:#111827;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+}
+
+.authority-text{
+    font-size:13px;
+    font-weight:900;
+    letter-spacing:7px;
+    text-transform:uppercase;
+    text-align:center;
+}
+
+.authority-sub{
+    margin-top:6px;
+    font-size:13px;
+    letter-spacing:5px;
+    font-weight:800;
 }
 
 .top-nav{
-  width:340px;
-  display:flex;
-  justify-content:flex-end;
-  gap:24px;
-  padding:38px 34px 0 0;
-  font-weight:900;
-  font-size:14px;
-  letter-spacing:2px;
+    position:absolute;
+    right:28px;
+    top:38px;
+    display:flex;
+    gap:22px;
+    align-items:center;
+}
+
+.top-nav a{
+    text-decoration:none;
+    color:#111827;
+    font-size:13px;
+    text-transform:uppercase;
+    font-weight:900;
+    letter-spacing:2px;
 }
 
 .top-nav a.active{
-  color:var(--red);
-  border-bottom:2px solid var(--red);
-  padding-bottom:8px;
+    color:var(--red);
+    border-bottom:2px solid var(--red);
+    padding-bottom:10px;
 }
 
-/* MAIN */
+.user-icon{
+    width:34px;
+    height:34px;
+    border:3px solid #273449;
+    border-radius:50%;
+}
+
+/* =========================================================
+   MAIN
+========================================================= */
 
 .main{
-  padding:34px;
+    padding:34px 28px 40px;
 }
 
-.page-label{
-  color:var(--red);
-  font-size:15px;
-  font-weight:900;
-  letter-spacing:5px;
-  margin-bottom:10px;
+/* =========================================================
+   HERO
+========================================================= */
+
+.page-kicker{
+    color:var(--red);
+    font-size:15px;
+    font-weight:900;
+    letter-spacing:6px;
+    text-transform:uppercase;
+    margin-bottom:10px;
 }
 
 .page-title{
-  font-size:76px;
-  line-height:.95;
-  font-weight:900;
-  margin-bottom:28px;
+    font-family:"Arial Narrow","Helvetica Neue Condensed",Impact,Arial,sans-serif;
+    font-size:92px;
+    line-height:.88;
+    font-weight:900;
+    letter-spacing:-5px;
+    text-transform:uppercase;
+    margin-bottom:34px;
 }
 
-.layout{
-  display:grid;
-  grid-template-columns:1fr 360px;
-  gap:24px;
-}
+/* =========================================================
+   GRID
+========================================================= */
 
-/* PANELS */
+.grid{
+    display:grid;
+    grid-template-columns:1fr 320px;
+    gap:22px;
+}
 
 .panel{
-  background:rgba(11,15,22,.88);
-  border:1px solid var(--line);
-  padding:26px;
-  position:relative;
-  overflow:hidden;
+    background:rgba(14,22,35,.95);
+    border:1px solid var(--line-soft);
+    padding:24px;
+    position:relative;
 }
 
-.panel::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:
-    linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
-  background-size:40px 40px;
-  pointer-events:none;
+.panel:before{
+    content:"";
+    position:absolute;
+    inset:0;
+    border:1px solid rgba(255,255,255,.03);
+    pointer-events:none;
 }
 
-.section-title{
-  color:var(--red);
-  font-size:14px;
-  letter-spacing:5px;
-  font-weight:900;
-  margin-bottom:24px;
-  position:relative;
-  z-index:2;
+/* =========================================================
+   ATHLETE SUMMARY
+========================================================= */
+
+.summary{
+    display:grid;
+    grid-template-columns:240px 1fr;
+    gap:26px;
+    align-items:start;
 }
 
-/* ATHLETE SUMMARY */
-
-.summary-grid{
-  display:grid;
-  grid-template-columns:220px 1fr;
-  gap:24px;
-  position:relative;
-  z-index:2;
+.image-box{
+    border:1px solid #40506a;
+    height:280px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#79bfff;
+    font-weight:800;
+    letter-spacing:3px;
+    text-transform:uppercase;
 }
 
-.player-photo{
-  height:260px;
-  border:1px solid rgba(130,170,255,.28);
-  background:
-    linear-gradient(to bottom, rgba(255,255,255,.02), rgba(255,255,255,.01)),
-    #0b1018;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:#8aa0c0;
-  font-weight:900;
-  letter-spacing:4px;
+.summary-right h2{
+    font-family:"Arial Narrow","Helvetica Neue Condensed",Impact,Arial,sans-serif;
+    font-size:72px;
+    line-height:.9;
+    letter-spacing:-4px;
+    text-transform:uppercase;
 }
 
-.player-data h2{
-  font-size:54px;
-  line-height:.95;
-  font-weight:900;
-  margin-bottom:10px;
+.summary-right h2 span{
+    color:var(--red);
 }
 
-.player-data h2 span{
-  color:var(--red);
+.meta-grid{
+    margin-top:20px;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
 }
 
-.player-meta{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:12px;
-  margin-top:18px;
+.meta{
+    border:1px solid #344760;
+    padding:12px;
 }
 
-.meta-box{
-  border:1px solid rgba(130,170,255,.22);
-  background:rgba(255,255,255,.02);
-  padding:12px;
+.meta-label{
+    color:var(--blue);
+    font-size:12px;
+    letter-spacing:3px;
+    font-weight:900;
+    margin-bottom:6px;
+    text-transform:uppercase;
 }
 
-.meta-box label{
-  display:block;
-  color:var(--muted);
-  font-size:11px;
-  letter-spacing:2px;
-  margin-bottom:6px;
+.meta-value{
+    font-size:16px;
+    font-weight:900;
 }
 
-.meta-box strong{
-  font-size:16px;
+.verify-status{
+    margin-top:18px;
+    display:inline-block;
+    padding:12px 18px;
+    border:2px solid var(--green);
+    color:var(--green);
+    font-size:14px;
+    font-weight:900;
+    letter-spacing:3px;
+    text-transform:uppercase;
 }
 
-/* STATUS */
+/* =========================================================
+   SIDEBAR
+========================================================= */
 
-.status-row{
-  margin-top:22px;
-  display:flex;
-  gap:16px;
-  align-items:center;
+.side-stack{
+    display:flex;
+    flex-direction:column;
+    gap:18px;
 }
 
-.status-pill{
-  padding:10px 18px;
-  border:1px solid var(--green);
-  color:var(--green);
-  font-size:12px;
-  font-weight:900;
-  letter-spacing:2px;
+.side-card{
+    border:1px solid #31435a;
+    padding:18px;
+    background:#101827;
 }
 
-.status-text{
-  color:#c9d6e5;
-  font-size:15px;
-  line-height:1.6;
-  max-width:700px;
+.side-label{
+    color:var(--blue);
+    font-size:12px;
+    letter-spacing:4px;
+    text-transform:uppercase;
+    font-weight:900;
+    margin-bottom:8px;
 }
 
-/* REQUEST GRID */
-
-.request-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:18px;
-  margin-top:24px;
-  position:relative;
-  z-index:2;
-}
-
-.request-box{
-  border:1px solid var(--line);
-  background:rgba(255,255,255,.02);
-  padding:18px;
-  min-height:140px;
-}
-
-.request-box h3{
-  font-size:14px;
-  letter-spacing:3px;
-  color:var(--red);
-  margin-bottom:12px;
-}
-
-.request-box p{
-  color:#c8d6e4;
-  font-size:14px;
-  line-height:1.7;
-}
-
-/* SIDE PANEL */
-
-.side-stat{
-  border:1px solid var(--line);
-  background:rgba(255,255,255,.02);
-  padding:18px;
-  margin-bottom:16px;
-}
-
-.side-stat label{
-  display:block;
-  color:#87ddff;
-  font-size:12px;
-  letter-spacing:2px;
-  margin-bottom:8px;
-  font-weight:800;
-}
-
-.side-stat strong{
-  font-size:18px;
+.side-value{
+    font-size:16px;
+    font-weight:900;
+    text-transform:uppercase;
 }
 
 .pending{
-  color:var(--yellow);
+    color:var(--yellow);
 }
 
-.verified{
-  color:var(--green);
+.good{
+    color:var(--green);
 }
 
-/* ACTION BUTTONS */
+/* =========================================================
+   TRUST REVIEW
+========================================================= */
+
+.section-title{
+    margin-top:34px;
+    margin-bottom:18px;
+    color:var(--red);
+    font-size:15px;
+    letter-spacing:6px;
+    text-transform:uppercase;
+    font-weight:900;
+}
+
+.review-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:20px;
+}
+
+.review-box{
+    border:1px solid #2c3e57;
+    background:#101827;
+    padding:22px;
+}
+
+.review-head{
+    color:var(--red);
+    font-size:14px;
+    font-weight:900;
+    letter-spacing:4px;
+    text-transform:uppercase;
+    margin-bottom:12px;
+}
+
+.review-copy{
+    color:#9fd8ff;
+    font-size:15px;
+    line-height:1.7;
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
 
 .action-stack{
-  margin-top:20px;
-  display:flex;
-  flex-direction:column;
-  gap:14px;
+    margin-top:22px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
 }
 
-.action-btn{
-  height:58px;
-  border:1px solid rgba(130,170,255,.22);
-  background:#111827;
-  color:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 20px;
-  font-size:14px;
-  font-weight:900;
-  letter-spacing:2px;
-  transition:.2s;
+.btn{
+    height:58px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 20px;
+    border:2px solid #355071;
+    background:#111b2a;
+    color:#dce7f8;
+    text-decoration:none;
+    text-transform:uppercase;
+    letter-spacing:3px;
+    font-size:14px;
+    font-weight:900;
 }
 
-.action-btn:hover{
-  transform:translateY(-2px);
+.btn.red{
+    border-color:var(--red);
+    color:#ff9e8e;
 }
 
-.action-btn.red{
-  border:1px solid var(--red);
-  color:#ffb0aa;
+.btn.green{
+    border-color:var(--green);
+    color:var(--green);
 }
 
-.action-btn.green{
-  border:1px solid var(--green);
-  color:#8fffbf;
+/* =========================================================
+   FLOW BAR
+========================================================= */
+
+.flow{
+    margin-top:30px;
+    border:1px solid #26364d;
+    background:#0f1725;
+    display:grid;
+    grid-template-columns:180px repeat(5,1fr) 220px;
 }
 
-.action-btn.blue{
-  border:1px solid #6ebeff;
-  color:#a6ddff;
-}
-
-/* FOOTER BAR */
-
-.flowbar{
-  margin-top:28px;
-  border:1px solid var(--line);
-  background:rgba(255,255,255,.02);
-  display:grid;
-  grid-template-columns:repeat(5,1fr) 220px;
+.flow-title{
+    padding:20px;
+    color:var(--red);
+    font-size:15px;
+    font-weight:900;
+    letter-spacing:4px;
+    text-transform:uppercase;
 }
 
 .flow-step{
-  padding:18px;
-  border-right:1px solid var(--line);
+    padding:20px;
+    border-left:1px solid #25344a;
 }
 
-.flow-step h4{
-  font-size:12px;
-  letter-spacing:2px;
-  color:#fff;
-  margin-bottom:6px;
+.flow-step b{
+    display:block;
+    color:#ffffff;
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:2px;
+    margin-bottom:4px;
 }
 
-.flow-step p{
-  font-size:12px;
-  color:#9eb0c5;
+.flow-step span{
+    color:#b7c5d7;
+    font-size:13px;
 }
 
-.flow-action{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:rgba(255,59,48,.08);
+.flow-btn{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-left:1px solid #25344a;
+    padding:20px;
 }
 
-.flow-action a{
-  width:82%;
-  height:54px;
-  border:1px solid var(--red);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:#ffb0aa;
-  font-size:14px;
-  font-weight:900;
-  letter-spacing:2px;
-}
+/* =========================================================
+   FOOTER
+========================================================= */
 
-/* SYSTEM FOOTER */
-
-.system-footer{
-  margin-top:22px;
-  border:1px solid var(--line);
-  background:rgba(255,255,255,.02);
-  padding:18px 22px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+.footer{
+    margin-top:24px;
+    border:1px solid #26364d;
+    background:#0f1725;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:16px 20px;
 }
 
 .footer-left{
-  display:flex;
-  align-items:center;
-  gap:18px;
+    display:flex;
+    align-items:center;
+    gap:16px;
 }
 
-.footer-left img{
-  width:120px;
+.footer-logo{
+    width:90px;
+    height:38px;
+    border:1px solid #2f4058;
+    background:#101827;
 }
 
-.footer-center{
-  color:#dce7f5;
-  font-size:14px;
-  font-weight:800;
-  letter-spacing:1px;
+.footer-title{
+    font-size:20px;
+    font-weight:900;
+    text-transform:uppercase;
 }
 
-.footer-right{
-  text-align:right;
-  font-size:13px;
-  color:#c5d0dc;
+.footer-status{
+    color:var(--green);
+    font-size:15px;
+    font-weight:900;
+    letter-spacing:3px;
+    text-transform:uppercase;
 }
 
-.footer-green{
-  color:var(--green);
-  font-weight:900;
-  letter-spacing:2px;
+.footer-copy{
+    text-align:right;
+    font-size:13px;
+    font-weight:800;
+    color:#c5d1e1;
+    line-height:1.5;
 }
 
-@media(max-width:1100px){
+/* =========================================================
+   RESPONSIVE
+========================================================= */
 
-  .layout{
-    grid-template-columns:1fr;
-  }
+@media(max-width:1200px){
 
-  .summary-grid{
-    grid-template-columns:1fr;
-  }
+    .grid{
+        grid-template-columns:1fr;
+    }
 
-  .request-grid{
-    grid-template-columns:1fr;
-  }
+    .summary{
+        grid-template-columns:1fr;
+    }
 
-  .flowbar{
-    grid-template-columns:1fr;
-  }
+    .review-grid{
+        grid-template-columns:1fr;
+    }
 
-  .flow-step{
-    border-right:none;
-    border-bottom:1px solid var(--line);
-  }
+    .flow{
+        grid-template-columns:1fr;
+    }
 
-  .page-title{
-    font-size:54px;
-  }
+    .top-shell{
+        grid-template-columns:1fr;
+        height:auto;
+    }
 
+    .authority-panel{
+        padding:30px;
+    }
+
+    .top-nav{
+        position:relative;
+        top:auto;
+        right:auto;
+        margin-top:16px;
+    }
+
+    .page-title{
+        font-size:64px;
+    }
 }
 </style>
 </head>
 
 <body>
 
-<div class="shell">
+<!-- ======================================================
+     HEADER
+======================================================= -->
 
-  <!-- HEADER -->
+<header class="top-shell">
 
-  <header class="topbar">
+    <div class="brand-panel">
 
-    <div class="logo-wrap">
-      <img src="sc_logo_black.png" alt="STATScore">
-    </div>
+        <div class="brand-inner">
 
-    <div class="top-center">
-      <h2>NATIONAL ATHLETE INFRASTRUCTURE • CONTROLLED ACCESS</h2>
-      <p>VERIFICATION & TRUST LAYER</p>
-    </div>
+            <div class="logo-row">
 
-    <nav class="top-nav">
-      <a href="system.html">ENTRY</a>
-      <a href="player-profile.html">PROFILE</a>
-      <a href="#">PRIVACY</a>
-      <a href="#" class="active">VERIFY</a>
-    </nav>
+                <div class="logo">S</div>
 
-  </header>
+                <div>
+                    <div class="brand-title">
+                        STAT<span>SCORE</span>™
+                    </div>
 
-  <!-- MAIN -->
-
-  <main class="main">
-
-    <div class="page-label">
-      OFFICIAL ATHLETE TRUST & REVIEW
-    </div>
-
-    <div class="page-title">
-      VERIFICATION<br>REQUEST
-    </div>
-
-    <div class="layout">
-
-      <!-- LEFT -->
-
-      <div>
-
-        <!-- SUMMARY -->
-
-        <section class="panel">
-
-          <div class="section-title">
-            ATHLETE SUMMARY
-          </div>
-
-          <div class="summary-grid">
-
-            <div class="player-photo">
-              ATHLETE IMAGE
-            </div>
-
-            <div class="player-data">
-
-              <h2>
-                ATHLETE<br>
-                <span>PROFILE</span>
-              </h2>
-
-              <div class="player-meta">
-
-                <div class="meta-box">
-                  <label>POSITION</label>
-                  <strong>Running Back</strong>
+                    <div class="brand-sub">
+                        Athlete Lifecycle System
+                    </div>
                 </div>
-
-                <div class="meta-box">
-                  <label>HEIGHT</label>
-                  <strong>5'10"</strong>
-                </div>
-
-                <div class="meta-box">
-                  <label>WEIGHT</label>
-                  <strong>185 lbs</strong>
-                </div>
-
-                <div class="meta-box">
-                  <label>CITY / STATE</label>
-                  <strong>Pensacola, FL</strong>
-                </div>
-
-                <div class="meta-box">
-                  <label>CLASS YEAR</label>
-                  <strong>2027</strong>
-                </div>
-
-                <div class="meta-box">
-                  <label>SCHOOL</label>
-                  <strong>Program Pending</strong>
-                </div>
-
-              </div>
-
-              <div class="status-row">
-                <div class="status-pill">
-                  VERIFICATION PENDING
-                </div>
-
-                <div class="status-text">
-                  Athlete profile submitted into the STATScore Trust Layer.
-                  Verification review checks metrics, identity consistency,
-                  media evidence, coach validation, and recruiting visibility readiness.
-                </div>
-              </div>
 
             </div>
 
-          </div>
+        </div>
 
-        </section>
-
-        <!-- REQUESTS -->
-
-        <section class="panel" style="margin-top:24px;">
-
-          <div class="section-title">
-            TRUST REVIEW COMPONENTS
-          </div>
-
-          <div class="request-grid">
-
-            <div class="request-box">
-              <h3>IDENTITY VALIDATION</h3>
-              <p>
-                Athlete name, graduation year, school/program,
-                geographic location, and profile ownership reviewed
-                against intake submission consistency.
-              </p>
-            </div>
-
-            <div class="request-box">
-              <h3>PERFORMANCE EVIDENCE</h3>
-              <p>
-                Metrics, verified event sources, film evidence,
-                and athletic measurements routed into the
-                STATScore evaluation pipeline.
-              </p>
-            </div>
-
-            <div class="request-box">
-              <h3>PARENT / GUARDIAN AUTHORITY</h3>
-              <p>
-                Minor athlete communication permissions,
-                visibility approval, and controlled recruiting
-                access validated through Multi-Box™ trust routing.
-              </p>
-            </div>
-
-            <div class="request-box">
-              <h3>RECRUITING VISIBILITY</h3>
-              <p>
-                Exposure eligibility, recruiter access level,
-                and public profile routing remain restricted
-                until verification review reaches approved status.
-              </p>
-            </div>
-
-          </div>
-
-        </section>
-
-      </div>
-
-      <!-- RIGHT -->
-
-      <aside>
-
-        <section class="panel">
-
-          <div class="section-title">
-            VERIFICATION CONTROL
-          </div>
-
-          <div class="side-stat">
-            <label>PROFILE STATUS</label>
-            <strong class="pending">PENDING REVIEW</strong>
-          </div>
-
-          <div class="side-stat">
-            <label>IDENTITY CHECK</label>
-            <strong class="verified">SUBMITTED</strong>
-          </div>
-
-          <div class="side-stat">
-            <label>METRIC VALIDATION</label>
-            <strong class="pending">IN QUEUE</strong>
-          </div>
-
-          <div class="side-stat">
-            <label>TRUST SCORE</label>
-            <strong class="pending">NOT ISSUED</strong>
-          </div>
-
-          <div class="side-stat">
-            <label>RECRUITER ACCESS</label>
-            <strong class="pending">RESTRICTED</strong>
-          </div>
-
-          <div class="action-stack">
-
-            <a href="#" class="action-btn red">
-              <span>SUBMIT ADDITIONAL EVIDENCE</span>
-              <span>›</span>
-            </a>
-
-            <a href="snapshot-intake.html" class="action-btn blue">
-              <span>RETURN TO SNAPSHOT</span>
-              <span>›</span>
-            </a>
-
-            <a href="player-profile.html" class="action-btn green">
-              <span>VIEW PROFILE RECORD</span>
-              <span>›</span>
-            </a>
-
-          </div>
-
-        </section>
-
-      </aside>
+        <div class="brand-bar"></div>
 
     </div>
 
-    <!-- FLOW BAR -->
+    <div class="authority-panel">
 
-    <section class="flowbar">
+        <div class="authority-text">
+            NATIONAL ATHLETE INFRASTRUCTURE • CONTROLLED ACCESS
+        </div>
 
-      <div class="flow-step">
-        <h4>SNAPSHOT</h4>
-        <p>Data Intake</p>
-      </div>
+        <div class="authority-sub">
+            VERIFICATION & TRUST LAYER
+        </div>
 
-      <div class="flow-step">
-        <h4>EVIDENCE</h4>
-        <p>Film & Metrics</p>
-      </div>
+        <nav class="top-nav">
+            <a href="index.html">Entry</a>
+            <a href="player-profile.html">Profile</a>
+            <a href="privacy.html">Privacy</a>
+            <a href="terms.html">Terms</a>
+            <a class="active" href="verification-request.html">Verify</a>
 
-      <div class="flow-step">
-        <h4>PERMISSION</h4>
-        <p>Parent / Guardian</p>
-      </div>
+            <div class="user-icon"></div>
+        </nav>
 
-      <div class="flow-step">
-        <h4>VERIFICATION</h4>
-        <p>Trust Layer</p>
-      </div>
+    </div>
 
-      <div class="flow-step">
-        <h4>PROFILE</h4>
-        <p>Controlled Visibility</p>
-      </div>
+</header>
 
-      <div class="flow-action">
-        <a href="player-profile.html">
-          RETURN TO PROFILE ›
-        </a>
-      </div>
+<!-- ======================================================
+     MAIN
+======================================================= -->
+
+<main class="main">
+
+    <div class="page-kicker">
+        Official Athlete Trust & Review
+    </div>
+
+    <h1 class="page-title">
+        Verification<br>
+        Request
+    </h1>
+
+    <section class="grid">
+
+        <!-- ============================================= -->
+        <!-- MAIN COLUMN -->
+        <!-- ============================================= -->
+
+        <div class="panel">
+
+            <div class="summary">
+
+                <div class="image-box">
+                    Athlete Image
+                </div>
+
+                <div class="summary-right">
+
+                    <h2>
+                        Athlete<br>
+                        <span>Profile</span>
+                    </h2>
+
+                    <div class="meta-grid">
+
+                        <div class="meta">
+                            <div class="meta-label">Position</div>
+                            <div class="meta-value">Running Back</div>
+                        </div>
+
+                        <div class="meta">
+                            <div class="meta-label">Height</div>
+                            <div class="meta-value">5'10"</div>
+                        </div>
+
+                        <div class="meta">
+                            <div class="meta-label">Weight</div>
+                            <div class="meta-value">185 lbs</div>
+                        </div>
+
+                        <div class="meta">
+                            <div class="meta-label">City / State</div>
+                            <div class="meta-value">Pensacola, FL</div>
+                        </div>
+
+                        <div class="meta">
+                            <div class="meta-label">Class Year</div>
+                            <div class="meta-value">2027</div>
+                        </div>
+
+                        <div class="meta">
+                            <div class="meta-label">School</div>
+                            <div class="meta-value">Program Pending</div>
+                        </div>
+
+                    </div>
+
+                    <div class="verify-status">
+                        Verification Pending
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- ========================================= -->
+            <!-- TRUST COMPONENTS -->
+            <!-- ========================================= -->
+
+            <div class="section-title">
+                Trust Review Components
+            </div>
+
+            <div class="review-grid">
+
+                <div class="review-box">
+
+                    <div class="review-head">
+                        Identity Validation
+                    </div>
+
+                    <div class="review-copy">
+                        Athlete name, graduation year,
+                        school/program, geographic location,
+                        and profile ownership reviewed against
+                        intake submission consistency.
+                    </div>
+
+                </div>
+
+                <div class="review-box">
+
+                    <div class="review-head">
+                        Performance Evidence
+                    </div>
+
+                    <div class="review-copy">
+                        Metrics, verified event sources,
+                        film evidence, and athletic measurements
+                        routed into the STATScore evaluation pipeline.
+                    </div>
+
+                </div>
+
+                <div class="review-box">
+
+                    <div class="review-head">
+                        Parent / Guardian Authority
+                    </div>
+
+                    <div class="review-copy">
+                        Minor athlete communication permissions,
+                        visibility approval, and controlled
+                        recruiting access validated through
+                        Multi-Box™ trust routing.
+                    </div>
+
+                </div>
+
+                <div class="review-box">
+
+                    <div class="review-head">
+                        Recruiting Visibility
+                    </div>
+
+                    <div class="review-copy">
+                        Exposure eligibility, recruiter access level,
+                        and public profile routing remain restricted
+                        until verification review reaches approved status.
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ============================================= -->
+        <!-- SIDEBAR -->
+        <!-- ============================================= -->
+
+        <aside class="panel">
+
+            <div class="side-stack">
+
+                <div class="side-card">
+                    <div class="side-label">Profile Status</div>
+                    <div class="side-value pending">
+                        Pending Review
+                    </div>
+                </div>
+
+                <div class="side-card">
+                    <div class="side-label">Identity Check</div>
+                    <div class="side-value good">
+                        Submitted
+                    </div>
+                </div>
+
+                <div class="side-card">
+                    <div class="side-label">Metric Validation</div>
+                    <div class="side-value pending">
+                        In Queue
+                    </div>
+                </div>
+
+                <div class="side-card">
+                    <div class="side-label">Trust Score</div>
+                    <div class="side-value pending">
+                        Not Issued
+                    </div>
+                </div>
+
+                <div class="side-card">
+                    <div class="side-label">Recruiter Access</div>
+                    <div class="side-value pending">
+                        Restricted
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="action-stack">
+
+                <a class="btn red" href="#">
+                    Submit Additional Evidence
+                    <span>›</span>
+                </a>
+
+                <a class="btn" href="snapshot-intake.html">
+                    Return To Snapshot
+                    <span>›</span>
+                </a>
+
+                <a class="btn green" href="player-profile.html">
+                    View Profile Record
+                    <span>›</span>
+                </a>
+
+            </div>
+
+        </aside>
 
     </section>
 
-    <!-- FOOTER -->
+    <!-- ==================================================
+         FLOW
+    =================================================== -->
 
-    <footer class="system-footer">
+    <section class="flow">
 
-      <div class="footer-left">
-        <img src="sc_logo_black.png" alt="STATScore">
-        <div class="footer-center">
-          OFFICIAL ATHLETE TRUST REVIEW RECORD
+        <div class="flow-title">
+            Snapshot
         </div>
-      </div>
 
-      <div class="footer-green">
-        ✓ VERIFICATION PIPELINE ACTIVE
-      </div>
+        <div class="flow-step">
+            <b>Evidence</b>
+            <span>Film & Metrics</span>
+        </div>
 
-      <div class="footer-right">
-        © STATScore Systems<br>
-        ALL RIGHTS RESERVED.
-      </div>
+        <div class="flow-step">
+            <b>Permission</b>
+            <span>Parent / Guardian</span>
+        </div>
+
+        <div class="flow-step">
+            <b>Verification</b>
+            <span>Trust Layer</span>
+        </div>
+
+        <div class="flow-step">
+            <b>Profile</b>
+            <span>Controlled Visibility</span>
+        </div>
+
+        <div class="flow-btn">
+
+            <a class="btn red" href="player-profile.html">
+                Return To Profile
+                <span>›</span>
+            </a>
+
+        </div>
+
+    </section>
+
+    <!-- ==================================================
+         FOOTER
+    =================================================== -->
+
+    <footer class="footer">
+
+        <div class="footer-left">
+
+            <div class="footer-logo"></div>
+
+            <div class="footer-title">
+                Official Athlete Trust Review Record
+            </div>
+
+        </div>
+
+        <div class="footer-status">
+            ✓ Verification Pipeline Active
+        </div>
+
+        <div class="footer-copy">
+            © STATScore Systems<br>
+            ALL RIGHTS RESERVED.
+        </div>
 
     </footer>
 
-  </main>
-
-</div>
+</main>
 
 </body>
 </html> 
