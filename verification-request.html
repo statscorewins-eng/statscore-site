@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>STATScore — Verification Request</title>
+
+<style>
+:root{
+  --red:#ff3b30;
+  --red2:#9e0f16;
+  --black:#05070b;
+  --panel:#0d1118;
+  --panel2:#121722;
+  --line:rgba(255,255,255,.08);
+  --soft:rgba(255,255,255,.05);
+  --text:#f3f6fb;
+  --muted:#9fb2c8;
+  --cyan:#8fe7ff;
+  --green:#32d27a;
+  --yellow:#ffc857;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  background:
+    linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px),
+    radial-gradient(circle at top, #1a2230 0%, #07090d 55%);
+  background-size:40px 40px,40px 40px,100% 100%;
+  color:var(--text);
+  font-family:Arial, Helvetica, sans-serif;
+}
+
+a{
+  text-decoration:none;
+  color:inherit;
+}
+
+.shell{
+  width:100%;
+  min-height:100vh;
+}
+
+/* HEADER */
+
+.topbar{
+  height:122px;
+  background:#f3f5f7;
+  color:#111;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  border-bottom:2px solid var(--red);
+}
+
+.logo-wrap{
+  width:440px;
+  height:122px;
+  background:linear-gradient(135deg,#20242c 0%,#12161d 100%);
+  clip-path:polygon(0 0, 86% 0, 100% 100%, 0% 100%);
+  border-bottom:4px solid var(--red);
+  display:flex;
+  align-items:center;
+  padding-left:28px;
+}
+
+.logo-wrap img{
+  width:240px;
+}
+
+.top-center{
+  flex:1;
+  text-align:center;
+  padding-top:22px;
+}
+
+.top-center h2{
+  font-size:15px;
+  letter-spacing:6px;
+  font-weight:900;
+}
+
+.top-center p{
+  margin-top:6px;
+  font-size:15px;
+  letter-spacing:5px;
+  font-weight:700;
+}
+
+.top-nav{
+  width:340px;
+  display:flex;
+  justify-content:flex-end;
+  gap:24px;
+  padding:38px 34px 0 0;
+  font-weight:900;
+  font-size:14px;
+  letter-spacing:2px;
+}
+
+.top-nav a.active{
+  color:var(--red);
+  border-bottom:2px solid var(--red);
+  padding-bottom:8px;
+}
+
+/* MAIN */
+
+.main{
+  padding:34px;
+}
+
+.page-label{
+  color:var(--red);
+  font-size:15px;
+  font-weight:900;
+  letter-spacing:5px;
+  margin-bottom:10px;
+}
+
+.page-title{
+  font-size:76px;
+  line-height:.95;
+  font-weight:900;
+  margin-bottom:28px;
+}
+
+.layout{
+  display:grid;
+  grid-template-columns:1fr 360px;
+  gap:24px;
+}
+
+/* PANELS */
+
+.panel{
+  background:rgba(11,15,22,.88);
+  border:1px solid var(--line);
+  padding:26px;
+  position:relative;
+  overflow:hidden;
+}
+
+.panel::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+  background-size:40px 40px;
+  pointer-events:none;
+}
+
+.section-title{
+  color:var(--red);
+  font-size:14px;
+  letter-spacing:5px;
+  font-weight:900;
+  margin-bottom:24px;
+  position:relative;
+  z-index:2;
+}
+
+/* ATHLETE SUMMARY */
+
+.summary-grid{
+  display:grid;
+  grid-template-columns:220px 1fr;
+  gap:24px;
+  position:relative;
+  z-index:2;
+}
+
+.player-photo{
+  height:260px;
+  border:1px solid rgba(130,170,255,.28);
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,.02), rgba(255,255,255,.01)),
+    #0b1018;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#8aa0c0;
+  font-weight:900;
+  letter-spacing:4px;
+}
+
+.player-data h2{
+  font-size:54px;
+  line-height:.95;
+  font-weight:900;
+  margin-bottom:10px;
+}
+
+.player-data h2 span{
+  color:var(--red);
+}
+
+.player-meta{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin-top:18px;
+}
+
+.meta-box{
+  border:1px solid rgba(130,170,255,.22);
+  background:rgba(255,255,255,.02);
+  padding:12px;
+}
+
+.meta-box label{
+  display:block;
+  color:var(--muted);
+  font-size:11px;
+  letter-spacing:2px;
+  margin-bottom:6px;
+}
+
+.meta-box strong{
+  font-size:16px;
+}
+
+/* STATUS */
+
+.status-row{
+  margin-top:22px;
+  display:flex;
+  gap:16px;
+  align-items:center;
+}
+
+.status-pill{
+  padding:10px 18px;
+  border:1px solid var(--green);
+  color:var(--green);
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:2px;
+}
+
+.status-text{
+  color:#c9d6e5;
+  font-size:15px;
+  line-height:1.6;
+  max-width:700px;
+}
+
+/* REQUEST GRID */
+
+.request-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px;
+  margin-top:24px;
+  position:relative;
+  z-index:2;
+}
+
+.request-box{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.02);
+  padding:18px;
+  min-height:140px;
+}
+
+.request-box h3{
+  font-size:14px;
+  letter-spacing:3px;
+  color:var(--red);
+  margin-bottom:12px;
+}
+
+.request-box p{
+  color:#c8d6e4;
+  font-size:14px;
+  line-height:1.7;
+}
+
+/* SIDE PANEL */
+
+.side-stat{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.02);
+  padding:18px;
+  margin-bottom:16px;
+}
+
+.side-stat label{
+  display:block;
+  color:#87ddff;
+  font-size:12px;
+  letter-spacing:2px;
+  margin-bottom:8px;
+  font-weight:800;
+}
+
+.side-stat strong{
+  font-size:18px;
+}
+
+.pending{
+  color:var(--yellow);
+}
+
+.verified{
+  color:var(--green);
+}
+
+/* ACTION BUTTONS */
+
+.action-stack{
+  margin-top:20px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.action-btn{
+  height:58px;
+  border:1px solid rgba(130,170,255,.22);
+  background:#111827;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 20px;
+  font-size:14px;
+  font-weight:900;
+  letter-spacing:2px;
+  transition:.2s;
+}
+
+.action-btn:hover{
+  transform:translateY(-2px);
+}
+
+.action-btn.red{
+  border:1px solid var(--red);
+  color:#ffb0aa;
+}
+
+.action-btn.green{
+  border:1px solid var(--green);
+  color:#8fffbf;
+}
+
+.action-btn.blue{
+  border:1px solid #6ebeff;
+  color:#a6ddff;
+}
+
+/* FOOTER BAR */
+
+.flowbar{
+  margin-top:28px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.02);
+  display:grid;
+  grid-template-columns:repeat(5,1fr) 220px;
+}
+
+.flow-step{
+  padding:18px;
+  border-right:1px solid var(--line);
+}
+
+.flow-step h4{
+  font-size:12px;
+  letter-spacing:2px;
+  color:#fff;
+  margin-bottom:6px;
+}
+
+.flow-step p{
+  font-size:12px;
+  color:#9eb0c5;
+}
+
+.flow-action{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(255,59,48,.08);
+}
+
+.flow-action a{
+  width:82%;
+  height:54px;
+  border:1px solid var(--red);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#ffb0aa;
+  font-size:14px;
+  font-weight:900;
+  letter-spacing:2px;
+}
+
+/* SYSTEM FOOTER */
+
+.system-footer{
+  margin-top:22px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.02);
+  padding:18px 22px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.footer-left{
+  display:flex;
+  align-items:center;
+  gap:18px;
+}
+
+.footer-left img{
+  width:120px;
+}
+
+.footer-center{
+  color:#dce7f5;
+  font-size:14px;
+  font-weight:800;
+  letter-spacing:1px;
+}
+
+.footer-right{
+  text-align:right;
+  font-size:13px;
+  color:#c5d0dc;
+}
+
+.footer-green{
+  color:var(--green);
+  font-weight:900;
+  letter-spacing:2px;
+}
+
+@media(max-width:1100px){
+
+  .layout{
+    grid-template-columns:1fr;
+  }
+
+  .summary-grid{
+    grid-template-columns:1fr;
+  }
+
+  .request-grid{
+    grid-template-columns:1fr;
+  }
+
+  .flowbar{
+    grid-template-columns:1fr;
+  }
+
+  .flow-step{
+    border-right:none;
+    border-bottom:1px solid var(--line);
+  }
+
+  .page-title{
+    font-size:54px;
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+<div class="shell">
+
+  <!-- HEADER -->
+
+  <header class="topbar">
+
+    <div class="logo-wrap">
+      <img src="sc_logo_black.png" alt="STATScore">
+    </div>
+
+    <div class="top-center">
+      <h2>NATIONAL ATHLETE INFRASTRUCTURE • CONTROLLED ACCESS</h2>
+      <p>VERIFICATION & TRUST LAYER</p>
+    </div>
+
+    <nav class="top-nav">
+      <a href="system.html">ENTRY</a>
+      <a href="player-profile.html">PROFILE</a>
+      <a href="#">PRIVACY</a>
+      <a href="#" class="active">VERIFY</a>
+    </nav>
+
+  </header>
+
+  <!-- MAIN -->
+
+  <main class="main">
+
+    <div class="page-label">
+      OFFICIAL ATHLETE TRUST & REVIEW
+    </div>
+
+    <div class="page-title">
+      VERIFICATION<br>REQUEST
+    </div>
+
+    <div class="layout">
+
+      <!-- LEFT -->
+
+      <div>
+
+        <!-- SUMMARY -->
+
+        <section class="panel">
+
+          <div class="section-title">
+            ATHLETE SUMMARY
+          </div>
+
+          <div class="summary-grid">
+
+            <div class="player-photo">
+              ATHLETE IMAGE
+            </div>
+
+            <div class="player-data">
+
+              <h2>
+                ATHLETE<br>
+                <span>PROFILE</span>
+              </h2>
+
+              <div class="player-meta">
+
+                <div class="meta-box">
+                  <label>POSITION</label>
+                  <strong>Running Back</strong>
+                </div>
+
+                <div class="meta-box">
+                  <label>HEIGHT</label>
+                  <strong>5'10"</strong>
+                </div>
+
+                <div class="meta-box">
+                  <label>WEIGHT</label>
+                  <strong>185 lbs</strong>
+                </div>
+
+                <div class="meta-box">
+                  <label>CITY / STATE</label>
+                  <strong>Pensacola, FL</strong>
+                </div>
+
+                <div class="meta-box">
+                  <label>CLASS YEAR</label>
+                  <strong>2027</strong>
+                </div>
+
+                <div class="meta-box">
+                  <label>SCHOOL</label>
+                  <strong>Program Pending</strong>
+                </div>
+
+              </div>
+
+              <div class="status-row">
+                <div class="status-pill">
+                  VERIFICATION PENDING
+                </div>
+
+                <div class="status-text">
+                  Athlete profile submitted into the STATScore Trust Layer.
+                  Verification review checks metrics, identity consistency,
+                  media evidence, coach validation, and recruiting visibility readiness.
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- REQUESTS -->
+
+        <section class="panel" style="margin-top:24px;">
+
+          <div class="section-title">
+            TRUST REVIEW COMPONENTS
+          </div>
+
+          <div class="request-grid">
+
+            <div class="request-box">
+              <h3>IDENTITY VALIDATION</h3>
+              <p>
+                Athlete name, graduation year, school/program,
+                geographic location, and profile ownership reviewed
+                against intake submission consistency.
+              </p>
+            </div>
+
+            <div class="request-box">
+              <h3>PERFORMANCE EVIDENCE</h3>
+              <p>
+                Metrics, verified event sources, film evidence,
+                and athletic measurements routed into the
+                STATScore evaluation pipeline.
+              </p>
+            </div>
+
+            <div class="request-box">
+              <h3>PARENT / GUARDIAN AUTHORITY</h3>
+              <p>
+                Minor athlete communication permissions,
+                visibility approval, and controlled recruiting
+                access validated through Multi-Box™ trust routing.
+              </p>
+            </div>
+
+            <div class="request-box">
+              <h3>RECRUITING VISIBILITY</h3>
+              <p>
+                Exposure eligibility, recruiter access level,
+                and public profile routing remain restricted
+                until verification review reaches approved status.
+              </p>
+            </div>
+
+          </div>
+
+        </section>
+
+      </div>
+
+      <!-- RIGHT -->
+
+      <aside>
+
+        <section class="panel">
+
+          <div class="section-title">
+            VERIFICATION CONTROL
+          </div>
+
+          <div class="side-stat">
+            <label>PROFILE STATUS</label>
+            <strong class="pending">PENDING REVIEW</strong>
+          </div>
+
+          <div class="side-stat">
+            <label>IDENTITY CHECK</label>
+            <strong class="verified">SUBMITTED</strong>
+          </div>
+
+          <div class="side-stat">
+            <label>METRIC VALIDATION</label>
+            <strong class="pending">IN QUEUE</strong>
+          </div>
+
+          <div class="side-stat">
+            <label>TRUST SCORE</label>
+            <strong class="pending">NOT ISSUED</strong>
+          </div>
+
+          <div class="side-stat">
+            <label>RECRUITER ACCESS</label>
+            <strong class="pending">RESTRICTED</strong>
+          </div>
+
+          <div class="action-stack">
+
+            <a href="#" class="action-btn red">
+              <span>SUBMIT ADDITIONAL EVIDENCE</span>
+              <span>›</span>
+            </a>
+
+            <a href="snapshot-intake.html" class="action-btn blue">
+              <span>RETURN TO SNAPSHOT</span>
+              <span>›</span>
+            </a>
+
+            <a href="player-profile.html" class="action-btn green">
+              <span>VIEW PROFILE RECORD</span>
+              <span>›</span>
+            </a>
+
+          </div>
+
+        </section>
+
+      </aside>
+
+    </div>
+
+    <!-- FLOW BAR -->
+
+    <section class="flowbar">
+
+      <div class="flow-step">
+        <h4>SNAPSHOT</h4>
+        <p>Data Intake</p>
+      </div>
+
+      <div class="flow-step">
+        <h4>EVIDENCE</h4>
+        <p>Film & Metrics</p>
+      </div>
+
+      <div class="flow-step">
+        <h4>PERMISSION</h4>
+        <p>Parent / Guardian</p>
+      </div>
+
+      <div class="flow-step">
+        <h4>VERIFICATION</h4>
+        <p>Trust Layer</p>
+      </div>
+
+      <div class="flow-step">
+        <h4>PROFILE</h4>
+        <p>Controlled Visibility</p>
+      </div>
+
+      <div class="flow-action">
+        <a href="player-profile.html">
+          RETURN TO PROFILE ›
+        </a>
+      </div>
+
+    </section>
+
+    <!-- FOOTER -->
+
+    <footer class="system-footer">
+
+      <div class="footer-left">
+        <img src="sc_logo_black.png" alt="STATScore">
+        <div class="footer-center">
+          OFFICIAL ATHLETE TRUST REVIEW RECORD
+        </div>
+      </div>
+
+      <div class="footer-green">
+        ✓ VERIFICATION PIPELINE ACTIVE
+      </div>
+
+      <div class="footer-right">
+        © STATScore Systems<br>
+        ALL RIGHTS RESERVED.
+      </div>
+
+    </footer>
+
+  </main>
+
+</div>
+
+</body>
+</html> 
