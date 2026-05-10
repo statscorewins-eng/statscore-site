@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -9,21 +9,24 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
 <style>
-
 :root{
 
 /* CORE */
---black:#040506;
---dark:#090c11;
---panel:#0d1117;
+--black:#050505;
+--dark:#0a0d12;
+--panel:#10141b;
 --text:#ffffff;
---muted:#98a3b6;
+--muted:#aeb7c4;
 
-/* INTERNAL PAGE MATCH */
---red:#ff2b1f;
---red-bright:#ff4b40;
---red-deep:#b90710;
---red-shadow:#4e0910;
+/* EXACT LOGO COLOR FAMILY */
+--red:#cf1f2d;
+--red-bright:#ef3344;
+--red-deep:#98111b;
+--red-shadow:#4b070d;
+
+/* MATCH LOGO BACKGROUND */
+--hero-white:#f3f2ee;
+--hero-white-2:#eceae4;
 
 }
 
@@ -62,44 +65,36 @@ HERO
 ========================= */
 
 .hero{
-
 flex:0 0 72%;
-
 position:relative;
-
 display:flex;
 align-items:center;
 justify-content:center;
-
 overflow:hidden;
 
 background:
 linear-gradient(
 180deg,
-#f4f4f1 0%,
-#ececeb 100%
+var(--hero-white) 0%,
+var(--hero-white-2) 100%
 );
-
 }
 
 /* LOWER SHADOW BLEND */
 .hero::after{
-
 content:"";
-
 position:absolute;
 left:0;
 right:0;
 bottom:0;
-
 height:120px;
 
 background:
 linear-gradient(
 180deg,
 rgba(0,0,0,0) 0%,
-rgba(0,0,0,.08) 45%,
-rgba(0,0,0,.22) 100%
+rgba(0,0,0,.05) 48%,
+rgba(0,0,0,.16) 100%
 );
 
 pointer-events:none;
@@ -107,9 +102,7 @@ pointer-events:none;
 
 /* SOFT EDGE SHADOW */
 .hero::before{
-
 content:"";
-
 position:absolute;
 inset:0;
 
@@ -119,33 +112,16 @@ inset 0 -28px 50px rgba(0,0,0,.08);
 pointer-events:none;
 }
 
-/* HERO LOGO */
-
-.hero-logo{
-
-width:min(1120px,88vw);
-
-display:flex;
-align-items:center;
-justify-content:center;
-
-padding:10px 24px;
-
-}
-
-.hero-logo img{
-
-width:100%;
+.hero img{
+width:110%;
 height:auto;
-
-object-fit:contain;
+object-fit:cover;
 object-position:center;
 
 filter:
-drop-shadow(0 10px 24px rgba(0,0,0,.12))
-contrast(1.02)
-saturate(1.02);
-
+contrast(1.01)
+brightness(1.01)
+saturate(.96);
 }
 
 /* =========================
@@ -153,50 +129,48 @@ ACCESS SECTION
 ========================= */
 
 .access{
-  flex:1;
-  position:relative;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
+flex:1;
+position:relative;
+display:flex;
+align-items:center;
+justify-content:center;
+overflow:hidden;
 
-  background:
-    linear-gradient(
-      180deg,
-      #10141b 0%,
-      #0a0d12 48%,
-      #05070a 100%
-    );
+background:
+linear-gradient(
+180deg,
+#11161d 0%,
+#0b1016 42%,
+#05070a 100%
+);
 
-  border-top:1px solid rgba(255,43,31,.38);
+border-top:1px solid rgba(207,31,45,.45);
 }
 
 .access::before{
-  content:"";
-  position:absolute;
-  inset:0;
+content:"";
+position:absolute;
+inset:0;
 
-  background:
-    linear-gradient(
-      180deg,
-      rgba(255,255,255,.015),
-      rgba(255,255,255,0)
-    );
+background:
+linear-gradient(
+180deg,
+rgba(255,255,255,.015),
+rgba(255,255,255,0)
+);
 
-  pointer-events:none;
+pointer-events:none;
 }
 
 .access::after{
-  content:"";
-  position:absolute;
-  top:0;
-  left:0;
-  right:0;
-  height:1px;
-
-  background:rgba(255,43,31,.85);
-
-  pointer-events:none;
+content:"";
+position:absolute;
+top:0;
+left:0;
+right:0;
+height:1px;
+background:rgba(207,31,45,.92);
+pointer-events:none;
 }
 
 /* =========================
@@ -204,18 +178,13 @@ CONTENT
 ========================= */
 
 .access-inner{
-
 position:relative;
 z-index:2;
-
 display:flex;
 flex-direction:column;
 align-items:center;
-
 gap:18px;
-
 padding:20px;
-
 }
 
 /* =========================
@@ -223,19 +192,14 @@ HEADLINE
 ========================= */
 
 .headline{
-
 font-size:clamp(1.45rem, 2vw, 2.1rem);
-
 font-weight:800;
-
 letter-spacing:-0.045em;
 line-height:1.02;
-
 color:#ffffff;
 
 text-shadow:
 0 0 18px rgba(255,255,255,.08);
-
 }
 
 /* =========================
@@ -243,34 +207,27 @@ BUTTON
 ========================= */
 
 .enter{
-
 position:relative;
-
 min-width:190px;
-
 padding:15px 34px;
 
 font-size:.74rem;
 font-weight:900;
-
 letter-spacing:.24em;
 text-transform:uppercase;
 
 color:#ffffff;
 
 background:
-
 linear-gradient(
 180deg,
-#ff4b40 0%,
-#ff2b1f 42%,
-#b90710 100%
+#ef3344 0%,
+#cf1f2d 46%,
+#98111b 100%
 );
 
-border:1px solid #7f0f19;
-
+border:1px solid #7d0e17;
 border-radius:2px;
-
 cursor:pointer;
 
 transition:
@@ -279,30 +236,24 @@ background .16s ease,
 border-color .16s ease;
 
 box-shadow:
-0 0 0 1px rgba(0,0,0,.35),
-0 10px 30px rgba(255,43,31,.18);
-
+0 0 0 1px rgba(0,0,0,.34),
+0 10px 24px rgba(207,31,45,.18);
 }
 
-/* HOVER */
 .enter:hover{
-
 background:
 linear-gradient(
 180deg,
-#ff5d53 0%,
-#d3131f 100%
+#ff4757 0%,
+#d32031 52%,
+#aa1420 100%
 );
 
 border-color:rgba(255,255,255,.10);
-
 }
-  
-/* CLICK */
+
 .enter:active{
-
 transform:translateY(1px);
-
 }
 
 /* =========================
@@ -310,22 +261,15 @@ SUBTEXT
 ========================= */
 
 .sub{
-
 font-size:.92rem;
-
 font-weight:600;
-
 color:var(--muted);
-
 letter-spacing:.01em;
-
 }
 
 .sub strong{
-
 color:#ffffff;
 font-weight:900;
-
 }
 
 /* =========================
@@ -338,30 +282,21 @@ MOBILE
 flex:0 0 65%;
 }
 
-.hero-logo{
-width:95vw;
+.hero img{
+width:132%;
 }
 
 .headline{
-
 font-size:clamp(1.4rem, 2vw, 1.95rem);
-
 font-weight:750;
-
 letter-spacing:-0.05em;
-
 line-height:1.02;
-
 }
 
 .enter{
-
 padding:13px 24px;
-
 font-size:.71rem;
-
 min-width:175px;
-
 }
 
 .sub{
@@ -369,7 +304,6 @@ font-size:.86rem;
 }
 
 }
-
 </style>
 </head>
 
@@ -377,44 +311,36 @@ font-size:.86rem;
 
 <div class="page">
 
-    <!-- HERO -->
-    <section class="hero">
+  <!-- HERO -->
+  <section class="hero">
+    <img
+      src="statscore_logo_v2.png"
+      alt="STATScore Logo"
+    >
+  </section>
 
-        <div class="hero-logo">
+  <!-- ACCESS -->
+  <section class="access">
+    <div class="access-inner">
 
-            <img
-                src="statscore_logo_v2.png"
-                alt="STATScore Logo"
-            >
+      <h1 class="headline">
+        Athlete Performance Starts Here
+      </h1>
 
-        </div>
+      <button
+        class="enter"
+        onclick="window.location.href='system.html'"
+      >
+        Enter
+      </button>
 
-    </section>
+      <p class="sub">
+        Track it. Score it.
+        <strong>Prove it.</strong>
+      </p>
 
-    <!-- ACCESS -->
-    <section class="access">
-
-        <div class="access-inner">
-
-            <h1 class="headline">
-                Athlete Performance Starts Here
-            </h1>
-
-            <button
-                class="enter"
-                onclick="window.location.href='system.html'"
-            >
-                Enter
-            </button>
-
-            <p class="sub">
-                Track it. Score it.
-                <strong>Prove it.</strong>
-            </p>
-
-        </div>
-
-    </section>
+    </div>
+  </section>
 
 </div>
 
