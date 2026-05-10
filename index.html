@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>  
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -107,12 +107,11 @@ inset 0 -18px 35px rgba(0,0,0,.04);
 pointer-events:none;
 } 
 .hero img{
-width:110%;
+width:min(76vw, 1040px);
 height:auto;
-object-fit:cover;
-object-position:center;
 
-filter:
+object-fit:contain;
+object-position:center; 
 contrast(1.01)
 brightness(1.01)
 saturate(.96);
