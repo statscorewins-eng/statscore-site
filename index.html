@@ -1,4 +1,4 @@
-<!DOCTYPE html>  
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -9,24 +9,23 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
 <style>
+
 :root{
 
 /* CORE */
---black:#050505;
---dark:#0a0d12;
---panel:#10141b;
+--black:#040506;
+--dark:#090c11;
+--panel:#0d1117;
 --text:#ffffff;
---muted:#aeb7c4;
+--muted:#98a3b6;
 
-/* EXACT LOGO COLOR FAMILY */
---red:#cf1f2d;
---red-bright:#ef3344;
---red-deep:#98111b;
---red-shadow:#4b070d;
+/* MATCHED LOGO COLORS */
+--logo-white:#f2f2f0;
 
-/* MATCH LOGO BACKGROUND */
---hero-white:#f3f2ee;
---hero-white-2:#eceae4;
+/* RED PULLED FROM LOGO */
+--red:#df2b2a;
+--red-hover:#c81f22;
+--red-deep:#8f1116;
 
 }
 
@@ -44,7 +43,7 @@ html,
 body{
 height:100%;
 font-family:'Inter',sans-serif;
-background:var(--black);
+background:var(--logo-white);
 color:var(--text);
 overflow:hidden;
 }
@@ -57,7 +56,7 @@ PAGE
 height:100vh;
 display:flex;
 flex-direction:column;
-background:#000;
+background:var(--logo-white);
 }
 
 /* =========================
@@ -65,23 +64,32 @@ HERO
 ========================= */
 
 .hero{
+
 flex:0 0 72%;
+
 position:relative;
+
 display:flex;
 align-items:center;
 justify-content:center;
+
 overflow:hidden;
 
-/* EXACT MATCH TO LOGO CANVAS */
-background:#f5f3ec;
-} 
+/* EXACT MATCH TO LOGO BACKGROUND */
+background:var(--logo-white);
+
+}
+
 /* LOWER SHADOW BLEND */
 .hero::after{
+
 content:"";
+
 position:absolute;
 left:0;
 right:0;
 bottom:0;
+
 height:90px;
 
 background:
@@ -93,11 +101,13 @@ rgba(0,0,0,.10) 100%
 );
 
 pointer-events:none;
-} 
+}
 
 /* SOFT EDGE SHADOW */
 .hero::before{
+
 content:"";
+
 position:absolute;
 inset:0;
 
@@ -105,16 +115,24 @@ box-shadow:
 inset 0 -18px 35px rgba(0,0,0,.04);
 
 pointer-events:none;
-} 
+}
+
 .hero img{
-width:min(76vw, 1040px);
+
+display:block;
+
+width:min(76vw,1040px);
+
 height:auto;
 
 object-fit:contain;
-object-position:center; 
+object-position:center;
+
+filter:
 contrast(1.01)
 brightness(1.01)
-saturate(.96);
+saturate(.98);
+
 }
 
 /* =========================
@@ -122,26 +140,33 @@ ACCESS SECTION
 ========================= */
 
 .access{
+
 flex:1;
+
 position:relative;
+
 display:flex;
 align-items:center;
 justify-content:center;
+
 overflow:hidden;
 
 background:
 linear-gradient(
 180deg,
-#11161d 0%,
-#0b1016 42%,
+#121722 0%,
+#0b1018 45%,
 #05070a 100%
 );
 
-border-top:1px solid rgba(207,31,45,.45);
+border-top:1px solid rgba(223,43,42,.35);
+
 }
 
 .access::before{
+
 content:"";
+
 position:absolute;
 inset:0;
 
@@ -156,13 +181,17 @@ pointer-events:none;
 }
 
 .access::after{
+
 content:"";
+
 position:absolute;
 top:0;
 left:0;
 right:0;
 height:1px;
-background:rgba(207,31,45,.92);
+
+background:rgba(223,43,42,.9);
+
 pointer-events:none;
 }
 
@@ -171,13 +200,18 @@ CONTENT
 ========================= */
 
 .access-inner{
+
 position:relative;
 z-index:2;
+
 display:flex;
 flex-direction:column;
 align-items:center;
+
 gap:18px;
+
 padding:20px;
+
 }
 
 /* =========================
@@ -185,14 +219,19 @@ HEADLINE
 ========================= */
 
 .headline{
+
 font-size:clamp(1.45rem, 2vw, 2.1rem);
+
 font-weight:800;
+
 letter-spacing:-0.045em;
 line-height:1.02;
+
 color:#ffffff;
 
 text-shadow:
 0 0 18px rgba(255,255,255,.08);
+
 }
 
 /* =========================
@@ -200,12 +239,16 @@ BUTTON
 ========================= */
 
 .enter{
+
 position:relative;
+
 min-width:190px;
+
 padding:15px 34px;
 
 font-size:.74rem;
 font-weight:900;
+
 letter-spacing:.24em;
 text-transform:uppercase;
 
@@ -214,13 +257,15 @@ color:#ffffff;
 background:
 linear-gradient(
 180deg,
-#ef3344 0%,
-#cf1f2d 46%,
-#98111b 100%
+#f03a38 0%,
+#df2b2a 42%,
+#b1181c 100%
 );
 
-border:1px solid #7d0e17;
+border:1px solid #7f0f13;
+
 border-radius:2px;
+
 cursor:pointer;
 
 transition:
@@ -229,20 +274,22 @@ background .16s ease,
 border-color .16s ease;
 
 box-shadow:
-0 0 0 1px rgba(0,0,0,.34),
-0 10px 24px rgba(207,31,45,.18);
+0 0 0 1px rgba(0,0,0,.35),
+0 10px 28px rgba(223,43,42,.18);
+
 }
 
 .enter:hover{
+
 background:
 linear-gradient(
 180deg,
-#ff4757 0%,
-#d32031 52%,
-#aa1420 100%
+#ff4745 0%,
+#d92326 100%
 );
 
 border-color:rgba(255,255,255,.10);
+
 }
 
 .enter:active{
@@ -254,15 +301,22 @@ SUBTEXT
 ========================= */
 
 .sub{
+
 font-size:.92rem;
+
 font-weight:600;
+
 color:var(--muted);
+
 letter-spacing:.01em;
+
 }
 
 .sub strong{
+
 color:#ffffff;
 font-weight:900;
+
 }
 
 /* =========================
@@ -276,20 +330,29 @@ flex:0 0 65%;
 }
 
 .hero img{
-width:132%;
+width:118%;
 }
 
 .headline{
+
 font-size:clamp(1.4rem, 2vw, 1.95rem);
+
 font-weight:750;
+
 letter-spacing:-0.05em;
+
 line-height:1.02;
+
 }
 
 .enter{
+
 padding:13px 24px;
+
 font-size:.71rem;
+
 min-width:175px;
+
 }
 
 .sub{
@@ -297,6 +360,7 @@ font-size:.86rem;
 }
 
 }
+
 </style>
 </head>
 
@@ -304,36 +368,40 @@ font-size:.86rem;
 
 <div class="page">
 
-  <!-- HERO -->
-  <section class="hero">
-    <img
-      src="statscore_logo_v2.png"
-      alt="STATScore Logo"
-    >
-  </section>
+    <!-- HERO -->
+    <section class="hero">
 
-  <!-- ACCESS -->
-  <section class="access">
-    <div class="access-inner">
+        <img
+            src="statscore_logo_v2.png"
+            alt="STATScore Logo"
+        >
 
-      <h1 class="headline">
-        Athlete Performance Starts Here
-      </h1>
+    </section>
 
-      <button
-        class="enter"
-        onclick="window.location.href='system.html'"
-      >
-        Enter
-      </button>
+    <!-- ACCESS -->
+    <section class="access">
 
-      <p class="sub">
-        Track it. Score it.
-        <strong>Prove it.</strong>
-      </p>
+        <div class="access-inner">
 
-    </div>
-  </section>
+            <h1 class="headline">
+                Athlete Performance Starts Here
+            </h1>
+
+            <button
+                class="enter"
+                onclick="window.location.href='system.html'"
+            >
+                Enter
+            </button>
+
+            <p class="sub">
+                Track it. Score it.
+                <strong>Prove it.</strong>
+            </p>
+
+        </div>
+
+    </section>
 
 </div>
 
