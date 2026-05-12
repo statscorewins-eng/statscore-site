@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -45,8 +45,6 @@ a{text-decoration:none;color:inherit}
     #020202;
 }
 
-/* HEADER */
-
 .header{
   height:92px;
   background:linear-gradient(180deg,#fff,#ededeb);
@@ -87,9 +85,7 @@ a{text-decoration:none;color:inherit}
   background:var(--red);
 }
 
-.logo-tab img{
-  width:292px;
-}
+.logo-tab img{width:292px}
 
 .header-title{
   text-align:center;
@@ -130,8 +126,6 @@ a{text-decoration:none;color:inherit}
   border:3px solid #111;
   border-radius:50%;
 }
-
-/* MAIN */
 
 .main{
   padding:22px 32px 0;
@@ -193,9 +187,7 @@ a{text-decoration:none;color:inherit}
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.035);
 }
 
-.main-panel{
-  padding:22px;
-}
+.main-panel{padding:22px}
 
 .side-panel{
   padding:20px;
@@ -327,8 +319,6 @@ a{text-decoration:none;color:inherit}
   line-height:1.45;
 }
 
-/* SIDE */
-
 .side-title{
   margin:0 0 8px;
   font-size:1.7rem;
@@ -360,21 +350,10 @@ a{text-decoration:none;color:inherit}
   font-weight:900;
 }
 
-.status-row:last-child{
-  border-bottom:none;
-}
-
-.status-row span{
-  color:var(--muted);
-}
-
-.status-row b{
-  color:var(--gold);
-}
-
-.status-row b.green{
-  color:var(--green);
-}
+.status-row:last-child{border-bottom:none}
+.status-row span{color:var(--muted)}
+.status-row b{color:var(--gold)}
+.status-row b.green{color:var(--green)}
 
 .notice{
   margin-top:16px;
@@ -419,7 +398,15 @@ a{text-decoration:none;color:inherit}
   color:var(--green);
 }
 
-/* FLOW */
+.system-message{
+  margin-top:14px;
+  min-height:22px;
+  color:var(--green);
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
 
 .flow{
   margin-top:14px;
@@ -476,52 +463,15 @@ a{text-decoration:none;color:inherit}
 }
 
 @media(max-width:900px){
-  .header{
-    grid-template-columns:1fr;
-    height:auto;
-  }
-
-  .logo-tab{
-    width:100%;
-  }
-
-  .header-title{
-    padding:14px;
-  }
-
-  .header-nav{
-    justify-content:center;
-    padding:14px;
-    flex-wrap:wrap;
-  }
-
-  .main{
-    padding:18px 14px 0;
-  }
-
-  .record-header,
-  .verify-grid,
-  .summary-grid,
-  .meta-grid,
-  .review-grid,
-  .flow,
-  .footer{
-    grid-template-columns:1fr;
-  }
-
-  .record-header{
-    align-items:flex-start;
-    flex-direction:column;
-  }
-
-  .record-title{
-    font-size:2.6rem;
-  }
-
-  .side-panel{
-    position:relative;
-    top:auto;
-  }
+  .header{grid-template-columns:1fr;height:auto}
+  .logo-tab{width:100%}
+  .header-title{padding:14px}
+  .header-nav{justify-content:center;padding:14px;flex-wrap:wrap}
+  .main{padding:18px 14px 0}
+  .record-header,.verify-grid,.summary-grid,.meta-grid,.review-grid,.flow,.footer{grid-template-columns:1fr}
+  .record-header{align-items:flex-start;flex-direction:column}
+  .record-title{font-size:2.6rem}
+  .side-panel{position:relative;top:auto}
 }
 </style>
 </head>
@@ -553,7 +503,7 @@ a{text-decoration:none;color:inherit}
     <h1 class="record-title">Verification Request</h1>
   </div>
 
-  <div class="record-badge">Trust Layer Pending</div>
+  <div class="record-badge" id="recordBadge">Trust Layer Pending</div>
 </section>
 
 <section class="verify-grid">
@@ -573,15 +523,15 @@ a{text-decoration:none;color:inherit}
         </h2>
 
         <div class="meta-grid">
-          <div class="meta"><b>Position</b><span>Athlete Position</span></div>
-          <div class="meta"><b>Height</b><span>Athlete Height</span></div>
-          <div class="meta"><b>Weight</b><span>Athlete Weight</span></div>
-          <div class="meta"><b>City / State</b><span>City, State</span></div>
-          <div class="meta"><b>Class Year</b><span>Graduation Year</span></div>
-          <div class="meta"><b>School</b><span>Program Pending</span></div>
+          <div class="meta"><b>Position</b><span id="metaPosition">Athlete Position</span></div>
+          <div class="meta"><b>Height</b><span id="metaHeight">Athlete Height</span></div>
+          <div class="meta"><b>Weight</b><span id="metaWeight">Athlete Weight</span></div>
+          <div class="meta"><b>City / State</b><span id="metaCity">City, State</span></div>
+          <div class="meta"><b>Class Year</b><span id="metaClass">Graduation Year</span></div>
+          <div class="meta"><b>School</b><span id="metaSchool">Program Pending</span></div>
         </div>
 
-        <div class="verify-pill">Verification Pending</div>
+        <div class="verify-pill" id="verifyPill">Verification Pending</div>
 
         <p class="copy">
           Athlete profile submitted into the STATScore Trust Layer. Verification review checks
@@ -627,23 +577,25 @@ a{text-decoration:none;color:inherit}
   </p>
 
   <div class="status-card">
-    <div class="status-row"><span>Profile Status</span><b>Pending Review</b></div>
-    <div class="status-row"><span>Identity Check</span><b class="green">Submitted</b></div>
-    <div class="status-row"><span>Metric Validation</span><b>In Queue</b></div>
-    <div class="status-row"><span>Trust Score</span><b>Not Issued</b></div>
-    <div class="status-row"><span>Recruiter Access</span><b>Restricted</b></div>
+    <div class="status-row"><span>Profile Status</span><b id="profileStatus">Pending Review</b></div>
+    <div class="status-row"><span>Identity Check</span><b id="identityStatus" class="green">Submitted</b></div>
+    <div class="status-row"><span>Metric Validation</span><b id="metricStatus">In Queue</b></div>
+    <div class="status-row"><span>Trust Score</span><b id="trustScore">Not Issued</b></div>
+    <div class="status-row"><span>Recruiter Access</span><b id="recruiterAccess">Restricted</b></div>
   </div>
 
-  <div class="notice">
+  <div class="notice" id="notice">
     Official verification should not approve profile visibility until identity, evidence,
     parent/guardian permission, and review routing are complete.
   </div>
 
   <div class="submit-stack">
-    <button class="btn primary" type="button">Submit Additional Evidence <span>›</span></button>
+    <button class="btn primary" type="button" onclick="submitAdditionalEvidence()">Submit Additional Evidence <span>›</span></button>
     <button class="btn" type="button" onclick="window.location.href='snapshot-intake.html'">Return To Snapshot <span>›</span></button>
-    <button class="btn green" type="button" onclick="window.location.href='profile-access.html'">Request Verification <span>›</span></button> 
+    <button class="btn green" type="button" onclick="requestVerification()">Request Verification <span>›</span></button>
   </div>
+
+  <div class="system-message" id="systemMessage"></div>
 </aside>
 
 </section>
@@ -661,11 +613,96 @@ a{text-decoration:none;color:inherit}
 <footer class="footer">
   <div><img src="sc_logo_black.png" alt="STATScore"></div>
   <div>Official Athlete Trust Review Record</div>
-  <div class="demo-ok">✓ Verification Pipeline Active</div>
+  <div class="demo-ok" id="footerStatus">✓ Verification Pipeline Active</div>
   <div>© STATScore Systems<br>All Rights Reserved.</div>
 </footer>
 
 </main>
 </div>
+
+<script>
+const SNAPSHOT_KEY = "statscore_snapshot_draft_v1";
+const VERIFICATION_KEY = "statscore_verification_state_v1";
+
+function setMessage(message){
+  document.getElementById("systemMessage").textContent = message || "";
+}
+
+function loadSnapshotSummary(){
+  const saved = localStorage.getItem(SNAPSHOT_KEY);
+  if (!saved) return;
+
+  try {
+    const parsed = JSON.parse(saved);
+    const data = parsed.data || {};
+
+    document.getElementById("metaPosition").textContent = data.primaryPosition || "Athlete Position";
+    document.getElementById("metaHeight").textContent = data.height || "Athlete Height";
+    document.getElementById("metaWeight").textContent = data.weight || "Athlete Weight";
+    document.getElementById("metaCity").textContent = data.cityState || "City, State";
+    document.getElementById("metaClass").textContent = data.graduationClass || "Graduation Year";
+    document.getElementById("metaSchool").textContent = data.schoolProgram || "Program Pending";
+  } catch (error) {
+    console.warn("STATScore snapshot summary could not be loaded.");
+  }
+}
+
+function applyVerificationState(){
+  const state = localStorage.getItem(VERIFICATION_KEY) || "pending";
+
+  if (state === "requested") {
+    document.getElementById("recordBadge").textContent = "Verification Requested";
+    document.getElementById("verifyPill").textContent = "Verification Requested";
+    document.getElementById("profileStatus").textContent = "Requested";
+    document.getElementById("identityStatus").textContent = "Submitted";
+    document.getElementById("metricStatus").textContent = "Pending Review";
+    document.getElementById("trustScore").textContent = "Not Issued";
+    document.getElementById("recruiterAccess").textContent = "Restricted";
+    document.getElementById("notice").textContent =
+      "Verification request submitted. Profile visibility remains controlled until review is completed.";
+    document.getElementById("footerStatus").textContent = "✓ Verification Requested";
+    setMessage("Verification request active · pending review");
+  }
+
+  if (state === "evidence") {
+    document.getElementById("recordBadge").textContent = "Evidence Requested";
+    document.getElementById("verifyPill").textContent = "Evidence Pending";
+    document.getElementById("profileStatus").textContent = "Evidence Needed";
+    document.getElementById("metricStatus").textContent = "Evidence Required";
+    document.getElementById("notice").textContent =
+      "Additional evidence required. Return to Snapshot Intake to update media, metrics, or authorization fields.";
+    document.getElementById("footerStatus").textContent = "✓ Evidence Routing Active";
+    setMessage("Evidence routing active");
+  }
+}
+
+function requestVerification(){
+  localStorage.setItem(VERIFICATION_KEY, "requested");
+  sessionStorage.setItem("statscore_verification_state", "requested");
+
+  applyVerificationState();
+
+  setTimeout(() => {
+    window.location.href = "player-profile.html?verification=requested";
+  }, 900);
+}
+
+function submitAdditionalEvidence(){
+  localStorage.setItem(VERIFICATION_KEY, "evidence");
+  sessionStorage.setItem("statscore_verification_state", "evidence");
+
+  applyVerificationState();
+
+  setTimeout(() => {
+    window.location.href = "snapshot-intake.html#media";
+  }, 750);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  loadSnapshotSummary();
+  applyVerificationState();
+});
+</script>
+
 </body>
 </html> 
