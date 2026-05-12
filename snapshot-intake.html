@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -45,8 +45,6 @@ a{text-decoration:none;color:inherit}
     #020202;
 }
 
-/* HEADER */
-
 .header{
   height:92px;
   background:linear-gradient(180deg,#fff,#ededeb);
@@ -87,9 +85,7 @@ a{text-decoration:none;color:inherit}
   background:var(--red);
 }
 
-.logo-tab img{
-  width:292px;
-}
+.logo-tab img{width:292px}
 
 .header-title{
   text-align:center;
@@ -130,8 +126,6 @@ a{text-decoration:none;color:inherit}
   border:3px solid #111;
   border-radius:50%;
 }
-
-/* MAIN */
 
 .main{
   padding:22px 32px 0;
@@ -193,9 +187,7 @@ a{text-decoration:none;color:inherit}
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.035);
 }
 
-.form-panel{
-  padding:22px;
-}
+.form-panel{padding:22px}
 
 .side-panel{
   padding:20px;
@@ -226,9 +218,7 @@ a{text-decoration:none;color:inherit}
   gap:14px;
 }
 
-.form-grid.three{
-  grid-template-columns:repeat(3,1fr);
-}
+.form-grid.three{grid-template-columns:repeat(3,1fr)}
 
 .field{
   display:flex;
@@ -236,9 +226,7 @@ a{text-decoration:none;color:inherit}
   gap:7px;
 }
 
-.field.full{
-  grid-column:1 / -1;
-}
+.field.full{grid-column:1 / -1}
 
 label{
   color:#e7f7ff;
@@ -248,9 +236,7 @@ label{
   text-transform:uppercase;
 }
 
-input,
-select,
-textarea{
+input,select,textarea{
   width:100%;
   min-height:44px;
   border:1px solid rgba(255,255,255,.24);
@@ -270,21 +256,13 @@ textarea{
 }
 
 input::placeholder,
-textarea::placeholder{
-  color:rgba(255,255,255,.38);
-}
+textarea::placeholder{color:rgba(255,255,255,.38)}
 
 input:focus,
 select:focus,
 textarea:focus{
   border-color:var(--red);
   box-shadow:0 0 0 1px rgba(255,43,31,.4);
-}
-
-.help{
-  color:var(--muted);
-  font-size:.74rem;
-  line-height:1.35;
 }
 
 .upload-box{
@@ -302,8 +280,6 @@ textarea:focus{
   letter-spacing:.12em;
   text-transform:uppercase;
 }
-
-/* SIDE */
 
 .side-title{
   margin:0 0 8px;
@@ -336,17 +312,10 @@ textarea:focus{
   font-weight:900;
 }
 
-.status-row:last-child{
-  border-bottom:none;
-}
+.status-row:last-child{border-bottom:none}
 
-.status-row span{
-  color:var(--muted);
-}
-
-.status-row b{
-  color:var(--gold);
-}
+.status-row span{color:var(--muted)}
+.status-row b{color:var(--gold)}
 
 .notice{
   margin-top:16px;
@@ -391,7 +360,15 @@ textarea:focus{
   color:var(--green);
 }
 
-/* FLOW */
+.system-message{
+  margin-top:14px;
+  min-height:22px;
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--green);
+}
 
 .flow{
   margin-top:14px;
@@ -448,51 +425,15 @@ textarea:focus{
 }
 
 @media(max-width:900px){
-  .header{
-    grid-template-columns:1fr;
-    height:auto;
-  }
-
-  .logo-tab{
-    width:100%;
-  }
-
-  .header-title{
-    padding:14px;
-  }
-
-  .header-nav{
-    justify-content:center;
-    padding:14px;
-    flex-wrap:wrap;
-  }
-
-  .main{
-    padding:18px 14px 0;
-  }
-
-  .record-header,
-  .intake-grid,
-  .form-grid,
-  .form-grid.three,
-  .flow,
-  .footer{
-    grid-template-columns:1fr;
-  }
-
-  .record-header{
-    align-items:flex-start;
-    flex-direction:column;
-  }
-
-  .record-title{
-    font-size:2.6rem;
-  }
-
-  .side-panel{
-    position:relative;
-    top:auto;
-  }
+  .header{grid-template-columns:1fr;height:auto}
+  .logo-tab{width:100%}
+  .header-title{padding:14px}
+  .header-nav{justify-content:center;padding:14px;flex-wrap:wrap}
+  .main{padding:18px 14px 0}
+  .record-header,.intake-grid,.form-grid,.form-grid.three,.flow,.footer{grid-template-columns:1fr}
+  .record-header{align-items:flex-start;flex-direction:column}
+  .record-title{font-size:2.6rem}
+  .side-panel{position:relative;top:auto}
 }
 </style>
 </head>
@@ -524,46 +465,26 @@ textarea:focus{
     <h1 class="record-title">Snapshot Intake</h1>
   </div>
 
-  <div class="record-badge">Scoring Pending</div>
+  <div class="record-badge" id="recordBadge">Scoring Pending</div>
 </section>
 
 <section class="intake-grid">
 
-<form class="form-panel">
+<form class="form-panel" id="snapshotForm">
 
   <section class="section">
     <h2 class="section-title">Athlete Identity</h2>
 
     <div class="form-grid">
-      <div class="field">
-        <label>First Name</label>
-        <input type="text" placeholder="Athlete first name">
-      </div>
-
-      <div class="field">
-        <label>Last Name</label>
-        <input type="text" placeholder="Athlete last name">
-      </div>
-
-      <div class="field">
-        <label>Graduation Class</label>
-        <input type="text" placeholder="2027">
-      </div>
-
-      <div class="field">
-        <label>City / State</label>
-        <input type="text" placeholder="Pensacola, FL">
-      </div>
-
-      <div class="field">
-        <label>School / Program</label>
-        <input type="text" placeholder="School or club program">
-      </div>
-
+      <div class="field"><label>First Name</label><input name="firstName" type="text" placeholder="Athlete first name"></div>
+      <div class="field"><label>Last Name</label><input name="lastName" type="text" placeholder="Athlete last name"></div>
+      <div class="field"><label>Graduation Class</label><input name="graduationClass" type="text" placeholder="2027"></div>
+      <div class="field"><label>City / State</label><input name="cityState" type="text" placeholder="Pensacola, FL"></div>
+      <div class="field"><label>School / Program</label><input name="schoolProgram" type="text" placeholder="School or club program"></div>
       <div class="field">
         <label>Primary Sport</label>
-        <select>
-          <option>Select sport</option>
+        <select name="primarySport">
+          <option value="">Select sport</option>
           <option>Football</option>
           <option>Basketball</option>
           <option>Baseball</option>
@@ -580,35 +501,12 @@ textarea:focus{
     <h2 class="section-title">Physical Profile</h2>
 
     <div class="form-grid three">
-      <div class="field">
-        <label>Height</label>
-        <input type="text" placeholder="5'10&quot;">
-      </div>
-
-      <div class="field">
-        <label>Weight</label>
-        <input type="text" placeholder="185 lbs">
-      </div>
-
-      <div class="field">
-        <label>Primary Position</label>
-        <input type="text" placeholder="Running Back">
-      </div>
-
-      <div class="field">
-        <label>Secondary Position</label>
-        <input type="text" placeholder="Optional">
-      </div>
-
-      <div class="field">
-        <label>Dominant Hand / Foot</label>
-        <input type="text" placeholder="Right / Left / Both">
-      </div>
-
-      <div class="field">
-        <label>Jersey Number</label>
-        <input type="text" placeholder="#5">
-      </div>
+      <div class="field"><label>Height</label><input name="height" type="text" placeholder="5'10&quot;"></div>
+      <div class="field"><label>Weight</label><input name="weight" type="text" placeholder="185 lbs"></div>
+      <div class="field"><label>Primary Position</label><input name="primaryPosition" type="text" placeholder="Running Back"></div>
+      <div class="field"><label>Secondary Position</label><input name="secondaryPosition" type="text" placeholder="Optional"></div>
+      <div class="field"><label>Dominant Hand / Foot</label><input name="dominantHandFoot" type="text" placeholder="Right / Left / Both"></div>
+      <div class="field"><label>Jersey Number</label><input name="jerseyNumber" type="text" placeholder="#5"></div>
     </div>
   </section>
 
@@ -616,40 +514,13 @@ textarea:focus{
     <h2 class="section-title">Performance Metrics</h2>
 
     <div class="form-grid three">
-      <div class="field">
-        <label>40-Yard Dash</label>
-        <input type="text" placeholder="4.58">
-      </div>
-
-      <div class="field">
-        <label>Vertical Jump</label>
-        <input type="text" placeholder="34&quot;">
-      </div>
-
-      <div class="field">
-        <label>Shuttle</label>
-        <input type="text" placeholder="4.21">
-      </div>
-
-      <div class="field">
-        <label>Broad Jump</label>
-        <input type="text" placeholder="Optional">
-      </div>
-
-      <div class="field">
-        <label>Bench / Strength Marker</label>
-        <input type="text" placeholder="Optional">
-      </div>
-
-      <div class="field">
-        <label>Verified Event Source</label>
-        <input type="text" placeholder="Camp, combine, school, coach">
-      </div>
-
-      <div class="field full">
-        <label>Position-Specific Notes</label>
-        <textarea placeholder="Example: contact balance, burst, route polish, vision, release package, defensive range, shooting efficiency, etc."></textarea>
-      </div>
+      <div class="field"><label>40-Yard Dash</label><input name="dash40" type="text" placeholder="4.58"></div>
+      <div class="field"><label>Vertical Jump</label><input name="verticalJump" type="text" placeholder="34&quot;"></div>
+      <div class="field"><label>Shuttle</label><input name="shuttle" type="text" placeholder="4.21"></div>
+      <div class="field"><label>Broad Jump</label><input name="broadJump" type="text" placeholder="Optional"></div>
+      <div class="field"><label>Bench / Strength Marker</label><input name="strengthMarker" type="text" placeholder="Optional"></div>
+      <div class="field"><label>Verified Event Source</label><input name="verifiedEventSource" type="text" placeholder="Camp, combine, school, coach"></div>
+      <div class="field full"><label>Position-Specific Notes</label><textarea name="positionNotes" placeholder="Example: contact balance, burst, route polish, vision, release package, defensive range, shooting efficiency, etc."></textarea></div>
     </div>
   </section>
 
@@ -657,15 +528,11 @@ textarea:focus{
     <h2 class="section-title">Academic Readiness</h2>
 
     <div class="form-grid">
-      <div class="field">
-        <label>Current GPA</label>
-        <input type="text" placeholder="Example: 3.3">
-      </div>
-
+      <div class="field"><label>Current GPA</label><input name="currentGpa" type="text" placeholder="Example: 3.3"></div>
       <div class="field">
         <label>NCAA Eligibility Status</label>
-        <select>
-          <option>Select status</option>
+        <select name="ncaaEligibilityStatus">
+          <option value="">Select status</option>
           <option>Not Started</option>
           <option>In Progress</option>
           <option>On Track</option>
@@ -673,31 +540,25 @@ textarea:focus{
           <option>Verified Track</option>
         </select>
       </div>
-
       <div class="field">
         <label>Transcript Available?</label>
-        <select>
-          <option>Select</option>
+        <select name="transcriptAvailable">
+          <option value="">Select</option>
           <option>Yes</option>
           <option>No</option>
           <option>Parent/Guardian Permission Required</option>
         </select>
       </div>
-
       <div class="field">
         <label>Counselor Contact Available?</label>
-        <select>
-          <option>Select</option>
+        <select name="counselorContactAvailable">
+          <option value="">Select</option>
           <option>Yes</option>
           <option>No</option>
           <option>Pending</option>
         </select>
       </div>
-
-      <div class="field full">
-        <label>Academic Notes</label>
-        <textarea placeholder="Academic readiness notes, eligibility concerns, honors, course completion, or support needs."></textarea>
-      </div>
+      <div class="field full"><label>Academic Notes</label><textarea name="academicNotes" placeholder="Academic readiness notes, eligibility concerns, honors, course completion, or support needs."></textarea></div>
     </div>
   </section>
 
@@ -705,30 +566,11 @@ textarea:focus{
     <h2 class="section-title">Media / Highlight Links</h2>
 
     <div class="form-grid">
-      <div class="field">
-        <label>Highlight Reel URL</label>
-        <input type="url" placeholder="Hudl, YouTube, X, Instagram, etc.">
-      </div>
-
-      <div class="field">
-        <label>Social Profile URL</label>
-        <input type="url" placeholder="Athlete public social profile">
-      </div>
-
-      <div class="field">
-        <label>Game Film URL</label>
-        <input type="url" placeholder="Optional">
-      </div>
-
-      <div class="field">
-        <label>Recruiting Profile URL</label>
-        <input type="url" placeholder="Optional">
-      </div>
-
-      <div class="field full">
-        <label>Upload Athlete Image / Headshot</label>
-        <div class="upload-box">Upload module placeholder — connect to storage later</div>
-      </div>
+      <div class="field"><label>Highlight Reel URL</label><input name="highlightUrl" type="url" placeholder="Hudl, YouTube, X, Instagram, etc."></div>
+      <div class="field"><label>Social Profile URL</label><input name="socialProfileUrl" type="url" placeholder="Athlete public social profile"></div>
+      <div class="field"><label>Game Film URL</label><input name="gameFilmUrl" type="url" placeholder="Optional"></div>
+      <div class="field"><label>Recruiting Profile URL</label><input name="recruitingProfileUrl" type="url" placeholder="Optional"></div>
+      <div class="field full"><label>Upload Athlete Image / Headshot</label><div class="upload-box">Upload module placeholder — connect to storage later</div></div>
     </div>
   </section>
 
@@ -736,35 +578,15 @@ textarea:focus{
     <h2 class="section-title">Parent / Guardian & Verification</h2>
 
     <div class="form-grid">
-      <div class="field">
-        <label>Parent / Guardian Name</label>
-        <input type="text" placeholder="Full name">
-      </div>
-
-      <div class="field">
-        <label>Parent / Guardian Email</label>
-        <input type="email" placeholder="email@example.com">
-      </div>
-
-      <div class="field">
-        <label>Parent / Guardian Phone</label>
-        <input type="tel" placeholder="Optional">
-      </div>
-
-      <div class="field">
-        <label>Coach Name</label>
-        <input type="text" placeholder="Coach or program contact">
-      </div>
-
-      <div class="field">
-        <label>Coach Email</label>
-        <input type="email" placeholder="coach@example.com">
-      </div>
-
+      <div class="field"><label>Parent / Guardian Name</label><input name="guardianName" type="text" placeholder="Full name"></div>
+      <div class="field"><label>Parent / Guardian Email</label><input name="guardianEmail" type="email" placeholder="email@example.com"></div>
+      <div class="field"><label>Parent / Guardian Phone</label><input name="guardianPhone" type="tel" placeholder="Optional"></div>
+      <div class="field"><label>Coach Name</label><input name="coachName" type="text" placeholder="Coach or program contact"></div>
+      <div class="field"><label>Coach Email</label><input name="coachEmail" type="email" placeholder="coach@example.com"></div>
       <div class="field">
         <label>Verification Permission</label>
-        <select>
-          <option>Select</option>
+        <select name="verificationPermission">
+          <option value="">Select</option>
           <option>Parent/Guardian approved</option>
           <option>Athlete approved</option>
           <option>Pending approval</option>
@@ -782,24 +604,24 @@ textarea:focus{
   </p>
 
   <div class="status-card">
-    <div class="status-row"><span>Profile</span><b>Pending</b></div>
-    <div class="status-row"><span>Metrics</span><b>Pending</b></div>
-    <div class="status-row"><span>Academic</span><b>Pending</b></div>
-    <div class="status-row"><span>Verification</span><b>Pending</b></div>
-    <div class="status-row"><span>Score</span><b>Not Issued</b></div>
+    <div class="status-row"><span>Profile</span><b id="statusProfile">Pending</b></div>
+    <div class="status-row"><span>Metrics</span><b id="statusMetrics">Pending</b></div>
+    <div class="status-row"><span>Academic</span><b id="statusAcademic">Pending</b></div>
+    <div class="status-row"><span>Verification</span><b id="statusVerification">Pending</b></div>
+    <div class="status-row"><span>Score</span><b id="statusScore">Not Issued</b></div>
   </div>
 
-  <div class="notice">
+  <div class="notice" id="snapshotNotice">
     Official score generation should not occur until Snapshot data, verification evidence, and parent/guardian permissions are complete.
   </div>
 
   <div class="submit-stack">
-    <button class="btn primary" type="button">Submit Snapshot <span>›</span></button>
-    <button class="btn" type="button">Save Draft <span>›</span></button>
-    <button class="btn green" type="button" onclick="window.location.href='verification-request.html'">
-  Request Verification <span>›</span>
-</button> 
+    <button class="btn primary" type="button" onclick="submitSnapshot()">Submit Snapshot <span>›</span></button>
+    <button class="btn" type="button" onclick="saveDraft()">Save Draft <span>›</span></button>
+    <button class="btn green" type="button" onclick="window.location.href='verification-request.html'">Request Verification <span>›</span></button>
   </div>
+
+  <div class="system-message" id="systemMessage"></div>
 </aside>
 
 </section>
@@ -823,5 +645,128 @@ textarea:focus{
 
 </main>
 </div>
+
+<script>
+const STORAGE_KEY = "statscore_snapshot_draft_v1";
+const STATE_KEY = "statscore_snapshot_state_v1";
+
+function getFormData(){
+  const form = document.getElementById("snapshotForm");
+  const data = {};
+  Array.from(form.elements).forEach((el) => {
+    if (!el.name) return;
+    data[el.name] = el.value;
+  });
+  return data;
+}
+
+function setFormData(data){
+  const form = document.getElementById("snapshotForm");
+  Array.from(form.elements).forEach((el) => {
+    if (!el.name || data[el.name] === undefined) return;
+    el.value = data[el.name];
+  });
+}
+
+function setMessage(message, color){
+  const el = document.getElementById("systemMessage");
+  el.textContent = message || "";
+  el.style.color = color || "var(--green)";
+}
+
+function setStatus(id, text, color){
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.style.color = color;
+}
+
+function updateControlPanel(state){
+  if (!state) state = "pending";
+
+  if (state === "draft") {
+    document.getElementById("recordBadge").textContent = "Draft Saved";
+    setStatus("statusProfile", "Draft", "var(--gold)");
+    setStatus("statusMetrics", "Draft", "var(--gold)");
+    setStatus("statusAcademic", "Draft", "var(--gold)");
+    setStatus("statusVerification", "Pending", "var(--gold)");
+    setStatus("statusScore", "Not Issued", "var(--gold)");
+    document.getElementById("snapshotNotice").textContent =
+      "Draft saved. Snapshot has not been submitted for verification.";
+  }
+
+  if (state === "submitted") {
+    document.getElementById("recordBadge").textContent = "Snapshot Submitted";
+    setStatus("statusProfile", "Submitted", "var(--green)");
+    setStatus("statusMetrics", "Submitted", "var(--green)");
+    setStatus("statusAcademic", "Submitted", "var(--green)");
+    setStatus("statusVerification", "Pending Review", "var(--gold)");
+    setStatus("statusScore", "Not Issued", "var(--gold)");
+    document.getElementById("snapshotNotice").textContent =
+      "Snapshot submitted. Official score remains pending until verification evidence and parent/guardian permissions are complete.";
+  }
+}
+
+function saveDraft(){
+  const data = getFormData();
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    savedAt: new Date().toISOString(),
+    data
+  }));
+
+  localStorage.setItem(STATE_KEY, "draft");
+  sessionStorage.setItem("statscore_snapshot_state", "draft");
+
+  updateControlPanel("draft");
+  setMessage("Draft saved · intake state preserved");
+}
+
+function submitSnapshot(){
+  const data = getFormData();
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    submittedAt: new Date().toISOString(),
+    data
+  }));
+
+  localStorage.setItem(STATE_KEY, "submitted");
+  sessionStorage.setItem("statscore_snapshot_state", "submitted");
+  sessionStorage.setItem("statscore_snapshot_submitted", "true");
+
+  updateControlPanel("submitted");
+  setMessage("Snapshot submitted · routing to athlete system");
+
+  setTimeout(() => {
+    window.location.href = "system.html?role=athlete&snapshot=submitted";
+  }, 950);
+}
+
+function loadDraft(){
+  const saved = localStorage.getItem(STORAGE_KEY);
+  const state = localStorage.getItem(STATE_KEY) || "pending";
+
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      if (parsed.data) setFormData(parsed.data);
+    } catch (error) {
+      console.warn("Unable to load STATScore draft state.");
+    }
+  }
+
+  updateControlPanel(state);
+
+  if (state === "draft") {
+    setMessage("Draft loaded · intake state active");
+  }
+
+  if (state === "submitted") {
+    setMessage("Submitted snapshot loaded · verification pending");
+  }
+}
+
+document.addEventListener("DOMContentLoaded", loadDraft);
+</script>
+
 </body>
 </html> 
