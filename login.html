@@ -3,506 +3,304 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>STATSCORE — Access Authorization</title>
+<title>STATScore — System Login</title>
 
 <style>
 :root{
-  --red:#e01414;
-  --red2:#ff2a1f;
-  --white:#f4f4f1;
-  --muted:#8b8b8b;
+  --red:#f02a22;
+  --green:#37e66b;
+  --bg:#050505;
+  --panel:rgba(8,10,14,.88);
+  --line:rgba(240,42,34,.42);
+  --text:#f4f4f1;
+  --muted:#9aa4ad;
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
 
 html,body{
   width:100%;
-  height:100%;
-  overflow:hidden;
+  min-height:100%;
   background:#000;
+  color:var(--text);
   font-family:Arial, Helvetica, sans-serif;
-  color:var(--white);
 }
 
 body{
-  position:relative;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:28px;
   background:
-    radial-gradient(circle at center,rgba(110,0,0,.28),rgba(0,0,0,.92) 68%,#000 100%);
+    linear-gradient(90deg,rgba(0,0,0,.92),rgba(10,0,0,.76),rgba(0,0,0,.94)),
+    radial-gradient(circle at center,rgba(240,42,34,.20),transparent 46%),
+    #020202;
 }
 
-/* subtle scan */
-body::before{
+.login-shell{
+  width:min(1120px,100%);
+  min-height:620px;
+  border:1px solid var(--line);
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.03),transparent 34%),
+    var(--panel);
+  display:grid;
+  grid-template-columns:1.15fr .85fr;
+  box-shadow:0 0 80px rgba(240,42,34,.15);
+  position:relative;
+  overflow:hidden;
+}
+
+.login-shell::before{
   content:"";
   position:absolute;
   inset:0;
+  background:url("sc_emblem.png") center/620px no-repeat;
+  opacity:.08;
+  pointer-events:none;
+}
+
+.left,
+.right{
+  position:relative;
   z-index:2;
-  pointer-events:none;
-  background:repeating-linear-gradient(
-    0deg,
-    rgba(255,255,255,.018) 0,
-    rgba(255,255,255,.018) 1px,
-    transparent 1px,
-    transparent 5px
-  );
+  padding:54px;
 }
-
-/* watermark */
-body::after{
-  content:"";
-  position:absolute;
-  width:92vw;
-  height:92vw;
-  max-width:1180px;
-  max-height:1180px;
-  left:50%;
-  top:53%;
-  transform:translate(-50%,-50%);
-  background:url("sc_emblem.png") center/contain no-repeat;
-  opacity:.15;
-  filter:drop-shadow(0 0 90px rgba(224,20,20,.32));
-  z-index:1;
-}
-
-.screen{
-  position:relative;
-  z-index:5;
-  width:100vw;
-  height:100vh;
-  padding:28px 46px 32px;
-  display:grid;
-  grid-template-rows:74px 1fr 78px;
-}
-
-/* frame */
-.frame{
-  position:absolute;
-  inset:22px;
-  border:1px solid rgba(224,20,20,.22);
-  z-index:4;
-  pointer-events:none;
-}
-
-.corner{
-  position:absolute;
-  width:44px;
-  height:44px;
-  z-index:6;
-  pointer-events:none;
-}
-
-.c1{top:22px;left:22px;border-top:2px solid rgba(224,20,20,.55);border-left:2px solid rgba(224,20,20,.55)}
-.c2{top:22px;right:22px;border-top:2px solid rgba(224,20,20,.55);border-right:2px solid rgba(224,20,20,.55)}
-.c3{bottom:22px;left:22px;border-bottom:2px solid rgba(224,20,20,.55);border-left:2px solid rgba(224,20,20,.55)}
-.c4{bottom:22px;right:22px;border-bottom:2px solid rgba(224,20,20,.55);border-right:2px solid rgba(224,20,20,.55)}
-
-.header{
-  position:relative;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.header::before,
-.header::after{
-  content:"";
-  position:absolute;
-  top:50%;
-  width:33%;
-  height:2px;
-  background:linear-gradient(90deg,transparent,var(--red),transparent);
-}
-
-.header::before{left:0}
-.header::after{right:0}
 
 .logo{
-  height:52px;
-  max-width:330px;
-  object-fit:contain;
-  filter:drop-shadow(0 0 20px rgba(224,20,20,.42));
+  width:260px;
+  margin-bottom:70px;
 }
 
-.top-label{
-  position:absolute;
-  top:48px;
-  font-size:10px;
-  letter-spacing:2.6px;
-  text-transform:uppercase;
-  color:#777;
+.kicker{
+  color:var(--red);
+  font-size:.75rem;
   font-weight:900;
-}
-
-.top-label.left{left:0}
-.top-label.right{right:0}
-
-/* center */
-.main{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.auth{
-  width:min(760px,72vw);
-  text-align:center;
-  transform:translateY(-6px);
-}
-
-.title{
-  white-space:nowrap;
-  font-size:clamp(22px,2.55vw,38px);
-  line-height:1;
-  letter-spacing:clamp(6px,.9vw,13px);
-  font-weight:900;
+  letter-spacing:.28em;
   text-transform:uppercase;
+  margin-bottom:14px;
+}
+
+h1{
+  font-size:4.2rem;
+  line-height:.9;
+  text-transform:uppercase;
+  letter-spacing:-.05em;
   margin-bottom:26px;
 }
 
-.title .red{color:var(--red)}
+h1 span{color:var(--red)}
 
-.subbox{
-  display:inline-block;
-  border-left:2px solid rgba(224,20,20,.58);
-  border-right:2px solid rgba(224,20,20,.58);
-  padding:12px 38px;
-  margin-bottom:48px;
-  background:rgba(0,0,0,.28);
-  color:#9d9d9d;
-  font-size:clamp(10px,.9vw,13px);
-  line-height:2;
-  letter-spacing:4px;
-  font-weight:900;
+.copy{
+  max-width:620px;
+  color:#d5eef8;
+  font-size:1rem;
+  line-height:1.65;
+  font-weight:700;
+}
+
+.access-strip{
+  margin-top:42px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+  max-width:640px;
+}
+
+.access-card{
+  border:1px solid rgba(255,255,255,.16);
+  padding:16px;
+  background:rgba(255,255,255,.035);
+}
+
+.access-card b{
+  display:block;
+  color:var(--red);
+  font-size:.65rem;
+  letter-spacing:.18em;
   text-transform:uppercase;
+  margin-bottom:8px;
 }
 
-.form{
-  width:min(520px,100%);
-  margin:0 auto;
-  text-align:left;
+.access-card span{
+  font-weight:900;
 }
 
-.field{margin-bottom:22px}
+.right{
+  border-left:1px solid rgba(255,255,255,.12);
+  background:rgba(0,0,0,.28);
+}
+
+.login-title{
+  font-size:2.6rem;
+  line-height:1;
+  text-transform:uppercase;
+  margin-bottom:18px;
+}
+
+.login-title span{color:var(--red)}
+
+.login-copy{
+  color:#9edfff;
+  line-height:1.55;
+  font-weight:700;
+  margin-bottom:36px;
+}
 
 label{
   display:block;
   margin-bottom:10px;
-  color:#e7e7e7;
-  font-size:12px;
-  letter-spacing:5px;
+  color:#fff;
+  font-size:.72rem;
   font-weight:900;
+  letter-spacing:.22em;
   text-transform:uppercase;
 }
 
-.input-wrap{
-  position:relative;
+.field{
+  margin-bottom:22px;
 }
 
 input{
   width:100%;
   height:58px;
-  border:1px solid rgba(224,20,20,.48);
-  background:rgba(0,0,0,.76);
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.22);
   color:white;
+  padding:0 16px;
+  font-size:1rem;
   outline:none;
-  padding:0 58px;
-  font-size:15px;
 }
-
-input::placeholder{color:#777}
 
 input:focus{
-  border-color:var(--red2);
-  box-shadow:0 0 28px rgba(224,20,20,.25);
-}
-
-.icon{
-  position:absolute;
-  left:19px;
-  top:50%;
-  transform:translateY(-50%);
-  color:var(--red);
-  font-size:18px;
-}
-
-.eye{
-  position:absolute;
-  right:19px;
-  top:50%;
-  transform:translateY(-50%);
-  color:#777;
-  font-size:18px;
+  border-color:var(--red);
+  box-shadow:0 0 24px rgba(240,42,34,.18);
 }
 
 button{
   width:100%;
-  height:72px;
-  margin-top:14px;
-  border:1px solid rgba(255,255,255,.08);
-  background:linear-gradient(180deg,#ff251c,#b40707);
+  height:62px;
+  border:1px solid var(--red);
+  background:linear-gradient(180deg,#ff382e,#b70b0b);
   color:white;
+  font-weight:900;
+  letter-spacing:.22em;
+  text-transform:uppercase;
   cursor:pointer;
-  font-size:16px;
-  letter-spacing:8px;
-  font-weight:900;
-  text-transform:uppercase;
-  box-shadow:0 0 50px rgba(224,20,20,.32);
+  margin-top:6px;
 }
 
-.notice{
-  margin-top:24px;
-  text-align:center;
+.demo-box{
+  margin-top:26px;
+  border:1px solid rgba(255,255,255,.14);
+  padding:18px;
+  color:var(--muted);
+  font-size:.82rem;
+  line-height:1.6;
+}
+
+.demo-box b{
+  color:#fff;
+}
+
+.status{
+  margin-top:18px;
+  min-height:22px;
+  color:var(--green);
+  font-weight:900;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  font-size:.75rem;
+}
+
+.error{
   color:var(--red);
-  font-size:12px;
-  letter-spacing:4px;
-  font-weight:900;
-  text-transform:uppercase;
 }
 
-.notice::before,
-.notice::after{
-  content:"";
-  display:inline-block;
-  width:88px;
-  height:1px;
-  background:rgba(224,20,20,.45);
-  vertical-align:middle;
-  margin:0 22px;
-}
-
-/* footer */
-.footer{
-  position:relative;
-  display:flex;
-  align-items:flex-end;
-  justify-content:center;
-}
-
-.monitor{
-  width:min(560px,50vw);
-  text-align:center;
-  color:#858585;
-  font-size:10px;
-  line-height:2;
-  letter-spacing:3px;
-  font-weight:900;
-  text-transform:uppercase;
-  padding:8px 18px;
-  border-left:2px solid rgba(224,20,20,.48);
-  border-right:2px solid rgba(224,20,20,.48);
-  margin-bottom:4px;
-}
-
-.version,
-.systems{
+.footer-note{
   position:absolute;
-  bottom:0;
-  color:var(--red);
-  font-size:10px;
-  letter-spacing:3px;
-  font-weight:900;
+  left:54px;
+  bottom:26px;
+  color:#777;
+  font-size:.68rem;
+  letter-spacing:.22em;
   text-transform:uppercase;
 }
-
-.version{left:0}
-.systems{right:0}
-
-/* keep border labels subtle and inside frame */
-.side-left,
-.side-right{
-  position:absolute;
-  top:50%;
-  z-index:6;
-  transform:translateY(-50%);
-  color:rgba(255,255,255,.38);
-  font-size:9px;
-  letter-spacing:5px;
-  text-transform:uppercase;
-  font-weight:900;
-  writing-mode:vertical-rl;
-  pointer-events:none;
-}
-
-.side-left{
-  left:42px;
-  transform:translateY(-50%) rotate(180deg);
-}
-
-.side-right{
-  right:42px;
-}
-
-/* clearance */
-.clearance{
-  position:fixed;
-  inset:0;
-  z-index:100;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  flex-direction:column;
-  background:radial-gradient(circle at center,rgba(80,0,0,.35),rgba(0,0,0,.95) 64%);
-}
-
-.clearance.active{display:flex}
-
-.clearance-step{
-  margin:12px 0;
-  color:#666;
-  font-size:14px;
-  font-weight:900;
-  letter-spacing:6px;
-  text-transform:uppercase;
-}
-
-.clearance-step.active{
-  color:#43ff75;
-  text-shadow:0 0 22px rgba(67,255,117,.42);
-}
-
-.granted{
-  margin-top:30px;
-  opacity:0;
-  color:var(--red2);
-  font-size:16px;
-  font-weight:900;
-  letter-spacing:7px;
-  text-transform:uppercase;
-}
-
-.granted.active{opacity:1}
 
 @media(max-width:900px){
-  .screen{
-    padding:24px 24px 26px;
-    grid-template-rows:64px 1fr 72px;
-  }
-
-  .top-label,
-  .side-left,
-  .side-right,
-  .version,
-  .systems{
-    display:none;
-  }
-
-  .header::before,
-  .header::after{
-    width:24%;
-  }
-
-  .logo{height:42px}
-
-  .auth{
-    width:88vw;
-  }
-
-  .title{
-    white-space:normal;
-    font-size:22px;
-    line-height:1.5;
-    letter-spacing:7px;
-  }
-
-  .subbox{
-    width:100%;
-    padding:10px 14px;
-    margin-bottom:30px;
-    letter-spacing:2px;
-  }
-
-  .monitor{
-    width:86vw;
-    font-size:9px;
-    letter-spacing:2px;
-  }
-
-  .notice::before,
-  .notice::after{
-    width:34px;
-    margin:0 8px;
-  }
+  body{padding:14px;align-items:flex-start}
+  .login-shell{grid-template-columns:1fr}
+  .left,.right{padding:32px}
+  .right{border-left:none;border-top:1px solid rgba(255,255,255,.12)}
+  h1{font-size:3rem}
+  .access-strip{grid-template-columns:1fr}
+  .footer-note{position:relative;left:auto;bottom:auto;margin:0 32px 28px}
 }
 </style>
 </head>
 
 <body>
 
-<div class="frame"></div>
-<div class="corner c1"></div>
-<div class="corner c2"></div>
-<div class="corner c3"></div>
-<div class="corner c4"></div>
+<section class="login-shell">
 
-<div class="side-left">Performance • Visibility • Access</div>
-<div class="side-right">Secure • Verified • Controlled</div>
+  <div class="left">
+    <img class="logo" src="statscore-logo.png" alt="STATScore">
 
-<section class="screen">
+    <div class="kicker">Verified Athlete System</div>
 
-  <header class="header">
-    <div class="top-label left">Controlled Access Environment</div>
-    <img class="logo" src="statscore-logo.png" alt="STATSCORE">
-    <div class="top-label right">Authorized Personnel Only ///</div>
-  </header>
+    <h1>Access<br><span>Authorization</span></h1>
 
-  <main class="main">
-    <section class="auth">
+    <p class="copy">
+      Authorized visibility, recruiting access, eligibility tracking, athlete intelligence routing,
+      and controlled communication permissions are governed through the STATScore national access infrastructure.
+    </p>
 
-      <h1 class="title">
-        <span class="red">STATSCORE</span> ACCESS AUTHORIZATION
-      </h1>
+    <div class="access-strip">
+      <div class="access-card"><b>Access Type</b><span>Role-Based</span></div>
+      <div class="access-card"><b>Visibility</b><span>Controlled</span></div>
+      <div class="access-card"><b>Compliance</b><span>NCAA Aware</span></div>
+    </div>
+  </div>
 
-      <div class="subbox">
-        National Athlete Infrastructure<br>
-        Controlled Identity Verification
+  <div class="right">
+    <h2 class="login-title">System <span>Login</span></h2>
+
+    <p class="login-copy">
+      Demo permissions route users by role: athlete, parent, coach, counselor, recruiter, evaluator, and program.
+    </p>
+
+    <form onsubmit="event.preventDefault(); loginDemo();">
+      <div class="field">
+        <label>Authorized Email</label>
+        <input id="email" type="email" placeholder="Enter authorized email">
       </div>
 
-      <form class="form" onsubmit="event.preventDefault(); startClearance();">
+      <div class="field">
+        <label>Access Password</label>
+        <input id="password" type="password" placeholder="Enter secure password">
+      </div>
 
-        <div class="field">
-          <label>Email</label>
-          <div class="input-wrap">
-            <span class="icon">●</span>
-            <input type="email" placeholder="Enter authorized email" />
-          </div>
-        </div>
+      <button type="submit">Enter Controlled System</button>
+    </form>
 
-        <div class="field">
-          <label>Password</label>
-          <div class="input-wrap">
-            <span class="icon">▣</span>
-            <input type="password" placeholder="Enter password" />
-            <span class="eye">◉</span>
-          </div>
-        </div>
+    <div id="status" class="status"></div>
 
-        <button type="submit">Access System ›</button>
-      </form>
-
-      <div class="notice">Authorized Visibility Only</div>
-
-    </section>
-  </main>
-
-  <footer class="footer">
-    <div class="version">Version 1.0.0</div>
-
-    <div class="monitor">
-      All access attempts are monitored and routed<br>
-      through STATSCORE infrastructure
+    <div class="demo-box">
+      <b>Demo Login:</b><br>
+      athlete@demo.com / demo123<br>
+      parent@demo.com / demo123<br>
+      coach@demo.com / demo123<br>
+      counselor@demo.com / demo123<br>
+      recruiter@demo.com / demo123<br>
+      evaluator@demo.com / demo123<br>
+      program@demo.com / demo123
     </div>
+  </div>
 
-    <div class="systems">STATSCORE Systems</div>
-  </footer>
+  <div class="footer-note">STATScore Systems · Controlled Access Infrastructure</div>
 
 </section>
-
-<div class="clearance" id="clearance">
-  <div class="clearance-step" id="s1">Verifying Identity</div>
-  <div class="clearance-step" id="s2">Resolving Access Role</div>
-  <div class="clearance-step" id="s3">Checking Visibility Clearance</div>
-  <div class="clearance-step" id="s4">Loading Authorized System</div>
-  <div class="granted" id="granted">System Access Granted</div>
-</div>
 
 <script>
 const DEMO_USERS = {
@@ -515,28 +313,26 @@ const DEMO_USERS = {
   "program@demo.com": "system.html?role=program"
 };
 
-function startClearance(){
-  const email = document.querySelector('input[type="email"]').value.trim().toLowerCase();
-  const password = document.querySelector('input[type="password"]').value.trim();
+function loginDemo(){
+  const email = document.getElementById("email").value.trim().toLowerCase();
+  const password = document.getElementById("password").value.trim();
+  const status = document.getElementById("status");
 
   if(!DEMO_USERS[email] || password !== "demo123"){
-    alert("INVALID AUTHORIZATION");
+    status.textContent = "Invalid authorization";
+    status.classList.add("error");
     return;
   }
 
-  sessionStorage.setItem("statscore_role", email);
+  sessionStorage.setItem("statscore_user_email", email);
+  sessionStorage.setItem("statscore_role", email.split("@")[0]);
 
-  document.getElementById("clearance").classList.add("active");
+  status.classList.remove("error");
+  status.textContent = "Access granted · routing clearance";
 
-  setTimeout(()=>document.getElementById("s1").classList.add("active"),350);
-  setTimeout(()=>document.getElementById("s2").classList.add("active"),1000);
-  setTimeout(()=>document.getElementById("s3").classList.add("active"),1650);
-  setTimeout(()=>document.getElementById("s4").classList.add("active"),2300);
-  setTimeout(()=>document.getElementById("granted").classList.add("active"),3000);
-
-  setTimeout(()=>{
+  setTimeout(() => {
     window.location.href = DEMO_USERS[email];
-  },4100);
+  }, 900);
 }
 </script>
 
