@@ -3,27 +3,17 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>STATScore — System Login</title>
+<title>STATScore — Login</title>
 
 <style>
-:root{
-  --red:#f02a22;
-  --green:#37e66b;
-  --bg:#050505;
-  --panel:rgba(8,10,14,.88);
-  --line:rgba(240,42,34,.42);
-  --text:#f4f4f1;
-  --muted:#9aa4ad;
-}
-
 *{box-sizing:border-box;margin:0;padding:0}
 
 html,body{
   width:100%;
   min-height:100%;
-  background:#000;
-  color:var(--text);
   font-family:Arial, Helvetica, sans-serif;
+  background:#8b0000;
+  color:white;
 }
 
 body{
@@ -31,276 +21,137 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
-  padding:28px;
+  padding:24px;
   background:
-    linear-gradient(90deg,rgba(0,0,0,.92),rgba(10,0,0,.76),rgba(0,0,0,.94)),
-    radial-gradient(circle at center,rgba(240,42,34,.20),transparent 46%),
-    #020202;
+    linear-gradient(135deg,#3a0000,#9b0000 45%,#160000);
 }
 
-.login-shell{
-  width:min(1120px,100%);
-  min-height:620px;
-  border:1px solid var(--line);
-  background:
-    linear-gradient(135deg,rgba(255,255,255,.03),transparent 34%),
-    var(--panel);
-  display:grid;
-  grid-template-columns:1.15fr .85fr;
-  box-shadow:0 0 80px rgba(240,42,34,.15);
-  position:relative;
-  overflow:hidden;
-}
-
-.login-shell::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:url("sc_emblem.png") center/620px no-repeat;
-  opacity:.08;
-  pointer-events:none;
-}
-
-.left,
-.right{
-  position:relative;
-  z-index:2;
-  padding:54px;
+.login{
+  width:100%;
+  max-width:420px;
+  background:rgba(0,0,0,.72);
+  border:1px solid rgba(255,255,255,.18);
+  padding:34px;
+  box-shadow:0 20px 60px rgba(0,0,0,.45);
 }
 
 .logo{
-  width:260px;
-  margin-bottom:70px;
-}
-
-.kicker{
-  color:var(--red);
-  font-size:.75rem;
-  font-weight:900;
-  letter-spacing:.28em;
-  text-transform:uppercase;
-  margin-bottom:14px;
+  width:230px;
+  display:block;
+  margin:0 auto 28px;
 }
 
 h1{
-  font-size:4.2rem;
-  line-height:.9;
+  text-align:center;
+  font-size:2rem;
   text-transform:uppercase;
-  letter-spacing:-.05em;
-  margin-bottom:26px;
+  letter-spacing:.08em;
+  margin-bottom:10px;
 }
 
-h1 span{color:var(--red)}
-
-.copy{
-  max-width:620px;
-  color:#d5eef8;
-  font-size:1rem;
-  line-height:1.65;
-  font-weight:700;
-}
-
-.access-strip{
-  margin-top:42px;
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:14px;
-  max-width:640px;
-}
-
-.access-card{
-  border:1px solid rgba(255,255,255,.16);
-  padding:16px;
-  background:rgba(255,255,255,.035);
-}
-
-.access-card b{
-  display:block;
-  color:var(--red);
-  font-size:.65rem;
-  letter-spacing:.18em;
-  text-transform:uppercase;
-  margin-bottom:8px;
-}
-
-.access-card span{
-  font-weight:900;
-}
-
-.right{
-  border-left:1px solid rgba(255,255,255,.12);
-  background:rgba(0,0,0,.28);
-}
-
-.login-title{
-  font-size:2.6rem;
-  line-height:1;
-  text-transform:uppercase;
-  margin-bottom:18px;
-}
-
-.login-title span{color:var(--red)}
-
-.login-copy{
-  color:#9edfff;
-  line-height:1.55;
-  font-weight:700;
-  margin-bottom:36px;
+p{
+  text-align:center;
+  color:#ddd;
+  font-size:.9rem;
+  line-height:1.45;
+  margin-bottom:28px;
 }
 
 label{
   display:block;
-  margin-bottom:10px;
-  color:#fff;
-  font-size:.72rem;
+  margin-bottom:8px;
+  font-size:.75rem;
   font-weight:900;
-  letter-spacing:.22em;
+  letter-spacing:.16em;
   text-transform:uppercase;
-}
-
-.field{
-  margin-bottom:22px;
 }
 
 input{
   width:100%;
-  height:58px;
-  background:rgba(255,255,255,.05);
+  height:52px;
+  margin-bottom:18px;
+  padding:0 14px;
+  background:#111;
   border:1px solid rgba(255,255,255,.22);
   color:white;
-  padding:0 16px;
   font-size:1rem;
   outline:none;
 }
 
 input:focus{
-  border-color:var(--red);
-  box-shadow:0 0 24px rgba(240,42,34,.18);
+  border-color:#ff3b30;
 }
 
 button{
   width:100%;
-  height:62px;
-  border:1px solid var(--red);
-  background:linear-gradient(180deg,#ff382e,#b70b0b);
+  height:56px;
+  border:none;
+  background:#ff2b1f;
   color:white;
   font-weight:900;
-  letter-spacing:.22em;
+  letter-spacing:.16em;
   text-transform:uppercase;
   cursor:pointer;
-  margin-top:6px;
-}
-
-.demo-box{
-  margin-top:26px;
-  border:1px solid rgba(255,255,255,.14);
-  padding:18px;
-  color:var(--muted);
-  font-size:.82rem;
-  line-height:1.6;
-}
-
-.demo-box b{
-  color:#fff;
 }
 
 .status{
   margin-top:18px;
-  min-height:22px;
-  color:var(--green);
+  text-align:center;
+  font-size:.8rem;
   font-weight:900;
-  letter-spacing:.14em;
-  text-transform:uppercase;
-  font-size:.75rem;
-}
-
-.error{
-  color:var(--red);
-}
-
-.footer-note{
-  position:absolute;
-  left:54px;
-  bottom:26px;
-  color:#777;
-  font-size:.68rem;
-  letter-spacing:.22em;
+  letter-spacing:.12em;
   text-transform:uppercase;
 }
 
-@media(max-width:900px){
-  body{padding:14px;align-items:flex-start}
-  .login-shell{grid-template-columns:1fr}
-  .left,.right{padding:32px}
-  .right{border-left:none;border-top:1px solid rgba(255,255,255,.12)}
-  h1{font-size:3rem}
-  .access-strip{grid-template-columns:1fr}
-  .footer-note{position:relative;left:auto;bottom:auto;margin:0 32px 28px}
+.error{color:#ffb3ad}
+.success{color:#37e66b}
+
+.demo{
+  margin-top:24px;
+  padding-top:18px;
+  border-top:1px solid rgba(255,255,255,.14);
+  color:#ddd;
+  font-size:.8rem;
+  line-height:1.6;
 }
 </style>
 </head>
 
 <body>
 
-<section class="login-shell">
+<div class="login">
+  <img class="logo" src="statscore-logo.png" alt="STATScore">
 
-  <div class="left">
-    <img class="logo" src="statscore-logo.png" alt="STATScore">
+  <h1>System Login</h1>
 
-    <div class="kicker">Verified Athlete System</div>
+  <p>
+    Controlled access for athlete profiles, recruiting visibility,
+    verification, eligibility, and system routing.
+  </p>
 
-    <h1>Access<br><span>Authorization</span></h1>
+  <form onsubmit="event.preventDefault(); loginDemo();">
+    <label>Email</label>
+    <input id="email" type="email" placeholder="Enter email">
 
-    <p class="copy">
-      Authorized visibility, recruiting access, eligibility tracking, athlete intelligence routing,
-      and controlled communication permissions are governed through the STATScore national access infrastructure.
-    </p>
+    <label>Password</label>
+    <input id="password" type="password" placeholder="Enter password">
 
-    <div class="access-strip">
-      <div class="access-card"><b>Access Type</b><span>Role-Based</span></div>
-      <div class="access-card"><b>Visibility</b><span>Controlled</span></div>
-      <div class="access-card"><b>Compliance</b><span>NCAA Aware</span></div>
-    </div>
+    <button type="submit">Access System</button>
+  </form>
+
+  <div id="status" class="status"></div>
+
+  <div class="demo">
+    Demo password: <b>demo123</b><br>
+    athlete@demo.com<br>
+    parent@demo.com<br>
+    coach@demo.com<br>
+    counselor@demo.com<br>
+    recruiter@demo.com<br>
+    evaluator@demo.com<br>
+    program@demo.com
   </div>
-
-  <div class="right">
-    <h2 class="login-title">System <span>Login</span></h2>
-
-    <p class="login-copy">
-      Demo permissions route users by role: athlete, parent, coach, counselor, recruiter, evaluator, and program.
-    </p>
-
-    <form onsubmit="event.preventDefault(); loginDemo();">
-      <div class="field">
-        <label>Authorized Email</label>
-        <input id="email" type="email" placeholder="Enter authorized email">
-      </div>
-
-      <div class="field">
-        <label>Access Password</label>
-        <input id="password" type="password" placeholder="Enter secure password">
-      </div>
-
-      <button type="submit">Enter Controlled System</button>
-    </form>
-
-    <div id="status" class="status"></div>
-
-    <div class="demo-box">
-      <b>Demo Login:</b><br>
-      athlete@demo.com / demo123<br>
-      parent@demo.com / demo123<br>
-      coach@demo.com / demo123<br>
-      counselor@demo.com / demo123<br>
-      recruiter@demo.com / demo123<br>
-      evaluator@demo.com / demo123<br>
-      program@demo.com / demo123
-    </div>
-  </div>
-
-  <div class="footer-note">STATScore Systems · Controlled Access Infrastructure</div>
-
-</section>
+</div>
 
 <script>
 const DEMO_USERS = {
@@ -320,19 +171,19 @@ function loginDemo(){
 
   if(!DEMO_USERS[email] || password !== "demo123"){
     status.textContent = "Invalid authorization";
-    status.classList.add("error");
+    status.className = "status error";
     return;
   }
 
-  sessionStorage.setItem("statscore_user_email", email);
   sessionStorage.setItem("statscore_role", email.split("@")[0]);
+  sessionStorage.setItem("statscore_email", email);
 
-  status.classList.remove("error");
-  status.textContent = "Access granted · routing clearance";
+  status.textContent = "Access granted";
+  status.className = "status success";
 
   setTimeout(() => {
     window.location.href = DEMO_USERS[email];
-  }, 900);
+  }, 700);
 }
 </script>
 
