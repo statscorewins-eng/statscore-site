@@ -505,7 +505,17 @@ a{text-decoration:none;color:inherit}
   font-weight:900;
   font-size:.92em;
 }
+.pending-fill{
+  opacity:.25;
+  background:linear-gradient(90deg,#5f6772,#8b95a1);
+}
 
+.trait-score.pending{
+  color:#f4c542;
+  letter-spacing:.12em;
+  font-size:.62rem;
+} 
+  
 /* FOOTER */
 
 .flow{
@@ -613,7 +623,7 @@ a{text-decoration:none;color:inherit}
     <div class="record-kicker">Verified Athlete Intelligence Record</div>
     <h1 class="record-title">Player Profile</h1>
   </div>
-  <div class="record-demo">Production Profile</div>
+  <div class="record-demo">Verified Profile</div>
 </section>
 
 <section class="hero-grid">
@@ -651,11 +661,11 @@ a{text-decoration:none;color:inherit}
 
     <div>
       <span class="stars">☆☆☆☆☆</span>
-      <span class="signal">Prospect Signal Pending</span>
+      <span class="signal">Evaluation Pending</span>
     </div>
 
     <div class="projection">
-      <div class="small">Projection Lane</div>
+      <div class="small">Evaluation Status</div>
       <b>Pending Verified Snapshot</b>
     </div>
 
@@ -724,11 +734,11 @@ a{text-decoration:none;color:inherit}
   <div class="label">Position Breakdown</div>
   <h2 style="margin:8px 0 20px;text-transform:uppercase;font-size:2.1rem;">Performance Traits</h2>
 
-  <div class="trait"><div class="trait-name">Vision</div><div class="bar"><div class="fill" style="width:0%"></div></div><div class="trait-score">--</div></div>
-  <div class="trait"><div class="trait-name">Burst</div><div class="bar"><div class="fill" style="width:0%"></div></div><div class="trait-score">--</div></div>
-  <div class="trait"><div class="trait-name">Contact Balance</div><div class="bar"><div class="fill" style="width:0%"></div></div><div class="trait-score">--</div></div>
-  <div class="trait"><div class="trait-name">Ball Security</div><div class="bar"><div class="fill" style="width:0%"></div></div><div class="trait-score">--</div></div>
-  <div class="trait"><div class="trait-name">Open Field Ability</div><div class="bar"><div class="fill" style="width:0%"></div></div><div class="trait-score">--</div></div>
+  <div class="trait"><div class="trait-name">Vision</div><div class="bar"><div class="fill pending-fill" style="width:18%"></div></div><div class="trait-score pending">--</div></div>
+  <div class="trait"><div class="trait-name">Burst</div><div class="bar"><div class="fill pending-fill" style="width:18%"></div></div><div class="trait-score pending">--</div></div>
+  <div class="trait"><div class="trait-name">Contact Balance</div><div class="bar"><div class="fill pending-fill" style="width:18%"></div></div><div class="trait-score pending">--</div></div>
+  <div class="trait"><div class="trait-name">Ball Security</div><div class="bar"><div class="fill pending-fill" style="width:18%"></div></div><div class="trait-score pending">--</div></div>
+  <div class="trait"><div class="trait-name">Open Field Ability</div><div class="bar"><div class="fill pending-fill" style="width:18%"></div></div><div class="trait-score pending">--</div></div>
 </section>
 
 <section class="flow">
