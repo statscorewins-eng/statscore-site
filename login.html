@@ -69,8 +69,14 @@ body{
 }
 
 .logo{
-  width:260px;
-  margin-bottom:70px;
+  width:290px;
+  margin-bottom:72px;
+  opacity:1;
+  filter:
+    brightness(2.35)
+    contrast(1.45)
+    saturate(1.35)
+    drop-shadow(0 0 18px rgba(240,42,34,.45));
 }
 
 .kicker{
@@ -94,7 +100,7 @@ h1 span{color:var(--red)}
 
 .copy{
   max-width:620px;
-  color:#d5eef8;
+  color:#d9e2ea;
   font-size:1rem;
   line-height:1.65;
   font-weight:700;
@@ -128,8 +134,14 @@ h1 span{color:var(--red)}
 }
 
 .right{
-  border-left:1px solid rgba(255,255,255,.12);
-  background:rgba(0,0,0,.28);
+  border-left:1px solid rgba(255,255,255,.08);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(0,0,0,.42),
+      rgba(0,0,0,.58)
+    );
+  backdrop-filter:blur(4px);
 }
 
 .login-title{
@@ -180,28 +192,23 @@ input:focus{
 
 button{
   width:100%;
-  height:62px;
-  border:1px solid var(--red);
-  background:linear-gradient(180deg,#ff382e,#b70b0b);
+  height:66px;
+  border:1px solid rgba(255,255,255,.08);
+  background:
+    linear-gradient(
+      180deg,
+      #ff3b30 0%,
+      #c41212 100%
+    );
+  box-shadow:
+    0 0 34px rgba(240,42,34,.24),
+    inset 0 1px 0 rgba(255,255,255,.12);
   color:white;
   font-weight:900;
   letter-spacing:.22em;
   text-transform:uppercase;
   cursor:pointer;
   margin-top:6px;
-}
-
-.demo-box{
-  margin-top:26px;
-  border:1px solid rgba(255,255,255,.14);
-  padding:18px;
-  color:var(--muted);
-  font-size:.82rem;
-  line-height:1.6;
-}
-
-.demo-box b{
-  color:#fff;
 }
 
 .status{
@@ -267,7 +274,8 @@ button{
     <h2 class="login-title">System <span>Login</span></h2>
 
     <p class="login-copy">
-      Demo permissions route users by role: athlete, parent, coach, counselor, recruiter, evaluator, and program.
+      Authorized access is governed through the STATScore identity and visibility infrastructure.
+      Credential routing, permissions, and system visibility are role controlled and monitored.
     </p>
 
     <form onsubmit="event.preventDefault(); loginDemo();">
@@ -285,17 +293,6 @@ button{
     </form>
 
     <div id="status" class="status"></div>
-
-    <div class="demo-box">
-      <b>Demo Login:</b><br>
-      athlete@demo.com / demo123<br>
-      parent@demo.com / demo123<br>
-      coach@demo.com / demo123<br>
-      counselor@demo.com / demo123<br>
-      recruiter@demo.com / demo123<br>
-      evaluator@demo.com / demo123<br>
-      program@demo.com / demo123
-    </div>
   </div>
 
   <div class="footer-note">STATScore Systems · Controlled Access Infrastructure</div>
