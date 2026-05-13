@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>  
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -755,7 +755,15 @@ function addAudit(actionType, note){
 
   const item = document.createElement("div");
   item.className = "audit-item";
-  item.innerHTML = `<b>${actionType}</b><span>${note}</span>`;
+ item.innerHTML = `
+  <b>${actionType}</b>
+  <span>${note}</span>
+  ${actionType === "Draft Saved" || actionType === "DRAFT SAVED" ? `
+    <button class="draft-remove-btn" onclick="removeDraftFromAudit(this)">
+      REMOVE
+    </button>
+  ` : ""}
+`; 
   auditPanel.prepend(item);
 
   const saved = JSON.parse(localStorage.getItem(LOCAL_AUDIT_KEY) || "[]");
@@ -766,6 +774,18 @@ function addAudit(actionType, note){
   });
   localStorage.setItem(LOCAL_AUDIT_KEY, JSON.stringify(saved.slice(0, 25)));
 }
+
+  function removeDraftFromAudit(button){
+
+  const item = button.closest(".audit-item");
+
+  if(item){
+    item.remove();
+  }
+
+  setMessage("Draft removed from view.", "success");
+
+} 
 
 function setRole(role, element){
   document.getElementById("targetRole").value = role;
