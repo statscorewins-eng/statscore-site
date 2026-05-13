@@ -567,8 +567,7 @@ textarea:focus{
       </div>
 
       <div class="field">
-        <label>Message Type</label>
-        <select>
+        <select id="messageType">
           <option>System Alert</option>
           <option>Recruiting Window Notice</option>
           <option>Eligibility Reminder</option>
@@ -579,9 +578,8 @@ textarea:focus{
       </div>
 
       <div class="field">
-        <label>Priority Level</label>
-        <select>
-          <option>Standard</option>
+        <select id="priorityLevel">
+         <option>Standard</option>
           <option>Important</option>
           <option>Urgent</option>
           <option>Compliance</option>
@@ -589,9 +587,8 @@ textarea:focus{
       </div>
 
       <div class="field">
-        <label>Communication Window</label>
-        <select>
-          <option>Currently Open</option>
+        <select id="communicationWindow">
+        <option>Currently Open</option>
           <option>Limited Access</option>
           <option>Restricted</option>
           <option>Closed</option>
@@ -697,55 +694,156 @@ textarea:focus{
 </main>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
-function setRole(role){
-  document.getElementById("targetRole").value = role;
 
-  document.querySelectorAll('.channel').forEach(channel => {
-    channel.classList.remove('active');
-  });
+const SUPABASE_URL = "https://ojmpbuxvfxusmbouldi.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk";
 
-  event.currentTarget.classList.add('active');
+const supabaseClient = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
 
-  document.getElementById("systemMessage").textContent = role + " routing lane active";
+const athleteId = crypto.randomUUID();
+  
+async function loadMultiBoxState(){
+
+  const { data, error } = await supabaseClient
+    .rpc("statscore_multibox_state");
+
+  if(error){
+    console.error(error);
+    return;
+  }
+
+  console.log("MULTIBOX STATE", data);
+
+  const auditPanel = document.querySelector(".audit-panel");
+
+  if(auditPanel && data.audit_logs){
+
+    auditPanel.innerHTML = "";
+
+    data.audit_logs.forEach(log => {
+
+      const div = document.createElement("div");
+
+      div.className = "audit-item";
+
+      div.innerHTML = `
+        <strong>${log.action_type}</strong><br>
+        ${log.audit_note || ""}
+      `;
+
+      auditPanel.appendChild(div);
+
+    });
+
+  }
+
 }
 
-function aiAssist(){
-  document.getElementById("systemMessage").textContent = "AI communication assistance initialized";
+async function saveDraft(){
+
+  const subject =
+    document.querySelector("#subject").value;
+
+  const body =
+    document.querySelector("#messageBody").value;
+
+  const receiverRole =
+    document.querySelector("#targetRole").value;
+
+  const messageType =
+    document.querySelector("#messageType").value;
+
+  const { data, error } = await supabaseClient.rpc(
+    "statscore_multibox_save_draft",
+    {
+      p_athlete_id: athleteId,
+      p_sender_role: "system",
+      p_receiver_role: receiverRole,
+      p_message_type: messageType,
+      p_subject: subject,
+      p_body: body
+    }
+  );
+
+  if(error){
+    console.error(error);
+    alert("Draft failed.");
+    return;
+  }
+
+  alert("Draft saved.");
+
+  loadMultiBoxState();
+
 }
 
-function saveDraft(){
-  document.getElementById("systemMessage").textContent = "Communication draft saved";
+async function sendMessage(){
 
-  addAudit("Draft Saved","Communication draft stored inside Multi-Box™ routing system.");
+  const subject =
+    document.querySelector("#subject").value;
+
+  const body =
+    document.querySelector("#messageBody").value;
+
+  const receiverRole =
+    document.querySelector("#targetRole").value;
+
+  const messageType =
+    document.querySelector("#messageType").value;
+
+  const { data, error } = await supabaseClient.rpc(
+    "statscore_multibox_send_message",
+    {
+      p_athlete_id: athleteId,
+      p_sender_role: "system",
+      p_receiver_role: receiverRole,
+      p_message_type: messageType,
+      p_subject: subject,
+      p_body: body
+    }
+  );
+
+  if(error){
+    console.error(error);
+    alert("Send failed.");
+    return;
+  }
+
+  alert("Message sent.");
+
+  loadMultiBoxState();
+
 }
 
-function sendMessage(){
-  document.getElementById("systemMessage").textContent = "Message routed successfully";
+document.addEventListener("DOMContentLoaded", () => {
 
-  addAudit("Message Sent","Controlled communication routed through Multi-Box™.");
-}
+  loadMultiBoxState();
 
-function broadcastNotice(){
-  document.getElementById("systemMessage").textContent = "Broadcast notice issued";
+  const saveBtn =
+    document.querySelector(".save-draft-btn");
 
-  addAudit("Broadcast Issued","System-wide operational notice distributed to selected roles.");
-}
+  const sendBtn =
+    document.querySelector(".send-message-btn");
 
-function addAudit(title,message){
-  const auditLog = document.getElementById("auditLog");
+  if(saveBtn){
+    saveBtn.addEventListener("click", saveDraft);
+  }
 
-  const item = document.createElement("div");
-  item.className = "audit-item";
+  if(sendBtn){
+    sendBtn.addEventListener("click", sendMessage);
+  }
+  
+  loadMultiBoxState(); 
 
-  item.innerHTML = `
-    <b>${title}</b>
-    <span>${message}</span>
-  `;
+});
 
-  auditLog.prepend(item);
-}
-</script>
+</script> 
 
 </body>
 </html> 
