@@ -750,20 +750,20 @@ function getAthleteId(){
   return id;
 }
 
-function addAudit(actionType, note){
-  const auditPanel = document.getElementById("auditPanel");
-
   const item = document.createElement("div");
   item.className = "audit-item";
  item.innerHTML = `
   <b>${actionType}</b>
   <span>${note}</span>
-  ${actionType === "Draft Saved" || actionType === "DRAFT SAVED" ? `
-    <button class="draft-remove-btn" onclick="removeDraftFromAudit(this)">
+
+  ${messageId ? `
+    <button class="draft-remove-btn"
+      onclick="removeDraft('${messageId}')">
       REMOVE
     </button>
   ` : ""}
 `; 
+
   auditPanel.prepend(item);
 
   const saved = JSON.parse(localStorage.getItem(LOCAL_AUDIT_KEY) || "[]");
@@ -898,7 +898,11 @@ async function saveDraft(){
       console.warn("Supabase not configured. Draft saved locally.");
     }
 
-    addAudit("Draft Saved", `${payload.receiver_role} ${payload.message_type} saved as draft.`);
+    addAudit(
+  "Draft Saved",
+  `${payload.receiver_role} ${payload.message_type} saved as draft.`,
+  data?.message_id || payload.local_id || null
+); 
     setMessage("Draft saved successfully");
     alert("Draft saved.");
   } catch (error) {
