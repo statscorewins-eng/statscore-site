@@ -595,18 +595,16 @@ textarea:focus{
         </select>
       </div>
 
-      <div class="field full">
-        <label>Subject</label>
-        <input type="text" placeholder="Example: NCAA Recruiting Communication Window Open">
-      </div>
+     <div class="field full">
+  <label>Subject</label>
+  <input id="subject" type="text" placeholder="Example: NCAA Recruiting Communication Window Open">
+</div>
 
-      <div class="field full">
-        <label>Message Body</label>
-        <textarea placeholder="Generate operational notices, eligibility reminders, recruiter communication alerts, ACT/SAT notifications, guardian approval requests, or visibility updates."></textarea>
-      </div>
-
-    </div>
-
+<div class="field full">
+  <label>Message Body</label>
+  <textarea id="messageBody" placeholder="Generate operational notices, eligibility reminders, recruiter communication alerts, ACT/SAT notifications, guardian approval requests, or visibility updates."></textarea>
+</div> 
+      
     <div class="message-toolbar">
       <button class="btn gold" onclick="aiAssist()">AI Assist</button>
       <button class="btn" onclick="saveDraft()">Save Draft</button>
