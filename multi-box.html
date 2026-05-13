@@ -675,9 +675,54 @@ const LOCAL_AUDIT_KEY = "statscore_multibox_audit_v1";
 
 function setMessage(message, type = "success"){
   const el = document.getElementById("systemMessage");
+
   el.textContent = message || "";
-  el.style.color = type === "error" ? "var(--red)" : "var(--green)";
+
+  el.style.color =
+    type === "error"
+      ? "var(--red)"
+      : "var(--green)";
 }
+
+async function removeDraft(messageId){
+
+  const confirmed = confirm(
+    "Remove this draft from the communication feed?"
+  );
+
+  if(!confirmed) return;
+
+  const role =
+    document.getElementById("targetRole")?.value || "athlete";
+
+  const { data, error } =
+    await supabaseClient.rpc(
+      "statscore_multibox_remove_draft",
+      {
+        p_message_id: messageId,
+        p_deleted_by: athleteId,
+        p_deleted_by_role: role
+      }
+    );
+
+  if(error || !data?.ok){
+
+    console.error(error || data);
+
+    setMessage(
+      "Unable to remove draft.",
+      "error"
+    );
+
+    return;
+  }
+
+  setMessage(
+    "Draft removed successfully."
+  );
+
+  loadMultiBoxState();
+} 
 
 function getFormPayload(status){
   return {
