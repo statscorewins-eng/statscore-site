@@ -415,14 +415,14 @@ a{text-decoration:none;color:inherit;}
 
 /* MULTI BOX */
 
-.multibox{
+.multi-box{
   grid-row:span 2;
   padding:22px 18px;
   border-color:rgba(255,31,45,.52);
   position:relative;
 }
 
-.multibox:before{
+.multi-box:before{
   content:"";
   position:absolute;
   left:0;
@@ -432,7 +432,7 @@ a{text-decoration:none;color:inherit;}
   background:linear-gradient(180deg,var(--red),transparent);
 }
 
-.multibox h2{
+.multi-box h2{
   margin:0;
   color:var(--red);
   font-size:1.8rem;
@@ -441,7 +441,7 @@ a{text-decoration:none;color:inherit;}
   font-weight:900;
 }
 
-.multibox .sub{
+.multi-box .sub{
   margin-top:5px;
   color:#fff;
   font-size:.74rem;
@@ -687,13 +687,13 @@ a{text-decoration:none;color:inherit;}
 
   .hero,
   .overview,
-  .multibox,
+  .multi-box,
   .readiness,
   .flow{
     grid-column:1 / -1;
   }
 
-  .multibox{
+  .multi-box{
     grid-row:auto;
   }
 
@@ -869,7 +869,7 @@ a{text-decoration:none;color:inherit;}
   </div>
 </aside>
 
-<aside class="panel multibox">
+<aside class="panel multi-box">
   <h2>Multi-Box™</h2>
   <div class="sub">Communication & Permissions Control</div>
 
