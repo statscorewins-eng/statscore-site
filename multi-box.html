@@ -173,14 +173,17 @@ a{text-decoration:none;color:inherit}
   display:grid;
   grid-template-columns:300px 1fr 350px;
   gap:14px;
+  align-items:start;
 }
 
 .panel{
-  background:var(--panel);
-  border:1px solid var(--line);
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.035);
-  padding:20px;
-}
+    background:var(--panel);
+    border:1px solid var(--line);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.035);
+    padding:20px;
+    height:720px;
+    overflow-y:auto;
+} 
 
 .section-title{
   margin:0 0 18px;
