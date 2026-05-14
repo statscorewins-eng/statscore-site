@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>STATScore™ — NCAA Eligibility Intelligence Center</title>
+
+<style>
+:root{
+  --red:#ff1f2d;
+  --red-deep:#b20812;
+  --gold:#ffb100;
+  --gold-soft:rgba(255,177,0,.18);
+  --green:#2bdc65;
+  --yellow:#ffcc33;
+  --risk:#ff4a4a;
+  --black:#000;
+  --panel:#030303;
+  --panel2:#070707;
+  --white:#f4f4ef;
+  --text:#f2f2f2;
+  --muted:#b9b9b9;
+  --line:rgba(255,255,255,.18);
+  --max:1536px;
+}
+
+*{box-sizing:border-box;}
+
+html,body{
+  margin:0;
+  background:#000;
+  color:var(--text);
+  font-family:Arial, Helvetica, sans-serif;
+}
+
+a{text-decoration:none;color:inherit;}
+
+.shell{
+  width:min(var(--max),100%);
+  margin:0 auto;
+  min-height:100vh;
+  background:#000;
+}
+
+/* HEADER */
+
+.header{
+  height:82px;
+  background:linear-gradient(180deg,#ffffff,#e9e9e6);
+  display:grid;
+  grid-template-columns:390px 1fr 410px;
+  align-items:center;
+  border-bottom:2px solid var(--red);
+  position:relative;
+}
+
+.logo-plate{
+  height:82px;
+  background:linear-gradient(145deg,#171717,#050505 65%,#000);
+  clip-path:polygon(0 0,78% 0,100% 100%,0 100%);
+  display:flex;
+  align-items:center;
+  padding-left:26px;
+  position:relative;
+  box-shadow:inset 0 0 22px rgba(255,255,255,.08);
+}
+
+.logo-plate:before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  width:140px;
+  height:16px;
+  background:var(--red);
+  clip-path:polygon(0 0,92% 0,100% 100%,0 100%);
+}
+
+.logo-plate:after{
+  content:"";
+  position:absolute;
+  bottom:0;
+  left:0;
+  right:34px;
+  height:3px;
+  background:var(--red);
+}
+
+.logo-plate img{
+  width:292px;
+  filter:drop-shadow(0 8px 14px rgba(0,0,0,.9));
+}
+
+.header-title{
+  text-align:center;
+  color:#101010;
+  font-weight:900;
+  font-size:.78rem;
+  letter-spacing:.29em;
+  text-transform:uppercase;
+}
+
+.header-nav{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:24px;
+  padding-right:24px;
+  height:100%;
+  color:#111;
+}
+
+.header-nav a{
+  font-weight:900;
+  font-size:.75rem;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  padding-bottom:12px;
+  border-bottom:2px solid transparent;
+}
+
+.header-nav a.active{
+  color:var(--red);
+  border-bottom-color:var(--red);
+}
+
+.user-icon{
+  width:30px;
+  height:30px;
+  border:3px solid #111;
+  border-radius:50%;
+  position:relative;
+}
+
+.user-icon:before{
+  content:"";
+  position:absolute;
+  top:5px;
+  left:8px;
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#111;
+}
+
+.user-icon:after{
+  content:"";
+  position:absolute;
+  bottom:5px;
+  left:4px;
+  width:16px;
+  height:8px;
+  border-radius:10px 10px 0 0;
+  background:#111;
+}
+
+/* MAIN */
+
+.main{
+  min-height:calc(100vh - 82px);
+  background:
+    radial-gradient(circle at 52% 12%,rgba(255,177,0,.08),transparent 22%),
+    radial-gradient(circle at 80% 35%,rgba(255,31,45,.06),transparent 24%),
+    repeating-linear-gradient(135deg,rgba(255,255,255,.018) 0,rgba(255,255,255,.018) 1px,transparent 1px,transparent 7px),
+    linear-gradient(180deg,#000 0%,#020202 58%,#000 100%);
+  padding:18px 14px 0;
+}
+
+/* INNER COMMAND BAND */
+
+.command-band{
+  min-height:112px;
+  display:grid;
+  grid-template-columns:1fr 430px;
+  gap:14px;
+  align-items:stretch;
+  border:1px solid rgba(255,255,255,.16);
+  background:
+    linear-gradient(145deg,rgba(255,177,0,.055),rgba(255,255,255,.012)),
+    #030303;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.035),
+    0 18px 42px rgba(0,0,0,.88);
+  position:relative;
+  overflow:hidden;
+}
+
+.command-band:before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  bottom:0;
+  width:4px;
+  background:linear-gradient(180deg,var(--gold),transparent);
+  box-shadow:0 0 20px rgba(255,177,0,.42);
+}
+
+.command-main{
+  padding:22px 30px 20px;
+  position:relative;
+  z-index:2;
+}
+
+.kicker{
+  color:var(--gold);
+  font-size:.74rem;
+  font-weight:900;
+  letter-spacing:.24em;
+  text-transform:uppercase;
+}
+
+.command-main h1{
+  margin:10px 0 8px;
+  font-family:"Arial Narrow","Helvetica Neue Condensed","Roboto Condensed",Arial,sans-serif;
+  font-size:clamp(2.4rem,4vw,4rem);
+  line-height:.92;
+  text-transform:uppercase;
+  font-weight:900;
+  letter-spacing:-.025em;
+  color:#f7f7f2;
+  transform:scaleX(.9);
+  transform-origin:left center;
+}
+
+.command-main p{
+  margin:0;
+  color:#d8d8d8;
+  font-size:.92rem;
+  line-height:1.45;
+}
+
+.command-meta{
+  border-left:1px solid rgba(255,255,255,.12);
+  padding:20px 22px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.meta-box{
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(0,0,0,.26);
+  padding:12px;
+}
+
+.meta-box span{
+  display:block;
+  color:var(--muted);
+  font-size:.62rem;
+  text-transform:uppercase;
+  letter-spacing:.14em;
+  margin-bottom:6px;
+}
+
+.meta-box b{
+  display:block;
+  color:#fff;
+  font-size:.82rem;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+
+.meta-box.gold b{
+  color:var(--gold);
+}
+
+/* INNER NAV */
+
+.inner-nav{
+  margin-top:12px;
+  min-height:54px;
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  border:1px solid rgba(255,255,255,.15);
+  background:#020202;
+}
+
+.inner-nav a{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:54px;
+  border-left:1px solid rgba(255,255,255,.11);
+  color:#f1f1f1;
+  font-size:.7rem;
+  font-weight:900;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+
+.inner-nav a:first-child{
+  border-left:none;
+}
+
+.inner-nav a.active{
+  color:var(--gold);
+  background:linear-gradient(180deg,rgba(255,177,0,.12),rgba(255,177,0,.02));
+}
+
+/* GRID */
+
+.intelligence-grid{
+  margin-top:14px;
+  display:grid;
+  grid-template-columns:42% 33% 25%;
+  gap:14px;
+}
+
+.panel{
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.008)),
+    repeating-linear-gradient(135deg,rgba(255,255,255,.012) 0,rgba(255,255,255,.012) 1px,transparent 1px,transparent 7px),
+    #030303;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:5px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.035),
+    inset 0 18px 30px rgba(255,255,255,.025),
+    0 18px 42px rgba(0,0,0,.9);
+  position:relative;
+  overflow:hidden;
+}
+
+.panel:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255,255,255,.04),
+      transparent 18%,
+      transparent 82%,
+      rgba(255,255,255,.025)
+    );
+}
+
+.label{
+  color:var(--red);
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+}
+
+/* CURRENT STANDING */
+
+.standing{
+  min-height:408px;
+  padding:26px 30px;
+}
+
+.status-tag{
+  margin-top:22px;
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  min-height:42px;
+  padding:0 18px;
+  border:1px solid rgba(255,204,51,.65);
+  color:var(--yellow);
+  background:rgba(255,204,51,.06);
+  text-transform:uppercase;
+  font-size:.76rem;
+  font-weight:900;
+  letter-spacing:.16em;
+  box-shadow:0 0 22px rgba(255,204,51,.11);
+}
+
+.status-dot{
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  background:var(--yellow);
+  box-shadow:0 0 15px rgba(255,204,51,.8);
+}
+
+.standing h2{
+  margin:22px 0 10px;
+  font-family:"Arial Narrow","Helvetica Neue Condensed","Roboto Condensed",Arial,sans-serif;
+  font-size:3.8rem;
+  line-height:.88;
+  text-transform:uppercase;
+  font-weight:900;
+  letter-spacing:-.035em;
+  color:#fff;
+  transform:scaleX(.86);
+  transform-origin:left center;
+}
+
+.standing p{
+  max-width:520px;
+  color:#e0e0e0;
+  font-size:.95rem;
+  line-height:1.5;
+}
+
+.meter-wrap{
+  margin-top:26px;
+}
+
+.meter-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  margin-bottom:8px;
+}
+
+.meter-top b{
+  color:var(--gold);
+  font-size:.86rem;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+}
+
+.meter-top span{
+  color:#fff;
+  font-size:1.6rem;
+  font-weight:900;
+}
+
+.meter{
+  height:16px;
+  border:1px solid rgba(255,255,255,.18);
+  background:#050505;
+  overflow:hidden;
+  box-shadow:inset 0 0 14px rgba(0,0,0,.8);
+}
+
+.meter-fill{
+  width:72%;
+  height:100%;
+  background:linear-gradient(90deg,var(--risk),var(--yellow),var(--gold));
+  box-shadow:0 0 18px rgba(255,177,0,.32);
+}
+
+.quick-stats{
+  margin-top:20px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+
+.stat{
+  min-height:94px;
+  border:1px solid rgba(255,255,255,.14);
+  padding:14px;
+  background:rgba(0,0,0,.28);
+}
+
+.stat span{
+  display:block;
+  color:var(--muted);
+  font-size:.62rem;
+  text-transform:uppercase;
+  letter-spacing:.13em;
+  margin-bottom:9px;
+}
+
+.stat b{
+  display:block;
+  color:#fff;
+  font-size:1.25rem;
+  font-weight:900;
+}
+
+.stat small{
+  display:block;
+  color:var(--yellow);
+  margin-top:5px;
+  font-size:.68rem;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+
+/* STATE LANES */
+
+.state-lanes{
+  min-height:408px;
+  padding:24px 20px;
+}
+
+.lane-grid{
+  margin-top:18px;
+  display:grid;
+  gap:14px;
+}
+
+.lane{
+  min-height:154px;
+  border:1px solid rgba(255,255,255,.14);
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.012)),#050505;
+  padding:18px;
+  position:relative;
+}
+
+.lane:before{
+  content:"";
+  position:absolute;
+  inset:8px;
+  border:1px solid rgba(255,255,255,.05);
+  pointer-events:none;
+}
+
+.lane h3{
+  margin:0 0 12px;
+  color:#fff;
+  text-transform:uppercase;
+  font-size:1rem;
+  letter-spacing:.08em;
+}
+
+.lane p{
+  color:#d5d5d5;
+  font-size:.8rem;
+  line-height:1.4;
+  margin:0;
+}
+
+.lane-status{
+  display:inline-flex;
+  margin-top:14px;
+  min-height:28px;
+  align-items:center;
+  padding:0 10px;
+  font-size:.62rem;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  border:1px solid rgba(255,204,51,.55);
+  color:var(--yellow);
+  background:rgba(255,204,51,.05);
+}
+
+.lane.good .lane-status{
+  border-color:rgba(43,220,101,.55);
+  color:var(--green);
+  background:rgba(43,220,101,.05);
+}
+
+/* CONTROL RAIL */
+
+.control-rail{
+  grid-row:span 2;
+  padding:22px 18px;
+  border-color:rgba(255,177,0,.42);
+}
+
+.control-rail h2{
+  margin:0;
+  color:var(--gold);
+  font-size:1.55rem;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  font-weight:900;
+}
+
+.control-rail .sub{
+  margin-top:6px;
+  color:#fff;
+  font-size:.7rem;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+
+.rail-list{
+  margin-top:18px;
+  display:grid;
+  gap:10px;
+}
+
+.rail-item{
+  min-height:72px;
+  display:grid;
+  grid-template-columns:40px 1fr;
+  gap:12px;
+  align-items:center;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(0,0,0,.28);
+  padding:12px;
+}
+
+.rail-light{
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.22);
+  background:var(--yellow);
+  box-shadow:0 0 14px rgba(255,204,51,.46);
+}
+
+.rail-light.green{
+  background:var(--green);
+  box-shadow:0 0 14px rgba(43,220,101,.42);
+}
+
+.rail-light.red{
+  background:var(--risk);
+  box-shadow:0 0 14px rgba(255,74,74,.42);
+}
+
+.rail-item b{
+  display:block;
+  text-transform:uppercase;
+  font-size:.72rem;
+  letter-spacing:.08em;
+  color:#fff;
+}
+
+.rail-item span{
+  display:block;
+  margin-top:5px;
+  color:var(--muted);
+  font-size:.7rem;
+  line-height:1.3;
+}
+
+/* REQUIREMENTS */
+
+.requirements{
+  grid-column:1 / span 2;
+  min-height:315px;
+  padding:24px;
+}
+
+.req-grid{
+  margin-top:18px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+
+.req{
+  min-height:118px;
+  border:1px solid rgba(255,255,255,.14);
+  padding:16px;
+  background:rgba(0,0,0,.28);
+  position:relative;
+}
+
+.req:before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  height:3px;
+  background:var(--yellow);
+}
+
+.req.good:before{background:var(--green);}
+.req.risk:before{background:var(--risk);}
+
+.req b{
+  display:block;
+  color:#fff;
+  text-transform:uppercase;
+  font-size:.82rem;
+  letter-spacing:.08em;
+}
+
+.req p{
+  color:#cfcfcf;
+  font-size:.76rem;
+  line-height:1.38;
+  margin:10px 0 0;
+}
+
+/* CORRECTION PATH */
+
+.correction{
+  grid-column:1 / span 2;
+  min-height:300px;
+  padding:24px;
+  border-color:rgba(255,177,0,.34);
+}
+
+.path-list{
+  margin-top:18px;
+  display:grid;
+  gap:10px;
+}
+
+.path-step{
+  display:grid;
+  grid-template-columns:42px 1fr 130px;
+  gap:14px;
+  align-items:center;
+  min-height:62px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(0,0,0,.28);
+  padding:10px 14px;
+}
+
+.step-num{
+  width:34px;
+  height:34px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(255,177,0,.55);
+  color:var(--gold);
+  font-weight:900;
+}
+
+.path-step b{
+  display:block;
+  color:#fff;
+  text-transform:uppercase;
+  font-size:.78rem;
+  letter-spacing:.08em;
+}
+
+.path-step span{
+  display:block;
+  margin-top:4px;
+  color:#cfcfcf;
+  font-size:.72rem;
+}
+
+.priority{
+  color:var(--yellow);
+  font-size:.62rem;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  text-align:right;
+}
+
+/* PATHWAY SIGNAL */
+
+.pathway{
+  min-height:300px;
+  padding:22px 18px;
+}
+
+.pathway-card{
+  margin-top:18px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(0,0,0,.28);
+  padding:18px;
+}
+
+.pathway-card span{
+  display:block;
+  color:var(--muted);
+  font-size:.62rem;
+  text-transform:uppercase;
+  letter-spacing:.13em;
+  margin-top:14px;
+}
+
+.pathway-card span:first-child{
+  margin-top:0;
+}
+
+.pathway-card b{
+  display:block;
+  margin-top:6px;
+  color:#fff;
+  font-size:.95rem;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+}
+
+.pathway-card .gold{
+  color:var(--gold);
+}
+
+/* RECEIPT */
+
+.receipt{
+  grid-column:1 / -1;
+  min-height:82px;
+  display:grid;
+  grid-template-columns:210px repeat(5,1fr);
+  align-items:center;
+  border:1px solid rgba(255,255,255,.16);
+  background:#020202;
+  margin-bottom:12px;
+}
+
+.receipt-title{
+  padding-left:24px;
+  color:var(--gold);
+  font-size:.78rem;
+  font-weight:900;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+
+.receipt-cell{
+  min-height:82px;
+  border-left:1px solid rgba(255,255,255,.12);
+  padding:18px;
+}
+
+.receipt-cell span{
+  display:block;
+  color:var(--muted);
+  font-size:.58rem;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  margin-bottom:7px;
+}
+
+.receipt-cell b{
+  display:block;
+  color:#fff;
+  font-size:.72rem;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:1100px){
+  .header{
+    height:78px;
+    grid-template-columns:300px 1fr 300px;
+  }
+
+  .logo-plate{
+    height:78px;
+    padding-left:18px;
+  }
+
+  .logo-plate img{width:230px;}
+
+  .header-title{
+    font-size:.66rem;
+    letter-spacing:.22em;
+  }
+
+  .header-nav{
+    gap:14px;
+    padding-right:14px;
+  }
+
+  .command-band{
+    grid-template-columns:1fr;
+  }
+
+  .command-meta{
+    border-left:none;
+    border-top:1px solid rgba(255,255,255,.12);
+  }
+
+  .intelligence-grid{
+    grid-template-columns:1fr;
+  }
+
+  .control-rail,
+  .requirements,
+  .correction,
+  .receipt{
+    grid-column:1 / -1;
+  }
+
+  .control-rail{
+    grid-row:auto;
+  }
+
+  .receipt{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .receipt-title{
+    min-height:60px;
+    display:flex;
+    align-items:center;
+  }
+}
+
+@media(max-width:720px){
+  .header{
+    height:70px;
+    grid-template-columns:190px 1fr;
+  }
+
+  .logo-plate{
+    height:70px;
+    padding-left:12px;
+  }
+
+  .logo-plate img{width:165px;}
+
+  .header-title{
+    font-size:.56rem;
+    letter-spacing:.16em;
+    padding-right:10px;
+  }
+
+  .header-nav{
+    display:none;
+  }
+
+  .main{
+    padding:12px 8px 0;
+  }
+
+  .command-main{
+    padding:20px;
+  }
+
+  .command-main h1{
+    font-size:2.7rem;
+  }
+
+  .command-meta{
+    grid-template-columns:1fr;
+  }
+
+  .inner-nav{
+    grid-template-columns:1fr;
+  }
+
+  .quick-stats,
+  .req-grid{
+    grid-template-columns:1fr;
+  }
+
+  .path-step{
+    grid-template-columns:38px 1fr;
+  }
+
+  .priority{
+    grid-column:2;
+    text-align:left;
+  }
+
+  .receipt{
+    grid-template-columns:1fr;
+  }
+
+  .receipt-cell{
+    border-left:none;
+    border-top:1px solid rgba(255,255,255,.12);
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="shell">
+
+<header class="header">
+  <a class="logo-plate" href="system.html">
+    <img src="sc_logo_black.png" alt="STATScore">
+  </a>
+
+  <div class="header-title">National Athlete Infrastructure • Controlled Access</div>
+
+  <nav class="header-nav">
+    <a href="system.html">System</a>
+    <a href="player-profile.html">Profile</a>
+    <a class="active" href="eligibility.html">Eligibility</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="terms.html">Terms</a>
+    <div class="user-icon"></div>
+  </nav>
+</header>
+
+<main class="main">
+
+<section class="command-band">
+  <div class="command-main">
+    <div class="kicker">Inner Intelligence Room</div>
+    <h1>NCAA Eligibility Intelligence Center</h1>
+    <p>
+      Evaluate current academic eligibility standing, in-state and out-of-state alignment,
+      NCAA readiness, risk areas, and the correction path required to move toward good standing.
+    </p>
+  </div>
+
+  <div class="command-meta">
+    <div class="meta-box">
+      <span>Sport</span>
+      <b>Football</b>
+    </div>
+
+    <div class="meta-box">
+      <span>Grade</span>
+      <b>11th</b>
+    </div>
+
+    <div class="meta-box gold">
+      <span>Target Direction</span>
+      <b>Open To Both</b>
+    </div>
+
+    <div class="meta-box gold">
+      <span>NCAA Tracking</span>
+      <b>Active</b>
+    </div>
+  </div>
+</section>
+
+<nav class="inner-nav">
+  <a class="active" href="#standing">Current Standing</a>
+  <a href="#state-standing">State Alignment</a>
+  <a href="#requirements">Requirements</a>
+  <a href="#correction">Correction Path</a>
+  <a href="#receipt">Receipt</a>
+</nav>
+
+<section class="intelligence-grid">
+
+  <article class="panel standing" id="standing">
+    <div class="label">Current NCAA Standing</div>
+
+    <div class="status-tag">
+      <span class="status-dot"></span>
+      Partial Standing
+    </div>
+
+    <h2>Course Alignment Review Required</h2>
+
+    <p>
+      The athlete is not currently marked outside of eligibility, but the profile requires
+      course-code verification and counselor review before STATScore can classify the record
+      as full good standing.
+    </p>
+
+    <div class="meter-wrap">
+      <div class="meter-top">
+        <b>NCAA Alignment</b>
+        <span>72%</span>
+      </div>
+
+      <div class="meter">
+        <div class="meter-fill"></div>
+      </div>
+    </div>
+
+    <div class="quick-stats">
+      <div class="stat">
+        <span>Core Courses</span>
+        <b>12 / 16</b>
+        <small>Review Needed</small>
+      </div>
+
+      <div class="stat">
+        <span>GPA Track</span>
+        <b>2.60</b>
+        <small>Target 2.90+</small>
+      </div>
+
+      <div class="stat">
+        <span>Timeline</span>
+        <b>On Watch</b>
+        <small>Junior Year</small>
+      </div>
+    </div>
+  </article>
+
+  <article class="panel state-lanes" id="state-standing">
+    <div class="label">In-State / Out-of-State Standing</div>
+
+    <div class="lane-grid">
+      <div class="lane good">
+        <h3>In-State Eligibility</h3>
+        <p>
+          Current course and graduation posture appears compatible with in-state pathway review,
+          pending counselor confirmation and transcript verification.
+        </p>
+        <div class="lane-status">Good Track</div>
+      </div>
+
+      <div class="lane">
+        <h3>Out-of-State Eligibility</h3>
+        <p>
+          Out-of-state pathway requires additional coursework portability review and NCAA
+          course-code matching before full alignment can be confirmed.
+        </p>
+        <div class="lane-status">Review Needed</div>
+      </div>
+    </div>
+  </article>
+
+  <aside class="panel control-rail">
+    <h2>Eligibility Control</h2>
+    <div class="sub">Standing Signals</div>
+
+    <div class="rail-list">
+      <div class="rail-item">
+        <div class="rail-light green"></div>
+        <div>
+          <b>Identity Verified</b>
+          <span>Athlete identity record is present.</span>
+        </div>
+      </div>
+
+      <div class="rail-item">
+        <div class="rail-light"></div>
+        <div>
+          <b>Transcript Pending</b>
+          <span>Transcript review is required.</span>
+        </div>
+      </div>
+
+      <div class="rail-item">
+        <div class="rail-light"></div>
+        <div>
+          <b>Course-Code Match</b>
+          <span>NCAA course alignment requires review.</span>
+        </div>
+      </div>
+
+      <div class="rail-item">
+        <div class="rail-light red"></div>
+        <div>
+          <b>Risk Flag</b>
+          <span>Out-of-state portability not confirmed.</span>
+        </div>
+      </div>
+
+      <div class="rail-item">
+        <div class="rail-light"></div>
+        <div>
+          <b>Counselor Review</b>
+          <span>School verification has not been completed.</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <section class="panel requirements" id="requirements">
+    <div class="label">NCAA Requirements Breakdown</div>
+
+    <div class="req-grid">
+      <div class="req">
+        <b>Core Courses</b>
+        <p>Four remaining core-course confirmations required before good standing can be issued.</p>
+      </div>
+
+      <div class="req">
+        <b>GPA Standing</b>
+        <p>Current GPA is usable but below preferred direct-path target for higher-tier options.</p>
+      </div>
+
+      <div class="req good">
+        <b>Graduation Track</b>
+        <p>Graduation timeline is currently active and not marked as critical.</p>
+      </div>
+
+      <div class="req">
+        <b>Clearinghouse</b>
+        <p>NCAA registration status must be confirmed or initiated by family/counselor.</p>
+      </div>
+
+      <div class="req risk">
+        <b>Out-of-State Review</b>
+        <p>Course portability and state-to-state academic interpretation require review.</p>
+      </div>
+
+      <div class="req">
+        <b>Documentation</b>
+        <p>Transcript, coursework, and counselor verification should be attached to the record.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel correction" id="correction">
+    <div class="label">Required Correction Path</div>
+
+    <div class="path-list">
+      <div class="path-step">
+        <div class="step-num">01</div>
+        <div>
+          <b>Submit Current Transcript</b>
+          <span>Upload or verify the most recent transcript before eligibility standing is finalized.</span>
+        </div>
+        <div class="priority">High Priority</div>
+      </div>
+
+      <div class="path-step">
+        <div class="step-num">02</div>
+        <div>
+          <b>Verify NCAA Course Codes</b>
+          <span>Confirm that current and completed classes match NCAA-approved coursework.</span>
+        </div>
+        <div class="priority">Required</div>
+      </div>
+
+      <div class="path-step">
+        <div class="step-num">03</div>
+        <div>
+          <b>Confirm In-State / Out-of-State Direction</b>
+          <span>Student and parent should identify preferred college pathway direction.</span>
+        </div>
+        <div class="priority">Guidance</div>
+      </div>
+
+      <div class="path-step">
+        <div class="step-num">04</div>
+        <div>
+          <b>Request Counselor Review</b>
+          <span>School counselor verification is required before full standing can be trusted.</span>
+        </div>
+        <div class="priority">Verification</div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="panel pathway">
+    <div class="label">College Pathway Signal</div>
+
+    <div class="pathway-card">
+      <span>Athletic Signal</span>
+      <b>Division I Potential</b>
+
+      <span>Academic Position</span>
+      <b>Partial NCAA Alignment</b>
+
+      <span>Current Recommended Path</span>
+      <b class="gold">Direct Path Pending Review</b>
+
+      <span>Fallback Route</span>
+      <b>JUCO / Bridge Path If Required</b>
+    </div>
+  </aside>
+
+  <section class="receipt" id="receipt">
+    <div class="receipt-title">Eligibility Receipt</div>
+
+    <div class="receipt-cell">
+      <span>Status</span>
+      <b>Partial Standing</b>
+    </div>
+
+    <div class="receipt-cell">
+      <span>Generated</span>
+      <b>2026-05-14</b>
+    </div>
+
+    <div class="receipt-cell">
+      <span>Verification Level</span>
+      <b>Level 2 Pending</b>
+    </div>
+
+    <div class="receipt-cell">
+      <span>Next Review</span>
+      <b>After Transcript</b>
+    </div>
+
+    <div class="receipt-cell">
+      <span>System Message</span>
+      <b>Review Required</b>
+    </div>
+  </section>
+
+</section>
+
+</main>
+</div>
+</body>
+</html> 
