@@ -646,6 +646,8 @@ a{text-decoration:none;color:inherit;}
 .ready.eligibility{
   position:relative;
   overflow:hidden;
+  display:flex;
+  flex-direction:column;
 
   border-color:rgba(255,177,0,.55);
 
@@ -667,7 +669,7 @@ a{text-decoration:none;color:inherit;}
     transform .25s ease,
     box-shadow .25s ease,
     border-color .25s ease;
-}
+} 
 
 .ready.eligibility:before{
   content:"";
@@ -740,6 +742,15 @@ a{text-decoration:none;color:inherit;}
     inset 0 18px 30px rgba(255,177,0,.08),
     0 0 36px rgba(255,177,0,.22),
     0 20px 46px rgba(0,0,0,.92);
+} 
+
+  .ready.eligibility p{
+  flex:1;
+} 
+
+  .ready.eligibility a{
+  color:var(--eligibility);
+  margin-top:auto;
 } 
 
 /* FLOW */
