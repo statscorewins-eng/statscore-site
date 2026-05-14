@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -364,9 +364,12 @@ async function saveDraft(){
         p_subject:payload.subject,
         p_body:payload.body
       });
-      if(error)throw error;
-      messageId=extractMessageId(data);
-      console.log("Draft saved to Supabase:",data);
+     if(error) throw error;
+
+messageId = extractMessageId(data);
+
+console.log("Draft saved to Supabase:", data);
+console.log("EXTRACTED MESSAGE ID:", messageId); 
     }
 
     if(!messageId){
