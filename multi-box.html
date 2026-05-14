@@ -227,28 +227,69 @@ function extractMessageId(data){
   return null;
 }
 
-function addAudit(actionType,note,messageId=null,persist=true){
-  const panel=document.getElementById("auditPanel");
-  if(!panel)return;
+function addAudit(
+  actionType,
+  note,
+  messageId = null
+){
 
-  const item=document.createElement("div");
-  item.className="audit-item";
-  if(messageId)item.dataset.messageId=messageId;
+  const auditPanel =
+    document.getElementById(
+      "auditPanel"
+    );
 
-  item.innerHTML=`
-    <b>${esc(actionType)}</b>
-    <span>${esc(note)}</span>
-    ${messageId?`<button class="draft-remove-btn" type="button" data-message-id="${esc(messageId)}">REMOVE</button>`:""}
+  if(!auditPanel) return;
+
+  const item =
+    document.createElement("div");
+
+  item.className = "audit-item";
+
+  item.innerHTML = `
+
+    <b>${actionType}</b>
+
+    <span>${note}</span>
+
+    ${
+      messageId
+      ?
+      `
+      <button
+        class="draft-remove-btn"
+        onclick="removeDraft('${messageId}', this)"
+      >
+        REMOVE
+      </button>
+      `
+      :
+      ""
+    }
+
   `;
 
-  panel.prepend(item);
+  auditPanel.prepend(item);
 
-  if(persist){
-    const saved=safeParse(localStorage.getItem(LOCAL_AUDIT_KEY),[]);
-    saved.unshift({action_type:actionType,audit_note:note,message_id:messageId,created_at:new Date().toISOString()});
-    localStorage.setItem(LOCAL_AUDIT_KEY,JSON.stringify(saved.slice(0,25)));
-  }
-}
+  const saved =
+    JSON.parse(
+      localStorage.getItem(
+        LOCAL_AUDIT_KEY
+      ) || "[]"
+    );
+
+  saved.unshift({
+    action_type: actionType,
+    audit_note: note,
+    message_id: messageId,
+    created_at:
+      new Date().toISOString()
+  });
+
+  localStorage.setItem(
+    LOCAL_AUDIT_KEY,
+    JSON.stringify(saved.slice(0,25))
+  );
+} 
 
 function removeLocalDraft(messageId){
   const drafts=safeParse(localStorage.getItem(LOCAL_DRAFT_KEY),[]);
