@@ -171,7 +171,7 @@ a{
 .intro{
   position:relative;
   display:grid;
-  grid-template-columns:1fr 360px;
+  grid-template-columns:1fr 420px;
   gap:22px;
   min-height:164px;
   padding:26px 28px;
@@ -325,6 +325,12 @@ a{
   border-color:rgba(46,168,102,.55);
   background:rgba(46,168,102,.1);
   color:#7ddca3;
+}
+
+.status-pill.risk{
+  border-color:rgba(200,67,67,.55);
+  background:rgba(200,67,67,.1);
+  color:#ff8b8b;
 }
 
 .dot{
@@ -856,23 +862,33 @@ a{
 
   <div class="context-grid">
     <div class="context-box">
-      <span>Profile Type</span>
-      <b>Athlete</b>
+      <span>Athlete</span>
+      <b id="athlete-name">Loading...</b>
     </div>
 
     <div class="context-box">
-      <span>Record Stage</span>
-      <b>Initial Review</b>
+      <span>Sport / Position</span>
+      <b><span id="sport-name">—</span> · <span id="position-name">—</span></b>
     </div>
 
     <div class="context-box warning">
       <span>Verification Status</span>
-      <b>Partial</b>
+      <b id="status-label">Loading...</b>
+    </div>
+
+    <div class="context-box warning">
+      <span>Review State</span>
+      <b id="review-state">Loading...</b>
+    </div>
+
+    <div class="context-box">
+      <span>Master State</span>
+      <b id="master-state">Loading...</b>
     </div>
 
     <div class="context-box good">
-      <span>Identity Record</span>
-      <b>Present</b>
+      <span>Next Action</span>
+      <b id="next-action">Loading...</b>
     </div>
   </div>
 </section>
@@ -899,47 +915,45 @@ a{
     <article class="panel panel-pad equal-panel">
       <div class="section-label">Current Verification Standing</div>
 
-      <div class="status-pill">
+      <div class="status-pill" id="standing-pill">
         <span class="dot"></span>
-        Partial Verification Standing
+        <span id="standing-pill-text">Partial Verification Standing</span>
       </div>
 
-      <h2 class="standing-title">Record Verification In Progress</h2>
+      <h2 class="standing-title" id="standing-title">Record Verification In Progress</h2>
 
-      <p class="copy">
-        The athlete identity record is present, but the profile is not yet fully verified. Transcript,
-        guardian consent, document review, and counselor confirmation must be completed before the record
-        can be marked fully trusted.
+      <p class="copy" id="system-guidance">
+        Loading verification guidance from STATScore intelligence...
       </p>
 
       <div class="alignment-box">
         <div class="alignment-top">
           <b>Verification Completion</b>
-          <span>68%</span>
+          <span id="verification-percent">68%</span>
         </div>
 
         <div class="meter">
-          <div class="meter-fill"></div>
+          <div class="meter-fill" id="verification-meter"></div>
         </div>
       </div>
 
       <div class="summary-stats">
         <div class="summary-stat">
           <span>Identity</span>
-          <b>Present</b>
-          <small>Needs Confirmation</small>
+          <b id="identity-position">Present</b>
+          <small id="identity-note">Needs Confirmation</small>
         </div>
 
         <div class="summary-stat">
           <span>Documents</span>
-          <b>3 / 5</b>
-          <small>Missing Items</small>
+          <b id="document-position">Pending</b>
+          <small id="document-note">Missing Items</small>
         </div>
 
         <div class="summary-stat">
           <span>Review Level</span>
-          <b>Level 2</b>
-          <small>Pending</small>
+          <b id="trust-level">Level 2</b>
+          <small id="trust-note">Pending</small>
         </div>
       </div>
     </article>
@@ -949,64 +963,30 @@ a{
 
       <div class="review-block">
         <h3>Identity Review</h3>
-        <p>
-          Athlete name, profile record, and access identity are present. Final verification should wait until
-          guardian or school-side confirmation is attached.
+        <p id="identity-review-copy">
+          Athlete profile record is being evaluated through STATScore verification controls.
         </p>
-        <div class="review-note good">Identity Present</div>
+        <div class="review-note good" id="identity-review-note">Identity Present</div>
       </div>
 
       <div class="review-block">
         <h3>Document Review</h3>
-        <p>
-          Transcript and supporting documents are not fully confirmed. The record should remain in partial
-          verification until required documents are uploaded or reviewed.
+        <p id="document-review-copy">
+          Required documents are being checked against the athlete intelligence profile.
         </p>
-        <div class="review-note">Review Needed</div>
+        <div class="review-note" id="document-review-note">Review Needed</div>
       </div>
     </article>
 
     <aside class="panel panel-pad equal-panel" id="signals">
       <div class="section-label">Verification Signals</div>
 
-      <div class="signal-list">
-        <div class="signal-item">
-          <span class="dot green"></span>
-          <div>
-            <b>Profile Created</b>
-            <span>Athlete profile record is present.</span>
-          </div>
-        </div>
-
+      <div class="signal-list" id="verification-signals-list">
         <div class="signal-item">
           <span class="dot"></span>
           <div>
-            <b>Guardian Consent</b>
-            <span>Parent or guardian confirmation is still required.</span>
-          </div>
-        </div>
-
-        <div class="signal-item">
-          <span class="dot"></span>
-          <div>
-            <b>Transcript Upload</b>
-            <span>Academic transcript still needs review.</span>
-          </div>
-        </div>
-
-        <div class="signal-item">
-          <span class="dot red"></span>
-          <div>
-            <b>Unverified Document</b>
-            <span>One required document has not been confirmed.</span>
-          </div>
-        </div>
-
-        <div class="signal-item">
-          <span class="dot"></span>
-          <div>
-            <b>School Review</b>
-            <span>School-side confirmation has not been completed.</span>
+            <b>Loading Signals</b>
+            <span>STATScore verification signals loading...</span>
           </div>
         </div>
       </div>
@@ -1068,35 +1048,10 @@ a{
     <section class="panel panel-pad">
       <div class="section-label">Verification Requirements Breakdown</div>
 
-      <div class="requirement-grid">
-        <div class="req good">
-          <b>Athlete Profile</b>
-          <p>Basic athlete record is present and available for system review.</p>
-        </div>
-
+      <div class="requirement-grid" id="requirements-grid">
         <div class="req">
-          <b>Guardian Consent</b>
-          <p>Parent or guardian approval must be confirmed before full trust is issued.</p>
-        </div>
-
-        <div class="req">
-          <b>Transcript</b>
-          <p>Academic transcript must be uploaded or confirmed before eligibility review is trusted.</p>
-        </div>
-
-        <div class="req">
-          <b>School Contact</b>
-          <p>Counselor or school-side contact information should be attached to the record.</p>
-        </div>
-
-        <div class="req risk">
-          <b>Document Conflict</b>
-          <p>One document or data point requires correction before full verification can be granted.</p>
-        </div>
-
-        <div class="req">
-          <b>Review Receipt</b>
-          <p>Verification outcome should generate a receipt showing what was trusted and what remains pending.</p>
+          <b>Loading Requirements</b>
+          <p>STATScore verification requirements are loading from the athlete intelligence profile.</p>
         </div>
       </div>
     </section>
@@ -1105,16 +1060,16 @@ a{
       <div class="section-label">Trust Level Signal</div>
 
       <span>Identity Position</span>
-      <b>Profile Record Present</b>
+      <b id="identity-position-side">Profile Record Present</b>
 
       <span>Document Position</span>
-      <b>Partial Verification</b>
+      <b id="document-position-side">Partial Verification</b>
 
       <span>Current Trust Level</span>
-      <b class="warning">Level 2 Pending Review</b>
+      <b class="warning" id="trust-level-side">Level 2 Pending Review</b>
 
       <span>Required Before Full Trust</span>
-      <b>Transcript + Guardian + School Confirmation</b>
+      <b id="required-before-full-trust">Transcript + Guardian + School Confirmation</b>
     </aside>
 
   </div>
@@ -1129,33 +1084,12 @@ a{
   <section class="panel correction">
     <div class="section-label">Required Verification Path</div>
 
-    <div class="path-list">
+    <div class="path-list" id="required-actions-list">
       <div class="path-step">
         <div class="step-num">01</div>
-        <b>Confirm Athlete Identity</b>
-        <span>Verify athlete name, guardian relationship, and basic profile identity.</span>
-        <div class="priority">Priority: High</div>
-      </div>
-
-      <div class="path-step">
-        <div class="step-num">02</div>
-        <b>Upload Current Transcript</b>
-        <span>Attach the most recent academic transcript for review.</span>
-        <div class="priority">Priority: Required</div>
-      </div>
-
-      <div class="path-step">
-        <div class="step-num">03</div>
-        <b>Confirm Guardian Consent</b>
-        <span>Parent or guardian approval must be attached to the profile.</span>
-        <div class="priority">Priority: Required</div>
-      </div>
-
-      <div class="path-step">
-        <div class="step-num">04</div>
-        <b>Request School Review</b>
-        <span>Counselor or school verification is needed before full trust can be issued.</span>
-        <div class="priority">Priority: Verification</div>
+        <b>Loading Action Path</b>
+        <span>STATScore required actions are loading...</span>
+        <div class="priority">Priority: Pending</div>
       </div>
     </div>
   </section>
@@ -1166,34 +1100,275 @@ a{
 
   <div class="receipt-cell">
     <span>Status</span>
-    <b>Partial Verification</b>
+    <b id="receipt-status">Loading...</b>
   </div>
 
   <div class="receipt-cell">
     <span>Generated</span>
-    <b>2026-05-14</b>
+    <b id="receipt-generated">Live</b>
   </div>
 
   <div class="receipt-cell">
     <span>Trust Level</span>
-    <b>Level 2 Pending</b>
+    <b id="receipt-trust-level">Loading...</b>
   </div>
 
   <div class="receipt-cell">
     <span>Next Review</span>
-    <b>After Upload</b>
+    <b id="receipt-next-review">Loading...</b>
   </div>
 
   <div class="receipt-cell">
     <span>System Message</span>
-    <b>Verification Required</b>
+    <b id="receipt-message">Loading...</b>
   </div>
 </section>
 
 </main>
 </div>
-  
-  <script src="statscore-data.js"></script> 
-  
+
+<script src="statscore-data.js"></script>
+
+<script>
+(async () => {
+
+  function titleCase(value){
+    return String(value || "—")
+      .replace(/_/g," ")
+      .replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  function getCompletionPercent(athlete){
+    const checks = [
+      athlete?.verification_status === "verified",
+      athlete?.identity_verified === true,
+      athlete?.guardian_consent_verified === true,
+      athlete?.transcript_verified === true,
+      athlete?.counselor_verified === true
+    ];
+
+    const complete = checks.filter(Boolean).length;
+    return Math.round((complete / checks.length) * 100);
+  }
+
+  function setDotClass(containerId, state){
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    const dot = container.querySelector(".dot");
+    if (!dot) return;
+
+    dot.classList.remove("green","red");
+
+    if (state === "green" || state === "verified") {
+      dot.classList.add("green");
+    }
+
+    if (state === "red" || state === "hard_fail") {
+      dot.classList.add("red");
+    }
+  }
+
+  try {
+
+    const profile = await window.STATScoreData.loadAthleteProfile();
+    const queueRows = await window.STATScoreData.loadResolutionQueue();
+
+    const queue =
+      Array.isArray(queueRows) && profile
+        ? queueRows.find(row => row.athlete_profile_id === profile.athlete_profile_id) || queueRows[0]
+        : null;
+
+    const athlete = {
+      ...(profile || {}),
+      ...(queue || {})
+    };
+
+    if (!profile && !queue) {
+      console.log("No athlete profile found.");
+      return;
+    }
+
+    const set = window.STATScoreData.setText;
+
+    const requiredActions =
+      Array.isArray(athlete.required_actions)
+        ? athlete.required_actions
+        : [];
+
+    const blockers =
+      Array.isArray(athlete.current_blockers)
+        ? athlete.current_blockers
+        : [];
+
+    const verificationPercent = getCompletionPercent(athlete);
+
+    set("athlete-name", athlete.athlete_display_name || "Demo Athlete");
+    set("sport-name", titleCase(athlete.sport || "football"));
+    set("position-name", athlete.position || "—");
+
+    set("status-label", athlete.athlete_status_label || titleCase(athlete.final_master_state));
+    set("review-state", athlete.review_state || athlete.review_message || "Manual Review Required");
+    set("master-state", titleCase(athlete.final_master_state || "restricted_visibility"));
+    set("next-action", athlete.primary_next_action || requiredActions[0] || "Continue Athlete Review");
+
+    set("standing-pill-text", athlete.athlete_status_label || "Partial Verification Standing");
+    set("standing-title", titleCase(athlete.final_master_state || "Record Verification In Progress"));
+
+    set(
+      "system-guidance",
+      athlete.system_guidance ||
+      athlete.review_message ||
+      "Verification state loaded from STATScore intelligence."
+    );
+
+    set("verification-percent", verificationPercent + "%");
+
+    const meter = document.getElementById("verification-meter");
+    if (meter) meter.style.width = verificationPercent + "%";
+
+    set("identity-position", athlete.identity_verified ? "Verified" : "Present");
+    set("identity-note", athlete.identity_verified ? "Confirmed" : "Needs Confirmation");
+
+    set(
+      "document-position",
+      athlete.transcript_verified ? "Verified" : "Pending"
+    );
+
+    set(
+      "document-note",
+      athlete.transcript_verified ? "Confirmed" : "Missing Items"
+    );
+
+    set("trust-level", athlete.operational_tier ? titleCase(athlete.operational_tier) : "Level 2");
+    set("trust-note", athlete.requires_manual_review ? "Pending" : "Active");
+
+    set(
+      "identity-review-copy",
+      athlete.identity_verified
+        ? "Athlete identity has been verified inside the STATScore intelligence profile."
+        : "Athlete identity record is present, but final verification should wait until supporting confirmation is complete."
+    );
+
+    set(
+      "document-review-copy",
+      athlete.transcript_verified
+        ? "Academic documentation has been verified for this record."
+        : "Transcript and supporting documents are not fully confirmed. The record should remain in partial verification until required documents are uploaded or reviewed."
+    );
+
+    set(
+      "identity-review-note",
+      athlete.identity_verified ? "Identity Verified" : "Identity Present"
+    );
+
+    set(
+      "document-review-note",
+      athlete.transcript_verified ? "Documents Verified" : "Review Needed"
+    );
+
+    set("identity-position-side", athlete.identity_verified ? "Verified Identity" : "Profile Record Present");
+    set("document-position-side", athlete.transcript_verified ? "Documents Verified" : "Partial Verification");
+    set("trust-level-side", athlete.operational_tier ? titleCase(athlete.operational_tier) + " Review" : "Level 2 Pending Review");
+    set("required-before-full-trust", athlete.primary_next_action || requiredActions[0] || "Verification Requirements");
+
+    set("receipt-status", athlete.athlete_status_label || "Partial Verification");
+    set("receipt-generated", athlete.resolved_at ? new Date(athlete.resolved_at).toLocaleDateString() : "Live");
+    set("receipt-trust-level", athlete.operational_tier ? titleCase(athlete.operational_tier) : "Pending");
+    set("receipt-next-review", athlete.primary_next_action || "After Required Action");
+    set("receipt-message", athlete.review_state || athlete.review_message || "Verification Required");
+
+    setDotClass("standing-pill", athlete.verification_status);
+
+    const signalContainer = document.getElementById("verification-signals-list");
+    if (signalContainer) {
+      signalContainer.innerHTML = "";
+
+      if (blockers.length === 0) {
+        signalContainer.innerHTML = `
+          <div class="signal-item">
+            <span class="dot green"></span>
+            <div>
+              <b>No Active Blockers</b>
+              <span>STATScore has not detected active verification blockers.</span>
+            </div>
+          </div>
+        `;
+      } else {
+        blockers.forEach(blocker => {
+          signalContainer.innerHTML += `
+            <div class="signal-item">
+              <span class="dot"></span>
+              <div>
+                <b>${blocker}</b>
+                <span>Verification review required before full trust is issued.</span>
+              </div>
+            </div>
+          `;
+        });
+      }
+    }
+
+    const reqGrid = document.getElementById("requirements-grid");
+    if (reqGrid) {
+      reqGrid.innerHTML = "";
+
+      if (requiredActions.length === 0) {
+        reqGrid.innerHTML = `
+          <div class="req good">
+            <b>No Required Actions</b>
+            <p>No verification actions are currently required by STATScore.</p>
+          </div>
+        `;
+      } else {
+        requiredActions.forEach((item, index) => {
+          reqGrid.innerHTML += `
+            <div class="req ${index === 0 ? "" : ""}">
+              <b>${item}</b>
+              <p>This requirement is currently tracked by the STATScore verification intelligence layer.</p>
+            </div>
+          `;
+        });
+      }
+    }
+
+    const actionContainer = document.getElementById("required-actions-list");
+    if (actionContainer) {
+      actionContainer.innerHTML = "";
+
+      if (requiredActions.length === 0) {
+        actionContainer.innerHTML = `
+          <div class="path-step">
+            <div class="step-num">01</div>
+            <b>Continue Athlete Review</b>
+            <span>No required verification actions are currently listed.</span>
+            <div class="priority">Priority: Standard</div>
+          </div>
+        `;
+      } else {
+        requiredActions.forEach((action, index) => {
+          actionContainer.innerHTML += `
+            <div class="path-step">
+              <div class="step-num">${String(index + 1).padStart(2,"0")}</div>
+              <b>${action}</b>
+              <span>Complete this step to improve verification standing and reduce operational restrictions.</span>
+              <div class="priority">Priority: ${index === 0 ? "High" : "Required"}</div>
+            </div>
+          `;
+        });
+      }
+    }
+
+    console.log("STATScore verification room loaded.", athlete);
+
+  } catch (err) {
+
+    console.error("STATScore verification room load failure:", err);
+
+  }
+
+})();
+</script>
+
 </body>
 </html> 
