@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -598,41 +598,42 @@ b.red{color:var(--red)!important}
   <h2 class="section-title">Coach Authority Levels</h2>
 
   <div class="channel-stack">
-    <div class="channel active">
-      <b>Head Coach</b>
-      <span>Team, roster, program direction, and athlete readiness oversight.</span>
-    </div>
-
-    <div class="channel">
-      <b>Assistant Coach</b>
-      <span>Support role for athlete review, staff notes, and development tracking.</span>
-    </div>
-
-    <div class="channel">
-      <b>Position / Role Coach</b>
-      <span>Sport-specific role, event, discipline, or skill-group development.</span>
-    </div>
-
-    <div class="channel">
-      <b>Strength & Conditioning</b>
-      <span>Physical readiness, training load, speed, power, mobility, and conditioning.</span>
-    </div>
-
-    <div class="channel">
-      <b>Trainer / Recovery</b>
-      <span>Availability, recovery notes, participation readiness, and wellness flags.</span>
-    </div>
-
-    <div class="channel">
-      <b>Skill / Technical Coach</b>
-      <span>Mechanics, technical execution, specialized development, and progression.</span>
-    </div>
-
-    <div class="channel">
-      <b>Team / Program Admin</b>
-      <span>Roster logistics, uploads, scheduling, permissions, and event support.</span>
-    </div>
+  <div class="channel active" data-coach-level="Head Coach">
+    <b>Head Coach</b>
+    <span>Team, roster, program direction, and athlete readiness oversight.</span>
   </div>
+
+  <div class="channel" data-coach-level="Assistant Coach">
+    <b>Assistant Coach</b>
+    <span>Support role for athlete review, staff notes, and development tracking.</span>
+  </div>
+
+  <div class="channel" data-coach-level="Position / Role Coach">
+    <b>Position / Role Coach</b>
+    <span>Sport-specific role, event, discipline, or skill-group development.</span>
+  </div>
+
+  <div class="channel" data-coach-level="Strength & Conditioning Coach">
+    <b>Strength & Conditioning</b>
+    <span>Physical readiness, training load, speed, power, mobility, and conditioning.</span>
+  </div>
+
+  <div class="channel" data-coach-level="Trainer / Recovery">
+    <b>Trainer / Recovery</b>
+    <span>Availability, recovery notes, participation readiness, and wellness flags.</span>
+  </div>
+
+  <div class="channel" data-coach-level="Skill / Technical Coach">
+    <b>Skill / Technical Coach</b>
+    <span>Mechanics, technical execution, specialized development, and progression.</span>
+  </div>
+
+  <div class="channel" data-coach-level="Team / Program Admin">
+    <b>Team / Program Admin</b>
+    <span>Roster logistics, uploads, scheduling, permissions, and event support.</span>
+  </div>
+</div> 
+
 </aside>
 
 <article class="panel">
@@ -815,6 +816,21 @@ const LOCAL_COACH_AUDIT_KEY = "statscore_coach_operations_audit_v1";
 const LOCAL_COACH_REVIEW_KEY = "statscore_coach_review_v1";
 let evidenceRequestCount = 0;
 
+  function syncCoachRail(){
+  const coachSelect = document.getElementById("coachLevel");
+  if(!coachSelect) return;
+
+  const selected = coachSelect.value;
+
+  document.querySelectorAll(".channel").forEach(channel=>{
+    channel.classList.remove("active");
+
+    if(channel.dataset.coachLevel === selected){
+      channel.classList.add("active");
+    }
+  });
+} 
+
 function setMessage(msg,type="success"){
   const el=document.getElementById("systemMessage");
   if(!el)return;
@@ -994,6 +1010,12 @@ async function loadAthlete(){
 }
 
 document.addEventListener("DOMContentLoaded",()=>{
+  
+  syncCoachRail();
+
+document.getElementById("coachLevel")
+  .addEventListener("change",syncCoachRail); 
+  
   loadAudit();
   loadAthlete();
 
