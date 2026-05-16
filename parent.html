@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>  
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -123,72 +123,88 @@ a{text-decoration:none;color:inherit}
   border-radius:50%;
 }
 
-.role-tabs{
+/* TRUE FOLDER TAB RAIL */
+
+.tab-rail{
   height:88px;
   display:flex;
   align-items:flex-end;
-  gap:0;
-  padding:18px 0 0 0;
   border-bottom:3px solid var(--red);
-  background:
-    linear-gradient(180deg,rgba(0,0,0,.85),rgba(3,6,12,.96));
+  position:relative;
   overflow:hidden;
+  background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(0,0,0,.25));
 }
 
-.role-tabs a{
-  position:relative;
-  min-width:170px;
-  height:64px;
+.folder-tab{
+  height:61px;
+  min-width:172px;
+  margin-right:-28px;
+  padding:0 30px 0 28px;
   display:flex;
   align-items:center;
-  justify-content:center;
-  padding:0 28px;
-  color:#eaf8ff;
+  gap:10px;
+  position:relative;
+  z-index:2;
+  color:#f5f5f5;
+  text-transform:uppercase;
   font-size:.86rem;
   font-weight:900;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  border:1px solid rgba(126,216,255,.22);
-  border-bottom:none;
+  letter-spacing:.05em;
   background:
-    linear-gradient(180deg,rgba(20,28,42,.82),rgba(5,8,14,.96));
-  clip-path:polygon(12% 0,88% 0,100% 100%,0 100%);
-  margin-right:-14px;
-  z-index:1;
+    linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.02) 18%,rgba(0,0,0,.35) 70%),
+    linear-gradient(180deg,#202020,#080808 65%,#020202);
+  border:1px solid rgba(255,255,255,.25);
+  border-bottom:none;
+  border-radius:12px 20px 0 0;
+  clip-path:polygon(0 27%,4% 10%,72% 10%,79% 0,93% 0,100% 100%,0 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.22),
+    inset 0 -2px 0 rgba(0,0,0,.78),
+    0 12px 28px rgba(0,0,0,.9);
 }
 
-.role-tabs a:before{
+.folder-tab:before{
   content:"";
   position:absolute;
-  top:0;
-  left:22%;
-  width:56%;
-  height:5px;
-  background:rgba(126,216,255,.38);
-  border-radius:0 0 8px 8px;
+  top:7px;
+  left:13px;
+  right:24px;
+  height:1px;
+  background:rgba(255,255,255,.3);
 }
 
-.role-tabs a.active{
-  height:78px;
-  min-width:205px;
-  color:#fff;
+.folder-tab:after{
+  content:"";
+  position:absolute;
+  top:10px;
+  right:13px;
+  width:44px;
+  height:21px;
+  border-top:1px solid rgba(255,255,255,.18);
+  border-right:1px solid rgba(255,255,255,.14);
+  transform:skewX(25deg);
+}
+
+.folder-tab.active{
+  height:75px;
+  min-width:194px;
   background:
-    linear-gradient(180deg,rgba(255,43,31,.95),rgba(150,21,18,.9));
-  border-color:rgba(255,43,31,.82);
+    linear-gradient(180deg,rgba(255,255,255,.15),rgba(255,255,255,.04) 18%,rgba(0,0,0,.18) 70%),
+    linear-gradient(180deg,#ff2935,#c70b16 56%,#760408);
+  border-color:rgba(255,255,255,.42);
+  z-index:20;
   box-shadow:
-    0 -8px 28px rgba(255,43,31,.18),
-    inset 0 0 0 1px rgba(255,255,255,.12);
-  z-index:4;
+    inset 0 1px 0 rgba(255,255,255,.35),
+    inset 0 -2px 0 rgba(0,0,0,.48),
+    0 0 0 1px rgba(255,31,45,.45),
+    0 16px 36px rgba(0,0,0,.95);
 }
 
-.role-tabs a.active:before{
-  background:rgba(255,255,255,.28);
+.folder-tab.multi{
+  margin-left:auto;
+  min-width:205px;
+  border-color:rgba(255,31,45,.75);
 }
-
-.role-tabs a:hover{
-  color:#fff;
-  border-color:rgba(126,216,255,.45);
-} 
 
 .main{
   padding:22px 32px 0;
