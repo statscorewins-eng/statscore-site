@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>  
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1015,6 +1015,24 @@ document.addEventListener("DOMContentLoaded",()=>{
 
 document.getElementById("coachLevel")
   .addEventListener("change",syncCoachRail); 
+
+  document.querySelectorAll(".channel[data-coach-level]").forEach(channel=>{
+  channel.addEventListener("click",()=>{
+    const selectedLevel = channel.dataset.coachLevel;
+
+    document.getElementById("coachLevel").value = selectedLevel;
+
+    updateRail();
+    syncCoachRail();
+
+    addAudit(
+      "Coach Authority Lane Selected",
+      selectedLevel + " lane selected from Coach Authority Levels."
+    );
+
+    setMessage(selectedLevel + " lane active");
+  });
+}); 
   
   loadAudit();
   loadAthlete();
