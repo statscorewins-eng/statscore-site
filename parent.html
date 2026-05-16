@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -124,31 +124,71 @@ a{text-decoration:none;color:inherit}
 }
 
 .role-tabs{
-  display:grid;
-  grid-template-columns:repeat(8,1fr);
-  border-bottom:2px solid var(--red);
-  background:rgba(3,5,9,.88);
+  height:88px;
+  display:flex;
+  align-items:flex-end;
+  gap:0;
+  padding:18px 0 0 0;
+  border-bottom:3px solid var(--red);
+  background:
+    linear-gradient(180deg,rgba(0,0,0,.85),rgba(3,6,12,.96));
+  overflow:hidden;
 }
 
 .role-tabs a{
-  min-height:72px;
+  position:relative;
+  min-width:170px;
+  height:64px;
   display:flex;
   align-items:center;
   justify-content:center;
-  border-right:1px solid rgba(255,255,255,.16);
+  padding:0 28px;
   color:#eaf8ff;
-  font-size:.82rem;
+  font-size:.86rem;
   font-weight:900;
-  letter-spacing:.11em;
+  letter-spacing:.12em;
   text-transform:uppercase;
-  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.01));
+  border:1px solid rgba(126,216,255,.22);
+  border-bottom:none;
+  background:
+    linear-gradient(180deg,rgba(20,28,42,.82),rgba(5,8,14,.96));
+  clip-path:polygon(12% 0,88% 0,100% 100%,0 100%);
+  margin-right:-14px;
+  z-index:1;
+}
+
+.role-tabs a:before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:22%;
+  width:56%;
+  height:5px;
+  background:rgba(126,216,255,.38);
+  border-radius:0 0 8px 8px;
 }
 
 .role-tabs a.active{
-  background:linear-gradient(180deg,rgba(255,43,31,.85),rgba(255,43,31,.42));
+  height:78px;
+  min-width:205px;
   color:#fff;
-  border-color:rgba(255,43,31,.9);
+  background:
+    linear-gradient(180deg,rgba(255,43,31,.95),rgba(150,21,18,.9));
+  border-color:rgba(255,43,31,.82);
+  box-shadow:
+    0 -8px 28px rgba(255,43,31,.18),
+    inset 0 0 0 1px rgba(255,255,255,.12);
+  z-index:4;
 }
+
+.role-tabs a.active:before{
+  background:rgba(255,255,255,.28);
+}
+
+.role-tabs a:hover{
+  color:#fff;
+  border-color:rgba(126,216,255,.45);
+} 
 
 .main{
   padding:22px 32px 0;
@@ -498,15 +538,15 @@ b.red{color:var(--red)!important}
 </header>
 
 <nav class="role-tabs">
-  <a href="system.html?role=athlete">Athlete</a>
-  <a class="active" href="parent.html">Parent</a>
-  <a href="coach.html">Coach</a>
-  <a href="counselor.html">Counselor</a>
-  <a href="recruiter.html">Recruiter</a>
-  <a href="program.html">Program</a>
-  <a href="evaluator.html">Evaluator</a>
-  <a href="multi-box.html">Multi-Box™</a>
-</nav>
+  <a href="system.html?role=athlete">♟ Athlete</a>
+  <a class="active" href="parent.html">♟ Parent</a>
+  <a href="coach.html">⌂ Coach</a>
+  <a href="counselor.html">▣ Counselor</a>
+  <a href="recruiter.html">◎ Recruiter</a>
+  <a href="program.html">⌂ Program</a>
+  <a href="evaluator.html">☑ Evaluator</a>
+  <a href="multi-box.html">▣ Multi-Box™</a>
+</nav> 
 
 <main class="main">
 
