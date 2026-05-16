@@ -64,6 +64,56 @@ textarea{min-height:190px;resize:vertical;line-height:1.45}
 .footer{min-height:64px;margin-top:10px;border-top:1px solid var(--line);display:grid;grid-template-columns:220px 1fr 300px 260px;align-items:center;color:#cdd7df;font-size:.74rem;letter-spacing:.08em;text-transform:uppercase}
 .footer img{width:185px}.demo-ok{color:var(--green);font-weight:900}
 @media(max-width:1000px){.header,.shell-grid,.flow,.footer{grid-template-columns:1fr}.logo-tab{width:100%}.header-title{padding:14px}.header-nav{justify-content:center;flex-wrap:wrap;padding:14px}.main{padding:18px 14px 0}.record-header{flex-direction:column;align-items:flex-start}.record-title{font-size:2.8rem}.compose-grid,.message-toolbar{grid-template-columns:1fr}.panel{max-height:none;height:auto;min-height:auto}}
+
+.multibox-card{
+  min-height:92px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.025);
+  display:grid;
+  grid-template-columns:58px 1fr 24px;
+  align-items:center;
+  gap:12px;
+  padding:14px;
+  margin-bottom:12px;
+  cursor:pointer;
+  transition:.18s ease;
+}
+
+.multibox-card:hover{
+  border-color:var(--red);
+  background:rgba(255,43,31,.1);
+  transform:translateX(3px);
+}
+
+.multibox-card .mb-icon{
+  font-size:2rem;
+  color:#fff;
+  text-align:center;
+}
+
+.multibox-card b{
+  display:block;
+  color:#fff;
+  font-size:.82rem;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.multibox-card p{
+  margin:5px 0 0;
+  color:#dff6ff;
+  font-size:.74rem;
+  line-height:1.25;
+  font-weight:800;
+}
+
+.multibox-card strong{
+  color:var(--red);
+  font-size:1.8rem;
+  font-weight:900;
+} 
+  
 </style>
 </head>
 
