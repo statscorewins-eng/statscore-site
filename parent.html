@@ -524,12 +524,64 @@ b.red{color:var(--red)!important}
   }
 
   .panel{
-    max-height:none;
-    height:auto;
-    min-height:auto;
-  }
+  max-height:none;
+  height:auto;
+  min-height:auto;
 }
-</style>
+
+/* PASTE MULTIBOX CSS HERE */
+
+.multibox-card{
+  min-height:92px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.025);
+  display:grid;
+  grid-template-columns:58px 1fr 24px;
+  align-items:center;
+  gap:12px;
+  padding:14px;
+  margin-bottom:12px;
+  cursor:pointer;
+  transition:.18s ease;
+}
+
+.multibox-card:hover{
+  border-color:var(--red);
+  background:rgba(255,43,31,.1);
+  transform:translateX(3px);
+}
+
+.multibox-card .mb-icon{
+  font-size:2rem;
+  color:#fff;
+  text-align:center;
+}
+
+.multibox-card b{
+  display:block;
+  color:#fff;
+  font-size:.82rem;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.multibox-card p{
+  margin:5px 0 0;
+  color:#dff6ff;
+  font-size:.74rem;
+  line-height:1.25;
+  font-weight:800;
+}
+
+.multibox-card strong{
+  color:var(--red);
+  font-size:1.8rem;
+  font-weight:900;
+}
+
+</style> 
+
 </head>
 
 <body>
