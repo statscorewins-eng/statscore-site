@@ -497,7 +497,7 @@ b.red{color:var(--red)!important}
 .demo-ok{color:var(--green);font-weight:900}
 
 @media(max-width:1000px){
-  .header,.shell-grid,.flow,.footer,.role-tabs{
+  .header,.shell-grid,.flow,.footer{
     grid-template-columns:1fr;
   }
 
@@ -553,16 +553,16 @@ b.red{color:var(--red)!important}
   </nav>
 </header>
 
-<nav class="role-tabs">
-  <a href="system.html?role=athlete">♟ Athlete</a>
-  <a class="active" href="parent.html">♟ Parent</a>
-  <a href="coach.html">⌂ Coach</a>
-  <a href="counselor.html">▣ Counselor</a>
-  <a href="recruiter.html">◎ Recruiter</a>
-  <a href="program.html">⌂ Program</a>
-  <a href="evaluator.html">☑ Evaluator</a>
-  <a href="multi-box.html">▣ Multi-Box™</a>
-</nav> 
+<section class="tab-rail">
+  <a class="folder-tab" href="system.html?role=athlete">♟ Athlete</a>
+  <a class="folder-tab active" href="parent.html">♟ Parent</a>
+  <a class="folder-tab" href="coach.html">⌂ Coach</a>
+  <a class="folder-tab" href="counselor.html">▣ Counselor</a>
+  <a class="folder-tab" href="recruiter.html">◎ Recruiter</a>
+  <a class="folder-tab" href="program.html">⌂ Program</a>
+  <a class="folder-tab" href="evaluator.html">☑ Evaluator</a>
+  <a class="folder-tab multi" href="multi-box.html">▣ Multi-Box™</a>
+</section> 
 
 <main class="main">
 
