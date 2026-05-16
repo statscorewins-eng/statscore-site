@@ -202,4 +202,693 @@ a{text-decoration:none;color:inherit}
 }
 
 .panel{
-  background 
+  background:var(--panel);
+  border:1px solid var(--line);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.035);
+  padding:20px;
+  min-height:720px;
+  max-height:720px;
+  overflow-y:auto;
+}
+
+.section-title{
+  margin:0 0 18px;
+  color:var(--red);
+  font-size:.76rem;
+  font-weight:900;
+  letter-spacing:.24em;
+  text-transform:uppercase;
+}
+
+.channel-stack{display:grid;gap:10px}
+
+.channel{
+  border:1px solid var(--line);
+  padding:14px;
+  background:rgba(255,255,255,.02);
+}
+
+.channel.active{
+  border-color:var(--red);
+  box-shadow:inset 0 0 0 1px rgba(255,43,31,.25);
+}
+
+.channel b{
+  display:block;
+  font-size:.78rem;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+
+.channel span{
+  display:block;
+  color:#bdefff;
+  font-size:.74rem;
+  line-height:1.25;
+  margin-top:5px;
+}
+
+.guardian-shell{
+  border:1px solid var(--line2);
+  padding:20px;
+  background:rgba(7,10,16,.45);
+}
+
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+}
+
+.field{display:grid;gap:7px}
+.field.full{grid-column:1/-1}
+
+label{
+  color:#e9f9ff;
+  font-size:.68rem;
+  font-weight:900;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+}
+
+input,select,textarea{
+  width:100%;
+  background:rgba(5,8,14,.74);
+  border:1px solid var(--line2);
+  color:#fff;
+  padding:14px;
+  font-size:.9rem;
+  font-weight:800;
+  outline:none;
+}
+
+input:focus,select:focus,textarea:focus{
+  border-color:var(--red);
+  box-shadow:0 0 0 1px rgba(255,43,31,.3);
+}
+
+textarea{
+  min-height:160px;
+  resize:vertical;
+  line-height:1.45;
+}
+
+.action-toolbar{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-top:14px;
+}
+
+.btn{
+  min-height:48px;
+  border:1px solid var(--line2);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 14px;
+  text-transform:uppercase;
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.12em;
+  background:rgba(255,255,255,.025);
+  color:#fff;
+  cursor:pointer;
+}
+
+.btn.gold{border-color:var(--gold);color:var(--gold)}
+.btn.green{border-color:var(--green);color:var(--green)}
+.btn.primary{border-color:var(--red);color:var(--red);background:rgba(255,43,31,.12)}
+
+.system-message{
+  margin-top:14px;
+  min-height:24px;
+  color:var(--green);
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+
+.status-card,.side-section{
+  border:1px solid var(--line);
+  padding:14px;
+}
+
+.side-section{margin-top:16px}
+
+.status-row,.metric-row{
+  display:flex;
+  justify-content:space-between;
+  border-bottom:1px solid rgba(255,255,255,.12);
+  padding:9px 0;
+  font-size:.74rem;
+  text-transform:uppercase;
+  font-weight:900;
+}
+
+.status-row:last-child,.metric-row:last-child{border-bottom:none}
+.status-row span,.metric-row span{color:var(--blue)}
+.status-row b,.metric-row b{color:var(--gold)}
+b.green{color:var(--green)!important}
+b.red{color:var(--red)!important}
+
+.notice{
+  margin-top:16px;
+  border-left:4px solid var(--red);
+  background:linear-gradient(90deg,rgba(255,43,31,.14),rgba(255,255,255,.02));
+  padding:14px;
+  color:#e8f3f8;
+  font-size:.8rem;
+  line-height:1.45;
+  font-weight:800;
+}
+
+.audit-list{display:grid;gap:10px}
+
+.audit-item{
+  border:1px solid var(--line);
+  padding:12px;
+  background:rgba(255,255,255,.02);
+}
+
+.audit-item b{
+  display:block;
+  color:var(--blue);
+  font-size:.68rem;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  margin-bottom:6px;
+}
+
+.audit-item span{
+  display:block;
+  color:#dff6ff;
+  font-size:.78rem;
+  line-height:1.35;
+  font-weight:800;
+}
+
+.flow{
+  margin-top:14px;
+  min-height:76px;
+  display:grid;
+  grid-template-columns:300px repeat(5,1fr) 190px;
+  align-items:center;
+  border:1px solid var(--line);
+  background:rgba(4,7,12,.62);
+}
+
+.flow-title{
+  color:var(--red);
+  font-weight:900;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  padding:0 22px;
+  line-height:1.05;
+}
+
+.flow-step{
+  border-left:1px solid rgba(255,255,255,.14);
+  padding:0 18px;
+}
+
+.flow-step b{
+  display:block;
+  font-size:.72rem;
+  text-transform:uppercase;
+}
+
+.flow-step span{
+  color:var(--muted);
+  font-size:.67rem;
+}
+
+.footer{
+  min-height:64px;
+  margin-top:10px;
+  border-top:1px solid var(--line);
+  display:grid;
+  grid-template-columns:220px 1fr 300px 260px;
+  align-items:center;
+  color:#cdd7df;
+  font-size:.74rem;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.footer img{width:185px}
+.demo-ok{color:var(--green);font-weight:900}
+
+@media(max-width:1000px){
+  .header,.shell-grid,.flow,.footer,.role-tabs{
+    grid-template-columns:1fr;
+  }
+
+  .logo-tab{width:100%}
+  .header-title{padding:14px}
+
+  .header-nav{
+    justify-content:center;
+    flex-wrap:wrap;
+    padding:14px;
+  }
+
+  .main{padding:18px 14px 0}
+
+  .record-header{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .record-title{font-size:2.8rem}
+
+  .form-grid,.action-toolbar{
+    grid-template-columns:1fr;
+  }
+
+  .panel{
+    max-height:none;
+    height:auto;
+    min-height:auto;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="page">
+
+<header class="header">
+  <a class="logo-tab" href="index.html">
+    <img src="sc_logo_black.png" alt="STATScore">
+  </a>
+
+  <div class="header-title">Parent / Guardian Authority Infrastructure</div>
+
+  <nav class="header-nav">
+    <a href="system.html">System</a>
+    <a href="player-profile.html">Profile</a>
+    <a class="active" href="parent.html">Parent</a>
+    <a href="multi-box.html">Multi-Box</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="terms.html">Terms</a>
+    <div class="user-icon"></div>
+  </nav>
+</header>
+
+<nav class="role-tabs">
+  <a href="system.html?role=athlete">Athlete</a>
+  <a class="active" href="parent.html">Parent</a>
+  <a href="coach.html">Coach</a>
+  <a href="counselor.html">Counselor</a>
+  <a href="recruiter.html">Recruiter</a>
+  <a href="program.html">Program</a>
+  <a href="evaluator.html">Evaluator</a>
+  <a href="multi-box.html">Multi-Box™</a>
+</nav>
+
+<main class="main">
+
+<section class="record-header">
+  <div>
+    <div class="record-kicker">Guardian Permission Infrastructure</div>
+    <h1 class="record-title">Parent / Guardian</h1>
+  </div>
+
+  <div class="record-badge">Authority Review Active</div>
+</section>
+
+<section class="shell-grid">
+
+<aside class="panel">
+  <h2 class="section-title">Guardian Control Areas</h2>
+
+  <div class="channel-stack">
+    <div class="channel active">
+      <b>Guardian Identity</b>
+      <span>Confirm parent or guardian relationship to athlete profile.</span>
+    </div>
+
+    <div class="channel">
+      <b>Consent Status</b>
+      <span>Authorize profile review, communications, and visibility permissions.</span>
+    </div>
+
+    <div class="channel">
+      <b>Recruiter Access</b>
+      <span>Control whether recruiter access is restricted, limited, or approved.</span>
+    </div>
+
+    <div class="channel">
+      <b>Communication Rules</b>
+      <span>Define who can contact the athlete and under what conditions.</span>
+    </div>
+
+    <div class="channel">
+      <b>Evidence Review</b>
+      <span>Submit or approve required documents, transcript, and athlete media.</span>
+    </div>
+
+    <div class="channel">
+      <b>Audit Receipt</b>
+      <span>Track guardian approvals and permission changes.</span>
+    </div>
+  </div>
+</aside>
+
+<article class="panel">
+  <section class="guardian-shell">
+    <h2 class="section-title">Guardian Approval Center</h2>
+
+    <div class="form-grid">
+      <div class="field">
+        <label>Athlete Name</label>
+        <input id="athleteName" type="text" value="Loading..." readonly>
+      </div>
+
+      <div class="field">
+        <label>Guardian Relationship</label>
+        <select id="guardianRelationship">
+          <option>Parent</option>
+          <option>Legal Guardian</option>
+          <option>Authorized Family Representative</option>
+          <option>School-Confirmed Guardian</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Profile Visibility</label>
+        <select id="profileVisibility">
+          <option>Restricted</option>
+          <option>Controlled</option>
+          <option>Limited Recruiter Access</option>
+          <option>Approved Visibility</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Recruiter Contact</label>
+        <select id="recruiterContact">
+          <option>Not Approved</option>
+          <option>Guardian Review Required</option>
+          <option>Limited Window Approved</option>
+          <option>Approved</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Communication Window</label>
+        <select id="communicationWindow">
+          <option>Guardian Approval Required</option>
+          <option>Controlled Access</option>
+          <option>Currently Open</option>
+          <option>Closed</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Evidence Permission</label>
+        <select id="evidencePermission">
+          <option>Evidence Needed</option>
+          <option>Upload Pending</option>
+          <option>Submitted for Review</option>
+          <option>Approved</option>
+        </select>
+      </div>
+
+      <div class="field full">
+        <label>Guardian Approval Note</label>
+        <textarea id="guardianNote" placeholder="Enter guardian approval note, permission limits, recruiter contact restrictions, or profile visibility instructions."></textarea>
+      </div>
+    </div>
+
+    <div class="action-toolbar">
+      <button class="btn gold" type="button" id="prepareApprovalBtn">Prepare Approval</button>
+      <button class="btn" type="button" id="saveReviewBtn">Save Review</button>
+      <button class="btn green" type="button" id="approveAccessBtn">Approve Access</button>
+      <button class="btn primary" type="button" id="restrictAccessBtn">Restrict Access</button>
+    </div>
+
+    <div class="system-message" id="systemMessage">Parent / Guardian room ready</div>
+  </section>
+</article>
+
+<aside class="panel">
+  <h2 class="section-title">Operations Rail</h2>
+
+  <div class="status-card">
+    <div class="status-row"><span>Guardian Access</span><b class="green" id="railGuardianAccess">Active</b></div>
+    <div class="status-row"><span>Profile Visibility</span><b id="railVisibility">Restricted</b></div>
+    <div class="status-row"><span>Recruiter Contact</span><b class="red" id="railRecruiter">Not Approved</b></div>
+    <div class="status-row"><span>Evidence Status</span><b id="railEvidence">Needed</b></div>
+    <div class="status-row"><span>Review State</span><b id="railReview">Pending</b></div>
+  </div>
+
+  <div class="notice">
+    Parent / Guardian authority controls athlete permissions, recruiter visibility, communication windows,
+    evidence approval, and protected profile access.
+  </div>
+
+  <div class="side-section">
+    <div class="metric-row"><span>Pending Approvals</span><b class="red">2</b></div>
+    <div class="metric-row"><span>Consent Status</span><b>Partial</b></div>
+    <div class="metric-row"><span>Recruiter Window</span><b>Controlled</b></div>
+    <div class="metric-row"><span>Unread Notices</span><b>3</b></div>
+    <div class="metric-row"><span>Authority Receipt</span><b class="green">Enabled</b></div>
+  </div>
+
+  <div class="side-section">
+    <h2 class="section-title">Audit Trail</h2>
+
+    <div class="audit-list" id="auditPanel">
+      <div class="audit-item">
+        <b>Guardian Room Opened</b>
+        <span>Parent / Guardian permission room loaded for protected athlete profile review.</span>
+      </div>
+
+      <div class="audit-item">
+        <b>Visibility Controlled</b>
+        <span>Recruiter access remains restricted until guardian approval is confirmed.</span>
+      </div>
+
+      <div class="audit-item">
+        <b>Evidence Needed</b>
+        <span>Additional evidence may be required before full profile trust is issued.</span>
+      </div>
+    </div>
+  </div>
+</aside>
+
+</section>
+
+<section class="flow">
+  <div class="flow-title">Guardian Route</div>
+  <div class="flow-step"><b>Identity</b><span>Guardian Confirmed</span></div>
+  <div class="flow-step"><b>Consent</b><span>Permission Review</span></div>
+  <div class="flow-step"><b>Visibility</b><span>Controlled Access</span></div>
+  <div class="flow-step"><b>Recruiter</b><span>Contact Rules</span></div>
+  <div class="flow-step"><b>Receipt</b><span>Audit Logging</span></div>
+  <a class="btn primary" href="system.html">Return To System ›</a>
+</section>
+
+<footer class="footer">
+  <div><img src="sc_logo_black.png" alt="STATScore"></div>
+  <div>Official Parent / Guardian Authority Infrastructure</div>
+  <div class="demo-ok">✓ Guardian Room Active</div>
+  <div>© STATScore Systems<br>All Rights Reserved.</div>
+</footer>
+
+</main>
+</div>
+
+<script src="statscore-data.js"></script>
+
+<script>
+const LOCAL_PARENT_AUDIT_KEY = "statscore_parent_guardian_audit_v1";
+
+function setMessage(msg,type="success"){
+  const el=document.getElementById("systemMessage");
+  if(!el)return;
+  el.textContent=msg||"";
+  el.style.color=type==="error"?"var(--red)":"var(--green)";
+}
+
+function esc(v){
+  return String(v??"")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function addAudit(action,note){
+  const auditPanel=document.getElementById("auditPanel");
+  if(!auditPanel)return;
+
+  const item=document.createElement("div");
+  item.className="audit-item";
+  item.innerHTML=`<b>${esc(action)}</b><span>${esc(note)}</span>`;
+  auditPanel.prepend(item);
+
+  const saved=JSON.parse(localStorage.getItem(LOCAL_PARENT_AUDIT_KEY)||"[]");
+  saved.unshift({
+    action_type:action,
+    audit_note:note,
+    created_at:new Date().toISOString()
+  });
+
+  localStorage.setItem(
+    LOCAL_PARENT_AUDIT_KEY,
+    JSON.stringify(saved.slice(0,25))
+  );
+}
+
+function loadAudit(){
+  const saved=JSON.parse(localStorage.getItem(LOCAL_PARENT_AUDIT_KEY)||"[]");
+  saved.slice().reverse().forEach(row=>{
+    addAudit(row.action_type,row.audit_note);
+  });
+}
+
+function updateRail(){
+  const visibility=document.getElementById("profileVisibility").value;
+  const recruiter=document.getElementById("recruiterContact").value;
+  const evidence=document.getElementById("evidencePermission").value;
+
+  document.getElementById("railVisibility").textContent=visibility;
+  document.getElementById("railRecruiter").textContent=recruiter;
+  document.getElementById("railEvidence").textContent=evidence.replace("Evidence ","");
+
+  const recruiterRail=document.getElementById("railRecruiter");
+  recruiterRail.className="";
+
+  if(recruiter==="Approved" || recruiter==="Limited Window Approved"){
+    recruiterRail.classList.add("green");
+  }else{
+    recruiterRail.classList.add("red");
+  }
+
+  document.getElementById("railReview").textContent="Updated";
+}
+
+function prepareApproval(){
+  document.getElementById("guardianNote").value =
+    "Parent / Guardian approval review prepared. Athlete profile visibility, recruiter contact permissions, communication windows, and evidence requirements must remain controlled until guardian authority is confirmed.";
+
+  addAudit(
+    "Approval Prepared",
+    "Guardian approval note generated for profile visibility and communication control."
+  );
+
+  setMessage("Guardian approval draft prepared");
+}
+
+function saveReview(){
+  updateRail();
+
+  const payload={
+    athlete_name:document.getElementById("athleteName").value,
+    guardian_relationship:document.getElementById("guardianRelationship").value,
+    profile_visibility:document.getElementById("profileVisibility").value,
+    recruiter_contact:document.getElementById("recruiterContact").value,
+    communication_window:document.getElementById("communicationWindow").value,
+    evidence_permission:document.getElementById("evidencePermission").value,
+    guardian_note:document.getElementById("guardianNote").value,
+    saved_at:new Date().toISOString()
+  };
+
+  localStorage.setItem(
+    "statscore_parent_guardian_review_v1",
+    JSON.stringify(payload)
+  );
+
+  addAudit(
+    "Guardian Review Saved",
+    "Guardian permission review saved locally for controlled athlete profile access."
+  );
+
+  setMessage("Guardian review saved");
+}
+
+function approveAccess(){
+  document.getElementById("profileVisibility").value="Limited Recruiter Access";
+  document.getElementById("recruiterContact").value="Limited Window Approved";
+  document.getElementById("communicationWindow").value="Controlled Access";
+
+  updateRail();
+
+  addAudit(
+    "Access Approved",
+    "Guardian approved limited recruiter visibility and controlled communication access."
+  );
+
+  setMessage("Controlled access approved");
+}
+
+function restrictAccess(){
+  document.getElementById("profileVisibility").value="Restricted";
+  document.getElementById("recruiterContact").value="Not Approved";
+  document.getElementById("communicationWindow").value="Guardian Approval Required";
+
+  updateRail();
+
+  addAudit(
+    "Access Restricted",
+    "Guardian restricted recruiter contact and protected athlete profile visibility."
+  );
+
+  setMessage("Access restricted by guardian authority");
+}
+
+async function loadAthlete(){
+  try{
+    if(window.STATScoreData && typeof window.STATScoreData.loadAthleteProfile==="function"){
+      const athlete=await window.STATScoreData.loadAthleteProfile();
+
+      if(athlete){
+        document.getElementById("athleteName").value =
+          athlete.athlete_display_name || athlete.athlete_name || "Demo Athlete";
+
+        addAudit(
+          "Athlete Profile Loaded",
+          "Guardian room loaded athlete profile for permission review."
+        );
+
+        return;
+      }
+    }
+
+    document.getElementById("athleteName").value="Demo Athlete";
+
+  }catch(err){
+    console.error("Parent room athlete load failure:",err);
+    document.getElementById("athleteName").value="Demo Athlete";
+    setMessage("Athlete profile fallback loaded","error");
+  }
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+  loadAudit();
+  loadAthlete();
+
+  document.getElementById("prepareApprovalBtn").addEventListener("click",prepareApproval);
+  document.getElementById("saveReviewBtn").addEventListener("click",saveReview);
+  document.getElementById("approveAccessBtn").addEventListener("click",approveAccess);
+  document.getElementById("restrictAccessBtn").addEventListener("click",restrictAccess);
+
+  [
+    "profileVisibility",
+    "recruiterContact",
+    "evidencePermission"
+  ].forEach(id=>{
+    document.getElementById(id).addEventListener("change",updateRail);
+  });
+
+  setMessage("Parent / Guardian room ready");
+});
+</script>
+
+</body>
+</html> 
