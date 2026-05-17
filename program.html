@@ -922,6 +922,9 @@ const LOCAL_MULTIBOX_ROUTE_KEY = "statscore_multibox_route_v1";
 
 function goTo(page, params = {}){
   const query = new URLSearchParams(params).toString();
+  window.location.href = query ? `${page}?${query}` : page;
+} 
+  
  async function openCrystalReport(){
 
   const healthScore = scoreHealth();
@@ -972,7 +975,7 @@ function goTo(page, params = {}){
       "STATScore Program Operations Room"
   };
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseClient 
     .from("sc_crystal_reports")
     .insert(payload)
     .select()
@@ -1147,7 +1150,7 @@ function checkHealth(){
       sport_scope:document.getElementById("sportScope").value,
       benchmark_scope:benchmark,
       health_score:score,
-      created_at:new Date().toISOString()
+      created_at:new Date().toISOString() 
     })
   );
 
