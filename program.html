@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>  
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -920,6 +920,15 @@ const LOCAL_PROGRAM_HEALTH_ROUTE_KEY = "statscore_program_health_route_v1";
 const LOCAL_PROGRAM_CRYSTAL_REPORT_KEY = "statscore_program_crystal_report_v1";
 const LOCAL_MULTIBOX_ROUTE_KEY = "statscore_multibox_route_v1";
 
+const SUPABASE_URL = "https://ojmpbuxvfxusmbouldi.supabase.co";
+
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk";
+
+const supabaseClient = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+); 
+  
 function goTo(page, params = {}){
   const query = new URLSearchParams(params).toString();
   window.location.href = query ? `${page}?${query}` : page;
@@ -1349,6 +1358,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   updateRail();
   setMessage("Program Operations Room ready");
 });
+  
 </script>
 
 </body>
