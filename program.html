@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -922,8 +922,71 @@ const LOCAL_MULTIBOX_ROUTE_KEY = "statscore_multibox_route_v1";
 
 function goTo(page, params = {}){
   const query = new URLSearchParams(params).toString();
-  window.location.href = query ? `${page}?${query}` : page;
-}
+ async function openCrystalReport(){
+
+  const healthScore = scoreHealth();
+
+  const payload = {
+    report_type: "PROGRAM_CRYSTAL_REPORT",
+    source_room: "program",
+
+    source_entity_name:
+      document.getElementById("programName").value,
+
+    payload: {
+
+      sport_scope:
+        document.getElementById("sportScope").value,
+
+      benchmark_scope:
+        document.getElementById("benchmarkScope").value,
+
+      health_signal:
+        document.getElementById("healthSignal").value,
+
+      health_score: healthScore,
+
+      roster_risk:
+        document.getElementById("rosterRisk").value,
+
+      academic_risk:
+        document.getElementById("academicRisk").value,
+
+      recruiting_need:
+        document.getElementById("recruitingNeed").value,
+
+      exposure_status:
+        document.getElementById("exposureStatus").value,
+
+      pathway_success:
+        document.getElementById("pathwaySuccess").value,
+
+      program_lane:
+        document.getElementById("programLane").value,
+
+      executive_summary:
+        document.getElementById("programNote").value
+    },
+
+    generated_by:
+      "STATScore Program Operations Room"
+  };
+
+  const { data, error } = await supabase
+    .from("sc_crystal_reports")
+    .insert(payload)
+    .select()
+    .single();
+
+  if(error){
+    console.error(error);
+    setMessage("Crystal Report save failed","error");
+    return;
+  }
+
+  window.location.href =
+    `crystal-report.html?report_id=${data.report_id}`;
+} 
 
 function setMessage(msg,type="success"){
   const el=document.getElementById("systemMessage");
