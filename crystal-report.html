@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>STATScore™ — Crystal Report</title>
+
+<style>
+:root{
+  --red:#ff2b1f;
+  --gold:#f4c542;
+  --green:#25d366;
+  --blue:#7ed8ff;
+  --ink:#f4f4f1;
+  --muted:#aeb8c2;
+  --paper:#07101c;
+  --panel:rgba(255,255,255,.035);
+  --line:rgba(255,255,255,.16);
+  --line2:rgba(255,255,255,.3);
+  --max:1120px;
+}
+
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  background:#000;
+  color:var(--ink);
+  font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+  background:
+    radial-gradient(circle at 20% 10%,rgba(255,43,31,.12),transparent 32%),
+    radial-gradient(circle at 80% 70%,rgba(126,216,255,.10),transparent 34%),
+    linear-gradient(180deg,#020305,#050914 45%,#000);
+}
+
+a{
+  color:inherit;
+  text-decoration:none;
+}
+
+.report-page{
+  width:min(var(--max),100%);
+  margin:0 auto;
+  padding:34px 24px 60px;
+}
+
+.top-actions{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
+  margin-bottom:18px;
+}
+
+.top-actions a,
+.top-actions button{
+  border:1px solid var(--line2);
+  background:rgba(255,255,255,.035);
+  color:#fff;
+  padding:12px 16px;
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  cursor:pointer;
+}
+
+.top-actions button{
+  font-family:inherit;
+}
+
+.report{
+  border:1px solid var(--line2);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.015)),
+    var(--paper);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.04),
+    0 30px 80px rgba(0,0,0,.65);
+}
+
+.report-header{
+  display:grid;
+  grid-template-columns:240px 1fr;
+  gap:24px;
+  align-items:center;
+  padding:30px 34px;
+  border-bottom:4px solid var(--red);
+  background:linear-gradient(180deg,#f4f4f1,#dcdeda);
+  color:#111;
+}
+
+.logo-box{
+  min-height:78px;
+  display:flex;
+  align-items:center;
+}
+
+.logo-box img{
+  width:210px;
+  max-width:100%;
+}
+
+.report-title-block{
+  text-align:right;
+}
+
+.report-kicker{
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.24em;
+  text-transform:uppercase;
+  color:#222;
+  margin-bottom:8px;
+}
+
+.report-title{
+  margin:0;
+  font-family:"Arial Narrow","Helvetica Neue Condensed",Impact,Arial,sans-serif;
+  font-size:3rem;
+  line-height:.95;
+  text-transform:uppercase;
+  letter-spacing:-.03em;
+}
+
+.report-subtitle{
+  margin-top:10px;
+  font-size:.78rem;
+  font-weight:900;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:#333;
+}
+
+.report-body{
+  padding:34px;
+}
+
+.identity-grid{
+  display:grid;
+  grid-template-columns:1.3fr repeat(3,1fr);
+  gap:14px;
+  margin-bottom:24px;
+}
+
+.identity-card{
+  border:1px solid var(--line);
+  background:var(--panel);
+  padding:16px;
+  min-height:92px;
+}
+
+.identity-card span{
+  display:block;
+  color:var(--blue);
+  font-size:.68rem;
+  letter-spacing:.16em;
+  font-weight:900;
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+
+.identity-card b{
+  display:block;
+  font-size:1rem;
+  line-height:1.25;
+  color:#fff;
+}
+
+.score-strip{
+  display:grid;
+  grid-template-columns:240px 1fr 1fr;
+  gap:14px;
+  margin-bottom:28px;
+}
+
+.score-main{
+  border:1px solid rgba(37,211,102,.45);
+  background:linear-gradient(180deg,rgba(37,211,102,.16),rgba(255,255,255,.025));
+  padding:22px;
+}
+
+.score-main span{
+  display:block;
+  color:var(--green);
+  font-size:.7rem;
+  font-weight:900;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+}
+
+.score-main strong{
+  display:block;
+  font-size:4rem;
+  line-height:1;
+  margin-top:8px;
+}
+
+.score-card{
+  border:1px solid var(--line);
+  background:var(--panel);
+  padding:22px;
+}
+
+.score-card span{
+  display:block;
+  color:var(--blue);
+  font-size:.7rem;
+  font-weight:900;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  margin-bottom:10px;
+}
+
+.score-card b{
+  color:var(--gold);
+  font-size:1.15rem;
+  line-height:1.3;
+}
+
+.section{
+  border-top:1px solid var(--line);
+  padding-top:22px;
+  margin-top:22px;
+}
+
+.section h2{
+  margin:0 0 14px;
+  color:var(--red);
+  font-size:.82rem;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+}
+
+.summary-box{
+  border-left:4px solid var(--red);
+  background:linear-gradient(90deg,rgba(255,43,31,.13),rgba(255,255,255,.025));
+  padding:18px;
+  line-height:1.55;
+  color:#eaf7ff;
+  font-weight:800;
+  font-size:.92rem;
+}
+
+.table{
+  border:1px solid var(--line);
+  overflow:hidden;
+}
+
+.row{
+  display:grid;
+  grid-template-columns:260px 1fr;
+  border-bottom:1px solid rgba(255,255,255,.10);
+}
+
+.row:last-child{
+  border-bottom:none;
+}
+
+.row span{
+  padding:14px 16px;
+  color:var(--blue);
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  border-right:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.025);
+}
+
+.row b{
+  padding:14px 16px;
+  color:#fff;
+  font-size:.9rem;
+  line-height:1.4;
+}
+
+.recommendations{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+}
+
+.rec-card{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.03);
+  padding:16px;
+}
+
+.rec-card b{
+  display:block;
+  color:var(--gold);
+  font-size:.78rem;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  margin-bottom:10px;
+}
+
+.rec-card p{
+  margin:0;
+  color:#e8f6ff;
+  line-height:1.45;
+  font-weight:800;
+  font-size:.84rem;
+}
+
+.receipt{
+  margin-top:30px;
+  border:1px solid rgba(126,216,255,.28);
+  background:rgba(126,216,255,.045);
+  padding:18px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+
+.receipt div{
+  font-size:.78rem;
+  line-height:1.5;
+  color:#dff6ff;
+  font-weight:800;
+}
+
+.receipt span{
+  color:var(--blue);
+  text-transform:uppercase;
+  letter-spacing:.13em;
+  font-size:.68rem;
+  font-weight:900;
+}
+
+.footer-note{
+  margin-top:22px;
+  color:var(--muted);
+  font-size:.72rem;
+  line-height:1.45;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+
+.empty-state{
+  border:1px solid var(--line2);
+  padding:28px;
+  background:rgba(255,255,255,.035);
+  text-align:center;
+}
+
+.empty-state h1{
+  margin:0 0 12px;
+  color:var(--red);
+  text-transform:uppercase;
+}
+
+@media print{
+  body{background:#fff;color:#111}
+  .top-actions{display:none}
+  .report-page{padding:0;width:100%}
+  .report{box-shadow:none;border:1px solid #aaa}
+  .report-body{color:#111}
+}
+
+@media(max-width:900px){
+  .report-header,
+  .identity-grid,
+  .score-strip,
+  .recommendations,
+  .receipt{
+    grid-template-columns:1fr;
+  }
+
+  .report-title-block{
+    text-align:left;
+  }
+
+  .row{
+    grid-template-columns:1fr;
+  }
+
+  .row span{
+    border-right:none;
+    border-bottom:1px solid rgba(255,255,255,.10);
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="report-page">
+
+  <div class="top-actions">
+    <a href="program.html">‹ Return to Program Room</a>
+    <button type="button" onclick="window.print()">Print / Export PDF</button>
+  </div>
+
+  <section class="report" id="reportRoot">
+    <header class="report-header">
+      <div class="logo-box">
+        <img src="sc_logo_black.png" alt="STATScore">
+      </div>
+
+      <div class="report-title-block">
+        <div class="report-kicker">Institutional Decision Intelligence Artifact</div>
+        <h1 class="report-title">Program Crystal Report™</h1>
+        <div class="report-subtitle">Generated From Program Health Signals</div>
+      </div>
+    </header>
+
+    <main class="report-body" id="reportBody">
+      <div class="empty-state">
+        <h1>No Report Payload Found</h1>
+        <p>Return to Program Operations and generate a Program Crystal Report™.</p>
+      </div>
+    </main>
+  </section>
+
+</div>
+
+<script>
+const REPORT_KEY = "statscore_program_crystal_report_v1";
+
+function esc(v){
+  return String(v ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function formatDate(v){
+  if(!v) return "Not timestamped";
+  try{
+    return new Date(v).toLocaleString();
+  }catch(e){
+    return v;
+  }
+}
+
+function buildSummary(data){
+  const score = Number(data.health_score || 0);
+
+  if(score >= 85){
+    return `${data.program_name} currently presents a strong operational health profile. The program shows favorable indicators across roster health, academic risk, exposure posture, recruiting need, and pathway outcomes. Current recommendation: preserve existing strengths while using benchmark intelligence to identify competitive improvement opportunities.`;
+  }
+
+  if(score >= 70){
+    return `${data.program_name} currently presents a monitor-level operational profile. The program is functional, but selected risk areas require review before expansion, exposure escalation, or heavy recruiting activity. Current recommendation: stabilize identified gaps and rerun the Program Health Check after corrective actions.`;
+  }
+
+  return `${data.program_name} currently presents an elevated-risk operational profile. The program should prioritize intervention across the flagged risk categories before increasing exposure, recruiting volume, or competitive expectations. Current recommendation: move into corrective planning and targeted support.`;
+}
+
+function buildRecommendations(data){
+  const recs = [];
+
+  recs.push({
+    title:"Operational Health",
+    body:`Current program score is ${data.health_score}. Maintain strengths and address any category that reduces long-term roster, academic, or pathway survivability.`
+  });
+
+  recs.push({
+    title:"Benchmark Strategy",
+    body:`Use the ${data.benchmark_scope} benchmark view to compare the program against similar organizations and identify realistic competitive positioning.`
+  });
+
+  recs.push({
+    title:"Pathway Intelligence",
+    body:`Use pathway outcome signals to determine whether athletes are best served by D1, D2, D3, NAIA, JUCO, or developmental routes.`
+  });
+
+  return recs;
+}
+
+function renderReport(data){
+  const body = document.getElementById("reportBody");
+  const recommendations = buildRecommendations(data);
+
+  body.innerHTML = `
+    <section class="identity-grid">
+      <div class="identity-card">
+        <span>Program / Organization</span>
+        <b>${esc(data.program_name || "Program")}</b>
+      </div>
+
+      <div class="identity-card">
+        <span>Sport Scope</span>
+        <b>${esc(data.sport_scope || "Multi-Sport")}</b>
+      </div>
+
+      <div class="identity-card">
+        <span>Benchmark Scope</span>
+        <b>${esc(data.benchmark_scope || "League")}</b>
+      </div>
+
+      <div class="identity-card">
+        <span>Generated</span>
+        <b>${esc(formatDate(data.generated_at))}</b>
+      </div>
+    </section>
+
+    <section class="score-strip">
+      <div class="score-main">
+        <span>Program Health Score</span>
+        <strong>${esc(data.health_score || "--")}</strong>
+      </div>
+
+      <div class="score-card">
+        <span>Health Signal</span>
+        <b>${esc(data.health_signal || "Not Set")}</b>
+      </div>
+
+      <div class="score-card">
+        <span>Program Lane</span>
+        <b>${esc(data.program_lane || "Crystal Report")}</b>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Executive Summary</h2>
+      <div class="summary-box">${esc(buildSummary(data))}</div>
+    </section>
+
+    <section class="section">
+      <h2>Operational Intelligence Table</h2>
+      <div class="table">
+        <div class="row"><span>Roster Risk</span><b>${esc(data.roster_risk || "Not Set")}</b></div>
+        <div class="row"><span>Academic Risk</span><b>${esc(data.academic_risk || "Not Set")}</b></div>
+        <div class="row"><span>Recruiting Need</span><b>${esc(data.recruiting_need || "Not Set")}</b></div>
+        <div class="row"><span>Exposure Status</span><b>${esc(data.exposure_status || "Not Set")}</b></div>
+        <div class="row"><span>Pathway Success</span><b>${esc(data.pathway_success || "Not Set")}</b></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Recommended Actions</h2>
+      <div class="recommendations">
+        ${recommendations.map(rec => `
+          <div class="rec-card">
+            <b>${esc(rec.title)}</b>
+            <p>${esc(rec.body)}</p>
+          </div>
+        `).join("")}
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Crystal Report Doctrine</h2>
+      <div class="summary-box">
+        This report is a governed STATScore™ intelligence artifact. It is generated from program health signals and is intended to support organizational decision-making, competitive benchmarking, athlete pathway realism, staff alignment, and operational improvement. It is not a replacement for official school, league, NCAA, NAIA, JUCO, or institutional records.
+      </div>
+    </section>
+
+    <section class="receipt">
+      <div>
+        <span>Report Type</span><br>
+        ${esc(data.report_type || "PROGRAM_CRYSTAL_REPORT")}
+      </div>
+
+      <div>
+        <span>Report Title</span><br>
+        ${esc(data.report_title || "Program Crystal Report™")}
+      </div>
+
+      <div>
+        <span>Source Room</span><br>
+        Program Operations Room
+      </div>
+
+      <div>
+        <span>Audit Reference</span><br>
+        Local report payload: ${REPORT_KEY}
+      </div>
+    </section>
+
+    <div class="footer-note">
+      STATScore Systems · Program Crystal Report™ · Generated for operational intelligence, pathway realism, competitive comparison, and organizational health review.
+    </div>
+  `;
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+  const raw = localStorage.getItem(REPORT_KEY);
+
+  if(!raw){
+    return;
+  }
+
+  try{
+    const data = JSON.parse(raw);
+    renderReport(data);
+  }catch(err){
+    console.error("Crystal Report load failure:",err);
+  }
+});
+</script>
+
+</body>
+</html> 
