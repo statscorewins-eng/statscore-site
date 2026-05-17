@@ -1,10 +1,11 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>STATScore™ — Crystal Report</title>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> 
+  
 <style>
 :root{
   --red:#ff2b1f;
@@ -420,7 +421,17 @@ a{
 </div>
 
 <script>
+const SUPABASE_URL = "https://oyjmpbuxvfxusmbouldi.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk";
+
+const supabaseClient = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
+
 const REPORT_KEY = "statscore_program_crystal_report_v1";
+const params = new URLSearchParams(window.location.search);
+const reportId = params.get("report_id"); 
 
 function esc(v){
   return String(v ?? "")
@@ -582,20 +593,43 @@ function renderReport(data){
   `;
 }
 
-document.addEventListener("DOMContentLoaded",()=>{
-  const raw = localStorage.getItem(REPORT_KEY);
-
-  if(!raw){
+document.addEventListener("DOMContentLoaded", async ()=>{
+  if(!reportId){
+    console.error("Missing report_id");
     return;
   }
 
-  try{
-    const data = JSON.parse(raw);
-    renderReport(data);
-  }catch(err){
-    console.error("Crystal Report load failure:",err);
+  const { data, error } = await supabaseClient
+    .from("sc_crystal_reports")
+    .select("*")
+    .eq("report_id", reportId)
+    .single();
+
+  if(error || !data){
+    console.error("Crystal Report fetch failure:", error);
+    return;
   }
-});
+
+  const payload = {
+    report_type: data.report_type,
+    report_title: "Program Crystal Report™",
+    program_name: data.source_entity_name,
+    sport_scope: data.payload?.sport_scope,
+    benchmark_scope: data.payload?.benchmark_scope,
+    health_score: data.payload?.health_score,
+    health_signal: data.payload?.health_signal,
+    program_lane: data.payload?.program_lane,
+    roster_risk: data.payload?.roster_risk,
+    academic_risk: data.payload?.academic_risk,
+    recruiting_need: data.payload?.recruiting_need,
+    exposure_status: data.payload?.exposure_status,
+    pathway_success: data.payload?.pathway_success,
+    generated_at: data.generated_at
+  };
+
+  renderReport(payload);
+}); 
+
 </script>
 
 </body>
