@@ -1130,245 +1130,89 @@ a{
 <script src="statscore-data.js"></script>
 
 <script>
-(async () => {
+const SUPABASE_URL = "https://oyjmpbuxvfxusmbouldi.supabase.co";
+const SUPABASE_ANON_KEY = "YOUR_ANON_KEY_HERE";
 
-  function titleCase(value){
-    return String(value || "—")
-      .replace(/_/g," ")
-      .replace(/\b\w/g, c => c.toUpperCase());
+function setText(id, value){
+  const el = document.getElementById(id);
+  if(el) el.textContent = value ?? "—";
+}
+
+function titleCase(value){
+  return String(value || "—")
+    .replace(/_/g," ")
+    .replace(/\b\w/g, c => c.toUpperCase());
+}
+
+async function loadVerificationCase(){
+  const params = new URLSearchParams(window.location.search);
+  const caseId = params.get("case_id");
+  const snapshotId = params.get("snapshot_id");
+
+  let url = `${SUPABASE_URL}/rest/v1/sc_verification_case_live_v1?select=*&order=created_at.desc&limit=1`;
+
+  if(caseId){
+    url = `${SUPABASE_URL}/rest/v1/sc_verification_case_live_v1?select=*&verification_case_id=eq.${caseId}&limit=1`;
+  } else if(snapshotId){
+    url = `${SUPABASE_URL}/rest/v1/sc_verification_case_live_v1?select=*&snapshot_id=eq.${snapshotId}&limit=1`;
   }
 
-  function getCompletionPercent(athlete){
-    const checks = [
-      athlete?.verification_status === "verified",
-      athlete?.identity_verified === true,
-      athlete?.guardian_consent_verified === true,
-      athlete?.transcript_verified === true,
-      athlete?.counselor_verified === true
-    ];
+  const res = await fetch(url, {
+    headers:{
+      apikey: SUPABASE_ANON_KEY,
+      Authorization:`Bearer ${SUPABASE_ANON_KEY}`
+    }
+  });
 
-    const complete = checks.filter(Boolean).length;
-    return Math.round((complete / checks.length) * 100);
+  const rows = await res.json();
+  const v = rows && rows[0];
+
+  if(!v){
+    console.error("No verification case found.");
+    setText("athlete-name","No Verification Case Found");
+    return;
   }
 
-  function setDotClass(containerId, state){
-    const container = document.getElementById(containerId);
-    if (!container) return;
+  setText("athlete-name", v.athlete_name || "Athlete");
+  setText("sport-name", titleCase(v.sport || "Football"));
+  setText("position-name", titleCase(v.position || "—"));
 
-    const dot = container.querySelector(".dot");
-    if (!dot) return;
+  setText("status-label", titleCase(v.verification_status || "PENDING_REVIEW"));
+  setText("review-state", titleCase(v.case_status || "OPEN"));
+  setText("master-state", titleCase(v.trust_level || "LEVEL_2_PENDING_REVIEW"));
+  setText("next-action", titleCase(v.next_required_action || "REVIEW REQUIRED"));
 
-    dot.classList.remove("green","red");
+  setText("standing-pill-text", titleCase(v.verification_status || "PENDING_REVIEW"));
+  setText("standing-title", "Record Verification In Progress");
+  setText("system-guidance", "Live verification case loaded from STATScore. Full verification depends on identity, guardian, coach, metric, academic, and media review.");
 
-    if (state === "green" || state === "verified") {
-      dot.classList.add("green");
-    }
+  setText("identity-position", titleCase(v.identity_status || "PENDING"));
+  setText("identity-note", v.identity_status === "VERIFIED" ? "Confirmed" : "Needs Confirmation");
 
-    if (state === "red" || state === "hard_fail") {
-      dot.classList.add("red");
-    }
-  }
+  setText("document-position", titleCase(v.academic_status || "PENDING"));
+  setText("document-note", v.academic_status === "VERIFIED" ? "Confirmed" : "Missing Items");
 
-  try {
+  setText("trust-level", titleCase(v.trust_level || "LEVEL_2_PENDING_REVIEW"));
+  setText("trust-note", "Pending");
 
-    const profile = await window.STATScoreData.loadAthleteProfile();
-    const queueRows = await window.STATScoreData.loadResolutionQueue();
+  setText("identity-review-note", titleCase(v.identity_status || "PENDING"));
+  setText("document-review-note", titleCase(v.academic_status || "PENDING"));
 
-    const queue =
-      Array.isArray(queueRows) && profile
-        ? queueRows.find(row => row.athlete_profile_id === profile.athlete_profile_id) || queueRows[0]
-        : null;
+  setText("identity-position-side", titleCase(v.identity_status || "PROFILE RECORD PRESENT"));
+  setText("document-position-side", titleCase(v.academic_status || "PARTIAL VERIFICATION"));
+  setText("trust-level-side", titleCase(v.trust_level || "LEVEL_2_PENDING_REVIEW"));
+  setText("required-before-full-trust", titleCase(v.next_required_action || "TRANSCRIPT + GUARDIAN + SCHOOL CONFIRMATION"));
 
-    const athlete = {
-      ...(profile || {}),
-      ...(queue || {})
-    };
+  setText("receipt-status", titleCase(v.verification_status || "PENDING_REVIEW"));
+  setText("receipt-generated", v.created_at ? new Date(v.created_at).toLocaleString() : "Live");
+  setText("receipt-trust-level", titleCase(v.trust_level || "LEVEL_2_PENDING_REVIEW"));
+  setText("receipt-next-review", titleCase(v.next_required_action || "REVIEW REQUIRED"));
+  setText("receipt-message", `Verification case active for ${v.athlete_name || "athlete"}.`);
+}
 
-    if (!profile && !queue) {
-      console.log("No athlete profile found.");
-      return;
-    }
-
-    const set = window.STATScoreData.setText;
-
-    const requiredActions =
-      Array.isArray(athlete.required_actions)
-        ? athlete.required_actions
-        : [];
-
-    const blockers =
-      Array.isArray(athlete.current_blockers)
-        ? athlete.current_blockers
-        : [];
-
-    const verificationPercent = getCompletionPercent(athlete);
-
-    set("athlete-name", athlete.athlete_display_name || "Demo Athlete");
-    set("sport-name", titleCase(athlete.sport || "football"));
-    set("position-name", athlete.position || "—");
-
-    set("status-label", athlete.athlete_status_label || titleCase(athlete.final_master_state));
-    set("review-state", athlete.review_state || athlete.review_message || "Manual Review Required");
-    set("master-state", titleCase(athlete.final_master_state || "restricted_visibility"));
-    set("next-action", athlete.primary_next_action || requiredActions[0] || "Continue Athlete Review");
-
-    set("standing-pill-text", athlete.athlete_status_label || "Partial Verification Standing");
-    set("standing-title", titleCase(athlete.final_master_state || "Record Verification In Progress"));
-
-    set(
-      "system-guidance",
-      athlete.system_guidance ||
-      athlete.review_message ||
-      "Verification state loaded from STATScore intelligence."
-    );
-
-    set("verification-percent", verificationPercent + "%");
-
-    const meter = document.getElementById("verification-meter");
-    if (meter) meter.style.width = verificationPercent + "%";
-
-    set("identity-position", athlete.identity_verified ? "Verified" : "Present");
-    set("identity-note", athlete.identity_verified ? "Confirmed" : "Needs Confirmation");
-
-    set(
-      "document-position",
-      athlete.transcript_verified ? "Verified" : "Pending"
-    );
-
-    set(
-      "document-note",
-      athlete.transcript_verified ? "Confirmed" : "Missing Items"
-    );
-
-    set("trust-level", athlete.operational_tier ? titleCase(athlete.operational_tier) : "Level 2");
-    set("trust-note", athlete.requires_manual_review ? "Pending" : "Active");
-
-    set(
-      "identity-review-copy",
-      athlete.identity_verified
-        ? "Athlete identity has been verified inside the STATScore intelligence profile."
-        : "Athlete identity record is present, but final verification should wait until supporting confirmation is complete."
-    );
-
-    set(
-      "document-review-copy",
-      athlete.transcript_verified
-        ? "Academic documentation has been verified for this record."
-        : "Transcript and supporting documents are not fully confirmed. The record should remain in partial verification until required documents are uploaded or reviewed."
-    );
-
-    set(
-      "identity-review-note",
-      athlete.identity_verified ? "Identity Verified" : "Identity Present"
-    );
-
-    set(
-      "document-review-note",
-      athlete.transcript_verified ? "Documents Verified" : "Review Needed"
-    );
-
-    set("identity-position-side", athlete.identity_verified ? "Verified Identity" : "Profile Record Present");
-    set("document-position-side", athlete.transcript_verified ? "Documents Verified" : "Partial Verification");
-    set("trust-level-side", athlete.operational_tier ? titleCase(athlete.operational_tier) + " Review" : "Level 2 Pending Review");
-    set("required-before-full-trust", athlete.primary_next_action || requiredActions[0] || "Verification Requirements");
-
-    set("receipt-status", athlete.athlete_status_label || "Partial Verification");
-    set("receipt-generated", athlete.resolved_at ? new Date(athlete.resolved_at).toLocaleDateString() : "Live");
-    set("receipt-trust-level", athlete.operational_tier ? titleCase(athlete.operational_tier) : "Pending");
-    set("receipt-next-review", athlete.primary_next_action || "After Required Action");
-    set("receipt-message", athlete.review_state || athlete.review_message || "Verification Required");
-
-    setDotClass("standing-pill", athlete.verification_status);
-
-    const signalContainer = document.getElementById("verification-signals-list");
-    if (signalContainer) {
-      signalContainer.innerHTML = "";
-
-      if (blockers.length === 0) {
-        signalContainer.innerHTML = `
-          <div class="signal-item">
-            <span class="dot green"></span>
-            <div>
-              <b>No Active Blockers</b>
-              <span>STATScore has not detected active verification blockers.</span>
-            </div>
-          </div>
-        `;
-      } else {
-        blockers.forEach(blocker => {
-          signalContainer.innerHTML += `
-            <div class="signal-item">
-              <span class="dot"></span>
-              <div>
-                <b>${blocker}</b>
-                <span>Verification review required before full trust is issued.</span>
-              </div>
-            </div>
-          `;
-        });
-      }
-    }
-
-    const reqGrid = document.getElementById("requirements-grid");
-    if (reqGrid) {
-      reqGrid.innerHTML = "";
-
-      if (requiredActions.length === 0) {
-        reqGrid.innerHTML = `
-          <div class="req good">
-            <b>No Required Actions</b>
-            <p>No verification actions are currently required by STATScore.</p>
-          </div>
-        `;
-      } else {
-        requiredActions.forEach((item, index) => {
-          reqGrid.innerHTML += `
-            <div class="req ${index === 0 ? "" : ""}">
-              <b>${item}</b>
-              <p>This requirement is currently tracked by the STATScore verification intelligence layer.</p>
-            </div>
-          `;
-        });
-      }
-    }
-
-    const actionContainer = document.getElementById("required-actions-list");
-    if (actionContainer) {
-      actionContainer.innerHTML = "";
-
-      if (requiredActions.length === 0) {
-        actionContainer.innerHTML = `
-          <div class="path-step">
-            <div class="step-num">01</div>
-            <b>Continue Athlete Review</b>
-            <span>No required verification actions are currently listed.</span>
-            <div class="priority">Priority: Standard</div>
-          </div>
-        `;
-      } else {
-        requiredActions.forEach((action, index) => {
-          actionContainer.innerHTML += `
-            <div class="path-step">
-              <div class="step-num">${String(index + 1).padStart(2,"0")}</div>
-              <b>${action}</b>
-              <span>Complete this step to improve verification standing and reduce operational restrictions.</span>
-              <div class="priority">Priority: ${index === 0 ? "High" : "Required"}</div>
-            </div>
-          `;
-        });
-      }
-    }
-
-    console.log("STATScore verification room loaded.", athlete);
-
-  } catch (err) {
-
-    console.error("STATScore verification room load failure:", err);
-
-  }
-
-})();
-</script>
+document.addEventListener("DOMContentLoaded", loadVerificationCase);
+</script> 
 
 </body>
 </html> 
+
