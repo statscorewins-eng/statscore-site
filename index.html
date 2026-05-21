@@ -259,22 +259,22 @@ SUBTEXT
 /* MOBILE ONLY — FORCE LOGO IMAGE TO FILL WHITE HERO FIELD */
 @media (max-width:768px){
 
-  .hero{
-    width:100vw !important;
-    height:420px !important;
-    min-height:420px !important;
-    background:#f3f1ee !important;
-    overflow:hidden !important;
-  }
+.hero{
+  flex:0 0 72%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  background:var(--logo-white);
+}
 
-  .hero img{
-    width:100vw !important;
-    height:100% !important;
-    max-width:100% !important;
-    object-fit:fill !important;
-    object-position:center center !important;
-    display:block !important;
-  }
+.hero img{
+  width:100%;
+  max-width:1500px;
+  height:auto;
+  display:block;
+  object-fit:contain;
+  object-position:center;
 } 
 
   .headline{
