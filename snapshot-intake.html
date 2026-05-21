@@ -741,6 +741,11 @@ function saveDraft(){
 
 function submitSnapshot(){
   const data = getFormData();
+  const headshotDataUrl = localStorage.getItem("statscore_headshot_data_url");
+
+if (headshotDataUrl) {
+  data.headshotDataUrl = headshotDataUrl;
+} 
 
   localStorage.setItem(STORAGE_KEY, JSON.stringify({
     submittedAt: new Date().toISOString(),
@@ -755,10 +760,20 @@ function submitSnapshot(){
   setMessage("Snapshot submitted · routing to athlete system");
 
   setTimeout(() => {
-    window.location.href = "system.html?role=athlete&snapshot=submitted";
-  }, 950);
-}
+  const snapshotId =
+    data?.snapshot_id ||
+    data?.snapshot?.snapshot_id ||
+    data?.intake?.snapshot_id ||
+    "";
 
+  if (snapshotId) {
+    window.location.href =
+      `player-profile.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
+  } else {
+    window.location.href = "player-profile.html?snapshot=latest";
+  }
+}, 950); 
+  
 function loadDraft(){
   const saved = localStorage.getItem(STORAGE_KEY);
   const state = localStorage.getItem(STATE_KEY) || "pending";
