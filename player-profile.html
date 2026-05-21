@@ -741,6 +741,243 @@ a{text-decoration:none;color:inherit}
   <div class="trait"><div class="trait-name">Open Field Ability</div><div class="bar"><div class="fill pending-fill" style="width:18%"></div></div><div class="trait-score pending">--</div></div>
 </section>
 
+<section class="sc-intelligence-panel">
+  <div class="sc-intel-header">
+    <div>
+      <div class="sc-kicker">STATScore Intelligence Layer</div>
+      <h2>Explainable Athlete Intelligence</h2>
+    </div>
+    <div class="sc-badge" id="scMatrixVersion">QB_MATRIX_V1</div>
+  </div>
+
+  <div class="sc-intel-grid">
+    <div class="sc-intel-card primary">
+      <span>Star Signal</span>
+      <strong id="scStarSignal">--</strong>
+      <p id="scStarExplanation">Awaiting verified snapshot.</p>
+    </div>
+
+    <div class="sc-intel-card">
+      <span>Final Score</span>
+      <strong id="scFinalScore">--</strong>
+      <p>Weighted football intelligence output.</p>
+    </div>
+
+    <div class="sc-intel-card">
+      <span>Exposure Gap</span>
+      <strong id="scExposureGap">--</strong>
+      <p id="scExposureExplanation">Visibility intelligence pending.</p>
+    </div>
+
+    <div class="sc-intel-card">
+      <span>Projection Lane</span>
+      <strong id="scProjectionLane">--</strong>
+      <p>Program-fit pathway recommendation.</p>
+    </div>
+
+    <div class="sc-intel-card">
+      <span>Confidence</span>
+      <strong id="scConfidence">--</strong>
+      <p>Based on evaluator trust, competition, and verification.</p>
+    </div>
+
+    <div class="sc-intel-card">
+      <span>Varsity Years</span>
+      <strong id="scVarsityYears">--</strong>
+      <p>Verified varsity tracking unlocks official STATScore intelligence.</p>
+    </div>
+  </div>
+
+  <div class="sc-why-panel">
+    <h3>Why This Signal</h3>
+    <ul id="scWhyList">
+      <li>Snapshot intelligence has not been generated yet.</li>
+    </ul>
+  </div>
+</section>
+
+<style>
+.sc-intelligence-panel{
+  margin-top:22px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(6,10,18,.72);
+  padding:22px;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.035);
+}
+
+.sc-intel-header{
+  display:flex;
+  justify-content:space-between;
+  gap:18px;
+  align-items:flex-start;
+  border-bottom:1px solid rgba(255,255,255,.12);
+  padding-bottom:14px;
+  margin-bottom:16px;
+}
+
+.sc-kicker{
+  color:#ff2b1f;
+  font-size:.7rem;
+  font-weight:900;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+}
+
+.sc-intel-header h2{
+  margin:8px 0 0;
+  font-size:1.8rem;
+  line-height:.95;
+  text-transform:uppercase;
+  letter-spacing:-.03em;
+}
+
+.sc-badge{
+  border:1px solid rgba(255,255,255,.22);
+  padding:10px 13px;
+  color:#f4c542;
+  font-weight:900;
+  font-size:.72rem;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+
+.sc-intel-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+
+.sc-intel-card{
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.025);
+  padding:16px;
+  min-height:132px;
+}
+
+.sc-intel-card.primary{
+  border-color:#ff2b1f;
+  background:linear-gradient(180deg,rgba(255,43,31,.14),rgba(255,255,255,.025));
+}
+
+.sc-intel-card span{
+  display:block;
+  color:#7ed8ff;
+  font-size:.68rem;
+  font-weight:900;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+
+.sc-intel-card strong{
+  display:block;
+  margin-top:10px;
+  color:#fff;
+  font-size:1.55rem;
+  line-height:1.05;
+  text-transform:uppercase;
+}
+
+.sc-intel-card p{
+  color:#dff6ff;
+  font-size:.78rem;
+  line-height:1.35;
+  font-weight:800;
+  margin:10px 0 0;
+}
+
+.sc-why-panel{
+  margin-top:14px;
+  border-left:4px solid #ff2b1f;
+  background:linear-gradient(90deg,rgba(255,43,31,.14),rgba(255,255,255,.02));
+  padding:16px;
+}
+
+.sc-why-panel h3{
+  margin:0 0 10px;
+  color:#ff2b1f;
+  font-size:.78rem;
+  font-weight:900;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+}
+
+.sc-why-panel ul{
+  margin:0;
+  padding-left:18px;
+}
+
+.sc-why-panel li{
+  color:#e8f3f8;
+  font-size:.84rem;
+  line-height:1.55;
+  font-weight:800;
+}
+
+@media(max-width:900px){
+  .sc-intel-grid{grid-template-columns:1fr}
+  .sc-intel-header{flex-direction:column}
+}
+</style>
+
+<script>
+function renderSTATScoreIntelligence(snapshot){
+  if(!snapshot)return;
+
+  document.getElementById("scMatrixVersion").textContent =
+    snapshot.matrix_version || "QB_MATRIX_V1";
+
+  document.getElementById("scStarSignal").textContent =
+    snapshot.star_label || "--";
+
+  document.getElementById("scFinalScore").textContent =
+    snapshot.final_score ?? "--";
+
+  document.getElementById("scExposureGap").textContent =
+    snapshot.exposure_gap || "--";
+
+  document.getElementById("scProjectionLane").textContent =
+    snapshot.projection_lane || "--";
+
+  document.getElementById("scConfidence").textContent =
+    snapshot.confidence_level || "--";
+
+  document.getElementById("scVarsityYears").textContent =
+    snapshot.varsity_years ?? "--";
+
+  document.getElementById("scStarExplanation").textContent =
+    "Star signal is generated from weighted production, competition context, evaluator credibility, varsity longevity, exposure gap, and pathway fit.";
+
+  document.getElementById("scExposureExplanation").textContent =
+    snapshot.exposure_gap === "UNDEREXPOSED VERIFIED ATHLETE"
+      ? "Verified production exceeds current recruiting visibility."
+      : "Visibility status is aligned to current verified athlete intelligence.";
+
+  const reasons = [
+    "Verified production is weighted against competition context.",
+    "Evaluator credibility affects confidence, not direct manual star assignment.",
+    "Varsity years increase confidence when verified at the official level.",
+    "Exposure gap detects mismatch between football value and recruiting visibility.",
+    "Projection lane identifies realistic program-fit pathways."
+  ];
+
+  document.getElementById("scWhyList").innerHTML =
+    reasons.map(r=>`<li>${r}</li>`).join("");
+}
+
+/* Demo fallback object. Replace later with Supabase snapshot payload. */
+document.addEventListener("DOMContentLoaded",()=>{
+  renderSTATScoreIntelligence({
+    matrix_version:"QB_MATRIX_V1",
+    star_label:"4-Star High-Level Prospect Signal",
+    final_score:86.4,
+    exposure_gap:"UNDEREXPOSED VERIFIED ATHLETE",
+    projection_lane:"FCS / High D2 / Developmental FBS Evaluation Lane",
+    confidence_level:"HIGH",
+    varsity_years:4
+  });
+});
+</script> 
+  
 <section class="flow">
   <div class="flow-title">Visibility Path</div>
   <div class="flow-step"><b>Profile</b><span>Public Share</span></div>
