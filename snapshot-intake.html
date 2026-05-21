@@ -435,6 +435,15 @@ textarea:focus{
   .record-title{font-size:2.6rem}
   .side-panel{position:relative;top:auto}
 }
+
+.btn.primary{
+  position:relative !important;
+  z-index:9999 !important;
+  pointer-events:auto !important;
+  cursor:pointer !important;
+  
+} 
+  
 </style>
 </head>
 
@@ -634,7 +643,7 @@ textarea:focus{
   </div>
 
   <div class="submit-stack">
-    <button class="btn primary" type="button" onclick="submitSnapshot()">Submit Snapshot <span>›</span></button>
+    <button class="btn primary" type="button" style="position:relative; z-index:9999; pointer-events:auto;" onclick="submitSnapshot()">Submit Snapshot <span>›</span></button> 
     <button class="btn" type="button" onclick="saveDraft()">Save Draft <span>›</span></button>
     <button class="btn green" type="button" onclick="window.location.href='verification.html'">Request Verification <span>›</span></button>
   </div>
