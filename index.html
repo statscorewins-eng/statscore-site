@@ -65,31 +65,33 @@ HERO
 
 .hero{
 
-  flex:0 0 72%;
+    width:100%;
+    min-height:420px;
 
-  display:flex;
-  align-items:center;
-  justify-content:center;
+    display:flex;
+    align-items:center;
+    justify-content:center;
 
-  overflow:hidden;
+    overflow:hidden;
 
-  background:var(--logo-white);
+    background:#f3f1ee;
 
+    padding:0;
+    margin:0;
 }
 
 .hero img{
 
-  width:100%;
-  max-width:1900px;
+    width:100%;
+    max-width:1400px;
 
-  height:auto;
+    height:auto;
 
-  display:block;
+    display:block;
 
-  object-fit:contain;
-  object-position:center;
-
-}
+    object-fit:contain;
+    object-position:center;
+} 
 
 /* =========================
 ACCESS SECTION
@@ -293,6 +295,37 @@ MOBILE
   }
 
 }
+  
+@media (max-width:768px){
+
+    html,
+    body{
+        overflow-x:hidden;
+        background:#f3f1ee;
+    }
+
+    .hero{
+        width:100vw !important;
+        min-height:auto !important;
+
+        background:#f3f1ee !important;
+
+        padding:0 !important;
+        margin:0 !important;
+    }
+
+    .hero img{
+        width:100vw !important;
+        max-width:100vw !important;
+
+        height:auto !important;
+
+        display:block !important;
+
+        object-fit:contain !important;
+        object-position:center !important;
+    }
+} 
 
 </style>
 </head>
