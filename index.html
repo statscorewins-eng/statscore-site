@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -9,258 +9,38 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
 <style>
-
 :root{
-
   --logo-white:#ecebe6;
-
   --black:#05070a;
   --dark:#0b1018;
-
   --text:#ffffff;
   --muted:#9ea7b5;
-
   --red:#e02020;
   --red-bright:#ff3434;
   --red-deep:#991414;
-
 }
 
-/* =========================
-RESET
-========================= */
+*{margin:0;padding:0;box-sizing:border-box}
 
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
-
-html,
-body{
+html,body{
+  width:100%;
   height:100%;
   overflow:hidden;
-
   font-family:'Inter',sans-serif;
-
   background:var(--logo-white);
 }
-
-/* =========================
-PAGE
-========================= */
 
 .page{
+  width:100vw;
   height:100vh;
-
   display:flex;
   flex-direction:column;
-
   background:var(--logo-white);
 }
 
-/* =========================
-HERO
-========================= */
-
 .hero{
-
-    width:100%;
-    min-height:420px;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    overflow:hidden;
-
-    background:#f3f1ee;
-
-    padding:0;
-    margin:0;
-}
-
-.hero img{
-
-    width:100%;
-    max-width:1400px;
-
-    height:auto;
-
-    display:block;
-
-    object-fit:contain;
-    object-position:center;
-} 
-
-/* =========================
-ACCESS SECTION
-========================= */
-
-.access{
-
-  flex:1;
-
-  position:relative;
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  overflow:hidden;
-
-  background:
-    linear-gradient(
-      180deg,
-      #151c28 0%,
-      #0d1420 45%,
-      #06090d 100%
-    );
-
-  border-top:1px solid rgba(224,32,32,.45);
-
-}
-
-.access::after{
-
-  content:"";
-
-  position:absolute;
-
-  top:0;
-  left:0;
-  right:0;
-
-  height:1px;
-
-  background:rgba(255,52,52,.9);
-
-}
-
-/* =========================
-CONTENT
-========================= */
-
-.access-inner{
-
-  position:relative;
-  z-index:2;
-
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-
-  gap:18px;
-
-  padding:20px;
-
-}
-
-/* =========================
-HEADLINE
-========================= */
-
-.headline{
-
-  font-size:clamp(1.45rem, 2vw, 2.15rem);
-
-  font-weight:800;
-
-  letter-spacing:-0.045em;
-  line-height:1.02;
-
-  color:#ffffff;
-
-  text-shadow:
-    0 0 18px rgba(255,255,255,.08);
-
-}
-
-/* =========================
-BUTTON
-========================= */
-
-.enter{
-
-  position:relative;
-
-  min-width:190px;
-
-  padding:15px 34px;
-
-  font-size:.74rem;
-  font-weight:900;
-
-  letter-spacing:.24em;
-  text-transform:uppercase;
-
-  color:#ffffff;
-
-  background:
-    linear-gradient(
-      180deg,
-      #ff3a3a 0%,
-      #e02020 48%,
-      #b01515 100%
-    );
-
-  border:1px solid #7a0d0d;
-
-  border-radius:2px;
-
-  cursor:pointer;
-
-  transition:
-    transform .16s ease,
-    background .16s ease;
-
-  box-shadow:
-    0 0 0 1px rgba(0,0,0,.35),
-    0 12px 30px rgba(224,32,32,.18);
-
-}
-
-.enter:hover{
-
-  background:
-    linear-gradient(
-      180deg,
-      #ff4b4b 0%,
-      #cf1919 100%
-    );
-
-}
-
-.enter:active{
-  transform:translateY(1px);
-}
-
-/* =========================
-SUBTEXT
-========================= */
-
-.sub{
-
-  font-size:.92rem;
-
-  font-weight:600;
-
-  color:var(--muted);
-
-  letter-spacing:.01em;
-
-}
-
-.sub strong{
-  color:#ffffff;
-  font-weight:900;
-}
-
-/* MOBILE ONLY — FORCE LOGO IMAGE TO FILL WHITE HERO FIELD */
-@media (max-width:768px){
-
-.hero{
-  flex:0 0 72%;
+  flex:0 0 72vh;
+  width:100%;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -270,56 +50,128 @@ SUBTEXT
 
 .hero img{
   width:100%;
-  max-width:1500px;
-  height:auto;
+  height:100%;
   display:block;
-  object-fit:contain;
-  object-position:center;
-} 
-  
+  object-fit:cover;
+  object-position:center center;
+}
+
+.access{
+  flex:1;
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  background:linear-gradient(180deg,#151c28 0%,#0d1420 45%,#06090d 100%);
+  border-top:1px solid rgba(224,32,32,.45);
+}
+
+.access::after{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  height:1px;
+  background:rgba(255,52,52,.9);
+}
+
+.access-inner{
+  position:relative;
+  z-index:2;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:18px;
+  padding:20px;
+  text-align:center;
+}
+
+.headline{
+  font-size:clamp(1.45rem,2vw,2.15rem);
+  font-weight:800;
+  letter-spacing:-0.045em;
+  line-height:1.02;
+  color:#fff;
+  text-shadow:0 0 18px rgba(255,255,255,.08);
+}
+
+.enter{
+  min-width:190px;
+  padding:15px 34px;
+  font-size:.74rem;
+  font-weight:900;
+  letter-spacing:.24em;
+  text-transform:uppercase;
+  color:#fff;
+  background:linear-gradient(180deg,#ff3a3a 0%,#e02020 48%,#b01515 100%);
+  border:1px solid #7a0d0d;
+  border-radius:2px;
+  cursor:pointer;
+  box-shadow:0 0 0 1px rgba(0,0,0,.35),0 12px 30px rgba(224,32,32,.18);
+}
+
+.sub{
+  font-size:.92rem;
+  font-weight:600;
+  color:var(--muted);
+}
+
+.sub strong{
+  color:#fff;
+  font-weight:900;
+}
+
+@media(max-width:768px){
+  .hero{
+    flex-basis:72vh;
+  }
+
+  .hero img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position:center center;
+  }
+
+  .headline{
+    font-size:1.35rem;
+    line-height:1.05;
+  }
+
+  .enter{
+    min-width:170px;
+    padding:13px 24px;
+    font-size:.7rem;
+  }
+
+  .sub{
+    font-size:.84rem;
+  }
+}
 </style>
 </head>
 
 <body>
-
 <div class="page">
 
-  <!-- HERO -->
   <section class="hero">
-
-    <img
-      src="statscore_logo_v3.png"
-      alt="STATScore Logo"
-    >
-
+    <img src="statscore_logo_v3.png" alt="STATScore Logo">
   </section>
 
-  <!-- ACCESS -->
   <section class="access">
-
     <div class="access-inner">
+      <h1 class="headline">Athlete Performance Starts Here</h1>
 
-      <h1 class="headline">
-        Athlete Performance Starts Here
-      </h1>
-
-      <button
-        class="enter"
-        onclick="window.location.href='login.html'"
-      >
+      <button class="enter" onclick="window.location.href='system.html'">
         Enter
       </button>
 
-      <p class="sub">
-        Track it. Score it.
-        <strong>Prove it.</strong>
-      </p>
-
+      <p class="sub">Track it. Score it. <strong>Prove it.</strong></p>
     </div>
-
   </section>
 
 </div>
-
 </body>
 </html> 
