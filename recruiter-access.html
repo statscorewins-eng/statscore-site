@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>  
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -646,6 +646,61 @@ b.red{color:var(--red)!important}
     min-height:auto;
   }
 }
+  /* FINAL MOBILE TAB RAIL OVERRIDE — DO NOT PLACE ABOVE OLD TAB CSS */
+@media (max-width: 768px){
+
+  .tab-rail{
+    display:flex !important;
+    flex-direction:row !important;
+    flex-wrap:nowrap !important;
+
+    width:100vw !important;
+    max-width:100vw !important;
+    min-height:88px !important;
+    height:88px !important;
+
+    overflow-x:auto !important;
+    overflow-y:hidden !important;
+
+    white-space:nowrap !important;
+    align-items:flex-end !important;
+    justify-content:flex-start !important;
+
+    -webkit-overflow-scrolling:touch !important;
+    touch-action:pan-x !important;
+
+    scroll-snap-type:x proximity !important;
+  }
+
+  .tab-rail::-webkit-scrollbar{
+    display:none !important;
+  }
+
+  .tab-rail .folder-tab,
+  .tab-rail .folder-tab.active,
+  .tab-rail .folder-tab.multi{
+    flex:0 0 215px !important;
+    width:215px !important;
+    min-width:215px !important;
+    max-width:215px !important;
+
+    margin-left:0 !important;
+    margin-right:-18px !important;
+
+    display:flex !important;
+    align-items:center !important;
+
+    scroll-snap-align:start !important;
+  }
+
+  .tab-rail .folder-tab.active{
+    flex-basis:235px !important;
+    width:235px !important;
+    min-width:235px !important;
+    max-width:235px !important;
+  }
+} 
+
 </style>
 </head>
 
