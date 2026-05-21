@@ -570,7 +570,25 @@ textarea:focus{
       <div class="field"><label>Social Profile URL</label><input name="socialProfileUrl" type="url" placeholder="Verified athlete profile link"></div>
       <div class="field"><label>Game Film URL</label><input name="gameFilmUrl" type="url" placeholder="Optional"></div>
       <div class="field"><label>Recruiting Profile URL</label><input name="recruitingProfileUrl" type="url" placeholder="Optional"></div>
-      <div class="field full"><label>Upload Athlete Image / Headshot</label><div class="upload-box">AUTHORIZED MEDIA UPLOAD</div></div>
+      <div class="field full">
+  <label for="athleteHeadshotUpload">Upload Athlete Image / Headshot</label>
+
+  <label class="upload-box" for="athleteHeadshotUpload" id="headshotUploadBox">
+    <span id="headshotUploadText">AUTHORIZED MEDIA UPLOAD</span>
+    <small id="headshotUploadHint">Click to upload JPG, PNG, WEBP, or HEIC</small>
+  </label>
+
+  <input
+    id="athleteHeadshotUpload"
+    name="athleteHeadshotUpload"
+    type="file"
+    accept="image/png,image/jpeg,image/webp,image/heic,image/heif"
+    hidden
+  />
+
+  <img id="headshotPreview" alt="Athlete headshot preview" style="display:none; margin-top:14px; max-width:220px; border:1px solid rgba(255,255,255,.25);" />
+</div> 
+
     </div>
   </section>
 
@@ -767,6 +785,30 @@ function loadDraft(){
 
 document.addEventListener("DOMContentLoaded", loadDraft);
 </script>
+
+  <script>
+document.addEventListener("DOMContentLoaded", () => {
+  const input = document.getElementById("athleteHeadshotUpload");
+  const preview = document.getElementById("headshotPreview");
+  const text = document.getElementById("headshotUploadText");
+  const hint = document.getElementById("headshotUploadHint");
+
+  if (!input) return;
+
+  input.addEventListener("change", () => {
+    const file = input.files && input.files[0];
+    if (!file) return;
+
+    const url = URL.createObjectURL(file);
+
+    preview.src = url;
+    preview.style.display = "block";
+
+    text.textContent = "HEADSHOT SELECTED";
+    hint.textContent = file.name;
+  });
+});
+</script> 
   
 <script src="statscore-data.js"></script> 
   
