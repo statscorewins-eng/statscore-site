@@ -256,19 +256,26 @@ SUBTEXT
   font-weight:900;
 }
 
-/* =========================
-MOBILE
-========================= */
-
-@media(max-width:768px){
+/* MOBILE ONLY — FORCE LOGO IMAGE TO FILL WHITE HERO FIELD */
+@media (max-width:768px){
 
   .hero{
-    flex:0 0 65%;
+    width:100vw !important;
+    height:420px !important;
+    min-height:420px !important;
+    background:#f3f1ee !important;
+    overflow:hidden !important;
   }
 
   .hero img{
-    width:138%;
+    width:100vw !important;
+    height:100% !important;
+    max-width:100% !important;
+    object-fit:fill !important;
+    object-position:center center !important;
+    display:block !important;
   }
+} 
 
   .headline{
 
