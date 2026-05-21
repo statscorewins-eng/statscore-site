@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1018,21 +1018,24 @@ function renderSTATScoreIntelligence(snapshot){
   document.getElementById("scWhyList").innerHTML =
     reasons.map(r=>`<li>${r}</li>`).join("");
 }
-
-document.addEventListener("DOMContentLoaded",()=>{
-  renderSTATScoreIntelligence({
-    matrix_version:"QB_MATRIX_V1",
-    star_label:"4-Star High-Level Prospect Signal",
-    final_score:86.4,
-    exposure_gap:"UNDEREXPOSED VERIFIED ATHLETE",
-    projection_lane:"FCS / High D2 / Developmental FBS Evaluation Lane",
-    confidence_level:"HIGH",
-    varsity_years:4
-  });
-});
-</script>
-
+  
 <script src="statscore-data.js"></script>
+  
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  const snapshot = await window.STATScoreData.loadLatestSnapshot(); 
+
+  renderSTATScoreIntelligence({
+    matrix_version: snapshot?.matrix_version || "QB_MATRIX_V1",
+    star_label: snapshot?.star_signal || "Pending Signal",
+    final_score: snapshot?.final_score || "--",
+    exposure_gap: snapshot?.exposure_gap || "Pending",
+    projection_lane: snapshot?.projection_lane || "Pending",
+    confidence: snapshot?.confidence_level || "Pending",
+    varsity_years: snapshot?.varsity_years || "--"
+  });
+}); 
+</script>
 
 </body>
 </html> 
