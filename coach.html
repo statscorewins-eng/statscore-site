@@ -504,28 +504,51 @@ b.red{color:var(--red)!important}
   .tab-rail{
     height:auto;
     min-height:88px;
-    flex-wrap:wrap;
-    overflow:visible;
+
+    display:flex;
+    flex-wrap:nowrap;
+
+    overflow-x:auto;
+    overflow-y:hidden;
+
     align-items:flex-end;
     padding-top:14px;
-  }
 
-  .folder-tab,
-  .folder-tab.active,
-  .folder-tab.multi{
+    white-space:nowrap;
+    -webkit-overflow-scrolling:touch;
+}
+
+.folder-tab,
+.folder-tab.active,
+.folder-tab.multi{
     margin-left:0;
     margin-right:-18px;
-    min-width:160px;
-  }
 
-  .logo-tab{width:100%}
-  .header-title{padding:14px}
+    flex:0 0 210px;
+    min-width:210px;
+    max-width:210px;
+}
 
-  .header-nav{
-    justify-content:center;
-    flex-wrap:wrap;
+.logo-tab{
+    width:100%;
+}
+
+.header-title{
     padding:14px;
-  }
+}
+
+.header-nav{
+    justify-content:center;
+
+    display:flex;
+    flex-wrap:nowrap;
+
+    overflow-x:auto;
+    overflow-y:hidden;
+
+    white-space:nowrap;
+    -webkit-overflow-scrolling:touch;
+} 
 
   .main{padding:18px 14px 0}
 
