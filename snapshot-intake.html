@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>  
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -213,40 +213,28 @@ input:focus,select:focus,textarea:focus{border-color:var(--red);box-shadow:0 0 0
   <div class="notice" id="snapshotNotice">Official score generation should not occur until Snapshot data, verification evidence, and parent/guardian permissions are complete.</div>
 
   <div class="submit-stack">
-   window.submitSnapshot = submitSnapshot;
-window.saveDraft = saveDraft;
+    <button
+    id="submitSnapshotBtn"
+    class="btn primary"
+    type="button">
+    Submit Snapshot <span>›</span>
+  </button>
 
-document.addEventListener("DOMContentLoaded", () => {
-  initHeadshotUpload();
-  loadDraft();
+  <button
+    id="saveDraftBtn"
+    class="btn"
+    type="button">
+    Save Draft <span>›</span>
+  </button>
 
-  const submitBtn = document.getElementById("submitSnapshotBtn");
-  const saveBtn = document.getElementById("saveDraftBtn");
-  const verifyBtn = document.getElementById("requestVerificationBtn");
+  <button
+    id="requestVerificationBtn"
+    class="btn green"
+    type="button">
+    Request Verification <span>›</span>
+  </button>
 
-  if (submitBtn) {
-    submitBtn.addEventListener("click", function () {
-      console.log("SUBMIT SNAPSHOT BUTTON CLICKED");
-      submitSnapshot();
-    });
-  }
-
-  if (saveBtn) {
-    saveBtn.addEventListener("click", function () {
-      console.log("SAVE DRAFT BUTTON CLICKED");
-      saveDraft();
-    });
-  }
-
-  if (verifyBtn) {
-    verifyBtn.addEventListener("click", function () {
-      console.log("REQUEST VERIFICATION BUTTON CLICKED");
-      window.location.href = "verification.html";
-    });
-  }
-}); 
-
-  </div>
+</div> 
 
   <div class="system-message" id="systemMessage"></div>
 </aside>
@@ -272,6 +260,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 </main>
 </div>
+
+<script src="statscore-data.js"></script>
 
 <script>
 const STORAGE_KEY = "statscore_snapshot_draft_v1";
@@ -468,8 +458,6 @@ document.addEventListener("DOMContentLoaded", () => {
   loadDraft();
 });
 </script>
-
-<script src="statscore-data.js"></script>
 
 </body>
 </html> 
