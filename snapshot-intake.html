@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -462,6 +462,14 @@ a.btn:hover{
   .record-title{font-size:2.6rem}
   .side-panel{position:relative;top:auto}
 }
+
+.headshot-actions{
+  display:flex;
+  gap:10px;
+  margin-top:12px;
+  flex-wrap:wrap;
+}   
+  
 </style>
 </head>
 
@@ -613,6 +621,18 @@ a.btn:hover{
 
         <input id="athleteHeadshotUpload" name="athleteHeadshotUpload" type="file" accept="image/png,image/jpeg,image/webp,image/heic,image/heif" hidden />
 
+<div class="headshot-actions">
+
+  <button id="addHeadshotBtn" class="btn" type="button">
+    Add / Replace Headshot <span>+</span>
+  </button>
+
+  <button id="removeHeadshotBtn" class="btn" type="button" style="display:none;">
+    Remove Headshot <span>×</span>
+  </button>
+
+</div> 
+       
         <img id="headshotPreview" alt="Athlete headshot preview" />
       </div>
     </div>
@@ -972,10 +992,57 @@ window.saveDraft = saveDraft;
 window.requestVerification = requestVerification;
 
 document.addEventListener("DOMContentLoaded", () => {
+
   initHeadshotUpload();
   loadDraft();
-  bindButtons();
-});
+
+  const addBtn = document.getElementById("addHeadshotBtn");
+  const removeBtn = document.getElementById("removeHeadshotBtn");
+  const input = document.getElementById("athleteHeadshotUpload");
+  const preview = document.getElementById("headshotPreview");
+  const text = document.getElementById("headshotUploadText");
+  const hint = document.getElementById("headshotUploadHint");
+
+  if(addBtn && input){
+    addBtn.addEventListener("click", () => {
+      input.click();
+    });
+  }
+
+  if(removeBtn){
+
+    const hasImage = localStorage.getItem(HEADSHOT_KEY);
+
+    if(hasImage){
+      removeBtn.style.display = "flex";
+    }
+
+    removeBtn.addEventListener("click", () => {
+
+      localStorage.removeItem(HEADSHOT_KEY);
+      localStorage.removeItem(HEADSHOT_NAME_KEY);
+
+      if(preview){
+        preview.src = "";
+        preview.style.display = "none";
+      }
+
+      if(text){
+        text.textContent = "AUTHORIZED MEDIA UPLOAD";
+      }
+
+      if(hint){
+        hint.textContent = "Click to upload JPG, PNG, WEBP, or HEIC";
+      }
+
+      removeBtn.style.display = "none";
+
+      setMessage("Headshot removed");
+    });
+  }
+
+}); 
+
 </script>
 
 </body>
