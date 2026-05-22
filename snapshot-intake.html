@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -213,9 +213,39 @@ input:focus,select:focus,textarea:focus{border-color:var(--red);box-shadow:0 0 0
   <div class="notice" id="snapshotNotice">Official score generation should not occur until Snapshot data, verification evidence, and parent/guardian permissions are complete.</div>
 
   <div class="submit-stack">
-    <button class="btn primary" type="button" onclick="window.submitSnapshot()">Submit Snapshot <span>›</span></button>
-    <button class="btn" type="button" onclick="window.saveDraft()">Save Draft <span>›</span></button>
-    <button class="btn green" type="button" onclick="window.location.href='verification.html'">Request Verification <span>›</span></button>
+   window.submitSnapshot = submitSnapshot;
+window.saveDraft = saveDraft;
+
+document.addEventListener("DOMContentLoaded", () => {
+  initHeadshotUpload();
+  loadDraft();
+
+  const submitBtn = document.getElementById("submitSnapshotBtn");
+  const saveBtn = document.getElementById("saveDraftBtn");
+  const verifyBtn = document.getElementById("requestVerificationBtn");
+
+  if (submitBtn) {
+    submitBtn.addEventListener("click", function () {
+      console.log("SUBMIT SNAPSHOT BUTTON CLICKED");
+      submitSnapshot();
+    });
+  }
+
+  if (saveBtn) {
+    saveBtn.addEventListener("click", function () {
+      console.log("SAVE DRAFT BUTTON CLICKED");
+      saveDraft();
+    });
+  }
+
+  if (verifyBtn) {
+    verifyBtn.addEventListener("click", function () {
+      console.log("REQUEST VERIFICATION BUTTON CLICKED");
+      window.location.href = "verification.html";
+    });
+  }
+}); 
+
   </div>
 
   <div class="system-message" id="systemMessage"></div>
