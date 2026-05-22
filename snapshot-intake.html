@@ -873,9 +873,12 @@ function submitSnapshot(){
   localStorage.setItem(PROFILE_PACKET_KEY, JSON.stringify(packet));
   localStorage.setItem(STATE_KEY, "submitted");
   localStorage.setItem(SUBMITTED_KEY, "true");
+localStorage.removeItem(STORAGE_KEY);
+localStorage.removeItem(HEADSHOT_KEY);
+localStorage.removeItem(HEADSHOT_NAME_KEY);
 
-  sessionStorage.setItem("statscore_snapshot_state", "submitted");
-  sessionStorage.setItem("statscore_snapshot_submitted", "true");
+sessionStorage.removeItem("statscore_snapshot_state");
+sessionStorage.removeItem("statscore_snapshot_submitted"); 
 
   updateControlPanel("submitted");
   setMessage("Snapshot submitted · routing to athlete profile");
