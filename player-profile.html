@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -209,9 +209,15 @@ a{text-decoration:none;color:inherit}
   font-weight:900;
   letter-spacing:.18em;
   text-transform:uppercase;
+  overflow:hidden;
 }
 
-.image-frame:before{content:"Athlete Image";}
+.image-frame img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
 
 .athlete-caption{
   margin-top:16px;
@@ -762,6 +768,7 @@ a{text-decoration:none;color:inherit}
   <nav class="header-nav">
     <a href="index.html">Entry</a>
     <a class="active" href="player-profile.html">Profile</a>
+    <a href="verification.html">Verification</a>
     <a href="privacy.html">Privacy</a>
     <a href="terms.html">Terms</a>
     <div class="user-icon"></div>
@@ -775,53 +782,53 @@ a{text-decoration:none;color:inherit}
     <div class="record-kicker">Verified Athlete Intelligence Record</div>
     <h1 class="record-title">Player Profile</h1>
   </div>
-  <div class="record-demo">Verified Profile</div>
+  <div class="record-demo" id="recordStatus">Snapshot Pending</div>
 </section>
 
 <section class="hero-grid">
 
   <aside class="panel image-card">
     <div class="label">Athlete Image</div>
-    <div class="image-frame"></div>
+    <div class="image-frame" id="athleteImageFrame">Athlete Image</div>
 
     <div class="athlete-caption">
       <div>
-        <b>Athlete Name</b>
-        <span>Position · Class Year</span>
+        <b id="captionName">Athlete Name</b>
+        <span id="captionMeta">Position · Class Year</span>
       </div>
-      <div class="verified">Pending</div>
+      <div class="verified" id="verificationBadge">Pending</div>
     </div>
   </aside>
 
   <article class="panel identity-card">
     <div class="identity-kicker">Athlete Identity</div>
-    <div class="identity-sub">Scoring Pending Live Snapshot</div>
+    <div class="identity-sub" id="identitySub">Scoring Pending Live Snapshot</div>
 
-    <h2 class="name">
+    <h2 class="name" id="athleteName">
       Athlete
       <span>Profile</span>
     </h2>
 
     <div class="tags">
-      <div class="tag">Position</div>
-      <div class="tag">Height</div>
-      <div class="tag">Weight</div>
-      <div class="tag">City, State</div>
-      <div class="tag">School / Program</div>
-      <div class="tag">Class Year</div>
+      <div class="tag" id="tagPosition">Position</div>
+      <div class="tag" id="tagHeight">Height</div>
+      <div class="tag" id="tagWeight">Weight</div>
+      <div class="tag" id="tagCity">City, State</div>
+      <div class="tag" id="tagSchool">School / Program</div>
+      <div class="tag" id="tagClass">Class Year</div>
     </div>
 
     <div>
-      <span class="stars">☆☆☆☆☆</span>
-      <span class="signal">Evaluation Pending</span>
+      <span class="stars" id="starDisplay">☆☆☆☆☆</span>
+      <span class="signal" id="signalText">Evaluation Pending</span>
     </div>
 
     <div class="projection">
       <div class="small">Evaluation Status</div>
-      <b>Pending Verified Snapshot</b>
+      <b id="evaluationStatus">Pending Verified Snapshot</b>
     </div>
 
-    <p class="bio">
+    <p class="bio" id="profileBio">
       This profile packages verified athlete identity, performance indicators,
       readiness, visibility, and controlled recruiting access after official STATScore intake.
     </p>
@@ -832,37 +839,37 @@ a{text-decoration:none;color:inherit}
 
     <div class="score-ring">
       <span>STATScore™</span>
-      <b>--</b>
-      <span>Pending</span>
+      <b id="scoreValue">--</b>
+      <span id="scoreStatus">Pending</span>
     </div>
 
-    <p class="score-note">
+    <p class="score-note" id="scoreNote">
       Official production score requires Snapshot intake, verification, and rules-based calculation.
     </p>
 
     <div class="action-stack">
-      <a class="action primary" href="#">Share Profile <span>›</span></a>
-      <a class="action" href="#">Request Verification <span>›</span></a>
-      <a class="action" href="#">View Snapshot Path <span>›</span></a>
+      <a class="action primary" href="#" onclick="copyShareLink();return false;">Share Profile <span>›</span></a>
+      <a class="action" href="verification.html?snapshot=latest">Request Verification <span>›</span></a>
+      <a class="action" href="snapshot-intake.html">View Snapshot Path <span>›</span></a>
     </div>
   </aside>
 
 </section>
 
 <section class="metric-row">
-  <div class="metric"><h3>Speed Index</h3><b>--</b><p>Acceleration and separation potential based on submitted performance indicators.</p></div>
-  <div class="metric"><h3>Explosiveness</h3><b>--</b><p>Change-of-direction, burst, vertical threat, and field-opening potential.</p></div>
-  <div class="metric"><h3>Readiness</h3><b>--</b><p>Development stage, training maturity, coach validation, and readiness trajectory.</p></div>
-  <div class="metric"><h3>Visibility</h3><b>--</b><p>Recruiting exposure readiness, profile completeness, and verified access status.</p></div>
+  <div class="metric"><h3>Speed Index</h3><b id="metricSpeed">--</b><p>Acceleration and separation potential based on submitted performance indicators.</p></div>
+  <div class="metric"><h3>Explosiveness</h3><b id="metricExplosive">--</b><p>Change-of-direction, burst, vertical threat, and field-opening potential.</p></div>
+  <div class="metric"><h3>Readiness</h3><b id="metricReadiness">--</b><p>Development stage, training maturity, coach validation, and readiness trajectory.</p></div>
+  <div class="metric"><h3>Visibility</h3><b id="metricVisibility">--</b><p>Recruiting exposure readiness, profile completeness, and verified access status.</p></div>
 </section>
 
 <section class="lower-grid">
   <article class="block">
     <div class="label">Verified Highlights</div>
     <h2>Proof Layer</h2>
-    <div class="list-item"><b>Game Film</b><span>Primary highlight reel slot and verified clip sequence.</span></div>
-    <div class="list-item"><b>Camp / Combine</b><span>Event results and showcase appearances connect here.</span></div>
-    <div class="list-item"><b>Media Exposure</b><span>PHNX Sports media routing and public feature eligibility.</span></div>
+    <div class="list-item"><b>Game Film</b><span id="gameFilmStatus">Primary highlight reel slot and verified clip sequence.</span></div>
+    <div class="list-item"><b>Camp / Combine</b><span id="campStatus">Event results and showcase appearances connect here.</span></div>
+    <div class="list-item"><b>Media Exposure</b><span id="mediaStatus">PHNX Sports media routing and public feature eligibility.</span></div>
   </article>
 
   <article class="block">
@@ -870,14 +877,14 @@ a{text-decoration:none;color:inherit}
     <h2>Controlled Access</h2>
     <div class="list-item"><b>Recruiter View</b><span>Public profile visible. Extended access requires request approval.</span></div>
     <div class="list-item"><b>Contact Status</b><span>Communication routed through Multi-Box™ permissions.</span></div>
-    <div class="list-item"><b>Exposure Lane</b><span>Visibility lane generated after verified Snapshot scoring.</span></div>
+    <div class="list-item"><b>Exposure Lane</b><span id="exposureLaneText">Visibility lane generated after verified Snapshot scoring.</span></div>
   </article>
 
   <article class="block">
     <div class="label">Development Pathway</div>
     <h2>Next Movement</h2>
-    <div class="list-item"><b>Primary Focus</b><span>Generated from verified performance and readiness data.</span></div>
-    <div class="list-item"><b>Verification Need</b><span>Coach confirmation, event metrics, GPA / eligibility status.</span></div>
+    <div class="list-item"><b>Primary Focus</b><span id="primaryFocus">Generated from verified performance and readiness data.</span></div>
+    <div class="list-item"><b>Verification Need</b><span id="verificationNeed">Coach confirmation, event metrics, GPA / eligibility status.</span></div>
     <div class="list-item"><b>Next Snapshot</b><span>Run official STATScore intake once production system is active.</span></div>
   </article>
 </section>
@@ -961,7 +968,7 @@ a{text-decoration:none;color:inherit}
       <span>Athlete Intelligence</span>
     </a>
   </div>
-  <a class="action primary" href="#">Copy Share Link ›</a>
+  <a class="action primary" href="#" onclick="copyShareLink();return false;">Copy Share Link ›</a>
 </section>
 
 <footer class="footer">
@@ -975,66 +982,174 @@ a{text-decoration:none;color:inherit}
 </div>
 
 <script>
-function renderSTATScoreIntelligence(snapshot){
-  if(!snapshot)return;
+const PROFILE_PACKET_KEY = "statscore_latest_snapshot_packet_v1";
+const STORAGE_KEY = "statscore_snapshot_draft_v1";
 
-  document.getElementById("scMatrixVersion").textContent =
-    snapshot.matrix_version || "QB_MATRIX_V1";
+function safeParse(value){
+  try{
+    return value ? JSON.parse(value) : null;
+  }catch(error){
+    console.warn("Unable to parse STATScore packet.", error);
+    return null;
+  }
+}
 
-  document.getElementById("scStarSignal").textContent =
-    snapshot.star_label || "--";
+function setText(id,value){
+  const el = document.getElementById(id);
+  if(el) el.textContent = value || "--";
+}
 
-  document.getElementById("scFinalScore").textContent =
-    snapshot.final_score ?? "--";
+function readPacket(){
+  const latestPacket = safeParse(localStorage.getItem(PROFILE_PACKET_KEY));
+  if(latestPacket && latestPacket.athlete) return latestPacket;
 
-  document.getElementById("scExposureGap").textContent =
-    snapshot.exposure_gap || "--";
+  const savedSnapshot = safeParse(localStorage.getItem(STORAGE_KEY));
+  if(savedSnapshot && savedSnapshot.packet) return savedSnapshot.packet;
+  if(savedSnapshot && savedSnapshot.data) {
+    return {
+      packet_type:"STATSCORE_SNAPSHOT_INTAKE",
+      snapshot_state:"submitted",
+      athlete:savedSnapshot.data
+    };
+  }
 
-  document.getElementById("scProjectionLane").textContent =
-    snapshot.projection_lane || "--";
+  return null;
+}
 
-  document.getElementById("scConfidence").textContent =
-    snapshot.confidence_level || "--";
+function splitName(fullName){
+  const parts = String(fullName || "Athlete Profile").trim().split(/\s+/);
+  return {
+    first: parts[0] || "Athlete",
+    last: parts.slice(1).join(" ") || "Profile"
+  };
+}
 
-  document.getElementById("scVarsityYears").textContent =
-    snapshot.varsity_years ?? "--";
+function renderAthleteImage(src, fullName){
+  const frame = document.getElementById("athleteImageFrame");
+  if(!frame) return;
 
-  document.getElementById("scStarExplanation").textContent =
-    "Star signal is generated from weighted production, competition context, evaluator credibility, varsity longevity, exposure gap, and pathway fit.";
+  if(src){
+    frame.innerHTML = `<img src="${src}" alt="${fullName} athlete image">`;
+  }else{
+    frame.textContent = "Athlete Image";
+  }
+}
 
-  document.getElementById("scExposureExplanation").textContent =
-    snapshot.exposure_gap === "UNDEREXPOSED VERIFIED ATHLETE"
-      ? "Verified production exceeds current recruiting visibility."
-      : "Visibility status is aligned to current verified athlete intelligence.";
+function renderProfile(packet){
+  const athlete = packet.athlete || {};
+  const fullName =
+    athlete.athlete_display_name ||
+    [athlete.firstName, athlete.lastName].filter(Boolean).join(" ").trim() ||
+    "Athlete Profile";
+
+  const nameParts = splitName(fullName);
+
+  const sport = athlete.sport || athlete.primarySport || "Sport";
+  const position = athlete.position || athlete.primaryPosition || "Position";
+  const classYear = athlete.graduation_class || athlete.graduationClass || "Class Year";
+  const city = athlete.city_state || athlete.cityState || "City, State";
+  const school = athlete.school || athlete.schoolProgram || "School / Program";
+  const height = athlete.height || "Height";
+  const weight = athlete.weight || "Weight";
+  const headshot = athlete.headshotDataUrl || "";
+
+  document.getElementById("athleteName").innerHTML =
+    `${nameParts.first}<span>${nameParts.last}</span>`;
+
+  setText("captionName", fullName);
+  setText("captionMeta", `${position} · ${classYear}`);
+  setText("verificationBadge", packet.verification_status || "Submitted");
+  setText("recordStatus", "Snapshot Loaded");
+  setText("identitySub", "Snapshot Submitted · Verification Pending");
+
+  setText("tagPosition", position);
+  setText("tagHeight", height);
+  setText("tagWeight", weight);
+  setText("tagCity", city);
+  setText("tagSchool", school);
+  setText("tagClass", classYear);
+
+  setText("signalText", "Evaluation Pending");
+  setText("evaluationStatus", "Snapshot Submitted · Verification Pending");
+
+  setText(
+    "profileBio",
+    `${fullName} is a ${classYear} ${sport} athlete listed at ${position}. This profile has been generated from Snapshot Intake and is staged for verification, scoring, and controlled visibility routing.`
+  );
+
+  setText("scoreValue", "--");
+  setText("scoreStatus", "Pending");
+  setText(
+    "scoreNote",
+    "Snapshot data has been received. Official STATScore output remains pending until verification and scoring rules are applied."
+  );
+
+  setText("metricSpeed", athlete.dash40 || "--");
+  setText("metricExplosive", athlete.verticalJump || "--");
+  setText("metricReadiness", packet.profile_status || "Submitted");
+  setText("metricVisibility", packet.verification_status || "Pending");
+
+  setText("gameFilmStatus", athlete.highlightUrl || athlete.gameFilmUrl || "No verified film link submitted.");
+  setText("campStatus", athlete.verifiedEventSource || "Camp / combine source pending.");
+  setText("mediaStatus", athlete.socialProfileUrl || athlete.recruitingProfileUrl || "Media exposure route pending.");
+
+  setText("exposureLaneText", "Visibility lane pending verification and official scoring.");
+  setText("primaryFocus", athlete.positionNotes || "Generated after verification review.");
+  setText("verificationNeed", "Coach confirmation, guardian permission, metric evidence, and academic readiness review.");
+
+  renderAthleteImage(headshot, fullName);
+  renderSTATScoreIntelligence(packet);
+}
+
+function renderSTATScoreIntelligence(packet){
+  const intelligence = packet.intelligence || {};
+
+  setText("scMatrixVersion", intelligence.matrix_version || "QB_MATRIX_V1");
+  setText("scStarSignal", intelligence.star_signal || "Pending Signal");
+  setText("scFinalScore", intelligence.final_score || "--");
+  setText("scExposureGap", intelligence.exposure_gap || "Pending Verification");
+  setText("scProjectionLane", intelligence.projection_lane || "Pending Verification");
+  setText("scConfidence", intelligence.confidence_level || "Pending");
+  setText("scVarsityYears", intelligence.varsity_years || "--");
+
+  setText("scStarExplanation", "Star signal remains pending until verified scoring rules are applied.");
+  setText("scExposureExplanation", "Visibility intelligence remains pending until verification and scoring are complete.");
 
   const reasons = [
-    "Verified production is weighted against competition context.",
-    "Evaluator credibility affects confidence, not direct manual star assignment.",
-    "Varsity years increase confidence when verified at the official level.",
-    "Exposure gap detects mismatch between football value and recruiting visibility.",
-    "Projection lane identifies realistic program-fit pathways."
+    "Snapshot Intake has created the athlete profile packet.",
+    "Athlete identity, media, metrics, academics, guardian, and coach information are staged for verification.",
+    "Official STATScore output must wait for verified evidence and rules-based scoring.",
+    "Athletic intelligence and academic readiness remain separate lanes."
   ];
 
-  document.getElementById("scWhyList").innerHTML =
-    reasons.map(r=>`<li>${r}</li>`).join("");
+  const list = document.getElementById("scWhyList");
+  if(list){
+    list.innerHTML = reasons.map(reason => `<li>${reason}</li>`).join("");
+  }
 }
-  
-<script src="statscore-data.js"></script>
-  
-<script>
-document.addEventListener("DOMContentLoaded", async () => {
-  const snapshot = await window.STATScoreData.loadLatestSnapshot(); 
 
-  renderSTATScoreIntelligence({
-    matrix_version: snapshot?.matrix_version || "QB_MATRIX_V1",
-    star_label: snapshot?.star_signal || "Pending Signal",
-    final_score: snapshot?.final_score || "--",
-    exposure_gap: snapshot?.exposure_gap || "Pending",
-    projection_lane: snapshot?.projection_lane || "Pending",
-    confidence: snapshot?.confidence_level || "Pending",
-    varsity_years: snapshot?.varsity_years || "--"
-  });
-}); 
+function renderNoSnapshot(){
+  setText("recordStatus","No Snapshot Loaded");
+  setText("identitySub","Awaiting Snapshot Intake");
+  setText("profileBio","No submitted Snapshot packet was found. Run Snapshot Intake to generate this athlete profile.");
+}
+
+function copyShareLink(){
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(window.location.href);
+    alert("Profile link copied.");
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const packet = readPacket();
+
+  if(packet){
+    renderProfile(packet);
+  }else{
+    renderNoSnapshot();
+  }
+});
 </script>
 
 </body>
