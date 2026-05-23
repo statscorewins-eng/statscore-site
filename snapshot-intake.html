@@ -1048,6 +1048,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
 }); 
 
+async function submitSnapshot(){
+  setMessage("Submitting snapshot to Supabase...");
+
+  const payload = getFormData();
+
+  const { data, error } = await supabase.rpc("submit_statscore_snapshot", {
+    p_payload: payload
+  });
+
+  if (error) {
+    console.error(error);
+    setMessage("Submit failed. Check console.", "var(--red)");
+    return;
+  }
+
+  window.location.href = `player-profile.html?snapshot_id=${data.snapshot_id}`;
+}
+
+document.getElementById("submitSnapshotBtn")?.addEventListener("click", submitSnapshot); 
+  
 </script>
 
 </body>
