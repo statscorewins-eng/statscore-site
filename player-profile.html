@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -981,9 +981,22 @@ a{text-decoration:none;color:inherit}
 </main>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
+const SUPABASE_URL = "https://oyjmpbuxvfxusmbouldi.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk";
+
+const scSupabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
+
 const PROFILE_PACKET_KEY = "statscore_latest_snapshot_packet_v1";
 const STORAGE_KEY = "statscore_snapshot_draft_v1";
+
+const SNAPSHOT_TABLE = "statscore_snapshots";
+const SNAPSHOT_ID_COLUMN = "snapshot_id";
 
 function safeParse(value){
   try{
@@ -999,21 +1012,13 @@ function setText(id,value){
   if(el) el.textContent = value || "--";
 }
 
-function readPacket(){
-  const latestPacket = safeParse(localStorage.getItem(PROFILE_PACKET_KEY));
-  if(latestPacket && latestPacket.athlete) return latestPacket;
-
-  const savedSnapshot = safeParse(localStorage.getItem(STORAGE_KEY));
-  if(savedSnapshot && savedSnapshot.packet) return savedSnapshot.packet;
-  if(savedSnapshot && savedSnapshot.data) {
-    return {
-      packet_type:"STATSCORE_SNAPSHOT_INTAKE",
-      snapshot_state:"submitted",
-      athlete:savedSnapshot.data
-    };
-  }
-
-  return null;
+function escapeHTML(value){
+  return String(value || "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
 }
 
 function splitName(fullName){
@@ -1024,19 +1029,119 @@ function splitName(fullName){
   };
 }
 
+function normalizePacket(rowOrPacket){
+  if(!rowOrPacket) return null;
+
+  const payload =
+    rowOrPacket.packet ||
+    rowOrPacket.payload ||
+    rowOrPacket.snapshot_payload ||
+    rowOrPacket.intake_json ||
+    rowOrPacket;
+
+  const athlete =
+    payload.athlete ||
+    payload.data ||
+    payload.intake_json ||
+    payload;
+
+  return {
+    ...payload,
+    snapshot_id:
+      rowOrPacket.snapshot_id ||
+      payload.snapshot_id ||
+      rowOrPacket.id ||
+      payload.id,
+    verification_status:
+      rowOrPacket.verification_status ||
+      payload.verification_status ||
+      payload.verificationStatus ||
+      "UNVERIFIED",
+    profile_status:
+      rowOrPacket.profile_status ||
+      payload.profile_status ||
+      payload.profileStatus ||
+      "CREATED",
+    statscore_label:
+      rowOrPacket.statscore_label ||
+      payload.statscoreLabel ||
+      payload.statscore_label ||
+      null,
+    athlete
+  };
+}
+
+function readLocalPacket(){
+  const latestPacket = safeParse(localStorage.getItem(PROFILE_PACKET_KEY));
+  if(latestPacket && latestPacket.athlete) return latestPacket;
+
+  const savedSnapshot = safeParse(localStorage.getItem(STORAGE_KEY));
+  if(savedSnapshot && savedSnapshot.packet) return savedSnapshot.packet;
+
+  if(savedSnapshot && savedSnapshot.data){
+    return {
+      packet_type:"STATSCORE_SNAPSHOT_INTAKE",
+      snapshot_state:"submitted",
+      verification_status:"UNVERIFIED",
+      profile_status:"CREATED",
+      athlete:savedSnapshot.data
+    };
+  }
+
+  return null;
+}
+
+async function loadSnapshotPacket(){
+  const snapshotId = new URLSearchParams(window.location.search).get("snapshot_id");
+
+  if(snapshotId){
+    const { data, error } = await scSupabaseClient
+      .from(SNAPSHOT_TABLE)
+      .select("*")
+      .eq(SNAPSHOT_ID_COLUMN, snapshotId)
+      .maybeSingle();
+
+    if(error){
+      console.error("Player Profile Supabase load failed:", error);
+      return normalizePacket(readLocalPacket());
+    }
+
+    if(data){
+      return normalizePacket(data);
+    }
+  }
+
+  return normalizePacket(readLocalPacket());
+}
+
+function resolveSTATScoreLabel(packet){
+  const status = String(
+    packet.verification_status ||
+    packet.verificationStatus ||
+    ""
+  ).toUpperCase();
+
+  if(status === "VERIFIED"){
+    return "VERIFIED STATScore";
+  }
+
+  return "UNVERIFIED STATScore";
+}
+
 function renderAthleteImage(src, fullName){
   const frame = document.getElementById("athleteImageFrame");
   if(!frame) return;
 
   if(src){
-    frame.innerHTML = `<img src="${src}" alt="${fullName} athlete image">`;
+    frame.innerHTML = `<img src="${escapeHTML(src)}" alt="${escapeHTML(fullName)} athlete image">`;
   }else{
-    frame.textContent = "Athlete Image";
+    frame.textContent = "Athlete Image Required";
   }
 }
 
 function renderProfile(packet){
   const athlete = packet.athlete || {};
+
   const fullName =
     athlete.athlete_display_name ||
     [athlete.firstName, athlete.lastName].filter(Boolean).join(" ").trim() ||
@@ -1051,16 +1156,25 @@ function renderProfile(packet){
   const school = athlete.school || athlete.schoolProgram || "School / Program";
   const height = athlete.height || "Height";
   const weight = athlete.weight || "Weight";
-  const headshot = athlete.headshotDataUrl || "";
+
+  const headshot =
+    athlete.headshotPublicUrl ||
+    athlete.headshot_public_url ||
+    athlete.headshotDataUrl ||
+    packet.headshotPublicUrl ||
+    packet.headshot_public_url ||
+    "";
+
+  const statscoreLabel = packet.statscore_label || resolveSTATScoreLabel(packet);
 
   document.getElementById("athleteName").innerHTML =
-    `${nameParts.first}<span>${nameParts.last}</span>`;
+    `${escapeHTML(nameParts.first)}<span>${escapeHTML(nameParts.last)}</span>`;
 
   setText("captionName", fullName);
   setText("captionMeta", `${position} · ${classYear}`);
-  setText("verificationBadge", packet.verification_status || "Submitted");
+  setText("verificationBadge", packet.verification_status || "UNVERIFIED");
   setText("recordStatus", "Snapshot Loaded");
-  setText("identitySub", "Snapshot Submitted · Verification Pending");
+  setText("identitySub", `Snapshot Submitted · ${statscoreLabel}`);
 
   setText("tagPosition", position);
   setText("tagHeight", height);
@@ -1069,8 +1183,8 @@ function renderProfile(packet){
   setText("tagSchool", school);
   setText("tagClass", classYear);
 
-  setText("signalText", "Evaluation Pending");
-  setText("evaluationStatus", "Snapshot Submitted · Verification Pending");
+  setText("signalText", statscoreLabel);
+  setText("evaluationStatus", `Snapshot Submitted · ${statscoreLabel}`);
 
   setText(
     "profileBio",
@@ -1078,59 +1192,61 @@ function renderProfile(packet){
   );
 
   setText("scoreValue", "--");
-  setText("scoreStatus", "Pending");
+  setText("scoreStatus", statscoreLabel);
   setText(
     "scoreNote",
-    "Snapshot data has been received. Official STATScore output remains pending until verification and scoring rules are applied."
+    `Snapshot data has been received. Current release status: ${statscoreLabel}. Official scoring rules remain pending until verification is complete.`
   );
 
   setText("metricSpeed", athlete.dash40 || "--");
   setText("metricExplosive", athlete.verticalJump || "--");
-  setText("metricReadiness", packet.profile_status || "Submitted");
-  setText("metricVisibility", packet.verification_status || "Pending");
+  setText("metricReadiness", packet.profile_status || "CREATED");
+  setText("metricVisibility", packet.verification_status || "UNVERIFIED");
 
   setText("gameFilmStatus", athlete.highlightUrl || athlete.gameFilmUrl || "No verified film link submitted.");
   setText("campStatus", athlete.verifiedEventSource || "Camp / combine source pending.");
   setText("mediaStatus", athlete.socialProfileUrl || athlete.recruitingProfileUrl || "Media exposure route pending.");
 
-  setText("exposureLaneText", "Visibility lane pending verification and official scoring.");
+  setText("exposureLaneText", `Visibility lane active under ${statscoreLabel}.`);
   setText("primaryFocus", athlete.positionNotes || "Generated after verification review.");
   setText("verificationNeed", "Coach confirmation, guardian permission, metric evidence, and academic readiness review.");
 
   renderAthleteImage(headshot, fullName);
-  renderSTATScoreIntelligence(packet);
+  renderSTATScoreIntelligence(packet, statscoreLabel);
 }
 
-function renderSTATScoreIntelligence(packet){
+function renderSTATScoreIntelligence(packet, statscoreLabel){
   const intelligence = packet.intelligence || {};
 
   setText("scMatrixVersion", intelligence.matrix_version || "QB_MATRIX_V1");
-  setText("scStarSignal", intelligence.star_signal || "Pending Signal");
+  setText("scStarSignal", intelligence.star_signal || statscoreLabel);
   setText("scFinalScore", intelligence.final_score || "--");
   setText("scExposureGap", intelligence.exposure_gap || "Pending Verification");
   setText("scProjectionLane", intelligence.projection_lane || "Pending Verification");
   setText("scConfidence", intelligence.confidence_level || "Pending");
   setText("scVarsityYears", intelligence.varsity_years || "--");
 
-  setText("scStarExplanation", "Star signal remains pending until verified scoring rules are applied.");
+  setText("scStarExplanation", `${statscoreLabel} remains pending until verified scoring rules are applied.`);
   setText("scExposureExplanation", "Visibility intelligence remains pending until verification and scoring are complete.");
 
   const reasons = [
     "Snapshot Intake has created the athlete profile packet.",
-    "Athlete identity, media, metrics, academics, guardian, and coach information are staged for verification.",
+    "Athlete identity, required headshot, media, metrics, academics, guardian, and coach information are staged for verification.",
+    `Current public scoring label is ${statscoreLabel}.`,
     "Official STATScore output must wait for verified evidence and rules-based scoring.",
     "Athletic intelligence and academic readiness remain separate lanes."
   ];
 
   const list = document.getElementById("scWhyList");
   if(list){
-    list.innerHTML = reasons.map(reason => `<li>${reason}</li>`).join("");
+    list.innerHTML = reasons.map(reason => `<li>${escapeHTML(reason)}</li>`).join("");
   }
 }
 
 function renderNoSnapshot(){
   setText("recordStatus","No Snapshot Loaded");
   setText("identitySub","Awaiting Snapshot Intake");
+  setText("scoreStatus","No Snapshot");
   setText("profileBio","No submitted Snapshot packet was found. Run Snapshot Intake to generate this athlete profile.");
 }
 
@@ -1141,8 +1257,8 @@ function copyShareLink(){
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const packet = readPacket();
+document.addEventListener("DOMContentLoaded", async () => {
+  const packet = await loadSnapshotPacket();
 
   if(packet){
     renderProfile(packet);
@@ -1150,7 +1266,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderNoSnapshot();
   }
 });
-</script>
+</script> 
 
 </body>
 </html> 
