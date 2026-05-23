@@ -980,36 +980,17 @@ a{text-decoration:none;color:inherit}
 
 </main>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="statscore-data.js"></script>
 
 <script>
-const SUPABASE_URL = "https://oyjmpbuxvfxusmbouldi.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk";
-
-const scSupabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
-);
-
-const PROFILE_PACKET_KEY = "statscore_latest_snapshot_packet_v1";
-const STORAGE_KEY = "statscore_snapshot_draft_v1";
-
-const SNAPSHOT_TABLE = "statscore_snapshots";
+const SNAPSHOT_TABLE = "statscore_player_profile_view";
 const SNAPSHOT_ID_COLUMN = "snapshot_id";
 
-function safeParse(value){
-  try{
-    return value ? JSON.parse(value) : null;
-  }catch(error){
-    console.warn("Unable to parse STATScore packet.", error);
-    return null;
-  }
-}
-
-function setText(id,value){
+function setText(id, value, fallback = "--"){
   const el = document.getElementById(id);
-  if(el) el.textContent = value || "--";
+  if (!el) return;
+  el.textContent = value || fallback;
 }
 
 function escapeHTML(value){
@@ -1021,6 +1002,10 @@ function escapeHTML(value){
     .replaceAll("'","&#039;");
 }
 
+function getSnapshotId(){
+  return new URLSearchParams(window.location.search).get("snapshot_id");
+}
+
 function splitName(fullName){
   const parts = String(fullName || "Athlete Profile").trim().split(/\s+/);
   return {
@@ -1029,166 +1014,152 @@ function splitName(fullName){
   };
 }
 
-function normalizePacket(rowOrPacket){
-  if(!rowOrPacket) return null;
+function normalizeSnapshot(row){
+  if (!row) return null;
 
-  const payload =
-    rowOrPacket.packet ||
-    rowOrPacket.payload ||
-    rowOrPacket.snapshot_payload ||
-    rowOrPacket.intake_json ||
-    rowOrPacket;
-
-  const athlete =
-    payload.athlete ||
-    payload.data ||
-    payload.intake_json ||
-    payload;
+  const raw = row.raw_payload || {};
+  const fullName =
+    row.athlete_display_name ||
+    raw.athlete_display_name ||
+    [row.first_name || raw.firstName, row.last_name || raw.lastName].filter(Boolean).join(" ").trim() ||
+    "Athlete Profile";
 
   return {
-    ...payload,
-    snapshot_id:
-      rowOrPacket.snapshot_id ||
-      payload.snapshot_id ||
-      rowOrPacket.id ||
-      payload.id,
+    snapshot_id: row.snapshot_id,
+    athlete_id: row.athlete_id,
+
+    first_name: row.first_name || raw.firstName || "",
+    last_name: row.last_name || raw.lastName || "",
+    athlete_display_name: fullName,
+
+    sport: row.primary_sport || raw.primarySport || raw.sport || "Sport",
+    position: row.primary_position || raw.primaryPosition || raw.position || "Position",
+    class_year: row.graduation_class || raw.graduationClass || raw.graduation_class || "Class Year",
+    city_state: row.city_state || raw.cityState || raw.city_state || "City, State",
+    school: row.school_program || raw.schoolProgram || raw.school || "School / Program",
+
+    height: row.height || raw.height || "Height",
+    weight: row.weight || raw.weight || "Weight",
+
+    dash40: row.dash40 || raw.dash40 || "--",
+    vertical_jump: row.vertical_jump || raw.verticalJump || "--",
+
+    highlight_url: row.highlight_url || raw.highlightUrl || "",
+    game_film_url: row.game_film_url || raw.gameFilmUrl || "",
+    social_profile_url: row.social_profile_url || raw.socialProfileUrl || "",
+    recruiting_profile_url: row.recruiting_profile_url || raw.recruitingProfileUrl || "",
+    verified_event_source: row.verified_event_source || raw.verifiedEventSource || "",
+    position_notes: row.position_notes || raw.positionNotes || "",
+
+    headshot_url:
+      row.headshot_public_url ||
+      raw.headshotPublicUrl ||
+      raw.headshot_public_url ||
+      "",
+
     verification_status:
-      rowOrPacket.verification_status ||
-      payload.verification_status ||
-      payload.verificationStatus ||
+      row.verification_status ||
+      raw.verificationStatus ||
+      raw.verification_status ||
       "UNVERIFIED",
+
     profile_status:
-      rowOrPacket.profile_status ||
-      payload.profile_status ||
-      payload.profileStatus ||
+      row.snapshot_status ||
+      raw.profileStatus ||
+      raw.profile_status ||
       "CREATED",
+
+    score_status:
+      row.score_status ||
+      raw.scoreStatus ||
+      raw.score_status ||
+      "UNVERIFIED",
+
     statscore_label:
-      rowOrPacket.statscore_label ||
-      payload.statscoreLabel ||
-      payload.statscore_label ||
-      null,
-    athlete
+      raw.statscoreLabel ||
+      raw.statscore_label ||
+      null
   };
 }
 
-function readLocalPacket(){
-  const latestPacket = safeParse(localStorage.getItem(PROFILE_PACKET_KEY));
-  if(latestPacket && latestPacket.athlete) return latestPacket;
+function resolveSTATScoreLabel(snapshot){
+  const status = String(snapshot.verification_status || "").toUpperCase();
 
-  const savedSnapshot = safeParse(localStorage.getItem(STORAGE_KEY));
-  if(savedSnapshot && savedSnapshot.packet) return savedSnapshot.packet;
-
-  if(savedSnapshot && savedSnapshot.data){
-    return {
-      packet_type:"STATSCORE_SNAPSHOT_INTAKE",
-      snapshot_state:"submitted",
-      verification_status:"UNVERIFIED",
-      profile_status:"CREATED",
-      athlete:savedSnapshot.data
-    };
-  }
-
-  return null;
-}
-
-async function loadSnapshotPacket(){
-  const snapshotId = new URLSearchParams(window.location.search).get("snapshot_id");
-
-  if(snapshotId){
-    const { data, error } = await scSupabaseClient
-      .from(SNAPSHOT_TABLE)
-      .select("*")
-      .eq(SNAPSHOT_ID_COLUMN, snapshotId)
-      .maybeSingle();
-
-    if(error){
-      console.error("Player Profile Supabase load failed:", error);
-      return normalizePacket(readLocalPacket());
-    }
-
-    if(data){
-      return normalizePacket(data);
-    }
-  }
-
-  return normalizePacket(readLocalPacket());
-}
-
-function resolveSTATScoreLabel(packet){
-  const status = String(
-    packet.verification_status ||
-    packet.verificationStatus ||
-    ""
-  ).toUpperCase();
-
-  if(status === "VERIFIED"){
+  if (status === "VERIFIED" || status === "VERIFIED_TRACK") {
     return "VERIFIED STATScore";
   }
 
   return "UNVERIFIED STATScore";
 }
 
+async function loadSnapshot(){
+  const snapshotId = getSnapshotId();
+
+  if (!snapshotId) {
+    console.warn("No snapshot_id found in URL.");
+    return null;
+  }
+
+  const db = window.STATScoreData?.getClient?.();
+
+  if (!db) {
+    console.error("STATScoreData client unavailable.");
+    return null;
+  }
+
+  const { data, error } = await db
+    .from(SNAPSHOT_TABLE)
+    .select("*")
+    .eq(SNAPSHOT_ID_COLUMN, snapshotId)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Player Profile Supabase load failed:", error);
+    return null;
+  }
+
+  return normalizeSnapshot(data);
+}
+
 function renderAthleteImage(src, fullName){
   const frame = document.getElementById("athleteImageFrame");
-  if(!frame) return;
+  if (!frame) return;
 
-  if(src){
+  if (src) {
     frame.innerHTML = `<img src="${escapeHTML(src)}" alt="${escapeHTML(fullName)} athlete image">`;
-  }else{
+  } else {
     frame.textContent = "Athlete Image Required";
   }
 }
 
-function renderProfile(packet){
-  const athlete = packet.athlete || {};
+function renderProfile(snapshot){
+  const statscoreLabel = snapshot.statscore_label || resolveSTATScoreLabel(snapshot);
+  const nameParts = splitName(snapshot.athlete_display_name);
 
-  const fullName =
-    athlete.athlete_display_name ||
-    [athlete.firstName, athlete.lastName].filter(Boolean).join(" ").trim() ||
-    "Athlete Profile";
+  const athleteName = document.getElementById("athleteName");
+  if (athleteName) {
+    athleteName.innerHTML = `${escapeHTML(nameParts.first)}<span>${escapeHTML(nameParts.last)}</span>`;
+  }
 
-  const nameParts = splitName(fullName);
-
-  const sport = athlete.sport || athlete.primarySport || "Sport";
-  const position = athlete.position || athlete.primaryPosition || "Position";
-  const classYear = athlete.graduation_class || athlete.graduationClass || "Class Year";
-  const city = athlete.city_state || athlete.cityState || "City, State";
-  const school = athlete.school || athlete.schoolProgram || "School / Program";
-  const height = athlete.height || "Height";
-  const weight = athlete.weight || "Weight";
-
-  const headshot =
-    athlete.headshotPublicUrl ||
-    athlete.headshot_public_url ||
-    athlete.headshotDataUrl ||
-    packet.headshotPublicUrl ||
-    packet.headshot_public_url ||
-    "";
-
-  const statscoreLabel = packet.statscore_label || resolveSTATScoreLabel(packet);
-
-  document.getElementById("athleteName").innerHTML =
-    `${escapeHTML(nameParts.first)}<span>${escapeHTML(nameParts.last)}</span>`;
-
-  setText("captionName", fullName);
-  setText("captionMeta", `${position} · ${classYear}`);
-  setText("verificationBadge", packet.verification_status || "UNVERIFIED");
+  setText("captionName", snapshot.athlete_display_name);
+  setText("captionMeta", `${snapshot.position} · ${snapshot.class_year}`);
+  setText("verificationBadge", snapshot.verification_status);
   setText("recordStatus", "Snapshot Loaded");
   setText("identitySub", `Snapshot Submitted · ${statscoreLabel}`);
 
-  setText("tagPosition", position);
-  setText("tagHeight", height);
-  setText("tagWeight", weight);
-  setText("tagCity", city);
-  setText("tagSchool", school);
-  setText("tagClass", classYear);
+  setText("tagPosition", snapshot.position);
+  setText("tagHeight", snapshot.height);
+  setText("tagWeight", snapshot.weight);
+  setText("tagCity", snapshot.city_state);
+  setText("tagSchool", snapshot.school);
+  setText("tagClass", snapshot.class_year);
 
   setText("signalText", statscoreLabel);
   setText("evaluationStatus", `Snapshot Submitted · ${statscoreLabel}`);
 
   setText(
     "profileBio",
-    `${fullName} is a ${classYear} ${sport} athlete listed at ${position}. This profile has been generated from Snapshot Intake and is staged for verification, scoring, and controlled visibility routing.`
+    `${snapshot.athlete_display_name} is a ${snapshot.class_year} ${snapshot.sport} athlete listed at ${snapshot.position}. This profile has been generated from Snapshot Intake and is staged for verification, scoring, and controlled visibility routing.`
   );
 
   setText("scoreValue", "--");
@@ -1198,33 +1169,31 @@ function renderProfile(packet){
     `Snapshot data has been received. Current release status: ${statscoreLabel}. Official scoring rules remain pending until verification is complete.`
   );
 
-  setText("metricSpeed", athlete.dash40 || "--");
-  setText("metricExplosive", athlete.verticalJump || "--");
-  setText("metricReadiness", packet.profile_status || "CREATED");
-  setText("metricVisibility", packet.verification_status || "UNVERIFIED");
+  setText("metricSpeed", snapshot.dash40);
+  setText("metricExplosive", snapshot.vertical_jump);
+  setText("metricReadiness", snapshot.profile_status);
+  setText("metricVisibility", snapshot.verification_status);
 
-  setText("gameFilmStatus", athlete.highlightUrl || athlete.gameFilmUrl || "No verified film link submitted.");
-  setText("campStatus", athlete.verifiedEventSource || "Camp / combine source pending.");
-  setText("mediaStatus", athlete.socialProfileUrl || athlete.recruitingProfileUrl || "Media exposure route pending.");
+  setText("gameFilmStatus", snapshot.highlight_url || snapshot.game_film_url || "No verified film link submitted.");
+  setText("campStatus", snapshot.verified_event_source || "Camp / combine source pending.");
+  setText("mediaStatus", snapshot.social_profile_url || snapshot.recruiting_profile_url || "Media exposure route pending.");
 
   setText("exposureLaneText", `Visibility lane active under ${statscoreLabel}.`);
-  setText("primaryFocus", athlete.positionNotes || "Generated after verification review.");
+  setText("primaryFocus", snapshot.position_notes || "Generated after verification review.");
   setText("verificationNeed", "Coach confirmation, guardian permission, metric evidence, and academic readiness review.");
 
-  renderAthleteImage(headshot, fullName);
-  renderSTATScoreIntelligence(packet, statscoreLabel);
+  renderAthleteImage(snapshot.headshot_url, snapshot.athlete_display_name);
+  renderSTATScoreIntelligence(snapshot, statscoreLabel);
 }
 
-function renderSTATScoreIntelligence(packet, statscoreLabel){
-  const intelligence = packet.intelligence || {};
-
-  setText("scMatrixVersion", intelligence.matrix_version || "QB_MATRIX_V1");
-  setText("scStarSignal", intelligence.star_signal || statscoreLabel);
-  setText("scFinalScore", intelligence.final_score || "--");
-  setText("scExposureGap", intelligence.exposure_gap || "Pending Verification");
-  setText("scProjectionLane", intelligence.projection_lane || "Pending Verification");
-  setText("scConfidence", intelligence.confidence_level || "Pending");
-  setText("scVarsityYears", intelligence.varsity_years || "--");
+function renderSTATScoreIntelligence(snapshot, statscoreLabel){
+  setText("scMatrixVersion", "QB_MATRIX_V1");
+  setText("scStarSignal", statscoreLabel);
+  setText("scFinalScore", "--");
+  setText("scExposureGap", "Pending Verification");
+  setText("scProjectionLane", "Pending Verification");
+  setText("scConfidence", "Pending");
+  setText("scVarsityYears", "--");
 
   setText("scStarExplanation", `${statscoreLabel} remains pending until verified scoring rules are applied.`);
   setText("scExposureExplanation", "Visibility intelligence remains pending until verification and scoring are complete.");
@@ -1238,7 +1207,7 @@ function renderSTATScoreIntelligence(packet, statscoreLabel){
   ];
 
   const list = document.getElementById("scWhyList");
-  if(list){
+  if (list) {
     list.innerHTML = reasons.map(reason => `<li>${escapeHTML(reason)}</li>`).join("");
   }
 }
@@ -1247,22 +1216,22 @@ function renderNoSnapshot(){
   setText("recordStatus","No Snapshot Loaded");
   setText("identitySub","Awaiting Snapshot Intake");
   setText("scoreStatus","No Snapshot");
-  setText("profileBio","No submitted Snapshot packet was found. Run Snapshot Intake to generate this athlete profile.");
+  setText("profileBio","No submitted Snapshot record was found. Run Snapshot Intake to generate this athlete profile.");
 }
 
 function copyShareLink(){
-  if(navigator.clipboard){
+  if (navigator.clipboard) {
     navigator.clipboard.writeText(window.location.href);
     alert("Profile link copied.");
   }
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  const packet = await loadSnapshotPacket();
+  const snapshot = await loadSnapshot();
 
-  if(packet){
-    renderProfile(packet);
-  }else{
+  if (snapshot) {
+    renderProfile(snapshot);
+  } else {
     renderNoSnapshot();
   }
 });
