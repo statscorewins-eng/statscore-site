@@ -862,34 +862,7 @@ function saveDraft(){
   updateControlPanel("draft");
   setMessage("Draft saved · intake state preserved");
 }
-
-function submitSnapshot(){
-  const packet = buildSnapshotPacket("submitted");
-
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({
-    submittedAt: new Date().toISOString(),
-    data: packet.athlete,
-    packet
-  }));
-
-  localStorage.setItem(PROFILE_PACKET_KEY, JSON.stringify(packet));
-  localStorage.setItem(STATE_KEY, "submitted");
-  localStorage.setItem(SUBMITTED_KEY, "true");
-localStorage.removeItem(STORAGE_KEY);
-localStorage.removeItem(HEADSHOT_KEY);
-localStorage.removeItem(HEADSHOT_NAME_KEY);
-
-sessionStorage.removeItem("statscore_snapshot_state");
-sessionStorage.removeItem("statscore_snapshot_submitted"); 
-
-  updateControlPanel("submitted");
-  setMessage("Snapshot submitted · routing to athlete profile");
-
-  setTimeout(() => {
-    window.location.href = "player-profile.html?snapshot=latest";
-  }, 650);
-}
-
+  
 function requestVerification(){
   saveDraft();
   setMessage("Routing to verification room");
@@ -1063,7 +1036,7 @@ async function submitSnapshot(){
     return;
   }
 
-  window.location.href = `player-profile.html?snapshot_id=${data.snapshot_id}`;
+  window.location.href = `Player-Profile.html?snapshot_id=${data.snapshot_id}`;
 }
 
 document.getElementById("submitSnapshotBtn")?.addEventListener("click", submitSnapshot); 
