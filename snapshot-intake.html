@@ -836,35 +836,54 @@ async function submitSnapshot(){
   const fileInput = $("athleteHeadshotUpload");
   const file = fileInput?.files?.[0];
 
-  if (file) {
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const filePath = `headshots/${Date.now()}_${safeName}`;
-
-    const upload = await supabase.storage
-      .from("statscore-headshots")
-      .upload(filePath, file, {
-        cacheControl: "3600",
-        upsert: true
-      });
-
-    if (upload.error) {
-      console.error(upload.error);
-      setMessage("Headshot upload failed. Check console.", "var(--red)");
-      return;
-    }
-
-    const publicUrl = supabase.storage
-      .from("statscore-headshots")
-      .getPublicUrl(filePath);
-
-    payload.headshotBucket = "statscore-headshots";
-    payload.headshotPath = filePath;
-    payload.headshotPublicUrl = publicUrl.data.publicUrl;
-    payload.headshotFilename = file.name;
-    payload.headshotMimeType = file.type;
+  if (!file) {
+    setMessage("Athlete headshot is required before snapshot submission.", "var(--red)");
+    return;
   }
 
-  const { data, error } = await supabase.rpc("submit_statscore_snapshot", {
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+  const filePath = `headshots/${Date.now()}_${safeName}`;
+
+  const upload = await scSupabaseClient.storage
+    .from("statscore-headshots")
+    .upload(filePath, file, {
+      cacheControl: "3600",
+      upsert: true
+    });
+
+  if (upload.error) {
+    console.error(upload.error);
+    setMessage("Headshot upload failed. Check console.", "var(--red)");
+    return;
+  }
+
+  const publicUrl = scSupabaseClient.storage
+    .from("statscore-headshots")
+    .getPublicUrl(filePath);
+
+  payload.headshotBucket = "statscore-headshots";
+  payload.headshotPath = filePath;
+  payload.headshotPublicUrl = publicUrl.data.publicUrl;
+  payload.headshotFilename = file.name;
+  payload.headshotMimeType = file.type;
+
+  payload.profileStatus = "CREATED";
+  payload.verificationStatus =
+    payload.verificationPermission === "Parent/Guardian approved"
+      ? "VERIFIED"
+      : "UNVERIFIED";
+
+  payload.statscoreExecutionStatus =
+    payload.verificationStatus === "VERIFIED"
+      ? "VERIFIED_STATSCORE"
+      : "UNVERIFIED_STATSCORE";
+
+  payload.statscoreLabel =
+    payload.verificationStatus === "VERIFIED"
+      ? "VERIFIED STATScore"
+      : "UNVERIFIED STATScore";
+
+  const { data, error } = await scSupabaseClient.rpc("submit_statscore_snapshot", {
     p_payload: payload
   });
 
@@ -874,8 +893,24 @@ async function submitSnapshot(){
     return;
   }
 
-  window.location.href = `Player-Profile.html?snapshot_id=${data.snapshot_id}`;
-}
+  const snapshotId =
+    data?.snapshot_id ||
+    data?.[0]?.snapshot_id ||
+    data?.id ||
+    data?.[0]?.id;
+
+  if (!snapshotId) {
+    console.error("Snapshot submitted but no snapshot_id returned:", data);
+    setMessage("Profile created, but snapshot ID was not returned. Check console.", "var(--red)");
+    return;
+  }
+
+  setMessage("Player Profile created · routing to Player Profile page.", "var(--green)");
+
+  setTimeout(() => {
+    window.location.href = `player-profile.html?snapshot_id=${snapshotId}`;
+  }, 900);
+} 
 
 document.addEventListener("DOMContentLoaded", () => {
   initHeadshotUpload();
@@ -884,7 +919,18 @@ document.addEventListener("DOMContentLoaded", () => {
     event.preventDefault();
     submitSnapshot();
   });
-});
+
+  $("saveDraftBtn")?.addEventListener("click", (event) => {
+    event.preventDefault();
+    saveDraft();
+  });
+
+  $("requestVerificationBtn")?.addEventListener("click", (event) => {
+    event.preventDefault();
+    requestVerification();
+  });
+}); 
+
 </script> 
 
 </body>
