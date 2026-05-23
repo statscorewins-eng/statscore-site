@@ -1020,11 +1020,41 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 }); 
-
 async function submitSnapshot(){
   setMessage("Submitting snapshot to Supabase...");
 
   const payload = getFormData();
+
+  const fileInput = document.getElementById("athleteHeadshotUpload");
+  const file = fileInput?.files?.[0];
+
+  if (file) {
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+    const filePath = `headshots/${Date.now()}_${safeName}`;
+
+    const upload = await supabase.storage
+      .from("statscore-headshots")
+      .upload(filePath, file, {
+        cacheControl: "3600",
+        upsert: true
+      });
+
+    if (upload.error) {
+      console.error(upload.error);
+      setMessage("Headshot upload failed. Check console.", "var(--red)");
+      return;
+    }
+
+    const publicUrl = supabase.storage
+      .from("statscore-headshots")
+      .getPublicUrl(filePath);
+
+    payload.headshotBucket = "statscore-headshots";
+    payload.headshotPath = filePath;
+    payload.headshotPublicUrl = publicUrl.data.publicUrl;
+    payload.headshotFilename = file.name;
+    payload.headshotMimeType = file.type;
+  }
 
   const { data, error } = await supabase.rpc("submit_statscore_snapshot", {
     p_payload: payload
@@ -1040,6 +1070,8 @@ async function submitSnapshot(){
 }
 
 document.getElementById("submitSnapshotBtn")?.addEventListener("click", submitSnapshot); 
+
+
   
 </script>
 
