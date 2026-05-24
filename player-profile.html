@@ -367,8 +367,8 @@ a{text-decoration:none;color:inherit}
 }
 
 .score-ring{
-  width:150px;
-  height:150px;
+  width:132px;
+  height:132px;
   margin:22px auto 12px;
   border-radius:50%;
   display:flex;
@@ -409,14 +409,26 @@ a{text-decoration:none;color:inherit}
   display:block;
   color:var(--gold);
   text-align:center;
-  font-size:.72rem;
-  line-height:1.15;
+  font-size:.68rem;
+  line-height:1.1;
   font-weight:900;
-  letter-spacing:.10em;
+  letter-spacing:.1em;
   text-transform:uppercase;
-  margin:0 auto 12px;
+  margin:4px auto 12px;
   max-width:190px;
 }
+
+.score-ring + #scoreStatus::before{
+  content:"STATScore™";
+  display:block;
+  color:#fff;
+  font-size:.92rem;
+  line-height:1.05;
+  letter-spacing:.02em;
+  text-transform:none;
+  margin-bottom:5px;
+} 
+
 
 /* removes duplicate STATScore visual stacking */
 .score-card .score-brand,
