@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -603,6 +603,7 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
 const SNAPSHOT_DRAFT_KEY = "statscore_snapshot_draft_v1";
 const SNAPSHOT_RECEIPT_KEY = "statscore_latest_snapshot_receipt_v1";
 const PHNX_MEDIA_RECEIPT_KEY = "phnx_sports_latest_media_ingest_receipt_v1";
+const PHNX_PRODUCTION_RECEIPT_KEY = "phnx_sports_latest_production_queue_receipt_v1";
 
 function $(id){
   return document.getElementById(id);
@@ -632,7 +633,7 @@ function setBusy(isBusy){
 function getDb(){
   const db = window.STATScoreData?.getClient?.();
   if (!db) {
-    console.error("STATScoreData bridge unavailable. Confirm statscore-data.js is loading after Supabase CDN.");
+    console.error("STATScoreData bridge unavailable.");
     return null;
   }
   return db;
@@ -766,9 +767,9 @@ function updateControlPanel(state, snapshotId = ""){
     setStatus("statusVerification", "Unverified", "var(--gold)");
     setStatus("statusScore", "Unverified", "var(--gold)");
     setStatus("statusPhnxMedia", "Queued", "var(--green)");
-    if (notice) notice.textContent = "Player Profile created. PHNX SPORTS media ingest queued for player cards, thumbnails, highlight review, and exposure packaging.";
+    if (notice) notice.textContent = "Player Profile created. PHNX SPORTS production queue created for player cards, thumbnails, highlight review, and exposure packaging.";
     if (viewProfileBtn && snapshotId) viewProfileBtn.href = `player-profile.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
-    setMessage("Player Profile created · PHNX SPORTS media queued.", "var(--green)");
+    setMessage("Player Profile created · PHNX SPORTS production queued.", "var(--green)");
     updateMediaPanel("queued");
     return;
   }
@@ -800,7 +801,6 @@ function setHeadshotPreview(file){
   };
 
   reader.onerror = () => {
-    console.error("Headshot preview read failed.");
     setMessage("Headshot preview failed. Try another image.", "var(--red)");
   };
 
@@ -816,7 +816,6 @@ function initHeadshotUpload(){
   const hint = $("headshotUploadHint");
 
   if (!input) {
-    console.error("Missing required element: athleteHeadshotUpload");
     setMessage("Upload input missing from page.", "var(--red)");
     return;
   }
@@ -830,12 +829,10 @@ function initHeadshotUpload(){
 
   input.addEventListener("change", () => {
     const file = input.files?.[0];
-
     if (!file) {
       setMessage("No headshot selected.", "var(--red)");
       return;
     }
-
     setHeadshotPreview(file);
   });
 
@@ -855,6 +852,7 @@ function initHeadshotUpload(){
       removeBtn.style.display = "none";
       setStatus("mediaStatusHeadshot", "Required", "var(--gold)");
       setStatus("mediaStatusCard", "Not Ready", "var(--gold)");
+      setStatus("mediaStatusFilm", "Pending", "var(--gold)");
       setStatus("mediaStatusRouting", "Queued After Submit", "var(--gold)");
       setStatus("statusPhnxMedia", "Not Queued", "var(--gold)");
       setMessage("Headshot removed.", "var(--gold)");
@@ -894,16 +892,10 @@ async function uploadHeadshot(db, file){
 
 function extractSnapshotId(data){
   if (!data) return "";
-
   if (typeof data === "string") return data;
-
   if (data.snapshot_id) return data.snapshot_id;
   if (data.id) return data.id;
-
-  if (Array.isArray(data) && data.length) {
-    return data[0]?.snapshot_id || data[0]?.id || "";
-  }
-
+  if (Array.isArray(data) && data.length) return data[0]?.snapshot_id || data[0]?.id || "";
   return "";
 }
 
@@ -912,58 +904,43 @@ function buildPhnxMediaPayload(snapshotId, payload, headshotMeta){
 
   return {
     snapshot_id: snapshotId || null,
-
     athlete_display_name: payload.athlete_display_name || "",
     first_name: payload.firstName || "",
     last_name: payload.lastName || "",
-
     sport: payload.primarySport || "",
     position: payload.primaryPosition || "",
     secondary_position: payload.secondaryPosition || "",
-
     school: payload.schoolProgram || "",
     city_state: payload.cityState || "",
     graduation_class: payload.graduationClass || "",
-
     jersey_number: payload.jerseyNumber || "",
-
     headshot_public_url: headshotMeta.headshotPublicUrl || "",
     headshot_path: headshotMeta.headshotPath || "",
     headshot_bucket: headshotMeta.headshotBucket || "",
-
     highlight_url: payload.highlightUrl || "",
     game_film_url: payload.gameFilmUrl || "",
     social_profile_url: payload.socialProfileUrl || "",
     recruiting_profile_url: payload.recruitingProfileUrl || "",
-
     dash_40: payload.dash40 || "",
     vertical_jump: payload.verticalJump || "",
     shuttle: payload.shuttle || "",
     broad_jump: payload.broadJump || "",
     strength_marker: payload.strengthMarker || "",
-
     verified_event_source: payload.verifiedEventSource || "",
     position_notes: payload.positionNotes || "",
-
     current_gpa: payload.currentGpa || "",
     ncaa_eligibility_status: payload.ncaaEligibilityStatus || "",
-
     transcript_available: payload.transcriptAvailable || "",
     counselor_contact_available: payload.counselorContactAvailable || "",
     academic_notes: payload.academicNotes || "",
-
     verification_permission: payload.verificationPermission || "",
     verification_status: "UNVERIFIED",
-
     guardian_name: payload.guardianName || "",
     guardian_email: payload.guardianEmail || "",
     guardian_phone: payload.guardianPhone || "",
-
     coach_name: payload.coachName || "",
     coach_email: payload.coachEmail || "",
-
     ...mediaEligibility,
-
     source_page: "snapshot-intake.html",
     source_system: "STATScore",
     phnx_channel: "PHNX SPORTS",
@@ -988,6 +965,63 @@ async function createPhnxMediaIngest(db, snapshotId, payload, headshotMeta){
   }
 
   return data?.media_ingest_id || "";
+}
+
+function buildPhnxProductionPayload(mediaIngestId, snapshotId, payload, headshotMeta){
+  const hasFilm = !!(payload.highlightUrl || payload.gameFilmUrl);
+
+  return {
+    media_ingest_id: mediaIngestId || null,
+    snapshot_id: snapshotId || null,
+
+    athlete_display_name: payload.athlete_display_name || "",
+    sport: payload.primarySport || "",
+    position: payload.primaryPosition || "",
+    school: payload.schoolProgram || "",
+    city_state: payload.cityState || "",
+    graduation_class: payload.graduationClass || "",
+
+    production_type: "PLAYER_CARD",
+    production_status: "QUEUED",
+    priority_level: "NORMAL",
+
+    player_card_required: true,
+    thumbnail_required: true,
+    highlight_film_required: hasFilm,
+    short_reel_required: hasFilm,
+
+    source_headshot_url: headshotMeta.headshotPublicUrl || "",
+    source_highlight_url: payload.highlightUrl || "",
+    source_game_film_url: payload.gameFilmUrl || "",
+
+    youtube_ready: false,
+    phnx_channel: "PHNX SPORTS",
+
+    review_status: "PENDING_REVIEW",
+    approval_status: "PENDING_APPROVAL",
+
+    routing_version: "PHNXSPORTS-PRODUCTION-V1",
+    canon_locked: true,
+
+    notes: "Auto-created from Snapshot Intake after PHNX SPORTS media ingest."
+  };
+}
+
+async function createPhnxProductionQueue(db, mediaIngestId, snapshotId, payload, headshotMeta){
+  const productionPayload = buildPhnxProductionPayload(mediaIngestId, snapshotId, payload, headshotMeta);
+
+  const { data, error } = await db
+    .from("phnx_sports_media_production_queue")
+    .insert(productionPayload)
+    .select("production_queue_id")
+    .single();
+
+  if (error) {
+    console.error("PHNX SPORTS production queue insert failed:", error);
+    throw error;
+  }
+
+  return data?.production_queue_id || "";
 }
 
 async function submitSnapshot(){
@@ -1043,6 +1077,7 @@ async function submitSnapshot(){
     }
 
     let mediaIngestId = "";
+    let productionQueueId = "";
 
     try {
       mediaIngestId = await createPhnxMediaIngest(db, snapshotId, payload, headshotMeta);
@@ -1050,6 +1085,15 @@ async function submitSnapshot(){
       console.error("Snapshot created but PHNX media ingest failed:", mediaError);
       updateMediaPanel("failed");
       setMessage("Profile created, but PHNX media queue failed. Check console.", "var(--red)");
+    }
+
+    if (mediaIngestId) {
+      try {
+        productionQueueId = await createPhnxProductionQueue(db, mediaIngestId, snapshotId, payload, headshotMeta);
+      } catch (productionError) {
+        console.error("Media ingest created but production queue failed:", productionError);
+        setMessage("Profile created, media ingested, but production queue failed. Check console.", "var(--red)");
+      }
     }
 
     localStorage.setItem(SNAPSHOT_RECEIPT_KEY, JSON.stringify({
@@ -1065,6 +1109,17 @@ async function submitSnapshot(){
         created_at: new Date().toISOString(),
         phnx_channel: "PHNX SPORTS",
         routing_version: "PHNXSPORTS-MEDIA-V1"
+      }));
+    }
+
+    if (productionQueueId) {
+      localStorage.setItem(PHNX_PRODUCTION_RECEIPT_KEY, JSON.stringify({
+        production_queue_id: productionQueueId,
+        media_ingest_id: mediaIngestId,
+        snapshot_id: snapshotId,
+        created_at: new Date().toISOString(),
+        phnx_channel: "PHNX SPORTS",
+        routing_version: "PHNXSPORTS-PRODUCTION-V1"
       }));
     }
 
@@ -1117,7 +1172,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   setMessage("Snapshot Intake ready. Headshot required. PHNX SPORTS media route armed.", "var(--gold)");
 });
-</script>
+</script> 
 
 </body>
 </html> 
