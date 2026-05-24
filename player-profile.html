@@ -363,12 +363,13 @@ a{text-decoration:none;color:inherit}
   padding:16px 14px;
   display:flex;
   flex-direction:column;
+  align-items:stretch;
 }
 
 .score-ring{
   width:150px;
   height:150px;
-  margin:22px auto 10px;
+  margin:22px auto 12px;
   border-radius:50%;
   display:flex;
   flex-direction:column;
@@ -386,8 +387,13 @@ a{text-decoration:none;color:inherit}
   background:#111822;
 }
 
-.score-ring span,.score-ring b{position:relative;z-index:2}
+.score-ring span,
+.score-ring b{
+  position:relative;
+  z-index:2;
+}
 
+/* hides redundant STATScore text inside ring */
 .score-ring span{
   display:none;
 }
@@ -395,20 +401,28 @@ a{text-decoration:none;color:inherit}
 .score-ring b{
   font-size:3.15rem;
   line-height:.9;
+  color:#f7f7f1;
 }
 
+/* production status label below ring */
 #scoreStatus{
   display:block;
-  position:static;
   color:var(--gold);
   text-align:center;
-  font-size:.70rem;
+  font-size:.72rem;
   line-height:1.15;
   font-weight:900;
-  letter-spacing:.09em;
+  letter-spacing:.10em;
   text-transform:uppercase;
   margin:0 auto 12px;
-  max-width:180px;
+  max-width:190px;
+}
+
+/* removes duplicate STATScore visual stacking */
+.score-card .score-brand,
+.score-brand,
+.score-label{
+  display:none !important;
 }
 
 .score-note{
