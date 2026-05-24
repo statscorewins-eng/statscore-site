@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -12,8 +12,8 @@
   --gold:#f4c542;
   --green:#25d366;
   --black:#020202;
-  --panel:rgba(6,10,18,.58);
-  --panel2:rgba(7,10,16,.62);
+  --panel:rgba(6,10,18,.66);
+  --panel2:rgba(7,10,16,.70);
   --line:rgba(255,255,255,.18);
   --line2:rgba(255,255,255,.32);
   --text:#f4f4f1;
@@ -38,7 +38,7 @@ a{text-decoration:none;color:inherit}
   margin:0 auto;
   min-height:100vh;
   background:
-    linear-gradient(90deg,rgba(0,0,0,.90),rgba(0,0,0,.66),rgba(0,0,0,.84)),
+    linear-gradient(90deg,rgba(0,0,0,.92),rgba(0,0,0,.70),rgba(0,0,0,.86)),
     radial-gradient(circle at 55% 38%,rgba(40,120,170,.20),transparent 36%),
     repeating-linear-gradient(135deg,rgba(255,255,255,.018) 0,rgba(255,255,255,.018) 1px,transparent 1px,transparent 7px),
     #020407;
@@ -139,7 +139,7 @@ a{text-decoration:none;color:inherit}
   align-items:flex-end;
   justify-content:space-between;
   gap:20px;
-  margin:0 0 16px;
+  margin:0 0 14px;
   padding:0 0 14px;
   border-bottom:1px solid rgba(255,255,255,.12);
 }
@@ -175,7 +175,7 @@ a{text-decoration:none;color:inherit}
 
 .hero-grid{
   display:grid;
-  grid-template-columns:33% 41% 26%;
+  grid-template-columns:34% 40% 26%;
   gap:12px;
 }
 
@@ -193,11 +193,16 @@ a{text-decoration:none;color:inherit}
   text-transform:uppercase;
 }
 
-.image-card{padding:16px 16px 12px;min-height:430px}
+/* IMAGE CARD */
+
+.image-card{
+  padding:16px;
+  min-height:418px;
+}
 
 .image-frame{
-  margin-top:22px;
-  height:355px;
+  margin-top:18px;
+  height:318px;
   border:1px solid var(--line2);
   background:
     radial-gradient(circle at 50% 30%,rgba(126,216,255,.22),transparent 34%),
@@ -205,7 +210,7 @@ a{text-decoration:none;color:inherit}
   display:flex;
   align-items:center;
   justify-content:center;
-  color:rgba(255,255,255,.35);
+  color:rgba(255,255,255,.38);
   font-weight:900;
   letter-spacing:.18em;
   text-transform:uppercase;
@@ -216,15 +221,16 @@ a{text-decoration:none;color:inherit}
   width:100%;
   height:100%;
   object-fit:cover;
+  object-position:center top;
   display:block;
 }
 
 .athlete-caption{
-  margin-top:16px;
-  display:flex;
-  justify-content:space-between;
+  margin-top:14px;
+  display:grid;
+  grid-template-columns:1fr auto;
   align-items:center;
-  gap:14px;
+  gap:12px;
 }
 
 .athlete-caption b{
@@ -235,7 +241,7 @@ a{text-decoration:none;color:inherit}
 }
 
 .athlete-caption span{
-  color:var(--muted);
+  color:var(--blue);
   font-size:.72rem;
   font-weight:900;
   letter-spacing:.12em;
@@ -252,7 +258,22 @@ a{text-decoration:none;color:inherit}
   text-transform:uppercase;
 }
 
-.identity-card{padding:18px 20px;overflow:hidden}
+.verified.unverified{
+  border-color:var(--gold);
+  color:var(--gold);
+}
+
+.verified.pending{
+  border-color:var(--blue);
+  color:var(--blue);
+}
+
+/* IDENTITY */
+
+.identity-card{
+  padding:18px 20px;
+  overflow:hidden;
+}
 
 .identity-kicker{
   color:var(--red);
@@ -266,15 +287,15 @@ a{text-decoration:none;color:inherit}
   color:#9eeaff;
   font-size:.72rem;
   font-weight:900;
-  letter-spacing:.18em;
+  letter-spacing:.16em;
   text-transform:uppercase;
-  margin-top:4px;
+  margin-top:5px;
 }
 
 .name{
-  margin:26px 0 16px;
+  margin:24px 0 16px;
   font-family:"Arial Narrow","Helvetica Neue Condensed",Impact,Arial,sans-serif;
-  font-size:clamp(2.8rem,3.75vw,3.75rem);
+  font-size:clamp(2.7rem,3.65vw,3.65rem);
   line-height:.86;
   letter-spacing:-.04em;
   text-transform:uppercase;
@@ -285,7 +306,12 @@ a{text-decoration:none;color:inherit}
   color:var(--red);
 }
 
-.tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.tags{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:18px;
+}
 
 .tag{
   border:1px solid var(--line2);
@@ -312,10 +338,10 @@ a{text-decoration:none;color:inherit}
 }
 
 .projection{
-  margin-top:20px;
+  margin-top:18px;
   border-left:4px solid var(--red);
   background:linear-gradient(90deg,rgba(255,43,31,.14),rgba(255,255,255,.02));
-  padding:18px;
+  padding:16px;
 }
 
 .projection .small{
@@ -329,29 +355,38 @@ a{text-decoration:none;color:inherit}
 .projection b{
   display:block;
   margin-top:8px;
-  font-size:1.45rem;
+  font-size:1.35rem;
+  line-height:1.12;
   text-transform:uppercase;
 }
 
 .bio{
-  margin-top:20px;
+  margin-top:18px;
   color:#e8f3f8;
   line-height:1.45;
-  font-size:.96rem;
+  font-size:.94rem;
 }
 
-.score-card{padding:18px 16px}
+/* SCORE */
+
+.score-card{
+  padding:18px 16px;
+}
+
+.score-ring-wrap{
+  display:grid;
+  place-items:center;
+  margin:16px 0 14px;
+}
 
 .score-ring{
-  width:164px;
-  height:164px;
-  margin:18px auto 16px;
+  width:166px;
+  height:166px;
   border-radius:50%;
   display:flex;
-  flex-direction:column;
   align-items:center;
   justify-content:center;
-  background:conic-gradient(from 220deg,var(--gold),var(--red),rgba(255,255,255,.09),var(--gold));
+  background:conic-gradient(from 220deg,var(--gold),var(--red),rgba(255,255,255,.10),var(--gold));
   position:relative;
 }
 
@@ -363,19 +398,41 @@ a{text-decoration:none;color:inherit}
   background:#111822;
 }
 
-.score-ring span,.score-ring b{position:relative;z-index:2}
+.score-ring b{
+  position:relative;
+  z-index:2;
+  font-size:3.55rem;
+  line-height:.9;
+  color:#fff;
+}
 
-.score-ring span{
+.score-ring.locked b{
+  font-size:2.4rem;
+  letter-spacing:.08em;
+}
+
+.score-ring-label{
+  text-align:center;
+  margin-top:10px;
+}
+
+.score-ring-label span{
+  display:block;
   color:var(--red);
   font-size:.7rem;
   font-weight:900;
-  letter-spacing:.1em;
+  letter-spacing:.14em;
   text-transform:uppercase;
 }
 
-.score-ring b{
-  font-size:3.65rem;
-  line-height:.9;
+.score-ring-label strong{
+  display:block;
+  margin-top:4px;
+  color:var(--gold);
+  font-size:.82rem;
+  line-height:1.15;
+  letter-spacing:.08em;
+  text-transform:uppercase;
 }
 
 .score-note{
@@ -385,7 +442,11 @@ a{text-decoration:none;color:inherit}
   text-align:center;
 }
 
-.action-stack{display:grid;gap:10px;margin-top:22px}
+.action-stack{
+  display:grid;
+  gap:10px;
+  margin-top:20px;
+}
 
 .action{
   min-height:44px;
@@ -431,8 +492,14 @@ a{text-decoration:none;color:inherit}
 
 .metric b{
   display:block;
-  font-size:2.6rem;
+  font-size:2.45rem;
   margin:8px 0;
+}
+
+.metric b.locked{
+  color:var(--gold);
+  font-size:1.75rem;
+  letter-spacing:.08em;
 }
 
 .metric p{
@@ -451,7 +518,9 @@ a{text-decoration:none;color:inherit}
   margin-top:14px;
 }
 
-.block{padding:18px 20px}
+.block{
+  padding:18px 20px;
+}
 
 .block h2{
   margin:0 0 12px;
@@ -475,19 +544,27 @@ a{text-decoration:none;color:inherit}
   font-size:.82rem;
 }
 
+/* TRAITS */
+
 .traits{
   margin-top:14px;
   padding:18px 22px 20px;
   border:1px solid var(--line);
-  background:rgba(6,10,18,.45);
+  background:rgba(6,10,18,.50);
+}
+
+.traits-title{
+  margin:8px 0 18px;
+  text-transform:uppercase;
+  font-size:2.05rem;
 }
 
 .trait{
   display:grid;
-  grid-template-columns:130px 1fr 28px;
+  grid-template-columns:150px 1fr 118px;
   align-items:center;
-  gap:8px;
-  margin:8px 0;
+  gap:12px;
+  margin:10px 0;
 }
 
 .trait-name{
@@ -497,8 +574,8 @@ a{text-decoration:none;color:inherit}
 }
 
 .bar{
-  height:5px;
-  background:rgba(255,255,255,.04);
+  height:6px;
+  background:rgba(255,255,255,.045);
   border:1px solid rgba(255,255,255,.14);
 }
 
@@ -507,28 +584,26 @@ a{text-decoration:none;color:inherit}
   background:linear-gradient(90deg,var(--red),var(--gold));
 }
 
-.trait-score{
-  font-weight:900;
-  font-size:.92em;
-}
-
 .pending-fill{
-  opacity:.25;
+  opacity:.28;
   background:linear-gradient(90deg,#5f6772,#8b95a1);
 }
 
-.trait-score.pending{
-  color:#f4c542;
+.trait-score{
+  font-weight:900;
+  font-size:.72rem;
+  color:var(--gold);
   letter-spacing:.12em;
-  font-size:.62rem;
+  text-transform:uppercase;
+  text-align:right;
 }
 
-/* STATScore INTELLIGENCE PANEL */
+/* INTELLIGENCE */
 
 .sc-intelligence-panel{
   margin-top:22px;
   border:1px solid rgba(255,255,255,.18);
-  background:rgba(6,10,18,.72);
+  background:rgba(6,10,18,.76);
   padding:22px;
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.035);
 }
@@ -556,7 +631,6 @@ a{text-decoration:none;color:inherit}
   font-size:clamp(1.45rem,2.1vw,1.9rem);
   line-height:1.05;
   text-transform:uppercase;
-  letter-spacing:.01em;
 }
 
 .sc-badge{
@@ -580,9 +654,8 @@ a{text-decoration:none;color:inherit}
   border:1px solid rgba(255,255,255,.18);
   background:rgba(255,255,255,.025);
   padding:16px;
-  min-height:150px;
+  min-height:142px;
   min-width:0;
-  overflow:hidden;
 }
 
 .sc-intel-card.primary{
@@ -603,21 +676,9 @@ a{text-decoration:none;color:inherit}
   display:block;
   margin-top:10px;
   color:#fff;
-  font-size:clamp(1.05rem,1.45vw,1.42rem);
-  line-height:1.14;
-  letter-spacing:.015em;
-  text-transform:uppercase;
-  white-space:normal;
-  overflow-wrap:break-word;
-  word-break:normal;
-  max-width:100%;
-}
-
-#scStarSignal,
-#scExposureGap,
-#scProjectionLane{
-  font-size:clamp(1rem,1.35vw,1.32rem);
+  font-size:clamp(1.05rem,1.35vw,1.28rem);
   line-height:1.16;
+  text-transform:uppercase;
 }
 
 .sc-intel-card p{
@@ -713,6 +774,14 @@ a{text-decoration:none;color:inherit}
 }
 
 @media(max-width:1100px){
+  .hero-grid,.metric-row,.lower-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .score-card{
+    grid-column:1 / -1;
+  }
+
   .sc-intel-grid{
     grid-template-columns:repeat(2,minmax(0,1fr));
   }
@@ -724,8 +793,9 @@ a{text-decoration:none;color:inherit}
   }
 
   .header{height:auto}
-
+  .logo-tab{width:100%}
   .header-title,.header-nav{padding:14px}
+  .header-nav{justify-content:center;flex-wrap:wrap}
 
   .main{padding:18px 14px 0}
 
@@ -735,10 +805,15 @@ a{text-decoration:none;color:inherit}
   }
 
   .record-title{font-size:2.6rem}
-
   .name{font-size:3rem}
-
   .image-frame{height:390px}
+
+  .trait{
+    grid-template-columns:1fr;
+    gap:6px;
+  }
+
+  .trait-score{text-align:left}
 
   .sc-intel-grid{
     grid-template-columns:1fr;
@@ -789,14 +864,14 @@ a{text-decoration:none;color:inherit}
 
   <aside class="panel image-card">
     <div class="label">Athlete Image</div>
-    <div class="image-frame" id="athleteImageFrame">Athlete Image</div>
+    <div class="image-frame" id="athleteImageFrame">Athlete Image Required</div>
 
     <div class="athlete-caption">
       <div>
         <b id="captionName">Athlete Name</b>
         <span id="captionMeta">Position · Class Year</span>
       </div>
-      <div class="verified" id="verificationBadge">Pending</div>
+      <div class="verified pending" id="verificationBadge">Pending</div>
     </div>
   </aside>
 
@@ -829,18 +904,23 @@ a{text-decoration:none;color:inherit}
     </div>
 
     <p class="bio" id="profileBio">
-      This profile packages verified athlete identity, performance indicators,
-      readiness, visibility, and controlled recruiting access after official STATScore intake.
+      This profile packages athlete identity, performance indicators, readiness,
+      visibility, and controlled recruiting access after official STATScore intake.
     </p>
   </article>
 
   <aside class="panel score-card">
     <div class="label">STATScore Intelligence</div>
 
-    <div class="score-ring">
-      <span>STATScore™</span>
-      <b id="scoreValue">--</b>
-      <span id="scoreStatus">Pending</span>
+    <div class="score-ring-wrap">
+      <div class="score-ring locked" id="scoreRing">
+        <b id="scoreValue">--</b>
+      </div>
+
+      <div class="score-ring-label">
+        <span>STATScore™</span>
+        <strong id="scoreStatus">Pending</strong>
+      </div>
     </div>
 
     <p class="score-note" id="scoreNote">
@@ -849,7 +929,7 @@ a{text-decoration:none;color:inherit}
 
     <div class="action-stack">
       <a class="action primary" href="#" onclick="copyShareLink();return false;">Share Profile <span>›</span></a>
-      <a class="action" href="verification.html?snapshot=latest">Request Verification <span>›</span></a>
+      <a class="action" id="verificationLink" href="verification.html">Request Verification <span>›</span></a>
       <a class="action" href="snapshot-intake.html">View Snapshot Path <span>›</span></a>
     </div>
   </aside>
@@ -857,19 +937,19 @@ a{text-decoration:none;color:inherit}
 </section>
 
 <section class="metric-row">
-  <div class="metric"><h3>Speed Index</h3><b id="metricSpeed">--</b><p>Acceleration and separation potential based on submitted performance indicators.</p></div>
-  <div class="metric"><h3>Explosiveness</h3><b id="metricExplosive">--</b><p>Change-of-direction, burst, vertical threat, and field-opening potential.</p></div>
-  <div class="metric"><h3>Readiness</h3><b id="metricReadiness">--</b><p>Development stage, training maturity, coach validation, and readiness trajectory.</p></div>
-  <div class="metric"><h3>Visibility</h3><b id="metricVisibility">--</b><p>Recruiting exposure readiness, profile completeness, and verified access status.</p></div>
+  <div class="metric"><h3>Speed Index</h3><b id="metricSpeed">LOCKED</b><p>Acceleration and separation potential based on submitted performance indicators.</p></div>
+  <div class="metric"><h3>Explosiveness</h3><b id="metricExplosive">LOCKED</b><p>Change-of-direction, burst, vertical threat, and field-opening potential.</p></div>
+  <div class="metric"><h3>Readiness</h3><b id="metricReadiness">PENDING</b><p>Development stage, training maturity, coach validation, and readiness trajectory.</p></div>
+  <div class="metric"><h3>Visibility</h3><b id="metricVisibility">PENDING</b><p>Recruiting exposure readiness, profile completeness, and verified access status.</p></div>
 </section>
 
 <section class="lower-grid">
   <article class="block">
     <div class="label">Verified Highlights</div>
     <h2>Proof Layer</h2>
-    <div class="list-item"><b>Game Film</b><span id="gameFilmStatus">Primary highlight reel slot and verified clip sequence.</span></div>
-    <div class="list-item"><b>Camp / Combine</b><span id="campStatus">Event results and showcase appearances connect here.</span></div>
-    <div class="list-item"><b>Media Exposure</b><span id="mediaStatus">PHNX Sports media routing and public feature eligibility.</span></div>
+    <div class="list-item"><b>Game Film</b><span id="gameFilmStatus">No verified film link submitted.</span></div>
+    <div class="list-item"><b>Camp / Combine</b><span id="campStatus">Camp / combine source pending.</span></div>
+    <div class="list-item"><b>Media Exposure</b><span id="mediaStatus">Media exposure route pending.</span></div>
   </article>
 
   <article class="block">
@@ -883,21 +963,21 @@ a{text-decoration:none;color:inherit}
   <article class="block">
     <div class="label">Development Pathway</div>
     <h2>Next Movement</h2>
-    <div class="list-item"><b>Primary Focus</b><span id="primaryFocus">Generated from verified performance and readiness data.</span></div>
-    <div class="list-item"><b>Verification Need</b><span id="verificationNeed">Coach confirmation, event metrics, GPA / eligibility status.</span></div>
+    <div class="list-item"><b>Primary Focus</b><span id="primaryFocus">Generated after verification review.</span></div>
+    <div class="list-item"><b>Verification Need</b><span id="verificationNeed">Coach confirmation, guardian permission, metric evidence, and academic readiness review.</span></div>
     <div class="list-item"><b>Next Snapshot</b><span>Run official STATScore intake once production system is active.</span></div>
   </article>
 </section>
 
 <section class="traits">
-  <div class="label">Position Breakdown</div>
-  <h2 style="margin:8px 0 20px;text-transform:uppercase;font-size:2.1rem;">Performance Traits</h2>
+  <div class="label" id="positionBreakdownLabel">Position Breakdown</div>
+  <h2 class="traits-title">Performance Traits</h2>
 
-  <div class="trait"><div class="trait-name">Vision</div><div class="bar"><div class="fill pending-fill" style="width:18%"></div></div><div class="trait-score pending">--</div></div>
-  <div class="trait"><div class="trait-name">Burst</div><div class="bar"><div class="fill pending-fill" style="width:18%"></div></div><div class="trait-score pending">--</div></div>
-  <div class="trait"><div class="trait-name">Contact Balance</div><div class="bar"><div class="fill pending-fill" style="width:18%"></div></div><div class="trait-score pending">--</div></div>
-  <div class="trait"><div class="trait-name">Ball Security</div><div class="bar"><div class="fill pending-fill" style="width:18%"></div></div><div class="trait-score pending">--</div></div>
-  <div class="trait"><div class="trait-name">Open Field Ability</div><div class="bar"><div class="fill pending-fill" style="width:18%"></div></div><div class="trait-score pending">--</div></div>
+  <div class="trait"><div class="trait-name">Vision</div><div class="bar"><div class="fill pending-fill" style="width:18%"></div></div><div class="trait-score">LOCKED</div></div>
+  <div class="trait"><div class="trait-name">Burst</div><div class="bar"><div class="fill pending-fill" style="width:18%"></div></div><div class="trait-score">LOCKED</div></div>
+  <div class="trait"><div class="trait-name">Contact Balance</div><div class="bar"><div class="fill pending-fill" style="width:18%"></div></div><div class="trait-score">LOCKED</div></div>
+  <div class="trait"><div class="trait-name">Ball Security</div><div class="bar"><div class="fill pending-fill" style="width:18%"></div></div><div class="trait-score">LOCKED</div></div>
+  <div class="trait"><div class="trait-name">Open Field Ability</div><div class="bar"><div class="fill pending-fill" style="width:18%"></div></div><div class="trait-score">LOCKED</div></div>
 </section>
 
 <section class="sc-intelligence-panel">
@@ -912,37 +992,37 @@ a{text-decoration:none;color:inherit}
   <div class="sc-intel-grid">
     <div class="sc-intel-card primary">
       <span>Star Signal</span>
-      <strong id="scStarSignal">--</strong>
+      <strong id="scStarSignal">Pending Verification</strong>
       <p id="scStarExplanation">Awaiting verified snapshot.</p>
     </div>
 
     <div class="sc-intel-card">
       <span>Final Score</span>
-      <strong id="scFinalScore">--</strong>
+      <strong id="scFinalScore">Locked</strong>
       <p>Weighted football intelligence output.</p>
     </div>
 
     <div class="sc-intel-card">
       <span>Exposure Gap</span>
-      <strong id="scExposureGap">--</strong>
+      <strong id="scExposureGap">Pending Verification</strong>
       <p id="scExposureExplanation">Visibility intelligence pending.</p>
     </div>
 
     <div class="sc-intel-card">
       <span>Projection Lane</span>
-      <strong id="scProjectionLane">--</strong>
+      <strong id="scProjectionLane">Pending Verification</strong>
       <p>Program-fit pathway recommendation.</p>
     </div>
 
     <div class="sc-intel-card">
       <span>Confidence</span>
-      <strong id="scConfidence">--</strong>
+      <strong id="scConfidence">Pending</strong>
       <p>Based on evaluator trust, competition, and verification.</p>
     </div>
 
     <div class="sc-intel-card">
       <span>Varsity Years</span>
-      <strong id="scVarsityYears">--</strong>
+      <strong id="scVarsityYears">Locked</strong>
       <p>Verified varsity tracking unlocks official STATScore intelligence.</p>
     </div>
   </div>
@@ -962,12 +1042,7 @@ a{text-decoration:none;color:inherit}
   <div class="flow-step"><b>Verification</b><span>Trust Layer</span></div>
   <div class="flow-step"><b>Multi-Box™</b><span>Permissions</span></div>
   <div class="flow-step"><b>Recruiting</b><span>Controlled Reach</span></div>
-  <div class="flow-step">
-    <a href="crystal-registry.html">
-      <b>Crystal</b>
-      <span>Athlete Intelligence</span>
-    </a>
-  </div>
+  <div class="flow-step"><a href="crystal-registry.html"><b>Crystal</b><span>Athlete Intelligence</span></a></div>
   <a class="action primary" href="#" onclick="copyShareLink();return false;">Copy Share Link ›</a>
 </section>
 
@@ -980,6 +1055,7 @@ a{text-decoration:none;color:inherit}
 
 </main>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="statscore-data.js"></script>
 
@@ -1016,6 +1092,11 @@ function resolveSTATScoreLabel(verificationStatus){
   return status === "VERIFIED" ? "VERIFIED STATScore" : "UNVERIFIED STATScore";
 }
 
+function cleanMetric(value){
+  if (!value || value === "--") return "LOCKED";
+  return value;
+}
+
 function normalizeSnapshot(response){
   if (!response || response.success !== true || !response.snapshot) return null;
 
@@ -1040,8 +1121,8 @@ function normalizeSnapshot(response){
     height: raw.height || "Height",
     weight: raw.weight || "Weight",
 
-    dash40: raw.dash40 || "--",
-    vertical_jump: raw.verticalJump || "--",
+    dash40: raw.dash40 || "",
+    vertical_jump: raw.verticalJump || "",
 
     highlight_url: raw.highlightUrl || "",
     game_film_url: raw.gameFilmUrl || "",
@@ -1088,6 +1169,23 @@ async function loadSnapshot(){
   return normalizeSnapshot(data);
 }
 
+function setVerificationClass(status){
+  const badge = document.getElementById("verificationBadge");
+  if (!badge) return;
+
+  const normalized = String(status || "").toUpperCase();
+  badge.classList.remove("verified","unverified","pending");
+  badge.classList.add("verified");
+
+  if (normalized === "VERIFIED") {
+    badge.classList.remove("unverified","pending");
+  } else if (normalized === "UNVERIFIED") {
+    badge.classList.add("unverified");
+  } else {
+    badge.classList.add("pending");
+  }
+}
+
 function renderAthleteImage(src, fullName){
   const frame = document.getElementById("athleteImageFrame");
   if (!frame) return;
@@ -1111,6 +1209,8 @@ function renderProfile(snapshot){
   setText("captionName", snapshot.athlete_display_name);
   setText("captionMeta", `${snapshot.position} · ${snapshot.class_year}`);
   setText("verificationBadge", snapshot.verification_status);
+  setVerificationClass(snapshot.verification_status);
+
   setText("recordStatus", "Snapshot Loaded");
   setText("identitySub", `Snapshot Submitted · ${statscoreLabel}`);
 
@@ -1136,10 +1236,16 @@ function renderProfile(snapshot){
     `Snapshot data has been received. Current release status: ${statscoreLabel}. Official scoring rules remain pending until verification is complete.`
   );
 
-  setText("metricSpeed", snapshot.dash40);
-  setText("metricExplosive", snapshot.vertical_jump);
-  setText("metricReadiness", snapshot.profile_status);
-  setText("metricVisibility", snapshot.verification_status);
+  const speed = cleanMetric(snapshot.dash40);
+  const explosive = cleanMetric(snapshot.vertical_jump);
+
+  setText("metricSpeed", speed);
+  setText("metricExplosive", explosive);
+  setText("metricReadiness", snapshot.profile_status || "CREATED");
+  setText("metricVisibility", snapshot.verification_status || "UNVERIFIED");
+
+  if (speed === "LOCKED") document.getElementById("metricSpeed")?.classList.add("locked");
+  if (explosive === "LOCKED") document.getElementById("metricExplosive")?.classList.add("locked");
 
   setText("gameFilmStatus", snapshot.highlight_url || snapshot.game_film_url || "No verified film link submitted.");
   setText("campStatus", snapshot.verified_event_source || "Camp / combine source pending.");
@@ -1148,6 +1254,12 @@ function renderProfile(snapshot){
   setText("exposureLaneText", `Visibility lane active under ${statscoreLabel}.`);
   setText("primaryFocus", snapshot.position_notes || "Generated after verification review.");
   setText("verificationNeed", "Coach confirmation, guardian permission, metric evidence, and academic readiness review.");
+  setText("positionBreakdownLabel", `${snapshot.position} Breakdown`);
+
+  const verificationLink = document.getElementById("verificationLink");
+  if (verificationLink) {
+    verificationLink.href = `verification.html?snapshot_id=${encodeURIComponent(snapshot.snapshot_id)}`;
+  }
 
   renderAthleteImage(snapshot.headshot_url, snapshot.athlete_display_name);
   renderSTATScoreIntelligence(statscoreLabel);
@@ -1156,11 +1268,11 @@ function renderProfile(snapshot){
 function renderSTATScoreIntelligence(statscoreLabel){
   setText("scMatrixVersion", "QB_MATRIX_V1");
   setText("scStarSignal", statscoreLabel);
-  setText("scFinalScore", "--");
+  setText("scFinalScore", "LOCKED");
   setText("scExposureGap", "Pending Verification");
   setText("scProjectionLane", "Pending Verification");
   setText("scConfidence", "Pending");
-  setText("scVarsityYears", "--");
+  setText("scVarsityYears", "LOCKED");
 
   setText("scStarExplanation", `${statscoreLabel} remains pending until verified scoring rules are applied.`);
   setText("scExposureExplanation", "Visibility intelligence remains pending until verification and scoring are complete.");
@@ -1183,7 +1295,12 @@ function renderNoSnapshot(){
   setText("recordStatus","No Snapshot Loaded");
   setText("identitySub","Awaiting Snapshot Intake");
   setText("scoreStatus","No Snapshot");
+  setText("scoreValue","--");
   setText("profileBio","No submitted Snapshot record was found. Run Snapshot Intake to generate this athlete profile.");
+  setText("metricSpeed","LOCKED");
+  setText("metricExplosive","LOCKED");
+  setText("metricReadiness","PENDING");
+  setText("metricVisibility","PENDING");
 }
 
 function copyShareLink(){
@@ -1202,7 +1319,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderNoSnapshot();
   }
 });
-</script> 
+</script>
 
 </body>
 </html> 
