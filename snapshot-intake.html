@@ -782,6 +782,7 @@ function setHeadshotPreview(file){
   const text = $("headshotUploadText");
   const hint = $("headshotUploadHint");
   const removeBtn = $("removeHeadshotBtn");
+  const addBtn = $("addHeadshotBtn");
 
   if (!file) return;
 
@@ -795,6 +796,7 @@ function setHeadshotPreview(file){
 
     if (text) text.textContent = "MEDIA ASSET LOADED";
     if (hint) hint.textContent = file.name || "Image ready";
+    if (addBtn) addBtn.innerHTML = 'Replace Headshot <span>+</span>';
     if (removeBtn) removeBtn.style.display = "flex";
 
     updateControlPanel("ready");
@@ -848,6 +850,7 @@ function initHeadshotUpload(){
 
       if (text) text.textContent = "PHNX SPORTS MEDIA INGEST";
       if (hint) hint.textContent = "Click to upload JPG, PNG, WEBP, HEIC, or HEIF";
+      if (addBtn) addBtn.innerHTML = 'Begin Media Ingest <span>+</span>';
 
       removeBtn.style.display = "none";
       setStatus("mediaStatusHeadshot", "Required", "var(--gold)");
@@ -973,36 +976,28 @@ function buildPhnxProductionPayload(mediaIngestId, snapshotId, payload, headshot
   return {
     media_ingest_id: mediaIngestId || null,
     snapshot_id: snapshotId || null,
-
     athlete_display_name: payload.athlete_display_name || "",
     sport: payload.primarySport || "",
     position: payload.primaryPosition || "",
     school: payload.schoolProgram || "",
     city_state: payload.cityState || "",
     graduation_class: payload.graduationClass || "",
-
     production_type: "PLAYER_CARD",
     production_status: "QUEUED",
     priority_level: "NORMAL",
-
     player_card_required: true,
     thumbnail_required: true,
     highlight_film_required: hasFilm,
     short_reel_required: hasFilm,
-
     source_headshot_url: headshotMeta.headshotPublicUrl || "",
     source_highlight_url: payload.highlightUrl || "",
     source_game_film_url: payload.gameFilmUrl || "",
-
     youtube_ready: false,
     phnx_channel: "PHNX SPORTS",
-
     review_status: "PENDING_REVIEW",
     approval_status: "PENDING_APPROVAL",
-
     routing_version: "PHNXSPORTS-PRODUCTION-V1",
     canon_locked: true,
-
     notes: "Auto-created from Snapshot Intake after PHNX SPORTS media ingest."
   };
 }
