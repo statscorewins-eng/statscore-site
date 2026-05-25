@@ -2,695 +2,934 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>STATScore™ — Player Profile</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>STATScore™ | Player Profile</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
 <style>
-:root{
-  --red:#ff2b1f; --red2:#b90710; --gold:#f4c542; --green:#25d366;
-  --black:#020202; --ink:#05070b; --panel:rgba(6,10,18,.62);
-  --line:rgba(255,255,255,.18); --line2:rgba(255,255,255,.32);
-  --text:#f4f4f1; --muted:#b8c3cc; --blue:#7ed8ff; --max:1536px;
-}
-*{box-sizing:border-box}
-html,body{margin:0;background:#000;color:var(--text);font-family:Arial,Helvetica,sans-serif}
-a{text-decoration:none;color:inherit}
 
-.page{
-  width:min(var(--max),100%);
-  margin:0 auto;
-  min-height:100vh;
-  background:
-    linear-gradient(90deg,rgba(0,0,0,.9),rgba(0,0,0,.7),rgba(0,0,0,.82)),
-    radial-gradient(circle at 35% 18%,rgba(255,43,31,.13),transparent 34%),
-    radial-gradient(circle at 82% 64%,rgba(126,216,255,.10),transparent 34%),
-    #020202;
+:root{
+
+  --bg:#070b11;
+  --panel:#0f1621;
+  --panel2:#131c29;
+
+  --line:rgba(255,255,255,.08);
+
+  --text:#ffffff;
+  --muted:#95a3b8;
+
+  --red:#d62828;
+  --red2:#ff4040;
+
+  --green:#00c26f;
+  --yellow:#f4b942;
+
+  --shadow:
+    0 0 0 1px rgba(255,255,255,.04),
+    0 10px 40px rgba(0,0,0,.55);
+
 }
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Inter',sans-serif;
+  overflow-x:hidden;
+}
+
+/* =======================================================
+HEADER
+======================================================= */
 
 .header{
-  height:92px;
-  background:linear-gradient(180deg,#fff,#ededeb);
-  display:grid;
-  grid-template-columns:390px 1fr 410px;
-  align-items:center;
-  border-bottom:2px solid var(--red);
-}
 
-.logo-tab{
-  height:92px;
-  background:linear-gradient(145deg,#151515,#050505 65%,#000);
-  clip-path:polygon(0 0,78% 0,100% 100%,0 100%);
+  height:84px;
+
+  background:#f7f7f5;
+
+  border-bottom:4px solid var(--red);
+
   display:flex;
   align-items:center;
-  padding-left:26px;
-  position:relative;
-}
-
-.logo-tab:before{
-  content:"";
-  position:absolute;
-  top:0;
-  left:0;
-  width:140px;
-  height:16px;
-  background:var(--red);
-  clip-path:polygon(0 0,92% 0,100% 100%,0 100%);
-}
-
-.logo-tab:after{
-  content:"";
-  position:absolute;
-  bottom:0;
-  left:0;
-  right:34px;
-  height:3px;
-  background:var(--red);
-}
-
-.logo-tab img{width:292px}
-
-.header-title{
-  text-align:center;
-  color:#111;
-  font-weight:900;
-  font-size:.82rem;
-  letter-spacing:.32em;
-  text-transform:uppercase;
-}
-
-.header-nav{
-  display:flex;
-  justify-content:flex-end;
-  align-items:center;
-  gap:12px;
-  padding-right:24px;
-  height:100%;
-  color:#111;
-}
-
-.header-nav a{
-  font-weight:900;
-  font-size:.75rem;
-  letter-spacing:.13em;
-  text-transform:uppercase;
-  padding-bottom:12px;
-  border-bottom:2px solid transparent;
-}
-
-.header-nav a.active{color:var(--red);border-bottom-color:var(--red)}
-.user-icon{width:30px;height:30px;border:3px solid #111;border-radius:50%}
-
-.main{
-  padding:22px 32px 0;
-  background:repeating-linear-gradient(135deg,rgba(255,255,255,.018) 0,rgba(255,255,255,.018) 1px,transparent 1px,transparent 7px);
-}
-
-.profile-header{
-  display:grid;
-  grid-template-columns:320px 1fr 330px;
-  gap:18px;
-  border:1px solid var(--line);
-  background:rgba(7,10,16,.48);
-  padding:22px;
-  margin-bottom:16px;
-}
-
-.headshot-card{
-  border:1px solid var(--line);
-  background:rgba(0,0,0,.36);
-  padding:14px;
-}
-
-.headshot-card img{
-  width:100%;
-  aspect-ratio:1/1;
-  object-fit:cover;
-  display:block;
-  background:#050505;
-  border:1px solid rgba(255,255,255,.18);
-}
-
-.profile-kicker{
-  color:var(--red);
-  font-size:.7rem;
-  font-weight:900;
-  letter-spacing:.24em;
-  text-transform:uppercase;
-  margin-bottom:10px;
-}
-
-.player-name{
-  margin:0;
-  font-family:"Arial Narrow","Helvetica Neue Condensed",Impact,Arial,sans-serif;
-  font-size:4.2rem;
-  line-height:.9;
-  letter-spacing:-.04em;
-  text-transform:uppercase;
-}
-
-.player-sub{
-  margin-top:12px;
-  color:#dfeaf0;
-  font-weight:900;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-}
-
-.profile-tags{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  margin-top:18px;
-}
-
-.tag{
-  border:1px solid rgba(255,255,255,.2);
-  padding:9px 11px;
-  background:rgba(255,255,255,.035);
-  color:#e9f4f8;
-  font-size:.68rem;
-  font-weight:900;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-}
-
-.tag.red{border-color:rgba(255,43,31,.5);color:var(--red)}
-.tag.gold{border-color:rgba(244,197,66,.55);color:var(--gold)}
-.tag.green{border-color:rgba(37,211,102,.55);color:var(--green)}
-
-.status-panel{
-  border:1px solid var(--line);
-  background:rgba(0,0,0,.28);
-  padding:16px;
-}
-
-.status-title{
-  margin:0 0 12px;
-  font-size:1.35rem;
-  text-transform:uppercase;
-}
-
-.status-row{
-  display:flex;
   justify-content:space-between;
-  border-bottom:1px solid rgba(255,255,255,.12);
-  padding:10px 0;
-  font-size:.74rem;
-  font-weight:900;
-  text-transform:uppercase;
-  gap:12px;
+
+  padding:0 28px;
+
 }
 
-.status-row:last-child{border-bottom:0}
-.status-row span{color:var(--muted)}
-.status-row b{color:var(--gold);text-align:right}
+.logo-wrap{
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
 
-.grid{
+.logo{
+  width:54px;
+  height:54px;
+  border-radius:14px;
+  background:#0a0a0a;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  border:1px solid rgba(0,0,0,.12);
+}
+
+.logo img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.brand{
+  display:flex;
+  flex-direction:column;
+}
+
+.brand h1{
+  color:#0a0a0a;
+  font-size:28px;
+  font-weight:900;
+  letter-spacing:-1px;
+}
+
+.brand p{
+  color:#5f6979;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.12em;
+}
+
+/* =======================================================
+LAYOUT
+======================================================= */
+
+.shell{
+
   display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:14px;
-  margin-bottom:14px;
+  grid-template-columns:300px 1fr 340px;
+
+  gap:20px;
+
+  padding:20px;
+
 }
 
 .panel{
+
+  background:linear-gradient(
+    180deg,
+    rgba(19,28,41,.96),
+    rgba(11,17,26,.98)
+  );
+
   border:1px solid var(--line);
-  background:rgba(7,10,16,.48);
-  padding:18px;
+
+  border-radius:26px;
+
+  box-shadow:var(--shadow);
+
+  overflow:hidden;
+
 }
 
-.panel-title{
-  margin:0 0 16px;
-  color:var(--red);
-  font-size:.74rem;
+/* =======================================================
+LEFT
+======================================================= */
+
+.left{
+
+  padding:24px;
+
+}
+
+.player-card{
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+
+}
+
+.player-photo{
+
+  width:210px;
+  height:260px;
+
+  border-radius:24px;
+
+  overflow:hidden;
+
+  background:#0a0a0a;
+
+  border:1px solid rgba(255,255,255,.06);
+
+  margin-bottom:18px;
+
+}
+
+.player-photo img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.player-name{
+  font-size:32px;
   font-weight:900;
-  letter-spacing:.22em;
-  text-transform:uppercase;
+  line-height:1;
+  text-align:center;
 }
 
-.data-row{
+.player-meta{
+
+  margin-top:12px;
+
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+
+  width:100%;
+
+}
+
+.meta-row{
+
+  background:rgba(255,255,255,.03);
+
+  border:1px solid rgba(255,255,255,.05);
+
+  border-radius:14px;
+
+  padding:12px 14px;
+
   display:flex;
   justify-content:space-between;
-  gap:14px;
-  border-bottom:1px solid rgba(255,255,255,.1);
-  padding:10px 0;
-  font-size:.82rem;
+  align-items:center;
+
 }
 
-.data-row:last-child{border-bottom:0}
-.data-row span{color:var(--muted);font-weight:900;text-transform:uppercase;font-size:.68rem;letter-spacing:.12em}
-.data-row b{color:#fff;text-align:right}
-
-.media-panel{
-  border:1px solid rgba(255,43,31,.35);
-  background:
-    linear-gradient(135deg,rgba(255,43,31,.09),rgba(7,10,16,.5)),
-    rgba(0,0,0,.3);
-  padding:20px;
-  margin-bottom:14px;
-}
-
-.media-grid{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:10px;
-}
-
-.media-card{
-  border:1px solid rgba(255,255,255,.16);
-  background:rgba(0,0,0,.28);
-  padding:14px;
-  min-height:92px;
-}
-
-.media-card span{
-  display:block;
+.meta-label{
   color:var(--muted);
-  font-size:.62rem;
-  font-weight:900;
-  letter-spacing:.15em;
+  font-size:12px;
+  font-weight:700;
   text-transform:uppercase;
-}
-
-.media-card b{
-  display:block;
-  margin-top:9px;
-  color:var(--gold);
-  font-size:.78rem;
-  text-transform:uppercase;
-}
-
-.btn-row{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  margin-top:16px;
-}
-
-.btn{
-  min-height:46px;
-  border:1px solid var(--line2);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:16px;
-  padding:0 16px;
-  text-transform:uppercase;
-  font-size:.72rem;
-  font-weight:900;
   letter-spacing:.12em;
-  background:rgba(255,255,255,.02);
-  color:#fff;
-  min-width:210px;
 }
 
-.btn.primary{border-color:var(--red);color:var(--red);background:rgba(255,43,31,.1)}
-.btn.green{border-color:var(--green);color:var(--green)}
-.btn.gold{border-color:var(--gold);color:var(--gold)}
+.meta-value{
+  font-size:14px;
+  font-weight:800;
+}
 
-.flow{
-  margin-top:14px;
-  min-height:76px;
+/* =======================================================
+CENTER
+======================================================= */
+
+.center{
+
+  padding:24px;
+
+}
+
+.top-grid{
+
   display:grid;
-  grid-template-columns:170px repeat(5,1fr);
+  grid-template-columns:340px 1fr;
+
+  gap:20px;
+
+}
+
+/* =======================================================
+SCORE
+======================================================= */
+
+.score-panel{
+
+  background:rgba(255,255,255,.03);
+
+  border:1px solid rgba(255,255,255,.05);
+
+  border-radius:26px;
+
+  padding:26px;
+
+}
+
+.score-title{
+
+  font-size:12px;
+  font-weight:800;
+  color:var(--muted);
+
+  letter-spacing:.14em;
+  text-transform:uppercase;
+
+  margin-bottom:18px;
+
+}
+
+.score-wrap{
+
+  display:flex;
+  flex-direction:column;
   align-items:center;
-  border:1px solid var(--line);
-  background:rgba(4,7,12,.62);
+  justify-content:center;
+
 }
 
-.flow-title{
-  color:var(--red);
+.ring{
+
+  width:230px;
+  height:230px;
+
+  border-radius:50%;
+
+  background:
+    radial-gradient(circle at center, #0b1017 58%, transparent 59%),
+    conic-gradient(
+      var(--green) 0deg,
+      var(--green) 285deg,
+      rgba(255,255,255,.08) 285deg
+    );
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  position:relative;
+
+  margin-bottom:20px;
+
+}
+
+.ring-inner{
+
+  width:178px;
+  height:178px;
+
+  border-radius:50%;
+
+  background:#0b1017;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+
+  border:1px solid rgba(255,255,255,.05);
+
+}
+
+.score-number{
+  font-size:76px;
   font-weight:900;
-  letter-spacing:.18em;
-  text-transform:uppercase;
-  padding-left:22px;
+  line-height:1;
 }
 
-.flow-step{
-  border-left:1px solid rgba(255,255,255,.14);
-  padding:0 18px;
-}
-
-.flow-step b{display:block;font-size:.74rem;text-transform:uppercase}
-.flow-step span{color:var(--muted);font-size:.68rem}
-
-.system-message{
-  margin:14px 0;
-  min-height:22px;
-  font-size:.72rem;
-  font-weight:900;
+.score-state{
+  margin-top:8px;
+  color:var(--green);
+  font-size:13px;
+  font-weight:800;
   letter-spacing:.12em;
-  text-transform:uppercase;
-  color:var(--gold);
 }
+
+.score-label{
+
+  margin-top:6px;
+
+  font-size:14px;
+  font-weight:700;
+  color:var(--muted);
+
+  text-align:center;
+
+}
+
+/* =======================================================
+STATUS GRID
+======================================================= */
+
+.status-grid{
+
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+
+  gap:14px;
+
+}
+
+.status-card{
+
+  background:rgba(255,255,255,.03);
+
+  border:1px solid rgba(255,255,255,.05);
+
+  border-radius:20px;
+
+  padding:18px;
+
+}
+
+.status-card h3{
+  font-size:12px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  margin-bottom:10px;
+}
+
+.status-value{
+  font-size:18px;
+  font-weight:900;
+}
+
+.green{
+  color:var(--green);
+}
+
+.yellow{
+  color:var(--yellow);
+}
+
+.red{
+  color:var(--red2);
+}
+
+/* =======================================================
+TRAITS
+======================================================= */
+
+.traits{
+
+  margin-top:22px;
+
+  background:rgba(255,255,255,.03);
+
+  border:1px solid rgba(255,255,255,.05);
+
+  border-radius:26px;
+
+  padding:24px;
+
+}
+
+.section-title{
+  font-size:13px;
+  font-weight:800;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:22px;
+}
+
+.trait{
+
+  margin-bottom:18px;
+
+}
+
+.trait-head{
+
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  margin-bottom:10px;
+
+}
+
+.trait-head span:first-child{
+  font-size:14px;
+  font-weight:700;
+}
+
+.trait-head span:last-child{
+  font-size:13px;
+  font-weight:800;
+  color:#dfe7f5;
+}
+
+.bar{
+
+  height:12px;
+
+  border-radius:999px;
+
+  background:rgba(255,255,255,.06);
+
+  overflow:hidden;
+
+}
+
+.fill{
+
+  height:100%;
+
+  border-radius:999px;
+
+  background:linear-gradient(
+    90deg,
+    var(--red),
+    #ff6868
+  );
+
+}
+
+/* =======================================================
+RIGHT
+======================================================= */
+
+.right{
+
+  padding:24px;
+
+}
+
+.timeline{
+
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+
+}
+
+.event{
+
+  background:rgba(255,255,255,.03);
+
+  border:1px solid rgba(255,255,255,.05);
+
+  border-radius:18px;
+
+  padding:16px;
+
+}
+
+.event-time{
+  color:var(--muted);
+  font-size:12px;
+  font-weight:700;
+  margin-bottom:8px;
+}
+
+.event-title{
+  font-size:15px;
+  font-weight:800;
+  margin-bottom:8px;
+}
+
+.event-body{
+  color:#c4cfdd;
+  font-size:13px;
+  line-height:1.6;
+}
+
+/* =======================================================
+FOOTER
+======================================================= */
 
 .footer{
-  height:64px;
-  margin-top:10px;
-  border-top:1px solid var(--line);
-  display:grid;
-  grid-template-columns:220px 1fr 300px 260px;
+
+  margin-top:20px;
+
+  padding:18px 24px;
+
+  border-top:1px solid rgba(255,255,255,.05);
+
+  display:flex;
+  justify-content:space-between;
   align-items:center;
-  color:#cdd7df;
-  font-size:.74rem;
-  letter-spacing:.08em;
-  text-transform:uppercase;
+
+  color:var(--muted);
+
+  font-size:12px;
+
 }
 
-.footer img{width:185px}
-.demo-ok{color:var(--green);font-weight:900}
+/* =======================================================
+RESPONSIVE
+======================================================= */
 
-@media(max-width:900px){
-  .header{grid-template-columns:1fr;height:auto}
-  .logo-tab{width:100%}
-  .header-title{padding:14px}
-  .header-nav{justify-content:center;padding:14px;flex-wrap:wrap}
-  .main{padding:18px 14px 0}
-  .profile-header,.grid,.media-grid,.flow,.footer{grid-template-columns:1fr}
-  .player-name{font-size:3rem}
+@media(max-width:1400px){
+
+  .shell{
+    grid-template-columns:1fr;
+  }
+
+  .top-grid{
+    grid-template-columns:1fr;
+  }
+
 }
+
+@media(max-width:768px){
+
+  .header{
+    padding:0 16px;
+  }
+
+  .brand h1{
+    font-size:22px;
+  }
+
+  .shell{
+    padding:14px;
+  }
+
+  .player-photo{
+    width:100%;
+    height:320px;
+  }
+
+  .ring{
+    width:180px;
+    height:180px;
+  }
+
+  .ring-inner{
+    width:140px;
+    height:140px;
+  }
+
+  .score-number{
+    font-size:56px;
+  }
+
+  .status-grid{
+    grid-template-columns:1fr;
+  }
+
+}
+
 </style>
 </head>
-
 <body>
-<div class="page">
+
+<!-- =======================================================
+HEADER
+======================================================= -->
 
 <header class="header">
-  <a class="logo-tab" href="index.html">
-    <img src="sc_logo_black_v2.png" alt="STATScore">
-  </a>
-  <div class="header-title">National Athlete Infrastructure • Player Profile</div>
-  <nav class="header-nav">
-    <a href="index.html">Entry</a>
-    <a href="snapshot-intake.html">Intake</a>
-    <a class="active" href="player-profile.html">Profile</a>
-    <a href="privacy.html">Privacy</a>
-    <a href="terms.html">Terms</a>
-    <div class="user-icon"></div>
-  </nav>
+
+  <div class="logo-wrap">
+
+    <div class="logo">
+      <img src="sc_emblem.png" alt="STATScore">
+    </div>
+
+    <div class="brand">
+      <h1>STATScore™</h1>
+      <p>NATIONAL ATHLETE INFRASTRUCTURE</p>
+    </div>
+
+  </div>
+
 </header>
 
-<main class="main">
+<!-- =======================================================
+SHELL
+======================================================= -->
 
-<section class="profile-header">
-  <div class="headshot-card">
-    <img id="profileHeadshot" src="caleb_headshot.png" alt="Athlete headshot">
-  </div>
+<div class="shell">
 
-  <div>
-    <div class="profile-kicker">Official Athlete Profile</div>
-    <h1 class="player-name" id="athleteName">Athlete Profile</h1>
-    <div class="player-sub" id="athleteSub">Sport • Position • Class</div>
+  <!-- =====================================================
+  LEFT
+  ====================================================== -->
 
-    <div class="profile-tags">
-      <div class="tag gold" id="tagVerification">Unverified STATScore</div>
-      <div class="tag red" id="tagScore">Score Not Issued</div>
-      <div class="tag" id="tagSport">Sport Pending</div>
-      <div class="tag green" id="tagMedia">PHNX Media Ready</div>
+  <aside class="panel left">
+
+    <div class="player-card">
+
+      <div class="player-photo">
+        <img src="https://images.unsplash.com/photo-1517466787929-bc90951d0974?q=80&w=1200&auto=format&fit=crop" />
+      </div>
+
+      <div class="player-name">
+        CALEB HARRIS
+      </div>
+
+      <div class="player-meta">
+
+        <div class="meta-row">
+          <span class="meta-label">Sport</span>
+          <span class="meta-value">Football</span>
+        </div>
+
+        <div class="meta-row">
+          <span class="meta-label">Position</span>
+          <span class="meta-value">WR</span>
+        </div>
+
+        <div class="meta-row">
+          <span class="meta-label">Class</span>
+          <span class="meta-value">2027</span>
+        </div>
+
+        <div class="meta-row">
+          <span class="meta-label">Height</span>
+          <span class="meta-value">6'1"</span>
+        </div>
+
+        <div class="meta-row">
+          <span class="meta-label">Weight</span>
+          <span class="meta-value">185 lbs</span>
+        </div>
+
+        <div class="meta-row">
+          <span class="meta-label">School</span>
+          <span class="meta-value">Pensacola HS</span>
+        </div>
+
+      </div>
+
     </div>
 
-    <div class="btn-row">
-      <a class="btn primary" href="snapshot-intake.html">Edit Snapshot <span>›</span></a>
-      <a class="btn gold" href="multi-box.html">Open Multi-Box <span>›</span></a>
-      <a class="btn green" href="verification-request.html">Request Verification <span>›</span></a>
-    </div>
-  </div>
-
-  <aside class="status-panel">
-    <h2 class="status-title">Profile Control</h2>
-    <div class="status-row"><span>Profile</span><b id="statusProfile">Created</b></div>
-    <div class="status-row"><span>Verification</span><b id="statusVerification">Unverified</b></div>
-    <div class="status-row"><span>Score</span><b id="statusScore">Not Issued</b></div>
-    <div class="status-row"><span>Eligibility</span><b id="statusEligibility">Pending</b></div>
-    <div class="status-row"><span>PHNX Media</span><b id="statusMedia">Queued</b></div>
   </aside>
-</section>
 
-<div class="system-message" id="systemMessage">Loading athlete profile...</div>
+  <!-- =====================================================
+  CENTER
+  ====================================================== -->
 
-<section class="grid">
-  <div class="panel">
-    <h2 class="panel-title">Athlete Identity</h2>
-    <div class="data-row"><span>Name</span><b id="dataName">—</b></div>
-    <div class="data-row"><span>School</span><b id="dataSchool">—</b></div>
-    <div class="data-row"><span>City / State</span><b id="dataCity">—</b></div>
-    <div class="data-row"><span>Class</span><b id="dataClass">—</b></div>
-    <div class="data-row"><span>Jersey</span><b id="dataJersey">—</b></div>
-  </div>
+  <main class="panel center">
 
-  <div class="panel">
-    <h2 class="panel-title">Athletic Profile</h2>
-    <div class="data-row"><span>Sport</span><b id="dataSport">—</b></div>
-    <div class="data-row"><span>Position</span><b id="dataPosition">—</b></div>
-    <div class="data-row"><span>Secondary</span><b id="dataSecondary">—</b></div>
-    <div class="data-row"><span>Height</span><b id="dataHeight">—</b></div>
-    <div class="data-row"><span>Weight</span><b id="dataWeight">—</b></div>
-  </div>
+    <div class="top-grid">
 
-  <div class="panel">
-    <h2 class="panel-title">Performance Metrics</h2>
-    <div class="data-row"><span>40-Yard</span><b id="dataDash">—</b></div>
-    <div class="data-row"><span>Vertical</span><b id="dataVertical">—</b></div>
-    <div class="data-row"><span>Shuttle</span><b id="dataShuttle">—</b></div>
-    <div class="data-row"><span>Broad</span><b id="dataBroad">—</b></div>
-    <div class="data-row"><span>Source</span><b id="dataSource">—</b></div>
-  </div>
-</section>
+      <!-- SCORE -->
 
-<section class="grid">
-  <div class="panel">
-    <h2 class="panel-title">Academic Readiness</h2>
-    <div class="data-row"><span>GPA</span><b id="dataGpa">—</b></div>
-    <div class="data-row"><span>NCAA Status</span><b id="dataNcaa">—</b></div>
-    <div class="data-row"><span>Transcript</span><b id="dataTranscript">—</b></div>
-    <div class="data-row"><span>Counselor</span><b id="dataCounselor">—</b></div>
-  </div>
+      <div class="score-panel">
 
-  <div class="panel">
-    <h2 class="panel-title">Guardian / Coach</h2>
-    <div class="data-row"><span>Guardian</span><b id="dataGuardian">—</b></div>
-    <div class="data-row"><span>Guardian Email</span><b id="dataGuardianEmail">—</b></div>
-    <div class="data-row"><span>Coach</span><b id="dataCoach">—</b></div>
-    <div class="data-row"><span>Coach Email</span><b id="dataCoachEmail">—</b></div>
-  </div>
+        <div class="score-title">
+          STATSCORE SIGNAL
+        </div>
 
-  <div class="panel">
-    <h2 class="panel-title">Position Intelligence</h2>
-    <div class="data-row"><span>Notes</span><b id="dataNotes">—</b></div>
-    <div class="data-row"><span>Academic Notes</span><b id="dataAcademicNotes">—</b></div>
-  </div>
-</section>
+        <div class="score-wrap">
 
-<section class="media-panel">
-  <h2 class="panel-title">PHNX SPORTS Media Production</h2>
-  <div class="media-grid">
-    <div class="media-card"><span>Media Ingest</span><b id="mediaIngest">Queued</b></div>
-    <div class="media-card"><span>Player Card</span><b id="mediaPlayerCard">Ready</b></div>
-    <div class="media-card"><span>Thumbnail</span><b id="mediaThumbnail">Ready</b></div>
-    <div class="media-card"><span>Highlight Film</span><b id="mediaHighlight">Pending Film</b></div>
-  </div>
+          <div class="ring">
 
-  <div class="btn-row">
-    <a class="btn primary" id="highlightLink" href="#" target="_blank">Open Highlight Reel <span>›</span></a>
-    <a class="btn" id="gameFilmLink" href="#" target="_blank">Open Game Film <span>›</span></a>
-    <a class="btn gold" id="socialLink" href="#" target="_blank">Open Social Profile <span>›</span></a>
-    <a class="btn green" id="recruitingLink" href="#" target="_blank">Open Recruiting Profile <span>›</span></a>
-  </div>
-</section>
+            <div class="ring-inner">
 
-<section class="flow">
-  <div class="flow-title">Profile Path</div>
-  <div class="flow-step"><b>Snapshot</b><span>Data captured</span></div>
-  <div class="flow-step"><b>Identity</b><span>Profile created</span></div>
-  <div class="flow-step"><b>Evidence</b><span>Metrics & media</span></div>
-  <div class="flow-step"><b>Verification</b><span>Trust layer</span></div>
-  <div class="flow-step"><b>PHNX Media</b><span>Exposure queue</span></div>
-</section>
+              <div class="score-number">
+                92
+              </div>
 
-<footer class="footer">
-  <div><img src="sc_logo_black_v2.png" alt="STATScore"></div>
-  <div>Official Athlete Player Profile</div>
-  <div class="demo-ok">✓ Profile Shell Active</div>
-  <div>© STATScore Systems<br>All Rights Reserved.</div>
-</footer>
+              <div class="score-state">
+                VERIFIED
+              </div>
 
-</main>
+            </div>
+
+          </div>
+
+          <div class="score-label">
+            WR PERFORMANCE INTELLIGENCE
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- STATUS -->
+
+      <div class="status-grid">
+
+        <div class="status-card">
+          <h3>Eligibility</h3>
+          <div class="status-value green">
+            NCAA READY
+          </div>
+        </div>
+
+        <div class="status-card">
+          <h3>Verification</h3>
+          <div class="status-value green">
+            VERIFIED
+          </div>
+        </div>
+
+        <div class="status-card">
+          <h3>Exposure</h3>
+          <div class="status-value yellow">
+            RISING
+          </div>
+        </div>
+
+        <div class="status-card">
+          <h3>Recruiting</h3>
+          <div class="status-value green">
+            ACTIVE
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- TRAITS -->
+
+    <section class="traits">
+
+      <div class="section-title">
+        ATHLETIC TRAITS
+      </div>
+
+      <div class="trait">
+
+        <div class="trait-head">
+          <span>Speed</span>
+          <span>96</span>
+        </div>
+
+        <div class="bar">
+          <div class="fill" style="width:96%"></div>
+        </div>
+
+      </div>
+
+      <div class="trait">
+
+        <div class="trait-head">
+          <span>Hands</span>
+          <span>91</span>
+        </div>
+
+        <div class="bar">
+          <div class="fill" style="width:91%"></div>
+        </div>
+
+      </div>
+
+      <div class="trait">
+
+        <div class="trait-head">
+          <span>Route Running</span>
+          <span>88</span>
+        </div>
+
+        <div class="bar">
+          <div class="fill" style="width:88%"></div>
+        </div>
+
+      </div>
+
+      <div class="trait">
+
+        <div class="trait-head">
+          <span>Agility</span>
+          <span>94</span>
+        </div>
+
+        <div class="bar">
+          <div class="fill" style="width:94%"></div>
+        </div>
+
+      </div>
+
+      <div class="trait">
+
+        <div class="trait-head">
+          <span>Football IQ</span>
+          <span>89</span>
+        </div>
+
+        <div class="bar">
+          <div class="fill" style="width:89%"></div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <div class="footer">
+
+      <span>
+        STATScore™ Athlete Intelligence Surface
+      </span>
+
+      <span>
+        PHNX SPORTS • VERIFIED ATHLETE INFRASTRUCTURE
+      </span>
+
+    </div>
+
+  </main>
+
+  <!-- =====================================================
+  RIGHT
+  ====================================================== -->
+
+  <aside class="panel right">
+
+    <div class="section-title">
+      ACTIVITY TIMELINE
+    </div>
+
+    <div class="timeline">
+
+      <div class="event">
+
+        <div class="event-time">
+          TODAY
+        </div>
+
+        <div class="event-title">
+          Athlete Verification Approved
+        </div>
+
+        <div class="event-body">
+          STATScore verification completed successfully. Athlete metrics and media profile activated.
+        </div>
+
+      </div>
+
+      <div class="event">
+
+        <div class="event-time">
+          2 DAYS AGO
+        </div>
+
+        <div class="event-title">
+          Highlight Film Uploaded
+        </div>
+
+        <div class="event-body">
+          PHNX SPORTS highlight package connected to athlete profile and exposure pipeline.
+        </div>
+
+      </div>
+
+      <div class="event">
+
+        <div class="event-time">
+          LAST WEEK
+        </div>
+
+        <div class="event-title">
+          WR Evaluation Updated
+        </div>
+
+        <div class="event-body">
+          Athletic intelligence signals updated following verified camp performance metrics.
+        </div>
+
+      </div>
+
+    </div>
+
+  </aside>
+
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="statscore-data.js"></script>
-
-<script>
-const RECEIPT_KEY = "statscore_latest_snapshot_receipt_v1";
-
-function $(id){ return document.getElementById(id); }
-
-function getParam(name){
-  return new URLSearchParams(window.location.search).get(name);
-}
-
-function setText(id,value,fallback="—"){
-  const el=$(id);
-  if(el) el.textContent = value || fallback;
-}
-
-function setHref(id,url){
-  const el=$(id);
-  if(!el) return;
-  if(url){
-    el.href = url;
-    el.style.opacity = "1";
-    el.style.pointerEvents = "auto";
-  } else {
-    el.removeAttribute("href");
-    el.style.opacity = ".45";
-    el.style.pointerEvents = "none";
-  }
-}
-
-function getDb(){
-  return window.STATScoreData?.getClient?.() || null;
-}
-
-function fallbackProfile(){
-  return {
-    athlete_display_name:"Demo Athlete",
-    firstName:"Demo",
-    lastName:"Athlete",
-    primarySport:"Football",
-    primaryPosition:"ATH",
-    graduationClass:"2028",
-    schoolProgram:"Program Pending",
-    cityState:"City, State",
-    verification_status:"UNVERIFIED",
-    score_status:"UNVERIFIED"
-  };
-}
-
-function normalize(row){
-  if(!row) return fallbackProfile();
-
-  const payload = row.payload || row.profile_payload || row.snapshot_payload || row.data || row;
-
-  return {
-    ...payload,
-    snapshot_id: row.snapshot_id || row.id || payload.snapshot_id || payload.id || "",
-    athlete_display_name: payload.athlete_display_name || [payload.firstName,payload.lastName].filter(Boolean).join(" "),
-    firstName: payload.firstName || payload.first_name || "",
-    lastName: payload.lastName || payload.last_name || "",
-    primarySport: payload.primarySport || payload.sport || "",
-    primaryPosition: payload.primaryPosition || payload.position || "",
-    secondaryPosition: payload.secondaryPosition || payload.secondary_position || "",
-    schoolProgram: payload.schoolProgram || payload.school || "",
-    cityState: payload.cityState || payload.city_state || "",
-    graduationClass: payload.graduationClass || payload.graduation_class || "",
-    headshotPublicUrl: payload.headshotPublicUrl || payload.headshot_public_url || "",
-    verification_status: payload.verification_status || payload.verificationStatus || "UNVERIFIED",
-    score_status: payload.score_status || payload.scoreStatus || "UNVERIFIED"
-  };
-}
-
-async function fetchSnapshot(snapshotId){
-  const db = getDb();
-  if(!db || !snapshotId) return null;
-
-  const attempts = [
-    db.from("statscore_snapshots").select("*").eq("snapshot_id", snapshotId).maybeSingle(),
-    db.from("statscore_snapshots").select("*").eq("id", snapshotId).maybeSingle()
-  ];
-
-  for(const request of attempts){
-    const {data,error} = await request;
-    if(!error && data) return data;
-  }
-
-  return null;
-}
-
-function getLatestSnapshotId(){
-  const direct = getParam("snapshot_id");
-  if(direct) return direct;
-
-  try{
-    const receipt = JSON.parse(localStorage.getItem(RECEIPT_KEY) || "{}");
-    return receipt.snapshot_id || "";
-  }catch(e){
-    return "";
-  }
-}
-
-function renderProfile(profile){
-  const name = profile.athlete_display_name || [profile.firstName,profile.lastName].filter(Boolean).join(" ") || "Athlete Profile";
-  const sub = [profile.primarySport, profile.primaryPosition, profile.graduationClass ? "Class " + profile.graduationClass : ""].filter(Boolean).join(" • ");
-
-  setText("athleteName", name, "Athlete Profile");
-  setText("athleteSub", sub, "Sport • Position • Class");
-
-  if(profile.headshotPublicUrl) $("profileHeadshot").src = profile.headshotPublicUrl;
-
-  setText("tagVerification", (profile.verification_status || "UNVERIFIED") + " STATScore");
-  setText("tagScore", profile.score_status || "Score Not Issued");
-  setText("tagSport", profile.primarySport || "Sport Pending");
-
-  setText("dataName", name);
-  setText("dataSchool", profile.schoolProgram);
-  setText("dataCity", profile.cityState);
-  setText("dataClass", profile.graduationClass);
-  setText("dataJersey", profile.jerseyNumber);
-
-  setText("dataSport", profile.primarySport);
-  setText("dataPosition", profile.primaryPosition);
-  setText("dataSecondary", profile.secondaryPosition);
-  setText("dataHeight", profile.height);
-  setText("dataWeight", profile.weight);
-
-  setText("dataDash", profile.dash40);
-  setText("dataVertical", profile.verticalJump);
-  setText("dataShuttle", profile.shuttle);
-  setText("dataBroad", profile.broadJump);
-  setText("dataSource", profile.verifiedEventSource);
-
-  setText("dataGpa", profile.currentGpa);
-  setText("dataNcaa", profile.ncaaEligibilityStatus);
-  setText("dataTranscript", profile.transcriptAvailable);
-  setText("dataCounselor", profile.counselorContactAvailable);
-
-  setText("dataGuardian", profile.guardianName);
-  setText("dataGuardianEmail", profile.guardianEmail);
-  setText("dataCoach", profile.coachName);
-  setText("dataCoachEmail", profile.coachEmail);
-
-  setText("dataNotes", profile.positionNotes);
-  setText("dataAcademicNotes", profile.academicNotes);
-
-  setHref("highlightLink", profile.highlightUrl);
-  setHref("gameFilmLink", profile.gameFilmUrl);
-  setHref("socialLink", profile.socialProfileUrl);
-  setHref("recruitingLink", profile.recruitingProfileUrl);
-
-  if(profile.highlightUrl || profile.gameFilmUrl){
-    setText("mediaHighlight","Queued");
-  }else{
-    setText("mediaHighlight","Pending Film");
-  }
-
-  setText("statusVerification", profile.verification_status || "Unverified");
-  setText("statusScore", profile.score_status || "Not Issued");
-  setText("systemMessage","Profile loaded · PHNX SPORTS media route visible.","var(--green)");
-}
-
-document.addEventListener("DOMContentLoaded", async()=>{
-  const snapshotId = getLatestSnapshotId();
-  let row = null;
-
-  try{
-    row = await fetchSnapshot(snapshotId);
-  }catch(e){
-    console.error("Profile fetch failed:", e);
-  }
-
-  renderProfile(normalize(row));
-});
-</script>
 
 </body>
 </html> 
