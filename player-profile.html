@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -981,14 +981,46 @@ a{text-decoration:none;color:inherit}
 </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- FOUNDATION -->
+<script src="statscore-core.js"></script>
 <script src="statscore-data.js"></script>
+<script src="statscore-role-access.js"></script>
+
+<!-- GOVERNANCE -->
+<script src="statscore-signal-governance.js"></script>
+<script src="statscore-state-engine.js"></script>
+<script src="statscore-compliance-engine.js"></script>
+<script src="statscore-quarterly-eligibility-engine.js"></script>
+<script src="statscore-routing.js"></script>
+
+<!-- INTELLIGENCE -->
+<script src="statscore-scoring-engine.js"></script>
+<script src="statscore-synthesis-engine.js"></script>
+<script src="statscore-consensus-engine.js"></script>
+<script src="statscore-pathway-engine.js"></script>
+<script src="statscore-recommendation-engine.js"></script>
+<script src="statscore-profile-engine.js"></script>
+<script src="statscore-media-intelligence-engine.js"></script>
+<script src="statscore-memory-engine.js"></script>
+<script src="statscore-intelligence.js"></script>
+
+<!-- OPERATIONAL -->
+<script src="statscore-event-engine.js"></script>
+<script src="statscore-media-routing.js"></script>
+<script src="statscore-evaluator-engine.js"></script>
+<script src="statscore-communication-engine.js"></script>
+
+<!-- ORCHESTRATION -->
+<script src="statscore-engine-loader.js"></script>
 
 <script>
+
 function setText(id, value, fallback = "--"){
   const el = document.getElementById(id);
   if (!el) return;
   el.textContent = value || fallback;
-}
+} 
 
 function escapeHTML(value){
   return String(value || "")
