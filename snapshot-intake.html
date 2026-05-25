@@ -1126,10 +1126,49 @@ async function submitSnapshot(){
 
   } catch (error) {
     console.error("Snapshot execution failed:", error);
+
+    const duplicateMessage = String(
+      error?.message ||
+      error?.details ||
+      error?.hint ||
+      error?.code ||
+      ""
+    ).toLowerCase();
+
+    if (
+      duplicateMessage.includes("duplicate key") ||
+      duplicateMessage.includes("23505") ||
+      duplicateMessage.includes("uq_statscore_snapshot_player_profile")
+    ) {
+      setMessage(
+        "PLAYER PROFILE ALREADY EXISTS. OPEN EXISTING PLAYER PROFILE.",
+        "var(--gold)"
+      );
+
+      const badge = $("recordBadge");
+      const notice = $("snapshotNotice");
+      const viewProfileBtn = $("viewProfileBtn");
+
+      if (badge) badge.textContent = "Profile Already Exists";
+
+      if (notice) {
+        notice.textContent =
+          "PLAYER PROFILE ALREADY EXISTS. Open the existing Player Profile instead of creating another Snapshot.";
+      }
+
+      if (viewProfileBtn) {
+        viewProfileBtn.style.display = "flex";
+        viewProfileBtn.textContent = "View Existing Profile ›";
+      }
+
+      return;
+    }
+
     setMessage("Snapshot execution failed. Check console.", "var(--red)");
   } finally {
     setBusy(false);
-  }
+  } 
+
 }
 
 function saveDraft(){
