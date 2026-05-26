@@ -917,23 +917,130 @@ a{text-decoration:none;color:inherit;}
   .secure{
     justify-content:center;
   }
+
+.secure{
+    justify-content:center;
 }
+
+/* =========================================
+STATScore Athlete Search
+========================================= */
+
+.sc-search-bar{
+  width:100%;
+  display:flex;
+  justify-content:flex-end;
+  padding:14px 22px 10px;
+  position:relative;
+  z-index:20;
+}
+
+.sc-search-shell{
+  width:min(560px,100%);
+}
+
+.sc-search-label{
+  font-size:10px;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  color:#ff4d4d;
+  margin-bottom:8px;
+  font-weight:700;
+}
+
+.sc-search-input-wrap{
+  display:flex;
+  align-items:center;
+  border:1px solid rgba(255,255,255,.14);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(20,25,34,.95),
+      rgba(11,15,22,.98)
+    );
+  height:52px;
+}
+
+.sc-search-input-wrap input{
+  flex:1;
+  height:100%;
+  border:none;
+  outline:none;
+  background:transparent;
+  color:#ffffff;
+  padding:0 18px;
+  font-size:14px;
+  letter-spacing:.5px;
+}
+
+.sc-search-input-wrap input::placeholder{
+  color:rgba(255,255,255,.38);
+}
+
+.sc-search-input-wrap button{
+  width:64px;
+  height:100%;
+  border:none;
+  border-left:1px solid rgba(255,255,255,.08);
+  background:transparent;
+  color:#ff4d4d;
+  font-size:18px;
+  cursor:pointer;
+  transition:.2s ease;
+}
+
+.sc-search-input-wrap button:hover{
+  background:rgba(255,77,77,.08);
+}
+
+@media(max-width:900px){
+
+  .sc-search-bar{
+    padding:10px 14px;
+  }
+
+  .sc-search-shell{
+    width:100%;
+  }
+
+} 
+
 </style>
 </head>
 
 <body>
-  
-<div class="shell">
-
-<section id="statscoreAthleteSearchMount"></section>   
 
 <header class="header">
   <a class="logo-plate" href="index.html">
     <img src="sc_logo_black_v2.png" alt="STATScore">
   </a>
 
-  <div class="header-title">National Athlete Infrastructure • Controlled Access</div>
+ <div class="header-title">National Athlete Infrastructure • Controlled Access</div>
 
+<section class="sc-search-bar">
+  <div class="sc-search-shell">
+
+    <div class="sc-search-label">
+      PLAYER SEARCH
+    </div>
+
+    <div class="sc-search-input-wrap">
+
+      <input
+        type="text"
+        id="scAthleteSearchInput"
+        placeholder="Search athlete, school, sport, position, city/state, or snapshot ID"
+      />
+
+      <button id="scAthleteSearchBtn">
+        🔎
+      </button>
+
+    </div>
+
+  </div>
+</section>
+  
   <nav class="header-nav">
     <a class="active" href="index.html">Entry</a>
     <a href="player-profile.html">Profile</a>
