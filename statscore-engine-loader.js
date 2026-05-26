@@ -1,509 +1,1112 @@
 /* ============================================================
    STATScore™ Engine Loader
    File: statscore-engine-loader.js
-   Version: STATSCORE-ENGINE-LOADER-V1
-   Purpose:
-   Critical bootstrap infrastructure for loading, validating,
-   monitoring, and safely recovering STATScore engines.
 
-   Doctrine:
-   - Never silently fail.
-   - Fail closed, not open.
-   - Degrade safely.
-   - Explain what is unavailable.
-   - Attempt recovery without exposing restricted actions.
+   PURPOSE:
+   Production runtime orchestrator for STATScore.
+
+   RESPONSIBILITIES:
+   - Engine dependency validation
+   - Engine Bus registration
+   - Engine Health synchronization
+   - Self-Healing activation
+   - Safe-mode enforcement
+   - Runtime diagnostics
+   - Fail-closed protection
+   - Page boot protection
+   - Fallback registry
+   - Engine readiness report
+
+   STATUS:
+   ACTIVE · LOAD-BEARING · SELF-HEALING READY
 ============================================================ */
 
 (function () {
+
   "use strict";
 
   window.STATScore = window.STATScore || {};
 
   const EngineLoader = {
 
-    version: "STATSCORE-ENGINE-LOADER-V1",
+    version: "STATSCORE-ENGINE-LOADER-V2",
 
-    ENGINE_ORDER: [
-      "STATScoreCore",
-      "STATScoreData",
-      "STATScoreRoleAccess",
-      "STATScoreSignalGovernance",
+    status: "BOOTING",
 
-      "STATScore.StateEngine",
-      "STATScore.ComplianceEngine",
-      "STATScore.QuarterlyEligibilityEngine",
-      "STATScoreRouting",
+    bootStartedAt: new Date().toISOString(),
 
-      "STATScoreScoringEngine",
-      "STATScore.SynthesisEngine",
-      "STATScore.ConsensusEngine",
-      "STATScore.PathwayEngine",
-      "STATScore.RecommendationEngine",
-      "STATScore.ProfileEngine",
-      "STATScore.MediaIntelligenceEngine",
-      "STATScore.MemoryEngine",
-      "STATScoreIntelligence",
+    bootCompletedAt: null,
 
-      "STATScore.EventEngine",
-      "STATScoreMediaRouting",
-      "STATScoreEvaluatorEngine",
-      "STATScore.CommunicationEngine"
+    safeMode: false,
+
+    degradedMode: false,
+
+    readOnlyMode: false,
+
+    diagnostics: [],
+
+    registeredEngines: [],
+
+    missingEngines: [],
+
+    failedEngines: [],
+
+    warnings: [],
+
+    /* =========================================================
+       ENGINE REGISTRY
+    ========================================================= */
+
+    engineMap: [
+
+      {
+        name: "Core",
+        path: "STATScoreCore",
+        required: true
+      },
+
+      {
+        name: "EngineBus",
+        path: "STATScore.EngineBus",
+        required: true
+      },
+
+      {
+        name: "Data",
+        path: "STATScoreData",
+        required: true
+      },
+
+      {
+        name: "RoleAccess",
+        path: "STATScoreRoleAccess",
+        required: true
+      },
+
+      {
+        name: "SignalGovernance",
+        path: "STATScoreSignalGovernance",
+        required: true
+      },
+
+      {
+        name: "StateEngine",
+        path: "STATScore.StateEngine",
+        required: true
+      },
+
+      {
+        name: "ComplianceEngine",
+        path: "STATScore.ComplianceEngine",
+        required: true,
+        failClosed: true
+      },
+
+      {
+        name: "QuarterlyEligibilityEngine",
+        path: "STATScore.QuarterlyEligibilityEngine",
+        required: false
+      },
+
+      {
+        name: "Routing",
+        path: "STATScoreRouting",
+        required: true
+      },
+
+      {
+        name: "ScoringEngine",
+        path: "STATScoreScoringEngine",
+        required: false,
+        failClosed: true
+      },
+
+      {
+        name: "SynthesisEngine",
+        path: "STATScore.SynthesisEngine",
+        required: false
+      },
+
+      {
+        name: "ConsensusEngine",
+        path: "STATScore.ConsensusEngine",
+        required: false
+      },
+
+      {
+        name: "PathwayEngine",
+        path: "STATScore.PathwayEngine",
+        required: false
+      },
+
+      {
+        name: "RecommendationEngine",
+        path: "STATScore.RecommendationEngine",
+        required: false
+      },
+
+      {
+        name: "ProfileEngine",
+        path: "STATScore.ProfileEngine",
+        required: false
+      },
+
+      {
+        name: "MediaIntelligenceEngine",
+        path: "STATScore.MediaIntelligenceEngine",
+        required: false,
+        failClosed: true
+      },
+
+      {
+        name: "MemoryEngine",
+        path: "STATScore.MemoryEngine",
+        required: false
+      },
+
+      {
+        name: "Intelligence",
+        path: "STATScoreIntelligence",
+        required: false
+      },
+
+      {
+        name: "AthleteSearchEngine",
+        path: "STATScore.AthleteSearchEngine",
+        required: false
+      },
+
+      {
+        name: "EventEngine",
+        path: "STATScore.EventEngine",
+        required: false
+      },
+
+      {
+        name: "MediaRouting",
+        path: "STATScoreMediaRouting",
+        required: false,
+        failClosed: true
+      },
+
+      {
+        name: "EvaluatorEngine",
+        path: "STATScoreEvaluatorEngine",
+        required: false
+      },
+
+      {
+        name: "CommunicationEngine",
+        path: "STATScore.CommunicationEngine",
+        required: false,
+        failClosed: true
+      },
+
+      {
+        name: "EngineHealth",
+        path: "STATScore.EngineHealth",
+        required: true
+      },
+
+      {
+        name: "SelfHealingEngine",
+        path: "STATScore.SelfHealingEngine",
+        required: true
+      }
+
     ],
 
-    CRITICAL_ENGINES: [
-      "STATScoreCore",
-      "STATScoreData",
-      "STATScoreRoleAccess",
-      "STATScoreSignalGovernance",
-      "STATScore.StateEngine",
-      "STATScore.ComplianceEngine",
-      "STATScoreRouting"
-    ],
+    dependencyMap: {
 
-    FAIL_CLOSED_RULES: {
-      scoring: "Score unavailable. Do not issue star signal.",
-      compliance: "Compliance unavailable. Recruiter communication blocked.",
-      media: "Media unavailable. Publishing disabled.",
-      profile: "Profile intelligence unavailable. Use snapshot fallback.",
-      database: "Database unavailable. Read-only safe mode active.",
-      routing: "Routing unavailable. Protected access required.",
-      communication: "Communication unavailable. Multi-Box sending disabled."
+      Core: [],
+
+      EngineBus: ["Core"],
+
+      Data: ["Core"],
+
+      RoleAccess: ["Core"],
+
+      SignalGovernance: ["Core"],
+
+      StateEngine: ["Core", "SignalGovernance"],
+
+      ComplianceEngine: ["Core", "StateEngine"],
+
+      QuarterlyEligibilityEngine: ["Core", "ComplianceEngine"],
+
+      Routing: ["Core", "RoleAccess"],
+
+      ScoringEngine: ["Core", "SignalGovernance"],
+
+      SynthesisEngine: ["Core", "SignalGovernance", "ScoringEngine"],
+
+      ConsensusEngine: ["Core", "SignalGovernance"],
+
+      PathwayEngine: ["Core", "ScoringEngine", "ComplianceEngine"],
+
+      RecommendationEngine: ["Core", "PathwayEngine"],
+
+      ProfileEngine: ["Core", "ScoringEngine", "SynthesisEngine", "StateEngine"],
+
+      MediaIntelligenceEngine: ["Core", "MediaRouting", "ScoringEngine"],
+
+      MemoryEngine: ["Core", "ProfileEngine"],
+
+      Intelligence: ["Core"],
+
+      AthleteSearchEngine: ["Core", "Data", "RoleAccess"],
+
+      EventEngine: ["Core", "StateEngine"],
+
+      MediaRouting: ["Core"],
+
+      EvaluatorEngine: ["Core", "ScoringEngine"],
+
+      CommunicationEngine: ["Core", "ComplianceEngine", "EventEngine"],
+
+      EngineHealth: ["EngineBus"],
+
+      SelfHealingEngine: ["EngineBus", "EngineHealth"]
+
     },
 
-    state: {
-      booted: false,
-      safe_mode: false,
-      read_only_mode: false,
-      fail_closed: false,
-      missing_engines: [],
-      failed_engines: [],
-      degraded_engines: [],
-      recovered_engines: [],
-      diagnostics: [],
-      started_at: null,
-      completed_at: null
-    },
+    /* =========================================================
+       UTILITIES
+    ========================================================= */
 
     nowISO() {
+
       return new Date().toISOString();
+
     },
 
     getPath(path) {
+
       return String(path || "")
         .split(".")
-        .reduce((obj, key) => obj && obj[key], window);
+        .reduce((obj, key) => {
+
+          return obj && obj[key];
+
+        }, window);
+
     },
 
     exists(path) {
+
       return !!this.getPath(path);
+
     },
 
-    log(level, message, detail = {}) {
-      const entry = {
+    bus() {
+
+      return window.STATScore?.EngineBus || null;
+
+    },
+
+    health() {
+
+      return window.STATScore?.EngineHealth || null;
+
+    },
+
+    selfHealing() {
+
+      return window.STATScore?.SelfHealingEngine || null;
+
+    },
+
+    log(level, message, payload = {}) {
+
+      const record = {
+
         level,
+
         message,
-        detail,
-        created_at: this.nowISO()
+
+        payload,
+
+        created_at:
+          this.nowISO()
+
       };
 
-      this.state.diagnostics.push(entry);
+      this.diagnostics.push(record);
 
-      const label = `[STATScore Loader] ${message}`;
+      if (level === "ERROR") {
 
-      if (level === "ERROR") console.error(label, detail);
-      else if (level === "WARN") console.warn(label, detail);
-      else console.info(label, detail);
+        console.error(
+          "[STATScore Loader]",
+          message,
+          payload
+        );
 
-      return entry;
-    },
+      } else if (level === "WARN") {
 
-    checkEngine(path) {
-      const found = this.exists(path);
+        console.warn(
+          "[STATScore Loader]",
+          message,
+          payload
+        );
 
-      return {
-        engine: path,
-        found,
-        critical: this.CRITICAL_ENGINES.includes(path),
-        checked_at: this.nowISO()
-      };
-    },
+      } else {
 
-    validateEngines() {
-      const results = this.ENGINE_ORDER.map((engine) =>
-        this.checkEngine(engine)
+        console.info(
+          "[STATScore Loader]",
+          message,
+          payload
+        );
+
+      }
+
+      this.bus()?.emit(
+        "loader_log",
+        record
       );
 
-      this.state.missing_engines = results
-        .filter(r => !r.found)
-        .map(r => r.engine);
+      return record;
 
-      const missingCritical = results
-        .filter(r => !r.found && r.critical)
-        .map(r => r.engine);
-
-      if (missingCritical.length) {
-        this.state.safe_mode = true;
-        this.state.fail_closed = true;
-
-        this.log("ERROR", "Critical engines missing. Fail-closed safe mode enabled.", {
-          missingCritical
-        });
-      }
-
-      if (this.state.missing_engines.length) {
-        this.log("WARN", "Some engines are missing.", {
-          missing: this.state.missing_engines
-        });
-      }
-
-      return {
-        ok: missingCritical.length === 0,
-        results,
-        missingCritical,
-        missing: this.state.missing_engines
-      };
     },
 
-    validateSupabase() {
-      const hasData = this.exists("STATScoreData");
-      const client = window.STATScoreData?.getClient?.();
+    /* =========================================================
+       REGISTER ENGINES WITH BUS
+    ========================================================= */
 
-      if (!hasData || !client) {
-        this.state.read_only_mode = true;
-        this.state.safe_mode = true;
+    registerEnginesWithBus() {
 
-        this.log("WARN", "Supabase client unavailable. Read-only safe mode active.", {
-          rule: this.FAIL_CLOSED_RULES.database
-        });
+      const bus =
+        this.bus();
 
-        return {
-          ok: false,
-          status: "NO_SUPABASE_CLIENT"
-        };
+      if (!bus) {
+
+        this.safeMode = true;
+
+        this.failedEngines.push(
+          "EngineBus"
+        );
+
+        this.log(
+          "ERROR",
+          "EngineBus unavailable. Loader entering safe mode."
+        );
+
+        return false;
+
       }
 
-      return {
-        ok: true,
-        status: "SUPABASE_READY"
-      };
-    },
+      this.engineMap.forEach((engine) => {
 
-    applyFailClosedGuards() {
-      window.STATScore.SafeMode = {
-        active: this.state.safe_mode,
-        read_only: this.state.read_only_mode,
-        fail_closed: this.state.fail_closed,
+        const ref =
+          this.getPath(engine.path);
 
-        scoring_allowed: this.exists("STATScoreScoringEngine"),
-        recruiter_communication_allowed:
-          this.exists("STATScore.ComplianceEngine") &&
-          this.exists("STATScore.CommunicationEngine"),
+        if (!ref) {
 
-        media_publish_allowed:
-          this.exists("STATScoreMediaRouting") &&
-          this.exists("STATScore.MediaIntelligenceEngine"),
+          this.missingEngines.push(engine.name);
 
-        profile_intelligence_allowed:
-          this.exists("STATScore.ProfileEngine"),
+          if (engine.required) {
 
-        event_processing_allowed:
-          this.exists("STATScore.EventEngine"),
+            this.safeMode = true;
 
-        reasons: {
-          scoring:
-            this.exists("STATScoreScoringEngine")
-              ? "Scoring engine available."
-              : this.FAIL_CLOSED_RULES.scoring,
+          }
 
-          compliance:
-            this.exists("STATScore.ComplianceEngine")
-              ? "Compliance engine available."
-              : this.FAIL_CLOSED_RULES.compliance,
+          this.log(
+            engine.required ? "ERROR" : "WARN",
+            "Engine missing during registration.",
+            engine
+          );
 
-          media:
-            this.exists("STATScoreMediaRouting")
-              ? "Media routing available."
-              : this.FAIL_CLOSED_RULES.media,
+          return;
 
-          profile:
-            this.exists("STATScore.ProfileEngine")
-              ? "Profile engine available."
-              : this.FAIL_CLOSED_RULES.profile,
-
-          database:
-            this.validateSupabase().ok
-              ? "Database available."
-              : this.FAIL_CLOSED_RULES.database
         }
-      };
 
-      return window.STATScore.SafeMode;
-    },
+        bus.registerEngine(
+          engine.name,
+          ref,
+          {
+            version:
+              ref.version ||
+              "unknown",
 
-    attemptRecovery() {
-      const recovered = [];
+            required:
+              engine.required
+          }
+        );
 
-      this.state.missing_engines.forEach((engine) => {
-        if (this.exists(engine)) {
-          recovered.push(engine);
-        }
+        bus.setDependencies(
+          engine.name,
+          this.dependencyMap[engine.name] || []
+        );
+
+        this.registeredEngines.push(engine.name);
+
       });
 
-      if (recovered.length) {
-        this.state.recovered_engines.push(...recovered);
+      return true;
 
-        this.state.missing_engines =
-          this.state.missing_engines.filter(e => !recovered.includes(e));
+    },
 
-        this.log("INFO", "Recovered previously missing engines.", {
-          recovered
-        });
+    /* =========================================================
+       VALIDATE DEPENDENCIES
+    ========================================================= */
+
+    validateDependencies() {
+
+      const bus =
+        this.bus();
+
+      if (!bus) {
+
+        return false;
+
       }
 
-      return recovered;
+      this.registeredEngines.forEach((engineName) => {
+
+        const result =
+          bus.verifyDependencies(engineName);
+
+        if (!result.ok) {
+
+          this.warnings.push(result);
+
+          this.log(
+            "WARN",
+            "Dependency issue detected.",
+            result
+          );
+
+          if (
+            this.engineMap.find(e => e.name === engineName)?.required
+          ) {
+
+            this.safeMode = true;
+
+          }
+
+        }
+
+      });
+
+      return true;
+
     },
 
-    buildHealthReport() {
-      const engineChecks = this.ENGINE_ORDER.map((engine) =>
-        this.checkEngine(engine)
+    /* =========================================================
+       SUPABASE CHECK
+    ========================================================= */
+
+    validateDatabase() {
+
+      const client =
+        window.STATScoreCore?.getClient?.() ||
+        window.STATScoreData?.getClient?.() ||
+        null;
+
+      if (!client) {
+
+        this.readOnlyMode = true;
+        this.safeMode = true;
+
+        this.log(
+          "WARN",
+          "Supabase client unavailable. Read-only safe mode active."
+        );
+
+        return false;
+
+      }
+
+      this.log(
+        "INFO",
+        "Supabase client detected."
       );
 
-      const available = engineChecks.filter(e => e.found).length;
-      const total = engineChecks.length;
+      return true;
 
-      return {
-        ok: this.state.missing_engines.length === 0,
-        loader_version: this.version,
-        generated_at: this.nowISO(),
-
-        booted: this.state.booted,
-        safe_mode: this.state.safe_mode,
-        read_only_mode: this.state.read_only_mode,
-        fail_closed: this.state.fail_closed,
-
-        engine_total: total,
-        engine_available: available,
-        engine_missing: total - available,
-
-        missing_engines: this.state.missing_engines,
-        failed_engines: this.state.failed_engines,
-        degraded_engines: this.state.degraded_engines,
-        recovered_engines: this.state.recovered_engines,
-
-        safe_mode_report: window.STATScore.SafeMode || null,
-        diagnostics: this.state.diagnostics,
-        engine_checks: engineChecks
-      };
     },
 
-    renderSystemStatus(targetId = "statscoreSystemStatus") {
-      const el = document.getElementById(targetId);
-      if (!el) return;
+    /* =========================================================
+       SAFE MODE RULES
+    ========================================================= */
 
-      const report = this.buildHealthReport();
+    applySafeModeRules() {
 
-      el.innerHTML = `
-        <div class="system-status-kicker">STATScore Engine Health</div>
-        <h2>${report.safe_mode ? "SAFE MODE ACTIVE" : "SYSTEM READY"}</h2>
-        <p>
-          Engines Available: ${report.engine_available}/${report.engine_total}
-        </p>
-        ${
-          report.missing_engines.length
-            ? `<strong>Missing Engines</strong><ul>${report.missing_engines.map(e => `<li>${e}</li>`).join("")}</ul>`
-            : `<p>All registered engines detected.</p>`
+      const hasCompliance =
+        this.registeredEngines.includes(
+          "ComplianceEngine"
+        );
+
+      const hasCommunication =
+        this.registeredEngines.includes(
+          "CommunicationEngine"
+        );
+
+      const hasScoring =
+        this.registeredEngines.includes(
+          "ScoringEngine"
+        );
+
+      const hasMedia =
+        this.registeredEngines.includes(
+          "MediaRouting"
+        ) &&
+        this.registeredEngines.includes(
+          "MediaIntelligenceEngine"
+        );
+
+      window.STATScore.SafeMode = {
+
+        active:
+          this.safeMode,
+
+        degraded:
+          this.degradedMode,
+
+        read_only:
+          this.readOnlyMode,
+
+        scoring_allowed:
+          hasScoring,
+
+        recruiter_communication_allowed:
+          hasCompliance && hasCommunication,
+
+        media_publish_allowed:
+          hasMedia,
+
+        profile_intelligence_allowed:
+          this.registeredEngines.includes(
+            "ProfileEngine"
+          ),
+
+        database_available:
+          !this.readOnlyMode,
+
+        rules: {
+
+          scoring:
+            hasScoring
+              ? "Scoring available."
+              : "Scoring unavailable. Do not issue star signal.",
+
+          compliance:
+            hasCompliance
+              ? "Compliance available."
+              : "Compliance unavailable. Recruiter communication blocked.",
+
+          communication:
+            hasCommunication
+              ? "Communication available."
+              : "Communication unavailable. Multi-Box sending disabled.",
+
+          media:
+            hasMedia
+              ? "Media systems available."
+              : "Media unavailable. Publishing disabled.",
+
+          database:
+            !this.readOnlyMode
+              ? "Database available."
+              : "Database unavailable. Read-only mode active."
+
         }
-      `;
+
+      };
+
+      this.log(
+        "INFO",
+        "Safe mode rules applied.",
+        window.STATScore.SafeMode
+      );
+
+      return window.STATScore.SafeMode;
+
     },
+
+    /* =========================================================
+       FALLBACK REGISTRY
+    ========================================================= */
 
     createFallbacks() {
+
       window.STATScore.Fallbacks = {
 
         profile(snapshot) {
+
           return {
+
             ok: true,
+
             fallback: true,
-            message: "Profile Engine unavailable. Rendering safe snapshot identity only.",
-            identity: snapshot || null
+
+            message:
+              "Profile Intelligence unavailable. Rendering safe snapshot identity.",
+
+            identity:
+              snapshot || null
+
           };
+
         },
 
         score() {
+
           return {
+
             ok: false,
+
             fallback: true,
+
             final_score: "--",
+
             star_signal: {
               label: "Score Pending",
               display: "☆☆☆☆☆"
             },
-            message: "Scoring Engine unavailable."
+
+            message:
+              "Scoring unavailable."
+
           };
+
         },
 
         compliance() {
+
           return {
+
             allowed: false,
+
             fallback: true,
+
             status: "REVIEW_REQUIRED",
-            reason: "Compliance Engine unavailable. Communication blocked by default."
+
+            reason:
+              "Compliance unavailable. Communication blocked by default."
+
           };
+
         },
 
         media() {
+
           return {
+
             ok: false,
+
             fallback: true,
+
             status: "MEDIA_PAUSED",
-            reason: "Media engines unavailable. Publishing disabled."
+
+            reason:
+              "Media unavailable. Publishing disabled."
+
           };
+
         },
 
         communication() {
+
           return {
+
             ok: false,
+
             fallback: true,
+
             status: "COMMUNICATION_PAUSED",
-            reason: "Communication Engine unavailable."
+
+            reason:
+              "Communication unavailable."
+
           };
+
         }
 
       };
 
-      this.log("INFO", "Fallback registry created.");
+      this.log(
+        "INFO",
+        "Fallback registry created."
+      );
+
+      return true;
+
     },
+
+    /* =========================================================
+       PAGE BOOT VERIFICATION
+    ========================================================= */
 
     verifyPageBoot() {
-      const page = window.location.pathname.split("/").pop() || "index.html";
 
-      const context = {
+      const page =
+        window.location.pathname
+          .split("/")
+          .pop() ||
+        "index.html";
+
+      const report = {
+
         page,
-        has_body: !!document.body,
-        has_core: this.exists("STATScoreCore"),
-        has_routing: this.exists("STATScoreRouting"),
-        has_safe_mode: !!window.STATScore.SafeMode,
-        verified_at: this.nowISO()
+
+        body_available:
+          !!document.body,
+
+        core_available:
+          !!window.STATScoreCore,
+
+        bus_available:
+          !!this.bus(),
+
+        health_available:
+          !!this.health(),
+
+        self_healing_available:
+          !!this.selfHealing(),
+
+        checked_at:
+          this.nowISO()
+
       };
 
-      if (!context.has_body) {
-        this.state.safe_mode = true;
-        this.log("ERROR", "Page boot failed: document body unavailable.", context);
+      if (!report.body_available) {
+
+        this.safeMode = true;
+
+        this.log(
+          "ERROR",
+          "Document body unavailable.",
+          report
+        );
+
       }
 
-      if (!context.has_core) {
-        this.state.safe_mode = true;
-        this.state.fail_closed = true;
-        this.log("ERROR", "Page boot failed: STATScoreCore missing.", context);
+      if (!report.core_available) {
+
+        this.safeMode = true;
+
+        this.log(
+          "ERROR",
+          "STATScoreCore unavailable.",
+          report
+        );
+
       }
 
-      return context;
+      return report;
+
     },
 
-    initEngines() {
-      const callableInits = [
-        "STATScoreRouting.init",
-        "STATScoreRoleAccess.init"
-      ];
+    /* =========================================================
+       HEARTBEAT ALL ENGINES
+    ========================================================= */
 
-      callableInits.forEach((path) => {
-        const fn = this.getPath(path);
+    heartbeatAll() {
 
-        if (typeof fn === "function") {
-          try {
-            fn({ enforce: false, renderAuthority: false });
-            this.log("INFO", `Initialized ${path}.`);
-          } catch (error) {
-            this.state.failed_engines.push(path);
-            this.state.safe_mode = true;
-            this.log("ERROR", `Engine init failed: ${path}`, { error });
-          }
+      const health =
+        this.health();
+
+      if (!health) {
+
+        this.log(
+          "WARN",
+          "EngineHealth unavailable for heartbeat."
+        );
+
+        return false;
+
+      }
+
+      this.registeredEngines.forEach((engineName) => {
+
+        health.heartbeat(
+          engineName
+        );
+
+      });
+
+      this.log(
+        "INFO",
+        "Heartbeat sent to registered engines.",
+        {
+          count:
+            this.registeredEngines.length
         }
-      });
+      );
+
+      return true;
+
     },
 
-    boot(options = {}) {
-      this.state.started_at = this.nowISO();
+    /* =========================================================
+       ATTACH RUNTIME LISTENERS
+    ========================================================= */
 
-      this.log("INFO", "Boot sequence started.", {
-        version: this.version
-      });
+    attachRuntimeListeners() {
+
+      const bus =
+        this.bus();
+
+      if (!bus) return false;
+
+      bus.on(
+        "engine_timeout",
+        (payload) => {
+
+          this.log(
+            "WARN",
+            "Engine timeout received by loader.",
+            payload
+          );
+
+          this.selfHealing()?.attemptEngineRecovery?.(
+            payload.engine
+          );
+
+        }
+      );
+
+      bus.on(
+        "dependency_failure",
+        (payload) => {
+
+          this.log(
+            "WARN",
+            "Dependency failure received by loader.",
+            payload
+          );
+
+          if (payload?.missing?.length) {
+
+            this.safeMode = true;
+
+            this.applySafeModeRules();
+
+          }
+
+        }
+      );
+
+      bus.on(
+        "engine_error",
+        (payload) => {
+
+          this.log(
+            "ERROR",
+            "Engine error received by loader.",
+            payload
+          );
+
+          this.selfHealing()?.attemptEngineRecovery?.(
+            payload.engine
+          );
+
+        }
+      );
+
+      this.log(
+        "INFO",
+        "Runtime listeners attached."
+      );
+
+      return true;
+
+    },
+
+    /* =========================================================
+       BUILD HEALTH REPORT
+    ========================================================= */
+
+    buildReport() {
+
+      return {
+
+        loader_version:
+          this.version,
+
+        status:
+          this.status,
+
+        boot_started_at:
+          this.bootStartedAt,
+
+        boot_completed_at:
+          this.bootCompletedAt,
+
+        safe_mode:
+          this.safeMode,
+
+        degraded_mode:
+          this.degradedMode,
+
+        read_only_mode:
+          this.readOnlyMode,
+
+        registered_engines:
+          this.registeredEngines,
+
+        missing_engines:
+          this.missingEngines,
+
+        failed_engines:
+          this.failedEngines,
+
+        warnings:
+          this.warnings,
+
+        diagnostics:
+          this.diagnostics.slice(-50),
+
+        safe_mode_report:
+          window.STATScore.SafeMode || null,
+
+        bus_snapshot:
+          this.bus()?.snapshot?.() ||
+          this.bus()?.getStatus?.() ||
+          null,
+
+        health_snapshot:
+          this.health()?.snapshot?.() ||
+          null,
+
+        self_healing_snapshot:
+          this.selfHealing()?.snapshot?.() ||
+          null
+
+      };
+
+    },
+
+    /* =========================================================
+       PRINT REPORT
+    ========================================================= */
+
+    printReport() {
+
+      const report =
+        this.buildReport();
+
+      console.group(
+        "[STATScore Loader] RUNTIME REPORT"
+      );
+
+      console.log(report);
+
+      console.groupEnd();
+
+      return report;
+
+    },
+
+    /* =========================================================
+       BOOT
+    ========================================================= */
+
+    boot() {
+
+      this.status = "BOOTING";
+
+      this.log(
+        "INFO",
+        "Boot sequence started.",
+        {
+          version: this.version
+        }
+      );
 
       this.createFallbacks();
 
-      const engineValidation = this.validateEngines();
-      const pageBoot = this.verifyPageBoot();
+      this.verifyPageBoot();
 
-      this.attemptRecovery();
+      this.registerEnginesWithBus();
 
-      this.applyFailClosedGuards();
+      this.validateDependencies();
 
-      if (options.initEngines !== false) {
-        this.initEngines();
+      this.validateDatabase();
+
+      this.applySafeModeRules();
+
+      this.attachRuntimeListeners();
+
+      this.heartbeatAll();
+
+      if (this.safeMode) {
+
+        this.status = "SAFE_MODE";
+
+        this.selfHealing()?.activateDegradedMode?.(
+          "Loader entered safe mode during boot."
+        );
+
+      } else {
+
+        this.status = "ONLINE";
+
       }
 
-      this.state.completed_at = this.nowISO();
-      this.state.booted = true;
+      this.bootCompletedAt =
+        this.nowISO();
 
-      const report = this.buildHealthReport();
+      window.STATScore.EngineLoaderReport =
+        this.buildReport();
 
-      window.STATScore.EngineHealth = report;
+      this.log(
+        "INFO",
+        "Boot sequence completed.",
+        window.STATScore.EngineLoaderReport
+      );
 
-      this.log("INFO", "Boot sequence completed.", report);
+      return window.STATScore.EngineLoaderReport;
 
-      if (options.renderStatus) {
-        this.renderSystemStatus(options.statusTargetId || "statscoreSystemStatus");
-      }
-
-      return {
-        ok: engineValidation.ok,
-        pageBoot,
-        report
-      };
     },
 
-    requireEngine(path) {
-      if (this.exists(path)) {
-        return {
-          ok: true,
-          engine: this.getPath(path)
-        };
-      }
-
-      this.state.safe_mode = true;
-
-      this.log("ERROR", "Required engine unavailable.", {
-        engine: path
-      });
-
-      return {
-        ok: false,
-        engine: null
-      };
-    },
+    /* =========================================================
+       EXPLAIN
+    ========================================================= */
 
     explain() {
-      const report = this.buildHealthReport();
 
       return [
+
         `Loader: ${this.version}`,
-        `Booted: ${report.booted}`,
-        `Safe Mode: ${report.safe_mode}`,
-        `Engines: ${report.engine_available}/${report.engine_total}`,
-        `Missing: ${report.missing_engines.length}`
+
+        `Status: ${this.status}`,
+
+        `Safe Mode: ${this.safeMode}`,
+
+        `Registered: ${this.registeredEngines.length}`,
+
+        `Missing: ${this.missingEngines.length}`
+
       ].join(" | ");
+
     }
 
   };
 
-  window.STATScore.EngineLoader = EngineLoader;
+  /* ============================================================
+     ATTACH GLOBAL
+  ============================================================ */
 
-  document.addEventListener("DOMContentLoaded", () => {
-    window.STATScore.EngineLoader.boot({
-      initEngines: true,
-      renderStatus: false
-    });
-  });
+  window.STATScore.EngineLoader =
+    EngineLoader;
 
-  console.info("[STATScore] Engine Loader Registered:", EngineLoader.version);
+  /* ============================================================
+     DOM BOOT
+  ============================================================ */
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+      EngineLoader.boot();
+
+    }
+  );
+
+  console.info(
+    "[STATScore] Engine Loader Registered:",
+    EngineLoader.version
+  );
 
 })(); 
