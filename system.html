@@ -1020,6 +1020,7 @@ STATScore Athlete Search
 <body>
 
 <header class="header">
+
   <a class="logo-plate" href="index.html">
     <img src="sc_logo_black_v2.png" alt="STATScore">
   </a>
@@ -1028,24 +1029,6 @@ STATScore Athlete Search
     National Athlete Infrastructure • Controlled Access
   </div>
 
-  <section class="sc-search-bar">
-    <div class="sc-search-shell">
-      <div class="sc-search-label">Player Search</div>
-
-      <div class="sc-search-input-wrap">
-        <input
-          type="text"
-          id="scAthleteSearchInput"
-          placeholder="Search athlete, school, sport, position, city/state, or snapshot ID"
-        />
-
-        <button id="scAthleteSearchBtn" type="button">🔎</button>
-      </div>
-
-      <div id="scAthleteSearchResults" class="sc-search-results"></div>
-    </div>
-  </section>
-
   <nav class="header-nav">
     <a class="active" href="index.html">Entry</a>
     <a href="player-profile.html">Profile</a>
@@ -1053,7 +1036,38 @@ STATScore Athlete Search
     <a href="terms.html">Terms</a>
     <div class="user-icon"></div>
   </nav>
+
 </header>
+
+<!-- ===================================================== -->
+<!-- STATScore Athlete Search Rail -->
+<!-- ===================================================== -->
+
+<section class="sc-search-bar">
+
+  <div class="sc-search-shell">
+
+    <div class="sc-search-label">
+      PLAYER SEARCH
+    </div>
+
+    <div class="sc-search-input-wrap">
+
+      <input
+        type="text"
+        id="scAthleteSearchInput"
+        placeholder="Search athlete, school, sport, position, city/state, or snapshot ID"
+      />
+
+      <button id="scAthleteSearchBtn">
+        🔎
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
 
 <main class="main">
 
@@ -1072,140 +1086,347 @@ STATScore Athlete Search
 
 <article class="panel hero">
   <div class="label">Athlete Lifecycle System</div>
+
   <img src="sc_emblem.png" alt="" class="hero-watermark" />
-  <h1>Build the Athlete <span>Profile.</span></h1>
-  <p>Start the verified athlete profile for recruiting visibility, performance tracking, college readiness, and controlled communication.</p>
-  <a class="btn" href="snapshot-intake.html">Start Athlete Profile ›</a>
+
+  <h1>
+    Build the Athlete <span>Profile.</span>
+  </h1>
+
+  <p>
+    Start the verified athlete profile for recruiting visibility,
+    performance tracking, college readiness, and controlled communication.
+  </p>
+
+  <a class="btn" href="snapshot-intake.html">
+    Start Athlete Profile ›
+  </a>
 </article>
 
 <aside class="panel overview">
+
   <div class="label">System Overview</div>
+
   <div class="metric-grid">
-    <div class="metric"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><path d="M12 5v14M5 12h14"/></svg><b>04</b><span>Initial National Sports</span></div>
-    <div class="metric"><svg viewBox="0 0 24 24"><path d="M16 11a4 4 0 1 0-8 0"/><path d="M3 21c1.4-5 16.6-5 18 0"/></svg><b>08</b><span>User Access Areas</span></div>
-    <div class="metric"><svg viewBox="0 0 24 24"><path d="M12 3 4 7v6c0 5 3.5 7.5 8 8 4.5-.5 8-3 8-8V7l-8-4Z"/></svg><b>05</b><span>Verification Levels</span></div>
-    <div class="metric"><svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><b>01</b><span>Verified Athlete System</span></div>
+
+    <div class="metric">
+      <svg viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="7"/>
+        <path d="M12 5v14M5 12h14"/>
+      </svg>
+
+      <b>04</b>
+      <span>Initial National Sports</span>
+    </div>
+
+    <div class="metric">
+      <svg viewBox="0 0 24 24">
+        <path d="M16 11a4 4 0 1 0-8 0"/>
+        <path d="M3 21c1.4-5 16.6-5 18 0"/>
+      </svg>
+
+      <b>08</b>
+      <span>User Access Areas</span>
+    </div>
+
+    <div class="metric">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 3 4 7v6c0 5 3.5 7.5 8 8 4.5-.5 8-3 8-8V7l-8-4Z"/>
+      </svg>
+
+      <b>05</b>
+      <span>Verification Levels</span>
+    </div>
+
+    <div class="metric">
+      <svg viewBox="0 0 24 24">
+        <rect x="5" y="10" width="14" height="10" rx="2"/>
+        <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+      </svg>
+
+      <b>01</b>
+      <span>Verified Athlete System</span>
+    </div>
+
   </div>
+
 </aside>
 
 <aside class="panel multi-box">
+
   <h2>Multi-Box™</h2>
-  <div class="sub">Communication & Permissions Control</div>
 
-  <div class="mb-list">
-    <div class="mb-item">
-      <div class="mb-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.6-5 14.4-5 16 0"/></svg></div>
-      <div><b>Parent Approval</b><span>Manage guardian access and approvals.</span></div>
-      <div class="arrow">›</div>
-    </div>
-
-    <div class="mb-item">
-      <div class="mb-icon"><svg viewBox="0 0 24 24"><circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M3 21c1-4 9-4 10 0"/><path d="M11 21c1-4 9-4 10 0"/></svg></div>
-      <div><b>Recruiter Requests</b><span>Control recruiter visibility and access requests.</span></div>
-      <div class="arrow">›</div>
-    </div>
-
-    <div class="mb-item">
-      <div class="mb-icon"><svg viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></div>
-      <div><b>Visibility Rules</b><span>Set visibility levels and communication boundaries.</span></div>
-      <div class="arrow">›</div>
-    </div>
-
-    <div class="mb-item">
-      <div class="mb-icon"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4V5Z"/><path d="M8 9h8M8 13h6"/></svg></div>
-      <div><b>Message Windows</b><span>Manage communication windows and channels.</span></div>
-      <div class="arrow">›</div>
-    </div>
-
-    <div class="mb-item">
-      <div class="mb-icon"><svg viewBox="0 0 24 24"><path d="M3 8l9-5 9 5-9 5-9-5Z"/><path d="M7 11v5c3 2 7 2 10 0v-5"/></svg></div>
-      <div><b>Counselor Access</b><span>Allow school counselor secure access.</span></div>
-      <div class="arrow">›</div>
-    </div>
-
-    <div class="mb-item">
-      <div class="mb-icon"><svg viewBox="0 0 24 24"><path d="M5 5h14M5 12h14M5 19h14"/><path d="M3 5h.01M3 12h.01M3 19h.01"/></svg></div>
-      <div><b>Audit Trail</b><span>Track activity, actions, and system logs.</span></div>
-      <div class="arrow">›</div>
-    </div>
+  <div class="sub">
+    Communication & Permissions Control
   </div>
 
-  <a class="mb-link" href="multi-box.html">Open Multi-Box Settings ›</a>
+  <div class="mb-list">
+
+    <div class="mb-item">
+      <div class="mb-icon">
+        <svg viewBox="0 0 24 24">
+          <circle cx="12" cy="8" r="4"/>
+          <path d="M4 21c1.6-5 14.4-5 16 0"/>
+        </svg>
+      </div>
+
+      <div>
+        <b>Parent Approval</b>
+        <span>Manage guardian access and approvals.</span>
+      </div>
+
+      <div class="arrow">›</div>
+    </div>
+
+    <div class="mb-item">
+      <div class="mb-icon">
+        <svg viewBox="0 0 24 24">
+          <circle cx="8" cy="9" r="3"/>
+          <circle cx="16" cy="9" r="3"/>
+          <path d="M3 21c1-4 9-4 10 0"/>
+          <path d="M11 21c1-4 9-4 10 0"/>
+        </svg>
+      </div>
+
+      <div>
+        <b>Recruiter Requests</b>
+        <span>Control recruiter visibility and access requests.</span>
+      </div>
+
+      <div class="arrow">›</div>
+    </div>
+
+    <div class="mb-item">
+      <div class="mb-icon">
+        <svg viewBox="0 0 24 24">
+          <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+      </div>
+
+      <div>
+        <b>Visibility Rules</b>
+        <span>Set visibility levels and communication boundaries.</span>
+      </div>
+
+      <div class="arrow">›</div>
+    </div>
+
+    <div class="mb-item">
+      <div class="mb-icon">
+        <svg viewBox="0 0 24 24">
+          <path d="M4 5h16v11H8l-4 4V5Z"/>
+          <path d="M8 9h8M8 13h6"/>
+        </svg>
+      </div>
+
+      <div>
+        <b>Message Windows</b>
+        <span>Manage communication windows and channels.</span>
+      </div>
+
+      <div class="arrow">›</div>
+    </div>
+
+    <div class="mb-item">
+      <div class="mb-icon">
+        <svg viewBox="0 0 24 24">
+          <path d="M3 8l9-5 9 5-9 5-9-5Z"/>
+          <path d="M7 11v5c3 2 7 2 10 0v-5"/>
+        </svg>
+      </div>
+
+      <div>
+        <b>Counselor Access</b>
+        <span>Allow school counselor secure access.</span>
+      </div>
+
+      <div class="arrow">›</div>
+    </div>
+
+    <div class="mb-item">
+      <div class="mb-icon">
+        <svg viewBox="0 0 24 24">
+          <path d="M5 5h14M5 12h14M5 19h14"/>
+          <path d="M3 5h.01M3 12h.01M3 19h.01"/>
+        </svg>
+      </div>
+
+      <div>
+        <b>Audit Trail</b>
+        <span>Track activity, actions, and system logs.</span>
+      </div>
+
+      <div class="arrow">›</div>
+    </div>
+
+  </div>
+
+  <a class="mb-link" href="multi-box.html">
+    Open Multi-Box Settings ›
+  </a>
+
 </aside>
 
 <section class="panel readiness">
-  <div class="label">Athlete Readiness & Eligibility</div>
+
+  <div class="label">
+    Athlete Readiness & Eligibility
+  </div>
 
   <div class="readiness-grid">
+
     <div class="ready">
       <b>Verification</b>
-      <p>Document verification, identity, academic, and eligibility status.</p>
-      <a href="verification-request.html">View Status ›</a>
+
+      <p>
+        Document verification, identity,
+        academic, and eligibility status.
+      </p>
+
+      <a href="verification-request.html">
+        View Status ›
+      </a>
     </div>
 
     <div class="ready">
       <b>Readiness</b>
-      <p>Academic readiness, performance data, and development tracking.</p>
-      <a href="readiness.html">View Status ›</a>
+
+      <p>
+        Academic readiness, performance data,
+        and development tracking.
+      </p>
+
+      <a href="readiness.html">
+        View Status ›
+      </a>
     </div>
 
     <div class="ready eligibility">
+
       <div class="eligibility-head">
         <b>🏅 Eligibility</b>
         <span class="eligibility-sub">NCAA Tracking</span>
       </div>
-      <p>Eligibility awareness, NCAA clearinghouse, and compliance tracking.</p>
-      <a href="eligibility.html">View Status ›</a>
+
+      <p>
+        Eligibility awareness,
+        NCAA clearinghouse,
+        and compliance tracking.
+      </p>
+
+      <a href="eligibility.html">
+        View Status ›
+      </a>
+
     </div>
 
     <div class="ready">
       <b>College Pathway</b>
-      <p>Target schools, program fit, scholarship info, and recruiting opportunities.</p>
-      <a href="college-pathway.html">View Status ›</a>
+
+      <p>
+        Target schools, program fit,
+        scholarship info, and recruiting opportunities.
+      </p>
+
+      <a href="college-pathway.html">
+        View Status ›
+      </a>
     </div>
+
   </div>
+
 </section>
 
 <section class="flow">
-  <div class="flow-title">System Flow</div>
-  <div class="flow-step"><b>Profile</b><span>Create & Build</span></div>
-  <div class="flow-step"><b>Verification</b><span>Verify Identity</span></div>
-  <div class="flow-step"><b>Readiness</b><span>Track & Prepare</span></div>
-  <div class="flow-step"><b>Eligibility</b><span>Maintain Compliance</span></div>
-  <div class="flow-step"><b>Visibility</b><span>Control Access</span></div>
+
+  <div class="flow-title">
+    System Flow
+  </div>
+
+  <div class="flow-step">
+    <b>Profile</b>
+    <span>Create & Build</span>
+  </div>
+
+  <div class="flow-step">
+    <b>Verification</b>
+    <span>Verify Identity</span>
+  </div>
+
+  <div class="flow-step">
+    <b>Readiness</b>
+    <span>Track & Prepare</span>
+  </div>
+
+  <div class="flow-step">
+    <b>Eligibility</b>
+    <span>Maintain Compliance</span>
+  </div>
+
+  <div class="flow-step">
+    <b>Visibility</b>
+    <span>Control Access</span>
+  </div>
+
   <div class="flow-step">
     <a href="crystal-registry.html">
       <b>Crystal Reports</b>
       <span>Institutional Intelligence</span>
     </a>
   </div>
-  <div class="flow-step"><b>Recruiting</b><span>Connect & Engage</span></div>
-  <a class="flow-btn" href="#">View Full Flow ›</a>
+
+  <div class="flow-step">
+    <b>Recruiting</b>
+    <span>Connect & Engage</span>
+  </div>
+
+  <a class="flow-btn" href="#">
+    View Full Flow ›
+  </a>
+
 </section>
 
 </section>
 
 <footer class="footer">
-  <div class="footer-logo"><img src="sc_logo_black_v2.png" alt="STATScore"></div>
-  <div>National Athlete Infrastructure</div>
-  <div class="secure">✓ System Secure</div>
-  <div>© STATScore Systems<br>All Rights Reserved.</div>
+
+  <div class="footer-logo">
+    <img src="sc_logo_black_v2.png" alt="STATScore">
+  </div>
+
+  <div>
+    National Athlete Infrastructure
+  </div>
+
+  <div class="secure">
+    ✓ System Secure
+  </div>
+
+  <div>
+    © STATScore Systems<br>
+    All Rights Reserved.
+  </div>
+
 </footer>
 
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<!-- FOUNDATION -->
 <script src="statscore-core.js"></script>
 <script src="statscore-data.js"></script>
 <script src="statscore-role-access.js"></script>
 
+<!-- GOVERNANCE -->
 <script src="statscore-signal-governance.js"></script>
 <script src="statscore-state-engine.js"></script>
 <script src="statscore-compliance-engine.js"></script>
 <script src="statscore-quarterly-eligibility-engine.js"></script>
 <script src="statscore-routing.js"></script>
 
+<!-- INTELLIGENCE -->
 <script src="statscore-scoring-engine.js"></script>
 <script src="statscore-synthesis-engine.js"></script>
 <script src="statscore-consensus-engine.js"></script>
@@ -1216,61 +1437,50 @@ STATScore Athlete Search
 <script src="statscore-memory-engine.js"></script>
 <script src="statscore-intelligence.js"></script>
 
+<!-- OPERATIONAL -->
 <script src="statscore-athlete-search-engine.js"></script>
 <script src="statscore-event-engine.js"></script>
 <script src="statscore-media-routing.js"></script>
 <script src="statscore-evaluator-engine.js"></script>
 <script src="statscore-communication-engine.js"></script>
 
+<!-- ORCHESTRATION -->
 <script src="statscore-engine-loader.js"></script>
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  const input = document.getElementById("scAthleteSearchInput");
-  const button = document.getElementById("scAthleteSearchBtn");
-  const results = document.getElementById("scAthleteSearchResults");
 
-  async function runAthleteSearch(){
-    const query = input?.value?.trim() || "";
+  if (window.STATScore?.AthleteSearchEngine) {
 
-    if (!window.STATScore?.AthleteSearchEngine) {
-      if (results) results.innerHTML = "<div class='sc-search-message'>Athlete Search Engine unavailable.</div>";
-      return;
-    }
+    const searchInput = document.getElementById("scAthleteSearchInput");
+    const searchBtn = document.getElementById("scAthleteSearchBtn");
 
-    const report = await window.STATScore.AthleteSearchEngine.search(
-      { query },
-      {
-        role: "admin",
-        test_mode: true
+    const runSearch = async () => {
+
+      const query = searchInput.value?.trim();
+
+      if (!query) return;
+
+      const results =
+        await window.STATScore.AthleteSearchEngine.search({
+          query,
+          role: "admin",
+          test_mode: true
+        });
+
+      console.log("STATScore Search Results:", results);
+    };
+
+    searchBtn?.addEventListener("click", runSearch);
+
+    searchInput?.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        runSearch();
       }
-    );
+    });
 
-    if (!results) return;
-
-    if (!report.ok || !report.results?.length) {
-      results.innerHTML = `
-        <div class="sc-search-message">
-          ${report.message || report.status || "No athletes found."}
-        </div>
-      `;
-      return;
-    }
-
-    results.innerHTML = report.results.map((athlete) => `
-      <a class="sc-search-result-card" href="${athlete.profile_url}">
-        <b>${athlete.athlete_display_name || "Athlete"}</b>
-        <span>${athlete.sport || "Sport"} • ${athlete.position || "Position"} • Class ${athlete.graduation_class || "--"}</span>
-        <small>${athlete.school || "School"} • ${athlete.city_state || "City/State"}</small>
-      </a>
-    `).join("");
   }
 
-  button?.addEventListener("click", runAthleteSearch);
-
-  input?.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") runAthleteSearch();
-  });
 });
 </script>
 
