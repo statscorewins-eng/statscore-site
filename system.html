@@ -1460,6 +1460,15 @@ STATScore Athlete Search
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<script>
+  window.STATScoreSupabase = window.supabase.createClient(
+    "https://oyjmpbuxvfxusmbouldi.supabase.co",
+    "PASTE_YOUR_SUPABASE_ANON_KEY_HERE"
+  );
+
+  console.log("[STATScore] Supabase client exposed:", !!window.STATScoreSupabase);
+</script>
+
 <!-- FOUNDATION -->
 <script src="statscore-core.js"></script>
 <script src="statscore-data.js"></script>
@@ -1495,40 +1504,40 @@ STATScore Athlete Search
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+  const searchInput = document.getElementById("scAthleteSearchInput");
+  const searchBtn = document.getElementById("scAthleteSearchBtn");
 
-  if (window.STATScore?.AthleteSearchEngine) {
-
-    const searchInput = document.getElementById("scAthleteSearchInput");
-    const searchBtn = document.getElementById("scAthleteSearchBtn");
-
-    const runSearch = async () => {
-
-      const query = searchInput.value?.trim();
-
-      if (!query) return;
-
-      const results =
-        await window.STATScore.AthleteSearchEngine.search({
-          query,
-          role: "admin",
-          test_mode: true
-        });
-
-      console.log("STATScore Search Results:", results);
-    };
-
-    searchBtn?.addEventListener("click", runSearch);
-
-    searchInput?.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") {
-        runSearch();
-      }
-    });
-
+  if (!searchInput || !searchBtn) {
+    console.warn("[STATScore] Athlete search input/button not found.");
+    return;
   }
 
+  const runSearch = async () => {
+    const query = searchInput.value?.trim();
+
+    if (!query) return;
+
+    if (!window.STATScoreAthleteSearch?.search) {
+      console.error("[STATScore] STATScoreAthleteSearch.search unavailable.");
+      return;
+    }
+
+    await window.STATScoreAthleteSearch.search(query);
+  };
+
+  searchBtn.addEventListener("click", (event) => {
+    event.preventDefault();
+    runSearch();
+  });
+
+  searchInput.addEventListener("keypress", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      runSearch();
+    }
+  });
 });
-</script>
+</script> 
 
 </body> 
 
