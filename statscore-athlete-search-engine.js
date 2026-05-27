@@ -1,15 +1,16 @@
 /* ============================================================
    STATScore™ Athlete Search Engine
-   Full Production Replacement
-   Schema-aligned to public.statscore_snapshots
+   FULL PRODUCTION REPLACEMENT
+   Phase 1 Runtime + Flow Stabilization
+   Purpose:
+   Search → Resolve Athlete Snapshot → Route to player-profile.html
    ============================================================ */
 
 (function () {
   "use strict";
 
   const ENGINE_ID = "statscore-athlete-search-engine";
-  const VERSION = "v1.1-schema-aligned";
-
+  const VERSION = "v2.0-profile-router";
   const TABLE = "statscore_snapshots";
 
   const SEARCH_COLUMNS = [
@@ -61,45 +62,51 @@
     console.error(`[STATScore Athlete Search] ${message}`, payload || "");
   }
 
-  function getSupabaseClient() {
-    return (
-      window.statscoreSupabase ||
-      window.STATScoreSupabase ||
-      window.supabaseClient ||
-      window.supabase ||
-      null
-    );
-  }
-
-  function normalizeQuery(value) {
+  function normalize(value) {
     return String(value || "").trim();
   }
 
-  function escapeSupabaseValue(value) {
-    return String(value || "")
-      .replace(/\\/g, "\\\\")
-      .replace(/%/g, "\\%")
-      .replace(/_/g, "\\_")
-      .replace(/,/g, "\\,");
+  function lower(value) {
+    return normalize(value).toLowerCase();
+  }
+
+  function getSupabaseClient() {
+    if (window.STATScoreSupabase && typeof window.STATScoreSupabase.from === "function") {
+      return window.STATScoreSupabase;
+    }
+
+    if (window.statscoreSupabase && typeof window.statscoreSupabase.from === "function") {
+      return window.statscoreSupabase;
+    }
+
+    if (window.supabaseClient && typeof window.supabaseClient.from === "function") {
+      return window.supabaseClient;
+    }
+
+    if (window.STATSCORE_SUPABASE_CLIENT && typeof window.STATSCORE_SUPABASE_CLIENT.from === "function") {
+      return window.STATSCORE_SUPABASE_CLIENT;
+    }
+
+    return null;
   }
 
   function buildOrFilter(query) {
-    const q = escapeSupabaseValue(query);
+    const q = normalize(query).replace(/,/g, "\\,");
     return SEARCH_COLUMNS.map((column) => `${column}.ilike.%${q}%`).join(",");
   }
 
-  function fullName(row) {
+  function displayName(row) {
     if (row.athlete_display_name) return row.athlete_display_name;
 
-    const name = [row.first_name, row.last_name].filter(Boolean).join(" ").trim();
-    return name || "Unnamed Athlete";
+    const joined = [row.first_name, row.last_name].filter(Boolean).join(" ").trim();
+    return joined || "Unnamed Athlete";
   }
 
   function normalizeRow(row) {
     return {
       snapshot_id: row.snapshot_id || "",
       athlete_id: row.athlete_id || "",
-      athlete_display_name: fullName(row),
+      athlete_display_name: displayName(row),
       first_name: row.first_name || "",
       last_name: row.last_name || "",
       graduation_class: row.graduation_class || "",
@@ -111,8 +118,8 @@
       snapshot_status: row.snapshot_status || "",
       verification_status: row.verification_status || "",
       score_status: row.score_status || "",
-      ncaa_eligibility_status: row.ncaa_eligibility_status || "",
       current_gpa: row.current_gpa || "",
+      ncaa_eligibility_status: row.ncaa_eligibility_status || "",
       highlight_url: row.highlight_url || "",
       game_film_url: row.game_film_url || "",
       recruiting_profile_url: row.recruiting_profile_url || "",
@@ -129,137 +136,6 @@
     if (row.athlete_id) params.set("athlete_id", row.athlete_id);
 
     return `player-profile.html?${params.toString()}`;
-  }
-
-  function demoAthletes() {
-    return [
-      {
-        athlete_id: "test-athlete-football-001",
-        snapshot_id: "test-snapshot-football-001",
-        athlete_display_name: "Demo Football Athlete",
-        primary_sport: "football",
-        primary_position: "QB",
-        secondary_position: "",
-        graduation_class: "2027",
-        school_program: "STATScore Demo High",
-        city_state: "Pensacola, FL",
-        snapshot_status: "TEST_MODE",
-        verification_status: "TEST_MODE",
-        score_status: "TEST_PENDING",
-        ncaa_eligibility_status: "TEST_PENDING"
-      },
-      {
-        athlete_id: "test-athlete-basketball-001",
-        snapshot_id: "test-snapshot-basketball-001",
-        athlete_display_name: "Demo Basketball Athlete",
-        primary_sport: "basketball",
-        primary_position: "Guard",
-        secondary_position: "",
-        graduation_class: "2028",
-        school_program: "STATScore Demo High",
-        city_state: "Pensacola, FL",
-        snapshot_status: "TEST_MODE",
-        verification_status: "TEST_MODE",
-        score_status: "TEST_PENDING",
-        ncaa_eligibility_status: "TEST_PENDING"
-      },
-      {
-        athlete_id: "test-athlete-baseball-001",
-        snapshot_id: "test-snapshot-baseball-001",
-        athlete_display_name: "Demo Baseball Athlete",
-        primary_sport: "baseball",
-        primary_position: "Pitcher",
-        secondary_position: "",
-        graduation_class: "2027",
-        school_program: "STATScore Demo High",
-        city_state: "Pensacola, FL",
-        snapshot_status: "TEST_MODE",
-        verification_status: "TEST_MODE",
-        score_status: "TEST_PENDING",
-        ncaa_eligibility_status: "TEST_PENDING"
-      },
-      {
-        athlete_id: "test-athlete-track-001",
-        snapshot_id: "test-snapshot-track-001",
-        athlete_display_name: "Demo Track Athlete",
-        primary_sport: "track",
-        primary_position: "100m",
-        secondary_position: "200m",
-        graduation_class: "2026",
-        school_program: "STATScore Demo High",
-        city_state: "Pensacola, FL",
-        snapshot_status: "TEST_MODE",
-        verification_status: "TEST_MODE",
-        score_status: "TEST_PENDING",
-        ncaa_eligibility_status: "TEST_PENDING"
-      }
-    ];
-  }
-
-  async function searchDatabase(query) {
-    const client = getSupabaseClient();
-
-    if (!client || typeof client.from !== "function") {
-      warn("Supabase client unavailable. Using demo fallback.");
-      return {
-        ok: true,
-        status: "DEMO_FALLBACK",
-        source: "DEMO",
-        count: demoAthletes().length,
-        results: filterDemo(query)
-      };
-    }
-
-    const orFilter = buildOrFilter(query);
-
-    const { data, error: dbError } = await client
-      .from(TABLE)
-      .select(SELECT_COLUMNS)
-      .or(orFilter)
-      .order("updated_at", { ascending: false })
-      .limit(25);
-
-    if (dbError) {
-      error("Database search failed:", dbError);
-      return {
-        ok: false,
-        status: "SEARCH_FAILED",
-        source: "DATABASE",
-        count: 0,
-        error: dbError,
-        results: []
-      };
-    }
-
-    const results = Array.isArray(data) ? data.map(normalizeRow) : [];
-
-    return {
-      ok: true,
-      status: "SEARCH_COMPLETE",
-      source: "DATABASE",
-      count: results.length,
-      results
-    };
-  }
-
-  function filterDemo(query) {
-    const q = normalizeQuery(query).toLowerCase();
-
-    return demoAthletes()
-      .filter((row) => {
-        return [
-          row.athlete_display_name,
-          row.primary_sport,
-          row.primary_position,
-          row.secondary_position,
-          row.graduation_class,
-          row.school_program,
-          row.city_state
-        ]
-          .filter(Boolean)
-          .some((value) => String(value).toLowerCase().includes(q));
-      })
-      .map(normalizeRow);
   }
 
   function findSearchInput() {
@@ -292,15 +168,15 @@
     container = document.createElement("div");
     container.id = "statscore-athlete-search-results";
     container.setAttribute("data-statscore-athlete-search-results", "true");
-
+    container.style.display = "none";
     container.style.position = "relative";
     container.style.zIndex = "9999";
+    container.style.maxWidth = "760px";
     container.style.margin = "8px 0 18px 0";
-    container.style.maxWidth = "720px";
-    container.style.background = "rgba(5, 8, 14, 0.96)";
-    container.style.border = "1px solid rgba(255, 52, 52, 0.55)";
-    container.style.boxShadow = "0 10px 30px rgba(0,0,0,.45)";
-    container.style.display = "none";
+    container.style.background = "rgba(5,8,14,.97)";
+    container.style.border = "1px solid rgba(255,52,52,.65)";
+    container.style.boxShadow = "0 12px 32px rgba(0,0,0,.5)";
+    container.style.color = "#fff";
 
     if (input && input.parentElement) {
       input.parentElement.insertAdjacentElement("afterend", container);
@@ -311,75 +187,87 @@
     return container;
   }
 
-  function renderResults(container, response) {
-    if (!container) return;
+  function clearResults() {
+    const container =
+      document.querySelector("[data-statscore-athlete-search-results]") ||
+      document.querySelector("#statscore-athlete-search-results");
 
+    if (container) {
+      container.innerHTML = "";
+      container.style.display = "none";
+    }
+  }
+
+  function renderNoMatch(container, query) {
+    container.innerHTML = "";
+    container.style.display = "block";
+
+    container.innerHTML = `
+      <div style="padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.14);font-weight:900;letter-spacing:.12em;text-transform:uppercase;">
+        STATScore Search
+      </div>
+      <div style="padding:16px;color:#cfd8e3;">
+        No athlete profile matched: <strong>${query}</strong>
+      </div>
+    `;
+  }
+
+  function renderError(container, message) {
+    container.innerHTML = "";
+    container.style.display = "block";
+
+    container.innerHTML = `
+      <div style="padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.14);font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#ff3434;">
+        STATScore Search Error
+      </div>
+      <div style="padding:16px;color:#ffb4b4;">
+        ${message}
+      </div>
+    `;
+  }
+
+  function renderMultiple(container, results) {
     container.innerHTML = "";
     container.style.display = "block";
 
     const header = document.createElement("div");
-    header.style.padding = "10px 12px";
-    header.style.color = "#ffffff";
-    header.style.fontWeight = "900";
-    header.style.letterSpacing = "0.12em";
-    header.style.textTransform = "uppercase";
+    header.style.padding = "14px 16px";
     header.style.borderBottom = "1px solid rgba(255,255,255,.14)";
-    header.textContent = response.ok
-      ? `STATScore Search Results (${response.count})`
-      : "STATScore Search Failed";
-
+    header.style.fontWeight = "900";
+    header.style.letterSpacing = ".12em";
+    header.style.textTransform = "uppercase";
+    header.textContent = `STATScore Search Results (${results.length})`;
     container.appendChild(header);
 
-    if (!response.ok) {
-      const fail = document.createElement("div");
-      fail.style.padding = "12px";
-      fail.style.color = "#ffb4b4";
-      fail.textContent =
-        "Search could not complete. Runtime stayed alive. Check console for schema or database details.";
-      container.appendChild(fail);
-      return;
-    }
+    results.forEach((row) => {
+      const button = document.createElement("button");
+      button.type = "button";
 
-    if (!response.results.length) {
-      const empty = document.createElement("div");
-      empty.style.padding = "12px";
-      empty.style.color = "#cfd8e3";
-      empty.textContent = "No matching athlete records found.";
-      container.appendChild(empty);
-      return;
-    }
+      button.style.display = "block";
+      button.style.width = "100%";
+      button.style.textAlign = "left";
+      button.style.padding = "14px 16px";
+      button.style.background = "rgba(255,255,255,.035)";
+      button.style.border = "0";
+      button.style.borderBottom = "1px solid rgba(255,255,255,.1)";
+      button.style.color = "#fff";
+      button.style.cursor = "pointer";
 
-    response.results.forEach((row) => {
-      const item = document.createElement("button");
-      item.type = "button";
-
-      item.style.display = "block";
-      item.style.width = "100%";
-      item.style.textAlign = "left";
-      item.style.padding = "12px";
-      item.style.cursor = "pointer";
-      item.style.background = "rgba(255,255,255,.035)";
-      item.style.border = "0";
-      item.style.borderBottom = "1px solid rgba(255,255,255,.1)";
-      item.style.color = "#fff";
-
-      const positionLine = [
+      const line = [
         row.primary_sport,
         row.primary_position,
         row.secondary_position,
         row.graduation_class
-      ]
-        .filter(Boolean)
-        .join(" · ");
+      ].filter(Boolean).join(" · ");
 
-      item.innerHTML = `
-        <div style="font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:#fff;">
+      button.innerHTML = `
+        <div style="font-weight:900;letter-spacing:.08em;text-transform:uppercase;">
           ${row.athlete_display_name}
         </div>
-        <div style="margin-top:4px;color:#ff3434;font-weight:800;letter-spacing:.08em;text-transform:uppercase;">
-          ${positionLine || "Athlete Profile"}
+        <div style="margin-top:5px;color:#ff3434;font-weight:800;letter-spacing:.08em;text-transform:uppercase;">
+          ${line || "Athlete Profile"}
         </div>
-        <div style="margin-top:4px;color:#b9c4d6;">
+        <div style="margin-top:5px;color:#b9c4d6;">
           ${(row.school_program || "Program Pending")} · ${(row.city_state || "Location Pending")}
         </div>
         <div style="margin-top:6px;color:#9fe7ff;font-size:12px;text-transform:uppercase;letter-spacing:.08em;">
@@ -387,20 +275,101 @@
         </div>
       `;
 
-      item.addEventListener("click", () => {
-        const url = profileUrl(row);
-        log("Routing to athlete profile:", url);
-        window.location.href = url;
+      button.addEventListener("click", function () {
+        routeToProfile(row);
       });
 
-      container.appendChild(item);
+      container.appendChild(button);
+    });
+  }
+
+  function routeToProfile(row) {
+    if (!row || (!row.snapshot_id && !row.athlete_id)) {
+      error("Cannot route. Athlete row missing snapshot_id and athlete_id.", row);
+      return;
+    }
+
+    const url = profileUrl(row);
+    log("Routing to player profile:", url);
+
+    if (window.STATScoreEngineBus && typeof window.STATScoreEngineBus.emit === "function") {
+      window.STATScoreEngineBus.emit("athlete_profile_route_requested", {
+        engine: ENGINE_ID,
+        snapshot_id: row.snapshot_id,
+        athlete_id: row.athlete_id,
+        url
+      });
+    }
+
+    window.location.href = url;
+  }
+
+  async function searchLiveDatabase(query) {
+    const client = getSupabaseClient();
+
+    if (!client) {
+      return {
+        ok: false,
+        status: "SUPABASE_CLIENT_UNAVAILABLE",
+        source: "CLIENT",
+        count: 0,
+        results: []
+      };
+    }
+
+    const { data, error: dbError } = await client
+      .from(TABLE)
+      .select(SELECT_COLUMNS)
+      .or(buildOrFilter(query))
+      .order("updated_at", { ascending: false })
+      .limit(20);
+
+    if (dbError) {
+      return {
+        ok: false,
+        status: "DATABASE_SEARCH_FAILED",
+        source: "DATABASE",
+        error: dbError,
+        count: 0,
+        results: []
+      };
+    }
+
+    const results = Array.isArray(data) ? data.map(normalizeRow) : [];
+
+    return {
+      ok: true,
+      status: "SEARCH_COMPLETE",
+      source: "DATABASE",
+      count: results.length,
+      results
+    };
+  }
+
+  function exactSort(query, results) {
+    const q = lower(query);
+
+    return results.slice().sort((a, b) => {
+      const aName = lower(a.athlete_display_name);
+      const bName = lower(b.athlete_display_name);
+
+      if (aName === q && bName !== q) return -1;
+      if (bName === q && aName !== q) return 1;
+
+      if (aName.startsWith(q) && !bName.startsWith(q)) return -1;
+      if (bName.startsWith(q) && !aName.startsWith(q)) return 1;
+
+      return aName.localeCompare(bName);
     });
   }
 
   async function runSearch(query, options) {
-    const q = normalizeQuery(query);
+    const q = normalize(query);
+    const input = findSearchInput();
+    const container = ensureResultsContainer(input);
 
     if (!q) {
+      renderError(container, "Enter an athlete name, school, sport, class, or position.");
       return {
         ok: false,
         status: "EMPTY_QUERY",
@@ -410,20 +379,38 @@
       };
     }
 
-    const response = await searchDatabase(q);
+    const response = await searchLiveDatabase(q);
 
-    log("Search Results:", response);
+    log("Search response:", response);
 
-    if (options && options.render !== false) {
-      const input = findSearchInput();
-      const container = ensureResultsContainer(input);
-      renderResults(container, response);
+    if (!response.ok) {
+      if (response.status === "SUPABASE_CLIENT_UNAVAILABLE") {
+        renderError(
+          container,
+          "Supabase client unavailable. Live athlete search cannot run until the STATScore Supabase client is exposed on this page."
+        );
+      } else {
+        renderError(container, "Database search failed. Check console for details.");
+        error("Database search failed:", response.error || response);
+      }
+
+      return response;
     }
 
-    if (window.STATScoreEngineBus && typeof window.STATScoreEngineBus.emit === "function") {
-      window.STATScoreEngineBus.emit("athlete_search_completed", response);
+    const results = exactSort(q, response.results);
+
+    if (!results.length) {
+      renderNoMatch(container, q);
+      return response;
     }
 
+    if (results.length === 1 || lower(results[0].athlete_display_name) === lower(q)) {
+      clearResults();
+      routeToProfile(results[0]);
+      return response;
+    }
+
+    renderMultiple(container, results);
     return response;
   }
 
@@ -431,17 +418,14 @@
     const input = findSearchInput();
 
     if (!input) {
-      warn("Search input not found. Engine loaded in API mode only.");
+      warn("Search input not found. Engine loaded API-only.");
       return;
     }
 
     const button = findSearchButton(input);
-    const container = ensureResultsContainer(input);
 
-    const execute = async () => {
-      const query = normalizeQuery(input.value);
-      const response = await runSearch(query, { render: true });
-      renderResults(container, response);
+    const execute = function () {
+      runSearch(input.value);
     };
 
     if (button) {
@@ -458,16 +442,16 @@
       }
     });
 
-    log("Search UI bound successfully.");
+    log("Search UI bound. Mode: search-to-profile router.");
   }
 
   function init() {
-    if (window.__STATSCORE_ATHLETE_SEARCH_LOADED__) {
+    if (window.__STATSCORE_ATHLETE_SEARCH_ENGINE_V2__) {
       warn("Duplicate initialization blocked.");
       return;
     }
 
-    window.__STATSCORE_ATHLETE_SEARCH_LOADED__ = true;
+    window.__STATSCORE_ATHLETE_SEARCH_ENGINE_V2__ = true;
 
     window.STATScoreAthleteSearch = {
       engine_id: ENGINE_ID,
@@ -476,10 +460,9 @@
       search_columns: SEARCH_COLUMNS.slice(),
       select_columns: SELECT_COLUMNS,
       search: runSearch,
-      demoAthletes,
-      normalizeRow,
+      routeToProfile,
       profileUrl,
-      init
+      normalizeRow
     };
 
     bindSearchUI();
@@ -488,15 +471,15 @@
       window.STATScoreEngineBus.emit("engine_online", {
         engine: ENGINE_ID,
         version: VERSION,
-        status: "ONLINE"
+        status: "ONLINE",
+        mode: "SEARCH_TO_PROFILE_ROUTER"
       });
     }
 
     log("Engine online.", {
       engine: ENGINE_ID,
       version: VERSION,
-      table: TABLE,
-      schema: "primary_sport aligned"
+      mode: "SEARCH_TO_PROFILE_ROUTER"
     });
   }
 
