@@ -1,8 +1,9 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
 <title>STATScore™ — Player Profile</title>
 
 <style>
@@ -193,7 +194,10 @@ a{text-decoration:none;color:inherit}
   text-transform:uppercase;
 }
 
-.image-card{padding:16px 16px 12px;min-height:430px}
+.image-card{
+  padding:16px 16px 12px;
+  min-height:430px;
+}
 
 .image-frame{
   margin-top:22px;
@@ -252,7 +256,10 @@ a{text-decoration:none;color:inherit}
   text-transform:uppercase;
 }
 
-.identity-card{padding:18px 20px;overflow:hidden}
+.identity-card{
+  padding:18px 20px;
+  overflow:hidden;
+}
 
 .identity-kicker{
   color:var(--red);
@@ -285,7 +292,12 @@ a{text-decoration:none;color:inherit}
   color:var(--red);
 }
 
-.tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.tags{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:20px;
+}
 
 .tag{
   border:1px solid var(--line2);
@@ -340,12 +352,16 @@ a{text-decoration:none;color:inherit}
   font-size:.96rem;
 }
 
-.score-card{padding:18px 16px}
+/* RIGHT INTELLIGENCE RAIL */
+
+.score-card{
+  padding:18px 16px 22px;
+}
 
 .score-ring{
-  width:164px;
-  height:164px;
-  margin:18px auto 16px;
+  width:154px;
+  height:154px;
+  margin:18px auto 14px;
   border-radius:50%;
   display:flex;
   flex-direction:column;
@@ -363,46 +379,136 @@ a{text-decoration:none;color:inherit}
   background:#111822;
 }
 
-.score-ring span,.score-ring b{position:relative;z-index:2}
+.score-ring span,.score-ring b{
+  position:relative;
+  z-index:2;
+}
 
 .score-ring span{
   color:var(--red);
-  font-size:.7rem;
+  font-size:.68rem;
   font-weight:900;
   letter-spacing:.1em;
   text-transform:uppercase;
 }
 
 .score-ring b{
-  font-size:3.65rem;
+  font-size:3.35rem;
   line-height:.9;
 }
 
 .score-note{
   color:#d9e6ef;
-  font-size:.78rem;
-  line-height:1.45;
+  font-size:.76rem;
+  line-height:1.42;
   text-align:center;
+  margin:0;
 }
 
-.action-stack{display:grid;gap:10px;margin-top:22px}
+/* GOVERNANCE STATUS */
+
+.intelligence-status{
+  margin-top:16px;
+  border:1px solid rgba(255,255,255,.16);
+  background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.015));
+}
+
+.intelligence-status-header{
+  min-height:38px;
+  display:flex;
+  align-items:center;
+  padding:0 13px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  color:var(--red);
+  font-size:.62rem;
+  font-weight:900;
+  letter-spacing:.17em;
+  text-transform:uppercase;
+}
+
+.intelligence-status-body{
+  padding:12px 13px;
+  display:grid;
+  gap:9px;
+}
+
+.intelligence-row{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.intelligence-row span{
+  color:var(--blue);
+  font-size:.59rem;
+  font-weight:900;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+}
+
+.intelligence-row b{
+  color:#fff;
+  font-size:.62rem;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  text-align:right;
+  line-height:1.2;
+}
+
+.intelligence-row b.warning{color:var(--gold)}
+.intelligence-row b.locked{color:#ff7c7c}
+.intelligence-row b.live{color:var(--green)}
+
+/* ACTION STACK */
+
+.action-stack{
+  display:grid;
+  gap:9px;
+  margin-top:16px;
+}
 
 .action{
-  min-height:44px;
-  border:1px solid var(--line2);
+  min-height:40px;
+  border:1px solid rgba(255,255,255,.22);
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:0 16px;
+  padding:0 14px;
   text-transform:uppercase;
-  font-size:.72rem;
+  font-size:.66rem;
   font-weight:900;
-  letter-spacing:.12em;
+  letter-spacing:.11em;
+  background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.015));
+  transition:.18s ease;
+}
+
+.action:hover{
+  transform:translateY(-1px);
+  border-color:rgba(255,255,255,.34);
 }
 
 .action.primary{
   border-color:var(--red);
   color:var(--red);
+  background:linear-gradient(180deg,rgba(255,43,31,.12),rgba(255,255,255,.02));
+}
+
+.action.secondary{color:#e9eef2}
+
+.action.locked{
+  color:#6d7680;
+  border-color:rgba(255,255,255,.10);
+  background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.01));
+  cursor:not-allowed;
+}
+
+.action.locked span{color:#ff9c9c}
+
+.action.approved{
+  border-color:var(--green);
+  color:var(--green);
+  background:linear-gradient(180deg,rgba(37,211,102,.14),rgba(255,255,255,.02));
 }
 
 /* METRICS */
@@ -451,7 +557,9 @@ a{text-decoration:none;color:inherit}
   margin-top:14px;
 }
 
-.block{padding:18px 20px}
+.block{
+  padding:18px 20px;
+}
 
 .block h2{
   margin:0 0 12px;
@@ -474,6 +582,8 @@ a{text-decoration:none;color:inherit}
   color:#bdefff;
   font-size:.82rem;
 }
+
+/* TRAITS */
 
 .traits{
   margin-top:14px;
@@ -518,12 +628,12 @@ a{text-decoration:none;color:inherit}
 }
 
 .trait-score.pending{
-  color:#f4c542;
+  color:var(--gold);
   letter-spacing:.12em;
   font-size:.62rem;
 }
 
-/* STATScore INTELLIGENCE PANEL */
+/* INTELLIGENCE PANEL */
 
 .sc-intelligence-panel{
   margin-top:22px;
@@ -556,7 +666,6 @@ a{text-decoration:none;color:inherit}
   font-size:clamp(1.45rem,2.1vw,1.9rem);
   line-height:1.05;
   text-transform:uppercase;
-  letter-spacing:.01em;
 }
 
 .sc-badge{
@@ -605,19 +714,7 @@ a{text-decoration:none;color:inherit}
   color:#fff;
   font-size:clamp(1.05rem,1.45vw,1.42rem);
   line-height:1.14;
-  letter-spacing:.015em;
   text-transform:uppercase;
-  white-space:normal;
-  overflow-wrap:break-word;
-  word-break:normal;
-  max-width:100%;
-}
-
-#scStarSignal,
-#scExposureGap,
-#scProjectionLane{
-  font-size:clamp(1rem,1.35vw,1.32rem);
-  line-height:1.16;
 }
 
 .sc-intel-card p{
@@ -713,9 +810,7 @@ a{text-decoration:none;color:inherit}
 }
 
 @media(max-width:1100px){
-  .sc-intel-grid{
-    grid-template-columns:repeat(2,minmax(0,1fr));
-  }
+  .sc-intel-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 
 @media(max-width:900px){
@@ -724,9 +819,7 @@ a{text-decoration:none;color:inherit}
   }
 
   .header{height:auto}
-
   .header-title,.header-nav{padding:14px}
-
   .main{padding:18px 14px 0}
 
   .record-header{
@@ -735,22 +828,11 @@ a{text-decoration:none;color:inherit}
   }
 
   .record-title{font-size:2.6rem}
-
   .name{font-size:3rem}
-
   .image-frame{height:390px}
-
-  .sc-intel-grid{
-    grid-template-columns:1fr;
-  }
-
-  .sc-intel-header{
-    flex-direction:column;
-  }
-
-  .sc-badge{
-    white-space:normal;
-  }
+  .sc-intel-grid{grid-template-columns:1fr}
+  .sc-intel-header{flex-direction:column}
+  .sc-badge{white-space:normal}
 }
 </style>
 </head>
@@ -847,10 +929,44 @@ a{text-decoration:none;color:inherit}
       Official production score requires Snapshot intake, verification, and rules-based calculation.
     </p>
 
+    <section class="intelligence-status">
+      <div class="intelligence-status-header">Governance Intelligence</div>
+      <div class="intelligence-status-body">
+        <div class="intelligence-row">
+          <span>Guardian Status</span>
+          <b class="warning" id="guardianStatus">Parent Approval Required</b>
+        </div>
+        <div class="intelligence-row">
+          <span>Visibility</span>
+          <b id="visibilityStatus">Limited</b>
+        </div>
+        <div class="intelligence-row">
+          <span>Recruiting</span>
+          <b class="locked" id="recruitingStatus">Locked</b>
+        </div>
+      </div>
+    </section>
+
     <div class="action-stack">
-      <a class="action primary" href="#" onclick="copyShareLink();return false;">Share Profile <span>›</span></a>
-      <a class="action" href="verification.html?snapshot=latest">Request Verification <span>›</span></a>
-      <a class="action" href="snapshot-intake.html">View Snapshot Path <span>›</span></a>
+      <a class="action primary" id="parentApprovalAction" href="#">
+        Request Parent Approval <span>›</span>
+      </a>
+
+      <a class="action secondary" id="verificationAction" href="#">
+        Request Verification <span>›</span>
+      </a>
+
+      <a class="action secondary" id="snapshotPathAction" href="snapshot-intake.html">
+        View Snapshot Path <span>›</span>
+      </a>
+
+      <div class="action locked" id="shareProfileAction">
+        🔒 Share Profile <span>Locked</span>
+      </div>
+
+      <div class="action locked" id="recruiterAccessAction">
+        🔒 Recruiter Access <span>Locked</span>
+      </div>
     </div>
   </aside>
 
@@ -875,8 +991,8 @@ a{text-decoration:none;color:inherit}
   <article class="block">
     <div class="label">Recruiting Visibility</div>
     <h2>Controlled Access</h2>
-    <div class="list-item"><b>Recruiter View</b><span>Public profile visible. Extended access requires request approval.</span></div>
-    <div class="list-item"><b>Contact Status</b><span>Communication routed through Multi-Box™ permissions.</span></div>
+    <div class="list-item"><b>Recruiter View</b><span id="recruiterViewStatus">Public profile visible. Extended access requires parent approval.</span></div>
+    <div class="list-item"><b>Contact Status</b><span id="contactStatusText">Communication routed through Multi-Box™ permissions.</span></div>
     <div class="list-item"><b>Exposure Lane</b><span id="exposureLaneText">Visibility lane generated after verified Snapshot scoring.</span></div>
   </article>
 
@@ -957,18 +1073,18 @@ a{text-decoration:none;color:inherit}
 
 <section class="flow">
   <div class="flow-title">Visibility Path</div>
-  <div class="flow-step"><b>Profile</b><span>Public Share</span></div>
+  <div class="flow-step"><b>Profile</b><span>Public View</span></div>
   <div class="flow-step"><b>Snapshot</b><span>Data Intake</span></div>
   <div class="flow-step"><b>Verification</b><span>Trust Layer</span></div>
+  <div class="flow-step"><b>Parent Gate</b><span>Approval</span></div>
   <div class="flow-step"><b>Multi-Box™</b><span>Permissions</span></div>
-  <div class="flow-step"><b>Recruiting</b><span>Controlled Reach</span></div>
   <div class="flow-step">
     <a href="crystal-registry.html">
       <b>Crystal</b>
       <span>Athlete Intelligence</span>
     </a>
   </div>
-  <a class="action primary" href="#" onclick="copyShareLink();return false;">Copy Share Link ›</a>
+  <a class="action primary" id="footerParentApprovalAction" href="#">Request Approval ›</a>
 </section>
 
 <footer class="footer">
@@ -980,7 +1096,15 @@ a{text-decoration:none;color:inherit}
 
 </main>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+window.STATScoreSupabase = window.supabase.createClient(
+  "https://oyjmpbuxvfxusmbouldi.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk"
+);
+</script>
 
 <!-- FOUNDATION -->
 <script src="statscore-core.js"></script>
@@ -993,6 +1117,12 @@ a{text-decoration:none;color:inherit}
 <script src="statscore-compliance-engine.js"></script>
 <script src="statscore-quarterly-eligibility-engine.js"></script>
 <script src="statscore-routing.js"></script>
+
+<!-- PHASE 2 RUNTIME CORE -->
+<script src="sc-runtime-state-engine.js"></script>
+<script src="sc-receipt-ledger-engine.js"></script>
+<script src="sc-governance-sync-engine.js"></script>
+<script src="sc-dynamic-athlete-engine.js"></script>
 
 <!-- INTELLIGENCE -->
 <script src="statscore-scoring-engine.js"></script>
@@ -1015,12 +1145,11 @@ a{text-decoration:none;color:inherit}
 <script src="statscore-engine-loader.js"></script>
 
 <script>
-
 function setText(id, value, fallback = "--"){
   const el = document.getElementById(id);
   if (!el) return;
   el.textContent = value || fallback;
-} 
+}
 
 function escapeHTML(value){
   return String(value || "")
@@ -1082,6 +1211,10 @@ function normalizeSnapshot(response){
     verified_event_source: raw.verifiedEventSource || "",
     position_notes: raw.positionNotes || "",
 
+    guardian_email: raw.guardianEmail || raw.parentEmail || raw.guardian_email || "",
+    guardian_phone: raw.guardianPhone || raw.parentPhone || raw.guardian_phone || "",
+    guardian_approval_status: raw.guardianApprovalStatus || raw.guardian_approval_status || snap.guardian_approval_status || "PENDING",
+
     headshot_url:
       raw.headshotPublicUrl ||
       raw.headshot_public_url ||
@@ -1101,7 +1234,7 @@ async function loadSnapshot(){
     return null;
   }
 
-  const db = window.STATScoreData?.getClient?.();
+  const db = window.STATScoreData?.getClient?.() || window.STATScoreSupabase;
 
   if (!db) {
     console.error("STATScoreData client unavailable.");
@@ -1158,14 +1291,14 @@ function renderProfile(snapshot){
 
   setText(
     "profileBio",
-    `${snapshot.athlete_display_name} is a ${snapshot.class_year} ${snapshot.sport} athlete listed at ${snapshot.position}. This profile has been generated from Snapshot Intake and is staged for verification, scoring, and controlled visibility routing.`
+    `${snapshot.athlete_display_name} is a ${snapshot.class_year} ${snapshot.sport} athlete listed at ${snapshot.position}. This profile has been generated from Snapshot Intake and is staged for verification, scoring, parent approval, and controlled visibility routing.`
   );
 
   setText("scoreValue", "--");
   setText("scoreStatus", statscoreLabel);
   setText(
     "scoreNote",
-    `Snapshot data has been received. Current release status: ${statscoreLabel}. Official scoring rules remain pending until verification is complete.`
+    `Snapshot data has been received. Current release status: ${statscoreLabel}. Official scoring and public recruiting actions remain pending until verification and guardian approval are complete.`
   );
 
   setText("metricSpeed", snapshot.dash40);
@@ -1177,12 +1310,13 @@ function renderProfile(snapshot){
   setText("campStatus", snapshot.verified_event_source || "Camp / combine source pending.");
   setText("mediaStatus", snapshot.social_profile_url || snapshot.recruiting_profile_url || "Media exposure route pending.");
 
-  setText("exposureLaneText", `Visibility lane active under ${statscoreLabel}.`);
+  setText("exposureLaneText", `Visibility lane active under ${statscoreLabel}; recruiting actions require guardian approval.`);
   setText("primaryFocus", snapshot.position_notes || "Generated after verification review.");
   setText("verificationNeed", "Coach confirmation, guardian permission, metric evidence, and academic readiness review.");
 
   renderAthleteImage(snapshot.headshot_url, snapshot.athlete_display_name);
   renderSTATScoreIntelligence(statscoreLabel);
+  renderGuardianGovernance(snapshot);
 }
 
 function renderSTATScoreIntelligence(statscoreLabel){
@@ -1195,19 +1329,96 @@ function renderSTATScoreIntelligence(statscoreLabel){
   setText("scVarsityYears", "--");
 
   setText("scStarExplanation", `${statscoreLabel} remains pending until verified scoring rules are applied.`);
-  setText("scExposureExplanation", "Visibility intelligence remains pending until verification and scoring are complete.");
+  setText("scExposureExplanation", "Visibility intelligence remains pending until verification, scoring, and guardian permissions are complete.");
 
   const reasons = [
     "Snapshot Intake has created the athlete profile packet.",
     "Athlete identity, required headshot, media, metrics, academics, guardian, and coach information are staged for verification.",
     `Current public scoring label is ${statscoreLabel}.`,
     "Official STATScore output must wait for verified evidence and rules-based scoring.",
+    "Recruiter access and sharing remain governed by parent approval.",
     "Athletic intelligence and academic readiness remain separate lanes."
   ];
 
   const list = document.getElementById("scWhyList");
   if (list) {
     list.innerHTML = reasons.map(reason => `<li>${escapeHTML(reason)}</li>`).join("");
+  }
+}
+
+function renderGuardianGovernance(snapshot){
+  const snapshotId = snapshot.snapshot_id || getSnapshotId();
+  const rawStatus = String(snapshot.guardian_approval_status || "PENDING").toUpperCase();
+  const guardianApproved = rawStatus === "APPROVED";
+
+  const guardianStatus = guardianApproved ? "Approved" : "Parent Approval Required";
+  const visibilityStatus = guardianApproved ? "Full" : "Limited";
+  const recruitingStatus = guardianApproved ? "Enabled" : "Locked";
+
+  setText("guardianStatus", guardianStatus);
+  setText("visibilityStatus", visibilityStatus);
+  setText("recruitingStatus", recruitingStatus);
+
+  const guardianEl = document.getElementById("guardianStatus");
+  const recruitingEl = document.getElementById("recruitingStatus");
+
+  if (guardianEl) {
+    guardianEl.className = guardianApproved ? "live" : "warning";
+  }
+
+  if (recruitingEl) {
+    recruitingEl.className = guardianApproved ? "live" : "locked";
+  }
+
+  const approvalUrl = `parent-approval.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
+  const verificationUrl = `verification.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
+
+  const approvalBtn = document.getElementById("parentApprovalAction");
+  const footerApprovalBtn = document.getElementById("footerParentApprovalAction");
+  const verificationBtn = document.getElementById("verificationAction");
+  const shareBtn = document.getElementById("shareProfileAction");
+  const recruiterBtn = document.getElementById("recruiterAccessAction");
+
+  if (approvalBtn) {
+    approvalBtn.href = approvalUrl;
+    if (guardianApproved) {
+      approvalBtn.classList.remove("primary");
+      approvalBtn.classList.add("approved");
+      approvalBtn.innerHTML = `Parent Approved <span>✓</span>`;
+    }
+  }
+
+  if (footerApprovalBtn) {
+    footerApprovalBtn.href = approvalUrl;
+    footerApprovalBtn.textContent = guardianApproved ? "Parent Approved ✓" : "Request Approval ›";
+  }
+
+  if (verificationBtn) {
+    verificationBtn.href = verificationUrl;
+  }
+
+  if (guardianApproved) {
+    if (shareBtn) {
+      shareBtn.classList.remove("locked");
+      shareBtn.classList.add("secondary");
+      shareBtn.innerHTML = `Share Profile <span>›</span>`;
+      shareBtn.onclick = copyShareLink;
+    }
+
+    if (recruiterBtn) {
+      recruiterBtn.classList.remove("locked");
+      recruiterBtn.classList.add("secondary");
+      recruiterBtn.innerHTML = `Recruiter Access <span>›</span>`;
+      recruiterBtn.onclick = () => {
+        window.location.href = `recruiter-requests.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
+      };
+    }
+
+    setText("recruiterViewStatus", "Recruiter visibility enabled under governed access.");
+    setText("contactStatusText", "Communication enabled through Multi-Box™ permissions.");
+  } else {
+    setText("recruiterViewStatus", "Recruiter visibility restricted until guardian approval.");
+    setText("contactStatusText", "Recruiter communication locked behind parent approval.");
   }
 }
 
@@ -1238,4 +1449,3 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 </body>
 </html> 
-
