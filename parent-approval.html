@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>STATScore™ — Parent Approval</title>
+
+<style>
+
+:root{
+
+  --red:#ff1f2d;
+  --red-dark:#6f0008;
+
+  --gold:#ffb100;
+
+  --bg:#020202;
+  --panel:#070707;
+
+  --text:#f5f5f0;
+  --muted:#9ea4ad;
+
+  --line:rgba(255,255,255,.12);
+
+  --green:#2bdc65;
+  --yellow:#ffb100;
+  --danger:#ff4d4d;
+
+}
+
+/* ===================================================== */
+
+*{
+  box-sizing:border-box;
+}
+
+html,body{
+  margin:0;
+  background:#000;
+  color:var(--text);
+  font-family:Arial, Helvetica, sans-serif;
+}
+
+/* ===================================================== */
+
+.page{
+
+  min-height:100vh;
+
+  background:
+
+    radial-gradient(
+      circle at top right,
+      rgba(255,255,255,.04),
+      transparent 20%
+    ),
+
+    repeating-linear-gradient(
+      135deg,
+      rgba(255,255,255,.012) 0,
+      rgba(255,255,255,.012) 1px,
+      transparent 1px,
+      transparent 8px
+    ),
+
+    linear-gradient(
+      180deg,
+      #000,
+      #040404 55%,
+      #000
+    );
+}
+
+/* ===================================================== */
+
+.header{
+
+  height:84px;
+
+  border-bottom:2px solid var(--red);
+
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff,
+      #ecece8
+    );
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  padding:0 26px;
+}
+
+.logo{
+  height:42px;
+}
+
+.header-right{
+
+  display:flex;
+  align-items:center;
+  gap:18px;
+
+  color:#111;
+
+  text-transform:uppercase;
+
+  font-size:.72rem;
+
+  font-weight:900;
+
+  letter-spacing:.12em;
+}
+
+/* ===================================================== */
+
+.main{
+  padding:22px;
+}
+
+/* ===================================================== */
+
+.hero{
+
+  position:relative;
+
+  overflow:hidden;
+
+  padding:34px;
+
+  border:1px solid rgba(255,255,255,.14);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.04),
+      rgba(255,255,255,.008)
+    ),
+    #050505;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.03),
+    0 20px 44px rgba(0,0,0,.88);
+}
+
+.label{
+
+  color:var(--red);
+
+  font-size:.72rem;
+
+  font-weight:900;
+
+  letter-spacing:.22em;
+
+  text-transform:uppercase;
+}
+
+.hero h1{
+
+  margin:14px 0 16px;
+
+  font-size:3.5rem;
+
+  line-height:.9;
+
+  text-transform:uppercase;
+
+  font-weight:900;
+
+  letter-spacing:-.04em;
+
+  max-width:800px;
+}
+
+.hero p{
+
+  max-width:760px;
+
+  color:#d2d2d2;
+
+  line-height:1.6;
+
+  font-size:1rem;
+}
+
+/* ===================================================== */
+
+.grid{
+
+  margin-top:18px;
+
+  display:grid;
+
+  grid-template-columns:1.15fr .85fr;
+
+  gap:18px;
+}
+
+/* ===================================================== */
+
+.panel{
+
+  border:1px solid rgba(255,255,255,.14);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.04),
+      rgba(255,255,255,.01)
+    ),
+    #050505;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.025),
+    0 16px 34px rgba(0,0,0,.75);
+}
+
+/* ===================================================== */
+
+.section{
+
+  padding:22px;
+}
+
+.section-title{
+
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  margin-bottom:18px;
+}
+
+.section-title b{
+
+  color:#fff;
+
+  font-size:.86rem;
+
+  font-weight:900;
+
+  text-transform:uppercase;
+
+  letter-spacing:.12em;
+}
+
+/* ===================================================== */
+
+.approval-list{
+  display:grid;
+  gap:12px;
+}
+
+/* ===================================================== */
+
+.approval-card{
+
+  display:grid;
+
+  grid-template-columns:72px 1fr auto;
+
+  gap:16px;
+
+  align-items:center;
+
+  min-height:92px;
+
+  padding:14px;
+
+  border:1px solid rgba(255,255,255,.1);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.03),
+      rgba(255,255,255,.01)
+    ),
+    #060606;
+}
+
+.avatar{
+
+  width:72px;
+  height:72px;
+
+  border-radius:4px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.08),
+      rgba(255,255,255,.01)
+    );
+
+  border:1px solid rgba(255,255,255,.12);
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-size:1.8rem;
+
+  font-weight:900;
+}
+
+.approval-info b{
+
+  display:block;
+
+  font-size:.92rem;
+
+  text-transform:uppercase;
+
+  letter-spacing:.08em;
+}
+
+.approval-info span{
+
+  display:block;
+
+  margin-top:5px;
+
+  color:var(--muted);
+
+  font-size:.76rem;
+
+  line-height:1.45;
+}
+
+/* ===================================================== */
+
+.status{
+
+  min-width:120px;
+
+  height:38px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-size:.68rem;
+
+  font-weight:900;
+
+  letter-spacing:.14em;
+
+  text-transform:uppercase;
+
+  border:1px solid;
+}
+
+.status.approved{
+
+  color:var(--green);
+
+  border-color:rgba(43,220,101,.45);
+
+  background:rgba(43,220,101,.08);
+}
+
+.status.pending{
+
+  color:var(--yellow);
+
+  border-color:rgba(255,177,0,.45);
+
+  background:rgba(255,177,0,.08);
+}
+
+.status.denied{
+
+  color:var(--danger);
+
+  border-color:rgba(255,77,77,.45);
+
+  background:rgba(255,77,77,.08);
+}
+
+/* ===================================================== */
+
+.rules{
+
+  display:grid;
+  gap:12px;
+}
+
+.rule{
+
+  padding:16px;
+
+  border:1px solid rgba(255,255,255,.1);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.03),
+      rgba(255,255,255,.01)
+    ),
+    #060606;
+}
+
+.rule b{
+
+  display:block;
+
+  margin-bottom:8px;
+
+  font-size:.8rem;
+
+  text-transform:uppercase;
+
+  letter-spacing:.12em;
+}
+
+.rule span{
+
+  color:var(--muted);
+
+  font-size:.76rem;
+
+  line-height:1.5;
+}
+
+/* ===================================================== */
+
+.action-bar{
+
+  margin-top:18px;
+
+  display:flex;
+
+  gap:12px;
+}
+
+.btn{
+
+  height:44px;
+
+  padding:0 22px;
+
+  border:1px solid var(--red);
+
+  background:rgba(255,31,45,.06);
+
+  color:var(--red);
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  text-transform:uppercase;
+
+  font-size:.72rem;
+
+  font-weight:900;
+
+  letter-spacing:.14em;
+
+  cursor:pointer;
+
+  transition:.18s ease;
+}
+
+.btn:hover{
+
+  background:rgba(255,31,45,.12);
+
+  transform:translateY(-1px);
+}
+
+.btn.gold{
+
+  border-color:rgba(255,177,0,.55);
+
+  color:var(--gold);
+
+  background:rgba(255,177,0,.08);
+}
+
+/* ===================================================== */
+
+.audit{
+
+  margin-top:18px;
+
+  padding:18px;
+
+  border:1px solid rgba(255,255,255,.08);
+
+  background:#030303;
+}
+
+.audit b{
+
+  display:block;
+
+  margin-bottom:12px;
+
+  font-size:.76rem;
+
+  text-transform:uppercase;
+
+  letter-spacing:.16em;
+
+  color:var(--red);
+}
+
+.audit-log{
+
+  display:grid;
+  gap:10px;
+}
+
+.audit-item{
+
+  padding:12px;
+
+  border-left:3px solid var(--red);
+
+  background:rgba(255,255,255,.02);
+
+  font-size:.74rem;
+
+  line-height:1.45;
+
+  color:#d8d8d8;
+}
+
+.audit-item span{
+
+  display:block;
+
+  margin-top:4px;
+
+  color:#8f98a5;
+
+  font-size:.68rem;
+
+  letter-spacing:.08em;
+
+  text-transform:uppercase;
+}
+
+/* ===================================================== */
+
+@media(max-width:980px){
+
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+  .hero h1{
+    font-size:2.6rem;
+  }
+
+}
+
+@media(max-width:720px){
+
+  .main{
+    padding:12px;
+  }
+
+  .hero{
+    padding:22px;
+  }
+
+  .hero h1{
+    font-size:2.1rem;
+  }
+
+  .approval-card{
+    grid-template-columns:1fr;
+  }
+
+  .status{
+    width:100%;
+  }
+
+  .action-bar{
+    flex-direction:column;
+  }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="page">
+
+  <!-- ===================================================== -->
+  <!-- HEADER -->
+  <!-- ===================================================== -->
+
+  <header class="header">
+
+    <img
+      src="sc_logo_black_v2.png"
+      class="logo"
+      alt="STATScore"
+    />
+
+    <div class="header-right">
+      Parent Governance Corridor
+    </div>
+
+  </header>
+
+  <!-- ===================================================== -->
+  <!-- MAIN -->
+  <!-- ===================================================== -->
+
+  <main class="main">
+
+    <!-- HERO -->
+
+    <section class="hero">
+
+      <div class="label">
+        Multi-Box™ Governance
+      </div>
+
+      <h1>
+        Parent Approval & Athlete Protection
+      </h1>
+
+      <p>
+        Govern athlete communication, recruiter access,
+        profile visibility, counselor permissions,
+        and communication authorization through
+        parent-controlled approval infrastructure.
+      </p>
+
+    </section>
+
+    <!-- GRID -->
+
+    <section class="grid">
+
+      <!-- LEFT -->
+
+      <div class="panel section">
+
+        <div class="section-title">
+
+          <b>
+            Active Approval Requests
+          </b>
+
+        </div>
+
+        <div class="approval-list">
+
+          <!-- CARD -->
+
+          <div class="approval-card">
+
+            <div class="avatar">
+              DS
+            </div>
+
+            <div class="approval-info">
+
+              <b>
+                Demo State University
+              </b>
+
+              <span>
+                Recruiter request for athlete visibility,
+                communication access, and verified camp outreach.
+              </span>
+
+            </div>
+
+            <div class="status pending">
+              Pending
+            </div>
+
+          </div>
+
+          <!-- CARD -->
+
+          <div class="approval-card">
+
+            <div class="avatar">
+              GC
+            </div>
+
+            <div class="approval-info">
+
+              <b>
+                Gulf Coast Counselors
+              </b>
+
+              <span>
+                School counselor academic access
+                request for NCAA review coordination.
+              </span>
+
+            </div>
+
+            <div class="status approved">
+              Approved
+            </div>
+
+          </div>
+
+          <!-- CARD -->
+
+          <div class="approval-card">
+
+            <div class="avatar">
+              PR
+            </div>
+
+            <div class="approval-info">
+
+              <b>
+                Private Recruiting Group
+              </b>
+
+              <span>
+                Unauthorized communication attempt
+                blocked by Multi-Box governance.
+              </span>
+
+            </div>
+
+            <div class="status denied">
+              Denied
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- ACTIONS -->
+
+        <div class="action-bar">
+
+          <div class="btn">
+            Approve Selected
+          </div>
+
+          <div class="btn gold">
+            Modify Permissions
+          </div>
+
+          <div class="btn">
+            Export Audit
+          </div>
+
+        </div>
+
+        <!-- AUDIT -->
+
+        <div class="audit">
+
+          <b>
+            Approval Audit Trail
+          </b>
+
+          <div class="audit-log">
+
+            <div class="audit-item">
+
+              Parent approved counselor visibility access.
+
+              <span>
+                Logged • Governed Action
+              </span>
+
+            </div>
+
+            <div class="audit-item">
+
+              Recruiter request escalated
+              for guardian review.
+
+              <span>
+                Logged • Pending Approval
+              </span>
+
+            </div>
+
+            <div class="audit-item">
+
+              Unauthorized recruiter contact
+              automatically blocked by Multi-Box.
+
+              <span>
+                Logged • Security Enforcement
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- RIGHT -->
+
+      <div class="panel section">
+
+        <div class="section-title">
+
+          <b>
+            Governance Rules
+          </b>
+
+        </div>
+
+        <div class="rules">
+
+          <div class="rule">
+
+            <b>
+              Guardian Approval Required
+            </b>
+
+            <span>
+              Minor athlete communication
+              requires parent authorization before
+              recruiter visibility activation.
+            </span>
+
+          </div>
+
+          <div class="rule">
+
+            <b>
+              Recruiter Verification
+            </b>
+
+            <span>
+              Only verified recruiters may request
+              governed athlete communication access.
+            </span>
+
+          </div>
+
+          <div class="rule">
+
+            <b>
+              Visibility Governance
+            </b>
+
+            <span>
+              Athlete profile visibility may be
+              restricted by sport, role, geography,
+              institution type, or communication status.
+            </span>
+
+          </div>
+
+          <div class="rule">
+
+            <b>
+              Audit Enforcement
+            </b>
+
+            <span>
+              All communication requests,
+              approvals, denials, and escalations
+              are permanently logged.
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
+
+</body>
+</html> 
