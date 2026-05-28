@@ -1415,17 +1415,54 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  const getSearchPanels = () => {
-    return document.querySelectorAll(
-      ".sc-search-results, #scSearchResults, [data-search-results], .statscore-search-results"
+  const isSearchPanel = (el) => {
+    if (!el || el === document.body || el === document.documentElement) return false;
+
+    const text = (el.textContent || "").toUpperCase();
+    const id = (el.id || "").toLowerCase();
+    const cls = (el.className || "").toString().toLowerCase();
+
+    return (
+      id.includes("search") ||
+      cls.includes("search") ||
+      el.hasAttribute("data-search-results") ||
+      text.includes("STATSCORE SEARCH RESULTS")
     );
+  };
+
+  const getSearchPanels = () => {
+    const direct = Array.from(document.querySelectorAll(
+      ".sc-search-results, #scSearchResults, [data-search-results], .statscore-search-results"
+    ));
+
+    const detected = Array.from(document.querySelectorAll("div, aside, section"))
+      .filter((el) => {
+        const text = (el.textContent || "").toUpperCase();
+        return text.includes("STATSCORE SEARCH RESULTS");
+      });
+
+    return [...new Set([...direct, ...detected])];
   };
 
   const closeSearchResults = () => {
     getSearchPanels().forEach((panel) => {
       panel.style.display = "none";
+      panel.style.visibility = "hidden";
+      panel.style.opacity = "0";
+      panel.style.pointerEvents = "none";
       panel.classList.remove("active", "open", "visible");
       panel.setAttribute("aria-hidden", "true");
+    });
+  };
+
+  const openSearchResults = () => {
+    getSearchPanels().forEach((panel) => {
+      panel.style.display = "";
+      panel.style.visibility = "visible";
+      panel.style.opacity = "1";
+      panel.style.pointerEvents = "auto";
+      panel.classList.add("active", "open", "visible");
+      panel.setAttribute("aria-hidden", "false");
     });
   };
 
@@ -1440,11 +1477,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     await window.STATScoreAthleteSearch.search(query);
 
-    getSearchPanels().forEach((panel) => {
-      panel.style.display = "";
-      panel.classList.add("active", "open", "visible");
-      panel.setAttribute("aria-hidden", "false");
-    });
+    setTimeout(openSearchResults, 50);
   };
 
   searchBtn.addEventListener("click", (event) => {
@@ -1469,20 +1502,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  document.addEventListener("click", (event) => {
-    const clickedInsideSearch =
-      searchBar?.contains(event.target) ||
-      event.target.closest(".sc-search-results") ||
-      event.target.closest("#scSearchResults") ||
-      event.target.closest("[data-search-results]") ||
-      event.target.closest(".statscore-search-results");
+  document.addEventListener("pointerdown", (event) => {
+    const clickedInsideSearchBar = searchBar?.contains(event.target);
+    const clickedInsideSearchPanel = event.target.closest("div, aside, section") &&
+      Array.from(getSearchPanels()).some((panel) => panel.contains(event.target));
 
-    if (!clickedInsideSearch) {
+    if (!clickedInsideSearchBar && !clickedInsideSearchPanel) {
       closeSearchResults();
     }
-  });
+  }, true);
 
-  console.log("[STATScore] system.html search close behavior initialized.");
+  window.addEventListener("scroll", () => {
+    closeSearchResults();
+  }, true);
+
+  console.log("[STATScore] search close behavior upgraded.");
 });
 </script> 
 
