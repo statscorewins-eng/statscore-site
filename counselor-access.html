@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>STATScore™ — Counselor Access</title>
+
+<style>
+
+:root{
+  --red:#ff1f2d;
+  --gold:#ffb100;
+  --green:#2bdc65;
+  --danger:#ff4d4d;
+  --blue:#9fe7ff;
+
+  --text:#f5f5f0;
+  --muted:#9ea4ad;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html,body{
+  margin:0;
+  background:#000;
+  color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+}
+
+a{
+  text-decoration:none;
+  color:inherit;
+}
+
+.page{
+  min-height:100vh;
+
+  background:
+    radial-gradient(circle at top right,rgba(255,255,255,.04),transparent 22%),
+    repeating-linear-gradient(135deg,rgba(255,255,255,.012) 0,rgba(255,255,255,.012) 1px,transparent 1px,transparent 8px),
+    linear-gradient(180deg,#000,#040404 55%,#000);
+}
+
+/* ===================================================== */
+
+.header{
+  height:84px;
+
+  border-bottom:2px solid var(--red);
+
+  background:
+    linear-gradient(
+      180deg,
+      #fff,
+      #ecece8
+    );
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  padding:0 26px;
+}
+
+.logo{
+  height:42px;
+}
+
+.header-right{
+  color:#111;
+
+  text-transform:uppercase;
+
+  font-size:.72rem;
+
+  font-weight:900;
+
+  letter-spacing:.12em;
+}
+
+/* ===================================================== */
+
+.main{
+  padding:22px;
+}
+
+/* ===================================================== */
+
+.hero{
+
+  padding:34px;
+
+  border:1px solid rgba(255,255,255,.14);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.04),
+      rgba(255,255,255,.008)
+    ),
+    #050505;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.03),
+    0 20px 44px rgba(0,0,0,.88);
+}
+
+.label{
+
+  color:var(--red);
+
+  font-size:.72rem;
+
+  font-weight:900;
+
+  letter-spacing:.22em;
+
+  text-transform:uppercase;
+}
+
+.hero h1{
+
+  margin:14px 0 16px;
+
+  font-size:3.5rem;
+
+  line-height:.9;
+
+  text-transform:uppercase;
+
+  font-weight:900;
+
+  letter-spacing:-.04em;
+}
+
+.hero p{
+
+  max-width:860px;
+
+  color:#d2d2d2;
+
+  line-height:1.6;
+
+  font-size:1rem;
+}
+
+/* ===================================================== */
+
+.grid{
+
+  margin-top:18px;
+
+  display:grid;
+
+  grid-template-columns:1.12fr .88fr;
+
+  gap:18px;
+}
+
+/* ===================================================== */
+
+.panel{
+
+  border:1px solid rgba(255,255,255,.14);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.04),
+      rgba(255,255,255,.01)
+    ),
+    #050505;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.025),
+    0 16px 34px rgba(0,0,0,.75);
+}
+
+.section{
+  padding:22px;
+}
+
+.section-title{
+
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  margin-bottom:18px;
+}
+
+.section-title b{
+
+  font-size:.86rem;
+
+  font-weight:900;
+
+  text-transform:uppercase;
+
+  letter-spacing:.12em;
+}
+
+/* ===================================================== */
+
+.access-list{
+  display:grid;
+  gap:12px;
+}
+
+.access-card{
+
+  display:grid;
+
+  grid-template-columns:78px 1fr 135px;
+
+  gap:16px;
+
+  align-items:center;
+
+  padding:15px;
+
+  border:1px solid rgba(255,255,255,.1);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.03),
+      rgba(255,255,255,.01)
+    ),
+    #060606;
+}
+
+.icon{
+
+  width:78px;
+  height:78px;
+
+  border:1px solid rgba(255,255,255,.12);
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-size:1.8rem;
+
+  color:var(--blue);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.08),
+      rgba(255,255,255,.01)
+    );
+}
+
+.info b{
+
+  display:block;
+
+  font-size:.92rem;
+
+  text-transform:uppercase;
+
+  letter-spacing:.08em;
+}
+
+.info span{
+
+  display:block;
+
+  margin-top:5px;
+
+  color:var(--muted);
+
+  font-size:.76rem;
+
+  line-height:1.45;
+}
+
+/* ===================================================== */
+
+.pill{
+
+  height:34px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  border:1px solid;
+
+  font-size:.62rem;
+
+  font-weight:900;
+
+  letter-spacing:.12em;
+
+  text-transform:uppercase;
+}
+
+.pill.active{
+  color:var(--green);
+  border-color:rgba(43,220,101,.45);
+  background:rgba(43,220,101,.08);
+}
+
+.pill.controlled{
+  color:var(--blue);
+  border-color:rgba(159,231,255,.45);
+  background:rgba(159,231,255,.07);
+}
+
+.pill.review{
+  color:var(--gold);
+  border-color:rgba(255,177,0,.45);
+  background:rgba(255,177,0,.08);
+}
+
+.pill.restricted{
+  color:var(--danger);
+  border-color:rgba(255,77,77,.45);
+  background:rgba(255,77,77,.08);
+}
+
+/* ===================================================== */
+
+.matrix{
+  display:grid;
+  gap:12px;
+}
+
+.matrix-card{
+
+  padding:16px;
+
+  border:1px solid rgba(255,255,255,.1);
+
+  background:#060606;
+}
+
+.matrix-card b{
+
+  display:block;
+
+  margin-bottom:8px;
+
+  font-size:.8rem;
+
+  text-transform:uppercase;
+
+  letter-spacing:.12em;
+}
+
+.matrix-card span{
+
+  color:var(--muted);
+
+  font-size:.76rem;
+
+  line-height:1.5;
+}
+
+/* ===================================================== */
+
+.action-bar{
+
+  margin-top:18px;
+
+  display:flex;
+
+  gap:12px;
+
+  flex-wrap:wrap;
+}
+
+.btn{
+
+  height:44px;
+
+  padding:0 22px;
+
+  border:1px solid var(--red);
+
+  background:rgba(255,31,45,.06);
+
+  color:var(--red);
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  text-transform:uppercase;
+
+  font-size:.72rem;
+
+  font-weight:900;
+
+  letter-spacing:.14em;
+
+  cursor:pointer;
+}
+
+.btn.gold{
+
+  border-color:rgba(255,177,0,.55);
+
+  color:var(--gold);
+
+  background:rgba(255,177,0,.08);
+}
+
+/* ===================================================== */
+
+.audit{
+
+  margin-top:18px;
+
+  padding:18px;
+
+  border:1px solid rgba(255,255,255,.08);
+
+  background:#030303;
+}
+
+.audit b{
+
+  display:block;
+
+  margin-bottom:12px;
+
+  font-size:.76rem;
+
+  text-transform:uppercase;
+
+  letter-spacing:.16em;
+
+  color:var(--red);
+}
+
+.audit-item{
+
+  padding:12px;
+
+  border-left:3px solid var(--red);
+
+  background:rgba(255,255,255,.02);
+
+  font-size:.74rem;
+
+  line-height:1.45;
+
+  color:#d8d8d8;
+
+  margin-bottom:10px;
+}
+
+.audit-item span{
+
+  display:block;
+
+  margin-top:4px;
+
+  color:#8f98a5;
+
+  font-size:.68rem;
+
+  letter-spacing:.08em;
+
+  text-transform:uppercase;
+}
+
+/* ===================================================== */
+
+@media(max-width:980px){
+
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+  .hero h1{
+    font-size:2.6rem;
+  }
+
+}
+
+@media(max-width:720px){
+
+  .main{
+    padding:12px;
+  }
+
+  .hero{
+    padding:22px;
+  }
+
+  .hero h1{
+    font-size:2.1rem;
+  }
+
+  .access-card{
+    grid-template-columns:1fr;
+  }
+
+  .action-bar{
+    flex-direction:column;
+  }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="page">
+
+<header class="header">
+
+  <a href="system.html">
+    <img
+      src="sc_logo_black_v2.png"
+      class="logo"
+      alt="STATScore"
+    />
+  </a>
+
+  <div class="header-right">
+    Counselor Access Corridor
+  </div>
+
+</header>
+
+<main class="main">
+
+<section class="hero">
+
+  <div class="label">
+    Academic Governance
+  </div>
+
+  <h1>
+    Counselor Access & NCAA Academic Coordination
+  </h1>
+
+  <p>
+    Govern counselor access to academic readiness,
+    transcript routing, NCAA alignment, graduation tracking,
+    course deficiencies, and academic recovery pathways
+    through controlled institutional lanes.
+  </p>
+
+</section>
+
+<section class="grid">
+
+<!-- ===================================================== -->
+<!-- LEFT -->
+<!-- ===================================================== -->
+
+<div class="panel section">
+
+  <div class="section-title">
+    <b>Counselor Access Matrix</b>
+  </div>
+
+  <div class="access-list">
+
+    <div class="access-card">
+
+      <div class="icon">🎓</div>
+
+      <div class="info">
+
+        <b>Academic Readiness</b>
+
+        <span>
+          Counselors may review GPA standing,
+          academic progression, course completion,
+          and readiness indicators.
+        </span>
+
+      </div>
+
+      <div class="pill active">
+        Active
+      </div>
+
+    </div>
+
+    <div class="access-card">
+
+      <div class="icon">📄</div>
+
+      <div class="info">
+
+        <b>Transcript Coordination</b>
+
+        <span>
+          Transcript routing and document review
+          are controlled through governed school lanes.
+        </span>
+
+      </div>
+
+      <div class="pill controlled">
+        Controlled
+      </div>
+
+    </div>
+
+    <div class="access-card">
+
+      <div class="icon">🏅</div>
+
+      <div class="info">
+
+        <b>NCAA Alignment</b>
+
+        <span>
+          NCAA course tracking, core deficiencies,
+          and graduation alignment are visible
+          to approved counselor roles.
+        </span>
+
+      </div>
+
+      <div class="pill review">
+        Review
+      </div>
+
+    </div>
+
+    <div class="access-card">
+
+      <div class="icon">⚠</div>
+
+      <div class="info">
+
+        <b>Academic Risk Monitoring</b>
+
+        <span>
+          Risk indicators and recovery recommendations
+          may be escalated through academic governance lanes.
+        </span>
+
+      </div>
+
+      <div class="pill controlled">
+        Controlled
+      </div>
+
+    </div>
+
+    <div class="access-card">
+
+      <div class="icon">🔒</div>
+
+      <div class="info">
+
+        <b>Private Athlete Data</b>
+
+        <span>
+          Non-academic athlete communication,
+          parent governance, and protected data
+          remain restricted.
+        </span>
+
+      </div>
+
+      <div class="pill restricted">
+        Restricted
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ACTIONS -->
+
+  <div class="action-bar">
+
+    <div class="btn">
+      Save Counselor Rules
+    </div>
+
+    <div class="btn gold">
+      Generate Academic Receipt
+    </div>
+
+    <a class="btn" href="eligibility.html">
+      NCAA Eligibility
+    </a>
+
+  </div>
+
+  <!-- AUDIT -->
+
+  <div class="audit">
+
+    <b>
+      Counselor Access Audit
+    </b>
+
+    <div class="audit-item">
+
+      Counselor granted transcript coordination access
+      for NCAA review support.
+
+      <span>
+        Logged • Academic Governance
+      </span>
+
+    </div>
+
+    <div class="audit-item">
+
+      Academic risk escalation routed
+      into readiness correction pathway.
+
+      <span>
+        Logged • Eligibility Support
+      </span>
+
+    </div>
+
+    <div class="audit-item">
+
+      Protected athlete communication lanes
+      remain inaccessible to counselor roles.
+
+      <span>
+        Logged • Access Restriction
+      </span>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ===================================================== -->
+<!-- RIGHT -->
+<!-- ===================================================== -->
+
+<div class="panel section">
+
+  <div class="section-title">
+    <b>Academic Governance Doctrine</b>
+  </div>
+
+  <div class="matrix">
+
+    <div class="matrix-card">
+
+      <b>
+        Academic Separation
+      </b>
+
+      <span>
+        Academic readiness is governed separately
+        from athletic scoring and recruiting metrics.
+      </span>
+
+    </div>
+
+    <div class="matrix-card">
+
+      <b>
+        NCAA Coordination
+      </b>
+
+      <span>
+        Counselors may assist with NCAA course alignment,
+        transcript readiness, and graduation progression.
+      </span>
+
+    </div>
+
+    <div class="matrix-card">
+
+      <b>
+        Protected Student Data
+      </b>
+
+      <span>
+        Only approved academic lanes may access
+        protected educational information.
+      </span>
+
+    </div>
+
+    <div class="matrix-card">
+
+      <b>
+        Academic Recovery Routing
+      </b>
+
+      <span>
+        Students flagged for academic deficiencies
+        may be routed into readiness recovery workflows.
+      </span>
+
+    </div>
+
+    <div class="matrix-card">
+
+      <b>
+        Guardian Visibility
+      </b>
+
+      <span>
+        Parent and guardian lanes retain oversight
+        over protected student governance actions.
+      </span>
+
+    </div>
+
+    <div class="matrix-card">
+
+      <b>
+        Receipt Enforcement
+      </b>
+
+      <span>
+        All counselor actions, visibility events,
+        escalations, and academic reviews
+        generate governance receipts.
+      </span>
+
+    </div>
+
+  </div>
+
+</div>
+
+</section>
+
+</main>
+
+</div>
+
+</body>
+</html> 
