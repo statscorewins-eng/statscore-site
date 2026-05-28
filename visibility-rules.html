@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>STATScore™ — Visibility Rules</title>
+
+<style>
+:root{
+  --red:#ff1f2d; --gold:#ffb100; --green:#2bdc65; --danger:#ff4d4d; --blue:#9fe7ff;
+  --text:#f5f5f0; --muted:#9ea4ad;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:#000;color:var(--text);font-family:Arial,Helvetica,sans-serif}
+a{text-decoration:none;color:inherit}
+.page{min-height:100vh;background:radial-gradient(circle at top right,rgba(255,255,255,.04),transparent 22%),repeating-linear-gradient(135deg,rgba(255,255,255,.012) 0,rgba(255,255,255,.012) 1px,transparent 1px,transparent 8px),linear-gradient(180deg,#000,#040404 55%,#000)}
+.header{height:84px;border-bottom:2px solid var(--red);background:linear-gradient(180deg,#fff,#ecece8);display:flex;align-items:center;justify-content:space-between;padding:0 26px}
+.logo{height:42px}.header-right{color:#111;text-transform:uppercase;font-size:.72rem;font-weight:900;letter-spacing:.12em}
+.main{padding:22px}.hero{padding:34px;border:1px solid rgba(255,255,255,.14);background:linear-gradient(145deg,rgba(255,255,255,.04),rgba(255,255,255,.008)),#050505;box-shadow:inset 0 0 0 1px rgba(255,255,255,.03),0 20px 44px rgba(0,0,0,.88)}
+.label{color:var(--red);font-size:.72rem;font-weight:900;letter-spacing:.22em;text-transform:uppercase}
+.hero h1{margin:14px 0 16px;font-size:3.5rem;line-height:.9;text-transform:uppercase;font-weight:900;letter-spacing:-.04em}
+.hero p{max-width:850px;color:#d2d2d2;line-height:1.6;font-size:1rem}
+.grid{margin-top:18px;display:grid;grid-template-columns:1.1fr .9fr;gap:18px}
+.panel{border:1px solid rgba(255,255,255,.14);background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01)),#050505;box-shadow:inset 0 0 0 1px rgba(255,255,255,.025),0 16px 34px rgba(0,0,0,.75)}
+.section{padding:22px}.section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.section-title b{font-size:.86rem;font-weight:900;text-transform:uppercase;letter-spacing:.12em}
+.rule-list{display:grid;gap:12px}
+.rule-card{display:grid;grid-template-columns:70px 1fr 130px;gap:16px;align-items:center;padding:15px;border:1px solid rgba(255,255,255,.1);background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01)),#060606}
+.icon{width:70px;height:70px;border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:var(--blue);background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.01))}
+.info b{display:block;font-size:.92rem;text-transform:uppercase;letter-spacing:.08em}.info span{display:block;margin-top:5px;color:var(--muted);font-size:.76rem;line-height:1.45}
+.pill{height:34px;display:flex;align-items:center;justify-content:center;border:1px solid;font-size:.62rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+.pill.open{color:var(--green);border-color:rgba(43,220,101,.45);background:rgba(43,220,101,.08)}
+.pill.controlled{color:var(--blue);border-color:rgba(159,231,255,.45);background:rgba(159,231,255,.07)}
+.pill.restricted{color:var(--gold);border-color:rgba(255,177,0,.45);background:rgba(255,177,0,.08)}
+.pill.closed{color:var(--danger);border-color:rgba(255,77,77,.45);background:rgba(255,77,77,.08)}
+.matrix{display:grid;gap:12px}.matrix-card{padding:16px;border:1px solid rgba(255,255,255,.1);background:#060606}
+.matrix-card b{display:block;margin-bottom:8px;font-size:.8rem;text-transform:uppercase;letter-spacing:.12em}.matrix-card span{color:var(--muted);font-size:.76rem;line-height:1.5}
+.action-bar{margin-top:18px;display:flex;gap:12px;flex-wrap:wrap}.btn{height:44px;padding:0 22px;border:1px solid var(--red);background:rgba(255,31,45,.06);color:var(--red);display:flex;align-items:center;justify-content:center;text-transform:uppercase;font-size:.72rem;font-weight:900;letter-spacing:.14em;cursor:pointer}.btn.gold{border-color:rgba(255,177,0,.55);color:var(--gold);background:rgba(255,177,0,.08)}
+.audit{margin-top:18px;padding:18px;border:1px solid rgba(255,255,255,.08);background:#030303}.audit b{display:block;margin-bottom:12px;font-size:.76rem;text-transform:uppercase;letter-spacing:.16em;color:var(--red)}
+.audit-item{padding:12px;border-left:3px solid var(--red);background:rgba(255,255,255,.02);font-size:.74rem;line-height:1.45;color:#d8d8d8;margin-bottom:10px}.audit-item span{display:block;margin-top:4px;color:#8f98a5;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase}
+@media(max-width:980px){.grid{grid-template-columns:1fr}.hero h1{font-size:2.6rem}}@media(max-width:720px){.main{padding:12px}.hero{padding:22px}.hero h1{font-size:2.1rem}.rule-card{grid-template-columns:1fr}.action-bar{flex-direction:column}}
+</style>
+</head>
+
+<body>
+<div class="page">
+
+<header class="header">
+  <a href="system.html"><img src="sc_logo_black_v2.png" class="logo" alt="STATScore"></a>
+  <div class="header-right">Visibility Rules Corridor</div>
+</header>
+
+<main class="main">
+
+<section class="hero">
+  <div class="label">Multi-Box™ Governance</div>
+  <h1>Visibility Rules & Access Boundaries</h1>
+  <p>
+    Control who can see athlete identity, performance signals, academic information,
+    contact paths, evidence layers, Crystal Reports, and recruiting visibility through
+    role-based access governance.
+  </p>
+</section>
+
+<section class="grid">
+
+<div class="panel section">
+  <div class="section-title"><b>Visibility Control Matrix</b></div>
+
+  <div class="rule-list">
+
+    <div class="rule-card">
+      <div class="icon">👤</div>
+      <div class="info">
+        <b>Parent / Guardian Visibility</b>
+        <span>Full athlete profile, academic readiness, approvals, reports, and communication controls.</span>
+      </div>
+      <div class="pill open">Open</div>
+    </div>
+
+    <div class="rule-card">
+      <div class="icon">🏈</div>
+      <div class="info">
+        <b>Coach Visibility</b>
+        <span>Performance traits, readiness, development priorities, film/evidence, and program participation data.</span>
+      </div>
+      <div class="pill open">Open</div>
+    </div>
+
+    <div class="rule-card">
+      <div class="icon">🎓</div>
+      <div class="info">
+        <b>Counselor Visibility</b>
+        <span>Academic track, NCAA course alignment, transcript status, GPA risk, and correction path.</span>
+      </div>
+      <div class="pill controlled">Controlled</div>
+    </div>
+
+    <div class="rule-card">
+      <div class="icon">◎</div>
+      <div class="info">
+        <b>Recruiter Visibility</b>
+        <span>Verified recruiters may view approved athlete signal, pathway fit, evidence, and governed contact lanes.</span>
+      </div>
+      <div class="pill restricted">Restricted</div>
+    </div>
+
+    <div class="rule-card">
+      <div class="icon">☑</div>
+      <div class="info">
+        <b>Evaluator Visibility</b>
+        <span>Evaluator lane access to performance evidence, verification status, notes, and trait support.</span>
+      </div>
+      <div class="pill controlled">Controlled</div>
+    </div>
+
+    <div class="rule-card">
+      <div class="icon">🚫</div>
+      <div class="info">
+        <b>Public Visibility</b>
+        <span>No private athlete, academic, guardian, or communication data is publicly visible without authorization.</span>
+      </div>
+      <div class="pill closed">Closed</div>
+    </div>
+
+  </div>
+
+  <div class="action-bar">
+    <div class="btn">Save Visibility Rules</div>
+    <div class="btn gold">Generate Visibility Receipt</div>
+    <a class="btn" href="parent-approval.html">Parent Approval</a>
+  </div>
+
+  <div class="audit">
+    <b>Visibility Audit Trail</b>
+
+    <div class="audit-item">
+      Recruiter visibility set to restricted until verified recruiter trust is confirmed.
+      <span>Logged • Visibility Governance</span>
+    </div>
+
+    <div class="audit-item">
+      Counselor academic access limited to NCAA eligibility and academic readiness sections.
+      <span>Logged • Academic Lane Control</span>
+    </div>
+
+    <div class="audit-item">
+      Public visibility disabled for private athlete and guardian data.
+      <span>Logged • Privacy Enforcement</span>
+    </div>
+  </div>
+</div>
+
+<div class="panel section">
+  <div class="section-title"><b>Visibility Doctrine</b></div>
+
+  <div class="matrix">
+
+    <div class="matrix-card">
+      <b>Least Access Required</b>
+      <span>Every role sees only what is required to perform its approved function.</span>
+    </div>
+
+    <div class="matrix-card">
+      <b>Guardian Override</b>
+      <span>Parent/guardian approval governs minor athlete visibility and recruiter communication activation.</span>
+    </div>
+
+    <div class="matrix-card">
+      <b>Academic Separation</b>
+      <span>Academic readiness is separated from athletic scoring and is exposed only to approved roles.</span>
+    </div>
+
+    <div class="matrix-card">
+      <b>Verified Recruiter Filter</b>
+      <span>Recruiter visibility requires identity, school affiliation, division role, and trust validation.</span>
+    </div>
+
+    <div class="matrix-card">
+      <b>Crystal Report Control</b>
+      <span>Reports may be generated as athlete, academic, combined, program, or recruiter-specific outputs.</span>
+    </div>
+
+    <div class="matrix-card">
+      <b>Receipts Required</b>
+      <span>Every visibility change must create a traceable governance receipt.</span>
+    </div>
+
+  </div>
+</div>
+
+</section>
+</main>
+</div>
+</body>
+</html> 
