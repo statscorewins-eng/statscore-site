@@ -1410,65 +1410,83 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchBtn = document.getElementById("scAthleteSearchBtn");
   const searchBar = document.querySelector(".sc-search-bar");
 
-  if (!searchInput || !searchBtn) {
-    console.warn("[STATScore] Athlete search input/button not found.");
-    return;
-  }
+  if (!searchInput || !searchBtn) return;
 
-  const isSearchPanel = (el) => {
-    if (!el || el === document.body || el === document.documentElement) return false;
-
-    const text = (el.textContent || "").toUpperCase();
-    const id = (el.id || "").toLowerCase();
-    const cls = (el.className || "").toString().toLowerCase();
-
-    return (
-      id.includes("search") ||
-      cls.includes("search") ||
-      el.hasAttribute("data-search-results") ||
-      text.includes("STATSCORE SEARCH RESULTS")
-    );
+  const protectShell = () => {
+    [".shell", "body", "html", ".main", ".content"].forEach((sel) => {
+      const el = document.querySelector(sel);
+      if (!el) return;
+      el.removeAttribute("aria-hidden");
+      el.style.display = "";
+      el.style.visibility = "";
+      el.style.opacity = "";
+      el.style.pointerEvents = "";
+    });
   };
 
-  const getSearchPanels = () => {
-    const direct = Array.from(document.querySelectorAll(
-      ".sc-search-results, #scSearchResults, [data-search-results], .statscore-search-results"
-    ));
-
-    const detected = Array.from(document.querySelectorAll("div, aside, section"))
+  const findSearchPanel = () => {
+    const candidates = Array.from(document.querySelectorAll("div, aside, section"))
       .filter((el) => {
         const text = (el.textContent || "").toUpperCase();
-        return text.includes("STATSCORE SEARCH RESULTS");
+        const rect = el.getBoundingClientRect();
+
+        return (
+          (text.includes("STATSCORE SEARCH RESULTS") ||
+           text.includes("STATSCORE SEARCH ERROR")) &&
+          rect.width >= 250 &&
+          rect.width <= 700 &&
+          rect.height >= 80 &&
+          rect.height <= 850 &&
+          !el.classList.contains("shell") &&
+          !el.classList.contains("main") &&
+          !el.classList.contains("content")
+        );
       });
 
-    return [...new Set([...direct, ...detected])];
+    return candidates.sort((a,b) => {
+      const ar = a.getBoundingClientRect();
+      const br = b.getBoundingClientRect();
+      return (ar.width * ar.height) - (br.width * br.height);
+    })[0] || null;
   };
 
   const closeSearchResults = () => {
-    getSearchPanels().forEach((panel) => {
-      panel.style.display = "none";
-      panel.style.visibility = "hidden";
-      panel.style.opacity = "0";
-      panel.style.pointerEvents = "none";
-      panel.classList.remove("active", "open", "visible");
-      panel.setAttribute("aria-hidden", "true");
-    });
+    protectShell();
+
+    if (document.activeElement) {
+      document.activeElement.blur();
+    }
+
+    const panel = findSearchPanel();
+    if (!panel) return;
+
+    panel.style.display = "none";
+    panel.style.visibility = "hidden";
+    panel.style.opacity = "0";
+    panel.style.pointerEvents = "none";
   };
 
   const openSearchResults = () => {
-    getSearchPanels().forEach((panel) => {
-      panel.style.display = "";
-      panel.style.visibility = "visible";
-      panel.style.opacity = "1";
-      panel.style.pointerEvents = "auto";
-      panel.classList.add("active", "open", "visible");
-      panel.setAttribute("aria-hidden", "false");
-    });
+    protectShell();
+
+    const panel = findSearchPanel();
+    if (!panel) return;
+
+    panel.style.display = "";
+    panel.style.visibility = "visible";
+    panel.style.opacity = "1";
+    panel.style.pointerEvents = "auto";
   };
 
   const runSearch = async () => {
-    const query = searchInput.value?.trim();
-    if (!query) return;
+    protectShell();
+
+    const query = searchInput.value.trim();
+
+    if (!query) {
+      closeSearchResults();
+      return;
+    }
 
     if (!window.STATScoreAthleteSearch?.search) {
       console.error("[STATScore] STATScoreAthleteSearch.search unavailable.");
@@ -1476,8 +1494,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     await window.STATScoreAthleteSearch.search(query);
-
-    setTimeout(openSearchResults, 50);
+    setTimeout(openSearchResults, 80);
   };
 
   searchBtn.addEventListener("click", (event) => {
@@ -1498,27 +1515,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (event.key === "Escape") {
       closeSearchResults();
-      searchInput.blur();
     }
   });
 
-  document.addEventListener("pointerdown", (event) => {
-    const clickedInsideSearchBar = searchBar?.contains(event.target);
-    const clickedInsideSearchPanel = event.target.closest("div, aside, section") &&
-      Array.from(getSearchPanels()).some((panel) => panel.contains(event.target));
+  document.addEventListener("click", (event) => {
+    const panel = findSearchPanel();
 
-    if (!clickedInsideSearchBar && !clickedInsideSearchPanel) {
+    const clickedInsideSearch =
+      searchBar?.contains(event.target) ||
+      panel?.contains(event.target);
+
+    if (!clickedInsideSearch) {
       closeSearchResults();
     }
-  }, true);
+  });
 
-  window.addEventListener("scroll", () => {
-    closeSearchResults();
-  }, true);
+  protectShell();
 
-  console.log("[STATScore] search close behavior upgraded.");
+  console.log("[STATScore] safe search close behavior initialized.");
 });
 </script> 
-
+  
 </body>
 </html> 
