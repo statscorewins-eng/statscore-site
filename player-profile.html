@@ -45,8 +45,6 @@ a{text-decoration:none;color:inherit}
     #020407;
 }
 
-/* HEADER */
-
 .header{
   height:92px;
   background:linear-gradient(180deg,#fff,#ededeb);
@@ -129,11 +127,7 @@ a{text-decoration:none;color:inherit}
   border-radius:50%;
 }
 
-/* BODY */
-
-.main{
-  padding:22px 32px 0;
-}
+.main{padding:22px 32px 0}
 
 .record-header{
   display:flex;
@@ -195,7 +189,7 @@ a{text-decoration:none;color:inherit}
 }
 
 .image-card{
-  padding:16px 16px 12px;
+  padding:16px 16px 14px;
   min-height:430px;
 }
 
@@ -254,6 +248,41 @@ a{text-decoration:none;color:inherit}
   font-weight:900;
   letter-spacing:.12em;
   text-transform:uppercase;
+}
+
+.athlete-dossier{
+  margin-top:18px;
+  border-top:1px solid rgba(255,255,255,.10);
+  padding-top:14px;
+  display:grid;
+  gap:10px;
+}
+
+.dossier-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:14px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  padding-bottom:8px;
+}
+
+.dossier-row span{
+  color:var(--blue);
+  font-size:.58rem;
+  font-weight:900;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+
+.dossier-row b{
+  color:#fff;
+  font-size:.67rem;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  text-align:right;
+  line-height:1.3;
 }
 
 .identity-card{
@@ -352,8 +381,6 @@ a{text-decoration:none;color:inherit}
   font-size:.96rem;
 }
 
-/* RIGHT INTELLIGENCE RAIL */
-
 .score-card{
   padding:18px 16px 22px;
 }
@@ -404,8 +431,6 @@ a{text-decoration:none;color:inherit}
   text-align:center;
   margin:0;
 }
-
-/* GOVERNANCE STATUS */
 
 .intelligence-status{
   margin-top:16px;
@@ -460,8 +485,6 @@ a{text-decoration:none;color:inherit}
 .intelligence-row b.locked{color:#ff7c7c}
 .intelligence-row b.live{color:var(--green)}
 
-/* ACTION STACK */
-
 .action-stack{
   display:grid;
   gap:9px;
@@ -511,8 +534,6 @@ a{text-decoration:none;color:inherit}
   background:linear-gradient(180deg,rgba(37,211,102,.14),rgba(255,255,255,.02));
 }
 
-/* METRICS */
-
 .metric-row{
   display:grid;
   grid-template-columns:repeat(4,1fr);
@@ -548,8 +569,6 @@ a{text-decoration:none;color:inherit}
   line-height:1.35;
 }
 
-/* LOWER */
-
 .lower-grid{
   display:grid;
   grid-template-columns:38% 34% 28%;
@@ -557,9 +576,7 @@ a{text-decoration:none;color:inherit}
   margin-top:14px;
 }
 
-.block{
-  padding:18px 20px;
-}
+.block{padding:18px 20px}
 
 .block h2{
   margin:0 0 12px;
@@ -583,8 +600,6 @@ a{text-decoration:none;color:inherit}
   font-size:.82rem;
 }
 
-/* TRAITS */
-
 .traits{
   margin-top:14px;
   padding:18px 22px 20px;
@@ -592,11 +607,16 @@ a{text-decoration:none;color:inherit}
   background:rgba(6,10,18,.45);
 }
 
+#traitContainer{
+  display:grid;
+  gap:8px;
+}
+
 .trait{
   display:grid;
-  grid-template-columns:130px 1fr 28px;
+  grid-template-columns:190px 1fr 42px;
   align-items:center;
-  gap:8px;
+  gap:10px;
   margin:8px 0;
 }
 
@@ -604,6 +624,7 @@ a{text-decoration:none;color:inherit}
   font-weight:900;
   letter-spacing:.12em;
   text-transform:uppercase;
+  font-size:.88rem;
 }
 
 .bar{
@@ -620,6 +641,7 @@ a{text-decoration:none;color:inherit}
 .trait-score{
   font-weight:900;
   font-size:.92em;
+  text-align:right;
 }
 
 .pending-fill{
@@ -632,8 +654,6 @@ a{text-decoration:none;color:inherit}
   letter-spacing:.12em;
   font-size:.62rem;
 }
-
-/* INTELLIGENCE PANEL */
 
 .sc-intelligence-panel{
   margin-top:22px;
@@ -753,8 +773,6 @@ a{text-decoration:none;color:inherit}
   font-weight:800;
 }
 
-/* FOOTER */
-
 .flow{
   margin-top:14px;
   min-height:76px;
@@ -833,6 +851,10 @@ a{text-decoration:none;color:inherit}
   .sc-intel-grid{grid-template-columns:1fr}
   .sc-intel-header{flex-direction:column}
   .sc-badge{white-space:normal}
+
+  .trait{
+    grid-template-columns:145px 1fr 36px;
+  }
 }
 </style>
 </head>
@@ -880,6 +902,15 @@ a{text-decoration:none;color:inherit}
       </div>
       <div class="verified" id="verificationBadge">Pending</div>
     </div>
+
+    <section class="athlete-dossier">
+      <div class="dossier-row"><span>Archetype</span><b id="dossierArchetype">Pending</b></div>
+      <div class="dossier-row"><span>Varsity</span><b id="dossierVarsity">Pending</b></div>
+      <div class="dossier-row"><span>Starter</span><b id="dossierStarter">Pending</b></div>
+      <div class="dossier-row"><span>Athletic Signal</span><b id="dossierAthleticSignal">Pending</b></div>
+      <div class="dossier-row"><span>Recruiting Tier</span><b id="dossierRecruitingTier">Pending</b></div>
+      <div class="dossier-row"><span>Visibility</span><b id="dossierVisibility">Limited</b></div>
+    </section>
   </aside>
 
   <article class="panel identity-card">
@@ -948,25 +979,11 @@ a{text-decoration:none;color:inherit}
     </section>
 
     <div class="action-stack">
-      <a class="action primary" id="parentApprovalAction" href="#">
-        Request Parent Approval <span>›</span>
-      </a>
-
-      <a class="action secondary" id="verificationAction" href="#">
-        Request Verification <span>›</span>
-      </a>
-
-      <a class="action secondary" id="snapshotPathAction" href="snapshot-intake.html">
-        View Snapshot Path <span>›</span>
-      </a>
-
-      <div class="action locked" id="shareProfileAction">
-        🔒 Share Profile <span>Locked</span>
-      </div>
-
-      <div class="action locked" id="recruiterAccessAction">
-        🔒 Recruiter Access <span>Locked</span>
-      </div>
+      <a class="action primary" id="parentApprovalAction" href="#">Request Parent Approval <span>›</span></a>
+      <a class="action secondary" id="verificationAction" href="#">Request Verification <span>›</span></a>
+      <a class="action secondary" id="snapshotPathAction" href="snapshot-intake.html">View Snapshot Path <span>›</span></a>
+      <div class="action locked" id="shareProfileAction">🔒 Share Profile <span>Locked</span></div>
+      <div class="action locked" id="recruiterAccessAction">🔒 Recruiter Access <span>Locked</span></div>
     </div>
   </aside>
 
@@ -1008,12 +1025,7 @@ a{text-decoration:none;color:inherit}
 <section class="traits">
   <div class="label">Position Breakdown</div>
   <h2 style="margin:8px 0 20px;text-transform:uppercase;font-size:2.1rem;">Performance Traits</h2>
-
-  <div class="trait"><div class="trait-name">Vision</div><div class="bar"><div class="fill pending-fill" style="width:18%"></div></div><div class="trait-score pending">--</div></div>
-  <div class="trait"><div class="trait-name">Burst</div><div class="bar"><div class="fill pending-fill" style="width:18%"></div></div><div class="trait-score pending">--</div></div>
-  <div class="trait"><div class="trait-name">Contact Balance</div><div class="bar"><div class="fill pending-fill" style="width:18%"></div></div><div class="trait-score pending">--</div></div>
-  <div class="trait"><div class="trait-name">Ball Security</div><div class="bar"><div class="fill pending-fill" style="width:18%"></div></div><div class="trait-score pending">--</div></div>
-  <div class="trait"><div class="trait-name">Open Field Ability</div><div class="bar"><div class="fill pending-fill" style="width:18%"></div></div><div class="trait-score pending">--</div></div>
+  <div id="traitContainer"></div>
 </section>
 
 <section class="sc-intelligence-panel">
@@ -1022,7 +1034,7 @@ a{text-decoration:none;color:inherit}
       <div class="sc-kicker">STATScore Intelligence Layer</div>
       <h2>Explainable Athlete Intelligence</h2>
     </div>
-    <div class="sc-badge" id="scMatrixVersion">QB_MATRIX_V1</div>
+    <div class="sc-badge" id="scMatrixVersion">MATRIX_PENDING</div>
   </div>
 
   <div class="sc-intel-grid">
@@ -1078,12 +1090,7 @@ a{text-decoration:none;color:inherit}
   <div class="flow-step"><b>Verification</b><span>Trust Layer</span></div>
   <div class="flow-step"><b>Parent Gate</b><span>Approval</span></div>
   <div class="flow-step"><b>Multi-Box™</b><span>Permissions</span></div>
-  <div class="flow-step">
-    <a href="crystal-registry.html">
-      <b>Crystal</b>
-      <span>Athlete Intelligence</span>
-    </a>
-  </div>
+  <div class="flow-step"><a href="crystal-registry.html"><b>Crystal</b><span>Athlete Intelligence</span></a></div>
   <a class="action primary" id="footerParentApprovalAction" href="#">Request Approval ›</a>
 </section>
 
@@ -1106,25 +1113,25 @@ window.STATScoreSupabase = window.supabase.createClient(
 );
 </script>
 
-<!-- FOUNDATION -->
 <script src="statscore-core.js"></script>
 <script src="statscore-data.js"></script>
 <script src="statscore-role-access.js"></script>
 
-<!-- GOVERNANCE -->
 <script src="statscore-signal-governance.js"></script>
 <script src="statscore-state-engine.js"></script>
 <script src="statscore-compliance-engine.js"></script>
 <script src="statscore-quarterly-eligibility-engine.js"></script>
 <script src="statscore-routing.js"></script>
 
-<!-- PHASE 2 RUNTIME CORE -->
 <script src="sc-runtime-state-engine.js"></script>
 <script src="sc-receipt-ledger-engine.js"></script>
 <script src="sc-governance-sync-engine.js"></script>
 <script src="sc-dynamic-athlete-engine.js"></script>
 
-<!-- INTELLIGENCE -->
+<script src="statscore-position-matrix-engine.js"></script>
+<script src="statscore-trait-render-engine.js"></script>
+<script src="statscore-football-scoring-engine.js"></script>
+
 <script src="statscore-scoring-engine.js"></script>
 <script src="statscore-synthesis-engine.js"></script>
 <script src="statscore-consensus-engine.js"></script>
@@ -1135,13 +1142,11 @@ window.STATScoreSupabase = window.supabase.createClient(
 <script src="statscore-memory-engine.js"></script>
 <script src="statscore-intelligence.js"></script>
 
-<!-- OPERATIONAL -->
 <script src="statscore-event-engine.js"></script>
 <script src="statscore-media-routing.js"></script>
 <script src="statscore-evaluator-engine.js"></script>
 <script src="statscore-communication-engine.js"></script>
 
-<!-- ORCHESTRATION -->
 <script src="statscore-engine-loader.js"></script>
 
 <script>
@@ -1172,9 +1177,41 @@ function splitName(fullName){
   };
 }
 
+function getPositionKey(position){
+  const p = String(position || "").toUpperCase();
+
+  if (p.includes("QB") || p.includes("QUARTERBACK")) return "QB";
+  if (p.includes("RB") || p.includes("RUNNING BACK")) return "RB";
+  if (p.includes("WR") || p.includes("WIDE RECEIVER") || p.includes("RECEIVER")) return "WR";
+  if (p.includes("TE") || p.includes("TIGHT END")) return "TE";
+  if (p.includes("DB") || p.includes("CORNER") || p.includes("SAFETY")) return "DB";
+  if (p.includes("LB") || p.includes("LINEBACKER")) return "LB";
+  if (p.includes("EDGE") || p.includes("DE") || p.includes("DEFENSIVE END")) return "EDGE";
+  if (p.includes("ATH")) return "ATH";
+
+  return "ATH";
+}
+
+function matrixVersionForPosition(position){
+  return `${getPositionKey(position)}_MATRIX_V1`;
+}
+
 function resolveSTATScoreLabel(verificationStatus){
   const status = String(verificationStatus || "UNVERIFIED").toUpperCase();
   return status === "VERIFIED" ? "VERIFIED STATScore" : "UNVERIFIED STATScore";
+}
+
+function starDisplayFromValue(value){
+  const n = Number(value || 0);
+
+  if (!Number.isFinite(n) || n <= 0) return "☆☆☆☆☆";
+
+  const rounded = Math.max(0, Math.min(5, Math.round(n)));
+  return "★★★★★".slice(0, rounded) + "☆☆☆☆☆".slice(0, 5 - rounded);
+}
+
+function formatClassYear(value){
+  return value || "Class Year";
 }
 
 function normalizeSnapshot(response){
@@ -1194,15 +1231,15 @@ function normalizeSnapshot(response){
 
     sport: raw.primarySport || raw.sport || "Sport",
     position: raw.primaryPosition || raw.position || "Position",
-    class_year: raw.graduationClass || raw.graduation_class || "Class Year",
+    class_year: raw.graduationClass || raw.graduation_class || raw.classYear || "Class Year",
     city_state: raw.cityState || raw.city_state || "City, State",
     school: raw.schoolProgram || raw.school || "School / Program",
 
     height: raw.height || "Height",
     weight: raw.weight || "Weight",
 
-    dash40: raw.dash40 || "--",
-    vertical_jump: raw.verticalJump || "--",
+    dash40: raw.dash40 || raw.forty || raw.speedIndex || "--",
+    vertical_jump: raw.verticalJump || raw.vertical_jump || raw.explosiveness || "--",
 
     highlight_url: raw.highlightUrl || "",
     game_film_url: raw.gameFilmUrl || "",
@@ -1210,6 +1247,13 @@ function normalizeSnapshot(response){
     recruiting_profile_url: raw.recruitingProfileUrl || "",
     verified_event_source: raw.verifiedEventSource || "",
     position_notes: raw.positionNotes || "",
+
+    archetype: raw.archetype || raw.positionArchetype || raw.position_archetype || "",
+    varsity_years: raw.varsityYears || raw.varsity_years || "",
+    starter_status: raw.starterStatus || raw.starter_status || "",
+    recruiting_tier: raw.recruitingTier || raw.recruiting_tier || "",
+    star_rating: raw.starRating || raw.star_rating || raw.stars || "",
+    trait_scores: raw.traitScores || raw.trait_scores || {},
 
     guardian_email: raw.guardianEmail || raw.parentEmail || raw.guardian_email || "",
     guardian_phone: raw.guardianPhone || raw.parentPhone || raw.guardian_phone || "",
@@ -1264,6 +1308,182 @@ function renderAthleteImage(src, fullName){
   }
 }
 
+const FALLBACK_POSITION_TRAITS = {
+  QB: [
+    "Field Vision",
+    "Decision Making",
+    "Throw Accuracy",
+    "Throw Power",
+    "Pocket Presence",
+    "Play Extension",
+    "Pressure Response",
+    "Football IQ"
+  ],
+  RB: [
+    "Vision",
+    "Burst",
+    "Contact Balance",
+    "Ball Security",
+    "Open Field Ability",
+    "Acceleration"
+  ],
+  WR: [
+    "Route Running",
+    "Hands",
+    "Separation",
+    "Ball Tracking",
+    "YAC Ability",
+    "Release"
+  ],
+  TE: [
+    "Hands",
+    "Route Leverage",
+    "Blocking Fit",
+    "Catch Radius",
+    "Physicality",
+    "Red Zone Value"
+  ],
+  DB: [
+    "Coverage Technique",
+    "Ball Skills",
+    "Recovery Speed",
+    "Hip Fluidity",
+    "Tackling",
+    "Field Awareness"
+  ],
+  LB: [
+    "Read Recognition",
+    "Tackling",
+    "Pursuit",
+    "Coverage Drop",
+    "Block Shedding",
+    "Leadership"
+  ],
+  EDGE: [
+    "First Step",
+    "Bend",
+    "Pass Rush Plan",
+    "Motor",
+    "Run Fit",
+    "Power"
+  ],
+  ATH: [
+    "Athleticism",
+    "Speed",
+    "Explosiveness",
+    "Readiness",
+    "Coachability"
+  ]
+};
+
+function normalizeTraitObject(trait){
+  if (typeof trait === "string") {
+    return { name: trait, score: null };
+  }
+
+  if (trait && typeof trait === "object") {
+    return {
+      name: trait.name || trait.label || trait.trait || "Trait",
+      score: trait.score ?? trait.value ?? null
+    };
+  }
+
+  return { name: "Trait", score: null };
+}
+
+function resolvePositionTraits(snapshot){
+  const key = getPositionKey(snapshot.position);
+
+  const engine =
+    window.STATScorePositionMatrixEngine ||
+    window.STATScorePositionMatrix ||
+    window.STATScorePositionEngine;
+
+  try {
+    if (engine?.getTraits) {
+      const result = engine.getTraits({
+        sport: snapshot.sport,
+        position: snapshot.position,
+        archetype: snapshot.archetype,
+        snapshot
+      });
+
+      if (Array.isArray(result)) return result;
+    }
+
+    if (engine?.resolveMatrix) {
+      const matrix = engine.resolveMatrix(snapshot.sport, snapshot.position, snapshot.archetype, snapshot);
+      if (Array.isArray(matrix?.traits)) return matrix.traits;
+    }
+
+    if (engine?.getMatrix) {
+      const matrix = engine.getMatrix({
+        sport: snapshot.sport,
+        position: snapshot.position,
+        archetype: snapshot.archetype,
+        snapshot
+      });
+
+      if (Array.isArray(matrix?.traits)) return matrix.traits;
+    }
+  } catch (error) {
+    console.warn("[STATScore] Position matrix engine failed; using fallback traits.", error);
+  }
+
+  return FALLBACK_POSITION_TRAITS[key] || FALLBACK_POSITION_TRAITS.ATH;
+}
+
+function renderPositionTraits(snapshot){
+  const container = document.getElementById("traitContainer");
+  if (!container) return;
+
+  const traits = resolvePositionTraits(snapshot).map(normalizeTraitObject);
+
+  container.innerHTML = traits.map(trait => {
+    const rawScore =
+      trait.score ??
+      snapshot.trait_scores?.[trait.name] ??
+      snapshot.trait_scores?.[trait.name.toLowerCase()] ??
+      null;
+
+    const hasScore = rawScore !== null && rawScore !== undefined && rawScore !== "";
+    const scoreNumber = Number(rawScore);
+    const width = hasScore && Number.isFinite(scoreNumber)
+      ? Math.max(5, Math.min(100, scoreNumber))
+      : 18;
+
+    return `
+      <div class="trait">
+        <div class="trait-name">${escapeHTML(trait.name)}</div>
+        <div class="bar">
+          <div class="fill ${hasScore ? "" : "pending-fill"}" style="width:${width}%"></div>
+        </div>
+        <div class="trait-score ${hasScore ? "" : "pending"}">${hasScore ? escapeHTML(rawScore) : "--"}</div>
+      </div>
+    `;
+  }).join("");
+}
+
+function renderAthleteDossier(snapshot){
+  const positionKey = getPositionKey(snapshot.position);
+
+  const archetype =
+    snapshot.archetype ||
+    (positionKey === "QB" ? "Dual-Threat Quarterback" : `${snapshot.position} Prospect`);
+
+  const athleticSignalParts = [];
+
+  if (snapshot.dash40 && snapshot.dash40 !== "--") athleticSignalParts.push(`${snapshot.dash40} Speed`);
+  if (snapshot.vertical_jump && snapshot.vertical_jump !== "--") athleticSignalParts.push(`${snapshot.vertical_jump} Vertical`);
+
+  setText("dossierArchetype", archetype);
+  setText("dossierVarsity", snapshot.varsity_years || "Varsity Tracking Pending");
+  setText("dossierStarter", snapshot.starter_status || "Starter Status Pending");
+  setText("dossierAthleticSignal", athleticSignalParts.length ? athleticSignalParts.join(" · ") : "Metric Signal Pending");
+  setText("dossierRecruitingTier", snapshot.recruiting_tier || "Projection Pending");
+  setText("dossierVisibility", String(snapshot.guardian_approval_status || "").toUpperCase() === "APPROVED" ? "Full" : "Parent Approval Pending");
+}
+
 function renderProfile(snapshot){
   const statscoreLabel = snapshot.statscore_label || resolveSTATScoreLabel(snapshot.verification_status);
   const nameParts = splitName(snapshot.athlete_display_name);
@@ -1274,7 +1494,7 @@ function renderProfile(snapshot){
   }
 
   setText("captionName", snapshot.athlete_display_name);
-  setText("captionMeta", `${snapshot.position} · ${snapshot.class_year}`);
+  setText("captionMeta", `${snapshot.position} · ${formatClassYear(snapshot.class_year)}`);
   setText("verificationBadge", snapshot.verification_status);
   setText("recordStatus", "Snapshot Loaded");
   setText("identitySub", `Snapshot Submitted · ${statscoreLabel}`);
@@ -1286,6 +1506,7 @@ function renderProfile(snapshot){
   setText("tagSchool", snapshot.school);
   setText("tagClass", snapshot.class_year);
 
+  setText("starDisplay", starDisplayFromValue(snapshot.star_rating));
   setText("signalText", statscoreLabel);
   setText("evaluationStatus", `Snapshot Submitted · ${statscoreLabel}`);
 
@@ -1315,18 +1536,20 @@ function renderProfile(snapshot){
   setText("verificationNeed", "Coach confirmation, guardian permission, metric evidence, and academic readiness review.");
 
   renderAthleteImage(snapshot.headshot_url, snapshot.athlete_display_name);
-  renderSTATScoreIntelligence(statscoreLabel);
   renderGuardianGovernance(snapshot);
+  renderAthleteDossier(snapshot);
+  renderPositionTraits(snapshot);
+  renderSTATScoreIntelligence(snapshot, statscoreLabel);
 }
 
-function renderSTATScoreIntelligence(statscoreLabel){
-  setText("scMatrixVersion", "QB_MATRIX_V1");
+function renderSTATScoreIntelligence(snapshot, statscoreLabel){
+  setText("scMatrixVersion", matrixVersionForPosition(snapshot.position));
   setText("scStarSignal", statscoreLabel);
   setText("scFinalScore", "--");
   setText("scExposureGap", "Pending Verification");
   setText("scProjectionLane", "Pending Verification");
   setText("scConfidence", "Pending");
-  setText("scVarsityYears", "--");
+  setText("scVarsityYears", snapshot.varsity_years || "--");
 
   setText("scStarExplanation", `${statscoreLabel} remains pending until verified scoring rules are applied.`);
   setText("scExposureExplanation", "Visibility intelligence remains pending until verification, scoring, and guardian permissions are complete.");
@@ -1335,6 +1558,7 @@ function renderSTATScoreIntelligence(statscoreLabel){
     "Snapshot Intake has created the athlete profile packet.",
     "Athlete identity, required headshot, media, metrics, academics, guardian, and coach information are staged for verification.",
     `Current public scoring label is ${statscoreLabel}.`,
+    `Position matrix selected: ${matrixVersionForPosition(snapshot.position)}.`,
     "Official STATScore output must wait for verified evidence and rules-based scoring.",
     "Recruiter access and sharing remain governed by parent approval.",
     "Athletic intelligence and academic readiness remain separate lanes."
@@ -1362,13 +1586,8 @@ function renderGuardianGovernance(snapshot){
   const guardianEl = document.getElementById("guardianStatus");
   const recruitingEl = document.getElementById("recruitingStatus");
 
-  if (guardianEl) {
-    guardianEl.className = guardianApproved ? "live" : "warning";
-  }
-
-  if (recruitingEl) {
-    recruitingEl.className = guardianApproved ? "live" : "locked";
-  }
+  if (guardianEl) guardianEl.className = guardianApproved ? "live" : "warning";
+  if (recruitingEl) recruitingEl.className = guardianApproved ? "live" : "locked";
 
   const approvalUrl = `parent-approval.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
   const verificationUrl = `verification.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
@@ -1393,9 +1612,7 @@ function renderGuardianGovernance(snapshot){
     footerApprovalBtn.textContent = guardianApproved ? "Parent Approved ✓" : "Request Approval ›";
   }
 
-  if (verificationBtn) {
-    verificationBtn.href = verificationUrl;
-  }
+  if (verificationBtn) verificationBtn.href = verificationUrl;
 
   if (guardianApproved) {
     if (shareBtn) {
@@ -1427,6 +1644,12 @@ function renderNoSnapshot(){
   setText("identitySub","Awaiting Snapshot Intake");
   setText("scoreStatus","No Snapshot");
   setText("profileBio","No submitted Snapshot record was found. Run Snapshot Intake to generate this athlete profile.");
+
+  renderPositionTraits({
+    position:"ATH",
+    sport:"Football",
+    trait_scores:{}
+  });
 }
 
 function copyShareLink(){
