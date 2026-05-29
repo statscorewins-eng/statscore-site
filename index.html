@@ -124,14 +124,9 @@ html,body{
 
 /* MOBILE VIEW ONLY */
 @media(max-width:768px){
-
-  .page{
-    height:100dvh;
-  }
-
   .hero{
-    flex:0 0 50dvh;
-    height:50dvh;
+    flex:0 0 44dvh;
+    height:44dvh;
     background:#ffffff;
   }
 
@@ -141,57 +136,30 @@ html,body{
     object-fit:contain;
     object-position:center center;
     background:#ffffff;
-    transform:scale(1.16);
+    transform:scale(1.18);
   }
 
   .access{
-    flex:0 0 50dvh;
-    height:50dvh;
+    flex:0 0 56dvh;
+    height:56dvh;
     align-items:flex-start;
-    justify-content:flex-start;
-    padding-top:36px;
-  }
-
-  .access-inner{
-    gap:16px;
-    padding:0 22px 24px;
-    width:100%;
-  }
-
-  .headline{
-    font-size:1.38rem;
-    line-height:1.08;
-    letter-spacing:-.055em;
-  }
-
-  .enter{
-    width:100%;
-    max-width:300px;
-    min-width:0;
-    padding:15px 22px;
-    font-size:.72rem;
-  }
-
-  .sub{
-    font-size:.88rem;
+    padding-top:44px;
   }
 }
 
 @media(max-width:430px){
-
   .hero{
+    flex-basis:44dvh;
+    height:44dvh;
+  }
+
+  .access{
     flex-basis:56dvh;
     height:56dvh;
   }
 
-  .access{
-    flex-basis:44dvh;
-    height:44dvh;
-    padding-top:34px;
-  }
-
   .hero img{
-    transform:scale(1.20);
+    transform:scale(1.22);
   }
 } 
 
