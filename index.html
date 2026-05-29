@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -129,25 +129,27 @@ html,body{
   }
 
   .hero{
-    flex:0 0 64dvh;
-    height:64dvh;
+    flex:0 0 58dvh;
+    height:58dvh;
   }
 
   .hero img{
     object-fit:contain;
     object-position:center center;
-    transform:scale(1.02);
+    transform:scale(1.12);
   }
 
   .access{
-    flex:0 0 36dvh;
-    height:36dvh;
-    align-items:center;
+    flex:0 0 42dvh;
+    height:42dvh;
+    align-items:flex-start;
+    justify-content:flex-start;
+    padding-top:36px;
   }
 
   .access-inner{
     gap:16px;
-    padding:18px 22px 28px;
+    padding:0 22px 24px;
     width:100%;
   }
 
@@ -172,19 +174,21 @@ html,body{
 
 @media(max-width:430px){
   .hero{
-    flex-basis:65dvh;
-    height:65dvh;
+    flex-basis:56dvh;
+    height:56dvh;
   }
 
   .access{
-    flex-basis:35dvh;
-    height:35dvh;
+    flex-basis:44dvh;
+    height:44dvh;
+    padding-top:34px;
   }
 
   .hero img{
-    transform:scale(1.05);
+    transform:scale(1.16);
   }
-}
+} 
+
 </style>
 </head>
 
