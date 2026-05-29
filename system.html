@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -444,6 +444,21 @@ a{text-decoration:none;color:inherit;}
   box-shadow:
     inset 0 0 18px rgba(255,255,255,.035),
     0 10px 22px rgba(0,0,0,.65);
+  cursor:pointer;
+  transition:.18s ease;
+  color:#fff;
+  font:inherit;
+  width:100%;
+}
+
+.metric:hover,
+.metric:focus-visible{
+  transform:translateY(-2px);
+  border-color:rgba(255,31,45,.65);
+  background:
+    linear-gradient(180deg,rgba(255,31,45,.10),rgba(255,255,255,.012)),
+    #050505;
+  outline:none;
 }
 
 .metric svg{
@@ -471,6 +486,116 @@ a{text-decoration:none;color:inherit;}
   line-height:1.32;
   text-transform:uppercase;
   color:#ddd;
+}
+
+/* OVERVIEW MODAL */
+
+.overview-modal{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:22px;
+  background:rgba(0,0,0,.82);
+  backdrop-filter:blur(6px);
+}
+
+.overview-modal.active{
+  display:flex;
+}
+
+.overview-modal-card{
+  width:min(860px,100%);
+  max-height:88vh;
+  overflow:auto;
+  border:1px solid rgba(255,255,255,.2);
+  border-top:3px solid var(--red);
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.012)),
+    repeating-linear-gradient(135deg,rgba(255,255,255,.018) 0,rgba(255,255,255,.018) 1px,transparent 1px,transparent 7px),
+    #050505;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.035),
+    0 24px 80px rgba(0,0,0,.95);
+}
+
+.overview-modal-head{
+  display:flex;
+  justify-content:space-between;
+  gap:18px;
+  align-items:flex-start;
+  padding:24px 26px 16px;
+  border-bottom:1px solid rgba(255,255,255,.12);
+}
+
+.overview-modal-kicker{
+  color:var(--red);
+  font-size:.68rem;
+  font-weight:900;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+
+.overview-modal-title{
+  margin:0;
+  color:#fff;
+  font-size:2rem;
+  line-height:1;
+  text-transform:uppercase;
+  letter-spacing:-.03em;
+}
+
+.overview-modal-close{
+  width:42px;
+  height:42px;
+  border:1px solid rgba(255,255,255,.22);
+  background:rgba(255,255,255,.04);
+  color:#fff;
+  font-size:1.4rem;
+  cursor:pointer;
+}
+
+.overview-modal-body{
+  padding:22px 26px 26px;
+}
+
+.overview-modal-body p{
+  color:#e8e8e8;
+  font-size:.98rem;
+  line-height:1.58;
+  margin:0 0 18px;
+}
+
+.overview-detail-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+  margin-top:16px;
+}
+
+.overview-detail{
+  padding:15px;
+  border:1px solid rgba(255,255,255,.13);
+  background:rgba(255,255,255,.025);
+}
+
+.overview-detail b{
+  display:block;
+  color:#fff;
+  margin-bottom:7px;
+  text-transform:uppercase;
+  font-size:.78rem;
+  letter-spacing:.1em;
+}
+
+.overview-detail span{
+  display:block;
+  color:var(--muted);
+  font-size:.82rem;
+  line-height:1.45;
 }
 
 /* MULTI BOX */
@@ -974,6 +1099,14 @@ a{text-decoration:none;color:inherit;}
     grid-template-columns:1fr 1fr;
   }
 
+  .overview-detail-grid{
+    grid-template-columns:1fr;
+  }
+
+  .overview-modal-title{
+    font-size:1.55rem;
+  }
+
   .readiness{
     padding:20px 18px;
   }
@@ -1080,40 +1213,40 @@ a{text-decoration:none;color:inherit;}
 
   <div class="metric-grid">
 
-    <div class="metric">
+    <button class="metric" type="button" data-overview-key="sports">
       <svg viewBox="0 0 24 24">
         <circle cx="12" cy="12" r="7"/>
         <path d="M12 5v14M5 12h14"/>
       </svg>
       <b>04</b>
       <span>Initial National Sports</span>
-    </div>
+    </button>
 
-    <div class="metric">
+    <button class="metric" type="button" data-overview-key="access">
       <svg viewBox="0 0 24 24">
         <path d="M16 11a4 4 0 1 0-8 0"/>
         <path d="M3 21c1.4-5 16.6-5 18 0"/>
       </svg>
       <b>08</b>
       <span>User Access Areas</span>
-    </div>
+    </button>
 
-    <div class="metric">
+    <button class="metric" type="button" data-overview-key="verification">
       <svg viewBox="0 0 24 24">
         <path d="M12 3 4 7v6c0 5 3.5 7.5 8 8 4.5-.5 8-3 8-8V7l-8-4Z"/>
       </svg>
       <b>05</b>
       <span>Verification Levels</span>
-    </div>
+    </button>
 
-    <div class="metric">
+    <button class="metric" type="button" data-overview-key="verified-system">
       <svg viewBox="0 0 24 24">
         <rect x="5" y="10" width="14" height="10" rx="2"/>
         <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
       </svg>
       <b>01</b>
       <span>Verified Athlete System</span>
-    </div>
+    </button>
 
   </div>
 </aside>
@@ -1128,7 +1261,7 @@ a{text-decoration:none;color:inherit;}
 
   <div class="mb-list">
 
-    <a class="mb-item" href="parent-approval.html">
+    <a class="mb-item" href="parent-approval.html" data-context-link>
       <div class="mb-icon">👤</div>
       <div>
         <b>Parent Approval</b>
@@ -1137,7 +1270,7 @@ a{text-decoration:none;color:inherit;}
       <div class="arrow">›</div>
     </a>
 
-    <a class="mb-item" href="recruiter-requests.html">
+    <a class="mb-item" href="recruiter-requests.html" data-context-link>
       <div class="mb-icon">👥</div>
       <div>
         <b>Recruiter Requests</b>
@@ -1146,7 +1279,7 @@ a{text-decoration:none;color:inherit;}
       <div class="arrow">›</div>
     </a>
 
-    <a class="mb-item" href="visibility-rules.html">
+    <a class="mb-item" href="visibility-rules.html" data-context-link>
       <div class="mb-icon">👁</div>
       <div>
         <b>Visibility Rules</b>
@@ -1155,7 +1288,7 @@ a{text-decoration:none;color:inherit;}
       <div class="arrow">›</div>
     </a>
 
-    <a class="mb-item" href="message-windows.html">
+    <a class="mb-item" href="message-windows.html" data-context-link>
       <div class="mb-icon">💬</div>
       <div>
         <b>Message Windows</b>
@@ -1164,7 +1297,7 @@ a{text-decoration:none;color:inherit;}
       <div class="arrow">›</div>
     </a>
 
-    <a class="mb-item" href="counselor-access.html">
+    <a class="mb-item" href="counselor-access.html" data-context-link>
       <div class="mb-icon">🎓</div>
       <div>
         <b>Counselor Access</b>
@@ -1173,7 +1306,7 @@ a{text-decoration:none;color:inherit;}
       <div class="arrow">›</div>
     </a>
 
-    <a class="mb-item" href="audit-trail.html">
+    <a class="mb-item" href="audit-trail.html" data-context-link>
       <div class="mb-icon">☰</div>
       <div>
         <b>Audit Trail</b>
@@ -1184,7 +1317,7 @@ a{text-decoration:none;color:inherit;}
 
   </div>
 
-  <a class="mb-link" href="multi-box.html">
+  <a class="mb-link" href="multi-box.html" data-context-link>
     Open Multi-Box Settings ›
   </a>
 
@@ -1204,7 +1337,7 @@ a{text-decoration:none;color:inherit;}
         Document verification, identity,
         academic, and eligibility status.
       </p>
-      <a href="verification-request.html">
+      <a href="verification-request.html" data-context-link>
         View Status ›
       </a>
     </div>
@@ -1215,7 +1348,7 @@ a{text-decoration:none;color:inherit;}
         Academic readiness, performance data,
         and development tracking.
       </p>
-      <a href="readiness.html">
+      <a href="readiness.html" data-context-link>
         View Status ›
       </a>
     </div>
@@ -1230,7 +1363,7 @@ a{text-decoration:none;color:inherit;}
         NCAA clearinghouse,
         and compliance tracking.
       </p>
-      <a href="eligibility.html">
+      <a href="eligibility.html" data-context-link>
         View Status ›
       </a>
     </div>
@@ -1241,7 +1374,7 @@ a{text-decoration:none;color:inherit;}
         Target schools, program fit,
         scholarship info, and recruiting opportunities.
       </p>
-      <a href="college-pathway.html">
+      <a href="college-pathway.html" data-context-link>
         View Status ›
       </a>
     </div>
@@ -1282,7 +1415,7 @@ a{text-decoration:none;color:inherit;}
   </div>
 
   <div class="flow-step">
-    <a href="crystal-registry.html">
+    <a href="crystal-registry.html" data-context-link>
       <b>Crystal Reports</b>
       <span>Institutional Intelligence</span>
     </a>
@@ -1293,7 +1426,7 @@ a{text-decoration:none;color:inherit;}
     <span>Connect & Engage</span>
   </div>
 
-  <a class="flow-btn" href="#">
+  <a class="flow-btn" href="#" data-overview-key="full-flow">
     View Full Flow ›
   </a>
 
@@ -1326,6 +1459,22 @@ a{text-decoration:none;color:inherit;}
 
 </div>
 
+<div class="overview-modal" id="overviewModal" aria-hidden="true">
+  <div class="overview-modal-card" role="dialog" aria-modal="true" aria-labelledby="overviewModalTitle">
+    <div class="overview-modal-head">
+      <div>
+        <div class="overview-modal-kicker" id="overviewModalKicker">System Overview</div>
+        <h2 class="overview-modal-title" id="overviewModalTitle">STATScore Overview</h2>
+      </div>
+      <button class="overview-modal-close" type="button" id="overviewModalClose" aria-label="Close overview">×</button>
+    </div>
+    <div class="overview-modal-body">
+      <p id="overviewModalSummary"></p>
+      <div class="overview-detail-grid" id="overviewModalDetails"></div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
@@ -1333,6 +1482,8 @@ window.STATScoreSupabase = window.supabase.createClient(
   "https://oyjmpbuxvfxusmbouldi.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk"
 );
+
+window.STATScoreSupabaseClient = window.STATScoreSupabase;
 
 console.log("[STATScore] Supabase client exposed:", !!window.STATScoreSupabase);
 </script>
@@ -1403,6 +1554,172 @@ console.log("[STATScore] Supabase client exposed:", !!window.STATScoreSupabase);
 
 <!-- ORCHESTRATION -->
 <script src="statscore-engine-loader.js"></script>
+
+<script>
+(function(){
+  const OVERVIEW_CONTENT = {
+    sports: {
+      kicker: "System Overview · 04",
+      title: "Initial National Sports",
+      summary:
+        "STATScore launches with four initial national sports lanes. Each sport keeps its own evaluation logic, position intelligence, verification path, and readiness context. The sports are not blended into one generic athlete score.",
+      details: [
+        ["Football", "Football is the primary launch lane with position matrix logic, athletic traits, readiness signals, recruiting fit, and verification workflow."],
+        ["Basketball", "Basketball is included as an initial national sport lane for athlete profile creation, visibility, performance context, and future sport-specific scoring."],
+        ["Baseball", "Baseball is included as an initial national sport lane with future support for position, performance, development, and recruiting intelligence."],
+        ["Track", "Track is included because measurable performance, event specificity, and verification timing align strongly with STATScore’s evidence-based model."]
+      ]
+    },
+    access: {
+      kicker: "System Overview · 08",
+      title: "User Access Areas",
+      summary:
+        "STATScore operates through eight governed access areas. Each role receives controlled visibility, specific permissions, and a defined operating lane so the athlete record remains protected.",
+      details: [
+        ["Athlete", "Builds and maintains the verified athlete profile, performance identity, readiness path, and lifecycle record."],
+        ["Parent", "Controls guardian approval, profile participation, messaging, visibility, media exposure, and minor-athlete protection."],
+        ["Coach", "Supports athlete context, team signal, development information, and verification coordination."],
+        ["Counselor", "Supports academic readiness, eligibility review, NCAA awareness, and school-based coordination."],
+        ["Recruiter", "Requests governed access through verification and Multi-Box permission rules."],
+        ["Program", "Represents schools, teams, academies, camps, and development programs within governed access."],
+        ["Evaluator", "Supports validated assessments, evidence review, position intelligence, and verified performance context."],
+        ["Multi-Box™", "Controls communication, approvals, visibility rules, audit trails, and access windows."]
+      ]
+    },
+    verification: {
+      kicker: "System Overview · 05",
+      title: "Verification Levels",
+      summary:
+        "STATScore uses five verification levels to separate submitted information from confirmed athlete intelligence. This prevents unverified claims from being treated as official recruiting-grade data.",
+      details: [
+        ["Level 1 · Unverified", "Profile or snapshot data has been submitted, but evidence and guardian approval are not complete."],
+        ["Level 2 · Submitted", "Athlete information exists in the system and is staged for review, routing, or completion."],
+        ["Level 3 · Document Verified", "Identity, academic, eligibility, or supporting documents have been reviewed or attached to the athlete record."],
+        ["Level 4 · Event Verified", "Performance data or measurements have been validated through a verified event, combine, camp, evaluator, or controlled source."],
+        ["Level 5 · Fully Verified", "Athlete profile, evidence, governance, visibility, and scoring requirements are complete for official STATScore release."]
+      ]
+    },
+    "verified-system": {
+      kicker: "System Overview · 01",
+      title: "Verified Athlete System",
+      summary:
+        "STATScore is one governed athlete lifecycle infrastructure. The system connects profile creation, verification, readiness, eligibility, visibility, recruiting, communication, and audit governance into a single controlled athlete record.",
+      details: [
+        ["Single Athlete Record", "The athlete profile becomes the central governed record for identity, sport, position, readiness, verification, and visibility."],
+        ["Governed Visibility", "Public exposure, recruiter access, messaging, and media lanes remain locked until the required permissions are satisfied."],
+        ["Runtime Intelligence", "Engines support scoring, search, readiness, eligibility, media, communication, audit, and governance synchronization."],
+        ["Lifecycle Infrastructure", "STATScore is not a static profile page. It is a protected pathway from intake to verified opportunity readiness."]
+      ]
+    },
+    "full-flow": {
+      kicker: "System Flow",
+      title: "STATScore Athlete Lifecycle Flow",
+      summary:
+        "The system flow shows how an athlete moves through the governed lifecycle. Each stage has a purpose and should become progressively more connected to runtime state, approvals, and receipts.",
+      details: [
+        ["Profile", "Create and build the athlete identity record."],
+        ["Verification", "Verify identity, documents, evidence, and trusted performance inputs."],
+        ["Readiness", "Track academic readiness, development signals, and preparation state."],
+        ["Eligibility", "Maintain NCAA awareness, clearinghouse context, and compliance tracking."],
+        ["Visibility", "Control who can see, request, message, or interact with the athlete record."],
+        ["Crystal Reports", "Generate institutional intelligence reports and structured profile outputs."],
+        ["Recruiting", "Connect governed athlete visibility with verified recruiting access."]
+      ]
+    }
+  };
+
+  function openOverview(key){
+    const data = OVERVIEW_CONTENT[key];
+    if(!data) return;
+
+    const modal = document.getElementById("overviewModal");
+    const kicker = document.getElementById("overviewModalKicker");
+    const title = document.getElementById("overviewModalTitle");
+    const summary = document.getElementById("overviewModalSummary");
+    const details = document.getElementById("overviewModalDetails");
+
+    if(!modal || !kicker || !title || !summary || !details) return;
+
+    kicker.textContent = data.kicker;
+    title.textContent = data.title;
+    summary.textContent = data.summary;
+
+    details.innerHTML = "";
+
+    data.details.forEach(function(item){
+      const block = document.createElement("div");
+      block.className = "overview-detail";
+
+      const b = document.createElement("b");
+      b.textContent = item[0];
+
+      const span = document.createElement("span");
+      span.textContent = item[1];
+
+      block.appendChild(b);
+      block.appendChild(span);
+      details.appendChild(block);
+    });
+
+    modal.classList.add("active");
+    modal.setAttribute("aria-hidden","false");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeOverview(){
+    const modal = document.getElementById("overviewModal");
+    if(!modal) return;
+
+    modal.classList.remove("active");
+    modal.setAttribute("aria-hidden","true");
+    document.body.style.overflow = "";
+  }
+
+  function appendSnapshotContextToLinks(){
+    const params = new URLSearchParams(window.location.search);
+    const snapshotId =
+      params.get("snapshot_id") ||
+      params.get("snapshot") ||
+      params.get("id");
+
+    if(!snapshotId) return;
+
+    document.querySelectorAll("[data-context-link]").forEach(function(link){
+      const href = link.getAttribute("href");
+      if(!href || href === "#") return;
+
+      const url = new URL(href, window.location.href);
+      url.searchParams.set("snapshot_id", snapshotId);
+      link.setAttribute("href", url.pathname.replace(/^\//,"") + url.search);
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", function(){
+    document.querySelectorAll("[data-overview-key]").forEach(function(el){
+      el.addEventListener("click", function(event){
+        event.preventDefault();
+        openOverview(el.getAttribute("data-overview-key"));
+      });
+    });
+
+    const closeBtn = document.getElementById("overviewModalClose");
+    if(closeBtn) closeBtn.addEventListener("click", closeOverview);
+
+    const modal = document.getElementById("overviewModal");
+    if(modal){
+      modal.addEventListener("click", function(event){
+        if(event.target === modal) closeOverview();
+      });
+    }
+
+    document.addEventListener("keydown", function(event){
+      if(event.key === "Escape") closeOverview();
+    });
+
+    appendSnapshotContextToLinks();
+  });
+})();
+</script>
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
@@ -1534,7 +1851,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   console.log("[STATScore] safe search close behavior initialized.");
 });
-</script> 
-  
+</script>
+
 </body>
 </html> 
