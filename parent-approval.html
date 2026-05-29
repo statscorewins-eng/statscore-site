@@ -1194,7 +1194,7 @@ body[data-parent-approval-error="true"] .error-box{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-(function(){
+(function () {
 
   const STAT_SCORE_SUPABASE_URL =
     "https://oyjmpbuxvfxusmbouldi.supabase.co";
@@ -1202,156 +1202,39 @@ body[data-parent-approval-error="true"] .error-box{
   const STAT_SCORE_SUPABASE_ANON_KEY =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk";
 
-  window.STAT_SCORE_SUPABASE_URL = STAT_SCORE_SUPABASE_URL;
-  window.STAT_SCORE_SUPABASE_ANON_KEY = STAT_SCORE_SUPABASE_ANON_KEY;
+  window.STAT_SCORE_SUPABASE_URL =
+    STAT_SCORE_SUPABASE_URL;
+
+  window.STAT_SCORE_SUPABASE_ANON_KEY =
+    STAT_SCORE_SUPABASE_ANON_KEY;
 
   if (!window.supabase) {
     console.error("Supabase CDN did not load.");
     return;
   }
 
-  window.STATScoreSupabaseClient =
+  window.STATScoreSupabase =
     window.supabase.createClient(
       STAT_SCORE_SUPABASE_URL,
       STAT_SCORE_SUPABASE_ANON_KEY
     );
 
+  window.STATScoreSupabaseClient =
+    window.STATScoreSupabase;
+
   console.log("STATScore Supabase client initialized.");
 
 })();
-</script> 
+</script>
 
 <!-- ===================================================== -->
 <!-- STATScore Parent Approval Engine -->
 <!-- ===================================================== -->
 
-<script src="statscore-parent-approval-engine.js"></script>
-
-<script>
-(function(){
-
-  function setText(selector, value){
-    document.querySelectorAll(selector).forEach(function(el){
-      el.textContent = value || "—";
-    });
-  }
-
-  function statusClass(status){
-    status = String(status || "pending").toLowerCase();
-
-    if(status === "approved") return "status approved";
-    if(status === "denied") return "status denied";
-    if(status === "revoked") return "status revoked";
-    if(status === "modified") return "status modified";
-
-    return "status pending";
-  }
-
-  function renderLocalStatus(request){
-
-    const status = request && request.status ? request.status : "pending";
-
-    const pill = document.querySelector("[data-status-pill]");
-    if(pill){
-      pill.className = statusClass(status);
-      pill.textContent = status;
-    }
-
-    document.body.dataset.parentApprovalStatus = status;
-
-  }
-
-  function renderAuditEvent(message, label){
-
-    const log = document.querySelector("[data-parent-audit-log]");
-    if(!log) return;
-
-    const item = document.createElement("div");
-    item.className = "audit-item";
-    item.innerHTML = `
-      ${message}
-      <span>${label}</span>
-    `;
-
-    log.prepend(item);
-
-  }
-
-  window.addEventListener("statscore:parent-approval:loaded", function(event){
-
-    const request = event.detail.request;
-    const snapshotId = event.detail.snapshot_id;
-
-    setText("[data-snapshot-id]", snapshotId);
-
-    if(request){
-      renderLocalStatus(request);
-      renderAuditEvent("Parent approval request loaded.", "Runtime • Request Loaded");
-    }else{
-      renderAuditEvent("No approval request found for this snapshot.", "Runtime • No Request");
-    }
-
-  });
-
-  window.addEventListener("statscore:parent-approval:updated", function(event){
-
-    const request = event.detail;
-
-    renderLocalStatus(request);
-
-    renderAuditEvent(
-      "Parent approval status updated to " + String(request.status || "updated") + ".",
-      "Runtime • Governance Updated"
-    );
-
-  });
-
-  window.addEventListener("statscore:parent-approval:audit-written", function(event){
-
-    renderAuditEvent(
-      "Audit event written: " + String(event.detail.event_type || "event") + ".",
-      "Audit • Written"
-    );
-
-  });
-
-  window.addEventListener("statscore:player-profile:governance-state-updated", function(){
-
-    renderAuditEvent(
-      "Player Profile governance state synchronized.",
-      "Runtime • Profile State Sync"
-    );
-
-  });
-
-  window.addEventListener("statscore:parent-approval:error", function(event){
-
-    document.body.dataset.parentApprovalError = "true";
-
-    const box = document.querySelector("[data-parent-approval-error]");
-    if(box){
-      box.textContent = event.detail.message || "Unknown parent approval runtime error.";
-    }
-
-  });
-
-  document.addEventListener("DOMContentLoaded", function(){
-
-    if(window.STATScoreParentApprovalEngine){
-      window.STATScoreParentApprovalEngine.loadAndRender();
-    }else{
-      document.body.dataset.parentApprovalError = "true";
-
-      const box = document.querySelector("[data-parent-approval-error]");
-      if(box){
-        box.textContent = "STATScoreParentApprovalEngine was not found. Confirm statscore-parent-approval-engine.js is installed.";
-      }
-    }
-
-  });
-
-})();
-</script>
+<script
+  src="./statscore-parent-approval-engine.js?v=1.1.0"
+  defer
+></script> 
 
 </body>
 </html> 
