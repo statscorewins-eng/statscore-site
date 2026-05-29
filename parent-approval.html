@@ -42,6 +42,10 @@ html,body{
   font-family:Arial, Helvetica, sans-serif;
 }
 
+body{
+  min-height:100vh;
+}
+
 /* ===================================================== */
 
 .page{
@@ -173,18 +177,70 @@ html,body{
 
   letter-spacing:-.04em;
 
-  max-width:800px;
+  max-width:880px;
 }
 
 .hero p{
 
-  max-width:760px;
+  max-width:820px;
 
   color:#d2d2d2;
 
   line-height:1.6;
 
   font-size:1rem;
+}
+
+/* ===================================================== */
+
+.runtime-strip{
+
+  margin-top:18px;
+
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+}
+
+.runtime-box{
+
+  padding:14px;
+
+  border:1px solid rgba(255,255,255,.12);
+
+  background:rgba(255,255,255,.025);
+}
+
+.runtime-box b{
+
+  display:block;
+
+  margin-bottom:6px;
+
+  color:var(--red);
+
+  font-size:.64rem;
+
+  font-weight:900;
+
+  letter-spacing:.15em;
+
+  text-transform:uppercase;
+}
+
+.runtime-box span{
+
+  display:block;
+
+  color:#fff;
+
+  font-size:.82rem;
+
+  font-weight:900;
+
+  letter-spacing:.06em;
+
+  text-transform:uppercase;
 }
 
 /* ===================================================== */
@@ -222,7 +278,6 @@ html,body{
 /* ===================================================== */
 
 .section{
-
   padding:22px;
 }
 
@@ -248,11 +303,15 @@ html,body{
   letter-spacing:.12em;
 }
 
-/* ===================================================== */
+.section-title span{
 
-.approval-list{
-  display:grid;
-  gap:12px;
+  color:var(--muted);
+
+  font-size:.68rem;
+
+  text-transform:uppercase;
+
+  letter-spacing:.12em;
 }
 
 /* ===================================================== */
@@ -372,13 +431,89 @@ html,body{
   background:rgba(255,177,0,.08);
 }
 
-.status.denied{
+.status.denied,
+.status.revoked{
 
   color:var(--danger);
 
   border-color:rgba(255,77,77,.45);
 
   background:rgba(255,77,77,.08);
+}
+
+.status.modified{
+
+  color:var(--gold);
+
+  border-color:rgba(255,177,0,.45);
+
+  background:rgba(255,177,0,.08);
+}
+
+/* ===================================================== */
+
+.scope-grid{
+
+  margin-top:18px;
+
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+}
+
+.scope-card{
+
+  position:relative;
+
+  padding:15px;
+
+  border:1px solid rgba(255,255,255,.1);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.028),
+      rgba(255,255,255,.01)
+    ),
+    #060606;
+}
+
+.scope-card label{
+
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+
+  cursor:pointer;
+}
+
+.scope-card input{
+  margin-top:3px;
+  accent-color:#ff1f2d;
+}
+
+.scope-card b{
+
+  display:block;
+
+  margin-bottom:6px;
+
+  font-size:.78rem;
+
+  text-transform:uppercase;
+
+  letter-spacing:.12em;
+}
+
+.scope-card span{
+
+  display:block;
+
+  color:var(--muted);
+
+  font-size:.72rem;
+
+  line-height:1.45;
 }
 
 /* ===================================================== */
@@ -435,11 +570,13 @@ html,body{
   display:flex;
 
   gap:12px;
+
+  flex-wrap:wrap;
 }
 
 .btn{
 
-  height:44px;
+  min-height:44px;
 
   padding:0 22px;
 
@@ -464,6 +601,8 @@ html,body{
   cursor:pointer;
 
   transition:.18s ease;
+
+  user-select:none;
 }
 
 .btn:hover{
@@ -480,6 +619,20 @@ html,body{
   color:var(--gold);
 
   background:rgba(255,177,0,.08);
+}
+
+.btn.green{
+
+  border-color:rgba(43,220,101,.55);
+
+  color:var(--green);
+
+  background:rgba(43,220,101,.08);
+}
+
+.btn.disabled{
+  opacity:.45;
+  pointer-events:none;
 }
 
 /* ===================================================== */
@@ -548,6 +701,59 @@ html,body{
 
 /* ===================================================== */
 
+.error-box{
+
+  display:none;
+
+  margin-top:14px;
+
+  padding:12px;
+
+  border:1px solid rgba(255,77,77,.45);
+
+  background:rgba(255,77,77,.08);
+
+  color:#ffb3b3;
+
+  font-size:.75rem;
+
+  line-height:1.45;
+}
+
+body[data-parent-approval-error="true"] .error-box{
+  display:block;
+}
+
+/* ===================================================== */
+
+.footer{
+
+  margin-top:18px;
+
+  padding:16px 22px;
+
+  border-top:1px solid rgba(255,255,255,.1);
+
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  color:var(--muted);
+
+  font-size:.68rem;
+
+  text-transform:uppercase;
+
+  letter-spacing:.12em;
+}
+
+.footer .secure{
+  color:var(--green);
+  font-weight:900;
+}
+
+/* ===================================================== */
+
 @media(max-width:980px){
 
   .grid{
@@ -558,12 +764,24 @@ html,body{
     font-size:2.6rem;
   }
 
+  .runtime-strip{
+    grid-template-columns:repeat(2,1fr);
+  }
+
 }
 
 @media(max-width:720px){
 
   .main{
     padding:12px;
+  }
+
+  .header{
+    padding:0 16px;
+  }
+
+  .logo{
+    height:34px;
   }
 
   .hero{
@@ -586,12 +804,26 @@ html,body{
     flex-direction:column;
   }
 
+  .scope-grid{
+    grid-template-columns:1fr;
+  }
+
+  .runtime-strip{
+    grid-template-columns:1fr;
+  }
+
+  .footer{
+    flex-direction:column;
+    gap:10px;
+    align-items:flex-start;
+  }
+
 }
 
 </style>
 </head>
 
-<body>
+<body data-parent-approval-status="loading">
 
 <div class="page">
 
@@ -634,9 +866,33 @@ html,body{
       <p>
         Govern athlete communication, recruiter access,
         profile visibility, counselor permissions,
-        and communication authorization through
-        parent-controlled approval infrastructure.
+        media exposure, and communication authorization
+        through parent-controlled approval infrastructure.
       </p>
+
+      <div class="runtime-strip">
+
+        <div class="runtime-box">
+          <b>Snapshot ID</b>
+          <span data-snapshot-id>Loading</span>
+        </div>
+
+        <div class="runtime-box">
+          <b>Athlete</b>
+          <span data-athlete-name>Loading</span>
+        </div>
+
+        <div class="runtime-box">
+          <b>Requester</b>
+          <span data-requester-name>Loading</span>
+        </div>
+
+        <div class="runtime-box">
+          <b>Status</b>
+          <span data-parent-approval-status>Loading</span>
+        </div>
+
+      </div>
 
     </section>
 
@@ -651,92 +907,129 @@ html,body{
         <div class="section-title">
 
           <b>
-            Active Approval Requests
+            Active Approval Request
           </b>
+
+          <span data-request-type>
+            Permission Scope
+          </span>
 
         </div>
 
-        <div class="approval-list">
+        <div class="approval-card">
 
-          <!-- CARD -->
+          <div class="avatar" data-athlete-initials>
+            SC
+          </div>
 
-          <div class="approval-card">
+          <div class="approval-info">
 
-            <div class="avatar">
-              DS
-            </div>
+            <b data-requester-role>
+              Requester Role
+            </b>
 
-            <div class="approval-info">
-
-              <b>
-                Demo State University
-              </b>
-
-              <span>
-                Recruiter request for athlete visibility,
-                communication access, and verified camp outreach.
-              </span>
-
-            </div>
-
-            <div class="status pending">
-              Pending
-            </div>
+            <span>
+              Request submitted by
+              <strong data-requester-name>Loading</strong>
+              for athlete
+              <strong data-athlete-name>Loading</strong>.
+              Parent or guardian may approve, deny, or modify permission scopes.
+            </span>
 
           </div>
 
-          <!-- CARD -->
-
-          <div class="approval-card">
-
-            <div class="avatar">
-              GC
-            </div>
-
-            <div class="approval-info">
-
-              <b>
-                Gulf Coast Counselors
-              </b>
-
-              <span>
-                School counselor academic access
-                request for NCAA review coordination.
-              </span>
-
-            </div>
-
-            <div class="status approved">
-              Approved
-            </div>
-
+          <div class="status pending" data-status-pill>
+            Pending
           </div>
 
-          <!-- CARD -->
+        </div>
 
-          <div class="approval-card">
+        <!-- SCOPES -->
 
-            <div class="avatar">
-              PR
-            </div>
+        <div class="section-title" style="margin-top:22px;">
 
-            <div class="approval-info">
+          <b>
+            Permission Scopes
+          </b>
 
-              <b>
-                Private Recruiting Group
-              </b>
+          <span>
+            Parent Controlled
+          </span>
 
+        </div>
+
+        <div class="scope-grid">
+
+          <div class="scope-card">
+            <label>
+              <input type="checkbox" data-scope="profile_participation" />
               <span>
-                Unauthorized communication attempt
-                blocked by Multi-Box governance.
+                <b>Profile Participation</b>
+                <span>
+                  Allows the athlete profile to participate in the STATScore lifecycle system.
+                </span>
               </span>
+            </label>
+          </div>
 
-            </div>
+          <div class="scope-card">
+            <label>
+              <input type="checkbox" data-scope="public_visibility" />
+              <span>
+                <b>Public Visibility</b>
+                <span>
+                  Allows controlled visibility outside the private family/athlete account.
+                </span>
+              </span>
+            </label>
+          </div>
 
-            <div class="status denied">
-              Denied
-            </div>
+          <div class="scope-card">
+            <label>
+              <input type="checkbox" data-scope="recruiter_access" />
+              <span>
+                <b>Recruiter Access</b>
+                <span>
+                  Allows verified recruiters to request governed access to athlete information.
+                </span>
+              </span>
+            </label>
+          </div>
 
+          <div class="scope-card">
+            <label>
+              <input type="checkbox" data-scope="messaging_access" />
+              <span>
+                <b>Messaging Access</b>
+                <span>
+                  Allows controlled communication windows through Multi-Box permissions.
+                </span>
+              </span>
+            </label>
+          </div>
+
+          <div class="scope-card">
+            <label>
+              <input type="checkbox" data-scope="media_exposure" />
+              <span>
+                <b>Media Exposure</b>
+                <span>
+                  Allows athlete media, highlights, or exposure assets to be shown in approved lanes.
+                </span>
+              </span>
+            </label>
+          </div>
+
+          <div class="scope-card">
+            <label>
+              <input type="checkbox" data-scope="counselor_access" />
+              <span>
+                <b>Counselor Access</b>
+                <span>
+                  Allows school counselor review for eligibility, academic readiness, and coordination.
+                </span>
+              </span>
+            </label>
           </div>
 
         </div>
@@ -745,18 +1038,26 @@ html,body{
 
         <div class="action-bar">
 
-          <div class="btn">
+          <div class="btn green" data-parent-action="approve">
             Approve Selected
           </div>
 
-          <div class="btn gold">
+          <div class="btn gold" data-parent-action="modify">
             Modify Permissions
           </div>
 
-          <div class="btn">
-            Export Audit
+          <div class="btn" data-parent-action="deny">
+            Deny Request
           </div>
 
+          <div class="btn" data-parent-action="revoke">
+            Revoke Access
+          </div>
+
+        </div>
+
+        <div class="error-box" data-parent-approval-error>
+          Runtime error will appear here.
         </div>
 
         <!-- AUDIT -->
@@ -767,38 +1068,13 @@ html,body{
             Approval Audit Trail
           </b>
 
-          <div class="audit-log">
+          <div class="audit-log" data-parent-audit-log>
 
             <div class="audit-item">
-
-              Parent approved counselor visibility access.
-
+              Waiting for parent approval runtime event.
               <span>
-                Logged • Governed Action
+                Runtime • Pending Load
               </span>
-
-            </div>
-
-            <div class="audit-item">
-
-              Recruiter request escalated
-              for guardian review.
-
-              <span>
-                Logged • Pending Approval
-              </span>
-
-            </div>
-
-            <div class="audit-item">
-
-              Unauthorized recruiter contact
-              automatically blocked by Multi-Box.
-
-              <span>
-                Logged • Security Enforcement
-              </span>
-
             </div>
 
           </div>
@@ -828,9 +1104,8 @@ html,body{
             </b>
 
             <span>
-              Minor athlete communication
-              requires parent authorization before
-              recruiter visibility activation.
+              Minor athlete communication requires parent authorization before recruiter visibility,
+              media exposure, or communication activation.
             </span>
 
           </div>
@@ -842,8 +1117,8 @@ html,body{
             </b>
 
             <span>
-              Only verified recruiters may request
-              governed athlete communication access.
+              Only verified recruiters may request governed athlete communication access.
+              Approval does not bypass recruiter verification.
             </span>
 
           </div>
@@ -855,9 +1130,21 @@ html,body{
             </b>
 
             <span>
-              Athlete profile visibility may be
-              restricted by sport, role, geography,
-              institution type, or communication status.
+              Athlete profile visibility may be restricted by scope, role, sport, institution,
+              communication status, or guardian preference.
+            </span>
+
+          </div>
+
+          <div class="rule">
+
+            <b>
+              Permission Modification
+            </b>
+
+            <span>
+              Parent approval may be partial. A guardian can approve profile participation while denying
+              media exposure, messaging, or recruiter access.
             </span>
 
           </div>
@@ -869,9 +1156,8 @@ html,body{
             </b>
 
             <span>
-              All communication requests,
-              approvals, denials, and escalations
-              are permanently logged.
+              All approvals, denials, modifications, revocations, and visibility changes are logged
+              into the STATScore audit structure.
             </span>
 
           </div>
@@ -884,7 +1170,182 @@ html,body{
 
   </main>
 
+  <footer class="footer">
+
+    <div>
+      STATScore Systems · Parent Permission Scope Infrastructure
+    </div>
+
+    <div class="secure">
+      ✓ Governance Active
+    </div>
+
+  </footer>
+
 </div>
+
+<!-- ===================================================== -->
+<!-- SUPABASE CLIENT -->
+<!-- Replace placeholder values only if this page does not already load them globally. -->
+<!-- ===================================================== -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+(function(){
+
+  if(!window.STATScoreSupabaseClient){
+
+    const STAT_SCORE_SUPABASE_URL = "https://oyjmpbuxvfxusmbouldi.supabase.co";
+    const STAT_SCORE_SUPABASE_ANON_KEY = "PASTE_SUPABASE_ANON_KEY_HERE";
+
+    if(
+      window.supabase &&
+      STAT_SCORE_SUPABASE_ANON_KEY &&
+      STAT_SCORE_SUPABASE_ANON_KEY !== "PASTE_SUPABASE_ANON_KEY_HERE"
+    ){
+      window.STATScoreSupabaseClient = window.supabase.createClient(
+        STAT_SCORE_SUPABASE_URL,
+        STAT_SCORE_SUPABASE_ANON_KEY
+      );
+    }
+
+  }
+
+})();
+</script>
+
+<!-- ===================================================== -->
+<!-- STATScore Parent Approval Engine -->
+<!-- ===================================================== -->
+
+<script src="statscore-parent-approval-engine.js"></script>
+
+<script>
+(function(){
+
+  function setText(selector, value){
+    document.querySelectorAll(selector).forEach(function(el){
+      el.textContent = value || "—";
+    });
+  }
+
+  function statusClass(status){
+    status = String(status || "pending").toLowerCase();
+
+    if(status === "approved") return "status approved";
+    if(status === "denied") return "status denied";
+    if(status === "revoked") return "status revoked";
+    if(status === "modified") return "status modified";
+
+    return "status pending";
+  }
+
+  function renderLocalStatus(request){
+
+    const status = request && request.status ? request.status : "pending";
+
+    const pill = document.querySelector("[data-status-pill]");
+    if(pill){
+      pill.className = statusClass(status);
+      pill.textContent = status;
+    }
+
+    document.body.dataset.parentApprovalStatus = status;
+
+  }
+
+  function renderAuditEvent(message, label){
+
+    const log = document.querySelector("[data-parent-audit-log]");
+    if(!log) return;
+
+    const item = document.createElement("div");
+    item.className = "audit-item";
+    item.innerHTML = `
+      ${message}
+      <span>${label}</span>
+    `;
+
+    log.prepend(item);
+
+  }
+
+  window.addEventListener("statscore:parent-approval:loaded", function(event){
+
+    const request = event.detail.request;
+    const snapshotId = event.detail.snapshot_id;
+
+    setText("[data-snapshot-id]", snapshotId);
+
+    if(request){
+      renderLocalStatus(request);
+      renderAuditEvent("Parent approval request loaded.", "Runtime • Request Loaded");
+    }else{
+      renderAuditEvent("No approval request found for this snapshot.", "Runtime • No Request");
+    }
+
+  });
+
+  window.addEventListener("statscore:parent-approval:updated", function(event){
+
+    const request = event.detail;
+
+    renderLocalStatus(request);
+
+    renderAuditEvent(
+      "Parent approval status updated to " + String(request.status || "updated") + ".",
+      "Runtime • Governance Updated"
+    );
+
+  });
+
+  window.addEventListener("statscore:parent-approval:audit-written", function(event){
+
+    renderAuditEvent(
+      "Audit event written: " + String(event.detail.event_type || "event") + ".",
+      "Audit • Written"
+    );
+
+  });
+
+  window.addEventListener("statscore:player-profile:governance-state-updated", function(){
+
+    renderAuditEvent(
+      "Player Profile governance state synchronized.",
+      "Runtime • Profile State Sync"
+    );
+
+  });
+
+  window.addEventListener("statscore:parent-approval:error", function(event){
+
+    document.body.dataset.parentApprovalError = "true";
+
+    const box = document.querySelector("[data-parent-approval-error]");
+    if(box){
+      box.textContent = event.detail.message || "Unknown parent approval runtime error.";
+    }
+
+  });
+
+  document.addEventListener("DOMContentLoaded", function(){
+
+    if(window.STATScoreParentApprovalEngine){
+      window.STATScoreParentApprovalEngine.loadAndRender();
+    }else{
+      document.body.dataset.parentApprovalError = "true";
+
+      const box = document.querySelector("[data-parent-approval-error]");
+      if(box){
+        box.textContent = "STATScoreParentApprovalEngine was not found. Confirm statscore-parent-approval-engine.js is installed.";
+      }
+    }
+
+  });
+
+})();
+</script>
 
 </body>
 </html> 
