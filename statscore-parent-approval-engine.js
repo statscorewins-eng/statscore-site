@@ -1,7 +1,7 @@
 /* ============================================================
    STATScore™ Parent Approval Engine
    File: statscore-parent-approval-engine.js
-   Version: 1.0.0
+   Version: 1.0.1
    Purpose:
    Parent/guardian permission-scope governance for:
    - profile participation
@@ -10,16 +10,29 @@
    - messaging access
    - media exposure
    - counselor access
+
+   IMPORTANT:
+   This engine does NOT overwrite document.body.
+   It only hydrates existing parent-approval.html data-* hooks.
    ============================================================ */
 
 (function () {
   "use strict";
 
   const ENGINE_ID = "STATScoreParentApprovalEngine";
-  const ENGINE_VERSION = "1.0.0";
+  const ENGINE_VERSION = "1.0.1";
 
   const DEFAULT_SCOPE = {
     profile_participation: false,
+    public_visibility: false,
+    recruiter_access: false,
+    messaging_access: false,
+    media_exposure: false,
+    counselor_access: false
+  };
+
+  const DEFAULT_TEST_SCOPE = {
+    profile_participation: true,
     public_visibility: false,
     recruiter_access: false,
     messaging_access: false,
@@ -32,24 +45,36 @@
     currentRequest: null,
     guardian: null,
     athlete: null,
+    initialized: false,
+    actionsBound: false,
     lastError: null
   };
 
   function getSupabaseClient() {
     if (window.STATScoreSupabaseClient) return window.STATScoreSupabaseClient;
     if (window.supabaseClient) return window.supabaseClient;
-    if (window.supabase && window.STAT_SCORE_SUPABASE_URL && window.STAT_SCORE_SUPABASE_ANON_KEY) {
+
+    if (
+      window.supabase &&
+      window.STAT_SCORE_SUPABASE_URL &&
+      window.STAT_SCORE_SUPABASE_ANON_KEY
+    ) {
       window.STATScoreSupabaseClient = window.supabase.createClient(
         window.STAT_SCORE_SUPABASE_URL,
         window.STAT_SCORE_SUPABASE_ANON_KEY
       );
+
       return window.STATScoreSupabaseClient;
     }
-    throw new Error("Supabase client not found. Confirm anon key/client is loaded before Parent Approval Engine.");
+
+    throw new Error(
+      "Supabase client not found. Confirm anon key/client is loaded before Parent Approval Engine."
+    );
   }
 
   function getSnapshotId() {
     const params = new URLSearchParams(window.location.search);
+
     return (
       params.get("snapshot_id") ||
       params.get("snapshot") ||
@@ -59,13 +84,21 @@
     );
   }
 
+  function safeText(value, fallback) {
+    if (value === null || value === undefined || value === "") {
+      return fallback || "—";
+    }
+
+    return String(value);
+  }
+
   function normalizeBool(value) {
     return value === true || value === "true" || value === 1 || value === "1";
   }
 
   function setText(selector, value) {
     document.querySelectorAll(selector).forEach(function (el) {
-      el.textContent = value || "—";
+      el.textContent = safeText(value);
     });
   }
 
@@ -86,22 +119,27 @@
 
   function collectScopeFromDOM() {
     const scope = {};
+
     Object.keys(DEFAULT_SCOPE).forEach(function (key) {
       const input = document.querySelector("[data-scope='" + key + "']");
       scope[key] = normalizeBool(input && input.checked);
     });
+
     return scope;
   }
 
   function applyScopeToDOM(scope) {
-    scope = Object.assign({}, DEFAULT_SCOPE, scope || {});
+    const merged = Object.assign({}, DEFAULT_SCOPE, scope || {});
+
     Object.keys(DEFAULT_SCOPE).forEach(function (key) {
       const input = document.querySelector("[data-scope='" + key + "']");
-      if (input) input.checked = !!scope[key];
+      if (input) input.checked = !!merged[key];
     });
   }
 
   function getScopeFromRequest(request) {
+    if (!request) return Object.assign({}, DEFAULT_SCOPE);
+
     return {
       profile_participation: !!request.profile_participation,
       public_visibility: !!request.public_visibility,
@@ -113,27 +151,27 @@
   }
 
   function statusClass(status) {
-    status = String(status || "pending").toLowerCase();
+    const clean = String(status || "pending").toLowerCase();
 
-    if (status === "approved") return "status approved";
-    if (status === "denied") return "status denied";
-    if (status === "revoked") return "status revoked";
-    if (status === "modified") return "status modified";
+    if (clean === "approved") return "status approved";
+    if (clean === "denied") return "status denied";
+    if (clean === "revoked") return "status revoked";
+    if (clean === "modified") return "status modified";
 
     return "status pending";
   }
 
   function renderStatus(status) {
-    status = String(status || "pending").toLowerCase();
+    const clean = String(status || "pending").toLowerCase();
 
     const pill = document.querySelector("[data-status-pill]");
     if (pill) {
-      pill.className = statusClass(status);
-      pill.textContent = status;
+      pill.className = statusClass(clean);
+      pill.textContent = clean;
     }
 
-    document.body.dataset.parentApprovalStatus = status;
-    setText("[data-parent-approval-status]", status);
+    document.body.dataset.parentApprovalStatus = clean;
+    setText("[data-parent-approval-status]", clean);
   }
 
   function renderAudit(message, label) {
@@ -142,13 +180,35 @@
 
     const item = document.createElement("div");
     item.className = "audit-item";
-    item.innerHTML =
-      String(message || "Runtime event.") +
-      "<span>" +
-      String(label || "Runtime • Event") +
-      "</span>";
+
+    const messageNode = document.createTextNode(
+      safeText(message, "Runtime event.")
+    );
+
+    const span = document.createElement("span");
+    span.textContent = safeText(label, "Runtime • Event");
+
+    item.appendChild(messageNode);
+    item.appendChild(span);
 
     log.prepend(item);
+  }
+
+  function renderInitials(name) {
+    const initials = document.querySelector("[data-athlete-initials]");
+    if (!initials) return;
+
+    const clean = safeText(name, "SC");
+
+    initials.textContent = clean
+      .split(" ")
+      .filter(Boolean)
+      .map(function (part) {
+        return part[0];
+      })
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
   }
 
   async function writeAuditEvent(payload) {
@@ -174,6 +234,7 @@
     if (error) throw error;
 
     emit("statscore:parent-approval:audit-written", record);
+
     return record;
   }
 
@@ -216,9 +277,16 @@
       setText("[data-requester-name]", "No Requester Loaded");
       setText("[data-requester-role]", "No Request Loaded");
       setText("[data-request-type]", "No Active Request");
+
+      renderInitials("SC");
       renderStatus("pending");
       applyScopeToDOM(DEFAULT_SCOPE);
-      renderAudit("No approval request found for this snapshot.", "Runtime • No Request");
+
+      renderAudit(
+        "No approval request found for this snapshot.",
+        "Runtime • No Request"
+      );
+
       return;
     }
 
@@ -227,43 +295,32 @@
     setText("[data-requester-role]", request.requester_role || "Requester Role");
     setText("[data-request-type]", request.request_type || "Permission Scope");
 
-    const initials = document.querySelector("[data-athlete-initials]");
-    if (initials) {
-      const name = request.athlete_name || "SC";
-      initials.textContent = name
-        .split(" ")
-        .map(function (part) { return part[0]; })
-        .join("")
-        .slice(0, 2)
-        .toUpperCase();
-    }
-
+    renderInitials(request.athlete_name || "SC");
     renderStatus(request.status);
     applyScopeToDOM(getScopeFromRequest(request));
   }
 
   async function createApprovalRequest(payload) {
     const supabase = getSupabaseClient();
-    payload = payload || {};
-
-    const scope = Object.assign({}, DEFAULT_SCOPE, payload.scope || {});
+    const cleanPayload = payload || {};
+    const scope = Object.assign({}, DEFAULT_SCOPE, cleanPayload.scope || {});
 
     const record = {
-      snapshot_id: payload.snapshot_id || STATE.snapshot_id || getSnapshotId(),
+      snapshot_id: cleanPayload.snapshot_id || STATE.snapshot_id || getSnapshotId(),
 
-      athlete_id: payload.athlete_id || null,
-      athlete_name: payload.athlete_name || "Demo Athlete",
+      athlete_id: cleanPayload.athlete_id || null,
+      athlete_name: cleanPayload.athlete_name || "Demo Athlete",
 
-      guardian_id: payload.guardian_id || null,
-      guardian_name: payload.guardian_name || "Parent / Guardian",
-      guardian_email: payload.guardian_email || null,
+      guardian_id: cleanPayload.guardian_id || null,
+      guardian_name: cleanPayload.guardian_name || "Parent / Guardian",
+      guardian_email: cleanPayload.guardian_email || null,
 
-      requester_id: payload.requester_id || null,
-      requester_name: payload.requester_name || "STATScore System",
-      requester_role: payload.requester_role || "system",
-      requester_email: payload.requester_email || null,
+      requester_id: cleanPayload.requester_id || null,
+      requester_name: cleanPayload.requester_name || "STATScore System",
+      requester_role: cleanPayload.requester_role || "system",
+      requester_email: cleanPayload.requester_email || null,
 
-      request_type: payload.request_type || "parent_permission_scope",
+      request_type: cleanPayload.request_type || "parent_permission_scope",
 
       profile_participation: !!scope.profile_participation,
       public_visibility: !!scope.public_visibility,
@@ -274,9 +331,9 @@
 
       status: "pending",
 
-      parent_notes: payload.parent_notes || null,
-      system_notes: payload.system_notes || null,
-      expires_at: payload.expires_at || null
+      parent_notes: cleanPayload.parent_notes || null,
+      system_notes: cleanPayload.system_notes || null,
+      expires_at: cleanPayload.expires_at || null
     };
 
     const { data, error } = await supabase
@@ -303,6 +360,7 @@
     });
 
     renderApprovalRequest(data);
+
     emit("statscore:parent-approval:created", data);
 
     return data;
@@ -330,7 +388,7 @@
         "statscore_parent_approval_" + request.snapshot_id,
         JSON.stringify(governanceState)
       );
-    } catch (e) {}
+    } catch (_) {}
 
     emit("statscore:player-profile:governance-state-updated", governanceState);
 
@@ -343,8 +401,13 @@
     }
 
     const supabase = getSupabaseClient();
+
     const previousStatus = STATE.currentRequest.status;
-    const scope = Object.assign({}, DEFAULT_SCOPE, scopeOverride || collectScopeFromDOM());
+    const scope = Object.assign(
+      {},
+      DEFAULT_SCOPE,
+      scopeOverride || collectScopeFromDOM()
+    );
 
     const patch = {
       status: status,
@@ -408,6 +471,8 @@
   }
 
   function bindUIActions() {
+    if (STATE.actionsBound) return;
+
     document.querySelectorAll("[data-parent-action='approve']").forEach(function (btn) {
       btn.addEventListener("click", function () {
         approve().catch(handleError);
@@ -431,6 +496,8 @@
         revoke().catch(handleError);
       });
     });
+
+    STATE.actionsBound = true;
   }
 
   function handleError(error) {
@@ -445,6 +512,11 @@
       error.message || "Unknown parent approval runtime error."
     );
 
+    renderAudit(
+      error.message || "Unknown parent approval runtime error.",
+      "Runtime • Error"
+    );
+
     emit("statscore:parent-approval:error", {
       message: error.message || "Unknown parent approval runtime error.",
       error: error
@@ -456,6 +528,7 @@
       STATE.snapshot_id = getSnapshotId();
 
       document.body.dataset.snapshotId = STATE.snapshot_id;
+
       setText("[data-snapshot-id]", STATE.snapshot_id);
 
       bindUIActions();
@@ -470,27 +543,26 @@
           requester_name: "STATScore System",
           requester_role: "system",
           request_type: "parent_permission_scope",
-          scope: {
-            profile_participation: true,
-            public_visibility: false,
-            recruiter_access: false,
-            messaging_access: false,
-            media_exposure: false,
-            counselor_access: false
-          },
+          scope: DEFAULT_TEST_SCOPE,
           system_notes: "Auto-created runtime test approval request."
         });
       }
 
       renderApprovalRequest(request);
+
       await syncPlayerProfileGovernanceState(request);
 
-      renderAudit("Parent approval engine loaded successfully.", "Runtime • Engine Active");
+      renderAudit(
+        "Parent approval engine loaded successfully.",
+        "Runtime • Engine Active"
+      );
 
       emit("statscore:parent-approval:loaded", {
         snapshot_id: STATE.snapshot_id,
         request: request
       });
+
+      STATE.initialized = true;
 
       return request;
     } catch (error) {
@@ -518,5 +590,7 @@
     collectScopeFromDOM: collectScopeFromDOM,
     applyScopeToDOM: applyScopeToDOM
   };
+
+  console.log(ENGINE_ID + " v" + ENGINE_VERSION + " loaded.");
 
 })(); 
