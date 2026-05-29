@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1197,12 +1197,12 @@ body[data-parent-approval-error="true"] .error-box{
   if(!window.STATScoreSupabaseClient){
 
     const STAT_SCORE_SUPABASE_URL = "https://oyjmpbuxvfxusmbouldi.supabase.co";
-    const STAT_SCORE_SUPABASE_ANON_KEY = "PASTE_SUPABASE_ANON_KEY_HERE";
+    const STAT_SCORE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk";
 
     if(
       window.supabase &&
       STAT_SCORE_SUPABASE_ANON_KEY &&
-      STAT_SCORE_SUPABASE_ANON_KEY !== "PASTE_SUPABASE_ANON_KEY_HERE"
+      STAT_SCORE_SUPABASE_ANON_KEY !== "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk"
     ){
       window.STATScoreSupabaseClient = window.supabase.createClient(
         STAT_SCORE_SUPABASE_URL,
