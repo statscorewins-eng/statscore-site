@@ -124,19 +124,36 @@ html,body{
 
 /* MOBILE VIEW ONLY */
 @media(max-width:768px){
+
   .hero{
     flex:0 0 44dvh;
     height:44dvh;
-    background:#ffffff;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:
+      radial-gradient(circle at center,
+      rgba(255,45,45,.22) 0%,
+      rgba(255,45,45,.10) 22%,
+      rgba(245,245,245,1) 58%);
+
+    overflow:hidden;
   }
 
   .hero img{
     width:100%;
     height:100%;
+
     object-fit:contain;
     object-position:center center;
-    background:#ffffff;
+
     transform:scale(1.18);
+
+    filter:
+      drop-shadow(0 0 18px rgba(255,45,45,.28))
+      drop-shadow(0 0 42px rgba(255,45,45,.16));
   }
 
   .access{
@@ -145,7 +162,7 @@ html,body{
     align-items:flex-start;
     padding-top:44px;
   }
-}
+} 
 
 @media(max-width:430px){
   .hero{
