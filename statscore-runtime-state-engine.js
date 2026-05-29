@@ -1,16 +1,17 @@
 /* ============================================================
    STATScore™ Runtime State Engine
    FULL PRODUCTION FILE
-   Version: v1.0
+   Version: v1.1
    Purpose:
-   Live Runtime State Authority → Hydration → Sync → System Heartbeat
+   Live Runtime State Authority → Hydration → Sync → Heartbeat
+   Runtime state is the authority. Engines contribute state; they do not own it.
    ============================================================ */
 
 (function () {
   "use strict";
 
   const ENGINE_ID = "sc-runtime-state-engine";
-  const VERSION = "v1.0-live-state-authority";
+  const VERSION = "v1.1-runtime-authority";
 
   const DEFAULT_STATE = {
     initialized: false,
@@ -34,6 +35,7 @@
     readiness: null,
     pathway: null,
     eligibility: null,
+    visibility: null,
 
     crystal_report: null,
     program_intelligence: null,
@@ -45,9 +47,17 @@
     camp_combine_matches: null,
     recruiter_verification: null,
 
+    registered_engines: {},
     receipts: [],
     errors: [],
     warnings: [],
+
+    governance_locks: {
+      recruiter_visibility_locked: true,
+      media_visibility_locked: true,
+      public_profile_locked: true,
+      messaging_locked: true
+    },
 
     heartbeat: {
       status: "IDLE",
@@ -56,34 +66,10 @@
     }
   };
 
-  let STATE = structuredClone(DEFAULT_STATE);
+  let STATE = clone(DEFAULT_STATE);
 
   function now() {
     return new Date().toISOString();
-  }
-
-  function log(message, payload) {
-    console.log(`[STATScore Runtime State] ${message}`, payload || "");
-  }
-
-  function warn(message, payload) {
-    console.warn(`[STATScore Runtime State] ${message}`, payload || "");
-
-    STATE.warnings.push({
-      message,
-      payload: payload || null,
-      created_at: now()
-    });
-  }
-
-  function error(message, payload) {
-    console.error(`[STATScore Runtime State] ${message}`, payload || "");
-
-    STATE.errors.push({
-      message,
-      payload: payload || null,
-      created_at: now()
-    });
   }
 
   function clone(value) {
@@ -94,9 +80,24 @@
     }
   }
 
+  function log(message, payload) {
+    console.log(`[STATScore Runtime State] ${message}`, payload || "");
+  }
+
+  function warn(message, payload) {
+    console.warn(`[STATScore Runtime State] ${message}`, payload || "");
+    STATE.warnings.push({ message, payload: payload || null, created_at: now() });
+  }
+
+  function recordError(message, payload) {
+    console.error(`[STATScore Runtime State] ${message}`, payload || "");
+    STATE.errors.push({ message, payload: payload || null, created_at: now() });
+  }
+
   function getSupabase() {
     return (
       window.STATScoreSupabase ||
+      window.STATScoreSupabaseClient ||
       window.supabaseClient ||
       null
     );
@@ -110,52 +111,36 @@
     return new URLSearchParams(window.location.search).get(name);
   }
 
+  function snapshot() {
+    return clone(STATE);
+  }
+
   function publishState() {
     window.STATScoreRuntimeState = STATE;
 
-    if (!window.STATScore) {
-      window.STATScore = {};
-    }
-
+    if (!window.STATScore) window.STATScore = {};
     window.STATScore.RuntimeState = STATE;
 
     return STATE;
   }
 
-  function setState(patch = {}, meta = {}) {
-    STATE = {
-      ...STATE,
-      ...patch,
-      updated_at: now()
-    };
-
-    publishState();
+  function emit(eventName, payload) {
+    window.dispatchEvent(
+      new CustomEvent("statscore:runtime:" + eventName, {
+        detail: Object.assign(
+          {
+            engine: ENGINE_ID,
+            version: VERSION,
+            timestamp: now()
+          },
+          payload || {}
+        )
+      })
+    );
 
     if (window.STATScoreEngineBus?.emit) {
-      window.STATScoreEngineBus.emit("runtime_state_updated", {
-        engine: ENGINE_ID,
-        version: VERSION,
-        meta,
-        state: snapshot()
-      });
+      window.STATScoreEngineBus.emit("runtime_" + eventName, payload || {});
     }
-
-    return STATE;
-  }
-
-  function snapshot() {
-    return clone(STATE);
-  }
-
-  function resetState() {
-    STATE = structuredClone(DEFAULT_STATE);
-    STATE.initialized = true;
-    STATE.booted_at = now();
-    STATE.updated_at = now();
-
-    publishState();
-
-    return STATE;
   }
 
   function createRuntimeReceipt(type, payload = {}) {
@@ -165,14 +150,10 @@
         Date.now().toString(36) +
         "_" +
         Math.random().toString(36).slice(2, 8),
-
       engine_id: ENGINE_ID,
       version: VERSION,
-
       receipt_type: type || "RUNTIME_EVENT",
-
       payload,
-
       created_at: now()
     };
 
@@ -180,12 +161,49 @@
     STATE.updated_at = now();
 
     publishState();
-
-    if (window.STATScoreEngineBus?.emit) {
-      window.STATScoreEngineBus.emit("runtime_receipt_created", receipt);
-    }
+    emit("receipt_created", { receipt });
 
     return receipt;
+  }
+
+  function setState(patch = {}, meta = {}) {
+    const previous = snapshot();
+
+    STATE = Object.assign({}, STATE, patch, {
+      updated_at: now()
+    });
+
+    applyGovernanceLocks();
+    publishState();
+
+    createRuntimeReceipt("RUNTIME_STATE_MUTATION", {
+      action: meta.action || "setState",
+      patch_keys: Object.keys(patch),
+      previous_updated_at: previous.updated_at,
+      next_updated_at: STATE.updated_at
+    });
+
+    emit("state_updated", {
+      meta,
+      state: snapshot()
+    });
+
+    return STATE;
+  }
+
+  function resetState() {
+    STATE = clone(DEFAULT_STATE);
+    STATE.initialized = true;
+    STATE.booted_at = now();
+    STATE.updated_at = now();
+
+    publishState();
+
+    createRuntimeReceipt("RUNTIME_STATE_RESET", {
+      booted_at: STATE.booted_at
+    });
+
+    return STATE;
   }
 
   function heartbeat() {
@@ -197,6 +215,49 @@
     publishState();
 
     return STATE.heartbeat;
+  }
+
+  function registerEngine(engineId, payload = {}) {
+    if (!engineId) return null;
+
+    STATE.registered_engines[engineId] = Object.assign(
+      {},
+      STATE.registered_engines[engineId] || {},
+      {
+        engine_id: engineId,
+        status: payload.status || "ONLINE",
+        version: payload.version || null,
+        last_ping: now(),
+        payload
+      }
+    );
+
+    STATE.updated_at = now();
+    publishState();
+
+    createRuntimeReceipt("ENGINE_REGISTERED", {
+      engine_id: engineId,
+      version: payload.version || null
+    });
+
+    return STATE.registered_engines[engineId];
+  }
+
+  function pingEngine(engineId, payload = {}) {
+    if (!engineId) return null;
+
+    if (!STATE.registered_engines[engineId]) {
+      registerEngine(engineId, payload);
+    }
+
+    STATE.registered_engines[engineId].status = payload.status || "ONLINE";
+    STATE.registered_engines[engineId].last_ping = now();
+    STATE.registered_engines[engineId].payload = payload;
+
+    STATE.updated_at = now();
+    publishState();
+
+    return STATE.registered_engines[engineId];
   }
 
   async function fetchSingleFromSupabase(table, column, value) {
@@ -212,20 +273,15 @@
       return null;
     }
 
-    const { data, error: sbError } = await client
+    const { data, error } = await client
       .from(table)
       .select("*")
       .eq(column, value)
+      .limit(1)
       .maybeSingle();
 
-    if (sbError) {
-      error("Supabase fetch failed.", {
-        table,
-        column,
-        value,
-        error: sbError
-      });
-
+    if (error) {
+      recordError("Supabase fetch failed.", { table, column, value, error });
       return null;
     }
 
@@ -233,16 +289,12 @@
   }
 
   async function hydrateAthleteFromSnapshot(snapshotId) {
-    const snapshot_id =
-      normalize(snapshotId) ||
-      normalize(getQueryParam("snapshot_id"));
+    const snapshot_id = normalize(snapshotId) || normalize(getQueryParam("snapshot_id"));
 
     if (!snapshot_id) {
       warn("No snapshot_id supplied for athlete hydration.");
       return null;
     }
-
-    let athlete = null;
 
     const candidateTables = [
       "athlete_profile_snapshots",
@@ -251,13 +303,10 @@
       "player_profile_snapshots"
     ];
 
-    for (const table of candidateTables) {
-      athlete = await fetchSingleFromSupabase(
-        table,
-        "snapshot_id",
-        snapshot_id
-      );
+    let athlete = null;
 
+    for (const table of candidateTables) {
+      athlete = await fetchSingleFromSupabase(table, "snapshot_id", snapshot_id);
       if (athlete) break;
     }
 
@@ -276,9 +325,7 @@
         active_snapshot_id: snapshot_id,
         active_athlete_id: athlete.athlete_id || null
       },
-      {
-        action: "hydrate_athlete_from_snapshot"
-      }
+      { action: "hydrate_athlete_from_snapshot" }
     );
 
     createRuntimeReceipt("ATHLETE_SNAPSHOT_HYDRATED", {
@@ -301,31 +348,30 @@
       active_snapshot_id: athlete?.snapshot_id || STATE.active_snapshot_id || null,
       active_athlete_id: athlete?.athlete_id || STATE.active_athlete_id || null,
 
-      athlete_intelligence: window.STATScoreCurrentFootballScore || null,
-      verification: window.STATScoreCurrentVerification || null,
-      evidence: window.STATScoreCurrentEvidence || null,
-      readiness: window.STATScoreCurrentReadiness || null,
-      pathway: window.STATScoreCurrentPathway || null,
-      eligibility: window.STATScoreCurrentNCAAEligibility || null,
+      athlete_intelligence: window.STATScoreCurrentFootballScore || STATE.athlete_intelligence,
+      verification: window.STATScoreCurrentVerification || STATE.verification,
+      evidence: window.STATScoreCurrentEvidence || STATE.evidence,
+      readiness: window.STATScoreCurrentReadiness || STATE.readiness,
+      pathway: window.STATScoreCurrentPathway || STATE.pathway,
+      eligibility: window.STATScoreCurrentNCAAEligibility || STATE.eligibility,
+      visibility: window.STATScoreCurrentVisibility || STATE.visibility,
 
-      crystal_report: window.STATScoreCurrentCrystalReportHTML || null,
-      program_intelligence: window.STATScoreCurrentProgramIntelligence || null,
-      phnx_ranking_board: window.STATScoreCurrentPHNXRankingBoard || null,
+      crystal_report: window.STATScoreCurrentCrystalReportHTML || STATE.crystal_report,
+      program_intelligence: window.STATScoreCurrentProgramIntelligence || STATE.program_intelligence,
+      phnx_ranking_board: window.STATScoreCurrentPHNXRankingBoard || STATE.phnx_ranking_board,
 
-      multibox_context: window.STATScoreCurrentMultiBoxContext || null,
-      multibox_evaluation: window.STATScoreLastMultiBoxEvaluation || null,
+      multibox_context: window.STATScoreCurrentMultiBoxContext || STATE.multibox_context,
+      multibox_evaluation: window.STATScoreLastMultiBoxEvaluation || STATE.multibox_evaluation,
 
-      camp_combine_matches: window.STATScoreCurrentCampCombineMatches || null,
-      recruiter_verification: window.STATScoreCurrentRecruiterVerification || null,
+      camp_combine_matches: window.STATScoreCurrentCampCombineMatches || STATE.camp_combine_matches,
+      recruiter_verification: window.STATScoreCurrentRecruiterVerification || STATE.recruiter_verification,
 
-      active_program: window.STATScoreCurrentProgram || null,
-      active_recruiter: window.STATScoreCurrentRecruiter || null,
-      active_event: window.STATScoreCurrentEvent || null
+      active_program: window.STATScoreCurrentProgram || STATE.active_program,
+      active_recruiter: window.STATScoreCurrentRecruiter || STATE.active_recruiter,
+      active_event: window.STATScoreCurrentEvent || STATE.active_event
     };
 
-    setState(patch, {
-      action: "absorb_window_state"
-    });
+    setState(patch, { action: "absorb_window_state" });
 
     return STATE;
   }
@@ -337,39 +383,70 @@
       window.__STATSCORE_CURRENT_ATHLETE__ = STATE.active_athlete;
     }
 
-    if (STATE.athlete_intelligence) {
-      window.STATScoreCurrentFootballScore = STATE.athlete_intelligence;
-    }
-
-    if (STATE.verification) {
-      window.STATScoreCurrentVerification = STATE.verification;
-    }
-
-    if (STATE.evidence) {
-      window.STATScoreCurrentEvidence = STATE.evidence;
-    }
-
-    if (STATE.readiness) {
-      window.STATScoreCurrentReadiness = STATE.readiness;
-    }
-
-    if (STATE.pathway) {
-      window.STATScoreCurrentPathway = STATE.pathway;
-    }
-
-    if (STATE.eligibility) {
-      window.STATScoreCurrentNCAAEligibility = STATE.eligibility;
-    }
-
-    if (STATE.active_program) {
-      window.STATScoreCurrentProgram = STATE.active_program;
-    }
-
-    if (STATE.active_recruiter) {
-      window.STATScoreCurrentRecruiter = STATE.active_recruiter;
-    }
+    window.STATScoreCurrentFootballScore = STATE.athlete_intelligence || null;
+    window.STATScoreCurrentVerification = STATE.verification || null;
+    window.STATScoreCurrentEvidence = STATE.evidence || null;
+    window.STATScoreCurrentReadiness = STATE.readiness || null;
+    window.STATScoreCurrentPathway = STATE.pathway || null;
+    window.STATScoreCurrentNCAAEligibility = STATE.eligibility || null;
+    window.STATScoreCurrentVisibility = STATE.visibility || null;
+    window.STATScoreCurrentProgram = STATE.active_program || null;
+    window.STATScoreCurrentRecruiter = STATE.active_recruiter || null;
 
     return true;
+  }
+
+  function applyGovernanceLocks() {
+    const eligibilityStatus = String(
+      STATE.eligibility?.status ||
+      STATE.eligibility?.standing ||
+      ""
+    ).toLowerCase();
+
+    const readinessStatus = String(
+      STATE.readiness?.status ||
+      STATE.readiness?.level ||
+      ""
+    ).toLowerCase();
+
+    const verificationStatus = String(
+      STATE.verification?.status ||
+      STATE.verification?.trust_status ||
+      ""
+    ).toLowerCase();
+
+    const parentApprovalStatus = String(
+      STATE.multibox_context?.parent_approval_status ||
+      STATE.visibility?.parent_approval_status ||
+      ""
+    ).toLowerCase();
+
+    const verified =
+      verificationStatus.includes("verified") ||
+      verificationStatus.includes("approved");
+
+    const eligible =
+      eligibilityStatus.includes("good") ||
+      eligibilityStatus.includes("eligible") ||
+      eligibilityStatus.includes("active");
+
+    const ready =
+      readinessStatus.includes("ready") ||
+      readinessStatus.includes("active") ||
+      readinessStatus.includes("strong");
+
+    const parentApproved =
+      parentApprovalStatus === "approved" ||
+      parentApprovalStatus === "modified";
+
+    STATE.governance_locks = {
+      recruiter_visibility_locked: !(verified && eligible && ready && parentApproved),
+      media_visibility_locked: !(verified && parentApproved),
+      public_profile_locked: !(verified && parentApproved),
+      messaging_locked: !parentApproved
+    };
+
+    return STATE.governance_locks;
   }
 
   function runAvailableCorridors() {
@@ -377,59 +454,24 @@
 
     const results = {};
 
-    try {
-      if (window.STATScoreFootballScoringEngine?.renderScoreToWindowAthlete) {
-        results.football_score =
-          window.STATScoreFootballScoringEngine.renderScoreToWindowAthlete();
-      }
-    } catch (err) {
-      error("Football scoring corridor failed.", err);
-    }
+    const runners = [
+      ["football_score", window.STATScoreFootballScoringEngine?.renderScoreToWindowAthlete],
+      ["verification", window.STATScoreVerificationEngine?.runCurrentVerification],
+      ["evidence", window.STATScoreEvidenceEngine?.runCurrentEvidenceAnalysis],
+      ["readiness", window.STATScoreReadinessEngine?.runCurrentReadiness],
+      ["pathway", window.STATScorePathwayIntelligenceEngine?.runCurrentPathway],
+      ["eligibility", window.STATScoreNCAAEligibilityIntelligenceEngine?.runCurrentEligibility]
+    ];
 
-    try {
-      if (window.STATScoreVerificationEngine?.runCurrentVerification) {
-        results.verification =
-          window.STATScoreVerificationEngine.runCurrentVerification();
+    runners.forEach(([key, fn]) => {
+      try {
+        if (typeof fn === "function") {
+          results[key] = fn();
+        }
+      } catch (err) {
+        recordError(`${key} corridor failed.`, err);
       }
-    } catch (err) {
-      error("Verification corridor failed.", err);
-    }
-
-    try {
-      if (window.STATScoreEvidenceEngine?.runCurrentEvidenceAnalysis) {
-        results.evidence =
-          window.STATScoreEvidenceEngine.runCurrentEvidenceAnalysis();
-      }
-    } catch (err) {
-      error("Evidence corridor failed.", err);
-    }
-
-    try {
-      if (window.STATScoreReadinessEngine?.runCurrentReadiness) {
-        results.readiness =
-          window.STATScoreReadinessEngine.runCurrentReadiness();
-      }
-    } catch (err) {
-      error("Readiness corridor failed.", err);
-    }
-
-    try {
-      if (window.STATScorePathwayIntelligenceEngine?.runCurrentPathway) {
-        results.pathway =
-          window.STATScorePathwayIntelligenceEngine.runCurrentPathway();
-      }
-    } catch (err) {
-      error("Pathway corridor failed.", err);
-    }
-
-    try {
-      if (window.STATScoreNCAAEligibilityIntelligenceEngine?.runCurrentEligibility) {
-        results.eligibility =
-          window.STATScoreNCAAEligibilityIntelligenceEngine.runCurrentEligibility();
-      }
-    } catch (err) {
-      error("Eligibility corridor failed.", err);
-    }
+    });
 
     absorbWindowState();
 
@@ -443,9 +485,7 @@
   async function hydrateRuntime(options = {}) {
     heartbeat();
 
-    const snapshotId =
-      options.snapshot_id ||
-      getQueryParam("snapshot_id");
+    const snapshotId = options.snapshot_id || getQueryParam("snapshot_id");
 
     let athlete = null;
 
@@ -465,9 +505,7 @@
             active_snapshot_id: athlete.snapshot_id || null,
             active_athlete_id: athlete.athlete_id || null
           },
-          {
-            action: "hydrate_runtime_existing_window_athlete"
-          }
+          { action: "hydrate_runtime_existing_window_athlete" }
         );
       }
     }
@@ -487,9 +525,7 @@
   }
 
   function bindRuntimeEvents() {
-    window.addEventListener("storage", () => {
-      absorbWindowState();
-    });
+    window.addEventListener("storage", absorbWindowState);
 
     document.addEventListener("visibilitychange", () => {
       if (!document.hidden) {
@@ -498,9 +534,13 @@
       }
     });
 
+    window.addEventListener("statscore:engine:online", (event) => {
+      registerEngine(event.detail?.engine || "unknown_engine", event.detail || {});
+    });
+
     if (window.STATScoreEngineBus?.on) {
       window.STATScoreEngineBus.on("engine_online", (payload) => {
-        createRuntimeReceipt("ENGINE_ONLINE_SIGNAL", payload);
+        registerEngine(payload?.engine || payload?.engine_id || "unknown_engine", payload);
       });
 
       window.STATScoreEngineBus.on("runtime_state_request", () => {
@@ -520,21 +560,21 @@
       publishState,
       heartbeat,
 
+      registerEngine,
+      pingEngine,
+
       hydrateRuntime,
       hydrateAthleteFromSnapshot,
       absorbWindowState,
       pushStateToWindow,
       runAvailableCorridors,
 
+      applyGovernanceLocks,
       createRuntimeReceipt
     };
 
-    if (!window.STATScore) {
-      window.STATScore = {};
-    }
-
-    window.STATScore.RuntimeStateEngine =
-      window.STATScoreRuntimeStateEngine;
+    if (!window.STATScore) window.STATScore = {};
+    window.STATScore.RuntimeStateEngine = window.STATScoreRuntimeStateEngine;
 
     publishState();
   }
@@ -553,21 +593,23 @@
 
     expose();
     bindRuntimeEvents();
-
     heartbeat();
+
+    registerEngine(ENGINE_ID, {
+      version: VERSION,
+      status: "ONLINE"
+    });
 
     createRuntimeReceipt("RUNTIME_STATE_ENGINE_ONLINE", {
       engine_id: ENGINE_ID,
       version: VERSION
     });
 
-    if (window.STATScoreEngineBus?.emit) {
-      window.STATScoreEngineBus.emit("engine_online", {
-        engine: ENGINE_ID,
-        version: VERSION,
-        status: "ONLINE"
-      });
-    }
+    emit("engine_online", {
+      engine: ENGINE_ID,
+      version: VERSION,
+      status: "ONLINE"
+    });
 
     const snapshotId = getQueryParam("snapshot_id");
 
@@ -591,5 +633,4 @@
   } else {
     init();
   }
-
 })(); 
