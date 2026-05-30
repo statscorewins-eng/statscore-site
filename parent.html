@@ -575,6 +575,42 @@ b.red{color:var(--red)!important}
   font-weight:900;
 }
 
+/* ============================================================
+   STATScore Shell Lock Patch
+   Restores role-tab visibility without changing shell doctrine
+============================================================ */
+
+.header{
+  overflow:hidden;
+}
+
+.header-nav{
+  white-space:nowrap;
+  flex-wrap:nowrap;
+}
+
+.header-nav a{
+  white-space:nowrap;
+}
+
+.tab-rail{
+  display:flex;
+  flex-wrap:nowrap;
+  overflow-x:auto;
+  overflow-y:hidden;
+  white-space:nowrap;
+}
+
+.folder-tab{
+  flex:0 0 auto;
+  white-space:nowrap;
+}
+
+.folder-tab.multi{
+  margin-left:auto;
+  flex:0 0 auto;
+} 
+  
 </style> 
 
 </head>
