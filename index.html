@@ -205,30 +205,101 @@ html,body{
   }
 }
 
+/* ============================================================
+   STATScore Mobile Entry Gate
+   ============================================================ */
+@media(max-width:480px){
 
-/* =========================================================
-   SMALLER MOBILE DEVICES
-========================================================= */
-@media(max-width:430px){
+  html,
+  body{
+    overflow-x:hidden;
+    min-height:100%;
+    height:auto;
+    background:#e9e8e2;
+  }
+
+  .page,
+  .entry-shell,
+  .main{
+    min-height:auto !important;
+    height:auto !important;
+  }
 
   .hero{
-    height:30dvh;
+    height:auto !important;
+    min-height:0 !important;
+    padding:34px 20px 24px !important;
   }
 
   .hero img{
-    transform:scale(.96);
+    width:100%;
+    max-width:230px;
+    height:auto;
   }
 
   .access{
     height:auto !important;
     min-height:0 !important;
-
-    padding:28px 20px 34px !important;
+    padding:26px 20px 34px !important;
   }
 
+  .hero h1,
+  .access h1{
+    font-size:2.1rem !important;
+    line-height:1.05 !important;
+  }
+
+  .hero p,
+  .access p{
+    font-size:.95rem !important;
+    line-height:1.45 !important;
+  }
+
+  .enter-btn,
+  .btn{
+    width:100% !important;
+    max-width:290px !important;
+  }
 } 
 
+@media(max-width:480px){
 
+  .logo-tab{
+    padding:18px 14px !important;
+  }
+
+  .logo-tab img{
+    max-width:230px !important;
+  }
+
+  .entry-shell,
+  .hero-shell,
+  .hero,
+  .main{
+    min-height:auto !important;
+    height:auto !important;
+  }
+
+  .hero{
+    padding:36px 22px !important;
+  }
+
+  .hero h1{
+    font-size:2.1rem !important;
+    line-height:1.05 !important;
+  }
+
+  .hero p{
+    font-size:.95rem !important;
+  }
+
+  .enter-btn,
+  .btn{
+    width:100% !important;
+    max-width:290px !important;
+  }
+} 
+  
 </style>
 </head>
 
