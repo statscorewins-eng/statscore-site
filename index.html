@@ -129,11 +129,20 @@ html,body{
   font-weight:900;
 }
 
-/* MOBILE VIEW ONLY */
+/* =========================================================
+   MOBILE VIEW ONLY
+========================================================= */
 @media(max-width:768px){
 
+  html,
+  body{
+    height:auto !important;
+    min-height:0 !important;
+    overflow-x:hidden;
+  }
+
   .hero{
-    flex:0 0 34dvh;
+    flex:none;
     height:34dvh;
 
     display:flex;
@@ -164,35 +173,49 @@ html,body{
   }
 
   .access{
-  flex:none;
-  height:auto;
-  min-height:unset;
+    flex:none !important;
 
-  padding-top:34px;
-  padding-bottom:34px;
+    height:auto !important;
+    min-height:0 !important;
 
-  display:flex;
-  align-items:flex-start;
-  justify-content:flex-start;
-} 
+    padding:34px 22px 40px !important;
 
+    display:flex;
+    align-items:flex-start;
+    justify-content:flex-start;
+  }
+
+  .access-inner,
+  .access-content,
+  .access-panel{
+    height:auto !important;
+    min-height:0 !important;
+  }
+}
+
+
+/* =========================================================
+   SMALLER MOBILE DEVICES
+========================================================= */
 @media(max-width:430px){
 
   .hero{
-    flex-basis:32dvh;
-    height:32dvh;
-  }
-
-  .access{
-    flex-basis:68dvh;
-    height:68dvh;
-    padding-top:32px;
+    height:30dvh;
   }
 
   .hero img{
-    transform:scale(1.00);
+    transform:scale(.96);
   }
+
+  .access{
+    height:auto !important;
+    min-height:0 !important;
+
+    padding:28px 20px 34px !important;
+  }
+
 } 
+
 
 </style>
 </head>
