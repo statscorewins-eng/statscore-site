@@ -1719,6 +1719,10 @@ function getSnapshotId(){
   return new URLSearchParams(window.location.search).get("snapshot_id");
 }
 
+function upper(value){
+  return String(value || "").trim().toUpperCase();
+}
+
 function splitName(fullName){
   const parts = String(fullName || "Athlete Profile").trim().split(/\s+/);
   return {
@@ -1728,8 +1732,7 @@ function splitName(fullName){
 }
 
 function getPositionKey(position){
-  const p = String(position || "").toUpperCase();
-
+  const p = upper(position);
   if (p.includes("QB") || p.includes("QUARTERBACK")) return "QB";
   if (p.includes("RB") || p.includes("RUNNING BACK")) return "RB";
   if (p.includes("WR") || p.includes("WIDE RECEIVER") || p.includes("RECEIVER")) return "WR";
@@ -1738,7 +1741,6 @@ function getPositionKey(position){
   if (p.includes("LB") || p.includes("LINEBACKER")) return "LB";
   if (p.includes("EDGE") || p.includes("DE") || p.includes("DEFENSIVE END")) return "EDGE";
   if (p.includes("ATH")) return "ATH";
-
   return "ATH";
 }
 
@@ -1747,15 +1749,14 @@ function matrixVersionForPosition(position){
 }
 
 function resolveSTATScoreLabel(verificationStatus){
-  const status = String(verificationStatus || "UNVERIFIED").toUpperCase();
-  return status === "VERIFIED" ? "VERIFIED STATScore" : "UNVERIFIED STATScore";
+  return upper(verificationStatus) === "VERIFIED"
+    ? "VERIFIED STATSCORE"
+    : "UNVERIFIED STATSCORE";
 }
 
 function starDisplayFromValue(value){
   const n = Number(value || 0);
-
   if (!Number.isFinite(n) || n <= 0) return "☆☆☆☆☆";
-
   const rounded = Math.max(0, Math.min(5, Math.round(n)));
   return "★★★★★".slice(0, rounded) + "☆☆☆☆☆".slice(0, 5 - rounded);
 }
@@ -1773,6 +1774,7 @@ function normalizeSnapshot(response){
   const fullName =
     raw.athlete_display_name ||
     [raw.firstName, raw.lastName].filter(Boolean).join(" ").trim() ||
+    raw.athlete_name ||
     "Athlete Profile";
 
   return {
@@ -1807,7 +1809,13 @@ function normalizeSnapshot(response){
 
     guardian_email: raw.guardianEmail || raw.parentEmail || raw.guardian_email || "",
     guardian_phone: raw.guardianPhone || raw.parentPhone || raw.guardian_phone || "",
-    guardian_approval_status: raw.guardianApprovalStatus || raw.guardian_approval_status || snap.guardian_approval_status || "PENDING",
+
+    guardian_approval_status:
+      raw.guardianApprovalStatus ||
+      raw.guardian_approval_status ||
+      snap.guardian_approval_status ||
+      snap.parent_approval_status ||
+      "PENDING",
 
     headshot_url:
       raw.headshotPublicUrl ||
@@ -1820,20 +1828,52 @@ function normalizeSnapshot(response){
   };
 }
 
+function resolveProfileStates(snapshot){
+  const guardianRaw = upper(snapshot.guardian_approval_status);
+  const verificationRaw = upper(snapshot.verification_status);
+
+  const guardianApproved = guardianRaw === "APPROVED";
+  const guardianRestricted = guardianRaw === "RESTRICTED" || guardianRaw === "MODIFIED";
+  const guardianDenied = guardianRaw === "DENIED";
+  const verified = verificationRaw === "VERIFIED";
+
+  let guardianState = "PARENT APPROVAL REQUIRED";
+  if (guardianApproved) guardianState = "PARENT APPROVED";
+  if (guardianRestricted) guardianState = "PARENT RESTRICTED";
+  if (guardianDenied) guardianState = "PARENT DENIED";
+
+  let visibilityState = "LIMITED";
+  if (guardianApproved) visibilityState = "CONTROLLED RELEASE";
+  if (guardianRestricted) visibilityState = "RESTRICTED";
+  if (guardianDenied) visibilityState = "LOCKED";
+
+  let recruitingState = "LOCKED";
+  if (guardianApproved && !verified) recruitingState = "PENDING VERIFICATION";
+  if (guardianApproved && verified) recruitingState = "ENABLED";
+
+  let shareState = "LOCKED";
+  if (guardianApproved && !verified) shareState = "CONTROLLED";
+  if (guardianApproved && verified) shareState = "ENABLED";
+
+  return {
+    snapshotState: "SNAPSHOT ACTIVE",
+    releaseState: guardianApproved ? "PARENT RELEASE APPROVED" : "PARENT RELEASE PENDING",
+    verificationState: verified ? "VERIFIED STATSCORE" : "UNVERIFIED STATSCORE",
+    guardianState,
+    visibilityState,
+    recruitingState,
+    shareState,
+    guardianApproved,
+    verified
+  };
+}
+
 async function loadSnapshot(){
   const snapshotId = getSnapshotId();
-
-  if (!snapshotId) {
-    console.warn("No snapshot_id found in URL.");
-    return null;
-  }
+  if (!snapshotId) return null;
 
   const db = window.STATScoreData?.getClient?.() || window.STATScoreSupabase;
-
-  if (!db) {
-    console.error("STATScoreData client unavailable.");
-    return null;
-  }
+  if (!db) return null;
 
   const { data, error } = await db.rpc("get_statscore_snapshot", {
     p_snapshot_id: snapshotId
@@ -1859,91 +1899,29 @@ function renderAthleteImage(src, fullName){
 }
 
 const FALLBACK_POSITION_TRAITS = {
-  QB: [
-    "Field Vision",
-    "Decision Making",
-    "Throw Accuracy",
-    "Throw Power",
-    "Pocket Presence",
-    "Play Extension",
-    "Pressure Response",
-    "Football IQ"
-  ],
-  RB: [
-    "Vision",
-    "Burst",
-    "Contact Balance",
-    "Ball Security",
-    "Open Field Ability",
-    "Acceleration"
-  ],
-  WR: [
-    "Route Running",
-    "Hands",
-    "Separation",
-    "Ball Tracking",
-    "YAC Ability",
-    "Release"
-  ],
-  TE: [
-    "Hands",
-    "Route Leverage",
-    "Blocking Fit",
-    "Catch Radius",
-    "Physicality",
-    "Red Zone Value"
-  ],
-  DB: [
-    "Coverage Technique",
-    "Ball Skills",
-    "Recovery Speed",
-    "Hip Fluidity",
-    "Tackling",
-    "Field Awareness"
-  ],
-  LB: [
-    "Read Recognition",
-    "Tackling",
-    "Pursuit",
-    "Coverage Drop",
-    "Block Shedding",
-    "Leadership"
-  ],
-  EDGE: [
-    "First Step",
-    "Bend",
-    "Pass Rush Plan",
-    "Motor",
-    "Run Fit",
-    "Power"
-  ],
-  ATH: [
-    "Athleticism",
-    "Speed",
-    "Explosiveness",
-    "Readiness",
-    "Coachability"
-  ]
+  QB:["Field Vision","Decision Making","Throw Accuracy","Throw Power","Pocket Presence","Play Extension","Pressure Response","Football IQ"],
+  RB:["Vision","Burst","Contact Balance","Ball Security","Open Field Ability","Acceleration"],
+  WR:["Route Running","Hands","Separation","Ball Tracking","YAC Ability","Release"],
+  TE:["Hands","Route Leverage","Blocking Fit","Catch Radius","Physicality","Red Zone Value"],
+  DB:["Coverage Technique","Ball Skills","Recovery Speed","Hip Fluidity","Tackling","Field Awareness"],
+  LB:["Read Recognition","Tackling","Pursuit","Coverage Drop","Block Shedding","Leadership"],
+  EDGE:["First Step","Bend","Pass Rush Plan","Motor","Run Fit","Power"],
+  ATH:["Athleticism","Speed","Explosiveness","Readiness","Coachability"]
 };
 
 function normalizeTraitObject(trait){
-  if (typeof trait === "string") {
-    return { name: trait, score: null };
-  }
-
+  if (typeof trait === "string") return { name: trait, score: null };
   if (trait && typeof trait === "object") {
     return {
       name: trait.name || trait.label || trait.trait || "Trait",
       score: trait.score ?? trait.value ?? null
     };
   }
-
   return { name: "Trait", score: null };
 }
 
 function resolvePositionTraits(snapshot){
   const key = getPositionKey(snapshot.position);
-
   const engine =
     window.STATScorePositionMatrixEngine ||
     window.STATScorePositionMatrix ||
@@ -1957,7 +1935,6 @@ function resolvePositionTraits(snapshot){
         archetype: snapshot.archetype,
         snapshot
       });
-
       if (Array.isArray(result)) return result;
     }
 
@@ -1973,12 +1950,9 @@ function resolvePositionTraits(snapshot){
         archetype: snapshot.archetype,
         snapshot
       });
-
       if (Array.isArray(matrix?.traits)) return matrix.traits;
     }
-  } catch (error) {
-    console.warn("[STATScore] Position matrix engine failed; using fallback traits.", error);
-  }
+  } catch {}
 
   return FALLBACK_POSITION_TRAITS[key] || FALLBACK_POSITION_TRAITS.ATH;
 }
@@ -2014,15 +1988,13 @@ function renderPositionTraits(snapshot){
   }).join("");
 }
 
-function renderAthleteDossier(snapshot){
+function renderAthleteDossier(snapshot, states){
   const positionKey = getPositionKey(snapshot.position);
-
   const archetype =
     snapshot.archetype ||
     (positionKey === "QB" ? "Dual-Threat Quarterback" : `${snapshot.position} Prospect`);
 
   const athleticSignalParts = [];
-
   if (snapshot.dash40 && snapshot.dash40 !== "--") athleticSignalParts.push(`${snapshot.dash40} Speed`);
   if (snapshot.vertical_jump && snapshot.vertical_jump !== "--") athleticSignalParts.push(`${snapshot.vertical_jump} Vertical`);
 
@@ -2031,11 +2003,12 @@ function renderAthleteDossier(snapshot){
   setText("dossierStarter", snapshot.starter_status || "Starter Status Pending");
   setText("dossierAthleticSignal", athleticSignalParts.length ? athleticSignalParts.join(" · ") : "Metric Signal Pending");
   setText("dossierRecruitingTier", snapshot.recruiting_tier || "Projection Pending");
-  setText("dossierVisibility", String(snapshot.guardian_approval_status || "").toUpperCase() === "APPROVED" ? "Full" : "Parent Approval Pending");
+  setText("dossierVisibility", states.visibilityState);
 }
 
 function renderProfile(snapshot){
-  const statscoreLabel = snapshot.statscore_label || resolveSTATScoreLabel(snapshot.verification_status);
+  const states = resolveProfileStates(snapshot);
+  const statscoreLabel = states.verificationState;
   const nameParts = splitName(snapshot.athlete_display_name);
 
   const athleteName = document.getElementById("athleteName");
@@ -2045,10 +2018,10 @@ function renderProfile(snapshot){
 
   setText("captionName", snapshot.athlete_display_name);
   setText("captionMeta", `${snapshot.position} · ${formatClassYear(snapshot.class_year)}`);
-  setText("verificationBadge", snapshot.verification_status);
+  setText("verificationBadge", upper(snapshot.verification_status) === "VERIFIED" ? "VERIFIED" : "UNVERIFIED");
   setText("recordStatus", "Snapshot Loaded");
-  setText("identitySub", `Snapshot Submitted · ${statscoreLabel}`);
 
+  setText("identitySub", `${states.snapshotState} · ${statscoreLabel}`);
   setText("tagPosition", snapshot.position);
   setText("tagHeight", snapshot.height);
   setText("tagWeight", snapshot.weight);
@@ -2058,135 +2031,161 @@ function renderProfile(snapshot){
 
   setText("starDisplay", starDisplayFromValue(snapshot.star_rating));
   setText("signalText", statscoreLabel);
-  setText("evaluationStatus", `Snapshot Submitted · ${statscoreLabel}`);
+  setText("evaluationStatus", `${states.snapshotState} · ${statscoreLabel}`);
 
   setText(
     "profileBio",
-    `${snapshot.athlete_display_name} is a ${snapshot.class_year} ${snapshot.sport} athlete listed at ${snapshot.position}. This profile has been generated from Snapshot Intake and is staged for verification, scoring, parent approval, and controlled visibility routing.`
+    `${snapshot.athlete_display_name} is a ${snapshot.class_year} ${snapshot.sport} athlete listed at ${snapshot.position}. This private snapshot has been created and is staged for parent release, verification review, and controlled visibility.`
   );
 
   setText("scoreValue", "--");
   setText("scoreStatus", statscoreLabel);
   setText(
     "scoreNote",
-    `Snapshot data has been received. Current release status: ${statscoreLabel}. Official scoring and public recruiting actions remain pending until verification and guardian approval are complete.`
+    "Snapshot is active. Athlete private view is available. External sharing, public visibility, recruiter access, and media exposure remain controlled until parent release and verification gates are complete."
   );
 
   setText("metricSpeed", snapshot.dash40);
   setText("metricExplosive", snapshot.vertical_jump);
-  setText("metricReadiness", snapshot.profile_status);
-  setText("metricVisibility", snapshot.verification_status);
+  setText("metricReadiness", states.snapshotState);
+  setText("metricVisibility", states.visibilityState);
 
   setText("gameFilmStatus", snapshot.highlight_url || snapshot.game_film_url || "No verified film link submitted.");
   setText("campStatus", snapshot.verified_event_source || "Camp / combine source pending.");
   setText("mediaStatus", snapshot.social_profile_url || snapshot.recruiting_profile_url || "Media exposure route pending.");
 
-  setText("exposureLaneText", `Visibility lane active under ${statscoreLabel}; recruiting actions require guardian approval.`);
+  setText("exposureLaneText", `Visibility is currently ${states.visibilityState}. Recruiter actions remain ${states.recruitingState}.`);
   setText("primaryFocus", snapshot.position_notes || "Generated after verification review.");
-  setText("verificationNeed", "Coach confirmation, guardian permission, metric evidence, and academic readiness review.");
+  setText("verificationNeed", "Coach confirmation, guardian release, metric evidence, and academic readiness review.");
 
   renderAthleteImage(snapshot.headshot_url, snapshot.athlete_display_name);
-  renderGuardianGovernance(snapshot);
-  renderAthleteDossier(snapshot);
+  renderGuardianGovernance(snapshot, states);
+  renderAthleteDossier(snapshot, states);
   renderPositionTraits(snapshot);
-  renderSTATScoreIntelligence(snapshot, statscoreLabel);
+  renderSTATScoreIntelligence(snapshot, states);
 }
 
-function renderSTATScoreIntelligence(snapshot, statscoreLabel){
+function renderSTATScoreIntelligence(snapshot, states){
   setText("scMatrixVersion", matrixVersionForPosition(snapshot.position));
-  setText("scStarSignal", statscoreLabel);
+  setText("scStarSignal", states.verificationState);
   setText("scFinalScore", "--");
-  setText("scExposureGap", "Pending Verification");
+  setText("scExposureGap", states.visibilityState);
   setText("scProjectionLane", "Pending Verification");
-  setText("scConfidence", "Pending");
+  setText("scConfidence", states.verified ? "Verified" : "Pending");
   setText("scVarsityYears", snapshot.varsity_years || "--");
 
-  setText("scStarExplanation", `${statscoreLabel} remains pending until verified scoring rules are applied.`);
-  setText("scExposureExplanation", "Visibility intelligence remains pending until verification, scoring, and guardian permissions are complete.");
+  setText("scStarExplanation", `${states.verificationState} remains until official verification roles complete review.`);
+  setText("scExposureExplanation", `External release is ${states.visibilityState}; recruiting is ${states.recruitingState}.`);
 
   const reasons = [
     "Snapshot Intake has created the athlete profile packet.",
-    "Athlete identity, required headshot, media, metrics, academics, guardian, and coach information are staged for verification.",
-    `Current public scoring label is ${statscoreLabel}.`,
-    `Position matrix selected: ${matrixVersionForPosition(snapshot.position)}.`,
-    "Official STATScore output must wait for verified evidence and rules-based scoring.",
-    "Recruiter access and sharing remain governed by parent approval.",
+    "The athlete can view the private snapshot immediately.",
+    `Parent release state: ${states.guardianState}.`,
+    `Verification state: ${states.verificationState}.`,
+    `Visibility state: ${states.visibilityState}.`,
+    `Recruiting state: ${states.recruitingState}.`,
     "Athletic intelligence and academic readiness remain separate lanes."
   ];
 
   const list = document.getElementById("scWhyList");
-  if (list) {
-    list.innerHTML = reasons.map(reason => `<li>${escapeHTML(reason)}</li>`).join("");
-  }
+  if (list) list.innerHTML = reasons.map(reason => `<li>${escapeHTML(reason)}</li>`).join("");
 }
 
-function renderGuardianGovernance(snapshot){
+function renderGuardianGovernance(snapshot, states){
   const snapshotId = snapshot.snapshot_id || getSnapshotId();
-  const rawStatus = String(snapshot.guardian_approval_status || "PENDING").toUpperCase();
-  const guardianApproved = rawStatus === "APPROVED";
-
-  const guardianStatus = guardianApproved ? "Approved" : "Parent Approval Required";
-  const visibilityStatus = guardianApproved ? "Full" : "Limited";
-  const recruitingStatus = guardianApproved ? "Enabled" : "Locked";
-
-  setText("guardianStatus", guardianStatus);
-  setText("visibilityStatus", visibilityStatus);
-  setText("recruitingStatus", recruitingStatus);
-
-  const guardianEl = document.getElementById("guardianStatus");
-  const recruitingEl = document.getElementById("recruitingStatus");
-
-  if (guardianEl) guardianEl.className = guardianApproved ? "live" : "warning";
-  if (recruitingEl) recruitingEl.className = guardianApproved ? "live" : "locked";
 
   const approvalUrl = `parent-approval.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
+  const parentRoomUrl = `parent.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
   const verificationUrl = `verification.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
+
+  setText("guardianStatus", states.guardianState);
+  setText("visibilityStatus", states.visibilityState);
+  setText("recruitingStatus", states.recruitingState);
+
+  const guardianEl = document.getElementById("guardianStatus");
+  const visibilityEl = document.getElementById("visibilityStatus");
+  const recruitingEl = document.getElementById("recruitingStatus");
+
+  if (guardianEl) guardianEl.className = states.guardianApproved ? "live" : "warning";
+  if (visibilityEl) visibilityEl.className = states.guardianApproved ? "live" : "warning";
+  if (recruitingEl) recruitingEl.className = states.recruitingState === "ENABLED" ? "live" : "locked";
 
   const approvalBtn = document.getElementById("parentApprovalAction");
   const footerApprovalBtn = document.getElementById("footerParentApprovalAction");
   const verificationBtn = document.getElementById("verificationAction");
+  const snapshotPathBtn = document.getElementById("snapshotPathAction");
   const shareBtn = document.getElementById("shareProfileAction");
   const recruiterBtn = document.getElementById("recruiterAccessAction");
 
   if (approvalBtn) {
-    approvalBtn.href = approvalUrl;
-    if (guardianApproved) {
-      approvalBtn.classList.remove("primary");
-      approvalBtn.classList.add("approved");
-      approvalBtn.innerHTML = `Parent Approved <span>✓</span>`;
+    approvalBtn.href = states.guardianApproved ? parentRoomUrl : approvalUrl;
+
+    if (states.guardianApproved) {
+      approvalBtn.className = "action approved";
+      approvalBtn.innerHTML = `Parent Release Approved <span>✓</span>`;
+    } else {
+      approvalBtn.className = "action primary";
+      approvalBtn.innerHTML = `Activate Parent Approval <span>›</span>`;
     }
   }
 
   if (footerApprovalBtn) {
-    footerApprovalBtn.href = approvalUrl;
-    footerApprovalBtn.textContent = guardianApproved ? "Parent Approved ✓" : "Request Approval ›";
+    footerApprovalBtn.href = states.guardianApproved ? parentRoomUrl : approvalUrl;
+    footerApprovalBtn.textContent = states.guardianApproved ? "Parent Release Approved ✓" : "Activate Parent Approval ›";
   }
 
-  if (verificationBtn) verificationBtn.href = verificationUrl;
+  if (verificationBtn) {
+    verificationBtn.href = verificationUrl;
+    verificationBtn.innerHTML = `Request Verification <span>›</span>`;
+  }
 
-  if (guardianApproved) {
-    if (shareBtn) {
-      shareBtn.classList.remove("locked");
-      shareBtn.classList.add("secondary");
+  if (snapshotPathBtn) {
+    snapshotPathBtn.href = `snapshot-intake.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
+  }
+
+  if (shareBtn) {
+    if (states.shareState === "ENABLED") {
+      shareBtn.className = "action secondary";
       shareBtn.innerHTML = `Share Profile <span>›</span>`;
       shareBtn.onclick = copyShareLink;
+    } else if (states.shareState === "CONTROLLED") {
+      shareBtn.className = "action locked";
+      shareBtn.innerHTML = `🔒 Share Profile <span>Controlled</span>`;
+      shareBtn.onclick = null;
+    } else {
+      shareBtn.className = "action locked";
+      shareBtn.innerHTML = `🔒 Share Profile <span>Locked</span>`;
+      shareBtn.onclick = null;
     }
+  }
 
-    if (recruiterBtn) {
-      recruiterBtn.classList.remove("locked");
-      recruiterBtn.classList.add("secondary");
+  if (recruiterBtn) {
+    if (states.recruitingState === "ENABLED") {
+      recruiterBtn.className = "action secondary";
       recruiterBtn.innerHTML = `Recruiter Access <span>›</span>`;
       recruiterBtn.onclick = () => {
         window.location.href = `recruiter-requests.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
       };
+    } else {
+      recruiterBtn.className = "action locked";
+      recruiterBtn.innerHTML = `🔒 Recruiter Access <span>${states.recruitingState}</span>`;
+      recruiterBtn.onclick = null;
     }
-
-    setText("recruiterViewStatus", "Recruiter visibility enabled under governed access.");
-    setText("contactStatusText", "Communication enabled through Multi-Box™ permissions.");
-  } else {
-    setText("recruiterViewStatus", "Recruiter visibility restricted until guardian approval.");
-    setText("contactStatusText", "Recruiter communication locked behind parent approval.");
   }
+
+  setText(
+    "recruiterViewStatus",
+    states.recruitingState === "ENABLED"
+      ? "Recruiter visibility enabled under governed access."
+      : "Recruiter visibility restricted until parent release and verification."
+  );
+
+  setText(
+    "contactStatusText",
+    states.recruitingState === "ENABLED"
+      ? "Communication enabled through Multi-Box™ permissions."
+      : "Recruiter communication remains locked."
+  );
 }
 
 function renderNoSnapshot(){
@@ -2218,7 +2217,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderNoSnapshot();
   }
 });
-</script>
+</script> 
 
 </body>
 </html> 
