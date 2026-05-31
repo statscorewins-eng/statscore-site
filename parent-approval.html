@@ -1199,10 +1199,7 @@ body[data-parent-approval-error="true"] .error-box{
   const STAT_SCORE_SUPABASE_ANON_KEY =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk";
 
-  window.STAT_SCORE_SUPABASE_URL = STAT_SCORE_SUPABASE_URL;
-  window.STAT_SCORE_SUPABASE_ANON_KEY = STAT_SCORE_SUPABASE_ANON_KEY;
-
-  window.STATScoreSupabase = window.supabase.createClient(
+window.STATScoreSupabase = window.supabase.createClient(
     STAT_SCORE_SUPABASE_URL,
     STAT_SCORE_SUPABASE_ANON_KEY
   );
@@ -1211,171 +1208,11 @@ body[data-parent-approval-error="true"] .error-box{
   window.supabaseClient = window.STATScoreSupabase;
 
   console.log("STATScore Supabase client initialized");
+
 })();
 </script>
 
-<script>
-(function(){
-  const qs = new URLSearchParams(window.location.search);
-  const snapshotId =
-    qs.get("snapshot_id") ||
-    qs.get("snapshot") ||
-    qs.get("id") ||
-    "";
-
-  const db = window.STATScoreSupabase || window.STATScoreSupabaseClient || window.supabaseClient;
-
-  const auditLog = document.querySelector("[data-parent-audit-log]");
-  const statusPill = document.querySelector("[data-status-pill]");
-
-  function setAll(selector, value){
-    document.querySelectorAll(selector).forEach(el => {
-      el.textContent = value || "Pending";
-    });
-  }
-
-  function addAudit(message, label){
-    if(!auditLog) return;
-    const item = document.createElement("div");
-    item.className = "audit-item";
-    item.innerHTML = `
-      ${message}
-      <span>${label || "Runtime • Local Event"}</span>
-    `;
-    auditLog.prepend(item);
-  }
-
-  function initials(name){
-    return String(name || "SC")
-      .split(/\s+/)
-      .filter(Boolean)
-      .slice(0,2)
-      .map(x => x[0])
-      .join("")
-      .toUpperCase() || "SC";
-  }
-
-  function readAthlete(row){
-    const first =
-      row?.first_name ||
-      row?.athlete_first_name ||
-      row?.athlete?.first_name ||
-      "";
-
-    const last =
-      row?.last_name ||
-      row?.athlete_last_name ||
-      row?.athlete?.last_name ||
-      "";
-
-    return (
-      row?.athlete_display_name ||
-      row?.athlete_name ||
-      row?.full_name ||
-      row?.name ||
-      `${first} ${last}`.trim() ||
-      "Ariel Steele"
-    );
-  }
-
-  async function fetchSnapshot(){
-    if(!db || !snapshotId) return null;
-
-    const tables = [
-      "sc_athlete_snapshots",
-      "sc_snapshots",
-      "sc_eligibility_snapshots",
-      "sc_athletes"
-    ];
-
-    for(const table of tables){
-      try{
-        const { data, error } = await db
-          .from(table)
-          .select("*")
-          .eq("id", snapshotId)
-          .maybeSingle();
-
-        if(!error && data) return data;
-      }catch(e){}
-    }
-
-    return null;
-  }
-
-  function hydrate(row){
-    const athleteName = readAthlete(row);
-
-    setAll("[data-snapshot-id]", snapshotId || "No Snapshot ID");
-    setAll("[data-athlete-name]", athleteName);
-    setAll("[data-requester-name]", "Parent / Guardian");
-    setAll("[data-parent-approval-status]", "Pending");
-    setAll("[data-requester-role]", "Guardian Approval Request");
-    setAll("[data-request-type]", "Permission Scope");
-
-    const avatar = document.querySelector("[data-athlete-initials]");
-    if(avatar) avatar.textContent = initials(athleteName);
-
-    if(statusPill){
-      statusPill.textContent = "Pending";
-      statusPill.className = "status pending";
-    }
-
-    document.body.dataset.parentApprovalStatus = "pending";
-
-    addAudit(
-      `Parent approval corridor loaded for ${athleteName}. Snapshot context attached.`,
-      "Runtime • Snapshot Loaded"
-    );
-  }
-
-  function setStatus(status){
-    const clean = status.toLowerCase();
-
-    setAll("[data-parent-approval-status]", status);
-
-    if(statusPill){
-      statusPill.textContent = status;
-      statusPill.className = "status " + clean;
-    }
-
-    document.body.dataset.parentApprovalStatus = clean;
-
-    addAudit(
-      `Parent approval action recorded: ${status}.`,
-      "Runtime • Parent Action"
-    );
-
-    localStorage.setItem("statscore_parent_approval_" + snapshotId, JSON.stringify({
-      snapshot_id: snapshotId,
-      status,
-      scopes: Array.from(document.querySelectorAll("[data-scope]")).reduce((acc, box)=>{
-        acc[box.dataset.scope] = box.checked;
-        return acc;
-      }, {}),
-      updated_at: new Date().toISOString()
-    }));
-  }
-
-  document.addEventListener("DOMContentLoaded", async () => {
-    setAll("[data-snapshot-id]", snapshotId || "Missing Snapshot ID");
-
-    const row = await fetchSnapshot();
-    hydrate(row || { athlete_name:"Ariel Steele" });
-
-    document.querySelectorAll("[data-parent-action]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const action = btn.dataset.parentAction;
-
-        if(action === "approve") setStatus("Approved");
-        if(action === "modify") setStatus("Modified");
-        if(action === "deny") setStatus("Denied");
-        if(action === "revoke") setStatus("Revoked");
-      });
-    });
-  });
-})();
-</script> 
+<script src="./statscore-parent-approval-engine.js?v=1.1.0" defer></script> 
 
 </body>
 </html> 
