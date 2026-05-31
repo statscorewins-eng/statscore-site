@@ -1191,50 +1191,30 @@ body[data-parent-approval-error="true"] .error-box{
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script>
 (function () {
-
   const STAT_SCORE_SUPABASE_URL =
     "https://oyjmpbuxvfxusmbouldi.supabase.co";
 
   const STAT_SCORE_SUPABASE_ANON_KEY =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk";
 
-  window.STAT_SCORE_SUPABASE_URL =
-    STAT_SCORE_SUPABASE_URL;
+  window.STAT_SCORE_SUPABASE_URL = STAT_SCORE_SUPABASE_URL;
+  window.STAT_SCORE_SUPABASE_ANON_KEY = STAT_SCORE_SUPABASE_ANON_KEY;
 
-  window.STAT_SCORE_SUPABASE_ANON_KEY =
-    STAT_SCORE_SUPABASE_ANON_KEY;
+  window.STATScoreSupabase = window.supabase.createClient(
+    STAT_SCORE_SUPABASE_URL,
+    STAT_SCORE_SUPABASE_ANON_KEY
+  );
 
-  if (!window.supabase) {
-    console.error("Supabase CDN did not load.");
-    return;
-  }
+  window.STATScoreSupabaseClient = window.STATScoreSupabase;
+  window.supabaseClient = window.STATScoreSupabase;
 
-  window.STATScoreSupabase =
-    window.supabase.createClient(
-      STAT_SCORE_SUPABASE_URL,
-      STAT_SCORE_SUPABASE_ANON_KEY
-    );
-
-  window.STATScoreSupabaseClient =
-    window.STATScoreSupabase;
-
-  console.log("STATScore Supabase client initialized.");
-
+  console.log("STATScore Supabase client initialized");
 })();
 </script>
 
-<!-- ===================================================== -->
-<!-- STATScore Parent Approval Engine -->
-<!-- ===================================================== -->
-
-<script
-  src="./statscore-parent-approval-engine.js?v=1.1.0"
-  defer
-></script> 
+<script src="./statscore-parent-approval-engine.js?v=1.1.0" defer></script> 
 
 </body>
 </html> 
