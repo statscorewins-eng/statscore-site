@@ -884,9 +884,18 @@ b.red{color:var(--red)!important}
 
 <script>
 const LOCAL_PARENT_AUDIT_KEY = "statscore_parent_guardian_audit_v1";
+const LOCAL_PARENT_REVIEW_KEY = "statscore_parent_guardian_review_v1";
+
+function $(id){
+  return document.getElementById(id);
+}
+
+function getSnapshotId(){
+  return new URLSearchParams(window.location.search).get("snapshot_id") || "";
+}
 
 function setMessage(msg,type="success"){
-  const el=document.getElementById("systemMessage");
+  const el=$("systemMessage");
   if(!el)return;
   el.textContent=msg||"";
   el.style.color=type==="error"?"var(--red)":"var(--green)";
@@ -902,58 +911,109 @@ function esc(v){
 }
 
 function addAudit(action,note){
-  const auditPanel=document.getElementById("auditPanel");
-  if(!auditPanel)return;
-
-  const item=document.createElement("div");
-  item.className="audit-item";
-  item.innerHTML=`<b>${esc(action)}</b><span>${esc(note)}</span>`;
-  auditPanel.prepend(item);
+  const auditPanel=$("auditPanel");
+  if(auditPanel){
+    const item=document.createElement("div");
+    item.className="audit-item";
+    item.innerHTML=`<b>${esc(action)}</b><span>${esc(note)}</span>`;
+    auditPanel.prepend(item);
+  }
 
   const saved=JSON.parse(localStorage.getItem(LOCAL_PARENT_AUDIT_KEY)||"[]");
   saved.unshift({
+    snapshot_id:getSnapshotId(),
     action_type:action,
     audit_note:note,
     created_at:new Date().toISOString()
   });
 
-  localStorage.setItem(
-    LOCAL_PARENT_AUDIT_KEY,
-    JSON.stringify(saved.slice(0,25))
-  );
+  localStorage.setItem(LOCAL_PARENT_AUDIT_KEY,JSON.stringify(saved.slice(0,25)));
 }
 
 function loadAudit(){
+  const snapshotId=getSnapshotId();
   const saved=JSON.parse(localStorage.getItem(LOCAL_PARENT_AUDIT_KEY)||"[]");
-  saved.slice().reverse().forEach(row=>{
-    addAudit(row.action_type,row.audit_note);
+
+  saved
+    .filter(row=>!snapshotId || row.snapshot_id===snapshotId || !row.snapshot_id)
+    .slice()
+    .reverse()
+    .forEach(row=>addAudit(row.action_type,row.audit_note));
+}
+
+function normalizeSnapshot(response){
+  if(!response)return null;
+
+  const snap=response.snapshot || response;
+  const raw=snap.raw_payload || snap.intake_json || snap.payload || {};
+
+  const first=raw.firstName || raw.first_name || snap.first_name || "";
+  const last=raw.lastName || raw.last_name || snap.last_name || "";
+
+  const athleteName =
+    raw.athlete_display_name ||
+    raw.athlete_name ||
+    snap.athlete_display_name ||
+    snap.athlete_name ||
+    [first,last].filter(Boolean).join(" ").trim();
+
+  return {
+    snapshot_id:snap.snapshot_id || snap.id || getSnapshotId(),
+    athlete_name:athleteName || "",
+    guardian_name:raw.guardianName || raw.guardian_name || snap.guardian_name || "",
+    guardian_email:raw.guardianEmail || raw.guardian_email || snap.guardian_email || "",
+    guardian_status:
+      raw.guardianApprovalStatus ||
+      raw.guardian_approval_status ||
+      snap.guardian_approval_status ||
+      snap.parent_approval_status ||
+      "PENDING"
+  };
+}
+
+async function fetchSnapshot(){
+  const snapshotId=getSnapshotId();
+  if(!snapshotId) throw new Error("Missing snapshot_id in URL.");
+
+  const db = window.STATScoreData?.getClient?.() || window.STATScoreSupabase;
+
+  if(!db) throw new Error("STATScore Supabase client unavailable.");
+
+  const { data, error } = await db.rpc("get_statscore_snapshot", {
+    p_snapshot_id:snapshotId
   });
+
+  if(error) throw error;
+
+  return normalizeSnapshot(data);
 }
 
 function updateRail(){
-  const visibility=document.getElementById("profileVisibility").value;
-  const recruiter=document.getElementById("recruiterContact").value;
-  const evidence=document.getElementById("evidencePermission").value;
+  const visibility=$("profileVisibility")?.value || "Restricted";
+  const recruiter=$("recruiterContact")?.value || "Not Approved";
+  const evidence=$("evidencePermission")?.value || "Evidence Needed";
 
-  document.getElementById("railVisibility").textContent=visibility;
-  document.getElementById("railRecruiter").textContent=recruiter;
-  document.getElementById("railEvidence").textContent=evidence.replace("Evidence ","");
+  if($("railVisibility")) $("railVisibility").textContent=visibility;
+  if($("railRecruiter")) $("railRecruiter").textContent=recruiter;
+  if($("railEvidence")) $("railEvidence").textContent=evidence.replace("Evidence ","");
+  if($("railReview")) $("railReview").textContent="Updated";
 
-  const recruiterRail=document.getElementById("railRecruiter");
-  recruiterRail.className="";
-
-  if(recruiter==="Approved" || recruiter==="Limited Window Approved"){
-    recruiterRail.classList.add("green");
-  }else{
-    recruiterRail.classList.add("red");
+  const recruiterRail=$("railRecruiter");
+  if(recruiterRail){
+    recruiterRail.className="";
+    if(recruiter==="Approved" || recruiter==="Limited Window Approved"){
+      recruiterRail.classList.add("green");
+    }else{
+      recruiterRail.classList.add("red");
+    }
   }
-
-  document.getElementById("railReview").textContent="Updated";
 }
 
 function prepareApproval(){
-  document.getElementById("guardianNote").value =
-    "Parent / Guardian approval review prepared. Athlete profile visibility, recruiter contact permissions, communication windows, and evidence requirements must remain controlled until guardian authority is confirmed.";
+  if($("guardianNote")){
+    $("guardianNote").value =
+      "Parent / Guardian approval review prepared. Athlete profile visibility, recruiter contact permissions, communication windows, and evidence requirements must remain controlled until guardian authority is confirmed.";
+  }
 
   addAudit(
     "Approval Prepared",
@@ -963,24 +1023,26 @@ function prepareApproval(){
   setMessage("Guardian approval draft prepared");
 }
 
+function buildReviewPayload(status){
+  return {
+    snapshot_id:getSnapshotId(),
+    athlete_name:$("athleteName")?.value || "",
+    guardian_relationship:$("guardianRelationship")?.value || "Parent",
+    profile_visibility:$("profileVisibility")?.value || "Restricted",
+    recruiter_contact:$("recruiterContact")?.value || "Not Approved",
+    communication_window:$("communicationWindow")?.value || "Guardian Approval Required",
+    evidence_permission:$("evidencePermission")?.value || "Evidence Needed",
+    guardian_note:$("guardianNote")?.value || "",
+    approval_status:status || "REVIEW_SAVED",
+    saved_at:new Date().toISOString()
+  };
+}
+
 function saveReview(){
   updateRail();
 
-  const payload={
-    athlete_name:document.getElementById("athleteName").value,
-    guardian_relationship:document.getElementById("guardianRelationship").value,
-    profile_visibility:document.getElementById("profileVisibility").value,
-    recruiter_contact:document.getElementById("recruiterContact").value,
-    communication_window:document.getElementById("communicationWindow").value,
-    evidence_permission:document.getElementById("evidencePermission").value,
-    guardian_note:document.getElementById("guardianNote").value,
-    saved_at:new Date().toISOString()
-  };
-
-  localStorage.setItem(
-    "statscore_parent_guardian_review_v1",
-    JSON.stringify(payload)
-  );
+  const payload=buildReviewPayload("REVIEW_SAVED");
+  localStorage.setItem(LOCAL_PARENT_REVIEW_KEY,JSON.stringify(payload));
 
   addAudit(
     "Guardian Review Saved",
@@ -990,12 +1052,50 @@ function saveReview(){
   setMessage("Guardian review saved");
 }
 
-function approveAccess(){
-  document.getElementById("profileVisibility").value="Limited Recruiter Access";
-  document.getElementById("recruiterContact").value="Limited Window Approved";
-  document.getElementById("communicationWindow").value="Controlled Access";
+async function writeParentApproval(status){
+  const snapshotId=getSnapshotId();
+  if(!snapshotId) throw new Error("Missing snapshot_id.");
+
+  const db = window.STATScoreData?.getClient?.() || window.STATScoreSupabase;
+
+  const payload=buildReviewPayload(status);
+
+  localStorage.setItem(LOCAL_PARENT_REVIEW_KEY,JSON.stringify(payload));
+
+  if(db){
+    try{
+      await db.from("sc_parent_approval_requests")
+        .upsert({
+          snapshot_id:snapshotId,
+          athlete_name:payload.athlete_name,
+          guardian_relationship:payload.guardian_relationship,
+          profile_visibility:payload.profile_visibility,
+          recruiter_contact:payload.recruiter_contact,
+          communication_window:payload.communication_window,
+          evidence_permission:payload.evidence_permission,
+          guardian_note:payload.guardian_note,
+          approval_status:status,
+          status:status,
+          request_status:status,
+          updated_at:new Date().toISOString()
+        },{ onConflict:"snapshot_id" });
+    }catch(err){
+      console.warn("Parent approval Supabase write failed; local receipt preserved.",err);
+    }
+  }
+
+  return payload;
+}
+
+async function approveAccess(){
+  if($("profileVisibility")) $("profileVisibility").value="Limited Recruiter Access";
+  if($("recruiterContact")) $("recruiterContact").value="Limited Window Approved";
+  if($("communicationWindow")) $("communicationWindow").value="Controlled Access";
+  if($("evidencePermission")) $("evidencePermission").value="Evidence Approved";
 
   updateRail();
+
+  await writeParentApproval("APPROVED");
 
   addAudit(
     "Access Approved",
@@ -1005,12 +1105,15 @@ function approveAccess(){
   setMessage("Controlled access approved");
 }
 
-function restrictAccess(){
-  document.getElementById("profileVisibility").value="Restricted";
-  document.getElementById("recruiterContact").value="Not Approved";
-  document.getElementById("communicationWindow").value="Guardian Approval Required";
+async function restrictAccess(){
+  if($("profileVisibility")) $("profileVisibility").value="Restricted";
+  if($("recruiterContact")) $("recruiterContact").value="Not Approved";
+  if($("communicationWindow")) $("communicationWindow").value="Guardian Approval Required";
+  if($("evidencePermission")) $("evidencePermission").value="Evidence Needed";
 
   updateRail();
+
+  await writeParentApproval("RESTRICTED");
 
   addAudit(
     "Access Restricted",
@@ -1022,28 +1125,30 @@ function restrictAccess(){
 
 async function loadAthlete(){
   try{
-    if(window.STATScoreData && typeof window.STATScoreData.loadAthleteProfile==="function"){
-      const athlete=await window.STATScoreData.loadAthleteProfile();
+    const snapshot=await fetchSnapshot();
 
-      if(athlete){
-        document.getElementById("athleteName").value =
-          athlete.athlete_display_name || athlete.athlete_name || "Demo Athlete";
-
-        addAudit(
-          "Athlete Profile Loaded",
-          "Guardian room loaded athlete profile for permission review."
-        );
-
-        return;
-      }
+    if(!snapshot || !snapshot.athlete_name){
+      throw new Error("Snapshot found, but athlete name was not returned.");
     }
 
-    document.getElementById("athleteName").value="Demo Athlete";
+    if($("athleteName")) $("athleteName").value=snapshot.athlete_name;
+
+    addAudit(
+      "Athlete Profile Loaded",
+      `${snapshot.athlete_name} loaded for parent / guardian permission review.`
+    );
+
+    setMessage("Parent / Guardian room ready");
 
   }catch(err){
     console.error("Parent room athlete load failure:",err);
-    document.getElementById("athleteName").value="Demo Athlete";
-    setMessage("Athlete profile fallback loaded","error");
+
+    if($("athleteName")) $("athleteName").value="";
+
+    setMessage(
+      "Athlete profile did not load. Check snapshot_id and Supabase RPC.",
+      "error"
+    );
   }
 }
 
@@ -1051,22 +1156,20 @@ document.addEventListener("DOMContentLoaded",()=>{
   loadAudit();
   loadAthlete();
 
-  document.getElementById("prepareApprovalBtn").addEventListener("click",prepareApproval);
-  document.getElementById("saveReviewBtn").addEventListener("click",saveReview);
-  document.getElementById("approveAccessBtn").addEventListener("click",approveAccess);
-  document.getElementById("restrictAccessBtn").addEventListener("click",restrictAccess);
+  $("prepareApprovalBtn")?.addEventListener("click",prepareApproval);
+  $("saveReviewBtn")?.addEventListener("click",saveReview);
+  $("approveAccessBtn")?.addEventListener("click",approveAccess);
+  $("restrictAccessBtn")?.addEventListener("click",restrictAccess);
 
   [
     "profileVisibility",
     "recruiterContact",
     "evidencePermission"
   ].forEach(id=>{
-    document.getElementById(id).addEventListener("change",updateRail);
+    $(id)?.addEventListener("change",updateRail);
   });
-
-  setMessage("Parent / Guardian room ready");
 });
-</script>
+</script> 
 
 </body>
 </html> 
