@@ -144,184 +144,107 @@ html,body{
 /* =========================================================
    MOBILE VIEW ONLY
 ========================================================= */
+<style>
 @media(max-width:768px){
-
-  html,
   body{
-    height:auto !important;
-    min-height:0 !important;
-    overflow-x:hidden;
+    background:#05070b;
   }
 
-  .hero{
-    flex:none;
-    height:34dvh;
+  .entry,
+  .hero,
+  .landing,
+  main{
+    min-height:100dvh;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-start;
+    background:
+      linear-gradient(180deg,#f4f4f1 0%,#f4f4f1 34%,#05070b 34%,#05070b 100%);
+  }
 
+  .logo-wrap,
+  .logo-panel,
+  .brand-panel{
+    margin:0 auto;
+    padding:54px 22px 34px;
+    width:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:radial-gradient(circle,rgba(255,43,31,.18),transparent 62%);
+  }
+
+  .logo-wrap img,
+  .logo-panel img,
+  .brand-panel img{
+    width:min(78vw,360px);
+    max-height:180px;
+    object-fit:contain;
+  }
+
+  .entry-content,
+  .hero-content,
+  .landing-content{
+    width:100%;
+    padding:46px 26px 42px;
+    background:
+      linear-gradient(180deg,rgba(7,12,22,.98),rgba(2,4,8,.98)),
+      repeating-linear-gradient(135deg,rgba(255,255,255,.025) 0,rgba(255,255,255,.025) 1px,transparent 1px,transparent 8px);
+    border-top:2px solid #ff2b1f;
+    text-align:center;
+  }
+
+  h1,
+  .hero-title,
+  .entry-title{
+    font-size:clamp(2.15rem,9vw,3.35rem);
+    line-height:1.02;
+    margin:0 auto 28px;
+    max-width:420px;
+    letter-spacing:-.04em;
+  }
+
+  .enter-btn,
+  .btn-enter,
+  a[href*="login"],
+  button{
+    width:min(100%,340px);
+    min-height:66px;
+    margin:0 auto 24px;
     display:flex;
     align-items:center;
     justify-content:center;
-
-    background:
-      radial-gradient(circle at center,
-      rgba(255,45,45,.16) 0%,
-      rgba(255,45,45,.07) 24%,
-      rgba(245,245,245,1) 60%);
-
-    overflow:hidden;
+    background:linear-gradient(180deg,#ff3b32,#b90710);
+    color:#fff;
+    border:1px solid rgba(255,255,255,.16);
+    box-shadow:0 18px 40px rgba(255,43,31,.24);
+    font-size:.9rem;
+    font-weight:900;
+    letter-spacing:.24em;
+    text-transform:uppercase;
   }
 
-  .hero img{
-    width:100%;
-    height:100%;
-
-    object-fit:contain;
-    object-position:center center;
-
-    transform:scale(1.00);
-
-    filter:
-      drop-shadow(0 0 14px rgba(255,45,45,.20))
-      drop-shadow(0 0 30px rgba(255,45,45,.10));
+  .tagline,
+  .subline,
+  .entry-subtitle{
+    color:#b8c3cc;
+    font-size:1.05rem;
+    font-weight:800;
+    line-height:1.4;
+    margin:0;
   }
 
-  .access{
-    flex:none !important;
-
-    height:auto !important;
-    min-height:0 !important;
-
-    padding:34px 22px 40px !important;
-
-    display:flex;
-    align-items:flex-start;
-    justify-content:flex-start;
+  .tagline strong,
+  .subline strong{
+    color:#fff;
   }
 
-  .access-inner,
-  .access-content,
-  .access-panel{
-    height:auto !important;
-    min-height:0 !important;
+  .spacer,
+  .blank-space{
+    display:none!important;
   }
 }
+</style> 
 
-/* ============================================================
-   STATScore Mobile Entry Gate
-   ============================================================ */
-@media(max-width:480px){
-
-  html,
-  body{
-    overflow-x:hidden;
-    min-height:100%;
-    height:auto;
-    background:#e9e8e2;
-  }
-
-  .page,
-  .entry-shell,
-  .main{
-    min-height:auto !important;
-    height:auto !important;
-  }
-
-  .hero{
-    height:auto !important;
-    min-height:0 !important;
-    padding:34px 20px 24px !important;
-  }
-
-  .hero img{
-    width:100%;
-    max-width:230px;
-    height:auto;
-  }
-
-  .access{
-    height:auto !important;
-    min-height:0 !important;
-    padding:26px 20px 34px !important;
-  }
-
-  .hero h1,
-  .access h1{
-    font-size:2.1rem !important;
-    line-height:1.05 !important;
-  }
-
-  .hero p,
-  .access p{
-    font-size:.95rem !important;
-    line-height:1.45 !important;
-  }
-
-  .enter-btn,
-  .btn{
-    width:100% !important;
-    max-width:290px !important;
-  }
-} 
-
-@media(max-width:480px){
-
-  .logo-tab{
-    padding:18px 14px !important;
-  }
-
-  .logo-tab img{
-    max-width:230px !important;
-  }
-
-  .entry-shell,
-  .hero-shell,
-  .hero,
-  .main{
-    min-height:auto !important;
-    height:auto !important;
-  }
-
-  .hero{
-    padding:36px 22px !important;
-  }
-
-  .hero h1{
-    font-size:2.1rem !important;
-    line-height:1.05 !important;
-  }
-
-  .hero p{
-    font-size:.95rem !important;
-  }
-
-  .enter-btn,
-  .btn{
-    width:100% !important;
-    max-width:290px !important;
-  }
-} 
-  
-</style>
-</head>
-
-<body>
-<div class="page">
-
-  <section class="hero">
-    <img src="sc_logo_e.png" alt="STATScore Logo">
-  </section>
-
-  <section class="access">
-    <div class="access-inner">
-      <h1 class="headline">Athlete Performance Starts Here</h1>
-
-      <button class="enter" onclick="window.location.href='login.html'">
-        Enter
-      </button>
-
-      <p class="sub">Track it. Score it. <strong>Prove it.</strong></p>
-    </div>
-  </section>
-
-</div>
 </body>
 </html> 
