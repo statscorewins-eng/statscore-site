@@ -1,4 +1,4 @@
-<!DOCTYPE html>  
+<!DOCTYPE html> 
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -6,26 +6,15 @@
 
 <title>STATS-CORE™ | Athlete Lifecycle System</title>
 
-<meta
-  name="title"
-  content="STATS-CORE™ | Athlete Lifecycle System"
-/>
+<meta name="title" content="STATS-CORE™ | Athlete Lifecycle System" />
 
 <meta
   name="description"
   content="STATS-CORE™ Athlete Lifecycle System — verified athlete infrastructure for performance tracking, readiness intelligence, eligibility awareness, recruiting visibility, and controlled communication."
 />
 
-<link
-  rel="icon"
-  type="image/png"
-  href="sc_emblem.png"
-/>
-
-<link
-  rel="apple-touch-icon"
-  href="sc_emblem.png"
-/> 
+<link rel="icon" type="image/png" href="sc_emblem.png" />
+<link rel="apple-touch-icon" href="sc_emblem.png" />
 
 <style>
 :root{
@@ -45,7 +34,7 @@ html,body{
   width:100%;
   height:100%;
   overflow:hidden;
-  font-family:'Inter',sans-serif;
+  font-family:Arial,Helvetica,sans-serif;
   background:var(--logo-white);
 }
 
@@ -142,109 +131,95 @@ html,body{
 }
 
 /* =========================================================
-   MOBILE VIEW ONLY
+   MOBILE VIEW ONLY — SAFE TARGETED INDEX FIX
 ========================================================= */
-<style>
 @media(max-width:768px){
-  body{
-    background:#05070b;
+  html,body{
+    height:100%;
+    overflow:hidden;
   }
 
-  .entry,
-  .hero,
-  .landing,
-  main{
+  .page{
+    height:100dvh;
     min-height:100dvh;
-    display:flex;
-    flex-direction:column;
-    justify-content:flex-start;
+  }
+
+  .hero{
+    flex:0 0 42dvh;
+    height:42dvh;
+    padding:28px 20px;
     background:
-      linear-gradient(180deg,#f4f4f1 0%,#f4f4f1 34%,#05070b 34%,#05070b 100%);
+      radial-gradient(circle at center,rgba(224,32,32,.16),transparent 62%),
+      var(--logo-white);
   }
 
-  .logo-wrap,
-  .logo-panel,
-  .brand-panel{
-    margin:0 auto;
-    padding:54px 22px 34px;
+  .hero img{
     width:100%;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    background:radial-gradient(circle,rgba(255,43,31,.18),transparent 62%);
-  }
-
-  .logo-wrap img,
-  .logo-panel img,
-  .brand-panel img{
-    width:min(78vw,360px);
-    max-height:180px;
+    height:100%;
     object-fit:contain;
+    object-position:center center;
   }
 
-  .entry-content,
-  .hero-content,
-  .landing-content{
-    width:100%;
-    padding:46px 26px 42px;
+  .access{
+    flex:1;
+    min-height:58dvh;
+    align-items:flex-start;
+    padding:52px 22px 30px;
     background:
-      linear-gradient(180deg,rgba(7,12,22,.98),rgba(2,4,8,.98)),
-      repeating-linear-gradient(135deg,rgba(255,255,255,.025) 0,rgba(255,255,255,.025) 1px,transparent 1px,transparent 8px);
-    border-top:2px solid #ff2b1f;
-    text-align:center;
+      linear-gradient(180deg,#111926 0%,#080d15 56%,#030508 100%);
   }
 
-  h1,
-  .hero-title,
-  .entry-title{
-    font-size:clamp(2.15rem,9vw,3.35rem);
-    line-height:1.02;
-    margin:0 auto 28px;
-    max-width:420px;
-    letter-spacing:-.04em;
+  .access-inner{
+    width:100%;
+    max-width:390px;
+    gap:24px;
+    padding:0;
   }
 
-  .enter-btn,
-  .btn-enter,
-  a[href*="login"],
-  button{
-    width:min(100%,340px);
-    min-height:66px;
-    margin:0 auto 24px;
+  .headline{
+    font-size:clamp(2.25rem,10vw,3.25rem);
+    line-height:1.05;
+    max-width:360px;
+  }
+
+  .enter{
+    width:100%;
+    min-height:68px;
+    padding:0 26px;
     display:flex;
     align-items:center;
     justify-content:center;
-    background:linear-gradient(180deg,#ff3b32,#b90710);
-    color:#fff;
-    border:1px solid rgba(255,255,255,.16);
-    box-shadow:0 18px 40px rgba(255,43,31,.24);
-    font-size:.9rem;
-    font-weight:900;
-    letter-spacing:.24em;
-    text-transform:uppercase;
+    font-size:.86rem;
+    letter-spacing:.26em;
   }
 
-  .tagline,
-  .subline,
-  .entry-subtitle{
-    color:#b8c3cc;
+  .sub{
     font-size:1.05rem;
-    font-weight:800;
     line-height:1.4;
-    margin:0;
-  }
-
-  .tagline strong,
-  .subline strong{
-    color:#fff;
-  }
-
-  .spacer,
-  .blank-space{
-    display:none!important;
   }
 }
-</style> 
+</style>
+</head>
 
+<body>
+<div class="page">
+
+  <section class="hero">
+    <img src="sc_logo_e.png" alt="STATS-CORE Athlete Lifecycle System">
+  </section>
+
+  <section class="access">
+    <div class="access-inner">
+      <h1 class="headline">Athlete Performance<br>Starts Here</h1>
+
+      <button class="enter" onclick="window.location.href='login.html'">
+        Enter
+      </button>
+
+      <div class="sub">Track it. Score it. <strong>Prove it.</strong></div>
+    </div>
+  </section>
+
+</div>
 </body>
 </html> 
