@@ -650,6 +650,41 @@ b.red{color:var(--red)!important}
   }
 }
 
+  .unread-clickable{
+  border:1px solid rgba(47,252,255,.55);
+  background:rgba(47,252,255,.06);
+  box-shadow:0 0 18px rgba(47,252,255,.12);
+  cursor:pointer;
+  border-radius:10px;
+  padding:10px 12px;
+  transition:.18s ease;
+  position:relative;
+}
+
+.unread-clickable:hover{
+  border-color:var(--green);
+  background:rgba(53,255,92,.08);
+  transform:translateY(-1px);
+}
+
+.unread-clickable::after{
+  content:"OPEN";
+  position:absolute;
+  right:10px;
+  top:-10px;
+
+  font-size:.58rem;
+  letter-spacing:.18em;
+  font-weight:800;
+
+  padding:4px 8px;
+  border-radius:999px;
+
+  color:#00ff99;
+  border:1px solid rgba(0,255,140,.45);
+  background:#08110d;
+} 
+
 </style> 
 
 </head>
@@ -832,7 +867,10 @@ b.red{color:var(--red)!important}
     <div class="metric-row"><span>Pending Approvals</span><b class="red">2</b></div>
     <div class="metric-row"><span>Consent Status</span><b>Partial</b></div>
     <div class="metric-row"><span>Recruiter Window</span><b>Controlled</b></div>
-    <div class="metric-row" id="unreadNoticeRow"><span>Unread Notices</span><b id="unreadNoticeCount">3</b></div> 
+    <div class="metric-row unread-clickable" id="unreadNoticeRow">
+  <span>Unread Notices</span>
+  <b id="unreadNoticeCount">3</b>
+</div> 
     <div class="metric-row"><span>Authority Receipt</span><b class="green">Enabled</b></div>
   </div>
 
