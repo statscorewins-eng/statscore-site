@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -638,8 +638,12 @@ body{min-height:100vh}
 </div>
 
 <script>
-const params = new URLSearchParams(window.location.search);
-const snapshotId = params.get("snapshot_id") || "f7503b84-12a6-46d6-a095-f727e70e078f";
+function getSnapshotId(){
+  return new URLSearchParams(window.location.search)
+    .get("snapshot_id") || "";
+}
+
+const snapshotId = getSnapshotId(); 
 
 const NOTICE_STORE_KEY = `statscore_guardian_notices_${snapshotId}`;
 const AUDIT_STORE_KEY = `statscore_guardian_notice_audit_${snapshotId}`;
@@ -679,6 +683,11 @@ const defaultNotices = [
   }
 ];
 
+function getSnapshotId(){
+  return new URLSearchParams(window.location.search)
+    .get("snapshot_id") || "";
+} 
+  
 function $(id){
   return document.getElementById(id);
 }
