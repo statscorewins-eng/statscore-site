@@ -894,6 +894,11 @@ function getSnapshotId(){
   return new URLSearchParams(window.location.search).get("snapshot_id") || "";
 }
 
+function getNoticeStoreKey(){
+  const snapshotId=getSnapshotId() || "global";
+  return `statscore_guardian_notices_${snapshotId}`;
+}
+
 function setMessage(msg,type="success"){
   const el=$("systemMessage");
   if(!el)return;
@@ -910,14 +915,18 @@ function esc(v){
     .replaceAll("'","&#039;");
 }
 
-function addAudit(action,note){
+function renderAuditItem(action,note){
   const auditPanel=$("auditPanel");
-  if(auditPanel){
-    const item=document.createElement("div");
-    item.className="audit-item";
-    item.innerHTML=`<b>${esc(action)}</b><span>${esc(note)}</span>`;
-    auditPanel.prepend(item);
-  }
+  if(!auditPanel)return;
+
+  const item=document.createElement("div");
+  item.className="audit-item";
+  item.innerHTML=`<b>${esc(action)}</b><span>${esc(note)}</span>`;
+  auditPanel.prepend(item);
+}
+
+function addAudit(action,note){
+  renderAuditItem(action,note);
 
   const saved=JSON.parse(localStorage.getItem(LOCAL_PARENT_AUDIT_KEY)||"[]");
   saved.unshift({
@@ -934,11 +943,13 @@ function loadAudit(){
   const snapshotId=getSnapshotId();
   const saved=JSON.parse(localStorage.getItem(LOCAL_PARENT_AUDIT_KEY)||"[]");
 
+  if($("auditPanel")) $("auditPanel").innerHTML="";
+
   saved
     .filter(row=>!snapshotId || row.snapshot_id===snapshotId || !row.snapshot_id)
     .slice()
     .reverse()
-    .forEach(row=>addAudit(row.action_type,row.audit_note));
+    .forEach(row=>renderAuditItem(row.action_type,row.audit_note));
 }
 
 function normalizeSnapshot(response){
@@ -988,6 +999,96 @@ async function fetchSnapshot(){
   return normalizeSnapshot(data);
 }
 
+function defaultNotices(){
+  const snapshotId=getSnapshotId();
+
+  return [
+    {
+      id:"notice-001",
+      type:"ACTION REQUIRED",
+      severity:"action",
+      title:"Parent Approval Required",
+      message:"Guardian approval is required before athlete profile visibility can move beyond restricted status.",
+      status:"unread",
+      route:`parent.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
+      created:"Runtime Notice"
+    },
+    {
+      id:"notice-002",
+      type:"VERIFICATION",
+      severity:"warning",
+      title:"Evidence Needed",
+      message:"Supporting evidence is needed before verified status, media exposure, or recruiter access can expand.",
+      status:"unread",
+      route:`parent.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
+      created:"Verification Layer"
+    },
+    {
+      id:"notice-003",
+      type:"RECRUITER ACCESS",
+      severity:"info",
+      title:"Recruiter Window Controlled",
+      message:"Recruiter contact is currently not approved. Guardian must approve contact permissions before access opens.",
+      status:"unread",
+      route:`parent.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
+      created:"Recruiter Control Layer"
+    }
+  ];
+}
+
+function loadGuardianNotices(){
+  const key=getNoticeStoreKey();
+  const saved=localStorage.getItem(key);
+
+  if(saved){
+    try{
+      return JSON.parse(saved);
+    }catch(err){
+      console.warn("Guardian notices parse failed. Resetting local notice store.",err);
+    }
+  }
+
+  const seeded=defaultNotices();
+  localStorage.setItem(key,JSON.stringify(seeded));
+  return seeded;
+}
+
+function getUnreadNoticeCount(){
+  return loadGuardianNotices().filter(n=>n.status==="unread").length;
+}
+
+function updateUnreadNoticeRail(){
+  const count=getUnreadNoticeCount();
+
+  if($("unreadNoticeCount")){
+    $("unreadNoticeCount").textContent=count;
+  }
+
+  if($("railUnreadNotices")){
+    $("railUnreadNotices").textContent=count;
+  }
+}
+
+function openParentNotices(){
+  const snapshotId=getSnapshotId();
+  window.location.href=`parent-notices.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
+}
+
+function bindUnreadNoticeClick(){
+  const candidates=[
+    $("unreadNoticeRow"),
+    $("railUnreadNotices")?.parentElement,
+    $("unreadNoticeCount")?.parentElement
+  ].filter(Boolean);
+
+  candidates.forEach(el=>{
+    el.style.cursor="pointer";
+    el.addEventListener("click",openParentNotices);
+    el.addEventListener("mouseenter",()=>{ el.style.background="rgba(47,252,255,.08)"; });
+    el.addEventListener("mouseleave",()=>{ el.style.background=""; });
+  });
+}
+
 function updateRail(){
   const visibility=$("profileVisibility")?.value || "Restricted";
   const recruiter=$("recruiterContact")?.value || "Not Approved";
@@ -1007,6 +1108,8 @@ function updateRail(){
       recruiterRail.classList.add("red");
     }
   }
+
+  updateUnreadNoticeRail();
 }
 
 function prepareApproval(){
@@ -1154,6 +1257,9 @@ async function loadAthlete(){
 
 document.addEventListener("DOMContentLoaded",()=>{
   loadAudit();
+  loadGuardianNotices();
+  updateUnreadNoticeRail();
+  bindUnreadNoticeClick();
   loadAthlete();
 
   $("prepareApprovalBtn")?.addEventListener("click",prepareApproval);
