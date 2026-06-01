@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>STATS-CORE™ | Parent Notices</title>
+
+<meta name="description" content="STATS-CORE™ Guardian Notice Center for parent approvals, recruiter access, verification requests, evidence review, and protected athlete profile actions." />
+
+<link rel="icon" type="image/png" href="/assets/sc_emblem.png" />
+
+<style>
+:root{
+  --black:#05070a;
+  --dark:#08111c;
+  --panel:#0d1a2a;
+  --panel2:#101f32;
+  --line:rgba(130,190,255,.35);
+  --text:#f5f8ff;
+  --muted:#9fb6c9;
+  --cyan:#2ffcff;
+  --red:#ff3b22;
+  --orange:#ff6a1a;
+  --yellow:#ffd84d;
+  --green:#35ff5c;
+  --blue:#5da9ff;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at top right,rgba(255,74,20,.16),transparent 38%),
+    linear-gradient(135deg,#05070a,#08111c 55%,#020407);
+  color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+  min-height:100vh;
+}
+
+a{text-decoration:none;color:inherit}
+
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:22px 36px;
+  background:#f4f7fb;
+  color:#08111c;
+  border-bottom:4px solid var(--red);
+}
+
+.logo{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  font-weight:900;
+  letter-spacing:2px;
+}
+
+.logo img{
+  width:54px;
+  height:54px;
+  object-fit:contain;
+}
+
+.header-title{
+  font-size:13px;
+  letter-spacing:6px;
+  font-weight:900;
+}
+
+.nav{
+  display:flex;
+  gap:26px;
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:2px;
+}
+
+.nav a.active{
+  color:var(--red);
+  border-bottom:3px solid var(--red);
+  padding-bottom:8px;
+}
+
+.wrap{
+  padding:28px 36px 38px;
+}
+
+.kicker{
+  color:var(--orange);
+  letter-spacing:6px;
+  font-size:13px;
+  font-weight:900;
+}
+
+h1{
+  margin:8px 0 22px;
+  font-size:54px;
+  letter-spacing:-2px;
+  line-height:.95;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:280px 1fr 330px;
+  gap:18px;
+}
+
+.card{
+  background:linear-gradient(180deg,rgba(18,36,57,.88),rgba(8,17,28,.94));
+  border:1px solid var(--line);
+  box-shadow:0 0 28px rgba(0,0,0,.28);
+}
+
+.card h2{
+  margin:0;
+  padding:18px 20px;
+  color:var(--orange);
+  font-size:14px;
+  letter-spacing:6px;
+  border-bottom:1px solid var(--line);
+}
+
+.side-item{
+  padding:18px 20px;
+  border-bottom:1px solid rgba(130,190,255,.18);
+}
+
+.side-item b{
+  display:block;
+  color:var(--text);
+  letter-spacing:3px;
+  font-size:13px;
+  margin-bottom:8px;
+}
+
+.side-item span{
+  display:block;
+  color:var(--cyan);
+  font-size:13px;
+  line-height:1.35;
+}
+
+.notice-list{
+  display:flex;
+  flex-direction:column;
+}
+
+.notice{
+  display:grid;
+  grid-template-columns:14px 1fr auto;
+  gap:16px;
+  padding:18px 20px;
+  border-bottom:1px solid rgba(130,190,255,.2);
+  cursor:pointer;
+  transition:.18s ease;
+}
+
+.notice:hover,
+.notice.active{
+  background:rgba(47,252,255,.07);
+}
+
+.dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  margin-top:7px;
+  background:var(--green);
+  box-shadow:0 0 14px currentColor;
+}
+
+.dot.action{background:var(--red)}
+.dot.warning{background:var(--yellow)}
+.dot.info{background:var(--cyan)}
+.dot.read{background:#557085;box-shadow:none}
+
+.notice-title{
+  font-weight:900;
+  letter-spacing:2px;
+  color:var(--cyan);
+  font-size:14px;
+}
+
+.notice-msg{
+  color:var(--text);
+  font-size:14px;
+  line-height:1.4;
+  margin-top:6px;
+}
+
+.notice-meta{
+  color:var(--muted);
+  font-size:11px;
+  letter-spacing:2px;
+  margin-top:8px;
+}
+
+.badge{
+  border:1px solid var(--line);
+  padding:7px 9px;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:2px;
+  align-self:start;
+}
+
+.badge.action{color:var(--red);border-color:var(--red)}
+.badge.warning{color:var(--yellow);border-color:var(--yellow)}
+.badge.info{color:var(--cyan);border-color:var(--cyan)}
+.badge.read{color:var(--muted)}
+
+.detail{
+  padding:20px;
+}
+
+.detail-label{
+  color:var(--orange);
+  font-size:12px;
+  letter-spacing:5px;
+  font-weight:900;
+  margin-bottom:10px;
+}
+
+.detail-title{
+  font-size:24px;
+  font-weight:900;
+  margin-bottom:14px;
+}
+
+.detail-body{
+  color:var(--text);
+  font-size:15px;
+  line-height:1.55;
+  margin-bottom:18px;
+}
+
+.status-row{
+  display:flex;
+  justify-content:space-between;
+  border-top:1px solid rgba(130,190,255,.18);
+  padding:13px 0;
+  font-size:13px;
+  letter-spacing:1px;
+}
+
+.status-row b{
+  color:var(--cyan);
+}
+
+.status-row span{
+  color:var(--yellow);
+  font-weight:900;
+}
+
+.actions{
+  display:grid;
+  gap:10px;
+  margin-top:18px;
+}
+
+button{
+  width:100%;
+  padding:14px 16px;
+  background:transparent;
+  border:1px solid var(--line);
+  color:var(--text);
+  font-weight:900;
+  letter-spacing:2px;
+  cursor:pointer;
+}
+
+button.primary{
+  border-color:var(--green);
+  color:var(--green);
+}
+
+button.warn{
+  border-color:var(--yellow);
+  color:var(--yellow);
+}
+
+button.danger{
+  border-color:var(--red);
+  color:var(--red);
+}
+
+button:hover{
+  background:rgba(255,255,255,.06);
+}
+
+.audit{
+  margin-top:18px;
+}
+
+.audit-item{
+  padding:14px;
+  border:1px solid rgba(130,190,255,.22);
+  margin-bottom:10px;
+}
+
+.audit-item b{
+  display:block;
+  color:var(--cyan);
+  letter-spacing:2px;
+  font-size:12px;
+  margin-bottom:6px;
+}
+
+.audit-item span{
+  color:var(--text);
+  font-size:13px;
+}
+
+.footer-route{
+  margin-top:18px;
+  display:grid;
+  grid-template-columns:repeat(5,1fr) 190px;
+  gap:0;
+  border:1px solid var(--line);
+  background:rgba(13,26,42,.65);
+}
+
+.route-cell{
+  padding:14px 18px;
+  border-right:1px solid rgba(130,190,255,.28);
+}
+
+.route-cell b{
+  display:block;
+  color:var(--text);
+  font-size:12px;
+  letter-spacing:2px;
+}
+
+.route-cell span{
+  color:var(--cyan);
+  font-size:11px;
+}
+
+.return{
+  color:var(--orange);
+  font-weight:900;
+  letter-spacing:2px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.system-message{
+  color:var(--green);
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:2px;
+  margin-top:14px;
+}
+
+@media(max-width:1000px){
+  .grid{grid-template-columns:1fr}
+  .header{flex-direction:column;align-items:flex-start;gap:16px}
+  .nav{flex-wrap:wrap}
+  h1{font-size:42px}
+  .footer-route{grid-template-columns:1fr}
+  .route-cell{border-right:0;border-bottom:1px solid rgba(130,190,255,.28)}
+}
+</style>
+</head>
+
+<body>
+
+<header class="header">
+  <div class="logo">
+    <img src="/assets/sc_emblem.png" alt="STATS-CORE Official Emblem">
+    <div>
+      <div>STATS-CORE™</div>
+      <small>ATHLETE LIFECYCLE SYSTEM</small>
+    </div>
+  </div>
+
+  <div class="header-title">GUARDIAN NOTICE CENTER</div>
+
+  <nav class="nav">
+    <a href="system.html">SYSTEM</a>
+    <a href="player-profile.html" id="profileLink">PROFILE</a>
+    <a href="parent.html" id="parentLink">PARENT</a>
+    <a class="active" href="#">NOTICES</a>
+  </nav>
+</header>
+
+<main class="wrap">
+
+  <div class="kicker">GUARDIAN AUTHORITY INFRASTRUCTURE</div>
+  <h1>PARENT NOTICES</h1>
+
+  <section class="grid">
+
+    <aside class="card">
+      <h2>NOTICE AREAS</h2>
+
+      <div class="side-item">
+        <b>ACTION REQUIRED</b>
+        <span>Items requiring guardian approval, evidence review, or visibility decision.</span>
+      </div>
+
+      <div class="side-item">
+        <b>RECRUITER ACCESS</b>
+        <span>Requests related to recruiter contact windows and controlled visibility.</span>
+      </div>
+
+      <div class="side-item">
+        <b>VERIFICATION</b>
+        <span>Alerts tied to athlete data verification, evidence, and review status.</span>
+      </div>
+
+      <div class="side-item">
+        <b>AUDIT RECEIPTS</b>
+        <span>System records of notice reviews, read states, and authority decisions.</span>
+      </div>
+    </aside>
+
+    <section class="card">
+      <h2>GUARDIAN INBOX</h2>
+      <div class="notice-list" id="noticeList"></div>
+    </section>
+
+    <aside class="card">
+      <h2>NOTICE DETAIL</h2>
+
+      <div class="detail">
+        <div class="detail-label" id="detailType">SELECT NOTICE</div>
+        <div class="detail-title" id="detailTitle">Guardian Notice Center Ready</div>
+        <div class="detail-body" id="detailBody">
+          Select a notice to review details, route to the required action, mark the notice as read, or generate an authority receipt.
+        </div>
+
+        <div class="status-row">
+          <b>ATHLETE</b>
+          <span id="athleteName">Ariel Steele</span>
+        </div>
+
+        <div class="status-row">
+          <b>SNAPSHOT</b>
+          <span id="snapshotStatus">ACTIVE</span>
+        </div>
+
+        <div class="status-row">
+          <b>UNREAD</b>
+          <span id="unreadCount">3</span>
+        </div>
+
+        <div class="status-row">
+          <b>AUTHORITY RECEIPT</b>
+          <span>ENABLED</span>
+        </div>
+
+        <div class="actions">
+          <button class="primary" onclick="markSelectedRead()">MARK READ</button>
+          <button class="warn" onclick="routeSelected()">OPEN ACTION ROUTE</button>
+          <button class="danger" onclick="returnToParent()">RETURN TO PARENT ROOM</button>
+        </div>
+
+        <div class="system-message" id="systemMessage">NOTICE CENTER READY</div>
+
+        <div class="audit" id="auditTrail"></div>
+      </div>
+    </aside>
+
+  </section>
+
+  <section class="footer-route">
+    <div class="route-cell">
+      <b>IDENTITY</b>
+      <span>Guardian Confirmed</span>
+    </div>
+    <div class="route-cell">
+      <b>CONSENT</b>
+      <span>Permission Review</span>
+    </div>
+    <div class="route-cell">
+      <b>VISIBILITY</b>
+      <span>Controlled Access</span>
+    </div>
+    <div class="route-cell">
+      <b>RECRUITER</b>
+      <span>Contact Rules</span>
+    </div>
+    <div class="route-cell">
+      <b>RECEIPT</b>
+      <span>Audit Logging</span>
+    </div>
+    <a class="return" id="returnLink" href="parent.html">RETURN TO PARENT</a>
+  </section>
+
+</main>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const snapshotId = params.get("snapshot_id") || "f7503b84-12a6-46d6-a095-f727e70e078f";
+
+const NOTICE_STORE_KEY = `statscore_guardian_notices_${snapshotId}`;
+const AUDIT_STORE_KEY = `statscore_guardian_notice_audit_${snapshotId}`;
+
+let selectedNoticeId = null;
+
+const defaultNotices = [
+  {
+    id:"notice-001",
+    type:"ACTION REQUIRED",
+    severity:"action",
+    title:"Parent Approval Required",
+    message:"Guardian approval is required before Ariel Steele’s athlete profile can move beyond restricted visibility.",
+    status:"unread",
+    route:`parent.html?snapshot_id=${snapshotId}`,
+    created:"Runtime Notice"
+  },
+  {
+    id:"notice-002",
+    type:"VERIFICATION",
+    severity:"warning",
+    title:"Evidence Needed",
+    message:"Supporting evidence is needed before athlete media, recruiter access, or verified status can be expanded.",
+    status:"unread",
+    route:`parent.html?snapshot_id=${snapshotId}`,
+    created:"Verification Layer"
+  },
+  {
+    id:"notice-003",
+    type:"RECRUITER ACCESS",
+    severity:"info",
+    title:"Recruiter Window Controlled",
+    message:"Recruiter contact is currently not approved. Guardian must approve contact permissions before access opens.",
+    status:"unread",
+    route:`parent.html?snapshot_id=${snapshotId}`,
+    created:"Recruiter Control Layer"
+  }
+];
+
+function esc(v){
+  return String(v ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function setMessage(msg,type="success"){
+  const el=document.getElementById("systemMessage");
+  if(!el)return;
+  el.textContent=msg;
+  el.style.color=type==="error" ? "var(--red)" : "var(--green)";
+}
+
+function loadNotices(){
+  const saved = localStorage.getItem(NOTICE_STORE_KEY);
+  if(saved){
+    try{return JSON.parse(saved)}
+    catch(e){}
+  }
+  localStorage.setItem(NOTICE_STORE_KEY,JSON.stringify(defaultNotices));
+  return defaultNotices;
+}
+
+function saveNotices(notices){
+  localStorage.setItem(NOTICE_STORE_KEY,JSON.stringify(notices));
+}
+
+function loadAudit(){
+  const saved = localStorage.getItem(AUDIT_STORE_KEY);
+  if(saved){
+    try{return JSON.parse(saved)}
+    catch(e){}
+  }
+  return [];
+}
+
+function saveAudit(audit){
+  localStorage.setItem(AUDIT_STORE_KEY,JSON.stringify(audit));
+}
+
+function addAudit(action,note){
+  const audit = loadAudit();
+  audit.unshift({
+    action,
+    note,
+    at:new Date().toLocaleString()
+  });
+  saveAudit(audit.slice(0,20));
+  renderAudit();
+}
+
+function renderAudit(){
+  const auditTrail=document.getElementById("auditTrail");
+  if(!auditTrail)return;
+
+  const audit=loadAudit();
+
+  if(!audit.length){
+    auditTrail.innerHTML = `
+      <div class="audit-item">
+        <b>NOTICE CENTER LOADED</b>
+        <span>Guardian Notice Center initialized for snapshot ${esc(snapshotId)}.</span>
+      </div>
+    `;
+    return;
+  }
+
+  auditTrail.innerHTML = audit.map(item=>`
+    <div class="audit-item">
+      <b>${esc(item.action)}</b>
+      <span>${esc(item.note)}<br>${esc(item.at)}</span>
+    </div>
+  `).join("");
+}
+
+function renderNotices(){
+  const notices=loadNotices();
+  const list=document.getElementById("noticeList");
+  const unread=document.getElementById("unreadCount");
+
+  const unreadTotal=notices.filter(n=>n.status==="unread").length;
+  unread.textContent=unreadTotal;
+
+  list.innerHTML = notices.map(n=>`
+    <div class="notice ${selectedNoticeId===n.id?"active":""}" onclick="selectNotice('${esc(n.id)}')">
+      <div class="dot ${esc(n.status==="read"?"read":n.severity)}"></div>
+      <div>
+        <div class="notice-title">${esc(n.title)}</div>
+        <div class="notice-msg">${esc(n.message)}</div>
+        <div class="notice-meta">${esc(n.type)} · ${esc(n.created)}</div>
+      </div>
+      <div class="badge ${esc(n.status==="read"?"read":n.severity)}">${esc(n.status.toUpperCase())}</div>
+    </div>
+  `).join("");
+}
+
+function selectNotice(id){
+  selectedNoticeId=id;
+  const notice=loadNotices().find(n=>n.id===id);
+  if(!notice)return;
+
+  document.getElementById("detailType").textContent=notice.type;
+  document.getElementById("detailTitle").textContent=notice.title;
+  document.getElementById("detailBody").textContent=notice.message;
+
+  renderNotices();
+  addAudit("NOTICE SELECTED",`${notice.title} opened for guardian review.`);
+}
+
+function markSelectedRead(){
+  if(!selectedNoticeId){
+    setMessage("SELECT A NOTICE FIRST","error");
+    return;
+  }
+
+  const notices=loadNotices();
+  const notice=notices.find(n=>n.id===selectedNoticeId);
+  if(!notice)return;
+
+  notice.status="read";
+  saveNotices(notices);
+  renderNotices();
+
+  addAudit("NOTICE MARKED READ",`${notice.title} marked as read by guardian authority layer.`);
+  setMessage("NOTICE MARKED READ");
+}
+
+function routeSelected(){
+  if(!selectedNoticeId){
+    setMessage("SELECT A NOTICE FIRST","error");
+    return;
+  }
+
+  const notice=loadNotices().find(n=>n.id===selectedNoticeId);
+  if(!notice)return;
+
+  addAudit("NOTICE ROUTE OPENED",`${notice.title} routed to action page.`);
+  window.location.href=notice.route;
+}
+
+function returnToParent(){
+  window.location.href=`parent.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
+}
+
+function hydrateLinks(){
+  document.getElementById("profileLink").href=`player-profile.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
+  document.getElementById("parentLink").href=`parent.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
+  document.getElementById("returnLink").href=`parent.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
+}
+
+function boot(){
+  hydrateLinks();
+  renderNotices();
+  renderAudit();
+  addAudit("NOTICE CENTER BOOT",`Guardian notice center loaded for snapshot ${snapshotId}.`);
+}
+
+boot();
+</script>
+
+</body>
+</html> 
