@@ -1198,23 +1198,72 @@ a{text-decoration:none;color:inherit;}
   </div>
 </section>
 
+.flow-step{
+  border-left:1px solid rgba(255,255,255,.10);
+  padding:12px 16px;
+  min-height:54px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  background:rgba(255,255,255,.018);
+  transition:.18s ease;
+}
+
+.flow-step.clickable{
+  border:1px solid rgba(126,216,255,.35);
+  background:linear-gradient(180deg,rgba(126,216,255,.10),rgba(255,255,255,.012));
+  cursor:pointer;
+}
+
+.flow-step.clickable:hover{
+  transform:translateY(-1px);
+  border-color:var(--red);
+  box-shadow:0 0 0 1px rgba(255,43,31,.25) inset;
+}
+
+.flow-step.clickable b{
+  color:#fff;
+}
+
+.flow-step.clickable span{
+  color:var(--blue);
+} 
+
 <section class="flow">
   <div class="flow-title">Visibility Path</div>
-  <div class="flow-step"><b>Profile</b><span>Private View</span></div>
-  <div class="flow-step"><b>Snapshot</b><span>Data Intake</span></div>
-  <div class="flow-step"><b>Score</b><span>Unverified</span></div>
-  <div class="flow-step"><b>Parent Gate</b><span>Release</span></div>
-  <div class="flow-step"><b>Verification</b><span>Trust Layer</span></div>
-  <div class="flow-step"><a href="crystal-registry.html"><b>Crystal</b><span>Athlete Intelligence</span></a></div>
-  <a class="action primary" id="footerParentApprovalAction" href="#">Request Approval ›</a>
-</section>
 
-<footer class="footer">
-  <div><img src="sc_logo_i.png" alt="STATS-CORE"></div>
-  <div>Explainable Athlete Intelligence Record</div>
-  <div class="demo-ok">✓ Unverified Intelligence Active</div>
-  <div>© STATS-CORE Systems<br>All Rights Reserved.</div>
-</footer>
+  <a class="flow-step clickable" href="player-profile.html" id="flowProfile">
+    <b>Profile</b>
+    <span>Public / Private View</span>
+  </a>
+
+  <a class="flow-step clickable" href="snapshot-intake.html" id="flowSnapshot">
+    <b>Snapshot</b>
+    <span>Data Intake</span>
+  </a>
+
+  <a class="flow-step clickable" href="verification.html" id="flowVerification">
+    <b>Verification</b>
+    <span>Trust Layer</span>
+  </a>
+
+  <a class="flow-step clickable" href="parent.html" id="flowParent">
+    <b>Parent Gate</b>
+    <span>Release Approval</span>
+  </a>
+
+  <a class="flow-step clickable" href="multi-box.html" id="flowMultiBox">
+    <b>Multi-Box™</b>
+    <span>Permissions</span>
+  </a>
+
+  <a class="flow-step clickable" href="crystal-registry.html" id="flowCrystal">
+    <b>Crystal</b>
+    <span>Athlete Registry</span>
+  </a>
+
+  <a class="action primary" id="footerParentApprovalAction" href="#">Request Approval ›</a>
+</section> 
 
 </main>
 </div> 
@@ -1806,9 +1855,22 @@ function renderSTATScoreIntelligence(snapshot, states){
 function renderGuardianGovernance(snapshot, states){
   const snapshotId = snapshot.snapshot_id || getSnapshotId();
 
-  const approvalUrl = `parent-approval.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
+  const approvalUrl = `parent.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
   const parentRoomUrl = `parent.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
   const verificationUrl = `verification.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
+  const routeMap = {
+  flowProfile: `player-profile.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
+  flowSnapshot: `snapshot-intake.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
+  flowVerification: `verification.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
+  flowParent: `parent.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
+  flowMultiBox: `multi-box.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
+  flowCrystal: `crystal-registry.html?snapshot_id=${encodeURIComponent(snapshotId)}`
+};
+
+Object.entries(routeMap).forEach(([id, href]) => {
+  const el = document.getElementById(id);
+  if (el) el.href = href;
+}); 
 
   setText("guardianStatus", states.guardianState);
   setText("visibilityStatus", states.visibilityState);
