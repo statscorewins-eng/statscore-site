@@ -4,13 +4,32 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<title>
-STATScore™ — National Athlete Infrastructure
-</title>
+<title>STATS-CORE™ | National Athlete Infrastructure</title>
+
+<meta
+  name="title"
+  content="STATS-CORE™ | National Athlete Infrastructure"
+/>
 
 <meta
   name="description"
-  content="STATScore™ Athlete Lifecycle System — National athlete infrastructure for identity, eligibility, readiness, rankings, verification, and performance intelligence."
+  content="STATS-CORE™ Athlete Lifecycle Infrastructure — verification, readiness, eligibility, recruiting visibility, pathway intelligence, and governed athlete records."
+/>
+
+<link
+  rel="icon"
+  type="image/png"
+  href="sc_emblem.png"
+/>
+
+<link
+  rel="apple-touch-icon"
+  href="sc_emblem.png"
+/> 
+
+<meta
+  name="description"
+  content="STATS-CORE™ Athlete Lifecycle System — National athlete infrastructure for identity, eligibility, readiness, rankings, verification, and performance intelligence."
 /> 
 
 <style>
@@ -1343,7 +1362,7 @@ a{text-decoration:none;color:inherit;}
   </a>
 
   <div class="header-title">
-    System Intelligence Infrastructure
+    National Athlete Infrastructure
   </div>
 
   <nav class="header-nav">
@@ -1357,7 +1376,85 @@ a{text-decoration:none;color:inherit;}
 </header>
 
 <main class="main">
-<section class="record-header"> 
+  <section
+  id="scLiveAthleteBar"
+  style="
+    margin-bottom:14px;
+    border:1px solid rgba(255,255,255,.14);
+    background:
+      linear-gradient(145deg,rgba(255,255,255,.04),rgba(255,255,255,.01)),
+      #050505;
+    padding:14px 18px;
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:12px;
+  "
+>
+  <div>
+    <div style="color:#8d9197;font-size:.56rem;font-weight:900;letter-spacing:.16em;text-transform:uppercase;">
+      Athlete
+    </div>
+
+    <div
+      id="scAthleteName"
+      style="margin-top:6px;color:#fff;font-size:.82rem;font-weight:900;text-transform:uppercase;"
+    >
+      Loading...
+    </div>
+  </div>
+
+  <div>
+    <div style="color:#8d9197;font-size:.56rem;font-weight:900;letter-spacing:.16em;text-transform:uppercase;">
+      Sport
+    </div>
+
+    <div
+      id="scAthleteSport"
+      style="margin-top:6px;color:#fff;font-size:.82rem;font-weight:900;text-transform:uppercase;"
+    >
+      —
+    </div>
+  </div>
+
+  <div>
+    <div style="color:#8d9197;font-size:.56rem;font-weight:900;letter-spacing:.16em;text-transform:uppercase;">
+      Position
+    </div>
+
+    <div
+      id="scAthletePosition"
+      style="margin-top:6px;color:#fff;font-size:.82rem;font-weight:900;text-transform:uppercase;"
+    >
+      —
+    </div>
+  </div>
+
+  <div>
+    <div style="color:#8d9197;font-size:.56rem;font-weight:900;letter-spacing:.16em;text-transform:uppercase;">
+      Verification
+    </div>
+
+    <div
+      id="scVerificationState"
+      style="margin-top:6px;color:#ffcc5c;font-size:.82rem;font-weight:900;text-transform:uppercase;"
+    >
+      Pending
+    </div>
+  </div>
+
+  <div>
+    <div style="color:#8d9197;font-size:.56rem;font-weight:900;letter-spacing:.16em;text-transform:uppercase;">
+      Eligibility
+    </div>
+
+    <div
+      id="scEligibilityState"
+      style="margin-top:6px;color:#ffcc5c;font-size:.82rem;font-weight:900;text-transform:uppercase;"
+    >
+      Review
+    </div>
+  </div>
+</section> 
 
 <section class="sc-search-bar">
   <div class="sc-search-shell">
