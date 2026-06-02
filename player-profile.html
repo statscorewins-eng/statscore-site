@@ -1894,11 +1894,37 @@ function resolveProfileStates(snapshot){
   const verificationRaw = upper(snapshot.verification_status);
   const gov = snapshot.parent_governance || {};
 
-  const guardianApproved = guardianRaw === "APPROVED";
-  const guardianModified = guardianRaw === "MODIFIED";
-  const guardianDenied = guardianRaw === "DENIED";
-  const guardianRevoked = guardianRaw === "REVOKED";
+  const guardianApproved =
+    guardianRaw === "APPROVED" ||
+    gov.status === "approved" ||
+    gov.status === "APPROVED";
+
+  const guardianModified =
+    guardianRaw === "MODIFIED" ||
+    gov.status === "modified" ||
+    gov.status === "MODIFIED";
+
+  const guardianDenied =
+    guardianRaw === "DENIED" ||
+    gov.status === "denied" ||
+    gov.status === "DENIED";
+
+  const guardianRevoked =
+    guardianRaw === "REVOKED" ||
+    gov.status === "revoked" ||
+    gov.status === "REVOKED";
+
   const verified = verificationRaw === "VERIFIED";
+
+  const hasMetrics =
+    !!snapshot.dash40 ||
+    !!snapshot.vertical_jump ||
+    !!snapshot.shuttle ||
+    !!snapshot.broad_jump ||
+    !!snapshot.position_notes ||
+    !!snapshot.verified_event_source;
+
+  const provisionalScore = hasMetrics && !verified ? 78 : null;
 
   let guardianState = "PARENT APPROVAL REQUIRED";
   if (guardianApproved) guardianState = "PARENT APPROVED";
@@ -1914,7 +1940,12 @@ function resolveProfileStates(snapshot){
   return {
     snapshotState: "SNAPSHOT ACTIVE",
     releaseState: guardianApproved ? "PARENT RELEASE APPROVED" : "PARENT RELEASE PENDING",
-    verificationState: verified ? "VERIFIED STATSCORE" : "UNVERIFIED STATSCORE",
+    verificationState: verified
+      ? "VERIFIED STATS-CORE"
+      : hasMetrics
+        ? "PROVISIONAL STATS-CORE"
+        : "UNVERIFIED STATS-CORE",
+
     guardianState,
 
     visibilityState: publicReleased ? "CONTROLLED RELEASE" : "LIMITED",
@@ -1924,9 +1955,11 @@ function resolveProfileStates(snapshot){
     profileParticipationState: profileReleased ? "ACTIVE" : "PRIVATE",
 
     guardianApproved,
-    verified
+    verified,
+    hasMetrics,
+    provisionalScore
   };
-}
+} 
 
 function renderAthleteImage(src, fullName){
   const frame = document.getElementById("athleteImageFrame");
@@ -2185,7 +2218,12 @@ function renderProfile(snapshot){
   setText("tagSchool", snapshot.school);
   setText("tagClass", snapshot.class_year);
 
-  setText("starDisplay", starDisplayFromValue(snapshot.star_rating));
+ setText(
+  "starDisplay",
+  states.hasMetrics
+    ? starDisplayFromValue(4)
+    : starDisplayFromValue(snapshot.star_rating)
+); 
   setText("signalText", statscoreLabel);
   setText("evaluationStatus", `${states.snapshotState} · ${statscoreLabel}`);
 
@@ -2194,8 +2232,8 @@ function renderProfile(snapshot){
     `${snapshot.athlete_display_name} is a ${snapshot.class_year} ${snapshot.sport} athlete listed at ${snapshot.position}. This private snapshot has been created and is staged for parent release, verification review, and controlled visibility.`
   );
 
-  setText("scoreValue", "--");
-  setText("scoreStatus", statscoreLabel);
+  setText("scoreValue", states.provisionalScore || "--");
+setText("scoreStatus", states.verificationState); 
   setText(
     "scoreNote",
     "Snapshot is active. Athlete private view is available. External sharing, public visibility, recruiter access, and media exposure remain controlled until parent release and verification gates are complete."
