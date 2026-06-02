@@ -839,17 +839,17 @@ a{
 
 <header class="room-header">
   <div>
-    <h1 class="room-title">STATSCORE Verification Intelligence Room</h1>
+    <h1 class="room-title">STATS-CORE Verification Intelligence Room</h1>
     <div class="room-subtitle">National Athlete Infrastructure · Controlled Identity & Record Review</div>
   </div>
 
-  <nav class="room-nav" aria-label="STATScore navigation">
-    <a href="system.html">System</a>
-    <a href="player-profile.html">Profile</a>
-    <a class="active" href="verification.html">Verification</a>
-    <a href="eligibility.html">Eligibility</a>
-    <a href="privacy.html">Privacy</a>
-    <a href="terms.html">Terms</a>
+ <nav class="room-nav" aria-label="STATScore navigation">
+  <a id="navSystem" href="system.html">System</a>
+  <a id="navProfile" href="player-profile.html">Profile</a>
+  <a id="navVerification" class="active" href="verification.html">Verification</a>
+  <a id="navEligibility" href="eligibility.html">Eligibility</a>
+  <a href="privacy.html">Privacy</a>
+  <a href="terms.html">Terms</a>
   </nav>
 </header>
 
@@ -1132,11 +1132,16 @@ a{
 </main>
 </div>
 
-<script src="statscore-data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="statscore-data.js"></script> 
 
 <script>
 const SUPABASE_URL = "https://oyjmpbuxvfxusmbouldi.supabase.co";
-const SUPABASE_ANON_KEY = "YOUR_ANON_KEY_HERE";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk";
+
+window.STATScoreSupabase =
+  window.STATScoreData?.getClient?.() ||
+  window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); 
 
 function setText(id, value){
   const el = document.getElementById(id);
@@ -1148,6 +1153,32 @@ function titleCase(value){
     .replace(/_/g," ")
     .replace(/\b\w/g, c => c.toUpperCase());
 }
+
+  function getSnapshotId(){
+  return new URLSearchParams(window.location.search).get("snapshot_id") || "";
+}
+
+function applySnapshotRoutes(){
+  const snapshotId = getSnapshotId();
+  if(!snapshotId) return;
+
+  const q = `?snapshot_id=${encodeURIComponent(snapshotId)}`;
+
+  const routes = {
+    navSystem:"system.html",
+    navProfile:"player-profile.html",
+    navVerification:"verification.html",
+    navEligibility:"eligibility.html"
+  };
+
+  Object.entries(routes).forEach(([id,page])=>{
+    const el = document.getElementById(id);
+    if(el){
+      el.href = `${page}${q}`;
+    }
+  });
+} 
+
 
 async function loadVerificationCase(){
   const params = new URLSearchParams(window.location.search);
@@ -1215,7 +1246,10 @@ async function loadVerificationCase(){
   setText("receipt-message", `Verification case active for ${v.athlete_name || "athlete"}.`);
 }
 
-document.addEventListener("DOMContentLoaded", loadVerificationCase);
+document.addEventListener("DOMContentLoaded", ()=>{
+  applySnapshotRoutes();
+  loadVerificationCase();
+}); 
 </script> 
 
 </body>
