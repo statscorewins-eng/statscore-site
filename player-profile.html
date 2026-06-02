@@ -1698,18 +1698,156 @@ window.STATScoreSupabase = window.supabase.createClient(
 <script src="statscore-communication-engine.js"></script>
 
 <script>
-/* ============================================================
-STATS-CORE™ Player Profile Runtime
-Governance-Aware Version
-Purpose:
-- Loads Snapshot by snapshot_id
-- Renders Player Profile
-- Reads sc_parent_approval_requests
-- Applies Parent Approval gates
-============================================================ */
+function setText(id, value, fallback = "--"){
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = value || fallback;
+}
+
+function escapeHTML(value){
+  return String(value || "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function getSnapshotId(){
+  return new URLSearchParams(window.location.search).get("snapshot_id");
+}
+
+function upper(value){
+  return String(value || "").trim().toUpperCase();
+}
+
+function splitName(fullName){
+  const parts = String(fullName || "Athlete Profile").trim().split(/\s+/);
+  return {
+    first: parts[0] || "Athlete",
+    last: parts.slice(1).join(" ") || "Profile"
+  };
+}
+
+function getDb(){
+  return window.STATScoreData?.getClient?.() || window.STATScoreSupabase || null;
+}
+
+function getPositionKey(position){
+  const p = upper(position);
+  if (p.includes("QB") || p.includes("QUARTERBACK")) return "QB";
+  if (p.includes("RB") || p.includes("RUNNING BACK")) return "RB";
+  if (p.includes("WR") || p.includes("WIDE RECEIVER") || p.includes("RECEIVER")) return "WR";
+  if (p.includes("TE") || p.includes("TIGHT END")) return "TE";
+  if (p.includes("DB") || p.includes("CORNER") || p.includes("SAFETY")) return "DB";
+  if (p.includes("LB") || p.includes("LINEBACKER")) return "LB";
+  if (p.includes("EDGE") || p.includes("DE") || p.includes("DEFENSIVE END")) return "EDGE";
+  if (p.includes("ATH")) return "ATH";
+  return "ATH";
+}
+
+function matrixVersionForPosition(position){
+  return `${getPositionKey(position)}_MATRIX_V1`;
+}
+
+function starDisplayFromValue(value){
+  const n = Number(value || 0);
+  if (!Number.isFinite(n) || n <= 0) return "☆☆☆☆☆";
+  const rounded = Math.max(0, Math.min(5, Math.round(n)));
+  return "★★★★★".slice(0, rounded) + "☆☆☆☆☆".slice(0, 5 - rounded);
+}
+
+function formatClassYear(value){
+  return value || "Class Year";
+}
+
+function normalizeSnapshot(response){
+  if (!response || response.success !== true || !response.snapshot) return null;
+
+  const snap = response.snapshot;
+  const raw = snap.raw_payload || {};
+
+  const fullName =
+    raw.athlete_display_name ||
+    [raw.firstName, raw.lastName].filter(Boolean).join(" ").trim() ||
+    raw.athlete_name ||
+    snap.athlete_name ||
+    "Athlete Profile";
+
+  return {
+    snapshot_id: snap.snapshot_id,
+
+    athlete_display_name: fullName,
+    sport: raw.primarySport || raw.sport || snap.sport || "Sport",
+    position: raw.primaryPosition || raw.position || snap.position || "Position",
+    class_year: raw.graduationClass || raw.graduation_class || raw.classYear || snap.graduation_year || "Class Year",
+    city_state: raw.cityState || raw.city_state || snap.city_state || "City, State",
+    school: raw.schoolProgram || raw.school || snap.school || "School / Program",
+
+    height: raw.height || snap.height || "Height",
+    weight: raw.weight || snap.weight || "Weight",
+
+    dash40: raw.dash40 || raw.forty || raw.speedIndex || "--",
+    vertical_jump: raw.verticalJump || raw.vertical_jump || raw.explosiveness || "--",
+
+    highlight_url: raw.highlightUrl || raw.highlight_url || "",
+    game_film_url: raw.gameFilmUrl || raw.game_film_url || "",
+    social_profile_url: raw.socialProfileUrl || raw.social_profile_url || "",
+    recruiting_profile_url: raw.recruitingProfileUrl || raw.recruiting_profile_url || "",
+    verified_event_source: raw.verifiedEventSource || raw.verified_event_source || "",
+    position_notes: raw.positionNotes || raw.position_notes || "",
+
+    archetype: raw.archetype || raw.positionArchetype || raw.position_archetype || "",
+    varsity_years: raw.varsityYears || raw.varsity_years || "",
+    starter_status: raw.starterStatus || raw.starter_status || "",
+    recruiting_tier: raw.recruitingTier || raw.recruiting_tier || "",
+    star_rating: raw.starRating || raw.star_rating || raw.stars || "",
+
+    trait_scores: raw.traitScores || raw.trait_scores || {},
+
+    guardian_email: raw.guardianEmail || raw.parentEmail || raw.guardian_email || "",
+    guardian_phone: raw.guardianPhone || raw.parentPhone || raw.guardian_phone || "",
+
+    guardian_approval_status:
+      raw.guardianApprovalStatus ||
+      raw.guardian_approval_status ||
+      snap.guardian_approval_status ||
+      snap.parent_approval_status ||
+      "PENDING",
+
+    headshot_url:
+      raw.headshotPublicUrl ||
+      raw.headshot_public_url ||
+      snap.headshot_public_url ||
+      "",
+
+    verification_status: snap.verification_status || raw.verificationStatus || "UNVERIFIED",
+    profile_status: raw.profileStatus || raw.profile_status || "CREATED",
+    statscore_label: snap.statscore_label || raw.statscoreLabel || null
+  };
+}
+
+async function loadSnapshot(){
+  const snapshotId = getSnapshotId();
+  if (!snapshotId) return null;
+
+  const db = getDb();
+  if (!db) return null;
+
+  const { data, error } = await db.rpc("get_statscore_snapshot", {
+    p_snapshot_id: snapshotId
+  });
+
+  if (error) {
+    console.error("get_statscore_snapshot RPC failed:", error);
+    return null;
+  }
+
+  return normalizeSnapshot(data);
+}
 
 async function loadParentGovernance(snapshotId){
-  const db = window.STATScoreData?.getClient?.() || window.STATScoreSupabase;
+  const db = getDb();
   if (!db || !snapshotId) return null;
 
   const { data, error } = await db
@@ -1729,9 +1867,15 @@ async function loadParentGovernance(snapshotId){
 }
 
 function applyParentGovernance(snapshot, governance){
+  if (!snapshot) return snapshot;
   if (!governance) return snapshot;
 
-  snapshot.guardian_approval_status = governance.status || "PENDING";
+  snapshot.guardian_approval_status =
+    governance.status ||
+    governance.approval_status ||
+    governance.request_status ||
+    snapshot.guardian_approval_status ||
+    "PENDING";
 
   snapshot.parent_governance = {
     profile_participation: !!governance.profile_participation,
@@ -1748,7 +1892,6 @@ function applyParentGovernance(snapshot, governance){
 function resolveProfileStates(snapshot){
   const guardianRaw = upper(snapshot.guardian_approval_status);
   const verificationRaw = upper(snapshot.verification_status);
-
   const gov = snapshot.parent_governance || {};
 
   const guardianApproved = guardianRaw === "APPROVED";
@@ -1763,6 +1906,7 @@ function resolveProfileStates(snapshot){
   if (guardianDenied) guardianState = "PARENT DENIED";
   if (guardianRevoked) guardianState = "PARENT REVOKED";
 
+  const profileReleased = guardianApproved && gov.profile_participation;
   const publicReleased = guardianApproved && gov.public_visibility;
   const recruiterReleased = guardianApproved && gov.recruiter_access;
   const mediaReleased = guardianApproved && gov.media_exposure;
@@ -1777,10 +1921,324 @@ function resolveProfileStates(snapshot){
     recruitingState: recruiterReleased ? (verified ? "ENABLED" : "PENDING VERIFICATION") : "LOCKED",
     shareState: publicReleased ? "CONTROLLED" : "LOCKED",
     mediaState: mediaReleased ? "RELEASED" : "LOCKED",
+    profileParticipationState: profileReleased ? "ACTIVE" : "PRIVATE",
 
     guardianApproved,
     verified
   };
+}
+
+function renderAthleteImage(src, fullName){
+  const frame = document.getElementById("athleteImageFrame");
+  if (!frame) return;
+
+  if (src) {
+    frame.innerHTML = `<img src="${escapeHTML(src)}" alt="${escapeHTML(fullName)} athlete image">`;
+  } else {
+    frame.textContent = "Athlete Image Required";
+  }
+}
+
+const FALLBACK_POSITION_TRAITS = {
+  QB:["Field Vision","Decision Making","Throw Accuracy","Throw Power","Pocket Presence","Play Extension","Pressure Response","Football IQ"],
+  RB:["Vision","Burst","Contact Balance","Ball Security","Open Field Ability","Acceleration"],
+  WR:["Route Running","Hands","Separation","Ball Tracking","YAC Ability","Release"],
+  TE:["Hands","Route Leverage","Blocking Fit","Catch Radius","Physicality","Red Zone Value"],
+  DB:["Coverage Technique","Ball Skills","Recovery Speed","Hip Fluidity","Tackling","Field Awareness"],
+  LB:["Read Recognition","Tackling","Pursuit","Coverage Drop","Block Shedding","Leadership"],
+  EDGE:["First Step","Bend","Pass Rush Plan","Motor","Run Fit","Power"],
+  ATH:["Athleticism","Speed","Explosiveness","Readiness","Coachability"]
+};
+
+function normalizeTraitObject(trait){
+  if (typeof trait === "string") return { name: trait, score: null };
+  if (trait && typeof trait === "object") {
+    return {
+      name: trait.name || trait.label || trait.trait || "Trait",
+      score: trait.score ?? trait.value ?? null
+    };
+  }
+  return { name: "Trait", score: null };
+}
+
+function resolvePositionTraits(snapshot){
+  const key = getPositionKey(snapshot.position);
+  const engine =
+    window.STATScorePositionMatrixEngine ||
+    window.STATScorePositionMatrix ||
+    window.STATScorePositionEngine;
+
+  try {
+    if (engine?.getTraits) {
+      const result = engine.getTraits({
+        sport: snapshot.sport,
+        position: snapshot.position,
+        archetype: snapshot.archetype,
+        snapshot
+      });
+      if (Array.isArray(result)) return result;
+    }
+
+    if (engine?.resolveMatrix) {
+      const matrix = engine.resolveMatrix(snapshot.sport, snapshot.position, snapshot.archetype, snapshot);
+      if (Array.isArray(matrix?.traits)) return matrix.traits;
+    }
+
+    if (engine?.getMatrix) {
+      const matrix = engine.getMatrix({
+        sport: snapshot.sport,
+        position: snapshot.position,
+        archetype: snapshot.archetype,
+        snapshot
+      });
+      if (Array.isArray(matrix?.traits)) return matrix.traits;
+    }
+  } catch {}
+
+  return FALLBACK_POSITION_TRAITS[key] || FALLBACK_POSITION_TRAITS.ATH;
+}
+
+function renderPositionTraits(snapshot){
+  const container = document.getElementById("traitContainer");
+  if (!container) return;
+
+  const traits = resolvePositionTraits(snapshot).map(normalizeTraitObject);
+
+  container.innerHTML = traits.map(trait => {
+    const rawScore =
+      trait.score ??
+      snapshot.trait_scores?.[trait.name] ??
+      snapshot.trait_scores?.[trait.name.toLowerCase()] ??
+      null;
+
+    const hasScore = rawScore !== null && rawScore !== undefined && rawScore !== "";
+    const scoreNumber = Number(rawScore);
+    const width = hasScore && Number.isFinite(scoreNumber)
+      ? Math.max(5, Math.min(100, scoreNumber))
+      : 18;
+
+    return `
+      <div class="trait">
+        <div class="trait-name">${escapeHTML(trait.name)}</div>
+        <div class="bar">
+          <div class="fill ${hasScore ? "" : "pending-fill"}" style="width:${width}%"></div>
+        </div>
+        <div class="trait-score ${hasScore ? "" : "pending"}">${hasScore ? escapeHTML(rawScore) : "--"}</div>
+      </div>
+    `;
+  }).join("");
+}
+
+function renderAthleteDossier(snapshot, states){
+  const positionKey = getPositionKey(snapshot.position);
+  const archetype =
+    snapshot.archetype ||
+    (positionKey === "QB" ? "Dual-Threat Quarterback" : `${snapshot.position} Prospect`);
+
+  const athleticSignalParts = [];
+  if (snapshot.dash40 && snapshot.dash40 !== "--") athleticSignalParts.push(`${snapshot.dash40} Speed`);
+  if (snapshot.vertical_jump && snapshot.vertical_jump !== "--") athleticSignalParts.push(`${snapshot.vertical_jump} Vertical`);
+
+  setText("dossierArchetype", archetype);
+  setText("dossierVarsity", snapshot.varsity_years || "Varsity Tracking Pending");
+  setText("dossierStarter", snapshot.starter_status || "Starter Status Pending");
+  setText("dossierAthleticSignal", athleticSignalParts.length ? athleticSignalParts.join(" · ") : "Metric Signal Pending");
+  setText("dossierRecruitingTier", snapshot.recruiting_tier || "Projection Pending");
+  setText("dossierVisibility", states.visibilityState);
+}
+
+function renderSTATScoreIntelligence(snapshot, states){
+  setText("scMatrixVersion", matrixVersionForPosition(snapshot.position));
+  setText("scStarSignal", states.verificationState);
+  setText("scFinalScore", "--");
+  setText("scExposureGap", states.visibilityState);
+  setText("scProjectionLane", "Pending Verification");
+  setText("scConfidence", states.verified ? "Verified" : "Pending");
+  setText("scVarsityYears", snapshot.varsity_years || "--");
+
+  setText("scStarExplanation", `${states.verificationState} remains until official verification roles complete review.`);
+  setText("scExposureExplanation", `External release is ${states.visibilityState}; recruiting is ${states.recruitingState}.`);
+
+  const reasons = [
+    "Snapshot Intake has created the athlete profile packet.",
+    "The athlete can view the private snapshot immediately.",
+    `Parent release state: ${states.guardianState}.`,
+    `Verification state: ${states.verificationState}.`,
+    `Visibility state: ${states.visibilityState}.`,
+    `Recruiting state: ${states.recruitingState}.`,
+    "Athletic intelligence and academic readiness remain separate lanes."
+  ];
+
+  const list = document.getElementById("scWhyList");
+  if (list) list.innerHTML = reasons.map(reason => `<li>${escapeHTML(reason)}</li>`).join("");
+}
+
+function renderGuardianGovernance(snapshot, states){
+  const snapshotId = snapshot.snapshot_id || getSnapshotId();
+
+  const approvalUrl = `parent-approval.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
+  const parentRoomUrl = `parent.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
+  const verificationUrl = `verification.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
+
+  setText("guardianStatus", states.guardianState);
+  setText("visibilityStatus", states.visibilityState);
+  setText("recruitingStatus", states.recruitingState);
+
+  const guardianEl = document.getElementById("guardianStatus");
+  const visibilityEl = document.getElementById("visibilityStatus");
+  const recruitingEl = document.getElementById("recruitingStatus");
+
+  if (guardianEl) guardianEl.className = states.guardianApproved ? "live" : "warning";
+  if (visibilityEl) visibilityEl.className = states.visibilityState === "CONTROLLED RELEASE" ? "live" : "warning";
+  if (recruitingEl) recruitingEl.className = states.recruitingState === "ENABLED" ? "live" : "locked";
+
+  const approvalBtn = document.getElementById("parentApprovalAction");
+  const footerApprovalBtn = document.getElementById("footerParentApprovalAction");
+  const verificationBtn = document.getElementById("verificationAction");
+  const snapshotPathBtn = document.getElementById("snapshotPathAction");
+  const shareBtn = document.getElementById("shareProfileAction");
+  const recruiterBtn = document.getElementById("recruiterAccessAction");
+
+  if (approvalBtn) {
+    approvalBtn.href = states.guardianApproved ? parentRoomUrl : approvalUrl;
+    approvalBtn.className = states.guardianApproved ? "action approved" : "action primary";
+    approvalBtn.innerHTML = states.guardianApproved
+      ? `Parent Release Approved <span>✓</span>`
+      : `Request Parent Approval <span>›</span>`;
+  }
+
+  if (footerApprovalBtn) {
+    footerApprovalBtn.href = states.guardianApproved ? parentRoomUrl : approvalUrl;
+    footerApprovalBtn.textContent = states.guardianApproved ? "Parent Release Approved ✓" : "Request Approval ›";
+  }
+
+  if (verificationBtn) {
+    verificationBtn.href = verificationUrl;
+    verificationBtn.innerHTML = `Request Verification <span>›</span>`;
+  }
+
+  if (snapshotPathBtn) {
+    snapshotPathBtn.href = `snapshot-intake.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
+  }
+
+  if (shareBtn) {
+    if (states.shareState === "CONTROLLED") {
+      shareBtn.className = "action secondary";
+      shareBtn.innerHTML = `Share Profile <span>Controlled</span>`;
+      shareBtn.onclick = copyShareLink;
+    } else {
+      shareBtn.className = "action locked";
+      shareBtn.innerHTML = `🔒 Share Profile <span>Locked</span>`;
+      shareBtn.onclick = null;
+    }
+  }
+
+  if (recruiterBtn) {
+    if (states.recruitingState === "ENABLED") {
+      recruiterBtn.className = "action secondary";
+      recruiterBtn.innerHTML = `Recruiter Access <span>›</span>`;
+      recruiterBtn.onclick = () => {
+        window.location.href = `recruiter-requests.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
+      };
+    } else {
+      recruiterBtn.className = "action locked";
+      recruiterBtn.innerHTML = `🔒 Recruiter Access <span>${states.recruitingState}</span>`;
+      recruiterBtn.onclick = null;
+    }
+  }
+
+  setText(
+    "recruiterViewStatus",
+    states.recruitingState === "ENABLED"
+      ? "Recruiter visibility enabled under governed access."
+      : "Recruiter visibility restricted until parent release and verification."
+  );
+
+  setText(
+    "contactStatusText",
+    states.recruitingState === "ENABLED"
+      ? "Communication enabled through Multi-Box™ permissions."
+      : "Recruiter communication remains locked."
+  );
+}
+
+function renderProfile(snapshot){
+  const states = resolveProfileStates(snapshot);
+  const statscoreLabel = states.verificationState;
+  const nameParts = splitName(snapshot.athlete_display_name);
+
+  const athleteName = document.getElementById("athleteName");
+  if (athleteName) {
+    athleteName.innerHTML = `${escapeHTML(nameParts.first)}<span>${escapeHTML(nameParts.last)}</span>`;
+  }
+
+  setText("captionName", snapshot.athlete_display_name);
+  setText("captionMeta", `${snapshot.position} · ${formatClassYear(snapshot.class_year)}`);
+  setText("verificationBadge", upper(snapshot.verification_status) === "VERIFIED" ? "VERIFIED" : "UNVERIFIED");
+  setText("recordStatus", "Snapshot Loaded");
+
+  setText("identitySub", `${states.snapshotState} · ${statscoreLabel}`);
+  setText("tagPosition", snapshot.position);
+  setText("tagHeight", snapshot.height);
+  setText("tagWeight", snapshot.weight);
+  setText("tagCity", snapshot.city_state);
+  setText("tagSchool", snapshot.school);
+  setText("tagClass", snapshot.class_year);
+
+  setText("starDisplay", starDisplayFromValue(snapshot.star_rating));
+  setText("signalText", statscoreLabel);
+  setText("evaluationStatus", `${states.snapshotState} · ${statscoreLabel}`);
+
+  setText(
+    "profileBio",
+    `${snapshot.athlete_display_name} is a ${snapshot.class_year} ${snapshot.sport} athlete listed at ${snapshot.position}. This private snapshot has been created and is staged for parent release, verification review, and controlled visibility.`
+  );
+
+  setText("scoreValue", "--");
+  setText("scoreStatus", statscoreLabel);
+  setText(
+    "scoreNote",
+    "Snapshot is active. Athlete private view is available. External sharing, public visibility, recruiter access, and media exposure remain controlled until parent release and verification gates are complete."
+  );
+
+  setText("metricSpeed", snapshot.dash40);
+  setText("metricExplosive", snapshot.vertical_jump);
+  setText("metricReadiness", states.snapshotState);
+  setText("metricVisibility", states.visibilityState);
+
+  setText("gameFilmStatus", snapshot.highlight_url || snapshot.game_film_url || "No verified film link submitted.");
+  setText("campStatus", snapshot.verified_event_source || "Camp / combine source pending.");
+  setText("mediaStatus", snapshot.social_profile_url || snapshot.recruiting_profile_url || "Media exposure route pending.");
+
+  setText("exposureLaneText", `Visibility is currently ${states.visibilityState}. Recruiter actions remain ${states.recruitingState}.`);
+  setText("primaryFocus", snapshot.position_notes || "Generated after verification review.");
+  setText("verificationNeed", "Coach confirmation, guardian release, metric evidence, and academic readiness review.");
+
+  renderAthleteImage(snapshot.headshot_url, snapshot.athlete_display_name);
+  renderGuardianGovernance(snapshot, states);
+  renderAthleteDossier(snapshot, states);
+  renderPositionTraits(snapshot);
+  renderSTATScoreIntelligence(snapshot, states);
+}
+
+function renderNoSnapshot(){
+  setText("recordStatus","No Snapshot Loaded");
+  setText("identitySub","Awaiting Snapshot Intake");
+  setText("scoreStatus","No Snapshot");
+  setText("profileBio","No submitted Snapshot record was found. Run Snapshot Intake to generate this athlete profile.");
+
+  renderPositionTraits({
+    position:"ATH",
+    sport:"Football",
+    trait_scores:{}
+  });
+}
+
+function copyShareLink(){
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(window.location.href);
+    alert("Profile link copied.");
+  }
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
