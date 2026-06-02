@@ -918,6 +918,13 @@ b.red{color:var(--red)!important}
 </main>
 </div>
 
+<script>
+window.STATScoreSupabase = window.supabase.createClient(
+  "https://oyjmpbuxvfxusmbouldi.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk"
+);
+</script>   
+
 <script src="statscore-data.js"></script>
 
 <script>
@@ -931,6 +938,40 @@ function $(id){
 function getSnapshotId(){
   return new URLSearchParams(window.location.search).get("snapshot_id") || "";
 }
+
+  function snapshotRoute(page){
+  const snapshotId = getSnapshotId();
+  return snapshotId
+    ? `${page}?snapshot_id=${encodeURIComponent(snapshotId)}`
+    : page;
+}
+
+function bindSnapshotRoutes(){
+  const routes = {
+    "system.html": "system.html",
+    "player-profile.html": "player-profile.html",
+    "parent.html": "parent.html",
+    "multi-box.html": "multi-box.html",
+    "coach.html": "coach.html",
+    "counselor.html": "counselor.html",
+    "recruiter-access.html": "recruiter-access.html",
+    "program.html": "program.html",
+    "evaluator.html": "evaluator.html",
+    "verification.html": "verification.html",
+    "privacy.html": "privacy.html",
+    "terms.html": "terms.html"
+  };
+
+  document.querySelectorAll("a[href]").forEach(a=>{
+    const href = a.getAttribute("href");
+    const clean = href?.split("?")[0];
+
+    if(routes[clean]){
+      a.href = snapshotRoute(routes[clean]);
+    }
+  });
+} 
+
 
 function getNoticeStoreKey(){
   const snapshotId=getSnapshotId() || "global";
@@ -1294,6 +1335,7 @@ async function loadAthlete(){
 }
 
 document.addEventListener("DOMContentLoaded",()=>{
+  bindSnapshotRoutes(); 
   loadAudit();
   loadGuardianNotices();
   updateUnreadNoticeRail();
