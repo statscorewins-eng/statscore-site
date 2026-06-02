@@ -184,18 +184,21 @@ a{text-decoration:none;color:inherit;}
 /* SEARCH */
 
 .sc-search-bar{
-  position:absolute;
-  top:96px;
-  right:42px;
-  z-index:999;
-  width:auto;
+  position:relative;
+  width:100%;
   padding:0;
-  margin:0;
-}
+  margin:0 0 -8px 0;
+  z-index:20;
 
-.sc-search-shell{
+  display:flex;
+  justify-content:flex-end;
+} 
+
+  .sc-search-shell{
   width:360px;
-}
+  margin-right:24px;
+  margin-top:8px;
+} 
 
 .sc-search-input-wrap{
   display:flex;
