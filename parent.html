@@ -69,13 +69,14 @@ HEADER
 
 .header{
   min-height:92px;
-  background:linear-gradient(180deg,#fff,#ededeb);
+  background:linear-gradient(180deg,#ffffff,#ededeb);
   display:grid;
-  grid-template-columns:390px minmax(420px,1fr) 430px;
+  grid-template-columns:390px 1fr auto;
   align-items:center;
   border-bottom:2px solid var(--red);
   overflow:hidden;
-}
+  column-gap:42px;
+} 
 
 .logo-tab{
   height:92px;
@@ -115,15 +116,17 @@ HEADER
 
 .header-title{
   text-align:center;
-  color:#111;
+  color:#101010;
   font-weight:900;
-  font-size:.68rem;
-  letter-spacing:.20em;
-  line-height:1.35;
+  font-size:.72rem;
+  letter-spacing:.24em;
   text-transform:uppercase;
-  padding:0 42px 0 10px;
-  transform:translateX(-40px);
-  white-space:normal;
+
+  padding:0 28px;
+
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 } 
 .header-nav{
   display:flex;
