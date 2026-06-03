@@ -558,90 +558,98 @@ b.red{color:var(--red)!important}
 .demo-ok{color:var(--green);font-weight:900}
 
 @media(max-width:1000px){
-  .header,.shell-grid,.flow,.footer{
+  .header,
+  .shell-grid,
+  .flow,
+  .footer{
     grid-template-columns:1fr;
+  }
+
+  .logo-tab{
+    width:100%;
+  }
+
+  .header-title{
+    text-align:center;
+    color:#111;
+    font-weight:900;
+    font-size:.58rem;
+    letter-spacing:.16em;
+    line-height:1.32;
+    text-transform:uppercase;
+    padding:14px 12px;
+    max-width:420px;
+    justify-self:center;
+    white-space:normal;
+  }
+
+  .header-nav{
+    justify-content:center;
+    display:flex;
+    flex-wrap:nowrap;
+    overflow-x:auto;
+    overflow-y:hidden;
+    white-space:nowrap;
+    -webkit-overflow-scrolling:touch;
   }
 
   .tab-rail{
     height:auto;
     min-height:88px;
-
     display:flex;
     flex-wrap:nowrap;
-
     overflow-x:auto;
     overflow-y:hidden;
-
     align-items:flex-end;
     padding-top:14px;
-
     white-space:nowrap;
     -webkit-overflow-scrolling:touch;
-}
+  }
 
-.folder-tab,
-.folder-tab.active,
-.folder-tab.multi{
-  margin-left:auto;
-  margin-right:0;
+  .folder-tab{
+    flex:0 0 170px;
+    width:170px;
+    min-width:170px;
+    max-width:170px;
+    margin-left:0;
+    margin-right:-18px;
+  }
 
-  flex:0 0 210px;
-  min-width:210px;
-  max-width:210px;
+  .folder-tab.active{
+    height:75px;
+    flex:0 0 170px;
+    width:170px;
+    min-width:170px;
+    max-width:170px;
+    margin-left:0;
+    margin-right:-18px;
+  }
 
-  border-color:rgba(255,31,45,.75);
-} 
-.logo-tab{
-    width:100%;
-}
+  .folder-tab.multi{
+    margin-left:auto;
+    margin-right:0;
+    flex:0 0 210px;
+    width:210px;
+    min-width:210px;
+    max-width:210px;
+    border-color:rgba(255,31,45,.75);
+  }
 
-.header-title{
-  text-align:center;
-
-  color:#111;
-
-  font-weight:900;
-
-  font-size:.58rem;
-
-  letter-spacing:.16em;
-
-  line-height:1.32;
-
-  text-transform:uppercase;
-
-  padding:0 12px;
-
-  max-width:420px;
-
-  justify-self:center;
-
-  white-space:normal;
-} 
-
-.header-nav{
-    justify-content:center;
-
-    display:flex;
-    flex-wrap:nowrap;
-
-    overflow-x:auto;
-    overflow-y:hidden;
-
-    white-space:nowrap;
-    -webkit-overflow-scrolling:touch;
-} 
-
-  .main{padding:18px 14px 0}
+  .main{
+    padding:18px 14px 0;
+  }
 
   .record-header{
     flex-direction:column;
     align-items:flex-start;
   }
 
-  .record-title{font-size:2.8rem}
+  .record-title{
+    font-size:2.8rem;
+  }
 
-  .form-grid,.action-toolbar{
+  .form-grid,
+  .action-toolbar{
     grid-template-columns:1fr;
   }
 
@@ -650,7 +658,7 @@ b.red{color:var(--red)!important}
     height:auto;
     min-height:auto;
   }
-}
+} 
   
 </style>
 </head>
