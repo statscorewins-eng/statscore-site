@@ -1,36 +1,16 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8" />
-
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1.0"
-/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 <title>STATS-CORE™ | Athlete Intelligence Profile</title>
 
-<meta
-  name="title"
-  content="STATS-CORE™ | Athlete Intelligence Profile"
-/>
+<meta name="title" content="STATS-CORE™ | Athlete Intelligence Profile" />
+<meta name="description" content="STATS-CORE™ explains athlete production, positional translatability, verification status, parent release governance, and evidence-supported football intelligence." />
 
-<meta
-  name="description"
-  content="STATS-CORE™ explains athlete production, positional translatability, verification status, parent release governance, and evidence-supported football intelligence."
-/>
-
-<link
-  rel="icon"
-  type="image/png"
-  href="sc_emblem.png"
-/>
-
-<link
-  rel="apple-touch-icon"
-  href="sc_emblem.png"
-/>
+<link rel="icon" type="image/png" href="sc_emblem.png" />
+<link rel="apple-touch-icon" href="sc_emblem.png" />
 
 <style>
 :root{
@@ -39,17 +19,13 @@
   --gold:#f4c542;
   --green:#25d366;
   --black:#020202;
-
   --panel:rgba(6,10,18,.58);
   --panel2:rgba(7,10,16,.62);
-
   --line:rgba(255,255,255,.10);
   --line2:rgba(255,255,255,.22);
-
   --text:#f4f4f1;
   --muted:#b8c3cc;
   --blue:#7ed8ff;
-
   --max:1536px;
 }
 
@@ -75,13 +51,15 @@ a{text-decoration:none;color:inherit;}
     #020407;
 }
 
-/* HEADER */
+/* =========================
+   GEN-2 MASTER HEADER
+========================= */
 
 .header{
-  height:92px;
+  min-height:92px;
   background:linear-gradient(180deg,#ffffff,#ececec);
   display:grid;
-  grid-template-columns:390px 1fr 410px;
+  grid-template-columns:360px minmax(280px,1fr) 520px;
   align-items:center;
   border-bottom:2px solid var(--red);
 }
@@ -117,47 +95,101 @@ a{text-decoration:none;color:inherit;}
   background:var(--red);
 }
 
-.logo-tab img{width:292px;}
+.logo-tab img{width:270px;max-width:82%;}
 
 .header-title{
-  text-align:center;
   color:#111;
   font-weight:900;
-  font-size:.82rem;
-  letter-spacing:.32em;
+  font-size:.74rem;
+  letter-spacing:.24em;
   text-transform:uppercase;
-  line-height:1.25;
+  line-height:1.35;
+  text-align:center;
+  padding:0 20px;
 }
 
-.header-nav{
+.header-tools{
+  display:grid;
+  grid-template-rows:auto auto;
+  gap:8px;
+  padding:12px 20px 10px 4px;
+}
+
+.utility-row{
   display:flex;
   justify-content:flex-end;
   align-items:center;
-  gap:12px;
-  padding-right:24px;
-  height:100%;
+  gap:10px;
+}
+
+.utility-search{
+  width:220px;
+  height:30px;
+  border:1px solid rgba(0,0,0,.18);
+  background:rgba(255,255,255,.72);
   color:#111;
-}
-
-.header-nav a{
-  font-weight:900;
-  font-size:.75rem;
-  letter-spacing:.13em;
+  font-weight:800;
+  font-size:.62rem;
+  letter-spacing:.09em;
   text-transform:uppercase;
-  padding-bottom:12px;
-  border-bottom:2px solid transparent;
+  padding:0 10px;
+  outline:none;
 }
 
-.header-nav a.active{
-  color:var(--red);
-  border-bottom-color:var(--red);
-}
+.utility-search::placeholder{color:#555;}
 
 .user-icon{
   width:30px;
   height:30px;
   border:3px solid #111;
   border-radius:50%;
+}
+
+.role-nav{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:7px;
+  width:100%;
+}
+
+.role-tabs{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:6px;
+  flex-wrap:wrap;
+}
+
+.role-tab{
+  color:#111;
+  border:1px solid rgba(0,0,0,.16);
+  background:rgba(255,255,255,.45);
+  padding:8px 9px;
+  font-size:.56rem;
+  font-weight:900;
+  letter-spacing:.10em;
+  text-transform:uppercase;
+}
+
+.role-tab.active{
+  color:var(--red);
+  border-color:var(--red);
+  background:rgba(255,43,31,.08);
+}
+
+.multi-box-tab{
+  margin-left:18px;
+  color:#fff;
+  background:linear-gradient(145deg,#181818,#050505);
+  border:1px solid var(--red);
+  box-shadow:0 0 0 1px rgba(255,43,31,.18) inset;
+  padding:9px 12px;
+  font-size:.56rem;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  white-space:nowrap;
 }
 
 /* MAIN */
@@ -203,16 +235,13 @@ a{text-decoration:none;color:inherit;}
   background:rgba(255,255,255,.02);
 }
 
-/* LAYOUT */
-
 .hero-grid{
   display:grid;
   grid-template-columns:32% 43% 25%;
   gap:10px;
 }
 
-.panel,
-.block{
+.panel,.block{
   background:var(--panel);
   border:1px solid var(--line);
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.025);
@@ -228,10 +257,7 @@ a{text-decoration:none;color:inherit;}
 
 /* ATHLETE IMAGE */
 
-.image-card{
-  padding:14px;
-  min-height:0;
-}
+.image-card{padding:14px;}
 
 .image-frame{
   margin-top:14px;
@@ -290,8 +316,6 @@ a{text-decoration:none;color:inherit;}
   letter-spacing:.12em;
   text-transform:uppercase;
 }
-
-/* DOSSIER */
 
 .athlete-dossier{
   margin-top:10px;
@@ -429,9 +453,7 @@ a{text-decoration:none;color:inherit;}
 
 /* RIGHT INTELLIGENCE */
 
-.score-card{
-  padding:14px 14px 16px;
-}
+.score-card{padding:14px 14px 16px;}
 
 .score-ring{
   width:126px;
@@ -454,8 +476,7 @@ a{text-decoration:none;color:inherit;}
   background:#111822;
 }
 
-.score-ring span,
-.score-ring b{
+.score-ring span,.score-ring b{
   position:relative;
   z-index:2;
 }
@@ -470,9 +491,7 @@ a{text-decoration:none;color:inherit;}
   text-align:center;
 }
 
-.score-ring span:first-of-type{
-  transform:translateY(4px);
-}
+.score-ring span:first-of-type{transform:translateY(4px);}
 
 .score-ring b{
   font-size:2.8rem;
@@ -495,8 +514,6 @@ a{text-decoration:none;color:inherit;}
   text-align:center;
   margin:0;
 }
-
-/* GOVERNANCE STATUS */
 
 .intelligence-status{
   margin-top:12px;
@@ -550,8 +567,6 @@ a{text-decoration:none;color:inherit;}
 .intelligence-row b.warning{color:var(--gold);}
 .intelligence-row b.locked{color:#ff7c7c;}
 .intelligence-row b.live{color:var(--green);}
-
-/* ACTION STACK */
 
 .action-stack{
   display:grid;
@@ -875,7 +890,7 @@ a{text-decoration:none;color:inherit;}
   min-height:70px;
   display:grid;
   grid-template-columns:170px repeat(6,1fr) 190px;
-  align-items:center;
+  align-items:stretch;
   border:1px solid rgba(255,255,255,.10);
   background:rgba(4,7,12,.60);
 }
@@ -886,11 +901,19 @@ a{text-decoration:none;color:inherit;}
   letter-spacing:.18em;
   text-transform:uppercase;
   padding-left:20px;
+  display:flex;
+  align-items:center;
 }
 
 .flow-step{
   border-left:1px solid rgba(255,255,255,.10);
-  padding:0 16px;
+  padding:12px 16px;
+  min-height:54px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  background:rgba(255,255,255,.018);
+  transition:.18s ease;
 }
 
 .flow-step b{
@@ -904,10 +927,32 @@ a{text-decoration:none;color:inherit;}
   font-size:.62rem;
 }
 
+.flow-step.clickable{
+  border-left:1px solid rgba(126,216,255,.25);
+  background:linear-gradient(180deg,rgba(126,216,255,.07),rgba(255,255,255,.012));
+  cursor:pointer;
+}
+
+.flow-step.clickable:hover{
+  transform:translateY(-1px);
+  border-color:var(--red);
+  box-shadow:0 0 0 1px rgba(255,43,31,.25) inset;
+}
+
+.flow-step.clickable b{color:#fff;}
+.flow-step.clickable span{color:var(--blue);}
+
+.flow .action{
+  min-height:auto;
+  border-top:0;
+  border-right:0;
+  border-bottom:0;
+}
+
 /* FOOTER */
 
 .footer{
-  height:60px;
+  min-height:60px;
   margin-top:8px;
   border-top:1px solid rgba(255,255,255,.08);
   display:grid;
@@ -920,32 +965,72 @@ a{text-decoration:none;color:inherit;}
 }
 
 .footer img{width:185px;}
-
-.demo-ok{
-  color:var(--green);
-  font-weight:900;
-}
+.demo-ok{color:var(--green);font-weight:900;}
 
 /* RESPONSIVE */
+
+@media(max-width:1180px){
+  .header{
+    grid-template-columns:320px 1fr;
+  }
+
+  .header-title{
+    text-align:right;
+    padding-right:24px;
+  }
+
+  .header-tools{
+    grid-column:1 / -1;
+    padding:10px 18px 12px;
+    border-top:1px solid rgba(0,0,0,.08);
+  }
+
+  .role-nav,.utility-row{justify-content:center;}
+}
 
 @media(max-width:1100px){
   .sc-intel-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
 }
 
 @media(max-width:900px){
-  .header,
-  .hero-grid,
-  .metric-row,
-  .lower-grid,
-  .flow,
-  .footer{
+  .header,.hero-grid,.metric-row,.lower-grid,.flow,.footer{
     grid-template-columns:1fr;
   }
 
-  .header{height:auto;}
+  .logo-tab{
+    clip-path:none;
+    width:100%;
+  }
 
-  .header-title,
-  .header-nav{padding:14px;}
+  .header-title{
+    text-align:center;
+    padding:14px;
+  }
+
+  .header-tools{padding:12px;}
+
+  .utility-row{
+    justify-content:space-between;
+  }
+
+  .utility-search{
+    width:calc(100% - 44px);
+  }
+
+  .role-nav{
+    justify-content:flex-start;
+    overflow-x:auto;
+    padding-bottom:4px;
+  }
+
+  .role-tabs{
+    flex-wrap:nowrap;
+    justify-content:flex-start;
+  }
+
+  .multi-box-tab{
+    margin-left:18px;
+  }
 
   .main{padding:16px 12px 0;}
 
@@ -959,17 +1044,19 @@ a{text-decoration:none;color:inherit;}
   .image-frame{height:340px;}
 
   .sc-intel-grid{grid-template-columns:1fr;}
-
   .sc-intel-header{flex-direction:column;}
-
   .sc-badge{white-space:normal;}
 
   .trait{
     grid-template-columns:145px 1fr 66px;
   }
+
+  .flow-title,.flow-step,.flow .action{
+    border-left:0;
+    border-top:1px solid rgba(255,255,255,.08);
+  }
 }
 </style>
-
 </head>
 
 <body>
@@ -980,16 +1067,30 @@ a{text-decoration:none;color:inherit;}
     <img src="sc_logo_i.png" alt="STATS-CORE">
   </a>
 
-  <div class="header-title">National Athlete Infrastructure • Controlled Access</div>
+  <div class="header-title">
+    National Athlete Infrastructure • Athlete Intelligence Record
+  </div>
 
-  <nav class="header-nav">
-    <a href="index.html">Entry</a>
-    <a class="active" href="player-profile.html">Profile</a>
-    <a href="verification.html">Verification</a>
-    <a href="privacy.html">Privacy</a>
-    <a href="terms.html">Terms</a>
-    <div class="user-icon"></div>
-  </nav>
+  <div class="header-tools">
+    <div class="utility-row">
+      <input class="utility-search" type="search" placeholder="Search athlete intelligence" aria-label="Search athlete intelligence">
+      <div class="user-icon" aria-hidden="true"></div>
+    </div>
+
+    <nav class="role-nav" aria-label="STATScore role navigation">
+      <div class="role-tabs">
+        <a class="role-tab active" href="system.html">Athlete</a>
+        <a class="role-tab" href="parent.html">Parent</a>
+        <a class="role-tab" href="coach.html">Coach</a>
+        <a class="role-tab" href="counselor.html">Counselor</a>
+        <a class="role-tab" href="recruiter.html">Recruiter</a>
+        <a class="role-tab" href="program.html">Program</a>
+        <a class="role-tab" href="evaluator.html">Evaluator</a>
+      </div>
+
+      <a class="multi-box-tab" href="multi-box.html">Multi-Box™</a>
+    </nav>
+  </div>
 </header>
 
 <main class="main">
@@ -1153,41 +1254,12 @@ a{text-decoration:none;color:inherit;}
   </div>
 
   <div class="sc-intel-grid">
-    <div class="sc-intel-card primary">
-      <span>Production Signal</span>
-      <strong id="scProductionSignal">--</strong>
-      <p id="scProductionExplanation">Awaiting position-specific production evidence.</p>
-    </div>
-
-    <div class="sc-intel-card">
-      <span>Score Basis</span>
-      <strong id="scFinalScore">--</strong>
-      <p id="scScoreBasis">Score basis pending.</p>
-    </div>
-
-    <div class="sc-intel-card">
-      <span>Evidence State</span>
-      <strong id="scEvidenceState">--</strong>
-      <p id="scEvidenceExplanation">Evidence support pending.</p>
-    </div>
-
-    <div class="sc-intel-card">
-      <span>Translation Outlook</span>
-      <strong id="scTranslationOutlook">--</strong>
-      <p id="scTranslationExplanation">Translation analysis pending.</p>
-    </div>
-
-    <div class="sc-intel-card">
-      <span>Verification Gaps</span>
-      <strong id="scVerificationGaps">--</strong>
-      <p id="scVerificationExplanation">Verification requirements pending.</p>
-    </div>
-
-    <div class="sc-intel-card">
-      <span>Role Value</span>
-      <strong id="scRoleValue">--</strong>
-      <p id="scRoleValueExplanation">Role-specific value pending.</p>
-    </div>
+    <div class="sc-intel-card primary"><span>Production Signal</span><strong id="scProductionSignal">--</strong><p id="scProductionExplanation">Awaiting position-specific production evidence.</p></div>
+    <div class="sc-intel-card"><span>Score Basis</span><strong id="scFinalScore">--</strong><p id="scScoreBasis">Score basis pending.</p></div>
+    <div class="sc-intel-card"><span>Evidence State</span><strong id="scEvidenceState">--</strong><p id="scEvidenceExplanation">Evidence support pending.</p></div>
+    <div class="sc-intel-card"><span>Translation Outlook</span><strong id="scTranslationOutlook">--</strong><p id="scTranslationExplanation">Translation analysis pending.</p></div>
+    <div class="sc-intel-card"><span>Verification Gaps</span><strong id="scVerificationGaps">--</strong><p id="scVerificationExplanation">Verification requirements pending.</p></div>
+    <div class="sc-intel-card"><span>Role Value</span><strong id="scRoleValue">--</strong><p id="scRoleValueExplanation">Role-specific value pending.</p></div>
   </div>
 
   <div class="sc-why-panel">
@@ -1198,103 +1270,53 @@ a{text-decoration:none;color:inherit;}
   </div>
 </section>
 
-.flow-step{
-  border-left:1px solid rgba(255,255,255,.10);
-  padding:12px 16px;
-  min-height:54px;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  background:rgba(255,255,255,.018);
-  transition:.18s ease;
-}
-
-.flow-step.clickable{
-  border:1px solid rgba(126,216,255,.35);
-  background:linear-gradient(180deg,rgba(126,216,255,.10),rgba(255,255,255,.012));
-  cursor:pointer;
-}
-
-.flow-step.clickable:hover{
-  transform:translateY(-1px);
-  border-color:var(--red);
-  box-shadow:0 0 0 1px rgba(255,43,31,.25) inset;
-}
-
-.flow-step.clickable b{
-  color:#fff;
-}
-
-.flow-step.clickable span{
-  color:var(--blue);
-} 
-
 <section class="flow">
   <div class="flow-title">Visibility Path</div>
 
-  <a class="flow-step clickable" href="player-profile.html" id="flowProfile">
-    <b>Profile</b>
-    <span>Public / Private View</span>
-  </a>
-
-  <a class="flow-step clickable" href="snapshot-intake.html" id="flowSnapshot">
-    <b>Snapshot</b>
-    <span>Data Intake</span>
-  </a>
-
-  <a class="flow-step clickable" href="verification.html" id="flowVerification">
-    <b>Verification</b>
-    <span>Trust Layer</span>
-  </a>
-
-  <a class="flow-step clickable" href="parent.html" id="flowParent">
-    <b>Parent Gate</b>
-    <span>Release Approval</span>
-  </a>
-
-  <a class="flow-step clickable" href="multi-box.html" id="flowMultiBox">
-    <b>Multi-Box™</b>
-    <span>Permissions</span>
-  </a>
-
-  <a class="flow-step clickable" href="crystal-registry.html" id="flowCrystal">
-    <b>Crystal</b>
-    <span>Athlete Registry</span>
-  </a>
+  <a class="flow-step clickable" href="player-profile.html" id="flowProfile"><b>Profile</b><span>Public / Private View</span></a>
+  <a class="flow-step clickable" href="snapshot-intake.html" id="flowSnapshot"><b>Snapshot</b><span>Data Intake</span></a>
+  <a class="flow-step clickable" href="verification.html" id="flowVerification"><b>Verification</b><span>Trust Layer</span></a>
+  <a class="flow-step clickable" href="parent.html" id="flowParent"><b>Parent Gate</b><span>Release Approval</span></a>
+  <a class="flow-step clickable" href="multi-box.html" id="flowMultiBox"><b>Multi-Box™</b><span>Permissions</span></a>
+  <a class="flow-step clickable" href="crystal-registry.html" id="flowCrystal"><b>Crystal</b><span>Athlete Registry</span></a>
 
   <a class="action primary" id="footerParentApprovalAction" href="#">Request Approval ›</a>
-</section> 
+</section>
+
+<footer class="footer">
+  <img src="sc_logo_i.png" alt="STATS-CORE">
+  <div>Governed Athlete Intelligence Infrastructure</div>
+  <div id="footerSnapshotState">Snapshot Intelligence Layer</div>
+  <div class="demo-ok">Operational Shell Active</div>
+</footer>
 
 </main>
-</div> 
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 window.STATScoreSupabase = window.supabase.createClient(
   "https://oyjmpbuxvfxusmbouldi.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk"
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJveWptcGJ1eHZmeHVzbWJvdWxkaSIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzY5NDQ5MTU3LCJleHAiOjIwODUwMjUxNTd9.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk"
 );
 </script>
 
 <script src="statscore-core.js"></script>
 <script src="statscore-data.js"></script>
 <script src="statscore-role-access.js"></script>
-
 <script src="statscore-signal-governance.js"></script>
 <script src="statscore-state-engine.js"></script>
 <script src="statscore-compliance-engine.js"></script>
 <script src="statscore-quarterly-eligibility-engine.js"></script>
 <script src="statscore-routing.js"></script>
-
 <script src="sc-runtime-state-engine.js"></script>
 <script src="sc-receipt-ledger-engine.js"></script>
 <script src="sc-governance-sync-engine.js"></script>
 <script src="sc-dynamic-athlete-engine.js"></script>
-
 <script src="statscore-position-matrix-engine.js"></script>
 <script src="statscore-trait-render-engine.js"></script>
 <script src="statscore-football-scoring-engine.js"></script>
-
 <script src="statscore-scoring-engine.js"></script>
 <script src="statscore-synthesis-engine.js"></script>
 <script src="statscore-consensus-engine.js"></script>
@@ -1304,7 +1326,6 @@ window.STATScoreSupabase = window.supabase.createClient(
 <script src="statscore-media-intelligence-engine.js"></script>
 <script src="statscore-memory-engine.js"></script>
 <script src="statscore-intelligence.js"></script>
-
 <script src="statscore-event-engine.js"></script>
 <script src="statscore-media-routing.js"></script>
 <script src="statscore-evaluator-engine.js"></script>
@@ -1371,12 +1392,7 @@ function matrixVersionForPosition(position){
 function starDisplayFromScore(score){
   const n = Number(score || 0);
   if (!Number.isFinite(n) || n <= 0) return "☆☆☆☆☆";
-  const stars =
-    n >= 90 ? 5 :
-    n >= 82 ? 4 :
-    n >= 72 ? 3 :
-    n >= 62 ? 2 :
-    1;
+  const stars = n >= 90 ? 5 : n >= 82 ? 4 : n >= 72 ? 3 : n >= 62 ? 2 : 1;
   return "★★★★★".slice(0, stars) + "☆☆☆☆☆".slice(0, 5 - stars);
 }
 
@@ -1400,7 +1416,6 @@ function normalizeSnapshot(response){
 
   return {
     snapshot_id: snap.snapshot_id,
-
     athlete_display_name: fullName,
     sport: raw.primarySport || raw.sport || snap.primary_sport || snap.sport || "Sport",
     position: raw.primaryPosition || raw.position || snap.primary_position || snap.position || "Position",
@@ -1408,46 +1423,33 @@ function normalizeSnapshot(response){
     class_year: raw.graduationClass || raw.graduation_class || raw.classYear || snap.graduation_class || snap.graduation_year || "Class Year",
     city_state: raw.cityState || raw.city_state || snap.city_state || "City, State",
     school: raw.schoolProgram || raw.school || snap.school_program || snap.school || "School / Program",
-
     height: raw.height || snap.height || "Height",
     weight: raw.weight || snap.weight || "Weight",
-
     dash40: raw.dash40 || raw.forty || raw.speedIndex || snap.dash40 || "--",
     vertical_jump: raw.verticalJump || raw.vertical_jump || raw.explosiveness || snap.vertical_jump || "--",
     shuttle: raw.shuttle || snap.shuttle || "",
     broad_jump: raw.broadJump || raw.broad_jump || snap.broad_jump || "",
-
     highlight_url: raw.highlightUrl || raw.highlight_url || snap.highlight_url || "",
     game_film_url: raw.gameFilmUrl || raw.game_film_url || snap.game_film_url || "",
     social_profile_url: raw.socialProfileUrl || raw.social_profile_url || "",
     recruiting_profile_url: raw.recruitingProfileUrl || raw.recruiting_profile_url || "",
     verified_event_source: raw.verifiedEventSource || raw.verified_event_source || snap.verified_event_source || "",
     position_notes: raw.positionNotes || raw.position_notes || snap.position_notes || "",
-
     archetype: raw.archetype || raw.positionArchetype || raw.position_archetype || "",
     varsity_years: raw.varsityYears || raw.varsity_years || snap.varsity_years || "",
     starter_status: raw.starterStatus || raw.starter_status || snap.starter_status || "",
     recruiting_tier: raw.recruitingTier || raw.recruiting_tier || snap.recruiting_tier || "",
     star_rating: raw.starRating || raw.star_rating || raw.stars || "",
-
     trait_scores: raw.traitScores || raw.trait_scores || {},
-
     guardian_email: raw.guardianEmail || raw.parentEmail || raw.guardian_email || snap.guardian_email || "",
     guardian_phone: raw.guardianPhone || raw.parentPhone || raw.guardian_phone || snap.guardian_phone || "",
-
     guardian_approval_status:
       raw.guardianApprovalStatus ||
       raw.guardian_approval_status ||
       snap.guardian_approval_status ||
       snap.parent_approval_status ||
       "PENDING",
-
-    headshot_url:
-      raw.headshotPublicUrl ||
-      raw.headshot_public_url ||
-      snap.headshot_public_url ||
-      "",
-
+    headshot_url: raw.headshotPublicUrl || raw.headshot_public_url || snap.headshot_public_url || "",
     verification_status: snap.verification_status || raw.verificationStatus || "UNVERIFIED",
     score_status: snap.score_status || raw.scoreStatus || "UNVERIFIED",
     profile_status: raw.profileStatus || raw.profile_status || "CREATED",
@@ -1578,21 +1580,10 @@ function resolveProfileStates(snapshot){
   const verificationRaw = upper(snapshot.verification_status);
   const gov = snapshot.parent_governance || {};
 
-  const guardianApproved =
-    guardianRaw === "APPROVED" ||
-    upper(gov.status) === "APPROVED";
-
-  const guardianModified =
-    guardianRaw === "MODIFIED" ||
-    upper(gov.status) === "MODIFIED";
-
-  const guardianDenied =
-    guardianRaw === "DENIED" ||
-    upper(gov.status) === "DENIED";
-
-  const guardianRevoked =
-    guardianRaw === "REVOKED" ||
-    upper(gov.status) === "REVOKED";
+  const guardianApproved = guardianRaw === "APPROVED" || upper(gov.status) === "APPROVED";
+  const guardianModified = guardianRaw === "MODIFIED" || upper(gov.status) === "MODIFIED";
+  const guardianDenied = guardianRaw === "DENIED" || upper(gov.status) === "DENIED";
+  const guardianRevoked = guardianRaw === "REVOKED" || upper(gov.status) === "REVOKED";
 
   const verified = verificationRaw === "VERIFIED";
   const hasMetrics = hasProductionEvidence(snapshot);
@@ -1614,15 +1605,12 @@ function resolveProfileStates(snapshot){
     releaseState: guardianApproved ? "PARENT RELEASE APPROVED" : "PARENT RELEASE PENDING",
     verificationState: verified ? "VERIFIED STATS-CORE" : "UNVERIFIED STATS-CORE",
     scoreState: verified ? "OFFICIAL" : hasMetrics ? "UNVERIFIED" : "PENDING",
-
     guardianState,
-
     visibilityState: publicReleased ? "CONTROLLED RELEASE" : "LIMITED",
     recruitingState: recruiterReleased ? (verified ? "ENABLED" : "PENDING VERIFICATION") : "LOCKED",
     shareState: publicReleased ? "CONTROLLED" : "LOCKED",
     mediaState: mediaReleased ? "RELEASED" : "LOCKED",
     profileParticipationState: profileReleased ? "ACTIVE" : "PRIVATE",
-
     guardianApproved,
     verified,
     hasMetrics,
@@ -1737,15 +1725,9 @@ function renderPositionTraits(snapshot, states){
     const projectedScore = rawScore ?? (states.hasMetrics ? deriveProjectedTraitScore(snapshot, trait.name, states) : null);
     const hasScore = projectedScore !== null && projectedScore !== undefined && projectedScore !== "";
     const scoreNumber = Number(projectedScore);
-    const width = hasScore && Number.isFinite(scoreNumber)
-      ? Math.max(5, Math.min(100, scoreNumber))
-      : 18;
+    const width = hasScore && Number.isFinite(scoreNumber) ? Math.max(5, Math.min(100, scoreNumber)) : 18;
 
-    const label = states.verified
-      ? projectedScore
-      : hasScore
-        ? `${projectedScore} U`
-        : "--";
+    const label = states.verified ? projectedScore : hasScore ? `${projectedScore} U` : "--";
 
     return `
       <div class="trait">
@@ -1761,9 +1743,7 @@ function renderPositionTraits(snapshot, states){
 
 function renderAthleteDossier(snapshot, states){
   const positionKey = getPositionKey(snapshot.position);
-  const archetype =
-    snapshot.archetype ||
-    (positionKey === "WR" ? "Speed / Space WR Projection" : `${snapshot.position} Production Projection`);
+  const archetype = snapshot.archetype || (positionKey === "WR" ? "Speed / Space WR Projection" : `${snapshot.position} Production Projection`);
 
   const athleticSignalParts = [];
   if (snapshot.dash40 && snapshot.dash40 !== "--") athleticSignalParts.push(`${snapshot.dash40} speed`);
@@ -1789,59 +1769,41 @@ function renderSTATScoreIntelligence(snapshot, states){
   setText("scVerificationGaps", states.verified ? "NONE ACTIVE" : "FILM / COACH / EVALUATOR");
   setText("scRoleValue", states.hasMetrics ? `${pos} POSITIONAL VALUE` : "ROLE VALUE PENDING");
 
-  setText(
-    "scProductionExplanation",
-    states.hasMetrics
-      ? `The current signal is based on submitted ${pos} role evidence and athletic indicators. It remains unverified until production evidence is confirmed.`
-      : "No enough submitted production evidence exists to generate a role-specific signal."
+  setText("scProductionExplanation", states.hasMetrics
+    ? `The current signal is based on submitted ${pos} role evidence and athletic indicators. It remains unverified until production evidence is confirmed.`
+    : "Not enough submitted production evidence exists to generate a role-specific signal."
   );
 
-  setText(
-    "scScoreBasis",
-    states.hasMetrics
-      ? `The score reflects position-specific production indicators, submitted athletic metrics, and current evidence completeness. It is not an official verified rating.`
-      : "Score basis requires position data, metrics, production evidence, or verified inputs."
+  setText("scScoreBasis", states.hasMetrics
+    ? "The score reflects position-specific production indicators, submitted athletic metrics, and current evidence completeness. It is not an official verified rating."
+    : "Score basis requires position data, metrics, production evidence, or verified inputs."
   );
 
-  setText(
-    "scEvidenceExplanation",
-    states.verified
-      ? "Evidence has passed verification gates."
-      : "Evidence is currently submitted but not confirmed by coach, evaluator, trusted film, or verified event source."
+  setText("scEvidenceExplanation", states.verified
+    ? "Evidence has passed verification gates."
+    : "Evidence is currently submitted but not confirmed by coach, evaluator, trusted film, or verified event source."
   );
 
-  setText(
-    "scTranslationExplanation",
-    states.hasMetrics
-      ? `Current data suggests ${snapshot.position} production potential, but upward translation requires verified film, production consistency, and competition context.`
-      : "Translation outlook requires production evidence and role-specific review."
+  setText("scTranslationExplanation", states.hasMetrics
+    ? `Current data suggests ${snapshot.position} production potential, but upward translation requires verified film, production consistency, and competition context.`
+    : "Translation outlook requires production evidence and role-specific review."
   );
 
-  setText(
-    "scVerificationExplanation",
-    states.verified
-      ? "Official intelligence unlocked."
-      : "Verification gaps include coach confirmation, evaluator review, film validation, and trusted production record."
+  setText("scVerificationExplanation", states.verified
+    ? "Official intelligence unlocked."
+    : "Verification gaps include coach confirmation, evaluator review, film validation, and trusted production record."
   );
 
-  setText(
-    "scRoleValueExplanation",
-    states.hasMetrics
-      ? `This profile is evaluated by what the athlete can produce at ${snapshot.position}, not generic athleticism alone.`
-      : "Role value will activate when production evidence is submitted."
+  setText("scRoleValueExplanation", states.hasMetrics
+    ? `This profile is evaluated by what the athlete can produce at ${snapshot.position}, not generic athleticism alone.`
+    : "Role value will activate when production evidence is submitted."
   );
 
   const reasons = [
     `STATS-CORE evaluates ${snapshot.position} by positional production, consistency, and upward translatability.`,
-    states.hasMetrics
-      ? `Submitted metrics support an unverified ${pos} production signal.`
-      : "Production signal is pending additional evidence.",
-    states.hasMetrics && snapshot.dash40 && snapshot.dash40 !== "--"
-      ? `Speed evidence submitted: ${snapshot.dash40}.`
-      : "Speed evidence is missing or incomplete.",
-    states.hasMetrics && snapshot.vertical_jump && snapshot.vertical_jump !== "--"
-      ? `Explosive evidence submitted: ${snapshot.vertical_jump} vertical.`
-      : "Explosive evidence is missing or incomplete.",
+    states.hasMetrics ? `Submitted metrics support an unverified ${pos} production signal.` : "Production signal is pending additional evidence.",
+    states.hasMetrics && snapshot.dash40 && snapshot.dash40 !== "--" ? `Speed evidence submitted: ${snapshot.dash40}.` : "Speed evidence is missing or incomplete.",
+    states.hasMetrics && snapshot.vertical_jump && snapshot.vertical_jump !== "--" ? `Explosive evidence submitted: ${snapshot.vertical_jump} vertical.` : "Explosive evidence is missing or incomplete.",
     `Verification state: ${states.verificationState}.`,
     `Parent release state: ${states.guardianState}.`,
     `Recruiting state: ${states.recruitingState}.`,
@@ -1858,19 +1820,20 @@ function renderGuardianGovernance(snapshot, states){
   const approvalUrl = `parent.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
   const parentRoomUrl = `parent.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
   const verificationUrl = `verification.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
-  const routeMap = {
-  flowProfile: `player-profile.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
-  flowSnapshot: `snapshot-intake.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
-  flowVerification: `verification.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
-  flowParent: `parent.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
-  flowMultiBox: `multi-box.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
-  flowCrystal: `crystal-registry.html?snapshot_id=${encodeURIComponent(snapshotId)}`
-};
 
-Object.entries(routeMap).forEach(([id, href]) => {
-  const el = document.getElementById(id);
-  if (el) el.href = href;
-}); 
+  const routeMap = {
+    flowProfile: `player-profile.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
+    flowSnapshot: `snapshot-intake.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
+    flowVerification: `verification.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
+    flowParent: `parent.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
+    flowMultiBox: `multi-box.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
+    flowCrystal: `crystal-registry.html?snapshot_id=${encodeURIComponent(snapshotId)}`
+  };
+
+  Object.entries(routeMap).forEach(([id, href]) => {
+    const el = document.getElementById(id);
+    if (el) el.href = href;
+  });
 
   setText("guardianStatus", states.guardianState);
   setText("visibilityStatus", states.visibilityState);
@@ -1894,9 +1857,7 @@ Object.entries(routeMap).forEach(([id, href]) => {
   if (approvalBtn) {
     approvalBtn.href = states.guardianApproved ? parentRoomUrl : approvalUrl;
     approvalBtn.className = states.guardianApproved ? "action approved" : "action primary";
-    approvalBtn.innerHTML = states.guardianApproved
-      ? `Parent Release Approved <span>✓</span>`
-      : `Request Parent Approval <span>›</span>`;
+    approvalBtn.innerHTML = states.guardianApproved ? `Parent Release Approved <span>✓</span>` : `Request Parent Approval <span>›</span>`;
   }
 
   if (footerApprovalBtn) {
@@ -1904,14 +1865,8 @@ Object.entries(routeMap).forEach(([id, href]) => {
     footerApprovalBtn.textContent = states.guardianApproved ? "Parent Release Approved ✓" : "Request Approval ›";
   }
 
-  if (verificationBtn) {
-    verificationBtn.href = verificationUrl;
-    verificationBtn.innerHTML = `Request Verification <span>›</span>`;
-  }
-
-  if (snapshotPathBtn) {
-    snapshotPathBtn.href = `snapshot-intake.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
-  }
+  if (verificationBtn) verificationBtn.href = verificationUrl;
+  if (snapshotPathBtn) snapshotPathBtn.href = `snapshot-intake.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
 
   if (shareBtn) {
     if (states.shareState === "CONTROLLED") {
@@ -1939,18 +1894,14 @@ Object.entries(routeMap).forEach(([id, href]) => {
     }
   }
 
-  setText(
-    "recruiterViewStatus",
-    states.recruitingState === "ENABLED"
-      ? "Recruiter visibility is enabled under governed parent release and verification rules."
-      : "Recruiter visibility remains locked until parent release and verification gates allow controlled access."
+  setText("recruiterViewStatus", states.recruitingState === "ENABLED"
+    ? "Recruiter visibility is enabled under governed parent release and verification rules."
+    : "Recruiter visibility remains locked until parent release and verification gates allow controlled access."
   );
 
-  setText(
-    "contactStatusText",
-    states.recruitingState === "ENABLED"
-      ? "Communication enabled through Multi-Box™ permissions."
-      : "Recruiter communication remains locked."
+  setText("contactStatusText", states.recruitingState === "ENABLED"
+    ? "Communication enabled through Multi-Box™ permissions."
+    : "Recruiter communication remains locked."
   );
 }
 
@@ -1968,6 +1919,7 @@ function renderProfile(snapshot){
   setText("captionMeta", `${snapshot.position} · ${formatClassYear(snapshot.class_year)}`);
   setText("verificationBadge", states.verified ? "VERIFIED" : "UNVERIFIED");
   setText("recordStatus", "Snapshot Loaded");
+  setText("footerSnapshotState", snapshot.snapshot_id ? `Snapshot ID: ${snapshot.snapshot_id}` : "Snapshot Intelligence Layer");
 
   setText("identitySub", `${states.snapshotState} · ${statscoreLabel}`);
   setText("tagPosition", snapshot.position);
@@ -1981,19 +1933,16 @@ function renderProfile(snapshot){
   setText("signalText", statscoreLabel);
   setText("evaluationStatus", states.hasMetrics ? `${snapshot.position} Production Signal · ${statscoreLabel}` : `${states.snapshotState} · ${statscoreLabel}`);
 
-  setText(
-    "profileBio",
+  setText("profileBio",
     `${snapshot.athlete_display_name} is a ${snapshot.class_year} ${snapshot.sport} athlete listed at ${snapshot.position}. STATS-CORE evaluates this profile by position-specific production, consistency, evidence support, and upward translatability. Current score intelligence is ${states.verified ? "verified" : "unverified"} and remains governed by parent release and verification controls.`
   );
 
   setText("scoreValue", states.unverifiedScore || "--");
   setText("scoreStatus", states.verificationState);
 
-  setText(
-    "scoreNote",
-    states.hasMetrics
-      ? "This UNVERIFIED STATS-CORE is generated from submitted snapshot metrics and position-production logic. It is not official until verification gates are complete."
-      : "STATS-CORE requires submitted production evidence before score intelligence activates."
+  setText("scoreNote", states.hasMetrics
+    ? "This UNVERIFIED STATS-CORE is generated from submitted snapshot metrics and position-production logic. It is not official until verification gates are complete."
+    : "STATS-CORE requires submitted production evidence before score intelligence activates."
   );
 
   setText("metricSpeed", snapshot.dash40);
@@ -2004,11 +1953,9 @@ function renderProfile(snapshot){
   setText("gameFilmStatus", snapshot.highlight_url || snapshot.game_film_url || "Film not submitted. Verified film is required to strengthen production confidence.");
   setText("campStatus", snapshot.verified_event_source || "Camp / combine evidence pending.");
   setText("mediaStatus", snapshot.social_profile_url || snapshot.recruiting_profile_url || "PHNX Sports media exposure remains governed by parent release.");
-
   setText("exposureLaneText", `Visibility is currently ${states.visibilityState}. Recruiter actions remain ${states.recruitingState}.`);
   setText("primaryFocus", snapshot.position_notes || "Add verified film, coach review, and production data to strengthen the position matrix.");
   setText("verificationNeed", "Coach confirmation, evaluator review, trusted film, verified metrics, and production consistency.");
-
   setText("nextSnapshotText", "Update snapshot after verified film, coach review, or production evidence is added.");
 
   renderAthleteImage(snapshot.headshot_url, snapshot.athlete_display_name);
