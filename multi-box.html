@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -7,7 +7,10 @@
 <title>STATS-CORE™ | Multi-Box</title>
 
 <meta name="title" content="STATS-CORE™ | Multi-Box Communication System" />
-<meta name="description" content="Controlled athlete communication infrastructure connecting parents, coaches, counselors, recruiters, evaluators, and programs through governed routing." />
+<meta
+  name="description"
+  content="Controlled athlete communication infrastructure connecting parents, coaches, counselors, recruiters, evaluators, and programs through governed routing."
+/>
 
 <link rel="icon" type="image/png" href="sc_emblem.png" />
 <link rel="apple-touch-icon" href="sc_emblem.png" />
@@ -200,9 +203,6 @@ a{text-decoration:none;color:inherit}
 
 .main{
   padding:22px 32px 0;
-  min-height:auto;
-  height:auto;
-  overflow:visible;
   background:repeating-linear-gradient(135deg,rgba(255,255,255,.018) 0,rgba(255,255,255,.018) 1px,transparent 1px,transparent 7px);
 }
 
@@ -250,9 +250,6 @@ a{text-decoration:none;color:inherit}
   grid-template-columns:300px 1fr 350px;
   gap:14px;
   align-items:start;
-  min-height:auto;
-  height:auto;
-  overflow:visible;
 }
 
 .panel{
@@ -260,10 +257,16 @@ a{text-decoration:none;color:inherit}
   border:1px solid var(--line);
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.035);
   padding:20px;
-  min-height:auto;
-  max-height:none;
-  height:auto;
-  overflow:visible;
+  min-height:720px;
+}
+
+.panel.operations-panel{
+  height:720px;
+  max-height:720px;
+  min-height:720px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
 }
 
 .section-title{
@@ -275,7 +278,10 @@ a{text-decoration:none;color:inherit}
   text-transform:uppercase;
 }
 
-.channel-stack{display:grid;gap:10px}
+.channel-stack{
+  display:grid;
+  gap:10px;
+}
 
 .channel{
   border:1px solid var(--line);
@@ -316,8 +322,14 @@ a{text-decoration:none;color:inherit}
   gap:12px;
 }
 
-.field{display:grid;gap:7px}
-.field.full{grid-column:1/-1}
+.field{
+  display:grid;
+  gap:7px;
+}
+
+.field.full{
+  grid-column:1/-1;
+}
 
 label{
   color:#e9f9ff;
@@ -386,14 +398,24 @@ textarea{
   text-transform:uppercase;
 }
 
-.status-card,.side-section{
+.status-card,
+.side-section{
   border:1px solid var(--line);
   padding:14px;
 }
 
-.side-section{margin-top:16px}
+.status-card,
+.notice,
+.side-section:not(.audit-section){
+  flex:0 0 auto;
+}
 
-.status-row,.metric-row{
+.side-section{
+  margin-top:16px;
+}
+
+.status-row,
+.metric-row{
   display:flex;
   justify-content:space-between;
   border-bottom:1px solid rgba(255,255,255,.12);
@@ -404,9 +426,22 @@ textarea{
   gap:12px;
 }
 
-.status-row:last-child,.metric-row:last-child{border-bottom:none}
-.status-row span,.metric-row span{color:var(--blue)}
-.status-row b,.metric-row b{color:var(--gold);text-align:right}
+.status-row:last-child,
+.metric-row:last-child{
+  border-bottom:none;
+}
+
+.status-row span,
+.metric-row span{
+  color:var(--blue);
+}
+
+.status-row b,
+.metric-row b{
+  color:var(--gold);
+  text-align:right;
+}
+
 b.green{color:var(--green)!important}
 b.red{color:var(--red)!important}
 
@@ -421,9 +456,43 @@ b.red{color:var(--red)!important}
   font-weight:800;
 }
 
+.audit-section{
+  flex:1 1 auto;
+  min-height:0;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+
+.audit-section .section-title{
+  flex:0 0 auto;
+}
+
 .audit-list{
+  flex:1 1 auto;
+  min-height:0;
+  overflow-y:auto;
+  overflow-x:hidden;
   display:grid;
   gap:10px;
+  padding-right:6px;
+}
+
+.audit-list::-webkit-scrollbar{
+  width:8px;
+}
+
+.audit-list::-webkit-scrollbar-track{
+  background:rgba(255,255,255,.04);
+}
+
+.audit-list::-webkit-scrollbar-thumb{
+  background:rgba(126,216,255,.45);
+  border-radius:10px;
+}
+
+.audit-list::-webkit-scrollbar-thumb:hover{
+  background:rgba(255,43,31,.65);
 }
 
 .audit-item{
@@ -537,8 +606,14 @@ b.red{color:var(--red)!important}
   text-transform:uppercase;
 }
 
-.footer img{width:185px}
-.demo-ok{color:var(--green);font-weight:900}
+.footer img{
+  width:185px;
+}
+
+.demo-ok{
+  color:var(--green);
+  font-weight:900;
+}
 
 @media(max-width:1000px){
   .header,
@@ -598,60 +673,18 @@ b.red{color:var(--red)!important}
     grid-template-columns:1fr;
   }
 
-  .panel{
-  max-height:none;
-  height:auto;
-  min-height:auto;
-  overflow:visible;
+  .panel,
+  .panel.operations-panel{
+    height:auto;
+    max-height:none;
+    min-height:auto;
+    overflow:visible;
+  }
+
+  .audit-section{
+    max-height:420px;
+  }
 }
-
-/* FORCE RIGHT OPERATIONS RAIL + AUDIT TRAIL BEHAVIOR */
-
-.shell-grid > aside.panel:last-child{
-  max-height:720px !important;
-  height:720px !important;
-  min-height:720px !important;
-  overflow:hidden !important;
-  display:flex !important;
-  flex-direction:column !important;
-}
-
-.shell-grid > aside.panel:last-child .status-card,
-.shell-grid > aside.panel:last-child .notice,
-.shell-grid > aside.panel:last-child .side-section:not(:last-child){
-  flex:0 0 auto !important;
-}
-
-.shell-grid > aside.panel:last-child .side-section:last-child{
-  flex:1 1 auto !important;
-  min-height:0 !important;
-  overflow:hidden !important;
-  display:flex !important;
-  flex-direction:column !important;
-}
-
-#auditPanel{
-  flex:1 1 auto !important;
-  min-height:0 !important;
-  max-height:none !important;
-  overflow-y:auto !important;
-  overflow-x:hidden !important;
-  padding-right:6px !important;
-}
-
-#auditPanel::-webkit-scrollbar{
-  width:8px;
-}
-
-#auditPanel::-webkit-scrollbar-track{
-  background:rgba(255,255,255,.04);
-}
-
-#auditPanel::-webkit-scrollbar-thumb{
-  background:rgba(126,216,255,.45);
-  border-radius:10px;
-} 
-
 </style>
 </head>
 
@@ -810,7 +843,7 @@ b.red{color:var(--red)!important}
   </section>
 </article>
 
-<aside class="panel">
+<aside class="panel operations-panel">
   <h2 class="section-title">Operations Rail</h2>
 
   <div class="status-card">
@@ -834,7 +867,7 @@ b.red{color:var(--red)!important}
     <div class="metric-row"><span>Pending Requests</span><b class="red">2</b></div>
   </div>
 
-  <div class="side-section">
+  <div class="side-section audit-section">
     <h2 class="section-title">Audit Trail</h2>
 
     <div class="audit-list" id="auditPanel">
@@ -961,7 +994,7 @@ function extractMessageId(data){
   return null;
 }
 
-function addAudit(actionType,note,messageId=null){
+function renderAudit(actionType,note,messageId=null){
   const auditPanel=document.getElementById("auditPanel");
   if(!auditPanel)return;
 
@@ -983,8 +1016,13 @@ function addAudit(actionType,note,messageId=null){
   `;
 
   auditPanel.prepend(item);
+}
+
+function addAudit(actionType,note,messageId=null){
+  renderAudit(actionType,note,messageId);
 
   const saved=safeParse(localStorage.getItem(LOCAL_AUDIT_KEY),[]);
+
   saved.unshift({
     action_type:actionType,
     audit_note:note,
@@ -992,7 +1030,42 @@ function addAudit(actionType,note,messageId=null){
     created_at:new Date().toISOString()
   });
 
-  localStorage.setItem(LOCAL_AUDIT_KEY,JSON.stringify(saved.slice(0,25)));
+  const deduped=[];
+  const seen=new Set();
+
+  saved.forEach(row=>{
+    const key=[
+      row.action_type || "",
+      row.audit_note || "",
+      row.message_id || "",
+      row.created_at || ""
+    ].join("|");
+
+    if(!seen.has(key)){
+      seen.add(key);
+      deduped.push(row);
+    }
+  });
+
+  localStorage.setItem(LOCAL_AUDIT_KEY,JSON.stringify(deduped.slice(0,25)));
+}
+
+function loadLocalAudit(){
+  const auditPanel=document.getElementById("auditPanel");
+  if(auditPanel) auditPanel.innerHTML="";
+
+  const saved=safeParse(localStorage.getItem(LOCAL_AUDIT_KEY),[]);
+
+  saved
+    .slice(0,25)
+    .reverse()
+    .forEach(a=>{
+      renderAudit(
+        a.action_type || "Message Activity",
+        a.audit_note || "Multi-Box activity recorded.",
+        a.message_id || null
+      );
+    });
 }
 
 function removeLocalDraft(messageId){
@@ -1237,14 +1310,6 @@ function generateCrystalReport(){
 
   setMessage("Crystal Report generated");
   window.location.href="crystal-report.html";
-}
-
-function loadLocalAudit(){
-  const saved=safeParse(localStorage.getItem(LOCAL_AUDIT_KEY),[]);
-
-  saved.slice().reverse().forEach(a=>{
-    addAudit(a.action_type,a.audit_note,a.message_id || null);
-  });
 }
 
 function wireEvents(){
