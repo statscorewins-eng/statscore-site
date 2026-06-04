@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -599,12 +599,25 @@ b.red{color:var(--red)!important}
   }
 
   .panel{
-    max-height:none;
-    height:auto;
-    min-height:auto;
-    overflow:visible;
-  }
+  max-height:none;
+  height:auto;
+  min-height:auto;
+  overflow:visible;
 }
+
+/* PASTE AUDIT TRAIL SCROLL FIX HERE */
+
+#auditPanel.audit-list{
+  max-height:420px !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  padding-right:6px !important;
+} 
+  
+.audit-item{
+  flex-shrink:0;
+}   
+  
 </style>
 </head>
 
