@@ -136,7 +136,7 @@ a{text-decoration:none;color:inherit;}
 } 
 .header-nav{
   display:flex;
-  justify-content:flex-end;
+  justify-content:flex-start;
   align-items:center;
   gap:24px;
   padding-right:24px;
@@ -145,6 +145,54 @@ a{text-decoration:none;color:inherit;}
   white-space:nowrap;
 }
 
+.header-search{
+  display:flex;
+  align-items:center;
+
+  width:300px;
+  height:38px;
+
+  border:1px solid rgba(0,0,0,.18);
+  background:#fff;
+  margin-left:auto;
+  flex-shrink:0;
+}
+
+.header-search input{
+  flex:1;
+  height:100%;
+
+  border:none;
+  outline:none;
+
+  background:transparent;
+
+  padding:0 12px;
+
+  color:#111;
+
+  font-size:.68rem;
+  font-weight:900;
+
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+
+.header-search button{
+  width:42px;
+  height:100%;
+
+  border:none;
+  border-left:1px solid rgba(0,0,0,.15);
+
+  background:#fff;
+
+  cursor:pointer;
+
+  font-weight:900;
+} 
+
+  
 .header-nav a{
   font-weight:900;
   font-size:.75rem;
