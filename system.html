@@ -1,4 +1,4 @@
-<!DOCTYPE html>  
+<!DOCTYPE html> 
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -25,12 +25,7 @@
 <link
   rel="apple-touch-icon"
   href="sc_emblem.png"
-/> 
-
-<meta
-  name="description"
-  content="STATS-CORE™ Athlete Lifecycle System — National athlete infrastructure for identity, eligibility, readiness, rankings, verification, and performance intelligence."
-/> 
+/>
 
 <style>
 :root{
@@ -133,10 +128,11 @@ a{text-decoration:none;color:inherit;}
   text-transform:uppercase;
   padding:18px 34px 0 10px;
   transform:translateX(-34px);
-} 
+}
+
 .header-nav{
   display:flex;
-  justify-content:flex-start;
+  justify-content:flex-end;
   align-items:center;
   gap:24px;
   padding-right:24px;
@@ -145,54 +141,6 @@ a{text-decoration:none;color:inherit;}
   white-space:nowrap;
 }
 
-.header-search{
-  display:flex;
-  align-items:center;
-
-  width:300px;
-  height:38px;
-
-  border:1px solid rgba(0,0,0,.18);
-  background:#fff;
-  margin-left:auto;
-  flex-shrink:0;
-}
-
-.header-search input{
-  flex:1;
-  height:100%;
-
-  border:none;
-  outline:none;
-
-  background:transparent;
-
-  padding:0 12px;
-
-  color:#111;
-
-  font-size:.68rem;
-  font-weight:900;
-
-  letter-spacing:.12em;
-  text-transform:uppercase;
-}
-
-.header-search button{
-  width:42px;
-  height:100%;
-
-  border:none;
-  border-left:1px solid rgba(0,0,0,.15);
-
-  background:#fff;
-
-  cursor:pointer;
-
-  font-weight:900;
-} 
-
-  
 .header-nav a{
   font-weight:900;
   font-size:.75rem;
@@ -205,97 +153,6 @@ a{text-decoration:none;color:inherit;}
 .header-nav a.active{
   color:var(--red);
   border-bottom-color:var(--red);
-}
-
-.user-icon{
-  width:30px;
-  height:30px;
-  border:3px solid #111;
-  border-radius:50%;
-  position:relative;
-  flex:0 0 auto;
-}
-
-.user-icon:before{
-  content:"";
-  position:absolute;
-  top:5px;
-  left:8px;
-  width:8px;
-  height:8px;
-  border-radius:50%;
-  background:#111;
-}
-
-.user-icon:after{
-  content:"";
-  position:absolute;
-  bottom:5px;
-  left:4px;
-  width:16px;
-  height:8px;
-  border-radius:10px 10px 0 0;
-  background:#111;
-}
-
-/* SEARCH */
-
-.sc-search-bar{
-  position:relative;
-  width:100%;
-  padding:0;
-  margin:0 0 -8px 0;
-  z-index:20;
-  display:flex;
-  justify-content:flex-end;
-}
-
-.sc-search-shell{
-  width:360px;
-  margin-right:24px;
-  margin-top:8px;
-}
-
-.sc-search-input-wrap{
-  display:flex;
-  height:38px;
-  background:rgba(8,10,16,.96);
-  border:1px solid rgba(255,255,255,.16);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.04),
-    0 12px 24px rgba(0,0,0,.45);
-}
-
-.sc-search-input-wrap input{
-  flex:1;
-  height:100%;
-  border:none;
-  outline:none;
-  background:transparent;
-  color:#fff;
-  padding:0 12px;
-  font-size:13px;
-  letter-spacing:.4px;
-}
-
-.sc-search-input-wrap input::placeholder{
-  color:rgba(255,255,255,.46);
-}
-
-.sc-search-input-wrap button{
-  width:48px;
-  height:100%;
-  border:none;
-  border-left:1px solid rgba(255,255,255,.08);
-  background:rgba(255,77,77,.08);
-  color:#ff4d4d;
-  font-size:18px;
-  cursor:pointer;
-  transition:.2s ease;
-}
-
-.sc-search-input-wrap button:hover{
-  background:rgba(255,77,77,.18);
 }
 
 /* TRUE FOLDER TAB RAIL */
@@ -892,8 +749,6 @@ a{text-decoration:none;color:inherit;}
   z-index:2;
 }
 
-/* ELIGIBILITY FEATURE */
-
 .ready.eligibility{
   overflow:hidden;
   border-color:rgba(255,177,0,.55);
@@ -905,21 +760,6 @@ a{text-decoration:none;color:inherit;}
     inset 0 18px 30px rgba(255,177,0,.05),
     0 0 26px rgba(255,177,0,.12),
     0 18px 40px rgba(0,0,0,.9);
-}
-
-.ready.eligibility:before{
-  border-color:rgba(255,177,0,.18);
-  box-shadow:inset 0 0 12px rgba(255,177,0,.04);
-}
-
-.ready.eligibility:hover{
-  transform:translateY(-2px);
-  border-color:rgba(255,177,0,.9);
-  box-shadow:
-    inset 0 0 0 1px rgba(255,177,0,.18),
-    inset 0 18px 30px rgba(255,177,0,.08),
-    0 0 36px rgba(255,177,0,.22),
-    0 20px 46px rgba(0,0,0,.92);
 }
 
 .eligibility-head{
@@ -1055,20 +895,6 @@ a{text-decoration:none;color:inherit;}
     padding-right:14px;
   }
 
-  .sc-search-bar{
-    position:relative;
-    top:auto;
-    right:auto;
-    width:100%;
-    padding:12px 18px 0;
-    margin:0;
-  }
-
-  .sc-search-shell{
-    width:100%;
-    margin-right:0;
-  }
-
   .tab-rail{
     overflow-x:auto;
     overflow-y:hidden;
@@ -1145,10 +971,6 @@ a{text-decoration:none;color:inherit;}
 
   .main{
     padding:12px 8px 0;
-  }
-
-  .sc-search-bar{
-    padding:10px 8px 0;
   }
 
   .tab-rail{
@@ -1238,8 +1060,7 @@ a{text-decoration:none;color:inherit;}
     justify-content:center;
   }
 }
-</style> 
-
+</style>
 </head>
 
 <body>
@@ -1254,21 +1075,12 @@ a{text-decoration:none;color:inherit;}
   <div class="header-title">National Athlete Infrastructure</div>
 
   <nav class="header-nav">
-  <a class="active" href="system.html">System</a>
-  <a href="player-profile.html">Profile</a>
-  <a href="multi-box.html">Multi-Box</a>
-  <a href="privacy.html">Privacy</a>
-  <a href="terms.html">Terms</a>
-
-  <div class="header-search">
-    <input
-      type="text"
-      placeholder="Search Athlete Intelligence"
-      id="athleteSearch"
-    >
-    <button type="button">⌕</button>
-  </div>
-</nav> 
+    <a class="active" href="system.html">System</a>
+    <a href="player-profile.html">Profile</a>
+    <a href="multi-box.html">Multi-Box</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="terms.html">Terms</a>
+  </nav>
 </header>
 
 <section class="tab-rail">
@@ -1280,7 +1092,9 @@ a{text-decoration:none;color:inherit;}
   <a class="folder-tab" href="program.html">⌂ Program</a>
   <a class="folder-tab" href="evaluator.html">☑ Evaluator</a>
   <a class="folder-tab multi" href="multi-box.html">▣ Multi-Box™</a>
-</section> 
+</section>
+
+<main class="main">
 
 <section class="content">
 
@@ -1577,8 +1391,6 @@ window.STATScoreSupabase = window.supabase.createClient(
 );
 
 window.STATScoreSupabaseClient = window.STATScoreSupabase;
-
-console.log("[STATScore] Supabase client exposed:", !!window.STATScoreSupabase);
 </script>
 
 <!-- FOUNDATION -->
@@ -1812,138 +1624,6 @@ console.log("[STATScore] Supabase client exposed:", !!window.STATScoreSupabase);
     appendSnapshotContextToLinks();
   });
 })();
-</script>
-
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const searchInput = document.getElementById("scAthleteSearchInput");
-  const searchBtn = document.getElementById("scAthleteSearchBtn");
-  const searchBar = document.querySelector(".sc-search-bar");
-
-  if (!searchInput || !searchBtn) return;
-
-  const protectShell = () => {
-    [".shell", "body", "html", ".main", ".content"].forEach((sel) => {
-      const el = document.querySelector(sel);
-      if (!el) return;
-      el.removeAttribute("aria-hidden");
-      el.style.display = "";
-      el.style.visibility = "";
-      el.style.opacity = "";
-      el.style.pointerEvents = "";
-    });
-  };
-
-  const findSearchPanel = () => {
-    const candidates = Array.from(document.querySelectorAll("div, aside, section"))
-      .filter((el) => {
-        const text = (el.textContent || "").toUpperCase();
-        const rect = el.getBoundingClientRect();
-
-        return (
-          (text.includes("STATSCORE SEARCH RESULTS") ||
-           text.includes("STATSCORE SEARCH ERROR")) &&
-          rect.width >= 250 &&
-          rect.width <= 700 &&
-          rect.height >= 80 &&
-          rect.height <= 850 &&
-          !el.classList.contains("shell") &&
-          !el.classList.contains("main") &&
-          !el.classList.contains("content")
-        );
-      });
-
-    return candidates.sort((a,b) => {
-      const ar = a.getBoundingClientRect();
-      const br = b.getBoundingClientRect();
-      return (ar.width * ar.height) - (br.width * br.height);
-    })[0] || null;
-  };
-
-  const closeSearchResults = () => {
-    protectShell();
-
-    if (document.activeElement) {
-      document.activeElement.blur();
-    }
-
-    const panel = findSearchPanel();
-    if (!panel) return;
-
-    panel.style.display = "none";
-    panel.style.visibility = "hidden";
-    panel.style.opacity = "0";
-    panel.style.pointerEvents = "none";
-  };
-
-  const openSearchResults = () => {
-    protectShell();
-
-    const panel = findSearchPanel();
-    if (!panel) return;
-
-    panel.style.display = "";
-    panel.style.visibility = "visible";
-    panel.style.opacity = "1";
-    panel.style.pointerEvents = "auto";
-  };
-
-  const runSearch = async () => {
-    protectShell();
-
-    const query = searchInput.value.trim();
-
-    if (!query) {
-      closeSearchResults();
-      return;
-    }
-
-    if (!window.STATScoreAthleteSearch?.search) {
-      console.error("[STATScore] STATScoreAthleteSearch.search unavailable.");
-      return;
-    }
-
-    await window.STATScoreAthleteSearch.search(query);
-    setTimeout(openSearchResults, 80);
-  };
-
-  searchBtn.addEventListener("click", (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    runSearch();
-  });
-
-  searchInput.addEventListener("click", (event) => {
-    event.stopPropagation();
-  });
-
-  searchInput.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      runSearch();
-    }
-
-    if (event.key === "Escape") {
-      closeSearchResults();
-    }
-  });
-
-  document.addEventListener("click", (event) => {
-    const panel = findSearchPanel();
-
-    const clickedInsideSearch =
-      searchBar?.contains(event.target) ||
-      panel?.contains(event.target);
-
-    if (!clickedInsideSearch) {
-      closeSearchResults();
-    }
-  });
-
-  protectShell();
-
-  console.log("[STATScore] safe search close behavior initialized.");
-});
 </script>
 
 </body>
