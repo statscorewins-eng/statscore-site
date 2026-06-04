@@ -605,19 +605,53 @@ b.red{color:var(--red)!important}
   overflow:visible;
 }
 
-/* PASTE AUDIT TRAIL SCROLL FIX HERE */
+/* FORCE RIGHT OPERATIONS RAIL + AUDIT TRAIL BEHAVIOR */
 
-#auditPanel.audit-list{
-  max-height:420px !important;
+.shell-grid > aside.panel:last-child{
+  max-height:720px !important;
+  height:720px !important;
+  min-height:720px !important;
+  overflow:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
+}
+
+.shell-grid > aside.panel:last-child .status-card,
+.shell-grid > aside.panel:last-child .notice,
+.shell-grid > aside.panel:last-child .side-section:not(:last-child){
+  flex:0 0 auto !important;
+}
+
+.shell-grid > aside.panel:last-child .side-section:last-child{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
+}
+
+#auditPanel{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  max-height:none !important;
   overflow-y:auto !important;
   overflow-x:hidden !important;
   padding-right:6px !important;
+}
+
+#auditPanel::-webkit-scrollbar{
+  width:8px;
+}
+
+#auditPanel::-webkit-scrollbar-track{
+  background:rgba(255,255,255,.04);
+}
+
+#auditPanel::-webkit-scrollbar-thumb{
+  background:rgba(126,216,255,.45);
+  border-radius:10px;
 } 
-  
-.audit-item{
-  flex-shrink:0;
-}   
-  
+
 </style>
 </head>
 
