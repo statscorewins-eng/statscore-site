@@ -1143,7 +1143,6 @@ async function createParentApprovalRequestFromSnapshot(snapshotId, payload){
     guardian_name: payload.guardian_name,
     guardian_email: payload.guardian_email,
     guardian_phone: payload.guardian_phone,
-    approval_status: "PENDING",
     status: "PENDING",
     request_status: "PENDING",
     parent_room_url: parentRoomUrl,
@@ -1177,7 +1176,6 @@ async function createParentApprovalRequestFromSnapshot(snapshotId, payload){
           guardian_name: approvalPayload.guardian_name,
           guardian_email: approvalPayload.guardian_email,
           guardian_phone: approvalPayload.guardian_phone,
-          approval_status: "PENDING",
           status: "PENDING",
           request_status: "PENDING",
           parent_room_url: parentRoomUrl,
@@ -1206,7 +1204,6 @@ async function createParentApprovalRequestFromSnapshot(snapshotId, payload){
     guardian_name: payload.guardian_name,
     guardian_email: payload.guardian_email,
     guardian_phone: payload.guardian_phone,
-    approval_status: "PENDING",
     parent_room_url: parentRoomUrl,
     approval_url: approvalUrl,
     created_at: nowISO()
