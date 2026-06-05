@@ -734,7 +734,50 @@ b.red{color:var(--red)!important}
     max-height:none;
     overflow:visible;
   }
+
+ /* ======================================================
+   FINAL MULTI-BOX COLUMN ALIGNMENT OVERRIDE
+   Locks Role / Messaging / Operations boxes even at bottom
+====================================================== */
+
+.shell-grid{
+  display:grid !important;
+  grid-template-columns:320px minmax(420px,1fr) 350px !important;
+  gap:14px !important;
+  align-items:stretch !important;
 }
+
+.shell-grid > .panel{
+  height:720px !important;
+  min-height:720px !important;
+  max-height:720px !important;
+}
+
+.role-panel{
+  height:720px !important;
+  min-height:720px !important;
+  max-height:720px !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+}
+
+.panel.operations-panel{
+  height:720px !important;
+  min-height:720px !important;
+  max-height:720px !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  display:block !important;
+}
+
+.compose-shell{
+  height:100% !important;
+  min-height:100% !important;
+  max-height:100% !important;
+  overflow:visible !important;
+  } 
+}
+  
 </style>
 </head>
 
