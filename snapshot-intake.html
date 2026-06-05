@@ -1131,58 +1131,50 @@ async function createParentApprovalRequestFromSnapshot(snapshotId, payload){
     throw new Error("Parent Approval request blocked: missing snapshot_id.");
   }
 
-  const approvalUrl = `parent-approval.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
-  const parentRoomUrl = `parent.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
-
   const approvalPayload = {
     snapshot_id: snapshotId,
     athlete_name: payload.athlete_name,
-    school: payload.school,
-    sport: payload.sport,
-    position: payload.position,
     guardian_name: payload.guardian_name,
     guardian_email: payload.guardian_email,
-    guardian_phone: payload.guardian_phone,
-    status: "PENDING",
-    request_source: "snapshot-intake.html",
+    requester_name: "STATScore System",
+    requester_role: "system",
+    request_type: "parent_permission_scope",
+    status: "pending",
     requested_at: nowISO(),
     created_at: nowISO()
   };
 
+  const existingPath =
+    `/rest/v1/sc_parent_approval_requests` +
+    `?snapshot_id=eq.${encodeURIComponent(snapshotId)}` +
+    `&select=*` +
+    `&limit=1`;
+
+  const existing = await supabaseRequest(existingPath, { method: "GET" });
+
   let result = null;
 
-  try {
-    result = await supabaseRequest("/rest/v1/sc_parent_approval_requests?on_conflict=snapshot_id", {
-      method: "POST",
-      prefer: "resolution=merge-duplicates,return=representation",
-      body: JSON.stringify(approvalPayload)
-    });
-  } catch {
-    const existingPath =
-      `/rest/v1/sc_parent_approval_requests` +
-      `?snapshot_id=eq.${encodeURIComponent(snapshotId)}` +
-      `&select=*` +
-      `&limit=1`;
-
-    const existing = await supabaseRequest(existingPath, { method: "GET" });
-
-    if (Array.isArray(existing) && existing.length){
-      result = await supabaseRequest(`/rest/v1/sc_parent_approval_requests?snapshot_id=eq.${encodeURIComponent(snapshotId)}`, {
+  if (Array.isArray(existing) && existing.length){
+    result = await supabaseRequest(
+      `/rest/v1/sc_parent_approval_requests?snapshot_id=eq.${encodeURIComponent(snapshotId)}`,
+      {
         method: "PATCH",
         body: JSON.stringify({
-  guardian_name: approvalPayload.guardian_name,
-  guardian_email: approvalPayload.guardian_email,
-  guardian_phone: approvalPayload.guardian_phone,
-  status: "pending",
-  updated_at: nowISO()
-}) 
-      });
-    } else {
-      result = await supabaseRequest("/rest/v1/sc_parent_approval_requests", {
-        method: "POST",
-        body: JSON.stringify(approvalPayload)
-      });
-    }
+          guardian_name: approvalPayload.guardian_name,
+          guardian_email: approvalPayload.guardian_email,
+          requester_name: approvalPayload.requester_name,
+          requester_role: approvalPayload.requester_role,
+          request_type: approvalPayload.request_type,
+          status: "pending",
+          updated_at: nowISO()
+        })
+      }
+    );
+  } else {
+    result = await supabaseRequest("/rest/v1/sc_parent_approval_requests", {
+      method: "POST",
+      body: JSON.stringify(approvalPayload)
+    });
   }
 
   const approvalRequestId = extractApprovalRequestId(result);
@@ -1192,18 +1184,15 @@ async function createParentApprovalRequestFromSnapshot(snapshotId, payload){
     snapshot_id: snapshotId,
     approval_request_id: approvalRequestId,
     athlete_name: payload.athlete_name,
-    school: payload.school,
-    sport: payload.sport,
-    position: payload.position,
     guardian_name: payload.guardian_name,
     guardian_email: payload.guardian_email,
-    guardian_phone: payload.guardian_phone,
+    status: "pending",
     created_at: nowISO()
   };
 
   localStorage.setItem(PARENT_APPROVAL_RECEIPT_KEY, JSON.stringify(receipt));
   return receipt;
-}
+} 
 
 function createSnapshotReceipt(snapshotId, payload, snapshotRow, parentApprovalReceipt, mediaReceipt, productionReceipt){
   const receipt = {
