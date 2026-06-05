@@ -673,17 +673,25 @@ b.red{color:var(--red)!important}
     grid-template-columns:1fr;
   }
 
-  .panel,
-  .panel.operations-panel{
-    height:auto;
-    max-height:none;
-    min-height:auto;
-    overflow:visible;
-  }
+ .panel,
+.panel.operations-panel{
+  height:720px;
+  max-height:720px;
+  min-height:720px;
+  overflow-y:auto;
+  overflow-x:hidden;
+  padding-right:14px;
+}
 
-  .audit-section{
-    max-height:420px;
-  }
+.audit-section{
+  max-height:none;
+  overflow:visible;
+}
+
+.audit-list{
+  max-height:none;
+  overflow:visible;
+} 
 }
 </style>
 </head>
@@ -734,52 +742,7 @@ b.red{color:var(--red)!important}
 
 <section class="shell-grid">
 
-<aside class="panel">
-  <h2 class="section-title">Role Channels</h2>
-
-  <div class="channel-stack">
-    <div class="channel active" data-role="Athlete">
-      <b>Athlete Channel</b>
-      <span>Direct athlete routing & system notices</span>
-    </div>
-
-    <div class="channel" data-role="Parent / Guardian">
-      <b>Parent / Guardian</b>
-      <span>Minor athlete authority & approvals</span>
-    </div>
-
-    <div class="channel" data-role="Coach">
-      <b>Coach Channel</b>
-      <span>Performance & evaluation communication</span>
-    </div>
-
-    <div class="channel" data-role="Counselor">
-      <b>Counselor Channel</b>
-      <span>Eligibility & academic readiness routing</span>
-    </div>
-
-    <div class="channel" data-role="Recruiter">
-      <b>Recruiter Channel</b>
-      <span>Controlled exposure & contact windows</span>
-    </div>
-
-    <div class="channel" data-role="Evaluator">
-      <b>Evaluator Channel</b>
-      <span>Review notes & metric verification</span>
-    </div>
-
-    <div class="channel" data-role="Program">
-      <b>Program Channel</b>
-      <span>Program-wide operational notices</span>
-    </div>
-  </div>
-
-  <button class="crystal-report-btn" type="button" id="generateCrystalReportBtn">
-    Open Crystal Report
-  </button>
-</aside>
-
-<article class="panel">
+  <article class="panel">
   <section class="compose-shell">
     <h2 class="section-title">Athlete Messaging Center</h2>
 
@@ -843,7 +806,7 @@ b.red{color:var(--red)!important}
   </section>
 </article>
 
-<aside class="panel operations-panel">
+<aside class="panel operations-panel" style="height:720px;max-height:720px;min-height:720px;overflow-y:auto;overflow-x:hidden;padding-right:14px;">
   <h2 class="section-title">Operations Rail</h2>
 
   <div class="status-card">
@@ -887,7 +850,7 @@ b.red{color:var(--red)!important}
       </div>
     </div>
   </div>
-</aside>
+</aside> 
 
 </section>
 
