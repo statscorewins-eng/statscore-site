@@ -411,27 +411,34 @@ textarea{
 .btn.green{border-color:var(--green);color:var(--green)}
 .btn.primary{border-color:var(--red);color:var(--red);background:rgba(255,43,31,.12)}
 
+  .message-status-zone{
+    display:grid;
+    grid-template-rows:auto 34px;
+    gap:10px;
+    margin-top:14px;
+    overflow:hidden;
+} 
+  
 .system-message{
   display:block;
   width:100%;
   max-width:100%;
   min-height:32px;
-  margin-top:14px;
-  margin-bottom:18px;
-  padding-right:8px;
+  margin:10px 0 0 0;
+  padding:0 8px 0 0;
 
   color:var(--green);
-  font-size:.68rem;
+  font-size:.66rem;
   font-weight:900;
-  letter-spacing:.08em;
+  letter-spacing:.06em;
   text-transform:uppercase;
-  line-height:1.35;
+  line-height:1.25;
 
   white-space:normal;
+  overflow:hidden;
   overflow-wrap:anywhere;
   word-break:break-word;
 } 
-
   
 .status-card,
 .side-section{
@@ -858,11 +865,13 @@ This prevents laptop/desktop from colliding with mobile.
         <button class="btn primary" type="button" id="broadcastNoticeBtn">Broadcast Notice</button>
       </div>
 
-      <button class="crystal-report-btn" type="button" id="generateCrystalReportBtn">
-        Generate Crystal Report
-      </button>
+      <div class="message-status-zone">
+  <button class="crystal-report-btn" type="button" id="generateCrystalReportBtn">
+    Generate Crystal Report
+  </button>
 
-      <div class="system-message" id="systemMessage">Multi-Box ready</div>
+  <div class="system-message" id="systemMessage">Multi-Box ready</div>
+</div> 
     </section>
   </article>
 
@@ -978,9 +987,11 @@ function esc(v){
 function setMessage(msg,type="success"){
   const el=document.getElementById("systemMessage");
   if(!el)return;
+
   el.textContent=msg || "";
   el.style.color=type==="error" ? "var(--red)" : "var(--green)";
-}
+  el.title=msg || "";
+} 
 
 function getAthleteId(){
   let id=localStorage.getItem("statscore_current_athlete_id");
