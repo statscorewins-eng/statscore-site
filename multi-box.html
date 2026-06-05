@@ -247,7 +247,7 @@ a{text-decoration:none;color:inherit}
 
 .shell-grid{
   display:grid;
-  grid-template-columns:300px 1fr 350px;
+  grid-template-columns:320px minmax(420px,1fr) 350px;
   gap:14px;
   align-items:start;
 }
@@ -257,6 +257,10 @@ a{text-decoration:none;color:inherit}
   border:1px solid var(--line);
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.035);
   padding:20px;
+  min-height:720px;
+}
+
+.role-panel{
   min-height:720px;
 }
 
@@ -288,11 +292,18 @@ a{text-decoration:none;color:inherit}
   padding:14px;
   background:rgba(255,255,255,.02);
   cursor:pointer;
+  transition:.18s ease;
+}
+
+.channel:hover{
+  border-color:rgba(126,216,255,.65);
+  transform:translateX(3px);
 }
 
 .channel.active{
   border-color:var(--red);
   box-shadow:inset 0 0 0 1px rgba(255,43,31,.25);
+  background:linear-gradient(90deg,rgba(255,43,31,.14),rgba(255,255,255,.025));
 }
 
 .channel b{
@@ -314,6 +325,7 @@ a{text-decoration:none;color:inherit}
   border:1px solid var(--line2);
   padding:20px;
   background:rgba(7,10,16,.45);
+  min-height:720px;
 }
 
 .compose-grid{
@@ -623,6 +635,10 @@ b.red{color:var(--red)!important}
     grid-template-columns:1fr;
   }
 
+  .header{
+    height:auto;
+  }
+
   .logo-tab{
     width:100%;
     clip-path:none;
@@ -673,25 +689,26 @@ b.red{color:var(--red)!important}
     grid-template-columns:1fr;
   }
 
- .panel,
-.panel.operations-panel{
-  height:720px;
-  max-height:720px;
-  min-height:720px;
-  overflow-y:auto;
-  overflow-x:hidden;
-  padding-right:14px;
-}
+  .panel,
+  .panel.operations-panel,
+  .compose-shell{
+    height:auto;
+    max-height:none;
+    min-height:auto;
+    overflow-y:visible;
+    overflow-x:hidden;
+    padding-right:14px;
+  }
 
-.audit-section{
-  max-height:none;
-  overflow:visible;
-}
+  .audit-section{
+    max-height:none;
+    overflow:visible;
+  }
 
-.audit-list{
-  max-height:none;
-  overflow:visible;
-} 
+  .audit-list{
+    max-height:none;
+    overflow:visible;
+  }
 }
 </style>
 </head>
@@ -742,115 +759,160 @@ b.red{color:var(--red)!important}
 
 <section class="shell-grid">
 
+  <aside class="panel role-panel">
+    <h2 class="section-title">Role Channels</h2>
+
+    <div class="channel-stack">
+      <div class="channel active" data-role="Athlete">
+        <b>♟ Athlete</b>
+        <span>Direct athlete notices, readiness reminders, profile updates, and eligibility alerts.</span>
+      </div>
+
+      <div class="channel" data-role="Parent / Guardian">
+        <b>♟ Parent / Guardian</b>
+        <span>Guardian approvals, access confirmation, permissions, and visibility controls.</span>
+      </div>
+
+      <div class="channel" data-role="Coach">
+        <b>⌂ Coach</b>
+        <span>Performance validation, roster communication, and coach-confirmed profile updates.</span>
+      </div>
+
+      <div class="channel" data-role="Counselor">
+        <b>▣ Counselor</b>
+        <span>Academic readiness, ACT/SAT reminders, eligibility tracking, and document routing.</span>
+      </div>
+
+      <div class="channel" data-role="Recruiter">
+        <b>◎ Recruiter</b>
+        <span>Controlled recruiter access, communication window status, and visibility restrictions.</span>
+      </div>
+
+      <div class="channel" data-role="Evaluator">
+        <b>☑ Evaluator</b>
+        <span>Metric verification, evidence review, scouting notes, and evaluation routing.</span>
+      </div>
+
+      <div class="channel" data-role="Program">
+        <b>⌂ Program</b>
+        <span>Program-wide notices, event updates, operational deadlines, and system announcements.</span>
+      </div>
+    </div>
+  </aside>
+
   <article class="panel">
-  <section class="compose-shell">
-    <h2 class="section-title">Athlete Messaging Center</h2>
+    <section class="compose-shell">
+      <h2 class="section-title">Athlete Messaging Center</h2>
 
-    <div class="compose-grid">
-      <div class="field">
-        <label>Target Role</label>
-        <input id="targetRole" type="text" value="Athlete" readonly>
+      <div class="compose-grid">
+        <div class="field">
+          <label>Target Role</label>
+          <input id="targetRole" type="text" value="Athlete" readonly>
+        </div>
+
+        <div class="field">
+          <label>Message Type</label>
+          <select id="messageType">
+            <option>System Alert</option>
+            <option>Recruiting Window Notice</option>
+            <option>Eligibility Reminder</option>
+            <option>ACT / SAT Notice</option>
+            <option>Parent Approval Required</option>
+            <option>Verification Update</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Priority Level</label>
+          <select id="priorityLevel">
+            <option>Standard</option>
+            <option>Important</option>
+            <option>Urgent</option>
+            <option>Compliance</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Communication Window</label>
+          <select id="communicationWindow">
+            <option>Currently Open</option>
+            <option>Limited Access</option>
+            <option>Restricted</option>
+            <option>Closed</option>
+          </select>
+        </div>
+
+        <div class="field full">
+          <label>Subject</label>
+          <input id="subject" type="text" placeholder="Example: NCAA Recruiting Communication Window Open">
+        </div>
+
+        <div class="field full">
+          <label>Message Body</label>
+          <textarea id="messageBody" placeholder="Generate operational notices, eligibility reminders, recruiter communication alerts, ACT/SAT notifications, guardian approval requests, or visibility updates."></textarea>
+        </div>
       </div>
 
-      <div class="field">
-        <label>Message Type</label>
-        <select id="messageType">
-          <option>System Alert</option>
-          <option>Recruiting Window Notice</option>
-          <option>Eligibility Reminder</option>
-          <option>ACT / SAT Notice</option>
-          <option>Parent Approval Required</option>
-          <option>Verification Update</option>
-        </select>
+      <div class="message-toolbar">
+        <button class="btn gold" type="button" id="aiAssistBtn">AI Assist</button>
+        <button class="btn" type="button" id="saveDraftBtn">Save Draft</button>
+        <button class="btn green" type="button" id="sendMessageBtn">Send Message</button>
+        <button class="btn primary" type="button" id="broadcastNoticeBtn">Broadcast Notice</button>
       </div>
 
-      <div class="field">
-        <label>Priority Level</label>
-        <select id="priorityLevel">
-          <option>Standard</option>
-          <option>Important</option>
-          <option>Urgent</option>
-          <option>Compliance</option>
-        </select>
-      </div>
+      <button class="crystal-report-btn" type="button" id="generateCrystalReportBtn">
+        Generate Crystal Report
+      </button>
 
-      <div class="field">
-        <label>Communication Window</label>
-        <select id="communicationWindow">
-          <option>Currently Open</option>
-          <option>Limited Access</option>
-          <option>Restricted</option>
-          <option>Closed</option>
-        </select>
-      </div>
+      <div class="system-message" id="systemMessage">Multi-Box ready</div>
+    </section>
+  </article>
 
-      <div class="field full">
-        <label>Subject</label>
-        <input id="subject" type="text" placeholder="Example: NCAA Recruiting Communication Window Open">
-      </div>
+  <aside class="panel operations-panel">
+    <h2 class="section-title">Operations Rail</h2>
 
-      <div class="field full">
-        <label>Message Body</label>
-        <textarea id="messageBody" placeholder="Generate operational notices, eligibility reminders, recruiter communication alerts, ACT/SAT notifications, guardian approval requests, or visibility updates."></textarea>
-      </div>
+    <div class="status-card">
+      <div class="status-row"><span>Recruiter Window</span><b class="green">Open</b></div>
+      <div class="status-row"><span>Guardian Access</span><b class="green">Active</b></div>
+      <div class="status-row"><span>Profile Visibility</span><b>Controlled</b></div>
+      <div class="status-row"><span>NCAA Contact</span><b class="green">Permitted</b></div>
+      <div class="status-row"><span>Activity Tracking</span><b class="green">Enabled</b></div>
     </div>
 
-    <div class="message-toolbar">
-      <button class="btn gold" type="button" id="aiAssistBtn">AI Assist</button>
-      <button class="btn" type="button" id="saveDraftBtn">Save Draft</button>
-      <button class="btn green" type="button" id="sendMessageBtn">Send Message</button>
-      <button class="btn primary" type="button" id="broadcastNoticeBtn">Broadcast Notice</button>
+    <div class="notice">
+      Multi-Box™ manages athlete communication, recruiter access, guardian permissions,
+      eligibility alerts, and profile visibility across Football, Basketball, Baseball, and Track.
     </div>
 
-    <div class="system-message" id="systemMessage">Multi-Box ready</div>
-  </section>
-</article>
+    <div class="side-section">
+      <div class="metric-row"><span>ACT Registration</span><b>May 24</b></div>
+      <div class="metric-row"><span>ACT Testing</span><b>June 14</b></div>
+      <div class="metric-row"><span>Recruiting Period</span><b class="green">Open</b></div>
+      <div class="metric-row"><span>Unread Notices</span><b>3</b></div>
+      <div class="metric-row"><span>Pending Requests</span><b class="red">2</b></div>
+    </div>
 
-<aside class="panel operations-panel" style="height:720px;max-height:720px;min-height:720px;overflow-y:auto;overflow-x:hidden;padding-right:14px;">
-  <h2 class="section-title">Operations Rail</h2>
+    <div class="side-section audit-section">
+      <h2 class="section-title">Audit Trail</h2>
 
-  <div class="status-card">
-    <div class="status-row"><span>Recruiter Window</span><b class="green">Open</b></div>
-    <div class="status-row"><span>Guardian Access</span><b class="green">Active</b></div>
-    <div class="status-row"><span>Profile Visibility</span><b>Controlled</b></div>
-    <div class="status-row"><span>NCAA Contact</span><b class="green">Permitted</b></div>
-    <div class="status-row"><span>Activity Tracking</span><b class="green">Enabled</b></div>
-  </div>
+      <div class="audit-list" id="auditPanel">
+        <div class="audit-item">
+          <b>System Broadcast</b>
+          <span>[SPORT] recruiting communication window activated for eligible athlete profiles.</span>
+        </div>
 
-  <div class="notice">
-    Multi-Box™ manages athlete communication, recruiter access, guardian permissions,
-    eligibility alerts, and profile visibility across Football, Basketball, Baseball, and Track.
-  </div>
+        <div class="audit-item">
+          <b>Guardian Approval</b>
+          <span>Parent / Guardian visibility approval confirmed.</span>
+        </div>
 
-  <div class="side-section">
-    <div class="metric-row"><span>ACT Registration</span><b>May 24</b></div>
-    <div class="metric-row"><span>ACT Testing</span><b>June 14</b></div>
-    <div class="metric-row"><span>Recruiting Period</span><b class="green">Open</b></div>
-    <div class="metric-row"><span>Unread Notices</span><b>3</b></div>
-    <div class="metric-row"><span>Pending Requests</span><b class="red">2</b></div>
-  </div>
-
-  <div class="side-section audit-section">
-    <h2 class="section-title">Audit Trail</h2>
-
-    <div class="audit-list" id="auditPanel">
-      <div class="audit-item">
-        <b>System Broadcast</b>
-        <span>[SPORT] recruiting communication window activated for eligible athlete profiles.</span>
-      </div>
-
-      <div class="audit-item">
-        <b>Guardian Approval</b>
-        <span>Parent / Guardian visibility approval confirmed.</span>
-      </div>
-
-      <div class="audit-item">
-        <b>Eligibility Routing</b>
-        <span>ACT testing reminder routed to athlete, guardian, and counselor.</span>
+        <div class="audit-item">
+          <b>Eligibility Routing</b>
+          <span>ACT testing reminder routed to athlete, guardian, and counselor.</span>
+        </div>
       </div>
     </div>
-  </div>
-</aside> 
+  </aside>
 
 </section>
 
@@ -876,7 +938,7 @@ b.red{color:var(--red)!important}
 
 <script>
 const SUPABASE_URL = "https://oyjmpbuxvfxusmbouldi.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk";
 
 const LOCAL_DRAFT_KEY = "statscore_multibox_drafts_v1";
 const LOCAL_AUDIT_KEY = "statscore_multibox_audit_v1";
@@ -1019,6 +1081,15 @@ function loadLocalAudit(){
 
   const saved=safeParse(localStorage.getItem(LOCAL_AUDIT_KEY),[]);
 
+  if(!saved.length){
+    [
+      ["System Broadcast","[SPORT] recruiting communication window activated for eligible athlete profiles."],
+      ["Guardian Approval","Parent / Guardian visibility approval confirmed."],
+      ["Eligibility Routing","ACT testing reminder routed to athlete, guardian, and counselor."]
+    ].reverse().forEach(a=>renderAudit(a[0],a[1]));
+    return;
+  }
+
   saved
     .slice(0,25)
     .reverse()
@@ -1085,7 +1156,8 @@ async function removeDraft(messageId){
 }
 
 function setRole(role,el){
-  document.getElementById("targetRole").value=role;
+  const target=document.getElementById("targetRole");
+  if(target) target.value=role;
 
   document.querySelectorAll(".channel").forEach(c=>c.classList.remove("active"));
   if(el)el.classList.add("active");
@@ -1103,8 +1175,8 @@ function setRole(role,el){
     "Program":["Example: Program-Wide Operational Notice","Send program-wide alerts, event updates, deadline reminders, and system notices."]
   }[role] || ["Example: Athlete Notice","Send athlete communication notice."];
 
-  subject.placeholder=copy[0];
-  body.placeholder=copy[1];
+  if(subject) subject.placeholder=copy[0];
+  if(body) body.placeholder=copy[1];
 
   setMessage(role+" routing lane active");
 }
