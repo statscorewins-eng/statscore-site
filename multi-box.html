@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -283,14 +283,14 @@ LOCKED DESKTOP GRID
 
 .compose-shell{
   border:1px solid var(--line2);
-  padding:20px 20px 16px;
+  padding:20px 20px 42px 20px;
   background:rgba(7,10,16,.45);
   height:100%;
   min-height:100%;
   max-height:100%;
-  overflow:hidden;
-}
-
+  overflow:visible;
+} 
+  
 .section-title{
   margin:0 0 18px;
   color:var(--red);
@@ -412,17 +412,19 @@ textarea{
 .btn.primary{border-color:var(--red);color:var(--red);background:rgba(255,43,31,.12)}
 
 .system-message{
-  margin-top:10px;
-  padding-left:2px;
-  min-height:20px;
+  display:flex;
+  align-items:center;
+  min-height:32px;
+  margin-top:14px;
+  margin-bottom:18px;
+
   color:var(--green);
-  font-size:.68rem;
+  font-size:.72rem;
   font-weight:900;
   letter-spacing:.12em;
   text-transform:uppercase;
-  line-height:1.2;
-  position:relative;
-  z-index:2;
+
+  line-height:1.4;
 } 
   
 .status-card,
