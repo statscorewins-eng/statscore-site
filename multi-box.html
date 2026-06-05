@@ -928,9 +928,11 @@ This prevents laptop/desktop from colliding with mobile.
 </main>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> 
+
 <script>
 const SUPABASE_URL = "https://oyjmpbuxvfxusmbouldi.supabase.co";
-const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY_HERE";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk";
 
 const LOCAL_DRAFT_KEY = "statscore_multibox_drafts_v1";
 const LOCAL_AUDIT_KEY = "statscore_multibox_audit_v1";
@@ -944,6 +946,8 @@ function initSupabase(){
       window.STATScoreSupabase = supabaseClient;
       window.STATScoreSupabaseClient = supabaseClient;
       console.log("[STATScore] Multi-Box Supabase connected");
+    }else{
+      console.warn("[STATScore] Supabase key missing. Local fallback active.");
     }
   }catch(e){
     console.error("[STATScore] Supabase init failed:",e);
@@ -956,13 +960,6 @@ function safeParse(v,fallback=[]){
   catch(e){return fallback}
 }
 
-function setMessage(msg,type="success"){
-  const el=document.getElementById("systemMessage");
-  if(!el)return;
-  el.textContent=msg||"";
-  el.style.color=type==="error"?"var(--red)":"var(--green)";
-}
-
 function esc(v){
   return String(v??"")
     .replaceAll("&","&amp;")
@@ -970,6 +967,13 @@ function esc(v){
     .replaceAll(">","&gt;")
     .replaceAll('"',"&quot;")
     .replaceAll("'","&#039;");
+}
+
+function setMessage(msg,type="success"){
+  const el=document.getElementById("systemMessage");
+  if(!el)return;
+  el.textContent=msg || "";
+  el.style.color=type==="error" ? "var(--red)" : "var(--green)";
 }
 
 function getAthleteId(){
@@ -1006,7 +1010,7 @@ function extractMessageId(data){
   return null;
 }
 
-function renderAudit(actionType,note,messageId=null){
+function renderAudit(actionType,note,messageId=null,canRemove=false){
   const auditPanel=document.getElementById("auditPanel");
   if(!auditPanel)return;
 
@@ -1019,7 +1023,7 @@ function renderAudit(actionType,note,messageId=null){
     <b>${esc(actionType)}</b>
     <span>${esc(note)}</span>
     ${
-      messageId
+      canRemove && messageId
         ? `<button class="draft-remove-btn" type="button" data-message-id="${esc(messageId)}">REMOVE</button>`
         : ""
     }
@@ -1028,49 +1032,96 @@ function renderAudit(actionType,note,messageId=null){
   auditPanel.prepend(item);
 }
 
-function addAudit(actionType,note,messageId=null){
-  renderAudit(actionType,note,messageId);
+function addAudit(actionType,note,messageId=null,canRemove=false){
+  renderAudit(actionType,note,messageId,canRemove);
 
   const saved=safeParse(localStorage.getItem(LOCAL_AUDIT_KEY),[]);
   saved.unshift({
     action_type:actionType,
     audit_note:note,
     message_id:messageId,
+    can_remove:canRemove,
     created_at:new Date().toISOString()
   });
 
-  localStorage.setItem(LOCAL_AUDIT_KEY,JSON.stringify(saved.slice(0,25)));
+  localStorage.setItem(LOCAL_AUDIT_KEY,JSON.stringify(saved.slice(0,50)));
+}
+
+function clearAuditPanel(){
+  const auditPanel=document.getElementById("auditPanel");
+  if(auditPanel)auditPanel.innerHTML="";
 }
 
 function loadLocalAudit(){
-  const auditPanel=document.getElementById("auditPanel");
-  if(auditPanel)auditPanel.innerHTML="";
+  clearAuditPanel();
 
   const saved=safeParse(localStorage.getItem(LOCAL_AUDIT_KEY),[]);
 
   if(!saved.length){
     [
-      ["System Broadcast","[SPORT] recruiting communication window activated for eligible athlete profiles."],
-      ["Guardian Approval","Parent / Guardian visibility approval confirmed."],
-      ["Eligibility Routing","ACT testing reminder routed to athlete, guardian, and counselor."]
-    ].reverse().forEach(a=>renderAudit(a[0],a[1]));
+      ["System Broadcast","[SPORT] recruiting communication window activated for eligible athlete profiles.",null,false],
+      ["Guardian Approval","Parent / Guardian visibility approval confirmed.",null,false],
+      ["Eligibility Routing","ACT testing reminder routed to athlete, guardian, and counselor.",null,false]
+    ].reverse().forEach(a=>renderAudit(a[0],a[1],a[2],a[3]));
     return;
   }
 
-  saved.slice(0,25).reverse().forEach(a=>{
+  saved.slice(0,50).reverse().forEach(a=>{
     renderAudit(
       a.action_type || "Message Activity",
       a.audit_note || "Multi-Box activity recorded.",
-      a.message_id || null
+      a.message_id || null,
+      !!a.can_remove
     );
   });
+}
+
+async function loadSupabaseAudit(){
+  if(!supabaseClient){
+    loadLocalAudit();
+    return;
+  }
+
+  try{
+    const athleteId=getAthleteId();
+
+    const {data,error}=await supabaseClient
+      .from("statscore_multibox_audit")
+      .select("*")
+      .eq("athlete_id",athleteId)
+      .order("created_at",{ascending:false})
+      .limit(40);
+
+    if(error)throw error;
+
+    clearAuditPanel();
+
+    if(!data || !data.length){
+      loadLocalAudit();
+      return;
+    }
+
+    data.reverse().forEach(row=>{
+      const isDraft=row.action_type==="Draft Saved";
+      renderAudit(
+        row.action_type || "Message Activity",
+        row.audit_note || "Multi-Box activity recorded.",
+        row.message_id || null,
+        isDraft
+      );
+    });
+
+  }catch(e){
+    console.error("[STATScore] Supabase audit load failed:",e);
+    loadLocalAudit();
+  }
 }
 
 function removeLocalDraft(messageId){
   const drafts=safeParse(localStorage.getItem(LOCAL_DRAFT_KEY),[]);
   localStorage.setItem(
     LOCAL_DRAFT_KEY,
-    JSON.stringify(drafts.filter(d=>d.local_id!==messageId && d.message_id!==messageId && d.id!==messageId).slice(0,25))
+    JSON.stringify(drafts.filter(d=>d.local_id!==messageId && d.message_id!==messageId && d.id!==messageId).slice(0,50))
   );
 }
 
@@ -1078,13 +1129,13 @@ function removeLocalAudit(messageId){
   const audit=safeParse(localStorage.getItem(LOCAL_AUDIT_KEY),[]);
   localStorage.setItem(
     LOCAL_AUDIT_KEY,
-    JSON.stringify(audit.filter(a=>a.message_id!==messageId).slice(0,25))
+    JSON.stringify(audit.filter(a=>a.message_id!==messageId).slice(0,50))
   );
 }
 
 async function removeDraft(messageId){
   if(!messageId){
-    setMessage("No message ID found for this draft.","error");
+    setMessage("No draft ID found.","error");
     return;
   }
 
@@ -1099,7 +1150,7 @@ async function removeDraft(messageId){
       });
 
       if(error)throw error;
-      if(data && data.ok===false)throw new Error(data.status || "Remove draft RPC returned not ok.");
+      if(data && data.ok===false)throw new Error(data.status || "Remove draft failed.");
     }
 
     removeLocalDraft(messageId);
@@ -1108,9 +1159,11 @@ async function removeDraft(messageId){
     document.querySelectorAll(`.audit-item[data-message-id="${CSS.escape(messageId)}"]`).forEach(x=>x.remove());
 
     setMessage("Draft removed successfully.");
+    await loadSupabaseAudit();
+
   }catch(e){
     console.error("Draft remove error:",e);
-    setMessage("Unable to remove draft. Check Console or Supabase RPC.","error");
+    setMessage("Unable to remove draft. Check Supabase RPC.","error");
   }
 }
 
@@ -1171,6 +1224,7 @@ function aiAssist(){
   document.getElementById("subject").value=subject;
   document.getElementById("messageBody").value=body;
 
+  addAudit("AI Assist","Role-aware communication draft generated for "+role+".",null,false);
   setMessage("AI communication draft generated");
 }
 
@@ -1178,7 +1232,7 @@ async function saveDraft(){
   const payload=getFormPayload("draft");
 
   if(!payload.subject || !payload.body){
-    setMessage("Subject and message body are required","error");
+    setMessage("Subject and message body are required.","error");
     alert("Subject and message body are required.");
     return;
   }
@@ -1206,13 +1260,14 @@ async function saveDraft(){
 
     const drafts=safeParse(localStorage.getItem(LOCAL_DRAFT_KEY),[]);
     drafts.unshift(payload);
-    localStorage.setItem(LOCAL_DRAFT_KEY,JSON.stringify(drafts.slice(0,25)));
+    localStorage.setItem(LOCAL_DRAFT_KEY,JSON.stringify(drafts.slice(0,50)));
 
-    addAudit("Draft Saved",`${payload.receiver_role} ${payload.message_type} saved as draft.`,messageId);
-    setMessage("Draft saved successfully");
+    addAudit("Draft Saved",`${payload.receiver_role} ${payload.message_type} saved as draft.`,messageId,true);
+    setMessage("Draft saved successfully.");
+
   }catch(e){
     console.error("Draft save error:",e);
-    setMessage("Draft failed — check Supabase function, URL, anon key, or RLS","error");
+    setMessage("Draft failed. Check Supabase function, anon key, or RLS.","error");
   }
 }
 
@@ -1220,7 +1275,7 @@ async function sendMessage(){
   const payload=getFormPayload("sent");
 
   if(!payload.subject || !payload.body){
-    setMessage("Subject and message body are required","error");
+    setMessage("Subject and message body are required.","error");
     alert("Subject and message body are required.");
     return;
   }
@@ -1239,11 +1294,13 @@ async function sendMessage(){
       if(error)throw error;
     }
 
-    addAudit("Message Sent",`${payload.message_type} routed to ${payload.receiver_role}.`);
-    setMessage("Message sent and logged");
+    addAudit("Message Sent",`${payload.message_type} routed to ${payload.receiver_role}.`,null,false);
+    setMessage("Message sent and logged.");
+    await loadSupabaseState();
+
   }catch(e){
     console.error("Message send error:",e);
-    setMessage("Send failed — check Supabase function, URL, anon key, or RLS","error");
+    setMessage("Send failed. Check Supabase function, anon key, or RLS.","error");
   }
 }
 
@@ -1251,7 +1308,7 @@ async function broadcastNotice(){
   const payload=getFormPayload("broadcast");
 
   if(!payload.subject || !payload.body){
-    setMessage("Subject and message body are required","error");
+    setMessage("Subject and message body are required.","error");
     alert("Subject and message body are required.");
     return;
   }
@@ -1269,12 +1326,47 @@ async function broadcastNotice(){
       if(error)throw error;
     }
 
-    addAudit("System Broadcast",`${payload.message_type} broadcast across controlled role channels.`);
-    setMessage("Broadcast notice logged");
+    addAudit("System Broadcast",`${payload.message_type} broadcast across controlled role channels.`,null,false);
+    setMessage("Broadcast notice logged.");
+
   }catch(e){
     console.error("Broadcast error:",e);
-    setMessage("Broadcast failed — check Supabase function, URL, anon key, or RLS","error");
+    setMessage("Broadcast failed. Check Supabase function, anon key, or RLS.","error");
   }
+}
+
+async function loadSupabaseState(){
+  if(!supabaseClient)return;
+
+  try{
+    const {data,error}=await supabaseClient.rpc("statscore_multibox_state",{
+      p_athlete_id:getAthleteId()
+    });
+
+    if(error)throw error;
+
+    if(data){
+      updateRow("Recruiter Window",data.recruiter_window || "Open");
+      updateRow("Guardian Access",data.guardian_access || "Active");
+      updateRow("Profile Visibility",data.profile_visibility || "Controlled");
+      updateRow("NCAA Contact",data.ncaa_contact || "Permitted");
+      updateRow("Activity Tracking",data.activity_tracking || "Enabled");
+      updateRow("Unread Notices",String(data.unread_notices ?? 0));
+      updateRow("Pending Requests",String(data.pending_requests ?? 0));
+    }
+  }catch(e){
+    console.warn("[STATScore] State load skipped:",e);
+  }
+}
+
+function updateRow(label,value){
+  document.querySelectorAll(".status-row,.metric-row").forEach(row=>{
+    const span=row.querySelector("span");
+    const b=row.querySelector("b");
+    if(span && b && span.textContent.trim().toLowerCase()===label.toLowerCase()){
+      b.textContent=value;
+    }
+  });
 }
 
 function generateCrystalReport(){
@@ -1296,7 +1388,8 @@ function generateCrystalReport(){
   localStorage.setItem("statscore_crystal_report_payload",JSON.stringify(payload));
   localStorage.setItem("statscore_multibox_crystal_report_payload",JSON.stringify(payload));
 
-  setMessage("Crystal Report generated");
+  addAudit("Crystal Report","Multi-Box Crystal Report payload generated.",null,false);
+  setMessage("Crystal Report generated.");
   window.location.href="crystal-report.html";
 }
 
@@ -1319,19 +1412,20 @@ function wireEvents(){
 
 window.history.scrollRestoration="manual";
 
-document.addEventListener("DOMContentLoaded",()=>{
+document.addEventListener("DOMContentLoaded",async()=>{
   window.scrollTo(0,0);
   initSupabase();
   wireEvents();
-  loadLocalAudit();
   setRole("Athlete",document.querySelector('.channel[data-role="Athlete"]'));
+  await loadSupabaseAudit();
+  await loadSupabaseState();
   setMessage("Multi-Box ready");
 });
 
 window.addEventListener("load",()=>{
   setTimeout(()=>window.scrollTo(0,0),50);
 });
-</script>
+</script> 
 
 <script src="statscore-data.js"></script>
 
