@@ -1233,6 +1233,52 @@ function aiAssist(){
   addAudit("AI Assist","Role-aware communication draft generated for "+role+".",null,false);
   setMessage("AI communication draft generated");
 }
+async function insertMessage(payload){
+  if(!supabaseClient){
+    throw new Error("Supabase client not connected.");
+  }
+
+  const {data,error}=await supabaseClient
+    .from("statscore_multibox_messages")
+    .insert([{
+      athlete_id:payload.athlete_id,
+      sender_role:payload.sender_role,
+      receiver_role:payload.receiver_role,
+      message_type:payload.message_type,
+      priority_level:payload.priority_level,
+      communication_window:payload.communication_window,
+      subject:payload.subject,
+      body:payload.body,
+      status:payload.status,
+      sport_scope:payload.sport_scope,
+      sports:payload.sports
+    }])
+    .select("message_id")
+    .single();
+
+  if(error)throw error;
+  return data?.message_id || payload.local_id;
+}
+
+async function insertAudit(actionType,note,messageId,payload){
+  if(!supabaseClient)return;
+
+  await supabaseClient
+    .from("statscore_multibox_audit")
+    .insert([{
+      message_id:messageId,
+      athlete_id:payload.athlete_id,
+      action_type:actionType,
+      actor_role:payload.sender_role,
+      actor_id:payload.athlete_id,
+      audit_note:note,
+      audit_payload:{
+        receiver_role:payload.receiver_role,
+        message_type:payload.message_type,
+        status:payload.status
+      }
+    }]);
+}
 
 async function saveDraft(){
   const payload=getFormPayload("draft");
@@ -1243,49 +1289,30 @@ async function saveDraft(){
     return;
   }
 
-  let messageId=payload.local_id;
-  let supabaseFailed=false;
-
   try{
-    if(supabaseClient){
-      const {data,error}=await supabaseClient.rpc("statscore_multibox_save_draft",{
-        p_athlete_id:payload.athlete_id,
-        p_sender_role:payload.sender_role,
-        p_receiver_role:payload.receiver_role,
-        p_message_type:payload.message_type,
-        p_subject:payload.subject,
-        p_body:payload.body
-      });
+    const messageId=await insertMessage(payload);
+    payload.message_id=messageId;
 
-      if(error)throw error;
+    const drafts=safeParse(localStorage.getItem(LOCAL_DRAFT_KEY),[]);
+    drafts.unshift(payload);
+    localStorage.setItem(LOCAL_DRAFT_KEY,JSON.stringify(drafts.slice(0,50)));
 
-      messageId=extractMessageId(data) || payload.local_id;
-    }
-  }catch(e){
-    supabaseFailed=true;
-    console.error("Multi-Box Supabase Error:", {
-      message:e?.message,
-      details:e?.details,
-      hint:e?.hint,
-      code:e?.code,
-      full:e
-    });
-  }
+    const note=`${payload.receiver_role} ${payload.message_type} saved as draft.`;
+    await insertAudit("Draft Saved",note,messageId,payload);
+    addAudit("Draft Saved",note,messageId);
 
-  payload.message_id=messageId;
-
-  const drafts=safeParse(localStorage.getItem(LOCAL_DRAFT_KEY),[]);
-  drafts.unshift(payload);
-  localStorage.setItem(LOCAL_DRAFT_KEY,JSON.stringify(drafts.slice(0,50)));
-
-  addAudit("Draft Saved",`${payload.receiver_role} ${payload.message_type} saved as draft.`,messageId);
-
-  if(supabaseFailed){
-    setMessage("Draft saved locally. Supabase sync failed — check Console/RPC.","error");
-  }else{
     setMessage("Draft saved successfully.");
+  }catch(e){
+    console.error("Save Draft Error:",e);
+    setMessage("Draft saved locally. Supabase sync failed.","error");
+
+    payload.message_id=payload.local_id;
+    const drafts=safeParse(localStorage.getItem(LOCAL_DRAFT_KEY),[]);
+    drafts.unshift(payload);
+    localStorage.setItem(LOCAL_DRAFT_KEY,JSON.stringify(drafts.slice(0,50)));
+    addAudit("Draft Saved",`${payload.receiver_role} ${payload.message_type} saved as draft.`,payload.local_id);
   }
-} 
+}
 
 async function sendMessage(){
   const payload=getFormPayload("sent");
@@ -1297,31 +1324,22 @@ async function sendMessage(){
   }
 
   try{
-    if(supabaseClient){
-      const {data,error}=await supabaseClient.rpc("statscore_multibox_send_message",{
-        p_athlete_id:payload.athlete_id,
-        p_sender_role:payload.sender_role,
-        p_receiver_role:payload.receiver_role,
-        p_message_type:payload.message_type,
-        p_subject:payload.subject,
-        p_body:payload.body
-      });
+    const messageId=await insertMessage(payload);
+    const note=`${payload.message_type} routed to ${payload.receiver_role}.`;
 
-      if(error)throw error;
-    }
+    await insertAudit("Message Sent",note,messageId,payload);
+    addAudit("Message Sent",note,null);
 
-    addAudit("Message Sent",`${payload.message_type} routed to ${payload.receiver_role}.`,null,false);
     setMessage("Message sent and logged.");
-    await loadSupabaseState();
-
   }catch(e){
-    console.error("Message send error:",e);
-    setMessage("Send failed. Check Supabase function, anon key, or RLS.","error");
+    console.error("Send Message Error:",e);
+    setMessage("Send failed. Supabase sync failed.","error");
   }
 }
 
 async function broadcastNotice(){
   const payload=getFormPayload("broadcast");
+  payload.receiver_role="ALL_ROLE_CHANNELS";
 
   if(!payload.subject || !payload.body){
     setMessage("Subject and message body are required.","error");
@@ -1330,26 +1348,18 @@ async function broadcastNotice(){
   }
 
   try{
-    if(supabaseClient){
-      const {data,error}=await supabaseClient.rpc("statscore_multibox_broadcast_notice",{
-        p_athlete_id:payload.athlete_id,
-        p_sender_role:payload.sender_role,
-        p_message_type:payload.message_type,
-        p_subject:payload.subject,
-        p_body:payload.body
-      });
+    const messageId=await insertMessage(payload);
+    const note=`${payload.message_type} broadcast across controlled role channels.`;
 
-      if(error)throw error;
-    }
+    await insertAudit("System Broadcast",note,messageId,payload);
+    addAudit("System Broadcast",note,null);
 
-    addAudit("System Broadcast",`${payload.message_type} broadcast across controlled role channels.`,null,false);
     setMessage("Broadcast notice logged.");
-
   }catch(e){
-    console.error("Broadcast error:",e);
-    setMessage("Broadcast failed. Check Supabase function, anon key, or RLS.","error");
+    console.error("Broadcast Error:",e);
+    setMessage("Broadcast failed. Supabase sync failed.","error");
   }
-}
+} 
 
 async function loadSupabaseState(){
   if(!supabaseClient)return;
