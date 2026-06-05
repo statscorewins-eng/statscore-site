@@ -1371,6 +1371,106 @@ function bindSnapshotRuntime(){
     viewProfileBtn.innerHTML = "Continue to Dashboard <span>›</span>";
   }
 
+  const headshotInput = $("athleteHeadshotUpload");
+  const uploadBox = $("headshotUploadBox");
+  const addHeadshotBtn = $("addHeadshotBtn");
+  const removeHeadshotBtn = $("removeHeadshotBtn");
+  const headshotPreview = $("headshotPreview");
+  const headshotUploadText = $("headshotUploadText");
+  const headshotUploadHint = $("headshotUploadHint");
+
+  function openHeadshotPicker(event){
+    if (event) event.preventDefault();
+    if (headshotInput) headshotInput.click();
+  }
+
+  function clearHeadshot(event){
+    if (event) event.preventDefault();
+
+    if (headshotInput) headshotInput.value = "";
+
+    if (headshotPreview){
+      headshotPreview.src = "";
+      headshotPreview.style.display = "none";
+    }
+
+    if (removeHeadshotBtn) removeHeadshotBtn.style.display = "none";
+    if (addHeadshotBtn) addHeadshotBtn.innerHTML = "Begin Media Ingest <span>+</span>";
+    if (headshotUploadText) headshotUploadText.textContent = "PHNX SPORTS MEDIA INGEST";
+    if (headshotUploadHint) headshotUploadHint.textContent = "Click to upload JPG, PNG, WEBP, HEIC, or HEIF";
+
+    setStatus("mediaStatusHeadshot", "Required", "var(--gold)");
+    setStatus("statusPhnxMedia", "Not Queued", "var(--gold)");
+    setMessage("Headshot removed.", "var(--green)");
+  }
+
+  function handleHeadshotSelected(){
+    const file = headshotInput?.files?.[0];
+
+    if (!file){
+      return;
+    }
+
+    const allowedTypes = [
+      "image/png",
+      "image/jpeg",
+      "image/webp",
+      "image/heic",
+      "image/heif"
+    ];
+
+    const fileName = String(file.name || "").toLowerCase();
+    const allowedExtension =
+      fileName.endsWith(".png") ||
+      fileName.endsWith(".jpg") ||
+      fileName.endsWith(".jpeg") ||
+      fileName.endsWith(".webp") ||
+      fileName.endsWith(".heic") ||
+      fileName.endsWith(".heif");
+
+    if (!allowedTypes.includes(file.type) && !allowedExtension){
+      clearHeadshot();
+      setMessage("Unsupported image format. Upload JPG, PNG, WEBP, HEIC, or HEIF.", "var(--red)");
+      return;
+    }
+
+    if (headshotPreview && file.type !== "image/heic" && file.type !== "image/heif"){
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        headshotPreview.src = reader.result;
+        headshotPreview.style.display = "block";
+      };
+
+      reader.readAsDataURL(file);
+    }
+
+    if (removeHeadshotBtn) removeHeadshotBtn.style.display = "flex";
+    if (addHeadshotBtn) addHeadshotBtn.innerHTML = "Change Headshot <span>↻</span>";
+    if (headshotUploadText) headshotUploadText.textContent = "HEADSHOT READY";
+    if (headshotUploadHint) headshotUploadHint.textContent = file.name;
+
+    setStatus("mediaStatusHeadshot", "Attached", "var(--green)");
+    setStatus("statusPhnxMedia", "Queued After Submit", "var(--gold)");
+    setMessage("Headshot attached. Submit Snapshot to complete ingest.", "var(--green)");
+  }
+
+  if (uploadBox){
+    uploadBox.addEventListener("click", openHeadshotPicker);
+  }
+
+  if (addHeadshotBtn){
+    addHeadshotBtn.addEventListener("click", openHeadshotPicker);
+  }
+
+  if (removeHeadshotBtn){
+    removeHeadshotBtn.addEventListener("click", clearHeadshot);
+  }
+
+  if (headshotInput){
+    headshotInput.addEventListener("change", handleHeadshotSelected);
+  }
+
   const form =
     $("snapshotForm") ||
     $("snapshot-intake-form") ||
@@ -1419,10 +1519,11 @@ function bindSnapshotRuntime(){
     btn.addEventListener("click", (event) => {
       if (event) event.preventDefault();
       localStorage.removeItem(SNAPSHOT_DRAFT_KEY);
+      clearHeadshot(event);
       setMessage("Snapshot draft removed.", "var(--green)");
     });
   });
-}
+} 
 
 document.addEventListener("DOMContentLoaded", bindSnapshotRuntime);
 </script> 
