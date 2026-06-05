@@ -1144,9 +1144,6 @@ async function createParentApprovalRequestFromSnapshot(snapshotId, payload){
     guardian_email: payload.guardian_email,
     guardian_phone: payload.guardian_phone,
     status: "PENDING",
-    request_status: "PENDING",
-    parent_room_url: parentRoomUrl,
-    approval_url: approvalUrl,
     request_source: "snapshot-intake.html",
     requested_at: nowISO(),
     created_at: nowISO()
@@ -1173,15 +1170,12 @@ async function createParentApprovalRequestFromSnapshot(snapshotId, payload){
       result = await supabaseRequest(`/rest/v1/sc_parent_approval_requests?snapshot_id=eq.${encodeURIComponent(snapshotId)}`, {
         method: "PATCH",
         body: JSON.stringify({
-          guardian_name: approvalPayload.guardian_name,
-          guardian_email: approvalPayload.guardian_email,
-          guardian_phone: approvalPayload.guardian_phone,
-          status: "PENDING",
-          request_status: "PENDING",
-          parent_room_url: parentRoomUrl,
-          approval_url: approvalUrl,
-          updated_at: nowISO()
-        })
+  guardian_name: approvalPayload.guardian_name,
+  guardian_email: approvalPayload.guardian_email,
+  guardian_phone: approvalPayload.guardian_phone,
+  status: "pending",
+  updated_at: nowISO()
+}) 
       });
     } else {
       result = await supabaseRequest("/rest/v1/sc_parent_approval_requests", {
@@ -1204,8 +1198,6 @@ async function createParentApprovalRequestFromSnapshot(snapshotId, payload){
     guardian_name: payload.guardian_name,
     guardian_email: payload.guardian_email,
     guardian_phone: payload.guardian_phone,
-    parent_room_url: parentRoomUrl,
-    approval_url: approvalUrl,
     created_at: nowISO()
   };
 
