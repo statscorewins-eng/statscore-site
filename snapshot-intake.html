@@ -582,8 +582,8 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
   <div class="flow-step"><b>Evidence</b><span>Film & Metrics</span></div>
   <div class="flow-step"><b>Permission</b><span>Parent / Guardian</span></div>
   <div class="flow-step"><b>Verification</b><span>Trust Layer</span></div>
-  <div class="flow-step"><b>PHNX Media</b><span>Exposure Queue</span></div>
-  <a id="viewProfileBtn" class="btn primary" href="player-profile.html">View Profile <span>›</span></a>
+  <div class="flow-step"><b>Dashboard</b><span>Navigation Layer</span></div>
+  <a id="viewProfileBtn" class="btn primary" href="athlete-dashboard.html?role=athlete&from=snapshot-intake">Continue to Dashboard <span>›</span></a>
 </section>
 
 <footer class="footer">
@@ -605,11 +605,17 @@ const SNAPSHOT_RECEIPT_KEY = "statscore_latest_snapshot_receipt_v1";
 const PARENT_APPROVAL_RECEIPT_KEY = "statscore_latest_parent_approval_receipt_v1";
 const PHNX_MEDIA_RECEIPT_KEY = "phnx_sports_latest_media_ingest_receipt_v1";
 const PHNX_PRODUCTION_RECEIPT_KEY = "phnx_sports_latest_production_queue_receipt_v1";
+const STATSCORE_LOGIN_CONTEXT_KEY = "statscore_login_context_v1";
+const STATSCORE_DASHBOARD_CONTEXT_KEY = "statscore_athlete_dashboard_context_v1";
 
 const STATSCORE_ACTIVE_TEST_SNAPSHOT_ID = "f7503b84-12a6-46d6-a095-f727e70e078f";
 
 function $(id){
   return document.getElementById(id);
+}
+
+function getField(key){
+  return document.getElementById(key) || document.querySelector(`[name="${key}"]`);
 }
 
 function setMessage(message, color = "var(--green)"){
@@ -626,27 +632,27 @@ function setStatus(id, text, color = "var(--green)"){
   el.style.color = color;
 }
 
-function safeValue(id){
-  const el = $(id);
+function safeValue(key){
+  const el = getField(key);
   return el && typeof el.value !== "undefined" ? String(el.value || "").trim() : "";
 }
 
-function firstValue(ids){
-  for (const id of ids){
-    const value = safeValue(id);
+function firstValue(keys){
+  for (const key of keys){
+    const value = safeValue(key);
     if (value) return value;
   }
   return "";
 }
 
-function safeChecked(id){
-  const el = $(id);
+function safeChecked(key){
+  const el = getField(key);
   return !!(el && typeof el.checked !== "undefined" && el.checked);
 }
 
-function firstChecked(ids){
-  for (const id of ids){
-    const el = $(id);
+function firstChecked(keys){
+  for (const key of keys){
+    const el = getField(key);
     if (el && typeof el.checked !== "undefined") return !!el.checked;
   }
   return false;
@@ -739,23 +745,26 @@ function buildSnapshotDraft(){
     first_name: firstName,
     last_name: lastName,
 
-    school: firstValue(["school", "athleteSchool", "playerSchool"]),
-    sport: firstValue(["sport", "athleteSport", "playerSport"]),
-    position: firstValue(["position", "athletePosition", "playerPosition"]),
-    graduation_year: firstValue(["graduationYear", "gradYear", "classYear"]),
+    school: firstValue(["schoolProgram", "school", "athleteSchool", "playerSchool"]),
+    sport: firstValue(["primarySport", "sport", "athleteSport", "playerSport"]),
+    position: firstValue(["primaryPosition", "position", "athletePosition", "playerPosition"]),
+    graduation_year: firstValue(["graduationClass", "graduationYear", "gradYear", "classYear"]),
     grade: firstValue(["grade", "athleteGrade"]),
     age: firstValue(["age", "athleteAge"]),
     city: firstValue(["city", "athleteCity"]),
     state: firstValue(["state", "athleteState"]),
+    city_state: firstValue(["cityState"]),
     height: firstValue(["height", "athleteHeight"]),
     weight: firstValue(["weight", "athleteWeight"]),
-    gpa: firstValue(["gpa", "athleteGpa"]),
+    gpa: firstValue(["currentGpa", "gpa", "athleteGpa"]),
     email: firstValue(["athleteEmail", "email", "playerEmail"]),
     phone: firstValue(["athletePhone", "phone", "playerPhone"]),
 
     guardian_name: firstValue(["guardianName", "parentName", "parentGuardianName"]),
     guardian_email: firstValue(["guardianEmail", "parentEmail", "parentGuardianEmail"]),
     guardian_phone: firstValue(["guardianPhone", "parentPhone", "parentGuardianPhone"]),
+    coach_name: firstValue(["coachName"]),
+    coach_email: firstValue(["coachEmail"]),
 
     recruiting_visibility: firstChecked(["recruitingVisibility", "profileVisibility", "visibilityRecruiting"]),
     media_permission: firstChecked(["mediaPermission", "highlightPermission", "mediaRelease"]),
@@ -767,14 +776,14 @@ function buildSnapshotDraft(){
   };
 }
 
-function setFieldValue(id, value){
-  const el = $(id);
+function setFieldValue(key, value){
+  const el = getField(key);
   if (!el || value === undefined || value === null) return;
   if (typeof el.value !== "undefined") el.value = value;
 }
 
-function setFieldChecked(id, value){
-  const el = $(id);
+function setFieldChecked(key, value){
+  const el = getField(key);
   if (!el || typeof el.checked === "undefined") return;
   el.checked = !!value;
 }
@@ -796,50 +805,27 @@ function restoreSnapshotDraft(){
     return;
   }
 
-  setFieldValue("athleteName", draft.athlete_name);
-  setFieldValue("playerName", draft.athlete_name);
-  setFieldValue("fullName", draft.athlete_name);
-
   setFieldValue("firstName", draft.first_name);
-  setFieldValue("athleteFirstName", draft.first_name);
   setFieldValue("lastName", draft.last_name);
-  setFieldValue("athleteLastName", draft.last_name);
-
-  setFieldValue("school", draft.school);
-  setFieldValue("athleteSchool", draft.school);
-  setFieldValue("sport", draft.sport);
-  setFieldValue("athleteSport", draft.sport);
-  setFieldValue("position", draft.position);
-  setFieldValue("athletePosition", draft.position);
-  setFieldValue("graduationYear", draft.graduation_year);
-  setFieldValue("gradYear", draft.graduation_year);
-  setFieldValue("classYear", draft.graduation_year);
-  setFieldValue("grade", draft.grade);
-  setFieldValue("age", draft.age);
-  setFieldValue("city", draft.city);
-  setFieldValue("state", draft.state);
+  setFieldValue("schoolProgram", draft.school);
+  setFieldValue("primarySport", draft.sport);
+  setFieldValue("primaryPosition", draft.position);
+  setFieldValue("graduationClass", draft.graduation_year);
+  setFieldValue("cityState", draft.city_state);
   setFieldValue("height", draft.height);
   setFieldValue("weight", draft.weight);
-  setFieldValue("gpa", draft.gpa);
-  setFieldValue("athleteEmail", draft.email);
-  setFieldValue("athletePhone", draft.phone);
+  setFieldValue("currentGpa", draft.gpa);
 
   setFieldValue("guardianName", draft.guardian_name);
-  setFieldValue("parentName", draft.guardian_name);
   setFieldValue("guardianEmail", draft.guardian_email);
-  setFieldValue("parentEmail", draft.guardian_email);
   setFieldValue("guardianPhone", draft.guardian_phone);
-  setFieldValue("parentPhone", draft.guardian_phone);
-
-  setFieldChecked("recruitingVisibility", draft.recruiting_visibility);
-  setFieldChecked("profileVisibility", draft.recruiting_visibility);
-  setFieldChecked("mediaPermission", draft.media_permission);
-  setFieldChecked("highlightPermission", draft.media_permission);
-  setFieldChecked("mediaRelease", draft.media_permission);
+  setFieldValue("coachName", draft.coach_name);
+  setFieldValue("coachEmail", draft.coach_email);
 }
 
 function getHeadshotInput(){
   return (
+    $("athleteHeadshotUpload") ||
     $("headshotUpload") ||
     $("headshot") ||
     $("athleteHeadshot") ||
@@ -1240,6 +1226,7 @@ function createSnapshotReceipt(snapshotId, payload, snapshotRow, parentApprovalR
     position: payload.position,
     duplicate_profile: !!snapshotRow?.duplicate_profile,
     duplicate_handled: !!snapshotRow?.duplicate_handled,
+    dashboard_url: `athlete-dashboard.html?snapshot_id=${encodeURIComponent(snapshotId)}&role=athlete&from=snapshot-intake`,
     profile_url: `player-profile.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
     parent_room_url: `parent.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
     parent_approval_url: `parent-approval.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
@@ -1253,6 +1240,49 @@ function createSnapshotReceipt(snapshotId, payload, snapshotRow, parentApprovalR
   return receipt;
 }
 
+function createAthleteDashboardContext(snapshotId, payload, receipt){
+  const loginRaw = sessionStorage.getItem(STATSCORE_LOGIN_CONTEXT_KEY) || localStorage.getItem(STATSCORE_LOGIN_CONTEXT_KEY);
+  let loginContext = null;
+
+  try {
+    loginContext = loginRaw ? JSON.parse(loginRaw) : null;
+  } catch {
+    loginContext = null;
+  }
+
+  const dashboardContext = {
+    system: "STATScore",
+    sourcePage: "snapshot-intake.html",
+    detectedRole: "athlete",
+    roleLabel: "Athlete",
+    snapshotId,
+    athleteName: payload.athlete_name,
+    school: payload.school,
+    sport: payload.sport,
+    position: payload.position,
+    dashboardUrl: `athlete-dashboard.html?snapshot_id=${encodeURIComponent(snapshotId)}&role=athlete&from=snapshot-intake`,
+    profileUrl: `player-profile.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
+    receipt,
+    loginContext,
+    timestamp: nowISO(),
+    doctrine: {
+      dashboard: "Navigation Layer",
+      profile: "Profile Tool accessed from Dashboard",
+      snapshotIntake: "Athlete Data Capture",
+      multiBox: "Communication Layer"
+    }
+  };
+
+  sessionStorage.setItem(STATSCORE_DASHBOARD_CONTEXT_KEY, JSON.stringify(dashboardContext));
+  localStorage.setItem(STATSCORE_DASHBOARD_CONTEXT_KEY, JSON.stringify(dashboardContext));
+  sessionStorage.setItem("statscore_role", "athlete");
+  sessionStorage.setItem("statscore_snapshot_id", snapshotId);
+  sessionStorage.setItem("statscore_athlete_name", payload.athlete_name);
+  sessionStorage.setItem("statscore_next_dashboard", dashboardContext.dashboardUrl);
+
+  return dashboardContext;
+}
+
 function validateSnapshotPayload(payload){
   if (!payload.athlete_name) throw new Error("Athlete name is required.");
   if (!payload.school) throw new Error("School is required.");
@@ -1261,6 +1291,11 @@ function validateSnapshotPayload(payload){
   if (!payload.guardian_name) throw new Error("Guardian name is required.");
   if (!payload.guardian_email) throw new Error("Guardian email is required.");
   return true;
+}
+
+function routeToAthleteDashboard(snapshotId){
+  const target = `athlete-dashboard.html?snapshot_id=${encodeURIComponent(snapshotId)}&role=athlete&from=snapshot-intake&status=snapshot-complete`;
+  window.location.href = target;
 }
 
 async function submitSnapshot(event){
@@ -1301,7 +1336,7 @@ async function submitSnapshot(event){
     const parentApprovalReceipt = await createParentApprovalRequestFromSnapshot(snapshotId, payload);
     setStatus("parentApprovalStatus", "Parent Approval Request Created", "var(--green)");
 
-    createSnapshotReceipt(
+    const receipt = createSnapshotReceipt(
       snapshotId,
       payload,
       snapshotRow,
@@ -1310,12 +1345,14 @@ async function submitSnapshot(event){
       productionReceipt
     );
 
+    createAthleteDashboardContext(snapshotId, payload, receipt);
+
     localStorage.removeItem(SNAPSHOT_DRAFT_KEY);
 
-    setMessage("Snapshot complete. Parent approval request created.", "var(--green)");
+    setMessage("Snapshot complete. Routing to Athlete Dashboard.", "var(--green)");
 
     setTimeout(() => {
-      window.location.href = `player-profile.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
+      routeToAthleteDashboard(snapshotId);
     }, 500);
 
   } catch (error){
@@ -1327,6 +1364,12 @@ async function submitSnapshot(event){
 
 function bindSnapshotRuntime(){
   restoreSnapshotDraft();
+
+  const viewProfileBtn = $("viewProfileBtn");
+  if (viewProfileBtn){
+    viewProfileBtn.href = "athlete-dashboard.html?role=athlete&from=snapshot-intake";
+    viewProfileBtn.innerHTML = "Continue to Dashboard <span>›</span>";
+  }
 
   const form =
     $("snapshotForm") ||
