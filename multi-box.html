@@ -258,17 +258,22 @@ a{text-decoration:none;color:inherit}
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.035);
   padding:20px;
   min-height:720px;
+  overflow:hidden;
 }
 
 .role-panel{
   min-height:720px;
+  max-height:720px;
+  overflow-y:auto;
+  overflow-x:hidden;
 }
 
 .panel.operations-panel{
   height:720px;
   max-height:720px;
   min-height:720px;
-  overflow:hidden;
+  overflow-y:auto;
+  overflow-x:hidden;
   display:flex;
   flex-direction:column;
 }
@@ -292,7 +297,7 @@ a{text-decoration:none;color:inherit}
   padding:14px;
   background:rgba(255,255,255,.02);
   cursor:pointer;
-  transition:.18s ease;
+  transition:.15s ease;
 }
 
 .channel:hover{
@@ -303,7 +308,11 @@ a{text-decoration:none;color:inherit}
 .channel.active{
   border-color:var(--red);
   box-shadow:inset 0 0 0 1px rgba(255,43,31,.25);
-  background:linear-gradient(90deg,rgba(255,43,31,.14),rgba(255,255,255,.025));
+  background:linear-gradient(
+    90deg,
+    rgba(255,43,31,.14),
+    rgba(255,255,255,.025)
+  );
 }
 
 .channel b{
@@ -326,7 +335,8 @@ a{text-decoration:none;color:inherit}
   padding:20px;
   background:rgba(7,10,16,.45);
   min-height:720px;
-}
+  overflow:visible;
+} 
 
 .compose-grid{
   display:grid;
