@@ -412,20 +412,26 @@ textarea{
 .btn.primary{border-color:var(--red);color:var(--red);background:rgba(255,43,31,.12)}
 
 .system-message{
-  display:flex;
-  align-items:center;
+  display:block;
+  width:100%;
+  max-width:100%;
   min-height:32px;
   margin-top:14px;
   margin-bottom:18px;
+  padding-right:8px;
 
   color:var(--green);
-  font-size:.72rem;
+  font-size:.68rem;
   font-weight:900;
-  letter-spacing:.12em;
+  letter-spacing:.08em;
   text-transform:uppercase;
+  line-height:1.35;
 
-  line-height:1.4;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  word-break:break-word;
 } 
+
   
 .status-card,
 .side-section{
@@ -1237,7 +1243,8 @@ async function saveDraft(){
     return;
   }
 
-  let messageId=null;
+  let messageId=payload.local_id;
+  let supabaseFailed=false;
 
   try{
     if(supabaseClient){
@@ -1251,25 +1258,34 @@ async function saveDraft(){
       });
 
       if(error)throw error;
-      messageId=extractMessageId(data);
+
+      messageId=extractMessageId(data) || payload.local_id;
     }
-
-    if(!messageId)messageId=payload.local_id;
-
-    payload.message_id=messageId;
-
-    const drafts=safeParse(localStorage.getItem(LOCAL_DRAFT_KEY),[]);
-    drafts.unshift(payload);
-    localStorage.setItem(LOCAL_DRAFT_KEY,JSON.stringify(drafts.slice(0,50)));
-
-    addAudit("Draft Saved",`${payload.receiver_role} ${payload.message_type} saved as draft.`,messageId,true);
-    setMessage("Draft saved successfully.");
-
   }catch(e){
-    console.error("Draft save error:",e);
-    setMessage("Draft failed. Check Supabase function, anon key, or RLS.","error");
+    supabaseFailed=true;
+    console.error("Multi-Box Supabase Error:", {
+      message:e?.message,
+      details:e?.details,
+      hint:e?.hint,
+      code:e?.code,
+      full:e
+    });
   }
-}
+
+  payload.message_id=messageId;
+
+  const drafts=safeParse(localStorage.getItem(LOCAL_DRAFT_KEY),[]);
+  drafts.unshift(payload);
+  localStorage.setItem(LOCAL_DRAFT_KEY,JSON.stringify(drafts.slice(0,50)));
+
+  addAudit("Draft Saved",`${payload.receiver_role} ${payload.message_type} saved as draft.`,messageId);
+
+  if(supabaseFailed){
+    setMessage("Draft saved locally. Supabase sync failed — check Console/RPC.","error");
+  }else{
+    setMessage("Draft saved successfully.");
+  }
+} 
 
 async function sendMessage(){
   const payload=getFormPayload("sent");
