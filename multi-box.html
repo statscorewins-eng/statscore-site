@@ -631,6 +631,30 @@ b.red{color:var(--red)!important}
   font-weight:900;
 }
 
+.shell-grid > article.panel{
+  height:720px !important;
+  min-height:720px !important;
+  max-height:720px !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  padding:20px !important;
+}
+
+.shell-grid > article.panel .compose-shell{
+  min-height:auto !important;
+  height:auto !important;
+  max-height:none !important;
+  overflow:visible !important;
+}
+
+.message-status-zone{
+  display:grid !important;
+  grid-template-rows:auto 34px !important;
+  gap:10px !important;
+  margin-top:14px !important;
+  overflow:hidden !important;
+}
+  
 /* =========================
 TRUE MOBILE / TOUCH RESPONSIVE
 This prevents laptop/desktop from colliding with mobile.
