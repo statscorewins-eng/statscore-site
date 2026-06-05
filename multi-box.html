@@ -283,12 +283,12 @@ LOCKED DESKTOP GRID
 
 .compose-shell{
   border:1px solid var(--line2);
-  padding:20px;
+  padding:20px 20px 16px;
   background:rgba(7,10,16,.45);
   height:100%;
   min-height:100%;
   max-height:100%;
-  overflow:visible;
+  overflow:hidden;
 }
 
 .section-title{
@@ -412,15 +412,19 @@ textarea{
 .btn.primary{border-color:var(--red);color:var(--red);background:rgba(255,43,31,.12)}
 
 .system-message{
-  margin-top:14px;
-  min-height:24px;
+  margin-top:10px;
+  padding-left:2px;
+  min-height:20px;
   color:var(--green);
-  font-size:.72rem;
+  font-size:.68rem;
   font-weight:900;
   letter-spacing:.12em;
   text-transform:uppercase;
-}
-
+  line-height:1.2;
+  position:relative;
+  z-index:2;
+} 
+  
 .status-card,
 .side-section{
   border:1px solid var(--line);
