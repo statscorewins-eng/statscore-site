@@ -1,30 +1,15 @@
-<!DOCTYPE html>  
+<!DOCTYPE html> 
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>STATS-CORE™ | Access Authorization</title>
 
-<meta
-  name="title"
-  content="STATS-CORE™ | Access Authorization"
-/>
+<meta name="title" content="STATS-CORE™ | Access Authorization" />
+<meta name="description" content="STATS-CORE™ secure athlete infrastructure access with role-based permissions, recruiting visibility, eligibility awareness, and controlled communication systems." />
 
-<meta
-  name="description"
-  content="STATS-CORE™ secure athlete infrastructure access with role-based permissions, recruiting visibility, eligibility awareness, and controlled communication systems."
-/>
-
-<link
-  rel="icon"
-  type="image/png"
-  href="sc_emblem.png"
-/>
-
-<link
-  rel="apple-touch-icon"
-  href="sc_emblem.png"
-/> 
+<link rel="icon" type="image/png" href="sc_emblem.png" />
+<link rel="apple-touch-icon" href="sc_emblem.png" />
 
 <style>
 :root{
@@ -98,7 +83,8 @@ body{
     contrast(1.02)
     saturate(1.08)
     drop-shadow(0 0 12px rgba(240,42,34,.22));
-} 
+}
+
 .kicker{
   color:var(--red);
   font-size:.75rem;
@@ -194,7 +180,8 @@ label{
   margin-bottom:22px;
 }
 
-input{
+input,
+select{
   width:100%;
   height:58px;
   background:rgba(255,255,255,.05);
@@ -205,9 +192,15 @@ input{
   outline:none;
 }
 
-input:focus{
+input:focus,
+select:focus{
   border-color:var(--red);
   box-shadow:0 0 24px rgba(240,42,34,.10);
+}
+
+select option{
+  background:#080a0e;
+  color:#fff;
 }
 
 button{
@@ -243,6 +236,19 @@ button{
 
 .error{
   color:var(--red);
+}
+
+.route-preview{
+  margin-top:12px;
+  padding:12px 14px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.035);
+  color:#b9c7d3;
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  line-height:1.45;
 }
 
 .footer-note{
@@ -348,7 +354,8 @@ button{
     font-weight:900;
   }
 
-  input{
+  input,
+  select{
     width:100%;
     min-height:64px;
     padding:0 18px;
@@ -359,7 +366,8 @@ button{
     outline:none;
   }
 
-  input:focus{
+  input:focus,
+  select:focus{
     border-color:#ff2b1f;
     box-shadow:0 0 0 1px rgba(255,43,31,.45);
   }
@@ -421,7 +429,6 @@ button{
     text-transform:uppercase;
   }
 }
-  
 </style>
 </head>
 
@@ -458,6 +465,20 @@ button{
 
     <form onsubmit="event.preventDefault(); loginDemo();">
       <div class="field">
+        <label>Access Role</label>
+        <select id="role" required>
+          <option value="">Select authorized role</option>
+          <option value="athlete">Athlete</option>
+          <option value="parent">Parent / Guardian</option>
+          <option value="coach">Coach</option>
+          <option value="counselor">Counselor</option>
+          <option value="recruiter">Recruiter</option>
+          <option value="evaluator">Evaluator</option>
+          <option value="program">Program</option>
+        </select>
+      </div>
+
+      <div class="field">
         <label>Authorized Email</label>
         <input id="email" type="email" placeholder="Enter authorized email">
       </div>
@@ -471,6 +492,7 @@ button{
     </form>
 
     <div id="status" class="status"></div>
+    <div id="routePreview" class="route-preview">Select role to preview routing path.</div>
   </div>
 
   <div class="footer-note">STATScore Systems · Controlled Access Infrastructure</div>
@@ -478,35 +500,125 @@ button{
 </section>
 
 <script>
-const DEMO_USERS = {
-  "athlete@demo.com": "system.html?role=athlete",
-  "parent@demo.com": "parent-dashboard.html",
-  "coach@demo.com": "system.html?role=coach",
-  "counselor@demo.com": "system.html?role=counselor",
-  "recruiter@demo.com": "system.html?role=recruiter",
-  "evaluator@demo.com": "system.html?role=evaluator",
-  "program@demo.com": "system.html?role=program"
+const STATSCORE_LOGIN_CONTEXT_KEY = "statscore_login_context_v1";
+const DEMO_PASSWORD = "demo123";
+
+const ROLE_ROUTES = {
+  athlete: {
+    label: "Athlete",
+    intakeUrl: "snapshot-intake.html",
+    dashboardUrl: "athlete-dashboard.html",
+    routeText: "Athlete → Snapshot Intake → Athlete Dashboard"
+  },
+  parent: {
+    label: "Parent / Guardian",
+    intakeUrl: "role-dashboard-intake.html",
+    dashboardUrl: "role-dashboard.html",
+    routeText: "Parent / Guardian → Role Dashboard Intake → Role Dashboard"
+  },
+  coach: {
+    label: "Coach",
+    intakeUrl: "role-dashboard-intake.html",
+    dashboardUrl: "role-dashboard.html",
+    routeText: "Coach → Role Dashboard Intake → Role Dashboard"
+  },
+  counselor: {
+    label: "Counselor",
+    intakeUrl: "role-dashboard-intake.html",
+    dashboardUrl: "role-dashboard.html",
+    routeText: "Counselor → Role Dashboard Intake → Role Dashboard"
+  },
+  recruiter: {
+    label: "Recruiter",
+    intakeUrl: "role-dashboard-intake.html",
+    dashboardUrl: "role-dashboard.html",
+    routeText: "Recruiter → Role Dashboard Intake → Role Dashboard"
+  },
+  evaluator: {
+    label: "Evaluator",
+    intakeUrl: "role-dashboard-intake.html",
+    dashboardUrl: "role-dashboard.html",
+    routeText: "Evaluator → Role Dashboard Intake → Role Dashboard"
+  },
+  program: {
+    label: "Program",
+    intakeUrl: "role-dashboard-intake.html",
+    dashboardUrl: "role-dashboard.html",
+    routeText: "Program → Role Dashboard Intake → Role Dashboard"
+  }
 };
 
+const roleInput = document.getElementById("role");
+const routePreview = document.getElementById("routePreview");
+
+roleInput.addEventListener("change", () => {
+  const role = roleInput.value;
+
+  if (!role || !ROLE_ROUTES[role]) {
+    routePreview.textContent = "Select role to preview routing path.";
+    return;
+  }
+
+  routePreview.textContent = "Detected Route: " + ROLE_ROUTES[role].routeText;
+});
+
 function loginDemo(){
+  const role = document.getElementById("role").value;
   const email = document.getElementById("email").value.trim().toLowerCase();
   const password = document.getElementById("password").value.trim();
   const status = document.getElementById("status");
 
-  if(!DEMO_USERS[email] || password !== "demo123"){
+  status.classList.remove("error");
+
+  if(!role || !ROLE_ROUTES[role]){
+    status.textContent = "Select authorized role";
+    status.classList.add("error");
+    return;
+  }
+
+  if(!email || password !== DEMO_PASSWORD){
     status.textContent = "Invalid authorization";
     status.classList.add("error");
     return;
   }
 
-  sessionStorage.setItem("statscore_user_email", email);
-  sessionStorage.setItem("statscore_role", email.split("@")[0]);
+  const route = ROLE_ROUTES[role];
 
-  status.classList.remove("error");
+  const loginContext = {
+    system: "STATScore",
+    sourcePage: "login.html",
+    detectedRole: role,
+    roleLabel: route.label,
+    userEmail: email,
+    intakeUrl: route.intakeUrl,
+    dashboardUrl: route.dashboardUrl,
+    routeText: route.routeText,
+    timestamp: new Date().toISOString(),
+    doctrine: {
+      dashboard: "Navigation Layer",
+      multiBox: "Communication Layer",
+      systemHtml: "Back Office/Admin Layer",
+      roleRooms: "Operational Tool Rooms"
+    }
+  };
+
+  sessionStorage.setItem(STATSCORE_LOGIN_CONTEXT_KEY, JSON.stringify(loginContext));
+  localStorage.setItem(STATSCORE_LOGIN_CONTEXT_KEY, JSON.stringify(loginContext));
+
+  sessionStorage.setItem("statscore_user_email", email);
+  sessionStorage.setItem("statscore_role", role);
+  sessionStorage.setItem("statscore_next_dashboard", route.dashboardUrl);
+
   status.textContent = "Access granted · routing clearance";
 
+  const params = new URLSearchParams({
+    role: role,
+    from: "login",
+    next: route.dashboardUrl
+  });
+
   setTimeout(() => {
-    window.location.href = DEMO_USERS[email];
+    window.location.href = route.intakeUrl + "?" + params.toString();
   }, 900);
 }
 </script>
