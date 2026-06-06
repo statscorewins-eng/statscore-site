@@ -10,57 +10,57 @@
 <style>
 :root{
   --red:#d71920;
-  --red-dark:#8f0f13;
+  --red2:#970f14;
+  --dark:#05080d;
+  --panel:#0b1118;
+  --panel2:#0f1720;
+  --line:#1b2a36;
+  --text:#eef6ff;
+  --muted:#8f9daa;
   --green:#25d34f;
   --blue:#1f9cff;
   --purple:#a855f7;
   --white:#f4f4ef;
-  --bg:#05080d;
-  --panel:#0d131a;
-  --panel2:#101821;
-  --line:#1d2a36;
-  --text:#eef6ff;
-  --muted:#8d9aaa;
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
 
 html,body{
   width:100%;
-  min-height:100%;
+  height:100%;
   background:#000;
   color:var(--text);
   font-family:Inter,Arial,sans-serif;
 }
 
 body{
-  overflow:auto;
-}
-
-.app{
-  width:100%;
-  min-height:100vh;
-  background:var(--bg);
-  display:grid;
-  grid-template-rows:76px auto;
-}
-
-/* HEADER */
-.header{
-  background:var(--white);
-  color:#101318;
-  display:grid;
-  grid-template-columns:215px 230px 82px 122px 82px 100px minmax(180px,1fr) 40px 40px 128px;
-  align-items:center;
-  gap:9px;
-  padding:10px 14px;
-  border-bottom:4px solid var(--red);
   overflow:hidden;
 }
 
+.app{
+  width:100vw;
+  height:100vh;
+  display:grid;
+  grid-template-rows:68px 1fr;
+  background:var(--dark);
+}
+
+/* HEADER */
+
+.header{
+  background:var(--white);
+  border-bottom:4px solid var(--red);
+  display:grid;
+  grid-template-columns:230px 245px 78px 118px 75px 92px minmax(160px,1fr) 34px 34px 120px;
+  gap:8px;
+  align-items:center;
+  padding:8px 14px;
+  color:#111;
+}
+
 .logo{
+  width:220px;
   height:46px;
-  width:205px;
   object-fit:contain;
   object-position:left center;
 }
@@ -74,158 +74,160 @@ body{
 }
 
 .title p{
-  font-size:9.5px;
-  font-weight:900;
+  font-size:9px;
   color:#111;
-  letter-spacing:.35px;
+  font-weight:900;
   white-space:nowrap;
 }
 
 .head-stat{
-  border-left:1px solid #c7c9cc;
-  padding-left:10px;
+  border-left:1px solid #c6c8cc;
+  padding-left:9px;
   min-width:0;
 }
 
 .head-stat small{
   display:block;
-  font-size:9px;
+  font-size:8px;
   font-weight:900;
-  color:#222;
   text-transform:uppercase;
-  white-space:nowrap;
 }
 
 .head-stat strong{
-  font-size:10.5px;
+  font-size:9.5px;
+  font-weight:900;
   color:var(--red);
   white-space:nowrap;
 }
 
 .search{
-  height:34px;
-  border:1px solid #cfd3d8;
-  border-radius:6px;
+  height:32px;
+  border:1px solid #c9cdd3;
+  border-radius:7px;
   padding:0 10px;
-  background:#fff;
+  font-size:10.5px;
   min-width:0;
-  font-size:11px;
 }
 
 .icon{
   position:relative;
   text-align:center;
-  font-size:19px;
+  font-size:18px;
 }
 
 .badge{
   position:absolute;
-  top:-7px;
-  right:2px;
+  top:-6px;
+  right:0;
+  width:15px;
+  height:15px;
   background:var(--red);
-  color:white;
+  color:#fff;
   border-radius:50%;
-  font-size:9px;
-  width:16px;
-  height:16px;
   display:grid;
   place-items:center;
+  font-size:8px;
   font-weight:900;
 }
 
 .user{
   display:flex;
   align-items:center;
-  gap:8px;
-  font-size:10.5px;
+  gap:7px;
+  font-size:10px;
   font-weight:900;
   white-space:nowrap;
-  overflow:hidden;
 }
 
 .avatar{
-  width:38px;
-  height:38px;
+  width:34px;
+  height:34px;
   border-radius:50%;
   border:2px solid var(--red);
   object-fit:cover;
-  background:#d8dde3;
+  background:#ddd;
 }
 
 /* MAIN */
+
 .main{
   min-height:0;
   display:grid;
-  grid-template-columns:178px minmax(0,1fr);
-  gap:10px;
-  padding:10px;
-  background:linear-gradient(180deg,#071016,#05080c);
-  overflow:auto;
+  grid-template-columns:175px minmax(0,1fr);
+  gap:9px;
+  padding:9px;
+  background:
+    radial-gradient(circle at 35% 25%,rgba(31,156,255,.08),transparent 35%),
+    linear-gradient(180deg,#071016,#05080d);
 }
 
 /* LEFT RAIL */
+
 .left{
-  display:flex;
-  flex-direction:column;
-  gap:9px;
-  min-width:0;
+  min-height:0;
+  display:grid;
+  grid-template-rows:auto auto 1fr;
+  gap:8px;
 }
 
 .menu,.quick,.status{
-  background:var(--panel);
+  background:rgba(13,19,26,.94);
   border:1px solid var(--line);
   border-radius:7px;
-  padding:9px;
+  padding:8px;
 }
 
 .nav-item{
-  height:29px;
+  height:27px;
   display:flex;
   align-items:center;
   gap:8px;
-  padding:0 9px;
+  padding:0 8px;
+  margin-bottom:3px;
   border-radius:5px;
   color:#dbe6ef;
-  font-size:11px;
-  font-weight:800;
-  margin-bottom:3px;
+  font-size:10.5px;
+  font-weight:850;
   white-space:nowrap;
 }
 
 .nav-item.active{
-  background:linear-gradient(90deg,var(--red-dark),#bd151b);
+  background:linear-gradient(90deg,var(--red2),#c01820);
+  color:#fff;
 }
 
-.nav-item .count{
+.count{
   margin-left:auto;
-  background:var(--red);
+  width:15px;
+  height:15px;
   border-radius:50%;
-  width:16px;
-  height:16px;
+  background:var(--red);
   display:grid;
   place-items:center;
-  font-size:9px;
+  font-size:8px;
 }
 
 .section-title{
-  font-size:10.5px;
-  color:white;
+  font-size:9.8px;
   text-transform:uppercase;
   font-weight:900;
-  margin-bottom:7px;
-  letter-spacing:.45px;
+  letter-spacing:.4px;
+  margin-bottom:6px;
 }
 
 .quick .nav-item{
-  height:25px;
-  font-size:10px;
-  color:#c9d4de;
+  height:23px;
+  font-size:9.4px;
+}
+
+.status{
+  align-self:end;
 }
 
 .status p{
-  font-size:9.5px;
-  color:var(--muted);
+  font-size:9px;
   margin:6px 0;
+  color:var(--muted);
 }
 
 .status .ok{
@@ -235,142 +237,160 @@ body{
 
 .sync{
   color:var(--red);
+  font-size:9.5px;
   font-weight:900;
-  font-size:10px;
-  margin-top:6px;
 }
 
 /* DASHBOARD */
+
 .dashboard{
-  min-width:1060px;
+  min-width:0;
+  min-height:0;
   display:grid;
-  grid-template-rows:184px 238px 214px 74px;
-  gap:10px;
+  grid-template-rows:174px 218px 188px 62px;
+  gap:9px;
 }
 
 .row1{
   display:grid;
-  grid-template-columns:2.35fr 1.05fr 1fr 1fr 1.15fr;
-  gap:10px;
+  grid-template-columns:2.3fr 1.05fr 1fr 1fr 1.12fr;
+  gap:9px;
+  min-width:0;
 }
 
 .row2{
   display:grid;
-  grid-template-columns:1.5fr 1.05fr 1.12fr 1.23fr;
-  gap:10px;
+  grid-template-columns:1.52fr 1.08fr 1.14fr 1.22fr;
+  gap:9px;
+  min-width:0;
 }
 
 .row3{
   display:grid;
   grid-template-columns:1.08fr 1.13fr 1fr 1.05fr;
-  gap:10px;
+  gap:9px;
+  min-width:0;
 }
 
 .card{
-  background:linear-gradient(180deg,#0e151d,#091017);
-  border:1px solid var(--line);
-  border-radius:7px;
-  padding:12px;
+  min-width:0;
+  min-height:0;
   overflow:hidden;
   position:relative;
-  box-shadow:0 0 0 1px rgba(255,255,255,.015) inset;
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:11px;
+  background:
+    linear-gradient(180deg,rgba(16,24,33,.98),rgba(8,14,20,.98));
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.02),
+    0 0 18px rgba(0,0,0,.24);
 }
 
 .card-title{
-  font-size:12px;
+  font-size:11.2px;
   font-weight:900;
-  letter-spacing:.25px;
   text-transform:uppercase;
-  color:#f0f6ff;
-  margin-bottom:8px;
+  letter-spacing:.25px;
+  margin-bottom:7px;
   white-space:nowrap;
 }
 
-.info{
-  color:#7d8794;
-  font-size:10px;
+.view-all{
+  float:right;
+  color:var(--red);
+  font-size:8.3px;
+  font-weight:900;
 }
 
-/* ATHLETE CARD */
+/* HERO */
+
 .athlete-card{
   display:grid;
-  grid-template-columns:135px 1fr;
-  gap:16px;
+  grid-template-columns:126px minmax(0,1fr);
+  gap:14px;
 }
 
 .player-photo{
-  width:130px;
-  height:155px;
+  width:122px;
+  height:145px;
+  border-radius:7px;
   object-fit:cover;
-  border-radius:6px;
-  background:linear-gradient(135deg,#111,#222);
-}
-
-.verify{
-  position:absolute;
-  left:19px;
-  bottom:13px;
-  background:#161d25;
-  border:1px solid var(--line);
-  padding:6px 9px;
-  border-radius:6px;
-  color:white;
-  font-size:10px;
-  font-weight:900;
-}
-
-.dot-red{
-  display:inline-block;
-  width:12px;
-  height:12px;
-  background:var(--red);
-  border-radius:50%;
-  margin-right:6px;
-  vertical-align:-2px;
+  background:linear-gradient(135deg,#111,#333);
 }
 
 .athlete-name{
-  font-size:27px;
+  font-size:26px;
+  line-height:1;
   font-weight:900;
   letter-spacing:.8px;
-  margin:5px 0;
+  margin:4px 0 8px;
   white-space:nowrap;
 }
 
 .meta{
-  font-size:10.5px;
+  font-size:10px;
   color:#cbd6e0;
-  margin-bottom:13px;
+  margin-bottom:10px;
   white-space:nowrap;
 }
 
 .bio-line{
   display:flex;
+  gap:7px;
   align-items:center;
-  gap:8px;
-  margin:8px 0;
-  color:#dbe6ef;
-  font-size:10.5px;
-  font-weight:700;
+  font-size:10px;
+  font-weight:800;
+  margin:7px 0;
+  color:#dce7f0;
 }
 
 .bio-icon{
   color:var(--red);
 }
 
+.verify{
+  position:absolute;
+  left:18px;
+  bottom:12px;
+  background:#161d25;
+  border:1px solid var(--line);
+  border-radius:6px;
+  padding:5px 8px;
+  font-size:9px;
+  font-weight:900;
+}
+
+.dot-red{
+  width:11px;
+  height:11px;
+  border-radius:50%;
+  background:var(--red);
+  display:inline-block;
+  margin-right:5px;
+  vertical-align:-2px;
+}
+
 .snapshot{
   position:absolute;
   right:12px;
-  bottom:14px;
-  font-size:9px;
+  bottom:13px;
+  font-size:8.6px;
   color:#b5c1cc;
 }
 
 /* SCORE CARDS */
+
 .big-score{
-  font-size:48px;
-  line-height:1;
+  font-size:46px;
+  line-height:.96;
   font-weight:900;
+}
+
+.subbig{
+  font-size:20px;
+  font-weight:900;
+  margin-top:4px;
 }
 
 .red-text{color:var(--red)}
@@ -378,116 +398,112 @@ body{
 .blue-text{color:var(--blue)}
 .purple-text{color:var(--purple)}
 
-.subbig{
-  font-size:21px;
-  font-weight:900;
-  margin-top:4px;
+.emblem{
+  position:absolute;
+  right:11px;
+  top:48px;
+  width:48px;
+  height:60px;
+  object-fit:contain;
+  opacity:.88;
 }
 
 .trend{
   position:absolute;
-  left:12px;
-  right:12px;
-  bottom:10px;
-  height:28px;
+  left:11px;
+  right:11px;
+  bottom:9px;
+  height:25px;
   border:1px solid var(--line);
   border-radius:5px;
   display:flex;
   align-items:center;
   justify-content:space-around;
-  font-size:10px;
-  font-weight:900;
-}
-
-.emblem{
-  position:absolute;
-  right:12px;
-  top:50px;
-  width:52px;
-  height:64px;
-  object-fit:contain;
-  opacity:.9;
-}
-
-.btn{
-  width:100%;
-  height:28px;
-  border:1px solid var(--line);
-  background:#0b1219;
-  color:white;
-  border-radius:4px;
   font-size:9px;
   font-weight:900;
-  text-transform:uppercase;
+}
+
+.small-line{
+  font-size:9.3px;
+  color:#b9c4cf;
+  margin:8px 0;
+  line-height:1.45;
 }
 
 .card-bottom{
   position:absolute;
-  left:12px;
-  right:12px;
-  bottom:10px;
+  left:11px;
+  right:11px;
+  bottom:9px;
 }
 
-.small-line{
-  font-size:10px;
-  color:#b7c1ca;
-  margin:10px 0;
+.btn{
+  width:100%;
+  height:25px;
+  border:1px solid var(--line);
+  border-radius:5px;
+  background:#0a1219;
+  color:#fff;
+  font-size:8.5px;
+  font-weight:900;
+  text-transform:uppercase;
 }
 
-/* RING */
 .ring{
-  width:78px;
-  height:78px;
+  width:72px;
+  height:72px;
+  margin:3px auto 7px;
   border-radius:50%;
-  border:9px solid #26313b;
+  border:8px solid #26313b;
   border-top-color:var(--red);
   border-left-color:var(--red);
   display:grid;
   place-items:center;
-  margin:5px auto 8px;
 }
 
 .ring strong{
-  font-size:24px;
+  font-size:22px;
 }
 
 /* PERFORMANCE */
+
 .radar-wrap{
   display:grid;
-  grid-template-columns:1fr 118px;
-  gap:10px;
+  grid-template-columns:1fr 112px;
+  gap:9px;
 }
 
 .radar{
-  height:155px;
+  height:137px;
   display:grid;
   place-items:center;
 }
 
 .radar-shape{
-  width:130px;
-  height:130px;
-  background:radial-gradient(circle,rgba(215,25,32,.45),rgba(215,25,32,.05));
+  width:122px;
+  height:122px;
+  background:
+    radial-gradient(circle,rgba(215,25,32,.58),rgba(215,25,32,.04));
   clip-path:polygon(50% 0,88% 22%,88% 72%,50% 100%,12% 72%,12% 22%);
-  border:2px solid var(--red);
+  border:2px solid rgba(215,25,32,.9);
+  filter:drop-shadow(0 0 16px rgba(215,25,32,.45));
 }
 
 .stats-list div{
   display:flex;
   justify-content:space-between;
-  font-size:10px;
-  color:#c8d2db;
-  margin:11px 0;
+  gap:8px;
+  font-size:9.3px;
+  margin:9px 0;
+  color:#c9d3dd;
 }
 
-.full-btn{
-  position:absolute;
-  bottom:10px;
-  left:12px;
-  right:12px;
+.stats-list b{
+  color:#fff;
 }
 
 /* ACADEMIC */
+
 .acad-grid{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -496,38 +512,41 @@ body{
 }
 
 .acad-box{
-  height:72px;
+  height:62px;
+  padding:9px;
   border-right:1px solid var(--line);
   border-bottom:1px solid var(--line);
-  padding:10px;
 }
 
 .acad-box strong{
-  font-size:25px;
+  display:block;
+  font-size:24px;
+  line-height:1;
 }
 
 .acad-box span{
   display:block;
-  font-size:9.5px;
-  color:#b7c1ca;
   margin-top:4px;
+  font-size:8.6px;
+  color:#b7c1ca;
+  font-weight:800;
 }
 
 /* FILM */
+
 .film-img{
-  height:112px;
-  border-radius:5px;
-  background:linear-gradient(135deg,#222,#000);
+  height:98px;
+  border-radius:6px;
+  background:
+    linear-gradient(135deg,#1c252e,#05080d);
   display:grid;
   place-items:center;
-  font-size:36px;
-  position:relative;
-  overflow:hidden;
+  font-size:32px;
 }
 
 .play{
-  width:48px;
-  height:48px;
+  width:44px;
+  height:44px;
   border-radius:50%;
   background:rgba(0,0,0,.65);
   display:grid;
@@ -535,157 +554,173 @@ body{
 }
 
 .film-title{
-  font-size:10.5px;
+  font-size:9.8px;
   font-weight:900;
-  margin-top:8px;
+  margin-top:7px;
 }
 
 .film-foot{
   display:flex;
   justify-content:space-between;
-  margin-top:7px;
-  font-size:10px;
+  margin-top:6px;
+  font-size:9px;
   color:#b7c1ca;
 }
 
 /* REPORTS */
+
 .report-main{
   display:grid;
-  grid-template-columns:54px 1fr;
-  gap:10px;
-  margin-bottom:8px;
+  grid-template-columns:48px 1fr;
+  gap:9px;
+  margin-bottom:6px;
 }
 
 .report-main img{
-  width:50px;
+  width:44px;
 }
 
 .report-title{
-  font-size:10.5px;
+  font-size:9.4px;
   font-weight:900;
 }
 
-.report-row{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  border-top:1px solid var(--line);
-  padding:7px 0;
-  font-size:10px;
+.report-main small{
+  font-size:8.4px;
+  color:#bac5cf;
 }
 
 .new{
   background:#1c6fb6;
   color:white;
   border-radius:3px;
-  padding:2px 5px;
-  font-size:8px;
+  padding:2px 4px;
+  font-size:7px;
+  font-weight:900;
+}
+
+.report-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-top:1px solid var(--line);
+  padding:5.5px 0;
+  font-size:8.8px;
 }
 
 /* ROW 3 */
+
 .kv{
   display:flex;
   justify-content:space-between;
   border-bottom:1px solid var(--line);
-  padding:7px 0;
-  font-size:10.5px;
+  padding:6px 0;
+  font-size:9.5px;
 }
 
 .kv span{
+  font-weight:850;
   color:#dce7f0;
-  font-weight:800;
 }
 
 .redbtn{
-  background:linear-gradient(90deg,#9d1116,#c81920);
-  border:none;
-  color:white;
-  border-radius:5px;
-  height:28px;
-  font-size:10px;
-  font-weight:900;
   width:68%;
-  margin:9px auto 0;
+  height:25px;
+  margin:8px auto 0;
   display:block;
+  background:linear-gradient(90deg,#9d1116,#d71920);
+  border:none;
+  border-radius:5px;
+  color:white;
+  font-size:9px;
+  font-weight:900;
 }
 
 .person{
   display:grid;
-  grid-template-columns:28px 1fr 24px;
-  gap:8px;
+  grid-template-columns:26px 1fr 20px;
+  gap:7px;
   align-items:center;
-  margin:5px 0;
+  margin:4px 0;
 }
 
 .face{
-  width:27px;
-  height:27px;
+  width:25px;
+  height:25px;
   border-radius:50%;
-  background:#394656;
+  background:#2c9ecf;
 }
 
 .person strong{
-  font-size:9.5px;
+  font-size:8.8px;
 }
 
 .person small{
   display:block;
+  font-size:7.5px;
   color:#96a2ad;
-  font-size:8px;
 }
 
 .alert{
-  background:var(--red);
+  width:15px;
+  height:15px;
   border-radius:50%;
-  width:16px;
-  height:16px;
+  background:var(--red);
   display:grid;
   place-items:center;
-  font-size:9px;
+  font-size:8px;
   font-weight:900;
 }
 
 .event{
   display:grid;
-  grid-template-columns:39px 1fr 48px;
-  gap:8px;
-  margin-bottom:8px;
+  grid-template-columns:36px 1fr 43px;
+  gap:7px;
+  margin-bottom:7px;
 }
 
 .date{
-  background:#121b25;
   border:1px solid var(--line);
-  border-radius:4px;
+  background:#121b25;
+  border-radius:5px;
   text-align:center;
-  padding:4px;
+  padding:3px;
+  font-size:10px;
   font-weight:900;
-  font-size:10.5px;
 }
 
 .date small{
   display:block;
   color:var(--red);
+  font-size:7.5px;
+}
+
+.event b{
+  font-size:9.5px;
+}
+
+.event small{
   font-size:8px;
+  color:#b5c1cc;
 }
 
 .tag{
   border:1px solid var(--red);
-  color:var(--red);
   border-radius:4px;
-  padding:4px;
-  text-align:center;
-  font-size:8.5px;
+  color:var(--red);
+  display:grid;
+  place-items:center;
+  font-size:7.7px;
   font-weight:900;
 }
 
 .feed{
   display:flex;
   justify-content:space-between;
-  gap:6px;
+  gap:5px;
   border-bottom:1px solid var(--line);
-  padding:7px 0;
-  font-size:9.5px;
-  color:#d8e2ea;
+  padding:6px 0;
+  font-size:8.7px;
 }
 
 .feed time{
@@ -693,67 +728,134 @@ body{
   white-space:nowrap;
 }
 
-/* ACTIONS */
+/* ACTION BAR */
+
 .actions{
-  background:var(--panel);
+  background:rgba(13,19,26,.95);
   border:1px solid var(--line);
-  border-radius:7px;
-  padding:10px;
+  border-radius:8px;
+  padding:8px 10px;
 }
 
 .action-grid{
   display:grid;
   grid-template-columns:repeat(6,1fr);
-  gap:10px;
+  gap:9px;
 }
 
 .action-card{
+  height:39px;
   border:1px solid var(--line);
+  border-radius:6px;
   background:#0b1118;
-  border-radius:5px;
-  height:46px;
   display:flex;
   align-items:center;
-  gap:10px;
-  padding:0 14px;
+  gap:9px;
+  padding:0 11px;
+}
+
+.action-ico{
+  color:var(--red);
+  font-size:17px;
 }
 
 .action-card b{
-  font-size:9.5px;
+  display:block;
+  font-size:8.7px;
   text-transform:uppercase;
   white-space:nowrap;
 }
 
 .action-card span{
   display:block;
-  font-size:8.5px;
+  font-size:7.8px;
   color:#9aa7b4;
-  margin-top:2px;
 }
 
-.action-ico{
-  font-size:19px;
-  color:var(--red);
-}
-
-/* RESPONSIVE */
-@media(max-width:1250px){
+/* HP LAPTOP / 1366px FIT */
+@media(max-width:1366px){
+  .app{grid-template-rows:64px 1fr}
   .header{
-    grid-template-columns:190px 210px 75px 110px 75px 90px minmax(150px,1fr) 36px 36px 110px;
-    gap:7px;
-    padding:9px 10px;
+    grid-template-columns:205px 230px 70px 108px 68px 86px minmax(130px,1fr) 30px 30px 108px;
+    gap:6px;
+    padding:7px 10px;
+  }
+  .logo{width:195px;height:42px}
+  .title h1{font-size:15px}
+  .title p{font-size:8px}
+  .head-stat small{font-size:7.5px}
+  .head-stat strong{font-size:8.7px}
+  .search{height:29px;font-size:9.5px}
+  .avatar{width:30px;height:30px}
+  .user{font-size:9px}
+
+  .main{
+    grid-template-columns:165px minmax(0,1fr);
+    gap:8px;
+    padding:8px;
   }
 
-  .logo{width:180px;height:42px}
-  .title h1{font-size:15px}
-  .title p{font-size:8.5px}
-  .head-stat small{font-size:8px}
-  .head-stat strong{font-size:9px}
-  .main{grid-template-columns:165px minmax(0,1fr)}
-  .dashboard{min-width:1010px}
+  .dashboard{
+    grid-template-rows:162px 204px 176px 56px;
+    gap:8px;
+  }
+
+  .row1,.row2,.row3{gap:8px}
+  .card{padding:10px}
+  .card-title{font-size:10px;margin-bottom:6px}
+
+  .nav-item{height:25px;font-size:9.8px}
+  .quick .nav-item{height:21px;font-size:8.8px}
+  .section-title{font-size:9px}
+
+  .athlete-card{grid-template-columns:112px 1fr;gap:12px}
+  .player-photo{width:108px;height:132px}
+  .athlete-name{font-size:23px}
+  .meta{font-size:8.8px}
+  .bio-line{font-size:8.8px;margin:6px 0}
+  .verify{font-size:8px;bottom:9px;left:15px}
+  .snapshot{font-size:7.7px}
+
+  .big-score{font-size:41px}
+  .subbig{font-size:18px}
+  .emblem{width:42px;height:52px}
+  .small-line{font-size:8.4px;margin:6px 0}
+  .ring{width:63px;height:63px;border-width:7px}
+  .ring strong{font-size:19px}
+  .btn{height:22px;font-size:7.8px}
+
+  .radar{height:120px}
+  .radar-shape{width:105px;height:105px}
+  .stats-list div{font-size:8.2px;margin:7px 0}
+  .acad-box{height:55px;padding:7px}
+  .acad-box strong{font-size:20px}
+  .acad-box span{font-size:7.4px}
+
+  .film-img{height:84px}
+  .play{width:38px;height:38px}
+  .film-title{font-size:8.4px}
+  .report-row{font-size:7.7px;padding:4px 0}
+  .report-title{font-size:8px}
+  .report-main img{width:36px}
+  .report-main{grid-template-columns:40px 1fr}
+
+  .kv{font-size:8.3px;padding:5px 0}
+  .person{grid-template-columns:22px 1fr 18px}
+  .face{width:21px;height:21px}
+  .person strong{font-size:7.8px}
+  .person small{font-size:6.8px}
+  .event{grid-template-columns:31px 1fr 38px;margin-bottom:5px}
+  .event b{font-size:8px}
+  .event small{font-size:7px}
+  .feed{font-size:7.5px;padding:5px 0}
+
+  .actions{padding:6px 8px}
+  .action-card{height:34px;padding:0 8px}
+  .action-card b{font-size:7.8px}
+  .action-card span{font-size:6.8px}
 }
 
-@media(max-width:1100px){
+@media(max-width:1180px){
   body{overflow:auto}
   .app{min-width:1180px}
 }
@@ -771,25 +873,10 @@ body{
     <p>YOUR JOURNEY. VERIFIED. VISUALIZED. MAXIMIZED.</p>
   </div>
 
-  <div class="head-stat">
-    <small>Athlete ID</small>
-    <strong>SC-247812</strong>
-  </div>
-
-  <div class="head-stat">
-    <small>Snapshot ID</small>
-    <strong style="color:#111">SNAP-2026-00429</strong>
-  </div>
-
-  <div class="head-stat">
-    <small>Visibility</small>
-    <strong style="color:var(--purple)">HIGH</strong>
-  </div>
-
-  <div class="head-stat">
-    <small>Status</small>
-    <strong class="green">● VERIFIED</strong>
-  </div>
+  <div class="head-stat"><small>Athlete ID</small><strong>SC-247812</strong></div>
+  <div class="head-stat"><small>Snapshot ID</small><strong style="color:#111">SNAP-2026-00429</strong></div>
+  <div class="head-stat"><small>Visibility</small><strong style="color:var(--purple)">HIGH</strong></div>
+  <div class="head-stat"><small>Status</small><strong style="color:green">● VERIFIED</strong></div>
 
   <input class="search" placeholder="Search athletes, schools, events...">
 
@@ -842,7 +929,6 @@ body{
 <main class="dashboard">
 
 <section class="row1">
-
   <div class="card athlete-card">
     <img class="player-photo" src="athlete-avatar.jpg" alt="Athlete">
 
@@ -885,16 +971,14 @@ body{
   <div class="card">
     <div class="card-title">RECRUITING READINESS <span class="info">ⓘ</span></div>
     <div class="ring"><strong>92%</strong></div>
-    <div style="text-align:center;color:var(--red);font-weight:900;font-size:12px;">READY</div>
+    <div style="text-align:center;color:var(--red);font-weight:900;font-size:11px;">READY</div>
     <div class="small-line">NEXT ACTION:<br><b>Complete Junior Highlights</b></div>
     <div class="card-bottom"><button class="btn">View Readiness Report</button></div>
   </div>
-
 </section>
 
 <section class="row2">
-
-  <div class="card performance-card">
+  <div class="card">
     <div class="card-title">PERFORMANCE OVERVIEW <span class="info">ⓘ</span></div>
     <div class="radar-wrap">
       <div class="radar"><div class="radar-shape"></div></div>
@@ -906,23 +990,21 @@ body{
         <div><span>Yards / Game</span><b>237.1</b></div>
       </div>
     </div>
-    <div class="full-btn"><button class="btn">View Full Breakdown</button></div>
+    <div class="card-bottom"><button class="btn">View Full Breakdown</button></div>
   </div>
 
   <div class="card">
     <div class="card-title">ACADEMIC OVERVIEW <span class="info">ⓘ</span></div>
-
     <div class="acad-grid">
       <div class="acad-box"><strong class="blue-text">3.45</strong><span>GPA</span></div>
       <div class="acad-box"><strong class="green-text">8 / 10</strong><span>CORE COURSES COMPLETE</span></div>
       <div class="acad-box"><strong class="blue-text">1340</strong><span>SAT EST.</span></div>
       <div class="acad-box"><strong class="green-text">ON TRACK</strong><span>GRADUATION PATH</span></div>
     </div>
-
     <div class="card-bottom"><button class="btn">View Academic Center</button></div>
   </div>
 
-  <div class="card film-card">
+  <div class="card">
     <div class="card-title">ATHLETIC SNAPSHOT</div>
     <div class="film-img"><div class="play">▶</div></div>
     <div class="film-title">7v7 HIGHLIGHTS - SPRING 2025</div>
@@ -932,32 +1014,28 @@ body{
   </div>
 
   <div class="card">
-    <div class="card-title">CRYSTAL REPORTS <span class="info">ⓘ</span> <span style="float:right;color:var(--red);font-size:9px">VIEW ALL</span></div>
-
+    <div class="card-title">CRYSTAL REPORTS <span class="view-all">VIEW ALL</span></div>
     <div class="report-main">
       <img src="sc_emblem.png" alt="Crystal Report">
       <div>
         <div class="report-title">ELITE QUARTERBACK REPORT <span class="new">NEW</span></div>
         <small>May 15, 2026</small>
-        <div style="margin-top:8px">
+        <div style="margin-top:6px">
           <button class="btn" style="width:31%">View</button>
           <button class="btn" style="width:31%">Download</button>
           <button class="btn" style="width:31%">Share</button>
         </div>
       </div>
     </div>
-
     <div class="report-row"><span>▧ Academic Progress Report<br><small>May 12, 2026</small></span><span class="new">NEW</span></div>
     <div class="report-row"><span>▧ Recruiting Exposure Report<br><small>May 10, 2026</small></span><span class="new">NEW</span></div>
     <div class="report-row"><span>▧ Performance Trend Report<br><small>May 08, 2026</small></span><span class="new">NEW</span></div>
   </div>
-
 </section>
 
 <section class="row3">
-
   <div class="card">
-    <div class="card-title">RECRUITING ACTIVITY <span style="float:right;color:var(--red);font-size:9px">VIEW ALL</span></div>
+    <div class="card-title">RECRUITING ACTIVITY <span class="view-all">VIEW ALL</span></div>
     <div class="kv"><span>⚖ Interested Schools</span><b>28</b></div>
     <div class="kv"><span>☊ Recruiter Requests</span><b>12</b></div>
     <div class="kv"><span>▧ Evaluations</span><b>14</b></div>
@@ -967,20 +1045,17 @@ body{
   </div>
 
   <div class="card">
-    <div class="card-title">MULTI-BOX COMMUNICATION <span style="float:right;color:var(--red);font-size:9px">VIEW ALL</span></div>
-
+    <div class="card-title">MULTI-BOX COMMUNICATION <span class="view-all">VIEW ALL</span></div>
     <div class="person"><div class="face"></div><div><strong>COACH DAVIS</strong><small>Head Coach</small></div><span class="alert">2</span></div>
     <div class="person"><div class="face"></div><div><strong>COACH THOMPSON</strong><small>QB Coach</small></div><span class="alert">1</span></div>
     <div class="person"><div class="face"></div><div><strong>RECRUITER BROWN</strong><small>Texas A&M</small></div><span class="alert">2</span></div>
     <div class="person"><div class="face"></div><div><strong>PARENT</strong><small>John Williams Sr.</small></div><span class="alert">1</span></div>
     <div class="person"><div class="face"></div><div><strong>COUNSELOR</strong><small>Ms. Johnson</small></div><span class="alert">1</span></div>
-
     <button class="redbtn">Open Multi-Box</button>
   </div>
 
   <div class="card">
-    <div class="card-title">UPCOMING EVENTS <span style="float:right;color:var(--red);font-size:9px">VIEW ALL</span></div>
-
+    <div class="card-title">UPCOMING EVENTS <span class="view-all">VIEW ALL</span></div>
     <div class="event"><div class="date"><small>MAY</small>18</div><div><b>ELITE 11 REGIONAL</b><br><small>Dallas, TX</small></div><div class="tag" style="color:var(--purple);border-color:var(--purple)">CAMP</div></div>
     <div class="event"><div class="date"><small>MAY</small>31</div><div><b>MEGA QB SHOWCASE</b><br><small>Austin, TX</small></div><div class="tag">EVENT</div></div>
     <div class="event"><div class="date"><small>JUN</small>15</div><div><b>RECRUITING WINDOW</b><br><small>Opens</small></div><div class="tag" style="color:var(--green);border-color:var(--green)">WINDOW</div></div>
@@ -988,20 +1063,17 @@ body{
   </div>
 
   <div class="card">
-    <div class="card-title">ACTIVITY FEED <span style="float:right;color:var(--red);font-size:9px">VIEW ALL</span></div>
-
-    <div class="feed"><span>◎ Texas A&M viewed your profile</span><time>2m</time></div>
+    <div class="card-title">ACTIVITY FEED <span class="view-all">VIEW ALL</span></div>
+    <div class="feed"><span>◎ Texas A&M viewed profile</span><time>2m</time></div>
     <div class="feed"><span>◎ New message from Coach Davis</span><time>12m</time></div>
     <div class="feed"><span>◎ Evaluation submitted</span><time>1h</time></div>
     <div class="feed"><span>▧ Profile viewed by 5 schools</span><time>3h</time></div>
-    <div class="feed"><span>▧ Film uploaded: 7v7 Highlights</span><time>Yesterday</time></div>
+    <div class="feed"><span>▧ Film uploaded: 7v7 Highlights</span><time>1d</time></div>
   </div>
-
 </section>
 
 <section class="actions">
   <div class="section-title">RECOMMENDED NEXT STEPS</div>
-
   <div class="action-grid">
     <div class="action-card"><div class="action-ico">▧</div><div><b>Upload New Film</b><span>Increase Visibility</span></div></div>
     <div class="action-card"><div class="action-ico">☊</div><div><b>Request Evaluation</b><span>Get Scouted</span></div></div>
