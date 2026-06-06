@@ -10,13 +10,12 @@
 <style>
 :root{
   --red:#d71920;
-  --red2:#8f0f13;
+  --red-dark:#8f0f13;
   --green:#25d34f;
   --blue:#1f9cff;
   --purple:#a855f7;
-  --yellow:#f7c948;
   --white:#f4f4ef;
-  --bg:#070b10;
+  --bg:#05080d;
   --panel:#0d131a;
   --panel2:#101821;
   --line:#1d2a36;
@@ -25,14 +24,25 @@
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{width:100%;min-height:100%;background:#000;color:var(--text);font-family:Inter,Arial,sans-serif}
-body{overflow:hidden}
+
+html,body{
+  width:100%;
+  min-height:100%;
+  background:#000;
+  color:var(--text);
+  font-family:Inter,Arial,sans-serif;
+}
+
+body{
+  overflow:auto;
+}
 
 .app{
-  height:100vh;
-  display:grid;
-  grid-template-rows:82px 1fr;
+  width:100%;
+  min-height:100vh;
   background:var(--bg);
+  display:grid;
+  grid-template-rows:76px auto;
 }
 
 /* HEADER */
@@ -40,262 +50,712 @@ body{overflow:hidden}
   background:var(--white);
   color:#101318;
   display:grid;
-  grid-template-columns:250px 260px 90px 130px 90px 105px 1fr 52px 52px 140px;
+  grid-template-columns:215px 230px 82px 122px 82px 100px minmax(180px,1fr) 40px 40px 128px;
   align-items:center;
-  gap:12px;
-  padding:12px 18px;
+  gap:9px;
+  padding:10px 14px;
   border-bottom:4px solid var(--red);
+  overflow:hidden;
 }
 
-.logo{height:48px;object-fit:contain}
-.title h1{font-size:18px;color:var(--red);font-weight:900;letter-spacing:.6px}
-.title p{font-size:10px;font-weight:800;color:#111;letter-spacing:.4px}
-.head-stat{border-left:1px solid #ccc;padding-left:14px}
-.head-stat small{display:block;font-size:10px;font-weight:900;color:#222;text-transform:uppercase}
-.head-stat strong{font-size:12px;color:var(--red)}
-.head-stat .green{color:green}
-.search{height:38px;border:1px solid #cfd3d8;border-radius:6px;padding:0 12px;background:#fff}
-.icon{position:relative;text-align:center;font-size:22px}
-.badge{position:absolute;top:-8px;right:8px;background:var(--red);color:white;border-radius:50%;font-size:10px;width:18px;height:18px;display:grid;place-items:center;font-weight:900}
-.user{display:flex;align-items:center;gap:10px;font-weight:900}
-.avatar{width:42px;height:42px;border-radius:50%;border:2px solid var(--red);object-fit:cover}
+.logo{
+  height:46px;
+  width:205px;
+  object-fit:contain;
+  object-position:left center;
+}
+
+.title h1{
+  font-size:17px;
+  color:var(--red);
+  font-weight:900;
+  letter-spacing:.5px;
+  white-space:nowrap;
+}
+
+.title p{
+  font-size:9.5px;
+  font-weight:900;
+  color:#111;
+  letter-spacing:.35px;
+  white-space:nowrap;
+}
+
+.head-stat{
+  border-left:1px solid #c7c9cc;
+  padding-left:10px;
+  min-width:0;
+}
+
+.head-stat small{
+  display:block;
+  font-size:9px;
+  font-weight:900;
+  color:#222;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+
+.head-stat strong{
+  font-size:10.5px;
+  color:var(--red);
+  white-space:nowrap;
+}
+
+.search{
+  height:34px;
+  border:1px solid #cfd3d8;
+  border-radius:6px;
+  padding:0 10px;
+  background:#fff;
+  min-width:0;
+  font-size:11px;
+}
+
+.icon{
+  position:relative;
+  text-align:center;
+  font-size:19px;
+}
+
+.badge{
+  position:absolute;
+  top:-7px;
+  right:2px;
+  background:var(--red);
+  color:white;
+  border-radius:50%;
+  font-size:9px;
+  width:16px;
+  height:16px;
+  display:grid;
+  place-items:center;
+  font-weight:900;
+}
+
+.user{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:10.5px;
+  font-weight:900;
+  white-space:nowrap;
+  overflow:hidden;
+}
+
+.avatar{
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  border:2px solid var(--red);
+  object-fit:cover;
+  background:#d8dde3;
+}
 
 /* MAIN */
 .main{
   min-height:0;
   display:grid;
-  grid-template-columns:190px 1fr;
-  gap:12px;
-  padding:12px 14px 14px;
+  grid-template-columns:178px minmax(0,1fr);
+  gap:10px;
+  padding:10px;
   background:linear-gradient(180deg,#071016,#05080c);
+  overflow:auto;
 }
 
 /* LEFT RAIL */
 .left{
   display:flex;
   flex-direction:column;
-  gap:10px;
-  min-height:0;
+  gap:9px;
+  min-width:0;
 }
 
 .menu,.quick,.status{
   background:var(--panel);
   border:1px solid var(--line);
-  border-radius:6px;
-  padding:10px;
+  border-radius:7px;
+  padding:9px;
 }
 
 .nav-item{
-  height:34px;
+  height:29px;
   display:flex;
   align-items:center;
-  gap:10px;
-  padding:0 10px;
+  gap:8px;
+  padding:0 9px;
   border-radius:5px;
   color:#dbe6ef;
-  font-size:12px;
+  font-size:11px;
   font-weight:800;
-  margin-bottom:4px;
+  margin-bottom:3px;
+  white-space:nowrap;
 }
 
-.nav-item.active{background:linear-gradient(90deg,var(--red2),#bd151b)}
-.nav-item .count{margin-left:auto;background:var(--red);border-radius:50%;width:17px;height:17px;display:grid;place-items:center;font-size:10px}
-.section-title{font-size:11px;color:white;text-transform:uppercase;font-weight:900;margin-bottom:8px;letter-spacing:.5px}
-.quick .nav-item{height:27px;font-size:10.5px;color:#c9d4de}
-.status p{font-size:10px;color:var(--muted);margin:7px 0}
-.status .ok{color:var(--green);font-weight:900}
-.sync{color:var(--red);font-weight:900;font-size:11px;margin-top:6px}
+.nav-item.active{
+  background:linear-gradient(90deg,var(--red-dark),#bd151b);
+}
+
+.nav-item .count{
+  margin-left:auto;
+  background:var(--red);
+  border-radius:50%;
+  width:16px;
+  height:16px;
+  display:grid;
+  place-items:center;
+  font-size:9px;
+}
+
+.section-title{
+  font-size:10.5px;
+  color:white;
+  text-transform:uppercase;
+  font-weight:900;
+  margin-bottom:7px;
+  letter-spacing:.45px;
+}
+
+.quick .nav-item{
+  height:25px;
+  font-size:10px;
+  color:#c9d4de;
+}
+
+.status p{
+  font-size:9.5px;
+  color:var(--muted);
+  margin:6px 0;
+}
+
+.status .ok{
+  color:var(--green);
+  font-weight:900;
+}
+
+.sync{
+  color:var(--red);
+  font-weight:900;
+  font-size:10px;
+  margin-top:6px;
+}
 
 /* DASHBOARD */
 .dashboard{
-  min-width:0;
-  min-height:0;
+  min-width:1060px;
   display:grid;
-  grid-template-rows:214px 276px 246px 82px;
-  gap:12px;
+  grid-template-rows:184px 238px 214px 74px;
+  gap:10px;
 }
 
 .row1{
   display:grid;
-  grid-template-columns:2.35fr 1.05fr 1fr 1fr 1.18fr;
-  gap:12px;
+  grid-template-columns:2.35fr 1.05fr 1fr 1fr 1.15fr;
+  gap:10px;
 }
+
 .row2{
   display:grid;
-  grid-template-columns:1.55fr 1.1fr 1.15fr 1.25fr;
-  gap:12px;
+  grid-template-columns:1.5fr 1.05fr 1.12fr 1.23fr;
+  gap:10px;
 }
+
 .row3{
   display:grid;
-  grid-template-columns:1.1fr 1.1fr 1fr 1.05fr;
-  gap:12px;
-}
-.actions{
-  background:var(--panel);
-  border:1px solid var(--line);
-  border-radius:6px;
-  padding:12px;
-}
-.action-grid{
-  display:grid;
-  grid-template-columns:repeat(6,1fr);
-  gap:12px;
+  grid-template-columns:1.08fr 1.13fr 1fr 1.05fr;
+  gap:10px;
 }
 
 .card{
   background:linear-gradient(180deg,#0e151d,#091017);
   border:1px solid var(--line);
   border-radius:7px;
-  padding:14px;
+  padding:12px;
   overflow:hidden;
   position:relative;
   box-shadow:0 0 0 1px rgba(255,255,255,.015) inset;
 }
 
 .card-title{
-  font-size:14px;
+  font-size:12px;
   font-weight:900;
-  letter-spacing:.3px;
+  letter-spacing:.25px;
   text-transform:uppercase;
   color:#f0f6ff;
-  margin-bottom:10px;
+  margin-bottom:8px;
+  white-space:nowrap;
 }
-.info{color:#7d8794;font-size:12px}
 
-/* ATHLETE */
+.info{
+  color:#7d8794;
+  font-size:10px;
+}
+
+/* ATHLETE CARD */
 .athlete-card{
   display:grid;
-  grid-template-columns:160px 1fr;
-  gap:18px;
+  grid-template-columns:135px 1fr;
+  gap:16px;
 }
+
 .player-photo{
-  width:154px;height:178px;object-fit:cover;border-radius:6px;
+  width:130px;
+  height:155px;
+  object-fit:cover;
+  border-radius:6px;
   background:linear-gradient(135deg,#111,#222);
 }
+
 .verify{
-  position:absolute;left:24px;bottom:18px;
-  background:#161d25;border:1px solid var(--line);
-  padding:7px 10px;border-radius:6px;
-  color:white;font-size:11px;font-weight:900;
+  position:absolute;
+  left:19px;
+  bottom:13px;
+  background:#161d25;
+  border:1px solid var(--line);
+  padding:6px 9px;
+  border-radius:6px;
+  color:white;
+  font-size:10px;
+  font-weight:900;
 }
-.dot-red{display:inline-block;width:14px;height:14px;background:var(--red);border-radius:50%;margin-right:6px;vertical-align:-2px}
-.athlete-name{font-size:32px;font-weight:900;letter-spacing:1px;margin:8px 0}
-.meta{font-size:12px;color:#cbd6e0;margin-bottom:20px}
-.bio-line{display:flex;align-items:center;gap:10px;margin:12px 0;color:#dbe6ef;font-size:12px;font-weight:700}
-.bio-icon{color:var(--red)}
-.snapshot{position:absolute;right:18px;bottom:18px;font-size:10px;color:#b5c1cc}
+
+.dot-red{
+  display:inline-block;
+  width:12px;
+  height:12px;
+  background:var(--red);
+  border-radius:50%;
+  margin-right:6px;
+  vertical-align:-2px;
+}
+
+.athlete-name{
+  font-size:27px;
+  font-weight:900;
+  letter-spacing:.8px;
+  margin:5px 0;
+  white-space:nowrap;
+}
+
+.meta{
+  font-size:10.5px;
+  color:#cbd6e0;
+  margin-bottom:13px;
+  white-space:nowrap;
+}
+
+.bio-line{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin:8px 0;
+  color:#dbe6ef;
+  font-size:10.5px;
+  font-weight:700;
+}
+
+.bio-icon{
+  color:var(--red);
+}
+
+.snapshot{
+  position:absolute;
+  right:12px;
+  bottom:14px;
+  font-size:9px;
+  color:#b5c1cc;
+}
 
 /* SCORE CARDS */
-.big-score{font-size:56px;line-height:1;font-weight:900}
+.big-score{
+  font-size:48px;
+  line-height:1;
+  font-weight:900;
+}
+
 .red-text{color:var(--red)}
 .green-text{color:var(--green)}
 .blue-text{color:var(--blue)}
 .purple-text{color:var(--purple)}
-.subbig{font-size:25px;font-weight:900;margin-top:4px}
+
+.subbig{
+  font-size:21px;
+  font-weight:900;
+  margin-top:4px;
+}
+
 .trend{
-  position:absolute;left:14px;right:14px;bottom:12px;
-  height:32px;border:1px solid var(--line);border-radius:5px;
-  display:flex;align-items:center;justify-content:space-around;
-  font-size:11px;font-weight:900;
+  position:absolute;
+  left:12px;
+  right:12px;
+  bottom:10px;
+  height:28px;
+  border:1px solid var(--line);
+  border-radius:5px;
+  display:flex;
+  align-items:center;
+  justify-content:space-around;
+  font-size:10px;
+  font-weight:900;
 }
+
 .emblem{
-  position:absolute;right:14px;top:56px;width:58px;height:72px;object-fit:contain;opacity:.85;
+  position:absolute;
+  right:12px;
+  top:50px;
+  width:52px;
+  height:64px;
+  object-fit:contain;
+  opacity:.9;
 }
+
 .btn{
-  width:100%;height:32px;border:1px solid var(--line);background:#0b1219;color:white;
-  border-radius:4px;font-size:10px;font-weight:900;text-transform:uppercase;
+  width:100%;
+  height:28px;
+  border:1px solid var(--line);
+  background:#0b1219;
+  color:white;
+  border-radius:4px;
+  font-size:9px;
+  font-weight:900;
+  text-transform:uppercase;
 }
-.card-bottom{position:absolute;left:14px;right:14px;bottom:12px}
-.small-line{font-size:11px;color:#b7c1ca;margin:13px 0}
+
+.card-bottom{
+  position:absolute;
+  left:12px;
+  right:12px;
+  bottom:10px;
+}
+
+.small-line{
+  font-size:10px;
+  color:#b7c1ca;
+  margin:10px 0;
+}
 
 /* RING */
 .ring{
-  width:92px;height:92px;border-radius:50%;
-  border:10px solid #26313b;border-top-color:var(--red);border-left-color:var(--red);
-  display:grid;place-items:center;margin:8px auto 12px;
+  width:78px;
+  height:78px;
+  border-radius:50%;
+  border:9px solid #26313b;
+  border-top-color:var(--red);
+  border-left-color:var(--red);
+  display:grid;
+  place-items:center;
+  margin:5px auto 8px;
 }
-.ring strong{font-size:30px}
+
+.ring strong{
+  font-size:24px;
+}
 
 /* PERFORMANCE */
 .radar-wrap{
   display:grid;
-  grid-template-columns:1fr 120px;
-  gap:12px;
+  grid-template-columns:1fr 118px;
+  gap:10px;
 }
+
 .radar{
-  height:180px;
+  height:155px;
   display:grid;
   place-items:center;
 }
+
 .radar-shape{
-  width:150px;height:150px;
+  width:130px;
+  height:130px;
   background:radial-gradient(circle,rgba(215,25,32,.45),rgba(215,25,32,.05));
   clip-path:polygon(50% 0,88% 22%,88% 72%,50% 100%,12% 72%,12% 22%);
   border:2px solid var(--red);
 }
+
 .stats-list div{
-  display:flex;justify-content:space-between;
-  font-size:11px;color:#c8d2db;margin:13px 0;
+  display:flex;
+  justify-content:space-between;
+  font-size:10px;
+  color:#c8d2db;
+  margin:11px 0;
 }
-.full-btn{position:absolute;bottom:12px;left:14px;right:14px}
+
+.full-btn{
+  position:absolute;
+  bottom:10px;
+  left:12px;
+  right:12px;
+}
 
 /* ACADEMIC */
 .acad-grid{
-  display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--line);border-left:1px solid var(--line)
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  border-top:1px solid var(--line);
+  border-left:1px solid var(--line);
 }
-.acad-box{height:88px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:14px}
-.acad-box strong{font-size:30px}
-.acad-box span{display:block;font-size:11px;color:#b7c1ca;margin-top:5px}
+
+.acad-box{
+  height:72px;
+  border-right:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  padding:10px;
+}
+
+.acad-box strong{
+  font-size:25px;
+}
+
+.acad-box span{
+  display:block;
+  font-size:9.5px;
+  color:#b7c1ca;
+  margin-top:4px;
+}
 
 /* FILM */
 .film-img{
-  height:132px;border-radius:5px;background:linear-gradient(135deg,#222,#000);
-  display:grid;place-items:center;font-size:42px;position:relative;overflow:hidden;
+  height:112px;
+  border-radius:5px;
+  background:linear-gradient(135deg,#222,#000);
+  display:grid;
+  place-items:center;
+  font-size:36px;
+  position:relative;
+  overflow:hidden;
 }
-.play{width:54px;height:54px;border-radius:50%;background:rgba(0,0,0,.65);display:grid;place-items:center}
-.film-title{font-size:12px;font-weight:900;margin-top:10px}
-.film-foot{display:flex;justify-content:space-between;margin-top:10px;font-size:11px;color:#b7c1ca}
+
+.play{
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  background:rgba(0,0,0,.65);
+  display:grid;
+  place-items:center;
+}
+
+.film-title{
+  font-size:10.5px;
+  font-weight:900;
+  margin-top:8px;
+}
+
+.film-foot{
+  display:flex;
+  justify-content:space-between;
+  margin-top:7px;
+  font-size:10px;
+  color:#b7c1ca;
+}
 
 /* REPORTS */
-.report-main{display:grid;grid-template-columns:64px 1fr;gap:12px;margin-bottom:12px}
-.report-main img{width:58px}
-.report-title{font-size:12px;font-weight:900}
-.report-row{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding:10px 0;font-size:11px}
-.new{background:#1c6fb6;color:white;border-radius:3px;padding:3px 6px;font-size:9px}
+.report-main{
+  display:grid;
+  grid-template-columns:54px 1fr;
+  gap:10px;
+  margin-bottom:8px;
+}
 
-/* ROW3 */
-.kv{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:9px 0;font-size:12px}
-.kv span{color:#dce7f0;font-weight:800}
-.redbtn{background:linear-gradient(90deg,#9d1116,#c81920);border:none;color:white;border-radius:5px;height:32px;font-size:11px;font-weight:900;width:70%;margin:12px auto 0;display:block}
-.person{display:grid;grid-template-columns:32px 1fr 28px;gap:10px;align-items:center;margin:7px 0}
-.face{width:30px;height:30px;border-radius:50%;background:#394656}
-.person strong{font-size:11px}
-.person small{display:block;color:#96a2ad;font-size:9px}
-.alert{background:var(--red);border-radius:50%;width:18px;height:18px;display:grid;place-items:center;font-size:10px;font-weight:900}
-.event{display:grid;grid-template-columns:45px 1fr 54px;gap:10px;margin-bottom:11px}
-.date{background:#121b25;border:1px solid var(--line);border-radius:4px;text-align:center;padding:5px;font-weight:900;font-size:12px}
-.date small{display:block;color:var(--red)}
-.tag{border:1px solid var(--red);color:var(--red);border-radius:4px;padding:4px;text-align:center;font-size:10px;font-weight:900}
-.feed{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:9px 0;font-size:11px;color:#d8e2ea}
-.feed time{color:#8d9aaa}
+.report-main img{
+  width:50px;
+}
+
+.report-title{
+  font-size:10.5px;
+  font-weight:900;
+}
+
+.report-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-top:1px solid var(--line);
+  padding:7px 0;
+  font-size:10px;
+}
+
+.new{
+  background:#1c6fb6;
+  color:white;
+  border-radius:3px;
+  padding:2px 5px;
+  font-size:8px;
+}
+
+/* ROW 3 */
+.kv{
+  display:flex;
+  justify-content:space-between;
+  border-bottom:1px solid var(--line);
+  padding:7px 0;
+  font-size:10.5px;
+}
+
+.kv span{
+  color:#dce7f0;
+  font-weight:800;
+}
+
+.redbtn{
+  background:linear-gradient(90deg,#9d1116,#c81920);
+  border:none;
+  color:white;
+  border-radius:5px;
+  height:28px;
+  font-size:10px;
+  font-weight:900;
+  width:68%;
+  margin:9px auto 0;
+  display:block;
+}
+
+.person{
+  display:grid;
+  grid-template-columns:28px 1fr 24px;
+  gap:8px;
+  align-items:center;
+  margin:5px 0;
+}
+
+.face{
+  width:27px;
+  height:27px;
+  border-radius:50%;
+  background:#394656;
+}
+
+.person strong{
+  font-size:9.5px;
+}
+
+.person small{
+  display:block;
+  color:#96a2ad;
+  font-size:8px;
+}
+
+.alert{
+  background:var(--red);
+  border-radius:50%;
+  width:16px;
+  height:16px;
+  display:grid;
+  place-items:center;
+  font-size:9px;
+  font-weight:900;
+}
+
+.event{
+  display:grid;
+  grid-template-columns:39px 1fr 48px;
+  gap:8px;
+  margin-bottom:8px;
+}
+
+.date{
+  background:#121b25;
+  border:1px solid var(--line);
+  border-radius:4px;
+  text-align:center;
+  padding:4px;
+  font-weight:900;
+  font-size:10.5px;
+}
+
+.date small{
+  display:block;
+  color:var(--red);
+  font-size:8px;
+}
+
+.tag{
+  border:1px solid var(--red);
+  color:var(--red);
+  border-radius:4px;
+  padding:4px;
+  text-align:center;
+  font-size:8.5px;
+  font-weight:900;
+}
+
+.feed{
+  display:flex;
+  justify-content:space-between;
+  gap:6px;
+  border-bottom:1px solid var(--line);
+  padding:7px 0;
+  font-size:9.5px;
+  color:#d8e2ea;
+}
+
+.feed time{
+  color:#8d9aaa;
+  white-space:nowrap;
+}
 
 /* ACTIONS */
-.action-card{
-  border:1px solid var(--line);background:#0b1118;border-radius:5px;height:54px;
-  display:flex;align-items:center;gap:12px;padding:0 18px;
+.actions{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:7px;
+  padding:10px;
 }
-.action-card b{font-size:11px;text-transform:uppercase}
-.action-card span{display:block;font-size:10px;color:#9aa7b4;margin-top:2px}
-.action-ico{font-size:22px;color:var(--red)}
 
-@media(max-width:1200px){
+.action-grid{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:10px;
+}
+
+.action-card{
+  border:1px solid var(--line);
+  background:#0b1118;
+  border-radius:5px;
+  height:46px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:0 14px;
+}
+
+.action-card b{
+  font-size:9.5px;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+
+.action-card span{
+  display:block;
+  font-size:8.5px;
+  color:#9aa7b4;
+  margin-top:2px;
+}
+
+.action-ico{
+  font-size:19px;
+  color:var(--red);
+}
+
+/* RESPONSIVE */
+@media(max-width:1250px){
+  .header{
+    grid-template-columns:190px 210px 75px 110px 75px 90px minmax(150px,1fr) 36px 36px 110px;
+    gap:7px;
+    padding:9px 10px;
+  }
+
+  .logo{width:180px;height:42px}
+  .title h1{font-size:15px}
+  .title p{font-size:8.5px}
+  .head-stat small{font-size:8px}
+  .head-stat strong{font-size:9px}
+  .main{grid-template-columns:165px minmax(0,1fr)}
+  .dashboard{min-width:1010px}
+}
+
+@media(max-width:1100px){
   body{overflow:auto}
-  .app{height:auto}
-  .main{grid-template-columns:1fr}
-  .left{display:none}
-  .dashboard{grid-template-rows:auto}
-  .row1,.row2,.row3,.action-grid{grid-template-columns:1fr}
-  .header{grid-template-columns:1fr; height:auto}
+  .app{min-width:1180px}
 }
 </style>
 </head>
@@ -305,18 +765,41 @@ body{overflow:hidden}
 
 <header class="header">
   <img class="logo" src="sc_logo_e.png" alt="STATS-CORE">
+
   <div class="title">
     <h1>ATHLETE DASHBOARD</h1>
     <p>YOUR JOURNEY. VERIFIED. VISUALIZED. MAXIMIZED.</p>
   </div>
-  <div class="head-stat"><small>Athlete ID</small><strong>SC-247812</strong></div>
-  <div class="head-stat"><small>Snapshot ID</small><strong style="color:#111">SNAP-2026-00429</strong></div>
-  <div class="head-stat"><small>Visibility</small><strong style="color:var(--purple)">HIGH</strong></div>
-  <div class="head-stat"><small>Status</small><strong class="green">● VERIFIED</strong></div>
+
+  <div class="head-stat">
+    <small>Athlete ID</small>
+    <strong>SC-247812</strong>
+  </div>
+
+  <div class="head-stat">
+    <small>Snapshot ID</small>
+    <strong style="color:#111">SNAP-2026-00429</strong>
+  </div>
+
+  <div class="head-stat">
+    <small>Visibility</small>
+    <strong style="color:var(--purple)">HIGH</strong>
+  </div>
+
+  <div class="head-stat">
+    <small>Status</small>
+    <strong class="green">● VERIFIED</strong>
+  </div>
+
   <input class="search" placeholder="Search athletes, schools, events...">
-  <div class="icon">✉️<span class="badge">5</span></div>
+
+  <div class="icon">✉<span class="badge">5</span></div>
   <div class="icon">🔔<span class="badge">7</span></div>
-  <div class="user"><img class="avatar" src="athlete-avatar.jpg" alt="">JOHN WILLIAMS⌄</div>
+
+  <div class="user">
+    <img class="avatar" src="athlete-avatar.jpg" alt="Athlete">
+    JOHN WILLIAMS⌄
+  </div>
 </header>
 
 <div class="main">
@@ -359,15 +842,18 @@ body{overflow:hidden}
 <main class="dashboard">
 
 <section class="row1">
+
   <div class="card athlete-card">
     <img class="player-photo" src="athlete-avatar.jpg" alt="Athlete">
+
     <div>
       <h2 class="athlete-name">JOHN WILLIAMS</h2>
-      <div class="meta">Quarterback &nbsp; | &nbsp; 6'2" &nbsp; | &nbsp; 195 lbs &nbsp; | &nbsp; Right Handed</div>
+      <div class="meta">Quarterback | 6'2" | 195 lbs | Right Handed</div>
       <div class="bio-line"><span class="bio-icon">ⓘ</span>Cedar Hill High School</div>
       <div class="bio-line"><span class="bio-icon">◎</span>Dallas, Texas</div>
       <div class="bio-line"><span class="bio-icon">◉</span>Class of 2026</div>
     </div>
+
     <div class="verify"><span class="dot-red"></span>VERIFIED ATHLETE</div>
     <div class="snapshot">SNAPSHOT ID: SNAP-2026-00429</div>
   </div>
@@ -376,7 +862,7 @@ body{overflow:hidden}
     <div class="card-title">STATS-CORE INDEX <span class="info">ⓘ</span></div>
     <div class="big-score">95.7</div>
     <div class="subbig red-text">ELITE</div>
-    <img class="emblem" src="sc_emblem.png" alt="">
+    <img class="emblem" src="sc_emblem.png" alt="STATS-CORE Emblem">
     <div class="trend"><span class="green-text">↑ 2.3</span><span>LAST 30 DAYS</span></div>
   </div>
 
@@ -392,20 +878,22 @@ body{overflow:hidden}
     <div class="card-title">EXPOSURE SCORE <span class="info">ⓘ</span></div>
     <div class="big-score purple-text">92</div>
     <div class="subbig purple-text">HIGH</div>
-    <div class="small-line">PROFILE VIEWS (30D) &nbsp; ○ <b class="green-text">+18%</b></div>
+    <div class="small-line">PROFILE VIEWS (30D) <b class="green-text">+18%</b></div>
     <div class="card-bottom"><button class="btn">View Exposure Analytics</button></div>
   </div>
 
   <div class="card">
     <div class="card-title">RECRUITING READINESS <span class="info">ⓘ</span></div>
     <div class="ring"><strong>92%</strong></div>
-    <div style="text-align:center;color:var(--red);font-weight:900">READY</div>
+    <div style="text-align:center;color:var(--red);font-weight:900;font-size:12px;">READY</div>
     <div class="small-line">NEXT ACTION:<br><b>Complete Junior Highlights</b></div>
     <div class="card-bottom"><button class="btn">View Readiness Report</button></div>
   </div>
+
 </section>
 
 <section class="row2">
+
   <div class="card performance-card">
     <div class="card-title">PERFORMANCE OVERVIEW <span class="info">ⓘ</span></div>
     <div class="radar-wrap">
@@ -423,12 +911,14 @@ body{overflow:hidden}
 
   <div class="card">
     <div class="card-title">ACADEMIC OVERVIEW <span class="info">ⓘ</span></div>
+
     <div class="acad-grid">
       <div class="acad-box"><strong class="blue-text">3.45</strong><span>GPA</span></div>
       <div class="acad-box"><strong class="green-text">8 / 10</strong><span>CORE COURSES COMPLETE</span></div>
-      <div class="acad-box"><strong class="blue-text">1340</strong><span>SAT (EST.)</span></div>
+      <div class="acad-box"><strong class="blue-text">1340</strong><span>SAT EST.</span></div>
       <div class="acad-box"><strong class="green-text">ON TRACK</strong><span>GRADUATION PATH</span></div>
     </div>
+
     <div class="card-bottom"><button class="btn">View Academic Center</button></div>
   </div>
 
@@ -442,24 +932,32 @@ body{overflow:hidden}
   </div>
 
   <div class="card">
-    <div class="card-title">CRYSTAL REPORTS <span class="info">ⓘ</span> <span style="float:right;color:var(--red);font-size:10px">VIEW ALL</span></div>
+    <div class="card-title">CRYSTAL REPORTS <span class="info">ⓘ</span> <span style="float:right;color:var(--red);font-size:9px">VIEW ALL</span></div>
+
     <div class="report-main">
-      <img src="sc_emblem.png" alt="">
+      <img src="sc_emblem.png" alt="Crystal Report">
       <div>
         <div class="report-title">ELITE QUARTERBACK REPORT <span class="new">NEW</span></div>
         <small>May 15, 2026</small>
-        <div style="margin-top:10px"><button class="btn" style="width:31%">View</button> <button class="btn" style="width:31%">Download</button> <button class="btn" style="width:31%">Share</button></div>
+        <div style="margin-top:8px">
+          <button class="btn" style="width:31%">View</button>
+          <button class="btn" style="width:31%">Download</button>
+          <button class="btn" style="width:31%">Share</button>
+        </div>
       </div>
     </div>
+
     <div class="report-row"><span>▧ Academic Progress Report<br><small>May 12, 2026</small></span><span class="new">NEW</span></div>
     <div class="report-row"><span>▧ Recruiting Exposure Report<br><small>May 10, 2026</small></span><span class="new">NEW</span></div>
     <div class="report-row"><span>▧ Performance Trend Report<br><small>May 08, 2026</small></span><span class="new">NEW</span></div>
   </div>
+
 </section>
 
 <section class="row3">
+
   <div class="card">
-    <div class="card-title">RECRUITING ACTIVITY <span style="float:right;color:var(--red);font-size:10px">VIEW ALL</span></div>
+    <div class="card-title">RECRUITING ACTIVITY <span style="float:right;color:var(--red);font-size:9px">VIEW ALL</span></div>
     <div class="kv"><span>⚖ Interested Schools</span><b>28</b></div>
     <div class="kv"><span>☊ Recruiter Requests</span><b>12</b></div>
     <div class="kv"><span>▧ Evaluations</span><b>14</b></div>
@@ -469,17 +967,20 @@ body{overflow:hidden}
   </div>
 
   <div class="card">
-    <div class="card-title">MULTI-BOX COMMUNICATION <span style="float:right;color:var(--red);font-size:10px">VIEW ALL</span></div>
+    <div class="card-title">MULTI-BOX COMMUNICATION <span style="float:right;color:var(--red);font-size:9px">VIEW ALL</span></div>
+
     <div class="person"><div class="face"></div><div><strong>COACH DAVIS</strong><small>Head Coach</small></div><span class="alert">2</span></div>
     <div class="person"><div class="face"></div><div><strong>COACH THOMPSON</strong><small>QB Coach</small></div><span class="alert">1</span></div>
     <div class="person"><div class="face"></div><div><strong>RECRUITER BROWN</strong><small>Texas A&M</small></div><span class="alert">2</span></div>
-    <div class="person"><div class="face"></div><div><strong>PARENT (DAD)</strong><small>John Williams Sr.</small></div><span class="alert">1</span></div>
+    <div class="person"><div class="face"></div><div><strong>PARENT</strong><small>John Williams Sr.</small></div><span class="alert">1</span></div>
     <div class="person"><div class="face"></div><div><strong>COUNSELOR</strong><small>Ms. Johnson</small></div><span class="alert">1</span></div>
+
     <button class="redbtn">Open Multi-Box</button>
   </div>
 
   <div class="card">
-    <div class="card-title">UPCOMING EVENTS <span style="float:right;color:var(--red);font-size:10px">VIEW ALL</span></div>
+    <div class="card-title">UPCOMING EVENTS <span style="float:right;color:var(--red);font-size:9px">VIEW ALL</span></div>
+
     <div class="event"><div class="date"><small>MAY</small>18</div><div><b>ELITE 11 REGIONAL</b><br><small>Dallas, TX</small></div><div class="tag" style="color:var(--purple);border-color:var(--purple)">CAMP</div></div>
     <div class="event"><div class="date"><small>MAY</small>31</div><div><b>MEGA QB SHOWCASE</b><br><small>Austin, TX</small></div><div class="tag">EVENT</div></div>
     <div class="event"><div class="date"><small>JUN</small>15</div><div><b>RECRUITING WINDOW</b><br><small>Opens</small></div><div class="tag" style="color:var(--green);border-color:var(--green)">WINDOW</div></div>
@@ -487,17 +988,20 @@ body{overflow:hidden}
   </div>
 
   <div class="card">
-    <div class="card-title">ACTIVITY FEED <span style="float:right;color:var(--red);font-size:10px">VIEW ALL</span></div>
-    <div class="feed"><span>◎ Texas A&M viewed your profile</span><time>2m ago</time></div>
-    <div class="feed"><span>◎ New message from Coach Davis</span><time>12m ago</time></div>
-    <div class="feed"><span>◎ Evaluation submitted by Coach Thompson</span><time>1h ago</time></div>
-    <div class="feed"><span>▧ Profile viewed by 5 schools</span><time>3h ago</time></div>
+    <div class="card-title">ACTIVITY FEED <span style="float:right;color:var(--red);font-size:9px">VIEW ALL</span></div>
+
+    <div class="feed"><span>◎ Texas A&M viewed your profile</span><time>2m</time></div>
+    <div class="feed"><span>◎ New message from Coach Davis</span><time>12m</time></div>
+    <div class="feed"><span>◎ Evaluation submitted</span><time>1h</time></div>
+    <div class="feed"><span>▧ Profile viewed by 5 schools</span><time>3h</time></div>
     <div class="feed"><span>▧ Film uploaded: 7v7 Highlights</span><time>Yesterday</time></div>
   </div>
+
 </section>
 
 <section class="actions">
   <div class="section-title">RECOMMENDED NEXT STEPS</div>
+
   <div class="action-grid">
     <div class="action-card"><div class="action-ico">▧</div><div><b>Upload New Film</b><span>Increase Visibility</span></div></div>
     <div class="action-card"><div class="action-ico">☊</div><div><b>Request Evaluation</b><span>Get Scouted</span></div></div>
@@ -511,5 +1015,14 @@ body{overflow:hidden}
 </main>
 </div>
 </div>
+
+<script>
+document.querySelectorAll(".btn,.redbtn,.action-card,.nav-item").forEach(el=>{
+  el.addEventListener("click",()=>{
+    console.log("STATS-CORE dashboard action:", el.textContent.trim());
+  });
+});
+</script>
+
 </body>
 </html> 
