@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 <title>STATS-CORE™ | Athlete Dashboard</title>
+
 <link rel="icon" type="image/png" href="sc_emblem.png" />
+<link rel="apple-touch-icon" href="sc_emblem.png" />
 
 <style>
 :root{
@@ -27,19 +29,38 @@
   --max:1536px;
 }
 
-*{box-sizing:border-box;margin:0;padding:0}
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
 
-html,body{
+html,
+body{
   width:100%;
   min-height:100%;
   background:#000;
   color:var(--text);
-  font-family:Arial,Helvetica,sans-serif;
+  font-family:Arial, Helvetica, sans-serif;
 }
 
-body{overflow:auto}
-a{text-decoration:none;color:inherit}
-button,input{font-family:inherit}
+body{
+  overflow:auto;
+}
+
+a{
+  text-decoration:none;
+  color:inherit;
+}
+
+button,
+input{
+  font-family:inherit;
+}
+
+/* =====================================================
+   PAGE
+===================================================== */
 
 .page{
   width:min(100%,var(--max));
@@ -54,11 +75,13 @@ button,input{font-family:inherit}
   overflow-x:auto;
 }
 
-/* HEADER */
+/* =====================================================
+   HEADER
+===================================================== */
 
 .header{
   height:96px;
-  background:linear-gradient(180deg,#fff,#ececec);
+  background:linear-gradient(180deg,#ffffff,#ececec);
   border-bottom:3px solid var(--red);
   display:grid;
   grid-template-columns:380px 1fr 520px;
@@ -141,6 +164,10 @@ button,input{font-family:inherit}
   outline:none;
 }
 
+.utility-search::placeholder{
+  color:#555;
+}
+
 .user-icon{
   width:31px;
   height:31px;
@@ -199,7 +226,9 @@ button,input{font-family:inherit}
   background:rgba(255,43,31,.08);
 }
 
-/* MAIN LAYOUT */
+/* =====================================================
+   MAIN LAYOUT
+===================================================== */
 
 .main{
   padding:10px 8px 0;
@@ -209,6 +238,7 @@ button,input{font-family:inherit}
   display:grid;
   grid-template-columns:190px 1fr 238px;
   gap:8px;
+  align-items:stretch;
 }
 
 .panel{
@@ -226,15 +256,19 @@ button,input{font-family:inherit}
   margin-bottom:10px;
 }
 
-/* LEFT RAIL */
+/* =====================================================
+   LEFT RAIL
+===================================================== */
 
 .left-rail{
   display:grid;
+  grid-template-rows:auto 1fr;
   gap:8px;
-  align-content:start;
+  align-content:stretch;
 }
 
-.nav-box,.quick-box{
+.nav-box,
+.quick-box{
   padding:12px;
 }
 
@@ -257,12 +291,6 @@ button,input{font-family:inherit}
   border-color:rgba(255,255,255,.14);
 }
 
-.nav-item small{
-  display:block;
-  color:#9fb6c8;
-  font-size:.52rem;
-}
-
 .nav-count{
   margin-left:auto;
   background:var(--red);
@@ -275,8 +303,13 @@ button,input{font-family:inherit}
   color:#fff;
 }
 
+.quick-box{
+  display:flex;
+  flex-direction:column;
+}
+
 .quick-btn{
-  height:28px;
+  height:30px;
   margin-bottom:7px;
   border:1px solid rgba(255,255,255,.10);
   padding:0 9px;
@@ -292,9 +325,16 @@ button,input{font-family:inherit}
 .quick-btn.red{
   color:#fff;
   background:linear-gradient(90deg,var(--red2),var(--red));
+  border-color:rgba(255,255,255,.14);
 }
 
-/* CENTER */
+.quick-spacer{
+  flex:1;
+}
+
+/* =====================================================
+   CENTER
+===================================================== */
 
 .center{
   display:grid;
@@ -303,12 +343,15 @@ button,input{font-family:inherit}
 
 .hero{
   display:grid;
-  grid-template-columns:168px 1fr 340px;
+  grid-template-columns:270px 1fr 340px;
   gap:8px;
+  align-items:stretch;
 }
 
+/* ATHLETE IMAGE */
+
 .photo-box{
-  height:190px;
+  height:242px;
   overflow:hidden;
 }
 
@@ -319,27 +362,31 @@ button,input{font-family:inherit}
   display:block;
 }
 
+/* IDENTITY */
+
 .identity{
   padding:14px;
-  min-height:190px;
+  min-height:242px;
 }
 
 .identity-kicker{
   color:var(--red);
-  font-size:.64rem;
+  font-size:.66rem;
   font-weight:900;
-  letter-spacing:.22em;
+  letter-spacing:.13em;
   text-transform:uppercase;
-  margin-bottom:8px;
+  margin-bottom:10px;
 }
 
 .athlete-name{
   font-family:"Arial Narrow","Helvetica Neue Condensed",Impact,Arial,sans-serif;
-  font-size:2.35rem;
+  font-size:2.55rem;
   line-height:.9;
-  letter-spacing:.02em;
+  letter-spacing:.03em;
   text-transform:uppercase;
   margin-bottom:12px;
+  color:var(--blue);
+  text-shadow:0 0 16px rgba(126,216,255,.42);
 }
 
 .tag-row{
@@ -382,8 +429,15 @@ button,input{font-family:inherit}
   text-transform:uppercase;
 }
 
-.status-pill.green{color:var(--green);border-color:rgba(37,211,102,.45)}
-.status-pill.gold{color:var(--gold);border-color:rgba(244,197,66,.45)}
+.status-pill.green{
+  color:var(--green);
+  border-color:rgba(37,211,102,.45);
+}
+
+.status-pill.gold{
+  color:var(--gold);
+  border-color:rgba(244,197,66,.45);
+}
 
 .snapshot-id{
   color:var(--muted);
@@ -393,11 +447,20 @@ button,input{font-family:inherit}
   margin-left:auto;
 }
 
+/* SCORE CARD */
+
 .index-card{
   padding:14px;
   display:grid;
   grid-template-columns:130px 1fr;
   gap:14px;
+}
+
+.ring-wrap{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
 }
 
 .ring{
@@ -427,11 +490,23 @@ button,input{font-family:inherit}
 .ring small{
   position:absolute;
   z-index:2;
-  bottom:28px;
+  bottom:29px;
   color:var(--gold);
-  font-size:.48rem;
+  font-size:.46rem;
   font-weight:900;
   text-transform:uppercase;
+  text-align:center;
+  line-height:1.1;
+}
+
+.ring-label{
+  text-align:center;
+  color:var(--blue);
+  font-size:.56rem;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  margin-top:7px;
 }
 
 .score-lines{
@@ -450,9 +525,13 @@ button,input{font-family:inherit}
   font-weight:800;
 }
 
-.score-line b{color:#fff}
+.score-line b{
+  color:#fff;
+}
 
-/* SUMMARY CARDS */
+/* =====================================================
+   SUMMARY CARDS
+===================================================== */
 
 .summary-grid{
   display:grid;
@@ -503,11 +582,13 @@ button,input{font-family:inherit}
   line-height:1.4;
 }
 
-/* MID GRID */
+/* =====================================================
+   MID GRID
+===================================================== */
 
 .mid-grid{
   display:grid;
-  grid-template-columns:1.05fr .95fr 1fr 1fr;
+  grid-template-columns:1.02fr .92fr 1.25fr .90fr;
   gap:8px;
 }
 
@@ -536,7 +617,9 @@ button,input{font-family:inherit}
   padding-right:6px;
 }
 
-.metric:last-child{border-right:0}
+.metric:last-child{
+  border-right:0;
+}
 
 .metric b{
   display:block;
@@ -563,8 +646,14 @@ button,input{font-family:inherit}
   color:#dcebf4;
 }
 
+/* FILM / MEDIA */
+
+.media-player{
+  min-height:176px;
+}
+
 .film-window{
-  height:95px;
+  height:116px;
   border:1px solid rgba(255,255,255,.12);
   background:
     linear-gradient(135deg,rgba(126,216,255,.12),rgba(0,0,0,.45)),
@@ -573,15 +662,21 @@ button,input{font-family:inherit}
   place-items:center;
 }
 
+.lower-full .media-player .film-window{
+  height:118px;
+}
+
 .play{
-  width:48px;
-  height:48px;
+  width:52px;
+  height:52px;
   border-radius:50%;
   background:rgba(0,0,0,.68);
   display:grid;
   place-items:center;
-  font-size:1.3rem;
+  font-size:1.35rem;
 }
+
+/* CRYSTAL */
 
 .crystal{
   display:grid;
@@ -594,8 +689,9 @@ button,input{font-family:inherit}
   color:var(--blue);
 }
 
-.mini-btn{
-  height:27px;
+.mini-btn,
+.view-btn{
+  height:28px;
   border:1px solid rgba(255,255,255,.14);
   background:rgba(255,255,255,.02);
   color:#fff;
@@ -607,11 +703,13 @@ button,input{font-family:inherit}
   margin-top:8px;
 }
 
-/* LOWER ACTIVITY */
+/* =====================================================
+   LOWER FULL-WIDTH ROW
+===================================================== */
 
-.lower-grid{
+.lower-full{
   display:grid;
-  grid-template-columns:repeat(4,1fr);
+  grid-template-columns:repeat(5,1fr);
   gap:8px;
 }
 
@@ -657,6 +755,11 @@ button,input{font-family:inherit}
   border-bottom:1px solid rgba(255,255,255,.06);
 }
 
+.event-row span{
+  color:var(--muted);
+  font-size:.54rem;
+}
+
 .date{
   border:1px solid rgba(255,255,255,.12);
   text-align:center;
@@ -671,25 +774,15 @@ button,input{font-family:inherit}
   font-size:.50rem;
 }
 
-.view-btn{
-  height:28px;
-  border:1px solid rgba(255,255,255,.12);
-  background:rgba(255,255,255,.025);
-  color:#fff;
-  display:grid;
-  place-items:center;
-  font-size:.58rem;
-  font-weight:900;
-  text-transform:uppercase;
-  margin-top:8px;
-}
-
-/* RIGHT RAIL */
+/* =====================================================
+   RIGHT RAIL
+===================================================== */
 
 .right-rail{
   display:grid;
+  grid-template-rows:auto 1fr;
   gap:8px;
-  align-content:start;
+  align-content:stretch;
 }
 
 .side-card{
@@ -724,10 +817,25 @@ button,input{font-family:inherit}
   text-transform:uppercase;
 }
 
-.green{color:var(--green)}
-.gold{color:var(--gold)}
-.blue{color:var(--blue)}
-.red{color:var(--red)}
+.green{
+  color:var(--green);
+}
+
+.gold{
+  color:var(--gold);
+}
+
+.blue{
+  color:var(--blue);
+}
+
+.red{
+  color:var(--red);
+}
+
+.purple{
+  color:var(--purple);
+}
 
 .permission-btn{
   height:32px;
@@ -760,7 +868,9 @@ button,input{font-family:inherit}
   text-transform:uppercase;
 }
 
-/* FLOW */
+/* =====================================================
+   VISIBILITY FLOW
+===================================================== */
 
 .flow{
   margin-top:8px;
@@ -823,7 +933,9 @@ button,input{font-family:inherit}
   text-transform:uppercase;
 }
 
-/* FOOTER */
+/* =====================================================
+   FOOTER
+===================================================== */
 
 .footer{
   height:52px;
@@ -849,10 +961,14 @@ button,input{font-family:inherit}
   font-weight:900;
 }
 
-/* RESPONSIVE LOCK */
+/* =====================================================
+   RESPONSIVE LOCK
+===================================================== */
 
 @media(max-width:900px){
-  .page{min-width:1366px}
+  .page{
+    min-width:1366px;
+  }
 }
 </style>
 </head>
@@ -891,8 +1007,10 @@ button,input{font-family:inherit}
 <div class="shell">
 
 <aside class="left-rail">
+
   <section class="panel nav-box">
     <div class="section-title">Athlete Navigation</div>
+
     <a class="nav-item active">▦ Dashboard</a>
     <a class="nav-item">♙ Profile</a>
     <a class="nav-item">▥ Performance</a>
@@ -908,36 +1026,43 @@ button,input{font-family:inherit}
 
   <section class="panel quick-box">
     <div class="section-title">Quick Actions</div>
+
     <a class="quick-btn">▧ Upload Film</a>
     <a class="quick-btn">★ Add Achievement</a>
     <a class="quick-btn">☊ Request Evaluation</a>
     <a class="quick-btn">↗ Share Profile</a>
+
+    <div class="quick-spacer"></div>
+
     <a class="quick-btn red">🛡 View Snapshot Path</a>
   </section>
+
 </aside>
 
 <section class="center">
 
   <section class="hero">
+
     <div class="panel photo-box">
-      <img src="Ammiel_Steele_Headshot.png" alt="Ammiel Steele">
+      <img src="athlete-avatar.jpg" alt="Jaylen Williams">
     </div>
 
     <article class="panel identity">
       <div class="identity-kicker">Athlete Profile</div>
-      <h1 class="athlete-name">Ammiel Steele</h1>
+
+      <h1 class="athlete-name">Jaylen Williams</h1>
 
       <div class="tag-row">
-        <span class="tag">QB</span>
+        <span class="tag">WR</span>
         <span class="tag">Athlete</span>
-        <span class="tag">6'0"</span>
+        <span class="tag">6'2"</span>
         <span class="tag">185 lbs</span>
         <span class="tag">Class of 2026</span>
       </div>
 
       <div class="meta-line">
-        <span>📍 Pensacola, Florida</span>
-        <span>🏫 Escambia High School</span>
+        <span>📍 Atlanta, Georgia</span>
+        <span>🏫 Northside High School</span>
       </div>
 
       <div class="status-row">
@@ -948,178 +1073,542 @@ button,input{font-family:inherit}
     </article>
 
     <article class="panel index-card">
-      <div class="ring">
-        <b>87.6</b>
-        <small>Unverified</small>
+      <div class="ring-wrap">
+        <div class="ring">
+          <b>87.6</b>
+          <small>Unverified</small>
+        </div>
+
+        <div class="ring-label">
+          STATS-CORE / SNAPSHOT
+        </div>
       </div>
 
       <div class="score-lines">
-        <div class="score-line"><span>Position Score</span><b>88.2</b></div>
-        <div class="score-line"><span>Athletic Score</span><b>85.9</b></div>
-        <div class="score-line"><span>Production Score</span><b>84.7</b></div>
-        <div class="score-line"><span>Academic Score</span><b>82.1</b></div>
-        <div class="score-line"><span>Character Score</span><b>90.3</b></div>
+        <div class="score-line">
+          <span>Position Score</span>
+          <b>88.2</b>
+        </div>
+
+        <div class="score-line">
+          <span>Athletic Score</span>
+          <b>85.9</b>
+        </div>
+
+        <div class="score-line">
+          <span>Production Score</span>
+          <b>84.7</b>
+        </div>
+
+        <div class="score-line">
+          <span>Academic Score</span>
+          <b>82.1</b>
+        </div>
+
+        <div class="score-line">
+          <span>Character Score</span>
+          <b>90.3</b>
+        </div>
       </div>
     </article>
+
   </section>
 
   <section class="summary-grid">
+
     <article class="panel stat-card">
-      <div class="stat-top"><div class="stat-icon green">✓</div><h3>Eligibility Status</h3></div>
+      <div class="stat-top">
+        <div class="stat-icon green">✓</div>
+        <h3>Eligibility Status</h3>
+      </div>
+
       <b>Eligible</b>
       <p>NCAA / NAIA / NJCAA</p>
       <p>Core Courses: 7 / 7<br>GPA: 3.45</p>
     </article>
 
     <article class="panel stat-card">
-      <div class="stat-top"><div class="stat-icon blue">◉</div><h3>Exposure Score</h3></div>
+      <div class="stat-top">
+        <div class="stat-icon blue">◉</div>
+        <h3>Exposure Score</h3>
+      </div>
+
       <b>72.4</b>
       <p>Medium Exposure</p>
       <p>Events: 4<br>Media Reach: 18.2K</p>
     </article>
 
     <article class="panel stat-card">
-      <div class="stat-top"><div class="stat-icon purple">☊</div><h3>Recruiting Readiness</h3></div>
+      <div class="stat-top">
+        <div class="stat-icon purple">☊</div>
+        <h3>Recruiting Readiness</h3>
+      </div>
+
       <b>High</b>
       <p>Strong Interest Level</p>
       <p>Schools Contacted: 12<br>Offers: 1</p>
     </article>
 
     <article class="panel stat-card">
-      <div class="stat-top"><div class="stat-icon gold">↗</div><h3>Performance Trend</h3></div>
+      <div class="stat-top">
+        <div class="stat-icon gold">↗</div>
+        <h3>Performance Trend</h3>
+      </div>
+
       <b>Upward</b>
       <p>Last 90 Days</p>
       <p>Trend Strength: Strong<br>Improvement: +18%</p>
     </article>
 
     <article class="panel stat-card">
-      <div class="stat-top"><div class="stat-icon blue">◷</div><h3>Profile Completeness</h3></div>
+      <div class="stat-top">
+        <div class="stat-icon blue">◷</div>
+        <h3>Profile Completeness</h3>
+      </div>
+
       <b>86%</b>
       <p>Profile Complete</p>
       <p>Required Fields: 24 / 28<br>Missing: 4 Items</p>
     </article>
+
   </section>
 
   <section class="mid-grid">
+
     <article class="panel block">
       <h3>Performance Overview</h3>
+
       <div class="metrics">
-        <div class="metric"><b>4.48</b><span>40 Yard Dash</span></div>
-        <div class="metric"><b>38.5</b><span>Vertical Jump</span></div>
-        <div class="metric"><b>10'6"</b><span>Broad Jump</span></div>
-        <div class="metric"><b>4.21</b><span>Shuttle</span></div>
-        <div class="metric"><b>315</b><span>Bench Press</span></div>
+        <div class="metric">
+          <b>4.48</b>
+          <span>40 Yard Dash</span>
+        </div>
+
+        <div class="metric">
+          <b>38.5</b>
+          <span>Vertical Jump</span>
+        </div>
+
+        <div class="metric">
+          <b>10'6"</b>
+          <span>Broad Jump</span>
+        </div>
+
+        <div class="metric">
+          <b>4.21</b>
+          <span>Shuttle</span>
+        </div>
+
+        <div class="metric">
+          <b>315</b>
+          <span>Bench Press</span>
+        </div>
       </div>
+
       <div class="strengths">
-        <span>Speed</span><span>Route Running</span><span>Hands</span><span>Acceleration</span><span>YAC Ability</span>
+        <span>Speed</span>
+        <span>Route Running</span>
+        <span>Hands</span>
+        <span>Acceleration</span>
+        <span>YAC Ability</span>
       </div>
     </article>
 
     <article class="panel block">
       <h3>Academic Overview</h3>
+
       <div class="metrics">
-        <div class="metric"><b>3.45</b><span>GPA Core</span></div>
-        <div class="metric"><b>1080</b><span>SAT</span></div>
-        <div class="metric"><b>24</b><span>ACT</span></div>
-        <div class="metric"><b>Top 35%</b><span>Class Rank</span></div>
+        <div class="metric">
+          <b>3.45</b>
+          <span>GPA Core</span>
+        </div>
+
+        <div class="metric">
+          <b>1080</b>
+          <span>SAT</span>
+        </div>
+
+        <div class="metric">
+          <b>24</b>
+          <span>ACT</span>
+        </div>
+
+        <div class="metric">
+          <b>Top 35%</b>
+          <span>Class Rank</span>
+        </div>
       </div>
+
       <div class="strengths">
-        <span>Math</span><span>Science</span><span>English</span><span>Attendance</span>
+        <span>Math</span>
+        <span>Science</span>
+        <span>English</span>
+        <span>Attendance</span>
       </div>
     </article>
 
-    <article class="panel block">
+    <article class="panel block media-player">
       <h3>Athletic Snapshot</h3>
-      <div class="film-window"><div class="play">▶</div></div>
-      <p style="margin-top:8px;font-size:.64rem;font-weight:900">Latest Highlight Film</p>
-      <p style="color:var(--muted);font-size:.58rem">Uploaded: May 2, 2026</p>
+
+      <div class="film-window">
+        <div class="play">▶</div>
+      </div>
+
+      <p style="margin-top:8px;font-size:.64rem;font-weight:900">
+        Latest Highlight Film
+      </p>
+
+      <p style="color:var(--muted);font-size:.58rem">
+        Uploaded: May 2, 2026
+      </p>
     </article>
 
     <article class="panel block crystal">
       <h3>Crystal Reports</h3>
+
       <div class="crystal-icon">🔷</div>
-      <p style="font-size:.70rem;font-weight:900;color:var(--blue)">Athlete Registry</p>
-      <p style="font-size:.58rem;color:var(--muted)">Profile ID: CRYS-26-04187<br>Status: Registered</p>
-      <div class="mini-btn">View Report</div>
+
+      <p style="font-size:.70rem;font-weight:900;color:var(--blue)">
+        Athlete Registry
+      </p>
+
+      <p style="font-size:.58rem;color:var(--muted)">
+        Profile ID: CRYS-26-04187<br>
+        Status: Registered
+      </p>
+
+      <div class="mini-btn">
+        View Report
+      </div>
     </article>
+
   </section>
 
-  <section class="lower-grid">
+  <section class="lower-full">
+
     <article class="panel block">
       <h3>Recruiting Activity</h3>
-      <div class="list-row"><div class="avatar-dot">GT</div><div><b>Georgia State University</b><span>Contact Issued</span></div><time>May 6</time></div>
-      <div class="list-row"><div class="avatar-dot">AS</div><div><b>Appalachian State</b><span>Interest Shown</span></div><time>May 5</time></div>
-      <div class="list-row"><div class="avatar-dot">KS</div><div><b>Kennesaw State</b><span>Email Sent</span></div><time>May 5</time></div>
-      <div class="view-btn">View All Activity</div>
+
+      <div class="list-row">
+        <div class="avatar-dot">GT</div>
+        <div>
+          <b>Georgia State University</b>
+          <span>Contact Issued</span>
+        </div>
+        <time>May 6</time>
+      </div>
+
+      <div class="list-row">
+        <div class="avatar-dot">AS</div>
+        <div>
+          <b>Appalachian State</b>
+          <span>Interest Shown</span>
+        </div>
+        <time>May 5</time>
+      </div>
+
+      <div class="list-row">
+        <div class="avatar-dot">KS</div>
+        <div>
+          <b>Kennesaw State</b>
+          <span>Email Sent</span>
+        </div>
+        <time>May 5</time>
+      </div>
+
+      <div class="view-btn">
+        View All Activity
+      </div>
     </article>
 
     <article class="panel block">
       <h3>Multi-Box™ Communication</h3>
-      <div class="list-row"><div class="avatar-dot">C</div><div><b>Coach Thompson</b><span>Great work on the film.</span></div><time>2m</time></div>
-      <div class="list-row"><div class="avatar-dot">R</div><div><b>Recruiting Coordinator</b><span>We’d like to schedule a call.</span></div><time>1h</time></div>
-      <div class="list-row"><div class="avatar-dot">A</div><div><b>Academic Advisor</b><span>Check in on SAT prep.</span></div><time>1d</time></div>
-      <div class="view-btn">Open Multi-Box</div>
+
+      <div class="list-row">
+        <div class="avatar-dot">C</div>
+        <div>
+          <b>Coach Thompson</b>
+          <span>Great work on the film.</span>
+        </div>
+        <time>2m</time>
+      </div>
+
+      <div class="list-row">
+        <div class="avatar-dot">R</div>
+        <div>
+          <b>Recruiting Coordinator</b>
+          <span>We’d like to schedule a call.</span>
+        </div>
+        <time>1h</time>
+      </div>
+
+      <div class="list-row">
+        <div class="avatar-dot">A</div>
+        <div>
+          <b>Academic Advisor</b>
+          <span>Check in on SAT prep.</span>
+        </div>
+        <time>1d</time>
+      </div>
+
+      <div class="view-btn">
+        Open Multi-Box
+      </div>
+    </article>
+
+    <article class="panel block media-player">
+      <h3>Media Player</h3>
+
+      <div class="film-window">
+        <div class="play">▶</div>
+      </div>
+
+      <p style="margin-top:8px;font-size:.64rem;font-weight:900">
+        Full Season Cut
+      </p>
+
+      <p style="color:var(--muted);font-size:.58rem">
+        Film lane expanded
+      </p>
     </article>
 
     <article class="panel block">
       <h3>Upcoming Events</h3>
-      <div class="event-row"><div class="date"><span>MAY</span>17</div><div><b>Rivals Camp</b><span>Atlanta, GA</span></div></div>
-      <div class="event-row"><div class="date"><span>JUN</span>01</div><div><b>7v7 Tournament</b><span>Atlanta, GA</span></div></div>
-      <div class="event-row"><div class="date"><span>JUN</span>14</div><div><b>Elite WR Showcase</b><span>Birmingham, AL</span></div></div>
-      <div class="view-btn">View Calendar</div>
+
+      <div class="event-row">
+        <div class="date">
+          <span>MAY</span>
+          17
+        </div>
+
+        <div>
+          <b>Rivals Camp</b>
+          <span>Atlanta, GA</span>
+        </div>
+      </div>
+
+      <div class="event-row">
+        <div class="date">
+          <span>JUN</span>
+          01
+        </div>
+
+        <div>
+          <b>7v7 Tournament</b>
+          <span>Atlanta, GA</span>
+        </div>
+      </div>
+
+      <div class="event-row">
+        <div class="date">
+          <span>JUN</span>
+          14
+        </div>
+
+        <div>
+          <b>Elite WR Showcase</b>
+          <span>Birmingham, AL</span>
+        </div>
+      </div>
+
+      <div class="view-btn">
+        View Calendar
+      </div>
     </article>
 
     <article class="panel block">
       <h3>Activity Feed</h3>
-      <div class="list-row"><div class="avatar-dot">↻</div><div><b>Snapshot Updated</b><span>Metrics and profile updated</span></div><time>May 6</time></div>
-      <div class="list-row"><div class="avatar-dot">✓</div><div><b>Film Uploaded</b><span>Highlight film added</span></div><time>May 2</time></div>
-      <div class="list-row"><div class="avatar-dot">✓</div><div><b>Parent Release Approved</b><span>Governance permissions updated</span></div><time>Apr 28</time></div>
-      <div class="view-btn">View Full Feed</div>
+
+      <div class="list-row">
+        <div class="avatar-dot">↻</div>
+        <div>
+          <b>Snapshot Updated</b>
+          <span>Metrics and profile updated</span>
+        </div>
+        <time>May 6</time>
+      </div>
+
+      <div class="list-row">
+        <div class="avatar-dot">✓</div>
+        <div>
+          <b>Film Uploaded</b>
+          <span>Highlight film added</span>
+        </div>
+        <time>May 2</time>
+      </div>
+
+      <div class="list-row">
+        <div class="avatar-dot">✓</div>
+        <div>
+          <b>Parent Release Approved</b>
+          <span>Governance permissions updated</span>
+        </div>
+        <time>Apr 28</time>
+      </div>
+
+      <div class="view-btn">
+        View Full Feed
+      </div>
     </article>
+
   </section>
 
 </section>
 
 <aside class="right-rail">
+
   <section class="panel side-card">
     <h3>Governance & Access</h3>
-    <div class="gov-row"><div>♙</div><span>Guardian Status</span><b class="green">Approved</b></div>
-    <div class="gov-row"><div>◉</div><span>Visibility</span><b class="blue">Controlled</b></div>
-    <div class="gov-row"><div>▣</div><span>Recruiting Access</span><b class="green">Enabled</b></div>
-    <div class="gov-row"><div>◎</div><span>Media Exposure</span><b class="gold">Limited</b></div>
-    <div class="gov-row"><div>↗</div><span>Profile Sharing</span><b class="blue">Controlled</b></div>
-    <div class="permission-btn">Manage Permissions</div>
+
+    <div class="gov-row">
+      <div>♙</div>
+      <span>Guardian Status</span>
+      <b class="green">Approved</b>
+    </div>
+
+    <div class="gov-row">
+      <div>◉</div>
+      <span>Visibility</span>
+      <b class="blue">Controlled</b>
+    </div>
+
+    <div class="gov-row">
+      <div>▣</div>
+      <span>Recruiting Access</span>
+      <b class="green">Enabled</b>
+    </div>
+
+    <div class="gov-row">
+      <div>◎</div>
+      <span>Media Exposure</span>
+      <b class="gold">Limited</b>
+    </div>
+
+    <div class="gov-row">
+      <div>↗</div>
+      <span>Profile Sharing</span>
+      <b class="blue">Controlled</b>
+    </div>
+
+    <div class="permission-btn">
+      Manage Permissions
+    </div>
   </section>
 
   <section class="panel side-card">
     <h3>Next Steps</h3>
-    <div class="next-row"><div>☑</div><span>Upload Season Film</span><b class="red">High</b></div>
-    <div class="next-row"><div>☑</div><span>Request Coach Evaluation</span><b class="red">High</b></div>
-    <div class="next-row"><div>☑</div><span>Add Camp Results</span><b class="gold">Medium</b></div>
-    <div class="next-row"><div>☑</div><span>Update Academic Profile</span><b class="gold">Medium</b></div>
-    <div class="next-row"><div>☑</div><span>Complete Strength Test</span><b class="green">Low</b></div>
-    <div class="permission-btn">View Full Path</div>
+
+    <div class="next-row">
+      <div>☑</div>
+      <span>Upload Season Film</span>
+      <b class="red">High</b>
+    </div>
+
+    <div class="next-row">
+      <div>☑</div>
+      <span>Request Coach Evaluation</span>
+      <b class="red">High</b>
+    </div>
+
+    <div class="next-row">
+      <div>☑</div>
+      <span>Add Camp Results</span>
+      <b class="gold">Medium</b>
+    </div>
+
+    <div class="next-row">
+      <div>☑</div>
+      <span>Update Academic Profile</span>
+      <b class="gold">Medium</b>
+    </div>
+
+    <div class="next-row">
+      <div>☑</div>
+      <span>Complete Strength Test</span>
+      <b class="green">Low</b>
+    </div>
+
+    <div class="permission-btn">
+      View Full Path
+    </div>
   </section>
+
 </aside>
 
 </div>
 
 <section class="flow">
-  <div class="flow-title">Visibility Path</div>
-  <div class="flow-step"><div class="flow-icon">▣</div><div><b>Profile</b><span>Public / Private</span></div></div>
-  <div class="flow-step"><div class="flow-icon">▥</div><div><b>Snapshot</b><span>Data Intake</span></div></div>
-  <div class="flow-step"><div class="flow-icon">♙</div><div><b>Verification</b><span>Trust Layer</span></div></div>
-  <div class="flow-step"><div class="flow-icon">♙</div><div><b>Parent Gate</b><span>Release Approval</span></div></div>
-  <div class="flow-step"><div class="flow-icon">▦</div><div><b>Multi-Box™</b><span>Permissions</span></div></div>
-  <div class="flow-step"><div class="flow-icon">◇</div><div><b>Crystal Registry</b><span>Athlete Registry</span></div></div>
-  <a class="request" href="#">Request Approval →</a>
+  <div class="flow-title">
+    Visibility Path
+  </div>
+
+  <div class="flow-step">
+    <div class="flow-icon">▣</div>
+    <div>
+      <b>Profile</b>
+      <span>Public / Private</span>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="flow-icon">▥</div>
+    <div>
+      <b>Snapshot</b>
+      <span>Data Intake</span>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="flow-icon">♙</div>
+    <div>
+      <b>Verification</b>
+      <span>Trust Layer</span>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="flow-icon">♙</div>
+    <div>
+      <b>Parent Gate</b>
+      <span>Release Approval</span>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="flow-icon">▦</div>
+    <div>
+      <b>Multi-Box™</b>
+      <span>Permissions</span>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="flow-icon">◇</div>
+    <div>
+      <b>Crystal Registry</b>
+      <span>Athlete Registry</span>
+    </div>
+  </div>
+
+  <a class="request" href="#">
+    Request Approval →
+  </a>
 </section>
 
 <footer class="footer">
   <img src="sc_logo_i.png" alt="STATS-CORE">
-  <div>Governed Athlete Intelligence Infrastructure</div>
-  <div>Snapshot Intelligence Layer</div>
-  <div class="ok">Operational Shell Active</div>
+
+  <div>
+    Governed Athlete Intelligence Infrastructure
+  </div>
+
+  <div>
+    Snapshot Intelligence Layer
+  </div>
+
+  <div class="ok">
+    Operational Shell Active
+  </div>
 </footer>
 
 </main>
