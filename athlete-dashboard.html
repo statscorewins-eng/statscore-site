@@ -5,22 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>STATS-CORE | Athlete Dashboard</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="sc_emblem.png" />
 
 <style>
 :root{
   --red:#d71920;
-  --red-dark:#8f0f14;
-  --green:#20d34a;
-  --blue:#168dff;
-  --purple:#9b4dff;
+  --red-dark:#8b0f14;
+  --green:#16a34a;
+  --blue:#9fb6c8;
+  --purple:#9b7cff;
+  --gold:#c9a227;
   --white:#f4f4ef;
-  --bg:#05080d;
-  --panel:#0b1118;
-  --panel2:#0f1720;
-  --line:#1d2a36;
-  --text:#eef6ff;
-  --muted:#8d9aaa;
+  --bg:#05070b;
+  --panel:rgba(8,12,18,.88);
+  --panel2:rgba(10,15,22,.92);
+  --line:rgba(255,255,255,.12);
+  --line-strong:rgba(255,255,255,.22);
+  --text:#f4f4ef;
+  --muted:#aeb7c2;
+  --radius:8px;
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
@@ -30,718 +33,627 @@ html,body{
   min-height:100%;
   background:#000;
   color:var(--text);
-  font-family:Inter,Arial,sans-serif;
+  font-family:Arial, Helvetica, sans-serif;
 }
 
-body{
-  overflow:hidden;
-}
+body{overflow:auto}
 
-button{
-  font-family:inherit;
-  cursor:pointer;
-}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer}
 
 .page{
-  height:100vh;
-  display:grid;
-  grid-template-rows:74px 1fr;
-  background:var(--bg);
+  width:100%;
+  max-width:1536px;
+  min-height:100vh;
+  margin:0 auto;
+  background:
+    linear-gradient(90deg,rgba(0,0,0,.98),rgba(5,8,12,.94),rgba(0,0,0,.98)),
+    radial-gradient(circle at 55% 35%,rgba(80,110,140,.08),transparent 42%),
+    repeating-linear-gradient(135deg,rgba(255,255,255,.012) 0,rgba(255,255,255,.012) 1px,transparent 1px,transparent 9px),
+    #05070b;
 }
 
 /* HEADER */
 
 .header{
-  background:var(--white);
-  border-bottom:4px solid var(--red);
-  color:#111827;
+  height:112px;
+  background:linear-gradient(180deg,#ffffff,#ececec);
+  color:#111;
+  border-bottom:3px solid var(--red);
   display:grid;
-  grid-template-columns:250px 270px 90px 130px 90px 105px minmax(190px,1fr) 44px 44px 140px;
+  grid-template-columns:280px 260px repeat(4,110px) 1fr 42px 42px 150px;
   gap:10px;
   align-items:center;
-  padding:10px 16px;
+  padding:0 18px;
+  position:sticky;
+  top:0;
+  z-index:20;
 }
 
 .logo{
-  width:235px;
-  height:48px;
+  height:62px;
   object-fit:contain;
-  object-position:left center;
 }
 
 .title h1{
   color:var(--red);
-  font-size:18px;
+  font-size:1.05rem;
   font-weight:900;
-  letter-spacing:.5px;
-  white-space:nowrap;
+  text-transform:uppercase;
+  letter-spacing:.04em;
 }
 
 .title p{
-  font-size:10px;
+  color:#111;
+  font-size:.58rem;
   font-weight:900;
-  color:#111827;
-  white-space:nowrap;
+  text-transform:uppercase;
+  margin-top:5px;
 }
 
 .head-stat{
-  border-left:1px solid #c9ccd1;
+  border-left:1px solid rgba(0,0,0,.18);
   padding-left:12px;
+  min-height:44px;
 }
 
-.head-stat small{
+.head-stat span{
   display:block;
-  font-size:9px;
+  color:#111;
+  font-size:.58rem;
   font-weight:900;
   text-transform:uppercase;
-  color:#1f2937;
 }
 
-.head-stat strong{
-  font-size:11px;
-  font-weight:900;
+.head-stat b{
   color:var(--red);
-  white-space:nowrap;
+  font-size:.70rem;
+  font-weight:900;
 }
+
+.head-stat .green{color:green}
+.head-stat .purple{color:#7c3aed}
 
 .search{
   height:36px;
-  border:1px solid #c9ccd1;
-  border-radius:7px;
+  border:1px solid rgba(0,0,0,.18);
+  border-radius:5px;
   padding:0 12px;
-  font-size:12px;
-  min-width:0;
+  font-size:.72rem;
+  font-weight:700;
 }
 
 .icon{
   position:relative;
-  font-size:20px;
+  font-size:1.25rem;
   text-align:center;
 }
 
 .badge{
   position:absolute;
-  top:-7px;
-  right:1px;
-  width:17px;
-  height:17px;
+  top:-10px;
+  right:3px;
   background:var(--red);
   color:white;
+  width:18px;
+  height:18px;
   border-radius:50%;
-  font-size:9px;
-  font-weight:900;
+  font-size:.60rem;
   display:grid;
   place-items:center;
+  font-weight:900;
 }
 
 .user{
   display:flex;
   align-items:center;
   gap:8px;
-  font-size:11px;
   font-weight:900;
-  white-space:nowrap;
+  font-size:.70rem;
 }
 
 .avatar{
-  width:38px;
-  height:38px;
+  width:42px;
+  height:42px;
   border-radius:50%;
   border:2px solid var(--red);
-  background:#d9dee5;
   object-fit:cover;
 }
 
-/* BODY */
+/* MAIN SHELL */
 
-.body{
-  min-height:0;
+.shell{
   display:grid;
-  grid-template-columns:190px minmax(0,1fr);
+  grid-template-columns:220px 1fr;
   gap:12px;
-  padding:12px 14px 14px;
-  background:
-    radial-gradient(circle at 30% 20%,rgba(30,120,255,.08),transparent 32%),
-    linear-gradient(180deg,#071016,#05080d);
+  padding:12px;
 }
 
 /* LEFT RAIL */
 
-.left{
-  min-height:0;
-  display:grid;
-  grid-template-rows:auto auto 1fr;
-  gap:10px;
+.left-rail{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
 }
 
-.rail-box{
-  background:rgba(11,17,24,.96);
+.rail-box,
+.card,
+.next-steps{
+  background:linear-gradient(180deg,var(--panel2),var(--panel));
   border:1px solid var(--line);
-  border-radius:8px;
-  padding:10px;
+  border-radius:var(--radius);
+  box-shadow:none;
+}
+
+.menu,
+.quick,
+.status{
+  padding:12px;
 }
 
 .nav-item{
-  height:32px;
+  height:36px;
   display:flex;
   align-items:center;
   gap:10px;
-  padding:0 10px;
-  border-radius:6px;
-  margin-bottom:4px;
-  color:#dce7f0;
-  font-size:12px;
-  font-weight:850;
-  white-space:nowrap;
+  padding:0 12px;
+  margin-bottom:5px;
+  border-radius:5px;
+  color:#dfe7ef;
+  font-size:.74rem;
+  font-weight:900;
+  text-transform:uppercase;
 }
 
 .nav-item.active{
-  background:linear-gradient(90deg,var(--red-dark),#c71920);
-  color:white;
+  background:linear-gradient(90deg,var(--red-dark),var(--red));
+  border:1px solid rgba(255,255,255,.12);
 }
 
 .nav-count{
   margin-left:auto;
-  width:17px;
-  height:17px;
-  border-radius:50%;
   background:var(--red);
+  color:white;
+  border-radius:50%;
+  width:18px;
+  height:18px;
   display:grid;
   place-items:center;
-  font-size:9px;
-  font-weight:900;
+  font-size:.58rem;
 }
 
-.section-title{
-  font-size:11px;
-  font-weight:900;
+.section-label{
+  color:#f4f4ef;
+  font-size:.72rem;
   text-transform:uppercase;
-  letter-spacing:.4px;
-  margin-bottom:8px;
+  font-weight:900;
+  letter-spacing:.08em;
+  margin-bottom:10px;
 }
 
 .quick .nav-item{
-  height:27px;
-  font-size:10.5px;
-}
-
-.status{
-  align-self:end;
+  font-size:.64rem;
+  height:30px;
 }
 
 .status p{
-  font-size:10px;
   color:var(--muted);
+  font-size:.66rem;
   margin:7px 0;
+  font-weight:800;
 }
 
-.status .ok{
-  color:var(--green);
-  font-weight:900;
-}
+.status .ok{color:var(--green)}
+.sync{color:var(--red);font-weight:900;font-size:.70rem}
 
-.sync{
-  color:var(--red);
-  font-weight:900;
-  font-size:11px;
-  margin-top:8px;
-}
-
-/* DASHBOARD */
-
-.dashboard-wrap{
-  min-height:0;
-  overflow:auto;
-  padding-right:2px;
-}
+/* DASHBOARD GRID */
 
 .dashboard{
-  min-width:1120px;
   display:grid;
-  grid-template-rows:210px 270px 242px 78px;
+  grid-template-rows:auto auto auto auto;
   gap:12px;
 }
 
-.row1{
+.row{
   display:grid;
-  grid-template-columns:2.35fr 1.05fr 1fr 1fr 1.15fr;
   gap:12px;
 }
 
-.row2{
-  display:grid;
-  grid-template-columns:1.55fr 1.1fr 1.15fr 1.25fr;
-  gap:12px;
+.row-one{
+  grid-template-columns:2.35fr 1.08fr 1.08fr 1.05fr 1.15fr;
 }
 
-.row3{
-  display:grid;
-  grid-template-columns:1.1fr 1.13fr 1fr 1.05fr;
-  gap:12px;
+.row-two{
+  grid-template-columns:1.55fr 1.05fr 1.18fr 1.28fr;
+}
+
+.row-three{
+  grid-template-columns:1.05fr 1.1fr 1fr 1.05fr;
 }
 
 .card{
-  min-width:0;
-  min-height:0;
+  min-height:170px;
+  padding:14px;
   position:relative;
   overflow:hidden;
-  background:linear-gradient(180deg,#101821,#091017);
-  border:1px solid var(--line);
-  border-radius:9px;
-  padding:14px;
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.02),0 0 20px rgba(0,0,0,.25);
 }
 
 .card-title{
-  font-size:13px;
+  color:#f4f4ef;
+  font-size:.78rem;
   font-weight:900;
+  letter-spacing:.05em;
   text-transform:uppercase;
-  letter-spacing:.25px;
   margin-bottom:10px;
-  white-space:nowrap;
 }
 
-.info{
-  color:#6f7b87;
-  font-size:11px;
-}
-
-.view-all{
+.card-title .right{
   float:right;
   color:var(--red);
-  font-size:9.5px;
-  font-weight:900;
+  font-size:.60rem;
 }
 
-/* HERO */
+.muted{color:var(--muted)}
+
+.btn{
+  height:32px;
+  background:linear-gradient(180deg,#111923,#090e15);
+  border:1px solid var(--line-strong);
+  color:#f4f4ef;
+  border-radius:5px;
+  font-size:.64rem;
+  font-weight:900;
+  text-transform:uppercase;
+}
+
+.btn:hover{
+  border-color:var(--red);
+}
+
+/* ATHLETE CARD */
 
 .athlete-card{
   display:grid;
-  grid-template-columns:150px minmax(0,1fr);
+  grid-template-columns:168px 1fr;
   gap:18px;
 }
 
 .player-photo{
-  width:145px;
-  height:172px;
-  border-radius:8px;
+  width:160px;
+  height:178px;
   object-fit:cover;
-  background:linear-gradient(135deg,#111,#333);
+  border-radius:5px;
+  background:#101820;
 }
 
-.athlete-name{
-  font-size:31px;
+.player-name{
+  font-size:2rem;
   line-height:1;
+  text-transform:uppercase;
   font-weight:900;
-  letter-spacing:.8px;
-  white-space:nowrap;
-  margin:8px 0;
+  letter-spacing:.04em;
 }
 
-.meta{
-  font-size:12px;
-  color:#cbd6e0;
-  margin-bottom:14px;
-  white-space:nowrap;
-}
-
-.bio-line{
-  display:flex;
-  align-items:center;
-  gap:9px;
-  margin:10px 0;
-  font-size:11.5px;
+.player-meta{
+  margin:10px 0 18px;
+  color:var(--blue);
+  font-size:.73rem;
   font-weight:800;
 }
 
-.bio-icon{
-  color:var(--red);
+.bio-line{
+  font-size:.72rem;
+  margin:10px 0;
+  font-weight:900;
+  color:#dfe7ef;
 }
 
-.verify{
+.bio-line span{color:var(--red);margin-right:8px}
+
+.verified{
   position:absolute;
-  left:22px;
-  bottom:16px;
-  background:#151d25;
+  left:24px;
+  bottom:18px;
+  background:rgba(255,255,255,.04);
   border:1px solid var(--line);
-  border-radius:7px;
+  border-radius:5px;
   padding:7px 10px;
-  font-size:10.5px;
+  font-size:.66rem;
   font-weight:900;
 }
 
-.dot-red{
-  display:inline-block;
-  width:13px;
-  height:13px;
-  border-radius:50%;
-  background:var(--red);
+.verified:before{
+  content:"●";
+  color:var(--red);
   margin-right:6px;
-  vertical-align:-2px;
 }
 
 .snapshot{
   position:absolute;
-  right:14px;
-  bottom:18px;
-  font-size:9.5px;
-  color:#b5c1cc;
+  right:16px;
+  bottom:20px;
+  color:var(--blue);
+  font-size:.60rem;
+  font-weight:900;
 }
 
 /* SCORE CARDS */
 
 .big-score{
-  font-size:54px;
+  font-size:3.4rem;
   line-height:1;
   font-weight:900;
 }
 
-.subbig{
-  font-size:24px;
+.red-text{color:var(--red)}
+.green-text{color:#31c267}
+.blue-text{color:#9fb6c8}
+.purple-text{color:#b092ff}
+
+.tier{
+  font-size:1.45rem;
   font-weight:900;
   margin-top:5px;
 }
 
-.red-text{color:var(--red)}
-.green-text{color:var(--green)}
-.blue-text{color:var(--blue)}
-.purple-text{color:var(--purple)}
-
 .emblem{
   position:absolute;
   right:14px;
-  top:56px;
-  width:56px;
-  height:70px;
-  object-fit:contain;
-  opacity:.9;
+  top:58px;
+  width:62px;
+  opacity:.65;
 }
 
 .trend{
   position:absolute;
   left:14px;
   right:14px;
-  bottom:13px;
+  bottom:14px;
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
   height:32px;
   border:1px solid var(--line);
-  border-radius:6px;
-  display:flex;
-  align-items:center;
-  justify-content:space-around;
-  font-size:10.5px;
+  border-radius:5px;
+  font-size:.62rem;
   font-weight:900;
-}
-
-.small-line{
-  font-size:11px;
-  color:#b9c4cf;
-  margin:11px 0;
-  line-height:1.45;
-}
-
-.card-bottom{
-  position:absolute;
-  left:14px;
-  right:14px;
-  bottom:13px;
-}
-
-.btn{
-  width:100%;
-  height:31px;
-  border:1px solid var(--line);
-  border-radius:6px;
-  background:#0a1219;
-  color:white;
-  font-size:10px;
-  font-weight:900;
-  text-transform:uppercase;
 }
 
 .ring{
-  width:90px;
-  height:90px;
+  width:96px;
+  height:96px;
+  margin:5px auto 10px;
   border-radius:50%;
   border:10px solid #26313b;
   border-top-color:var(--red);
   border-left-color:var(--red);
   display:grid;
   place-items:center;
-  margin:7px auto 10px;
+  font-size:1.5rem;
+  font-weight:900;
 }
 
-.ring strong{
-  font-size:28px;
+.bottom-btn{
+  position:absolute;
+  left:14px;
+  right:14px;
+  bottom:14px;
 }
 
 /* PERFORMANCE */
 
-.radar-wrap{
+.radar-area{
   display:grid;
-  grid-template-columns:1fr 125px;
+  grid-template-columns:1fr 135px;
   gap:12px;
 }
 
 .radar{
-  height:180px;
+  height:170px;
   display:grid;
   place-items:center;
 }
 
 .radar-shape{
-  width:148px;
-  height:148px;
-  background:radial-gradient(circle,rgba(215,25,32,.62),rgba(215,25,32,.05));
+  width:150px;
+  height:150px;
+  background:linear-gradient(180deg,rgba(215,25,32,.42),rgba(215,25,32,.18));
+  border:1px solid rgba(255,255,255,.16);
   clip-path:polygon(50% 0,88% 22%,88% 72%,50% 100%,12% 72%,12% 22%);
-  border:2px solid rgba(215,25,32,.95);
-  filter:drop-shadow(0 0 18px rgba(215,25,32,.45));
 }
 
-.stats-list div{
+.stat-line{
   display:flex;
   justify-content:space-between;
-  gap:10px;
-  margin:12px 0;
-  font-size:11px;
-  color:#c9d3dd;
-}
-
-.stats-list b{
-  color:#fff;
+  padding:7px 0;
+  color:#d8e2ea;
+  font-size:.68rem;
+  font-weight:800;
 }
 
 /* ACADEMIC */
 
-.acad-grid{
+.academic-grid{
   display:grid;
   grid-template-columns:1fr 1fr;
-  border-top:1px solid var(--line);
   border-left:1px solid var(--line);
+  border-top:1px solid var(--line);
 }
 
 .acad-box{
   height:82px;
-  padding:13px;
   border-right:1px solid var(--line);
   border-bottom:1px solid var(--line);
+  padding:13px;
 }
 
-.acad-box strong{
-  display:block;
-  font-size:29px;
-  line-height:1;
+.acad-box b{
+  font-size:1.9rem;
 }
 
 .acad-box span{
   display:block;
-  margin-top:6px;
-  font-size:10px;
-  color:#b7c1ca;
-  font-weight:800;
+  font-size:.62rem;
+  color:var(--muted);
+  font-weight:900;
+  text-transform:uppercase;
 }
 
 /* FILM */
 
-.film-img{
+.film-window{
   height:128px;
-  border-radius:7px;
-  background:linear-gradient(135deg,#1c252e,#05080d);
+  border-radius:5px;
+  background:linear-gradient(135deg,#101820,#06090d);
   display:grid;
   place-items:center;
-  font-size:38px;
+  font-size:2rem;
 }
 
 .play{
-  width:54px;
-  height:54px;
+  width:56px;
+  height:56px;
   border-radius:50%;
-  background:rgba(0,0,0,.65);
+  background:rgba(0,0,0,.68);
   display:grid;
   place-items:center;
 }
 
 .film-title{
-  font-size:11px;
-  font-weight:900;
   margin-top:10px;
-}
-
-.film-foot{
-  display:flex;
-  justify-content:space-between;
-  margin-top:8px;
-  font-size:10.5px;
-  color:#b7c1ca;
+  font-size:.70rem;
+  font-weight:900;
 }
 
 /* REPORTS */
 
 .report-main{
   display:grid;
-  grid-template-columns:58px 1fr;
+  grid-template-columns:60px 1fr;
   gap:12px;
-  margin-bottom:10px;
+  margin-bottom:12px;
 }
 
-.report-main img{
-  width:54px;
-}
+.report-main img{width:54px}
 
-.report-title{
-  font-size:11px;
-  font-weight:900;
-}
-
-.report-main small{
-  font-size:9px;
-  color:#bac5cf;
+.report-row{
+  border-top:1px solid var(--line);
+  padding:9px 0;
+  display:flex;
+  justify-content:space-between;
+  font-size:.66rem;
+  color:#d8e2ea;
 }
 
 .new{
-  background:#1c6fb6;
-  color:white;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--line-strong);
+  color:#dce6ef;
+  padding:3px 5px;
   border-radius:3px;
-  padding:2px 5px;
-  font-size:8px;
+  font-size:.55rem;
   font-weight:900;
 }
 
-.report-row{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  border-top:1px solid var(--line);
-  padding:8px 0;
-  font-size:10px;
-}
-
-/* ROW 3 */
+/* ROW THREE */
 
 .kv{
   display:flex;
   justify-content:space-between;
+  padding:9px 0;
   border-bottom:1px solid var(--line);
-  padding:8px 0;
-  font-size:11px;
-}
-
-.kv span{
-  font-weight:850;
-  color:#dce7f0;
+  font-size:.72rem;
+  font-weight:900;
 }
 
 .redbtn{
-  width:70%;
-  height:31px;
-  margin:11px auto 0;
   display:block;
-  background:linear-gradient(90deg,#9d1116,#d71920);
-  border:none;
-  border-radius:6px;
+  margin:13px auto 0;
+  width:70%;
+  height:34px;
+  background:linear-gradient(180deg,var(--red),var(--red-dark));
+  border:1px solid rgba(255,255,255,.16);
   color:white;
-  font-size:10.5px;
+  border-radius:5px;
   font-weight:900;
 }
 
 .person{
   display:grid;
-  grid-template-columns:30px 1fr 24px;
-  gap:9px;
+  grid-template-columns:34px 1fr 22px;
+  gap:10px;
   align-items:center;
-  margin:7px 0;
+  margin:8px 0;
 }
 
 .face{
-  width:29px;
-  height:29px;
+  width:32px;
+  height:32px;
   border-radius:50%;
-  background:#2c9ecf;
+  background:linear-gradient(180deg,#223044,#131c28);
+  border:1px solid rgba(255,255,255,.14);
 }
 
-.person strong{
-  font-size:10px;
-}
-
-.person small{
-  display:block;
-  font-size:8px;
-  color:#96a2ad;
-}
+.person b{font-size:.68rem}
+.person small{display:block;color:var(--muted);font-size:.56rem}
 
 .alert{
-  width:18px;
-  height:18px;
-  border-radius:50%;
   background:var(--red);
+  border-radius:50%;
+  width:20px;
+  height:20px;
   display:grid;
   place-items:center;
-  font-size:9px;
+  font-size:.60rem;
   font-weight:900;
 }
 
 .event{
   display:grid;
-  grid-template-columns:42px 1fr 50px;
-  gap:9px;
+  grid-template-columns:46px 1fr 58px;
+  gap:10px;
   margin-bottom:10px;
 }
 
 .date{
   border:1px solid var(--line);
-  background:#121b25;
-  border-radius:6px;
+  border-radius:5px;
   text-align:center;
   padding:5px;
-  font-size:11px;
+  font-size:.72rem;
   font-weight:900;
 }
 
-.date small{
+.date span{
   display:block;
   color:var(--red);
-  font-size:8px;
-}
-
-.event b{
-  font-size:11px;
-}
-
-.event small{
-  font-size:8.5px;
-  color:#b5c1cc;
+  font-size:.56rem;
 }
 
 .tag{
-  border:1px solid var(--red);
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--line-strong);
+  color:#dce6ef;
   border-radius:5px;
-  color:var(--red);
   display:grid;
   place-items:center;
-  font-size:8.5px;
+  font-size:.58rem;
   font-weight:900;
 }
 
 .feed{
   display:flex;
   justify-content:space-between;
-  gap:8px;
   border-bottom:1px solid var(--line);
-  padding:8px 0;
-  font-size:10px;
+  padding:9px 0;
+  font-size:.68rem;
 }
 
-.feed time{
-  color:#8d9aaa;
-  white-space:nowrap;
-}
+/* NEXT STEPS */
 
-/* ACTION BAR */
-
-.actions{
-  background:rgba(13,19,26,.95);
-  border:1px solid var(--line);
-  border-radius:8px;
-  padding:10px 12px;
+.next-steps{
+  padding:12px;
 }
 
 .action-grid{
@@ -751,127 +663,92 @@ button{
 }
 
 .action-card{
-  height:46px;
-  border:1px solid var(--line);
-  border-radius:7px;
-  background:#0b1118;
+  height:58px;
   display:flex;
   align-items:center;
-  gap:11px;
+  gap:12px;
   padding:0 14px;
-}
-
-.action-ico{
-  color:var(--red);
-  font-size:20px;
 }
 
 .action-card b{
   display:block;
-  font-size:10px;
+  font-size:.66rem;
   text-transform:uppercase;
-  white-space:nowrap;
 }
 
 .action-card span{
-  display:block;
-  font-size:9px;
-  color:#9aa7b4;
+  font-size:.58rem;
+  color:var(--muted);
 }
 
-/* HP LAPTOP */
-@media(max-width:1366px){
-  body{overflow:hidden}
+.action-ico{
+  color:var(--red);
+  font-size:1.2rem;
+}
 
-  .page{
-    grid-template-rows:72px 1fr;
-  }
+/* FOOTER */
 
+.footer{
+  margin-top:12px;
+  height:58px;
+  background:linear-gradient(180deg,#070b10,#030506);
+  border-top:1px solid var(--line);
+  display:grid;
+  grid-template-columns:220px 1fr 260px;
+  align-items:center;
+  padding:0 18px;
+  color:#9da8b4;
+  font-size:.66rem;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+
+.footer img{height:38px}
+
+/* RESPONSIVE / HP LAPTOP SAFETY */
+
+@media(max-width:1320px){
   .header{
-    grid-template-columns:220px 245px 78px 118px 78px 94px minmax(160px,1fr) 36px 36px 120px;
-    gap:7px;
-    padding:9px 12px;
+    grid-template-columns:150px 240px repeat(4,90px) 1fr 38px 38px 130px;
+    padding:0 12px;
   }
 
-  .logo{width:210px;height:44px}
-  .title h1{font-size:16px}
-  .title p{font-size:8.8px}
-  .head-stat small{font-size:8px}
-  .head-stat strong{font-size:9.5px}
-  .search{height:32px;font-size:10px}
-  .user{font-size:9.5px}
-  .avatar{width:34px;height:34px}
-
-  .body{
-    grid-template-columns:182px minmax(0,1fr);
-    gap:10px;
-    padding:10px;
-  }
-
-  .dashboard{
-    min-width:1090px;
-    grid-template-rows:198px 252px 225px 72px;
-    gap:10px;
-  }
-
-  .card{padding:12px}
-  .card-title{font-size:12px}
-
-  .nav-item{height:29px;font-size:11px}
-  .quick .nav-item{height:25px;font-size:10px}
-
-  .athlete-card{grid-template-columns:138px 1fr}
-  .player-photo{width:132px;height:160px}
-  .athlete-name{font-size:28px}
-  .meta{font-size:10.5px}
-  .bio-line{font-size:10px;margin:8px 0}
-
-  .big-score{font-size:49px}
-  .subbig{font-size:21px}
-  .ring{width:80px;height:80px}
-  .ring strong{font-size:24px}
-
-  .radar{height:160px}
-  .radar-shape{width:130px;height:130px}
-  .stats-list div{font-size:10px;margin:10px 0}
-
-  .acad-box{height:72px}
-  .acad-box strong{font-size:25px}
-
-  .film-img{height:110px}
-  .report-row{font-size:9px;padding:6px 0}
-
-  .kv{font-size:10px;padding:7px 0}
-  .person{margin:5px 0}
-  .event{margin-bottom:7px}
-  .feed{font-size:9px;padding:6px 0}
-
-  .action-card{height:42px}
+  .logo{height:46px}
+  .shell{grid-template-columns:220px 1220px}
+  .page{overflow-x:auto}
 }
 
-@media(max-width:1180px){
-  body{overflow:auto}
-  .page{min-width:1180px}
+@media(max-width:900px){
+  .header{
+    position:relative;
+    height:auto;
+    grid-template-columns:1fr;
+    padding:14px;
+  }
+
+  .shell{grid-template-columns:1fr}
+  .left-rail{display:none}
+  .row-one,.row-two,.row-three,.action-grid{grid-template-columns:1fr}
 }
 </style>
 </head>
 
 <body>
-
 <div class="page">
 
 <header class="header">
   <img class="logo" src="sc_logo_e.png" alt="STATS-CORE">
 
   <div class="title">
-    <h1>ATHLETE DASHBOARD</h1>
-    <p>YOUR JOURNEY. VERIFIED. VISUALIZED. MAXIMIZED.</p>
+    <h1>Athlete Dashboard</h1>
+    <p>Your Journey. Verified. Visualized. Maximized.</p>
   </div>
 
-  <div class="head-stat"><small>Athlete ID</small><strong>SC-247812</strong></div>
-  <div class="head-stat"><small>Snapshot ID</small><strong style="color:#111">SNAP-2026-00429</strong></div>
-  <div class="head-stat"><small>Visibility</small><strong style="color:var(--purple)">HIGH</strong></div>
-  <div class="head-stat"><small>Status</small><strong style="color:green">● VERIFIED</strong></div>
+  <div class="head-stat"><span>Athlete ID</span><b>SC-247812</b></div>
+  <div class="head-stat"><span>Snapshot ID</span><b style="color:#111">SNAP-2026-00429</b></div>
+  <div class="head-stat"><span>Visibility</span><b class="purple">High</b></div>
+  <div class="head-stat"><span>Status</span><b class="green">● Verified</b></div>
 
   <input class="search" placeholder="Search athletes, schools, events...">
 
@@ -880,197 +757,194 @@ button{
 
   <div class="user">
     <img class="avatar" src="athlete-avatar.jpg" alt="Athlete">
-    JOHN WILLIAMS⌄
+    JOHN WILLIAMS
   </div>
 </header>
 
-<section class="body">
+<div class="shell">
 
-<aside class="left">
-  <div class="rail-box">
-    <div class="nav-item active">⌂ DASHBOARD</div>
-    <div class="nav-item">♙ MY PROFILE</div>
-    <div class="nav-item">▥ PERFORMANCE</div>
-    <div class="nav-item">🛡 ELIGIBILITY</div>
-    <div class="nav-item">◎ EXPOSURE</div>
-    <div class="nav-item">☊ RECRUITING</div>
-    <div class="nav-item">✉ MULTI-BOX <span class="nav-count">5</span></div>
-    <div class="nav-item">◇ CRYSTAL REPORTS</div>
-    <div class="nav-item">▣ EVENTS</div>
-    <div class="nav-item">⌂ OPPORTUNITIES</div>
-    <div class="nav-item">▤ DOCUMENTS</div>
-    <div class="nav-item">☰ ACTIVITY FEED</div>
-    <div class="nav-item">⚙ SETTINGS</div>
-  </div>
+<aside class="left-rail">
+  <section class="rail-box menu">
+    <div class="nav-item active">⌂ Dashboard</div>
+    <div class="nav-item">♙ My Profile</div>
+    <div class="nav-item">▥ Performance</div>
+    <div class="nav-item">🛡 Eligibility</div>
+    <div class="nav-item">◎ Exposure</div>
+    <div class="nav-item">☊ Recruiting</div>
+    <div class="nav-item">✉ Multi-Box <span class="nav-count">5</span></div>
+    <div class="nav-item">◇ Crystal Reports</div>
+    <div class="nav-item">▣ Events</div>
+    <div class="nav-item">⌂ Opportunities</div>
+    <div class="nav-item">▤ Documents</div>
+    <div class="nav-item">☰ Activity Feed</div>
+    <div class="nav-item">⚙ Settings</div>
+  </section>
 
-  <div class="rail-box quick">
-    <div class="section-title">Quick Actions</div>
-    <div class="nav-item">▧ UPLOAD FILM</div>
-    <div class="nav-item">☊ REQUEST EVALUATION</div>
-    <div class="nav-item">▤ UPDATE ACADEMICS</div>
-    <div class="nav-item">↗ SHARE PROFILE</div>
-    <div class="nav-item">◇ GENERATE REPORT</div>
-    <div class="nav-item">✉ OPEN MULTI-BOX</div>
-  </div>
+  <section class="rail-box quick">
+    <div class="section-label">Quick Actions</div>
+    <div class="nav-item">▧ Upload Film</div>
+    <div class="nav-item">☊ Request Evaluation</div>
+    <div class="nav-item">▤ Update Academics</div>
+    <div class="nav-item">↗ Share Profile</div>
+    <div class="nav-item">◇ Generate Report</div>
+    <div class="nav-item">✉ Open Multi-Box</div>
+  </section>
 
-  <div class="rail-box status">
-    <div class="section-title">System Status</div>
-    <p class="ok">● ALL SYSTEMS OPERATIONAL</p>
-    <p>LAST SYNC: 06/06/2026 6:55 AM</p>
-    <div class="sync">SYNC NOW ⟳</div>
-  </div>
+  <section class="rail-box status">
+    <div class="section-label">System Status</div>
+    <p class="ok">● All Systems Operational</p>
+    <p>Last Sync: 06/06/2026 6:55 AM</p>
+    <div class="sync">Sync Now ⟳</div>
+  </section>
 </aside>
-
-<div class="dashboard-wrap">
 
 <main class="dashboard">
 
-<section class="row1">
-  <div class="card athlete-card">
+<section class="row row-one">
+  <article class="card athlete-card">
     <img class="player-photo" src="athlete-avatar.jpg" alt="Athlete">
 
     <div>
-      <h2 class="athlete-name">JOHN WILLIAMS</h2>
-      <div class="meta">Quarterback | 6'2" | 195 lbs | Right Handed</div>
-      <div class="bio-line"><span class="bio-icon">ⓘ</span>Cedar Hill High School</div>
-      <div class="bio-line"><span class="bio-icon">◎</span>Dallas, Texas</div>
-      <div class="bio-line"><span class="bio-icon">◉</span>Class of 2026</div>
+      <h2 class="player-name">John Williams</h2>
+      <div class="player-meta">Quarterback | 6'2" | 195 lbs | Right Handed</div>
+      <div class="bio-line"><span>◉</span>Cedar Hill High School</div>
+      <div class="bio-line"><span>◉</span>Dallas, Texas</div>
+      <div class="bio-line"><span>◉</span>Class of 2026</div>
     </div>
 
-    <div class="verify"><span class="dot-red"></span>VERIFIED ATHLETE</div>
+    <div class="verified">Verified Athlete</div>
     <div class="snapshot">SNAPSHOT ID: SNAP-2026-00429</div>
-  </div>
+  </article>
 
-  <div class="card">
-    <div class="card-title">STATS-CORE INDEX <span class="info">ⓘ</span></div>
+  <article class="card">
+    <div class="card-title">STATS-CORE Index ⓘ</div>
     <div class="big-score">95.7</div>
-    <div class="subbig red-text">ELITE</div>
-    <img class="emblem" src="sc_emblem.png" alt="STATS-CORE Emblem">
-    <div class="trend"><span class="green-text">↑ 2.3</span><span>LAST 30 DAYS</span></div>
-  </div>
+    <div class="tier red-text">Elite</div>
+    <img class="emblem" src="sc_emblem.png" alt="">
+    <div class="trend"><span class="green-text">↑ 2.3</span><span>Last 30 Days</span></div>
+  </article>
 
-  <div class="card">
-    <div class="card-title">ELIGIBILITY STATUS <span class="info">ⓘ</span></div>
-    <div class="subbig green-text">🛡 NCAA ELIGIBLE</div>
-    <div class="small-line">CORE COURSES: <b>8/10</b></div>
-    <div class="small-line">GRADUATION PATH: <b>ON TRACK</b></div>
-    <div class="card-bottom"><button class="btn">View Eligibility Center</button></div>
-  </div>
+  <article class="card">
+    <div class="card-title">Eligibility Status ⓘ</div>
+    <div class="tier green-text">🛡 NCAA Eligible</div>
+    <p class="bio-line">Core Courses: 8/10</p>
+    <p class="bio-line">Graduation Path: On Track</p>
+    <div class="bottom-btn"><button class="btn" style="width:100%">View Eligibility Center</button></div>
+  </article>
 
-  <div class="card">
-    <div class="card-title">EXPOSURE SCORE <span class="info">ⓘ</span></div>
+  <article class="card">
+    <div class="card-title">Exposure Score ⓘ</div>
     <div class="big-score purple-text">92</div>
-    <div class="subbig purple-text">HIGH</div>
-    <div class="small-line">PROFILE VIEWS (30D) <b class="green-text">+18%</b></div>
-    <div class="card-bottom"><button class="btn">View Exposure Analytics</button></div>
-  </div>
+    <div class="tier purple-text">High</div>
+    <p class="bio-line">Profile Views (30D) <span class="green-text">+18%</span></p>
+    <div class="bottom-btn"><button class="btn" style="width:100%">View Exposure Analytics</button></div>
+  </article>
 
-  <div class="card">
-    <div class="card-title">RECRUITING READINESS <span class="info">ⓘ</span></div>
-    <div class="ring"><strong>92%</strong></div>
-    <div style="text-align:center;color:var(--red);font-weight:900;font-size:12px;">READY</div>
-    <div class="small-line">NEXT ACTION:<br><b>Complete Junior Highlights</b></div>
-    <div class="card-bottom"><button class="btn">View Readiness Report</button></div>
-  </div>
+  <article class="card">
+    <div class="card-title">Recruiting Readiness ⓘ</div>
+    <div class="ring">92%</div>
+    <p style="text-align:center;color:var(--red);font-weight:900">READY</p>
+    <p class="bio-line">Next Action: Complete Junior Highlights</p>
+    <div class="bottom-btn"><button class="btn" style="width:100%">View Readiness Report</button></div>
+  </article>
 </section>
 
-<section class="row2">
-  <div class="card">
-    <div class="card-title">Performance Overview <span class="info">ⓘ</span></div>
-    <div class="radar-wrap">
+<section class="row row-two">
+  <article class="card">
+    <div class="card-title">Performance Overview ⓘ</div>
+    <div class="radar-area">
       <div class="radar"><div class="radar-shape"></div></div>
-      <div class="stats-list">
-        <div><span>Passing Yards</span><b>2,845</b></div>
-        <div><span>Comp Completion</span><b>68%</b></div>
-        <div><span>TD / INT</span><b>32 / 4</b></div>
-        <div><span>QBR</span><b>91.2</b></div>
-        <div><span>Yards / Game</span><b>237.1</b></div>
-      </div>
-    </div>
-    <div class="card-bottom"><button class="btn">View Full Breakdown</button></div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Academic Overview <span class="info">ⓘ</span></div>
-    <div class="acad-grid">
-      <div class="acad-box"><strong class="blue-text">3.45</strong><span>GPA</span></div>
-      <div class="acad-box"><strong class="green-text">8 / 10</strong><span>CORE COURSES COMPLETE</span></div>
-      <div class="acad-box"><strong class="blue-text">1340</strong><span>SAT EST.</span></div>
-      <div class="acad-box"><strong class="green-text">ON TRACK</strong><span>GRADUATION PATH</span></div>
-    </div>
-    <div class="card-bottom"><button class="btn">View Academic Center</button></div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Athletic Snapshot</div>
-    <div class="film-img"><div class="play">▶</div></div>
-    <div class="film-title">7v7 HIGHLIGHTS - SPRING 2025</div>
-    <div class="small-line">MAY 16, 2026 <span style="float:right">2:45</span></div>
-    <div class="film-foot"><span>VIEWS <b>128</b></span><span>EVALUATIONS <b>24</b></span></div>
-    <div class="card-bottom"><button class="btn">View All Film</button></div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Crystal Reports <span class="view-all">VIEW ALL</span></div>
-    <div class="report-main">
-      <img src="sc_emblem.png" alt="Crystal Report">
       <div>
-        <div class="report-title">ELITE QUARTERBACK REPORT <span class="new">NEW</span></div>
-        <small>May 15, 2026</small>
-        <div style="margin-top:8px">
-          <button class="btn" style="width:31%">View</button>
-          <button class="btn" style="width:31%">Download</button>
-          <button class="btn" style="width:31%">Share</button>
-        </div>
+        <div class="stat-line"><span>Passing Yards</span><b>2,845</b></div>
+        <div class="stat-line"><span>Comp Completion</span><b>68%</b></div>
+        <div class="stat-line"><span>TD / INT</span><b>32 / 4</b></div>
+        <div class="stat-line"><span>QBR</span><b>91.2</b></div>
+        <div class="stat-line"><span>Yards / Game</span><b>237.1</b></div>
       </div>
     </div>
-    <div class="report-row"><span>▧ Academic Progress Report<br><small>May 12, 2026</small></span><span class="new">NEW</span></div>
-    <div class="report-row"><span>▧ Recruiting Exposure Report<br><small>May 10, 2026</small></span><span class="new">NEW</span></div>
-    <div class="report-row"><span>▧ Performance Trend Report<br><small>May 08, 2026</small></span><span class="new">NEW</span></div>
-  </div>
+    <div class="bottom-btn"><button class="btn" style="width:100%">View Full Breakdown</button></div>
+  </article>
+
+  <article class="card">
+    <div class="card-title">Academic Overview ⓘ</div>
+    <div class="academic-grid">
+      <div class="acad-box"><b class="blue-text">3.45</b><span>GPA</span></div>
+      <div class="acad-box"><b class="green-text">8 / 10</b><span>Core Courses Complete</span></div>
+      <div class="acad-box"><b class="blue-text">1340</b><span>SAT Est.</span></div>
+      <div class="acad-box"><b class="green-text">On Track</b><span>Graduation Path</span></div>
+    </div>
+    <div class="bottom-btn"><button class="btn" style="width:100%">View Academic Center</button></div>
+  </article>
+
+  <article class="card">
+    <div class="card-title">Athletic Snapshot</div>
+    <div class="film-window"><div class="play">▶</div></div>
+    <div class="film-title">7v7 Highlights - Spring 2025</div>
+    <p class="bio-line">May 16, 2026 <span style="float:right;color:#fff">2:45</span></p>
+    <div class="bottom-btn"><button class="btn" style="width:100%">View All Film</button></div>
+  </article>
+
+  <article class="card">
+    <div class="card-title">Crystal Reports ⓘ <span class="right">View All</span></div>
+
+    <div class="report-main">
+      <img src="sc_emblem.png" alt="">
+      <div>
+        <b>Elite Quarterback Report</b> <span class="new">NEW</span><br>
+        <small class="muted">May 15, 2026</small><br><br>
+        <button class="btn" style="width:31%">View</button>
+        <button class="btn" style="width:31%">Download</button>
+        <button class="btn" style="width:31%">Share</button>
+      </div>
+    </div>
+
+    <div class="report-row"><span>Academic Progress Report<br><small>May 12, 2026</small></span><span class="new">NEW</span></div>
+    <div class="report-row"><span>Recruiting Exposure Report<br><small>May 10, 2026</small></span><span class="new">NEW</span></div>
+    <div class="report-row"><span>Performance Trend Report<br><small>May 08, 2026</small></span><span class="new">NEW</span></div>
+  </article>
 </section>
 
-<section class="row3">
-  <div class="card">
-    <div class="card-title">Recruiting Activity <span class="view-all">VIEW ALL</span></div>
-    <div class="kv"><span>⚖ Interested Schools</span><b>28</b></div>
-    <div class="kv"><span>☊ Recruiter Requests</span><b>12</b></div>
-    <div class="kv"><span>▧ Evaluations</span><b>14</b></div>
-    <div class="kv"><span>▣ Official Visits</span><b>2</b></div>
-    <div class="kv"><span>▤ Camp Invitations</span><b>3</b></div>
+<section class="row row-three">
+  <article class="card">
+    <div class="card-title">Recruiting Activity <span class="right">View All</span></div>
+    <div class="kv"><span>Interested Schools</span><b>28</b></div>
+    <div class="kv"><span>Recruiter Requests</span><b>12</b></div>
+    <div class="kv"><span>Evaluations</span><b>14</b></div>
+    <div class="kv"><span>Official Visits</span><b>2</b></div>
+    <div class="kv"><span>Camp Invitations</span><b>3</b></div>
     <button class="redbtn">View Opportunities</button>
-  </div>
+  </article>
 
-  <div class="card">
-    <div class="card-title">Multi-Box Communication <span class="view-all">VIEW ALL</span></div>
-    <div class="person"><div class="face"></div><div><strong>COACH DAVIS</strong><small>Head Coach</small></div><span class="alert">2</span></div>
-    <div class="person"><div class="face"></div><div><strong>COACH THOMPSON</strong><small>QB Coach</small></div><span class="alert">1</span></div>
-    <div class="person"><div class="face"></div><div><strong>RECRUITER BROWN</strong><small>Texas A&M</small></div><span class="alert">2</span></div>
-    <div class="person"><div class="face"></div><div><strong>PARENT</strong><small>John Williams Sr.</small></div><span class="alert">1</span></div>
-    <div class="person"><div class="face"></div><div><strong>COUNSELOR</strong><small>Ms. Johnson</small></div><span class="alert">1</span></div>
+  <article class="card">
+    <div class="card-title">Multi-Box Communication <span class="right">View All</span></div>
+    <div class="person"><div class="face"></div><div><b>Coach Davis</b><small>Head Coach</small></div><span class="alert">2</span></div>
+    <div class="person"><div class="face"></div><div><b>Coach Thompson</b><small>QB Coach</small></div><span class="alert">1</span></div>
+    <div class="person"><div class="face"></div><div><b>Recruiter Brown</b><small>Texas A&M</small></div><span class="alert">2</span></div>
+    <div class="person"><div class="face"></div><div><b>Parent</b><small>John Williams Sr.</small></div><span class="alert">1</span></div>
+    <div class="person"><div class="face"></div><div><b>Counselor</b><small>Ms. Johnson</small></div><span class="alert">1</span></div>
     <button class="redbtn">Open Multi-Box</button>
-  </div>
+  </article>
 
-  <div class="card">
-    <div class="card-title">Upcoming Events <span class="view-all">VIEW ALL</span></div>
-    <div class="event"><div class="date"><small>MAY</small>18</div><div><b>ELITE 11 REGIONAL</b><br><small>Dallas, TX</small></div><div class="tag" style="color:var(--purple);border-color:var(--purple)">CAMP</div></div>
-    <div class="event"><div class="date"><small>MAY</small>31</div><div><b>MEGA QB SHOWCASE</b><br><small>Austin, TX</small></div><div class="tag">EVENT</div></div>
-    <div class="event"><div class="date"><small>JUN</small>15</div><div><b>RECRUITING WINDOW</b><br><small>Opens</small></div><div class="tag" style="color:var(--green);border-color:var(--green)">WINDOW</div></div>
-    <div class="event"><div class="date"><small>JUL</small>07</div><div><b>UNIVERSITY OF TEXAS</b><br><small>Official Visit</small></div><div class="tag" style="color:var(--blue);border-color:var(--blue)">VISIT</div></div>
-  </div>
+  <article class="card">
+    <div class="card-title">Upcoming Events <span class="right">View All</span></div>
+    <div class="event"><div class="date"><span>MAY</span>18</div><div><b>Elite 11 Regional</b><br><small>Dallas, TX</small></div><div class="tag">Camp</div></div>
+    <div class="event"><div class="date"><span>MAY</span>31</div><div><b>Mega QB Showcase</b><br><small>Austin, TX</small></div><div class="tag">Event</div></div>
+    <div class="event"><div class="date"><span>JUN</span>15</div><div><b>Recruiting Window</b><br><small>Opens</small></div><div class="tag">Window</div></div>
+    <div class="event"><div class="date"><span>JUL</span>07</div><div><b>University of Texas</b><br><small>Official Visit</small></div><div class="tag">Visit</div></div>
+  </article>
 
-  <div class="card">
-    <div class="card-title">Activity Feed <span class="view-all">VIEW ALL</span></div>
-    <div class="feed"><span>◎ Texas A&M viewed profile</span><time>2m</time></div>
-    <div class="feed"><span>◎ New message from Coach Davis</span><time>12m</time></div>
-    <div class="feed"><span>◎ Evaluation submitted</span><time>1h</time></div>
-    <div class="feed"><span>▧ Profile viewed by 5 schools</span><time>3h</time></div>
-    <div class="feed"><span>▧ Film uploaded: 7v7 Highlights</span><time>1d</time></div>
-  </div>
+  <article class="card">
+    <div class="card-title">Activity Feed <span class="right">View All</span></div>
+    <div class="feed"><span>Texas A&M viewed your profile</span><time>2m</time></div>
+    <div class="feed"><span>New message from Coach Davis</span><time>12m</time></div>
+    <div class="feed"><span>Evaluation submitted</span><time>1h</time></div>
+    <div class="feed"><span>Profile viewed by 5 schools</span><time>3h</time></div>
+    <div class="feed"><span>Film uploaded: 7v7 Highlights</span><time>1d</time></div>
+  </article>
 </section>
 
-<section class="actions">
-  <div class="section-title">Recommended Next Steps</div>
+<section class="next-steps">
+  <div class="section-label">Recommended Next Steps</div>
   <div class="action-grid">
     <div class="action-card"><div class="action-ico">▧</div><div><b>Upload New Film</b><span>Increase Visibility</span></div></div>
     <div class="action-card"><div class="action-ico">☊</div><div><b>Request Evaluation</b><span>Get Scouted</span></div></div>
@@ -1081,17 +955,19 @@ button{
   </div>
 </section>
 
+<footer class="footer">
+  <img src="sc_logo_i.png" alt="STATS-CORE">
+  <div>National Athlete Infrastructure • Secure • Verified • Controlled</div>
+  <div>© STATS-CORE Systems</div>
+</footer>
+
 </main>
 </div>
-
-</section>
 </div>
 
 <script>
-document.querySelectorAll("button,.action-card,.nav-item").forEach(el=>{
-  el.addEventListener("click",()=>{
-    console.log("STATS-CORE Athlete Dashboard:",el.textContent.trim());
-  });
+document.addEventListener("DOMContentLoaded",()=>{
+  console.log("STATS-CORE Athlete Dashboard Loaded");
 });
 </script>
 
