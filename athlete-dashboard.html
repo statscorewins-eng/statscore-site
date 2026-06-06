@@ -66,17 +66,19 @@ button{
 
 .page{
   width:100%;
-  max-width:var(--max);
-  min-width:1280px;
+  min-width:1366px;
+  max-width:1536px;
   min-height:100vh;
   margin:0 auto;
+  overflow-x:auto;
   background:
-    linear-gradient(90deg,rgba(0,0,0,.98),rgba(4,9,15,.90),rgba(0,0,0,.98)),
-    radial-gradient(circle at 55% 38%,rgba(0,140,255,.16),transparent 44%),
+    linear-gradient(90deg,rgba(0,0,0,.98),rgba(4,9,15,.92),rgba(0,0,0,.96)),
+    radial-gradient(circle at 58% 38%,rgba(0,140,255,.16),transparent 42%),
     radial-gradient(circle at 38% 52%,rgba(255,43,31,.08),transparent 36%),
     repeating-linear-gradient(135deg,rgba(255,255,255,.012) 0,rgba(255,255,255,.012) 1px,transparent 1px,transparent 8px),
     #020407;
-}
+} 
+
 
 /* =====================================================
    HEADER
@@ -835,44 +837,59 @@ button{
 ===================================================== */
 
 @media(max-width:900px){
-  .page,
-  .footer{
-    min-width:0;
+  .page{
+    min-width:1366px;
+    width:100%;
   }
 
   .header{
     position:relative;
-    height:auto;
-    grid-template-columns:1fr;
-    padding:14px;
+    top:auto;
+    height:118px;
+    grid-template-columns:320px 250px repeat(4,120px) 1fr 42px 42px 150px;
+    padding:0 20px;
   }
 
   .logo{
-    width:280px;
-    height:auto;
+    height:76px;
+    width:260px;
+    object-fit:contain;
   }
 
   .shell{
-    grid-template-columns:1fr;
+    grid-template-columns:220px 1fr;
+    gap:12px;
   }
 
   .left-rail{
-    display:none;
+    display:grid;
   }
 
-  .row-one,
-  .row-two,
-  .row-three,
+  .row-one{
+    grid-template-columns:2.35fr 1.08fr 1.08fr 1.05fr 1.15fr;
+  }
+
+  .row-two{
+    grid-template-columns:1.55fr 1.05fr 1.18fr 1.28fr;
+  }
+
+  .row-three{
+    grid-template-columns:1.05fr 1.1fr 1fr 1.05fr;
+  }
+
   .action-grid{
-    grid-template-columns:1fr;
+    grid-template-columns:repeat(6,1fr);
   }
 
   .footer{
-    grid-template-columns:1fr;
-    height:auto;
-    gap:10px;
-    padding:18px;
+    grid-template-columns:260px 1fr 260px;
+    height:64px;
+    gap:0;
+    padding:0 24px;
   }
+
+} 
+
 }
 </style>
 </head>
