@@ -4,7 +4,10 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<title>STATS-CORE™ | Athlete Dashboard</title>
+<title>STATS-CORE™ | Athlete Intelligence Profile</title>
+
+<meta name="title" content="STATS-CORE™ | Athlete Intelligence Profile" />
+<meta name="description" content="STATS-CORE™ explains athlete production, positional translatability, verification status, parent release governance, and evidence-supported football intelligence." />
 
 <link rel="icon" type="image/png" href="sc_emblem.png" />
 <link rel="apple-touch-icon" href="sc_emblem.png" />
@@ -13,17 +16,16 @@
 :root{
   --red:#ff2b1f;
   --red2:#b90710;
-  --green:#25d366;
-  --blue:#7ed8ff;
-  --purple:#a855f7;
   --gold:#f4c542;
+  --green:#25d366;
   --black:#020202;
-  --panel:rgba(6,10,18,.62);
-  --panel2:rgba(7,10,16,.72);
-  --line:rgba(255,255,255,.11);
+  --panel:rgba(6,10,18,.58);
+  --panel2:rgba(7,10,16,.62);
+  --line:rgba(255,255,255,.10);
   --line2:rgba(255,255,255,.22);
   --text:#f4f4f1;
   --muted:#b8c3cc;
+  --blue:#7ed8ff;
   --max:1536px;
 }
 
@@ -37,40 +39,38 @@ html,body{
 }
 
 a{text-decoration:none;color:inherit;}
-button{font-family:inherit;cursor:pointer;}
 
 .page{
   width:min(var(--max),100%);
   margin:0 auto;
   min-height:100vh;
   background:
-    linear-gradient(90deg,rgba(0,0,0,.96),rgba(0,0,0,.82),rgba(0,0,0,.94)),
-    radial-gradient(circle at 50% 24%,rgba(20,100,160,.18),transparent 38%),
+    linear-gradient(90deg,rgba(0,0,0,.96),rgba(0,0,0,.78),rgba(0,0,0,.92)),
+    radial-gradient(circle at 55% 38%,rgba(40,120,170,.12),transparent 42%),
     repeating-linear-gradient(135deg,rgba(255,255,255,.012) 0,rgba(255,255,255,.012) 1px,transparent 1px,transparent 8px),
     #020407;
 }
 
 /* =========================
-   HEADER
+   GEN-2 MASTER HEADER
 ========================= */
 
 .header{
-  min-height:112px;
-  background:linear-gradient(180deg,#fff,#ececec);
+  min-height:92px;
+  background:linear-gradient(180deg,#ffffff,#ececec);
   display:grid;
-  grid-template-columns:330px minmax(210px,1fr) 520px;
-  align-items:stretch;
+  grid-template-columns:360px minmax(280px,1fr) 520px;
+  align-items:center;
   border-bottom:2px solid var(--red);
-  overflow:hidden;
 }
 
 .logo-tab{
-  min-height:112px;
+  height:92px;
   background:linear-gradient(145deg,#171717,#070707 65%,#000);
-  clip-path:polygon(0 0,84% 0,100% 100%,0 100%);
+  clip-path:polygon(0 0,78% 0,100% 100%,0 100%);
   display:flex;
   align-items:center;
-  padding-left:24px;
+  padding-left:26px;
   position:relative;
 }
 
@@ -79,8 +79,8 @@ button{font-family:inherit;cursor:pointer;}
   position:absolute;
   top:0;
   left:0;
-  width:132px;
-  height:15px;
+  width:140px;
+  height:16px;
   background:var(--red);
   clip-path:polygon(0 0,92% 0,100% 100%,0 100%);
 }
@@ -95,35 +95,17 @@ button{font-family:inherit;cursor:pointer;}
   background:var(--red);
 }
 
-.logo-tab img{
-  width:250px;
-  max-width:80%;
-}
+.logo-tab img{width:270px;max-width:82%;}
 
 .header-title{
   color:#111;
-  display:flex;
-  justify-content:center;
-  flex-direction:column;
-  padding:0 22px;
-}
-
-.header-title h1{
-  margin:0;
-  color:var(--red);
-  font-size:1.05rem;
   font-weight:900;
-  letter-spacing:.08em;
+  font-size:.74rem;
+  letter-spacing:.24em;
   text-transform:uppercase;
-}
-
-.header-title p{
-  margin:6px 0 0;
-  color:#111;
-  font-size:.58rem;
-  font-weight:900;
-  letter-spacing:.13em;
-  text-transform:uppercase;
+  line-height:1.35;
+  text-align:center;
+  padding:0 20px;
 }
 
 .header-tools{
@@ -133,98 +115,45 @@ button{font-family:inherit;cursor:pointer;}
   padding:12px 20px 10px 4px;
 }
 
-.status-row{
-  display:grid;
-  grid-template-columns:repeat(4,1fr) 210px 42px 42px 110px;
+.utility-row{
+  display:flex;
+  justify-content:flex-end;
   align-items:center;
-  gap:8px;
+  gap:10px;
 }
-
-.top-stat{
-  border-left:1px solid rgba(0,0,0,.16);
-  padding-left:10px;
-}
-
-.top-stat span{
-  display:block;
-  color:#222;
-  font-size:.52rem;
-  font-weight:900;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-}
-
-.top-stat b{
-  display:block;
-  margin-top:4px;
-  color:var(--red);
-  font-size:.62rem;
-  font-weight:900;
-  text-transform:uppercase;
-}
-
-.top-stat b.green{color:green;}
-.top-stat b.purple{color:var(--purple);}
 
 .utility-search{
+  width:220px;
   height:30px;
   border:1px solid rgba(0,0,0,.18);
   background:rgba(255,255,255,.72);
   color:#111;
   font-weight:800;
   font-size:.62rem;
-  letter-spacing:.05em;
+  letter-spacing:.09em;
+  text-transform:uppercase;
   padding:0 10px;
   outline:none;
-  min-width:0;
 }
 
-.head-icon{
-  position:relative;
-  color:#111;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:1.1rem;
-}
+.utility-search::placeholder{color:#555;}
 
-.head-badge{
-  position:absolute;
-  top:0;
-  right:2px;
-  width:16px;
-  height:16px;
+.user-icon{
+  width:30px;
+  height:30px;
+  border:3px solid #111;
   border-radius:50%;
-  background:var(--red);
-  color:#fff;
-  font-size:.52rem;
-  font-weight:900;
-  display:grid;
-  place-items:center;
 }
 
-.user-mini{
-  color:#111;
+.role-nav{
   display:flex;
   align-items:center;
   justify-content:flex-end;
-  gap:8px;
-  font-size:.58rem;
-  font-weight:900;
-  text-transform:uppercase;
-  white-space:nowrap;
+  gap:7px;
+  width:100%;
 }
 
-.user-mini img{
-  width:34px;
-  height:34px;
-  border-radius:50%;
-  border:2px solid var(--red);
-  object-fit:cover;
-  background:#ddd;
-}
-
-.role-row{
+.role-tabs{
   display:flex;
   align-items:center;
   justify-content:flex-end;
@@ -236,8 +165,8 @@ button{font-family:inherit;cursor:pointer;}
   color:#111;
   border:1px solid rgba(0,0,0,.16);
   background:rgba(255,255,255,.45);
-  padding:7px 9px;
-  font-size:.52rem;
+  padding:8px 9px;
+  font-size:.56rem;
   font-weight:900;
   letter-spacing:.10em;
   text-transform:uppercase;
@@ -250,616 +179,789 @@ button{font-family:inherit;cursor:pointer;}
 }
 
 .multi-box-tab{
+  margin-left:18px;
   color:#fff;
   background:linear-gradient(145deg,#181818,#050505);
   border:1px solid var(--red);
-  padding:8px 12px;
-  font-size:.52rem;
+  box-shadow:0 0 0 1px rgba(255,43,31,.18) inset;
+  padding:9px 12px;
+  font-size:.56rem;
   font-weight:900;
   letter-spacing:.12em;
   text-transform:uppercase;
+  white-space:nowrap;
 }
 
-/* =========================
-   MAIN SHELL
-========================= */
+/* MAIN */
 
-.main{
-  padding:16px 20px 0;
+.main{padding:18px 24px 0;}
+
+.record-header{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:20px;
+  margin:0 0 14px;
+  padding:0 0 12px;
+  border-bottom:1px solid rgba(255,255,255,.08);
 }
 
-.dashboard-shell{
+.record-kicker{
+  color:var(--red);
+  font-size:.68rem;
+  font-weight:900;
+  letter-spacing:.24em;
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+
+.record-title{
+  margin:0;
+  font-family:"Arial Narrow","Helvetica Neue Condensed",Impact,Arial,sans-serif;
+  font-size:3.2rem;
+  line-height:.9;
+  letter-spacing:-.05em;
+  text-transform:uppercase;
+}
+
+.record-demo{
+  border:1px solid rgba(255,255,255,.10);
+  padding:10px 14px;
+  font-size:.66rem;
+  color:#9fa7b0;
+  font-weight:900;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  background:rgba(255,255,255,.02);
+}
+
+.hero-grid{
   display:grid;
-  grid-template-columns:220px minmax(0,1fr) 330px;
-  gap:12px;
-  align-items:start;
+  grid-template-columns:32% 43% 25%;
+  gap:10px;
 }
 
-.panel,.box{
+.panel,.block{
   background:var(--panel);
   border:1px solid var(--line);
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.025);
 }
 
-.left-rail{
-  min-height:calc(100vh - 150px);
-  padding:12px;
-  display:grid;
-  grid-template-rows:auto auto 1fr;
-  gap:10px;
-}
-
-.rail-box{
-  background:rgba(7,10,16,.54);
-  border:1px solid var(--line);
-  padding:10px;
-}
-
-.section-title{
-  color:#fff;
-  font-size:.65rem;
+.label{
+  color:var(--red);
+  font-size:.68rem;
   font-weight:900;
-  letter-spacing:.12em;
+  letter-spacing:.24em;
   text-transform:uppercase;
-  margin-bottom:10px;
 }
 
-.nav-link{
-  min-height:34px;
-  display:flex;
-  align-items:center;
-  gap:9px;
-  padding:0 10px;
-  border-radius:3px;
-  color:#dce8ef;
-  font-size:.72rem;
-  font-weight:900;
-  text-transform:uppercase;
-  margin-bottom:4px;
-}
+/* ATHLETE IMAGE */
 
-.nav-link.active{
-  background:linear-gradient(90deg,var(--red2),var(--red));
-  color:#fff;
-}
+.image-card{padding:14px;}
 
-.nav-count{
-  margin-left:auto;
-  width:18px;
-  height:18px;
-  border-radius:50%;
-  background:var(--red);
-  display:grid;
-  place-items:center;
-  font-size:.58rem;
-}
-
-.quick .nav-link{
-  min-height:28px;
-  font-size:.61rem;
-}
-
-.system-status{
-  align-self:end;
-}
-
-.system-status p{
-  margin:8px 0;
-  color:var(--muted);
-  font-size:.62rem;
-  font-weight:800;
-}
-
-.system-status .ok{color:var(--green);}
-.sync{color:var(--red);font-weight:900;font-size:.65rem;text-transform:uppercase;}
-
-/* =========================
-   MIDDLE RAIL
-========================= */
-
-.middle-rail{
-  display:grid;
-  gap:12px;
-  min-width:0;
-}
-
-.identity-grid{
-  display:grid;
-  grid-template-columns:1.75fr .85fr .85fr .85fr;
-  gap:10px;
-}
-
-.identity-card{
-  display:grid;
-  grid-template-columns:150px minmax(0,1fr);
-  gap:18px;
-  padding:14px;
-  min-height:210px;
-}
-
-.athlete-photo{
-  height:178px;
-  border:1px solid var(--line2);
+.image-frame{
+  margin-top:14px;
+  height:290px;
+  border:1px solid rgba(255,255,255,.16);
   background:
-    radial-gradient(circle at 50% 26%,rgba(126,216,255,.16),transparent 42%),
-    rgba(255,255,255,.02);
+    radial-gradient(circle at 50% 30%,rgba(126,216,255,.14),transparent 38%),
+    linear-gradient(180deg,rgba(255,255,255,.03),rgba(0,0,0,.34));
   display:flex;
   align-items:center;
   justify-content:center;
+  color:rgba(255,255,255,.35);
+  font-weight:900;
+  letter-spacing:.18em;
+  text-transform:uppercase;
   overflow:hidden;
 }
 
-.athlete-photo img{
+.image-frame img{
   width:100%;
   height:100%;
   object-fit:cover;
+  display:block;
 }
 
-.athlete-name{
-  margin:4px 0 8px;
-  font-family:"Arial Narrow","Helvetica Neue Condensed",Impact,Arial,sans-serif;
-  font-size:2.45rem;
-  line-height:.92;
-  letter-spacing:-.035em;
-  text-transform:uppercase;
-}
-
-.meta{
-  color:#d9e8ef;
-  font-size:.70rem;
-  font-weight:800;
-  margin-bottom:14px;
-}
-
-.bio-line{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  color:#dcebf2;
-  font-size:.70rem;
-  font-weight:900;
-  margin:9px 0;
-}
-
-.red-dot{
-  width:10px;
-  height:10px;
-  border-radius:50%;
-  background:var(--red);
-  display:inline-block;
-}
-
-.verified-row{
-  margin-top:16px;
+.athlete-caption{
+  margin-top:10px;
   display:flex;
   justify-content:space-between;
-  gap:12px;
   align-items:center;
-  color:#dcebf2;
-  font-size:.63rem;
+  gap:12px;
+}
+
+.athlete-caption b{
+  display:block;
+  font-size:1rem;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  line-height:1.05;
+}
+
+.athlete-caption span{
+  color:var(--muted);
+  font-size:.68rem;
   font-weight:900;
+  letter-spacing:.12em;
   text-transform:uppercase;
 }
 
-.verified-pill{
-  border:1px solid rgba(255,255,255,.12);
-  background:rgba(255,255,255,.035);
-  padding:7px 10px;
+.verified{
+  border:1px solid var(--green);
+  color:var(--green);
+  padding:7px 12px;
+  font-size:.64rem;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
 }
 
-.snapshot-text{
+.athlete-dossier{
+  margin-top:10px;
+  border-top:1px solid rgba(255,255,255,.08);
+  padding-top:10px;
+  display:grid;
+  gap:5px;
+}
+
+.dossier-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  border-bottom:1px solid rgba(255,255,255,.04);
+  padding-bottom:5px;
+}
+
+.dossier-row span{
   color:var(--blue);
-  font-size:.58rem;
+  font-size:.52rem;
+  font-weight:900;
+  letter-spacing:.15em;
+  text-transform:uppercase;
 }
 
-.metric-card{
-  padding:14px;
-  min-height:210px;
-  position:relative;
+.dossier-row b{
+  color:#fff;
+  font-size:.60rem;
+  font-weight:900;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  text-align:right;
+  line-height:1.22;
+}
+
+/* IDENTITY PANEL */
+
+.identity-card{
+  padding:16px 18px;
   overflow:hidden;
 }
 
-.metric-title{
+.identity-kicker{
+  color:var(--red);
+  font-size:.68rem;
+  font-weight:900;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+}
+
+.identity-sub{
+  color:#9eeaff;
+  font-size:.68rem;
+  font-weight:900;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  margin-top:4px;
+}
+
+.name{
+  margin:16px 0 12px;
+  font-family:"Arial Narrow","Helvetica Neue Condensed",Impact,Arial,sans-serif;
+  font-size:clamp(2.4rem,3.3vw,3.3rem);
+  line-height:.84;
+  letter-spacing:-.05em;
+  text-transform:uppercase;
+}
+
+.name span{
+  display:block;
+  color:var(--red);
+}
+
+.tags{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-bottom:14px;
+}
+
+.tag{
+  border:1px solid rgba(255,255,255,.18);
+  padding:7px 11px;
+  font-size:.64rem;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.stars{
+  color:var(--gold);
+  font-size:.94rem;
+  letter-spacing:.08em;
+  font-weight:900;
+}
+
+.signal{
   color:#fff;
-  font-size:.72rem;
+  margin-left:8px;
   font-weight:900;
-  letter-spacing:.06em;
-  text-transform:uppercase;
-  margin-bottom:10px;
-}
-
-.big-number{
-  font-size:3.25rem;
-  font-weight:900;
-  line-height:1;
-}
-
-.big-label{
-  font-size:1.35rem;
-  font-weight:900;
-  text-transform:uppercase;
-  margin-top:5px;
-}
-
-.red{color:var(--red);}
-.green{color:var(--green);}
-.blue{color:var(--blue);}
-.purple{color:var(--purple);}
-
-.emblem-float{
-  position:absolute;
-  right:14px;
-  top:72px;
-  width:62px;
-  opacity:.92;
-}
-
-.bottom-action{
-  position:absolute;
-  left:14px;
-  right:14px;
-  bottom:12px;
-}
-
-.mini-button{
-  width:100%;
-  min-height:31px;
-  border:1px solid rgba(255,255,255,.14);
-  background:rgba(0,0,0,.18);
-  color:#fff;
-  font-size:.58rem;
-  font-weight:900;
+  letter-spacing:.08em;
   text-transform:uppercase;
 }
 
-.mini-note{
-  color:#dbe6ef;
-  font-size:.67rem;
-  font-weight:800;
-  line-height:1.4;
-  margin:9px 0;
-}
-
-.ring{
-  width:92px;
-  height:92px;
-  border-radius:50%;
-  margin:14px auto 8px;
-  border:10px solid rgba(255,255,255,.12);
-  border-top-color:var(--red);
-  border-left-color:var(--red);
-  display:grid;
-  place-items:center;
-}
-
-.ring b{
-  font-size:1.6rem;
-}
-
-/* BOX ROWS */
-
-.row-two{
-  display:grid;
-  grid-template-columns:1.35fr 1fr 1.05fr;
-  gap:10px;
-}
-
-.row-three{
-  display:grid;
-  grid-template-columns:1fr 1.05fr;
-  gap:10px;
-}
-
-.dash-box{
-  min-height:250px;
+.projection{
+  margin-top:14px;
+  border-left:3px solid var(--red);
+  background:linear-gradient(90deg,rgba(255,43,31,.10),rgba(255,255,255,.015));
   padding:14px;
+}
+
+.projection .small{
+  color:var(--red);
+  font-size:.64rem;
+  font-weight:900;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+}
+
+.projection b{
+  display:block;
+  margin-top:8px;
+  font-size:1.32rem;
+  text-transform:uppercase;
+  line-height:1.05;
+}
+
+.bio{
+  margin-top:14px;
+  color:#dcebf2;
+  line-height:1.4;
+  font-size:.88rem;
+}
+
+/* RIGHT INTELLIGENCE */
+
+.score-card{padding:14px 14px 16px;}
+
+.score-ring{
+  width:126px;
+  height:126px;
+  margin:12px auto 10px;
+  border-radius:50%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  background:conic-gradient(from 220deg,var(--gold),var(--red),rgba(255,255,255,.08),var(--gold));
   position:relative;
 }
 
-.dash-title{
-  color:#fff;
-  font-size:.78rem;
-  font-weight:900;
-  letter-spacing:.06em;
-  text-transform:uppercase;
-  margin-bottom:12px;
+.score-ring:before{
+  content:"";
+  position:absolute;
+  inset:16px;
+  border-radius:50%;
+  background:#111822;
 }
 
-.view-all{
-  float:right;
+.score-ring span,.score-ring b{
+  position:relative;
+  z-index:2;
+}
+
+.score-ring span{
   color:var(--red);
-  font-size:.58rem;
-}
-
-.performance-grid{
-  display:grid;
-  grid-template-columns:1fr 140px;
-  gap:12px;
-}
-
-.radar-zone{
-  min-height:150px;
-  display:grid;
-  place-items:center;
-}
-
-.radar-shape{
-  width:142px;
-  height:142px;
-  background:radial-gradient(circle,rgba(255,43,31,.62),rgba(255,43,31,.05));
-  clip-path:polygon(50% 0,88% 22%,88% 72%,50% 100%,12% 72%,12% 22%);
-  filter:drop-shadow(0 0 18px rgba(255,43,31,.45));
-}
-
-.stat-list div{
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  color:#dbe8ef;
-  border-bottom:1px solid rgba(255,255,255,.06);
-  padding:8px 0;
-  font-size:.68rem;
-  font-weight:800;
-}
-
-.academic-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  border-top:1px solid var(--line);
-  border-left:1px solid var(--line);
-}
-
-.acad-cell{
-  min-height:85px;
-  border-right:1px solid var(--line);
-  border-bottom:1px solid var(--line);
-  padding:12px;
-}
-
-.acad-cell b{
-  display:block;
-  font-size:1.75rem;
+  font-size:.54rem;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
   line-height:1;
-}
-
-.acad-cell span{
-  display:block;
-  margin-top:7px;
-  color:#dcebf2;
-  font-size:.62rem;
-  font-weight:900;
-  text-transform:uppercase;
-}
-
-.film-frame{
-  min-height:135px;
-  background:
-    radial-gradient(circle at 50% 40%,rgba(126,216,255,.12),transparent 40%),
-    rgba(0,0,0,.32);
-  border:1px solid var(--line);
-  display:grid;
-  place-items:center;
-  margin-bottom:10px;
-}
-
-.play{
-  width:56px;
-  height:56px;
-  border-radius:50%;
-  background:rgba(0,0,0,.62);
-  display:grid;
-  place-items:center;
-  font-size:1.7rem;
-}
-
-.feed-row,.event-row,.kv-row,.report-row{
-  display:flex;
-  justify-content:space-between;
-  gap:12px;
-  border-bottom:1px solid rgba(255,255,255,.075);
-  padding:9px 0;
-  font-size:.70rem;
-  font-weight:800;
-}
-
-.event-row{
-  display:grid;
-  grid-template-columns:45px 1fr 54px;
-}
-
-.date-box{
-  border:1px solid rgba(255,255,255,.14);
-  padding:5px;
   text-align:center;
-  font-weight:900;
 }
 
-.date-box span{
-  display:block;
-  color:var(--red);
-  font-size:.52rem;
+.score-ring span:first-of-type{transform:translateY(4px);}
+
+.score-ring b{
+  font-size:2.8rem;
+  line-height:.85;
+  margin-top:5px;
 }
 
-.event-tag{
-  border:1px solid var(--red);
-  color:var(--red);
-  display:grid;
-  place-items:center;
-  font-size:.55rem;
-  font-weight:900;
-  text-transform:uppercase;
+#scoreStatus{
+  color:var(--gold);
+  font-size:.48rem;
+  line-height:1.05;
+  max-width:78px;
+  margin-top:4px;
 }
 
-.person-row{
-  display:grid;
-  grid-template-columns:34px 1fr 24px;
-  gap:10px;
+.score-note{
+  color:#d9e6ef;
+  font-size:.72rem;
+  line-height:1.38;
+  text-align:center;
+  margin:0;
+}
+
+.intelligence-status{
+  margin-top:12px;
+  border:1px solid rgba(255,255,255,.12);
+  background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.01));
+}
+
+.intelligence-status-header{
+  min-height:34px;
+  display:flex;
   align-items:center;
-  padding:6px 0;
-}
-
-.face{
-  width:32px;
-  height:32px;
-  border-radius:50%;
-  background:linear-gradient(135deg,#7ed8ff,#006da8);
-}
-
-.person-row b{
-  font-size:.68rem;
-}
-
-.person-row span{
-  display:block;
-  color:var(--muted);
-  font-size:.56rem;
-}
-
-.alert{
-  width:19px;
-  height:19px;
-  background:var(--red);
-  border-radius:50%;
-  display:grid;
-  place-items:center;
+  padding:0 12px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  color:var(--red);
   font-size:.58rem;
   font-weight:900;
-}
-
-.red-button{
-  width:72%;
-  min-height:34px;
-  background:linear-gradient(90deg,var(--red2),var(--red));
-  border:0;
-  color:#fff;
-  font-weight:900;
-  font-size:.64rem;
+  letter-spacing:.17em;
   text-transform:uppercase;
-  margin:12px auto 0;
-  display:block;
 }
 
-/* =========================
-   RIGHT RAIL
-========================= */
-
-.right-rail{
+.intelligence-status-body{
+  padding:10px 12px;
   display:grid;
+  gap:8px;
+}
+
+.intelligence-row{
+  display:flex;
+  justify-content:space-between;
   gap:10px;
-  min-width:0;
 }
 
-.right-box{
-  padding:14px;
-  min-height:120px;
-}
-
-.crystal-main{
-  display:grid;
-  grid-template-columns:64px 1fr;
-  gap:12px;
-  align-items:center;
-  margin-bottom:8px;
-}
-
-.crystal-main img{
-  width:58px;
-}
-
-.label{
-  color:var(--red);
-  font-size:.66rem;
+.intelligence-row span{
+  color:var(--blue);
+  font-size:.56rem;
   font-weight:900;
-  letter-spacing:.20em;
+  letter-spacing:.12em;
   text-transform:uppercase;
 }
 
-.right-box h3{
-  margin:6px 0 10px;
-  font-size:1.55rem;
-  line-height:.98;
+.intelligence-row b{
+  color:#fff;
+  font-size:.58rem;
+  font-weight:900;
+  letter-spacing:.08em;
   text-transform:uppercase;
+  text-align:right;
+  line-height:1.15;
 }
+
+.intelligence-row b.warning{color:var(--gold);}
+.intelligence-row b.locked{color:#ff7c7c;}
+.intelligence-row b.live{color:var(--green);}
 
 .action-stack{
   display:grid;
   gap:7px;
+  margin-top:12px;
 }
 
 .action{
   min-height:36px;
-  border:1px solid rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.16);
   display:flex;
-  justify-content:space-between;
   align-items:center;
+  justify-content:space-between;
   padding:0 12px;
+  text-transform:uppercase;
   font-size:.60rem;
   font-weight:900;
-  text-transform:uppercase;
+  letter-spacing:.11em;
+  background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.01));
+  transition:.18s ease;
+}
+
+.action:hover{
+  transform:translateY(-1px);
+  border-color:rgba(255,255,255,.28);
 }
 
 .action.primary{
-  color:var(--red);
   border-color:var(--red);
-  background:rgba(255,43,31,.08);
-}
-
-/* RECOMMENDED */
-
-.recommended{
-  grid-column:1 / -1;
-  padding:12px;
-  margin-top:12px;
-}
-
-.recommended-grid{
-  display:grid;
-  grid-template-columns:repeat(6,1fr);
-  gap:10px;
-}
-
-.recommended-card{
-  min-height:56px;
-  border:1px solid var(--line);
-  background:rgba(255,255,255,.018);
-  display:flex;
-  align-items:center;
-  gap:12px;
-  padding:0 14px;
-}
-
-.rec-icon{
   color:var(--red);
-  font-size:1.1rem;
+  background:linear-gradient(180deg,rgba(255,43,31,.10),rgba(255,255,255,.015));
 }
 
-.recommended-card b{
-  display:block;
-  font-size:.62rem;
+.action.secondary{color:#e9eef2;}
+
+.action.locked{
+  color:#6d7680;
+  border-color:rgba(255,255,255,.08);
+  background:linear-gradient(180deg,rgba(255,255,255,.015),rgba(255,255,255,.008));
+  cursor:not-allowed;
+}
+
+.action.locked span{color:#ff9c9c;}
+
+.action.approved{
+  border-color:var(--green);
+  color:var(--green);
+  background:linear-gradient(180deg,rgba(37,211,102,.10),rgba(255,255,255,.015));
+}
+
+/* METRICS */
+
+.metric-row{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-top:10px;
+}
+
+.metric{
+  padding:14px 16px;
+  min-height:102px;
+  background:var(--panel2);
+  border:1px solid var(--line);
+}
+
+.metric h3{
+  margin:0;
+  color:var(--red);
+  font-size:.64rem;
+  letter-spacing:.2em;
   text-transform:uppercase;
 }
 
-.recommended-card span{
+.metric b{
   display:block;
-  color:var(--muted);
+  font-size:2.3rem;
+  margin:8px 0 6px;
+}
+
+.metric p{
+  margin:0;
+  color:#cfeeff;
+  font-size:.78rem;
+  line-height:1.32;
+}
+
+/* LOWER GRID */
+
+.lower-grid{
+  display:grid;
+  grid-template-columns:38% 34% 28%;
+  gap:10px;
+  margin-top:12px;
+}
+
+.block{
+  padding:16px 18px;
+}
+
+.block h2{
+  margin:0 0 10px;
+  font-size:1.9rem;
+  text-transform:uppercase;
+  line-height:.95;
+}
+
+.list-item{
+  border:1px solid rgba(255,255,255,.10);
+  padding:12px;
+  margin-bottom:8px;
+}
+
+.list-item b{
+  display:block;
+  text-transform:uppercase;
+}
+
+.list-item span{
+  color:#bdefff;
+  font-size:.78rem;
+}
+
+/* TRAITS */
+
+.traits{
+  margin-top:12px;
+  padding:18px 20px;
+  border:1px solid var(--line);
+  background:rgba(6,10,18,.42);
+}
+
+.trait-subnote{
+  margin:6px 0 18px;
+  color:#dff6ff;
+  font-size:.76rem;
+  font-weight:800;
+  line-height:1.42;
+}
+
+#traitContainer{
+  display:grid;
+  gap:7px;
+}
+
+.trait{
+  display:grid;
+  grid-template-columns:190px 1fr 76px;
+  align-items:center;
+  gap:10px;
+  margin:7px 0;
+}
+
+.trait-name{
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  font-size:.82rem;
+}
+
+.bar{
+  height:5px;
+  background:rgba(255,255,255,.035);
+  border:1px solid rgba(255,255,255,.10);
+}
+
+.fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--red),var(--gold));
+}
+
+.fill.unverified{
+  opacity:.72;
+  box-shadow:0 0 10px rgba(244,197,66,.18);
+}
+
+.trait-score{
+  font-weight:900;
+  font-size:.70em;
+  text-align:right;
+  color:#fff;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+
+.pending-fill{
+  opacity:.22;
+  background:linear-gradient(90deg,#5f6772,#8b95a1);
+}
+
+.trait-score.pending{
+  color:var(--gold);
+  letter-spacing:.12em;
   font-size:.58rem;
-  margin-top:3px;
+}
+
+/* EXPLAINABLE INTELLIGENCE PANEL */
+
+.sc-intelligence-panel{
+  margin-top:18px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(6,10,18,.70);
+  padding:18px;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.025);
+}
+
+.sc-intel-header{
+  display:flex;
+  justify-content:space-between;
+  gap:16px;
+  align-items:flex-start;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  padding-bottom:12px;
+  margin-bottom:14px;
+}
+
+.sc-kicker{
+  color:var(--red);
+  font-size:.64rem;
+  font-weight:900;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+}
+
+.sc-intel-header h2{
+  margin:6px 0 0;
+  font-size:clamp(1.35rem,2vw,1.75rem);
+  line-height:1.05;
+  text-transform:uppercase;
+}
+
+.sc-badge{
+  border:1px solid rgba(255,255,255,.14);
+  padding:9px 12px;
+  color:var(--gold);
+  font-weight:900;
+  font-size:.66rem;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+
+.sc-intel-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+}
+
+.sc-intel-card{
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.018);
+  padding:14px;
+  min-height:150px;
+  min-width:0;
+  overflow:hidden;
+}
+
+.sc-intel-card.primary{
+  border-color:var(--red);
+  background:linear-gradient(180deg,rgba(255,43,31,.10),rgba(255,255,255,.018));
+}
+
+.sc-intel-card span{
+  display:block;
+  color:var(--blue);
+  font-size:.62rem;
+  font-weight:900;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+
+.sc-intel-card strong{
+  display:block;
+  margin-top:8px;
+  color:#fff;
+  font-size:clamp(1rem,1.25vw,1.22rem);
+  line-height:1.12;
+  text-transform:uppercase;
+}
+
+.sc-intel-card p{
+  color:#dff6ff;
+  font-size:.74rem;
+  line-height:1.34;
+  font-weight:800;
+  margin:8px 0 0;
+}
+
+.sc-why-panel{
+  margin-top:12px;
+  border-left:3px solid var(--red);
+  background:linear-gradient(90deg,rgba(255,43,31,.10),rgba(255,255,255,.015));
+  padding:14px;
+}
+
+.sc-why-panel h3{
+  margin:0 0 8px;
+  color:var(--red);
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+}
+
+.sc-why-panel ul{
+  margin:0;
+  padding-left:18px;
+}
+
+.sc-why-panel li{
+  color:#e8f3f8;
+  font-size:.78rem;
+  line-height:1.48;
+  font-weight:800;
+}
+
+/* FLOW */
+
+.flow{
+  margin-top:12px;
+  min-height:70px;
+  display:grid;
+  grid-template-columns:170px repeat(6,1fr) 190px;
+  align-items:stretch;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(4,7,12,.60);
+}
+
+.flow-title{
+  color:var(--red);
+  font-weight:900;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  padding-left:20px;
+  display:flex;
+  align-items:center;
+}
+
+.flow-step{
+  border-left:1px solid rgba(255,255,255,.10);
+  padding:12px 16px;
+  min-height:54px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  background:rgba(255,255,255,.018);
+  transition:.18s ease;
+}
+
+.flow-step b{
+  display:block;
+  font-size:.68rem;
+  text-transform:uppercase;
+}
+
+.flow-step span{
+  color:var(--muted);
+  font-size:.62rem;
+}
+
+.flow-step.clickable{
+  border-left:1px solid rgba(126,216,255,.25);
+  background:linear-gradient(180deg,rgba(126,216,255,.07),rgba(255,255,255,.012));
+  cursor:pointer;
+}
+
+.flow-step.clickable:hover{
+  transform:translateY(-1px);
+  border-color:var(--red);
+  box-shadow:0 0 0 1px rgba(255,43,31,.25) inset;
+}
+
+.flow-step.clickable b{color:#fff;}
+.flow-step.clickable span{color:var(--blue);}
+
+.flow .action{
+  min-height:auto;
+  border-top:0;
+  border-right:0;
+  border-bottom:0;
 }
 
 /* FOOTER */
 
 .footer{
-  min-height:66px;
-  margin-top:10px;
+  min-height:60px;
+  margin-top:8px;
   border-top:1px solid rgba(255,255,255,.08);
   display:grid;
-  grid-template-columns:220px 1fr 300px 240px;
+  grid-template-columns:220px 1fr 300px 260px;
   align-items:center;
   color:#cdd7df;
   font-size:.68rem;
   letter-spacing:.08em;
   text-transform:uppercase;
-  padding:0 20px;
 }
 
 .footer img{width:185px;}
@@ -867,9 +969,14 @@ button{font-family:inherit;cursor:pointer;}
 
 /* RESPONSIVE */
 
-@media(max-width:1260px){
+@media(max-width:1180px){
   .header{
-    grid-template-columns:300px 1fr;
+    grid-template-columns:320px 1fr;
+  }
+
+  .header-title{
+    text-align:right;
+    padding-right:24px;
   }
 
   .header-tools{
@@ -878,64 +985,75 @@ button{font-family:inherit;cursor:pointer;}
     border-top:1px solid rgba(0,0,0,.08);
   }
 
-  .status-row{
-    grid-template-columns:repeat(4,1fr) minmax(180px,1fr) 42px 42px 120px;
-  }
-
-  .dashboard-shell{
-    grid-template-columns:210px minmax(0,1fr);
-  }
-
-  .right-rail{
-    grid-column:2;
-    grid-template-columns:repeat(2,1fr);
-  }
-
-  .recommended{
-    grid-column:1 / -1;
-  }
+  .role-nav,.utility-row{justify-content:center;}
 }
 
-@media(max-width:980px){
-  .header,
-  .dashboard-shell,
-  .identity-grid,
-  .row-two,
-  .row-three,
-  .right-rail,
-  .recommended-grid,
-  .footer{
+@media(max-width:1100px){
+  .sc-intel-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+
+@media(max-width:900px){
+  .header,.hero-grid,.metric-row,.lower-grid,.flow,.footer{
     grid-template-columns:1fr;
   }
 
   .logo-tab{
     clip-path:none;
+    width:100%;
   }
 
-  .main{
-    padding:14px 12px 0;
+  .header-title{
+    text-align:center;
+    padding:14px;
   }
 
-  .left-rail{
-    min-height:auto;
+  .header-tools{padding:12px;}
+
+  .utility-row{
+    justify-content:space-between;
   }
 
-  .status-row{
-    grid-template-columns:1fr 1fr;
+  .utility-search{
+    width:calc(100% - 44px);
   }
 
-  .role-row{
+  .role-nav{
     justify-content:flex-start;
     overflow-x:auto;
+    padding-bottom:4px;
+  }
+
+  .role-tabs{
     flex-wrap:nowrap;
+    justify-content:flex-start;
   }
 
-  .identity-card{
-    grid-template-columns:1fr;
+  .multi-box-tab{
+    margin-left:18px;
   }
 
-  .athlete-photo{
-    height:320px;
+  .main{padding:16px 12px 0;}
+
+  .record-header{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .record-title{font-size:2.5rem;}
+  .name{font-size:2.8rem;}
+  .image-frame{height:340px;}
+
+  .sc-intel-grid{grid-template-columns:1fr;}
+  .sc-intel-header{flex-direction:column;}
+  .sc-badge{white-space:normal;}
+
+  .trait{
+    grid-template-columns:145px 1fr 66px;
+  }
+
+  .flow-title,.flow-step,.flow .action{
+    border-left:0;
+    border-top:1px solid rgba(255,255,255,.08);
   }
 }
 </style>
@@ -950,28 +1068,26 @@ button{font-family:inherit;cursor:pointer;}
   </a>
 
   <div class="header-title">
-    <h1>Athlete Dashboard</h1>
-    <p>Your Journey. Verified. Visualized. Maximized.</p>
+    National Athlete Infrastructure • Athlete Intelligence Record
   </div>
 
   <div class="header-tools">
-    <div class="status-row">
-      <div class="top-stat"><span>Athlete ID</span><b>SC-247812</b></div>
-      <div class="top-stat"><span>Snapshot ID</span><b style="color:#111;">SNAP-2026-00429</b></div>
-      <div class="top-stat"><span>Visibility</span><b class="purple">High</b></div>
-      <div class="top-stat"><span>Status</span><b class="green">● Verified</b></div>
-      <input class="utility-search" type="search" placeholder="Search athletes, schools, events..." />
-      <div class="head-icon">✉<span class="head-badge">5</span></div>
-      <div class="head-icon">🔔<span class="head-badge">7</span></div>
-      <div class="user-mini"><img src="athlete-avatar.jpg" alt="">John Williams</div>
+    <div class="utility-row">
+      <input class="utility-search" type="search" placeholder="Search athlete intelligence" aria-label="Search athlete intelligence">
+      <div class="user-icon" aria-hidden="true"></div>
     </div>
 
-    <nav class="role-row">
-      <a class="role-tab active" href="athlete-dashboard.html">Athlete</a>
-      <a class="role-tab" href="player-profile.html">Profile</a>
-      <a class="role-tab" href="eligibility.html">Eligibility</a>
-      <a class="role-tab" href="crystal-report.html">Crystal</a>
-      <a class="role-tab" href="events.html">Events</a>
+    <nav class="role-nav" aria-label="STATScore role navigation">
+      <div class="role-tabs">
+        <a class="role-tab active" href="system.html">Athlete</a>
+        <a class="role-tab" href="parent.html">Parent</a>
+        <a class="role-tab" href="coach.html">Coach</a>
+        <a class="role-tab" href="counselor.html">Counselor</a>
+        <a class="role-tab" href="recruiter.html">Recruiter</a>
+        <a class="role-tab" href="program.html">Program</a>
+        <a class="role-tab" href="evaluator.html">Evaluator</a>
+      </div>
+
       <a class="multi-box-tab" href="multi-box.html">Multi-Box™</a>
     </nav>
   </div>
@@ -979,236 +1095,916 @@ button{font-family:inherit;cursor:pointer;}
 
 <main class="main">
 
-<section class="dashboard-shell">
-
-<!-- LEFT RAIL -->
-<aside class="panel left-rail">
-  <div class="rail-box">
-    <a class="nav-link active" href="#">⌂ Dashboard</a>
-    <a class="nav-link" href="player-profile.html">♙ My Profile</a>
-    <a class="nav-link" href="#">▥ Performance</a>
-    <a class="nav-link" href="eligibility.html">🛡 Eligibility</a>
-    <a class="nav-link" href="#">◎ Exposure</a>
-    <a class="nav-link" href="#">☊ Recruiting</a>
-    <a class="nav-link" href="multi-box.html">✉ Multi-Box <span class="nav-count">5</span></a>
-    <a class="nav-link" href="crystal-report.html">◇ Crystal Reports</a>
-    <a class="nav-link" href="#">▣ Events</a>
-    <a class="nav-link" href="#">⌂ Opportunities</a>
-    <a class="nav-link" href="#">▤ Documents</a>
-    <a class="nav-link" href="#">☰ Activity Feed</a>
-    <a class="nav-link" href="#">⚙ Settings</a>
+<section class="record-header">
+  <div>
+    <div class="record-kicker">Explainable Athlete Intelligence Record</div>
+    <h1 class="record-title">Player Profile</h1>
   </div>
-
-  <div class="rail-box quick">
-    <div class="section-title">Quick Actions</div>
-    <a class="nav-link" href="#">▧ Upload Film</a>
-    <a class="nav-link" href="#">☊ Request Evaluation</a>
-    <a class="nav-link" href="#">▤ Update Academics</a>
-    <a class="nav-link" href="#">↗ Share Profile</a>
-    <a class="nav-link" href="#">◇ Generate Report</a>
-    <a class="nav-link" href="multi-box.html">✉ Open Multi-Box</a>
-  </div>
-
-  <div class="rail-box system-status">
-    <div class="section-title">System Status</div>
-    <p class="ok">● All Systems Operational</p>
-    <p>Last Sync: 06/06/2026 6:55 AM</p>
-    <div class="sync">Sync Now ⟳</div>
-  </div>
-</aside>
-
-<!-- MIDDLE RAIL -->
-<section class="middle-rail">
-
-  <section class="identity-grid">
-    <article class="box identity-card">
-      <div class="athlete-photo">
-        <img src="athlete-avatar.jpg" alt="John Williams">
-      </div>
-
-      <div>
-        <h2 class="athlete-name">John Williams</h2>
-        <div class="meta">Quarterback | 6'2" | 195 lbs | Right Handed</div>
-
-        <div class="bio-line"><span class="red-dot"></span>Cedar Hill High School</div>
-        <div class="bio-line"><span class="red-dot"></span>Dallas, Texas</div>
-        <div class="bio-line"><span class="red-dot"></span>Class of 2026</div>
-
-        <div class="verified-row">
-          <div class="verified-pill"><span class="red-dot"></span>Verified Athlete</div>
-          <div class="snapshot-text">Snapshot ID: SNAP-2026-00429</div>
-        </div>
-      </div>
-    </article>
-
-    <article class="box metric-card">
-      <div class="metric-title">STATS-CORE Index ⓘ</div>
-      <div class="big-number">95.7</div>
-      <div class="big-label red">Elite</div>
-      <img class="emblem-float" src="sc_emblem.png" alt="">
-      <div class="bottom-action"><button class="mini-button"><span class="green">↑ 2.3</span> &nbsp; Last 30 Days</button></div>
-    </article>
-
-    <article class="box metric-card">
-      <div class="metric-title">Eligibility Status ⓘ</div>
-      <div class="big-label green">🛡 NCAA Eligible</div>
-      <div class="mini-note">Core Courses: <b>8/10</b></div>
-      <div class="mini-note">Graduation Path: <b>On Track</b></div>
-      <div class="bottom-action"><button class="mini-button">View Eligibility Center</button></div>
-    </article>
-
-    <article class="box metric-card">
-      <div class="metric-title">Exposure Score ⓘ</div>
-      <div class="big-number purple">92</div>
-      <div class="big-label purple">High</div>
-      <div class="mini-note">Profile Views (30D) <b class="green">+18%</b></div>
-      <div class="bottom-action"><button class="mini-button">View Exposure Analytics</button></div>
-    </article>
-  </section>
-
-  <section class="row-two">
-    <article class="box dash-box">
-      <div class="dash-title">Performance Overview ⓘ</div>
-      <div class="performance-grid">
-        <div class="radar-zone"><div class="radar-shape"></div></div>
-        <div class="stat-list">
-          <div><span>Passing Yards</span><b>2,845</b></div>
-          <div><span>Comp Completion</span><b>68%</b></div>
-          <div><span>TD / INT</span><b>32 / 4</b></div>
-          <div><span>QBR</span><b>91.2</b></div>
-          <div><span>Yards / Game</span><b>237.1</b></div>
-        </div>
-      </div>
-      <div class="bottom-action"><button class="mini-button">View Full Breakdown</button></div>
-    </article>
-
-    <article class="box dash-box">
-      <div class="dash-title">Academic Overview ⓘ</div>
-      <div class="academic-grid">
-        <div class="acad-cell"><b class="blue">3.45</b><span>GPA</span></div>
-        <div class="acad-cell"><b class="green">8 / 10</b><span>Core Courses Complete</span></div>
-        <div class="acad-cell"><b class="blue">1340</b><span>SAT Est.</span></div>
-        <div class="acad-cell"><b class="green">On Track</b><span>Graduation Path</span></div>
-      </div>
-      <div class="bottom-action"><button class="mini-button">View Academic Center</button></div>
-    </article>
-
-    <article class="box dash-box">
-      <div class="dash-title">Athletic Snapshot</div>
-      <div class="film-frame"><div class="play">▶</div></div>
-      <div class="feed-row"><span>7v7 Highlights - Spring 2025</span><b>2:45</b></div>
-      <div class="feed-row"><span>Views</span><b>128</b></div>
-      <div class="feed-row"><span>Evaluations</span><b>24</b></div>
-      <div class="bottom-action"><button class="mini-button">View All Film</button></div>
-    </article>
-  </section>
-
-  <section class="row-three">
-    <article class="box dash-box">
-      <div class="dash-title">Recruiting Activity <span class="view-all">View All</span></div>
-      <div class="kv-row"><span>Interested Schools</span><b>28</b></div>
-      <div class="kv-row"><span>Recruiter Requests</span><b>12</b></div>
-      <div class="kv-row"><span>Evaluations</span><b>14</b></div>
-      <div class="kv-row"><span>Official Visits</span><b>2</b></div>
-      <div class="kv-row"><span>Camp Invitations</span><b>3</b></div>
-      <button class="red-button">View Opportunities</button>
-    </article>
-
-    <article class="box dash-box">
-      <div class="dash-title">Multi-Box Communication <span class="view-all">View All</span></div>
-      <div class="person-row"><div class="face"></div><div><b>Coach Davis</b><span>Head Coach</span></div><div class="alert">2</div></div>
-      <div class="person-row"><div class="face"></div><div><b>Coach Thompson</b><span>QB Coach</span></div><div class="alert">1</div></div>
-      <div class="person-row"><div class="face"></div><div><b>Recruiter Brown</b><span>Texas A&M</span></div><div class="alert">2</div></div>
-      <div class="person-row"><div class="face"></div><div><b>Parent</b><span>John Williams Sr.</span></div><div class="alert">1</div></div>
-      <div class="person-row"><div class="face"></div><div><b>Counselor</b><span>Ms. Johnson</span></div><div class="alert">1</div></div>
-      <button class="red-button">Open Multi-Box</button>
-    </article>
-  </section>
-
+  <div class="record-demo" id="recordStatus">Snapshot Pending</div>
 </section>
 
-<!-- RIGHT RAIL -->
-<aside class="right-rail">
+<section class="hero-grid">
 
-  <article class="box right-box">
-    <div class="dash-title">Recruiting Readiness ⓘ</div>
-    <div class="ring"><b>92%</b></div>
-    <div style="text-align:center;color:var(--red);font-weight:900;text-transform:uppercase;">Ready</div>
-    <p class="mini-note">Next Action: Complete Junior Highlights</p>
-    <button class="mini-button">View Readiness Report</button>
+  <aside class="panel image-card">
+    <div class="label">Athlete Image</div>
+    <div class="image-frame" id="athleteImageFrame">Athlete Image</div>
+
+    <div class="athlete-caption">
+      <div>
+        <b id="captionName">Athlete Name</b>
+        <span id="captionMeta">Position · Class Year</span>
+      </div>
+      <div class="verified" id="verificationBadge">Pending</div>
+    </div>
+
+    <section class="athlete-dossier">
+      <div class="dossier-row"><span>Archetype</span><b id="dossierArchetype">Pending</b></div>
+      <div class="dossier-row"><span>Production Signal</span><b id="dossierProductionSignal">Pending</b></div>
+      <div class="dossier-row"><span>Translation</span><b id="dossierTranslation">Pending</b></div>
+      <div class="dossier-row"><span>Athletic Evidence</span><b id="dossierAthleticSignal">Pending</b></div>
+      <div class="dossier-row"><span>Verification</span><b id="dossierVerification">Unverified</b></div>
+      <div class="dossier-row"><span>Visibility</span><b id="dossierVisibility">Limited</b></div>
+    </section>
+  </aside>
+
+  <article class="panel identity-card">
+    <div class="identity-kicker">Athlete Identity</div>
+    <div class="identity-sub" id="identitySub">Snapshot Pending</div>
+
+    <h2 class="name" id="athleteName">
+      Athlete
+      <span>Profile</span>
+    </h2>
+
+    <div class="tags">
+      <div class="tag" id="tagPosition">Position</div>
+      <div class="tag" id="tagHeight">Height</div>
+      <div class="tag" id="tagWeight">Weight</div>
+      <div class="tag" id="tagCity">City, State</div>
+      <div class="tag" id="tagSchool">School / Program</div>
+      <div class="tag" id="tagClass">Class Year</div>
+    </div>
+
+    <div>
+      <span class="stars" id="starDisplay">☆☆☆☆☆</span>
+      <span class="signal" id="signalText">Evaluation Pending</span>
+    </div>
+
+    <div class="projection">
+      <div class="small">Position Production Outlook</div>
+      <b id="evaluationStatus">Pending Snapshot Intelligence</b>
+    </div>
+
+    <p class="bio" id="profileBio">
+      STATS-CORE evaluates the athlete through position-specific production intelligence, evidence support, verification status, and parent-controlled release governance.
+    </p>
   </article>
 
-  <article class="box right-box">
-    <div class="dash-title">Crystal Reports <span class="view-all">View All</span></div>
-    <div class="crystal-main">
-      <img src="sc_emblem.png" alt="">
-      <div>
-        <b>Elite Quarterback Report</b><br>
-        <span class="blue">May 15, 2026</span>
-      </div>
+  <aside class="panel score-card">
+    <div class="label">STATS-CORE Intelligence</div>
+
+    <div class="score-ring">
+      <span>STATS-CORE</span>
+      <b id="scoreValue">--</b>
+      <span id="scoreStatus">Pending</span>
     </div>
+
+    <p class="score-note" id="scoreNote">
+      STATS-CORE score is evidence-supported and marked unverified until coach, evaluator, film, or trusted production verification is complete.
+    </p>
+
+    <section class="intelligence-status">
+      <div class="intelligence-status-header">Governance Intelligence</div>
+      <div class="intelligence-status-body">
+        <div class="intelligence-row">
+          <span>Guardian Status</span>
+          <b class="warning" id="guardianStatus">Parent Approval Required</b>
+        </div>
+        <div class="intelligence-row">
+          <span>Visibility</span>
+          <b id="visibilityStatus">Limited</b>
+        </div>
+        <div class="intelligence-row">
+          <span>Recruiting</span>
+          <b class="locked" id="recruitingStatus">Locked</b>
+        </div>
+      </div>
+    </section>
+
     <div class="action-stack">
-      <div class="action">View <span>›</span></div>
-      <div class="action">Download <span>›</span></div>
-      <div class="action">Share <span>›</span></div>
+      <a class="action primary" id="parentApprovalAction" href="#">Request Parent Approval <span>›</span></a>
+      <a class="action secondary" id="verificationAction" href="#">Request Verification <span>›</span></a>
+      <a class="action secondary" id="snapshotPathAction" href="snapshot-intake.html">View Snapshot Path <span>›</span></a>
+      <div class="action locked" id="shareProfileAction">🔒 Share Profile <span>Locked</span></div>
+      <div class="action locked" id="recruiterAccessAction">🔒 Recruiter Access <span>Locked</span></div>
     </div>
-    <div class="report-row"><span>Academic Progress Report</span><b class="blue">New</b></div>
-    <div class="report-row"><span>Recruiting Exposure Report</span><b class="blue">New</b></div>
-    <div class="report-row"><span>Performance Trend Report</span><b class="blue">New</b></div>
+  </aside>
+
+</section>
+
+<section class="metric-row">
+  <div class="metric"><h3>Speed / Separation</h3><b id="metricSpeed">--</b><p>Acceleration, vertical spacing, and separation potential by position.</p></div>
+  <div class="metric"><h3>Explosive Profile</h3><b id="metricExplosive">--</b><p>Burst, vertical threat, body control, and field-opening athletic evidence.</p></div>
+  <div class="metric"><h3>Production Readiness</h3><b id="metricReadiness">--</b><p>Current football-readiness stage based on submitted production evidence.</p></div>
+  <div class="metric"><h3>Release Status</h3><b id="metricVisibility">--</b><p>Parent release, profile visibility, recruiting access, and media permissions.</p></div>
+</section>
+
+<section class="lower-grid">
+  <article class="block">
+    <div class="label">Evidence Layer</div>
+    <h2>Proof Stack</h2>
+    <div class="list-item"><b>Game Film</b><span id="gameFilmStatus">Film evidence not submitted.</span></div>
+    <div class="list-item"><b>Camp / Combine</b><span id="campStatus">Event evidence pending.</span></div>
+    <div class="list-item"><b>Media Exposure</b><span id="mediaStatus">PHNX Sports media release requires parent approval.</span></div>
   </article>
 
-  <article class="box right-box">
-    <div class="dash-title">Upcoming Events <span class="view-all">View All</span></div>
-    <div class="event-row"><div class="date-box"><span>MAY</span>18</div><div><b>Elite 11 Regional</b><br><span>Dallas, TX</span></div><div class="event-tag purple">Camp</div></div>
-    <div class="event-row"><div class="date-box"><span>MAY</span>31</div><div><b>Mega QB Showcase</b><br><span>Austin, TX</span></div><div class="event-tag">Event</div></div>
-    <div class="event-row"><div class="date-box"><span>JUN</span>15</div><div><b>Recruiting Window</b><br><span>Opens</span></div><div class="event-tag green">Window</div></div>
-    <div class="event-row"><div class="date-box"><span>JUL</span>07</div><div><b>University of Texas</b><br><span>Official Visit</span></div><div class="event-tag blue">Visit</div></div>
+  <article class="block">
+    <div class="label">Release Governance</div>
+    <h2>Controlled Access</h2>
+    <div class="list-item"><b>Recruiter View</b><span id="recruiterViewStatus">Recruiter visibility is governed by parent release and verification status.</span></div>
+    <div class="list-item"><b>Contact Status</b><span id="contactStatusText">Communication routes through Multi-Box™ permissions.</span></div>
+    <div class="list-item"><b>Exposure Lane</b><span id="exposureLaneText">Exposure is based on parent release, evidence, and verification confidence.</span></div>
   </article>
 
-  <article class="box right-box">
-    <div class="dash-title">Activity Feed <span class="view-all">View All</span></div>
-    <div class="feed-row"><span>Texas A&M viewed your profile</span><b>2m</b></div>
-    <div class="feed-row"><span>New message from Coach Davis</span><b>12m</b></div>
-    <div class="feed-row"><span>Evaluation submitted</span><b>1h</b></div>
-    <div class="feed-row"><span>Profile viewed by 5 schools</span><b>3h</b></div>
-    <div class="feed-row"><span>Film uploaded: 7v7 Highlights</span><b>1d</b></div>
+  <article class="block">
+    <div class="label">Development Pathway</div>
+    <h2>Next Movement</h2>
+    <div class="list-item"><b>Primary Focus</b><span id="primaryFocus">Generated from production evidence and position matrix.</span></div>
+    <div class="list-item"><b>Verification Need</b><span id="verificationNeed">Coach confirmation, film review, evaluator input, or trusted metric evidence.</span></div>
+    <div class="list-item"><b>Next Snapshot</b><span id="nextSnapshotText">Update after verified production evidence is added.</span></div>
   </article>
+</section>
 
-</aside>
+<section class="traits">
+  <div class="label">Position Production Matrix</div>
+  <h2 style="margin:8px 0 4px;text-transform:uppercase;font-size:2.1rem;">Performance Traits</h2>
+  <p class="trait-subnote" id="traitSubnote">
+    Projected trait bars are derived from submitted snapshot metrics and position role logic. Official trait grades unlock after verification.
+  </p>
+  <div id="traitContainer"></div>
+</section>
 
-<section class="box recommended">
-  <div class="section-title">Recommended Next Steps</div>
-  <div class="recommended-grid">
-    <div class="recommended-card"><div class="rec-icon">▧</div><div><b>Upload New Film</b><span>Increase Visibility</span></div></div>
-    <div class="recommended-card"><div class="rec-icon">☊</div><div><b>Request Evaluation</b><span>Get Scouted</span></div></div>
-    <div class="recommended-card"><div class="rec-icon">▤</div><div><b>Update Academics</b><span>Keep Eligibility Current</span></div></div>
-    <div class="recommended-card"><div class="rec-icon">↗</div><div><b>Share Profile</b><span>Get Discovered</span></div></div>
-    <div class="recommended-card"><div class="rec-icon">◇</div><div><b>Generate Report</b><span>Build Your Edge</span></div></div>
-    <div class="recommended-card"><div class="rec-icon">✉</div><div><b>Open Multi-Box</b><span>Communicate</span></div></div>
+<section class="sc-intelligence-panel">
+  <div class="sc-intel-header">
+    <div>
+      <div class="sc-kicker">STATS-CORE Intelligence Layer</div>
+      <h2>Explainable Athlete Intelligence</h2>
+    </div>
+    <div class="sc-badge" id="scMatrixVersion">MATRIX_PENDING</div>
+  </div>
+
+  <div class="sc-intel-grid">
+    <div class="sc-intel-card primary"><span>Production Signal</span><strong id="scProductionSignal">--</strong><p id="scProductionExplanation">Awaiting position-specific production evidence.</p></div>
+    <div class="sc-intel-card"><span>Score Basis</span><strong id="scFinalScore">--</strong><p id="scScoreBasis">Score basis pending.</p></div>
+    <div class="sc-intel-card"><span>Evidence State</span><strong id="scEvidenceState">--</strong><p id="scEvidenceExplanation">Evidence support pending.</p></div>
+    <div class="sc-intel-card"><span>Translation Outlook</span><strong id="scTranslationOutlook">--</strong><p id="scTranslationExplanation">Translation analysis pending.</p></div>
+    <div class="sc-intel-card"><span>Verification Gaps</span><strong id="scVerificationGaps">--</strong><p id="scVerificationExplanation">Verification requirements pending.</p></div>
+    <div class="sc-intel-card"><span>Role Value</span><strong id="scRoleValue">--</strong><p id="scRoleValueExplanation">Role-specific value pending.</p></div>
+  </div>
+
+  <div class="sc-why-panel">
+    <h3>Why This Signal</h3>
+    <ul id="scWhyList">
+      <li>Snapshot intelligence has not been generated yet.</li>
+    </ul>
   </div>
 </section>
 
+<section class="flow">
+  <div class="flow-title">Visibility Path</div>
+
+  <a class="flow-step clickable" href="player-profile.html" id="flowProfile"><b>Profile</b><span>Public / Private View</span></a>
+  <a class="flow-step clickable" href="snapshot-intake.html" id="flowSnapshot"><b>Snapshot</b><span>Data Intake</span></a>
+  <a class="flow-step clickable" href="verification.html" id="flowVerification"><b>Verification</b><span>Trust Layer</span></a>
+  <a class="flow-step clickable" href="parent.html" id="flowParent"><b>Parent Gate</b><span>Release Approval</span></a>
+  <a class="flow-step clickable" href="multi-box.html" id="flowMultiBox"><b>Multi-Box™</b><span>Permissions</span></a>
+  <a class="flow-step clickable" href="crystal-registry.html" id="flowCrystal"><b>Crystal</b><span>Athlete Registry</span></a>
+
+  <a class="action primary" id="footerParentApprovalAction" href="#">Request Approval ›</a>
 </section>
 
 <footer class="footer">
   <img src="sc_logo_i.png" alt="STATS-CORE">
   <div>Governed Athlete Intelligence Infrastructure</div>
-  <div>Snapshot ID: SNAP-2026-00429</div>
+  <div id="footerSnapshotState">Snapshot Intelligence Layer</div>
   <div class="demo-ok">Operational Shell Active</div>
 </footer>
 
 </main>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
-document.addEventListener("DOMContentLoaded",()=>{
-  document.querySelectorAll("button,.nav-link,.recommended-card,.action").forEach(el=>{
-    el.addEventListener("click",()=>{
-      console.log("STATS-CORE Athlete Dashboard:", el.textContent.trim());
-    });
+window.STATScoreSupabase = window.supabase.createClient(
+  "https://oyjmpbuxvfxusmbouldi.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJveWptcGJ1eHZmeHVzbWJvdWxkaSIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzY5NDQ5MTU3LCJleHAiOjIwODUwMjUxNTd9.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk"
+);
+</script>
+
+<script src="statscore-core.js"></script>
+<script src="statscore-data.js"></script>
+<script src="statscore-role-access.js"></script>
+<script src="statscore-signal-governance.js"></script>
+<script src="statscore-state-engine.js"></script>
+<script src="statscore-compliance-engine.js"></script>
+<script src="statscore-quarterly-eligibility-engine.js"></script>
+<script src="statscore-routing.js"></script>
+<script src="sc-runtime-state-engine.js"></script>
+<script src="sc-receipt-ledger-engine.js"></script>
+<script src="sc-governance-sync-engine.js"></script>
+<script src="sc-dynamic-athlete-engine.js"></script>
+<script src="statscore-position-matrix-engine.js"></script>
+<script src="statscore-trait-render-engine.js"></script>
+<script src="statscore-football-scoring-engine.js"></script>
+<script src="statscore-scoring-engine.js"></script>
+<script src="statscore-synthesis-engine.js"></script>
+<script src="statscore-consensus-engine.js"></script>
+<script src="statscore-pathway-engine.js"></script>
+<script src="statscore-recommendation-engine.js"></script>
+<script src="statscore-profile-engine.js"></script>
+<script src="statscore-media-intelligence-engine.js"></script>
+<script src="statscore-memory-engine.js"></script>
+<script src="statscore-intelligence.js"></script>
+<script src="statscore-event-engine.js"></script>
+<script src="statscore-media-routing.js"></script>
+<script src="statscore-evaluator-engine.js"></script>
+<script src="statscore-communication-engine.js"></script>
+
+<script>
+function setText(id, value, fallback = "--"){
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = value || fallback;
+}
+
+function escapeHTML(value){
+  return String(value || "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function getSnapshotId(){
+  return new URLSearchParams(window.location.search).get("snapshot_id");
+}
+
+function upper(value){
+  return String(value || "").trim().toUpperCase();
+}
+
+function toNumber(value){
+  const n = Number(String(value || "").replace(/[^\d.]/g,""));
+  return Number.isFinite(n) ? n : null;
+}
+
+function splitName(fullName){
+  const parts = String(fullName || "Athlete Profile").trim().split(/\s+/);
+  return {
+    first: parts[0] || "Athlete",
+    last: parts.slice(1).join(" ") || "Profile"
+  };
+}
+
+function getDb(){
+  return window.STATScoreData?.getClient?.() || window.STATScoreSupabase || null;
+}
+
+function getPositionKey(position){
+  const p = upper(position);
+  if (p.includes("QB") || p.includes("QUARTERBACK")) return "QB";
+  if (p.includes("RB") || p.includes("RUNNING BACK")) return "RB";
+  if (p.includes("WR") || p.includes("WIDE RECEIVER") || p.includes("RECEIVER")) return "WR";
+  if (p.includes("TE") || p.includes("TIGHT END")) return "TE";
+  if (p.includes("DB") || p.includes("CORNER") || p.includes("SAFETY")) return "DB";
+  if (p.includes("LB") || p.includes("LINEBACKER")) return "LB";
+  if (p.includes("EDGE") || p.includes("DE") || p.includes("DEFENSIVE END")) return "EDGE";
+  if (p.includes("ATH")) return "ATH";
+  return "ATH";
+}
+
+function matrixVersionForPosition(position){
+  return `${getPositionKey(position)}_PRODUCTION_MATRIX_V1`;
+}
+
+function starDisplayFromScore(score){
+  const n = Number(score || 0);
+  if (!Number.isFinite(n) || n <= 0) return "☆☆☆☆☆";
+  const stars = n >= 90 ? 5 : n >= 82 ? 4 : n >= 72 ? 3 : n >= 62 ? 2 : 1;
+  return "★★★★★".slice(0, stars) + "☆☆☆☆☆".slice(0, 5 - stars);
+}
+
+function formatClassYear(value){
+  return value || "Class Year";
+}
+
+function normalizeSnapshot(response){
+  if (!response || response.success !== true || !response.snapshot) return null;
+
+  const snap = response.snapshot;
+  const raw = snap.raw_payload || {};
+
+  const fullName =
+    raw.athlete_display_name ||
+    [raw.firstName, raw.lastName].filter(Boolean).join(" ").trim() ||
+    raw.athlete_name ||
+    snap.athlete_display_name ||
+    snap.athlete_name ||
+    "Athlete Profile";
+
+  return {
+    snapshot_id: snap.snapshot_id,
+    athlete_display_name: fullName,
+    sport: raw.primarySport || raw.sport || snap.primary_sport || snap.sport || "Sport",
+    position: raw.primaryPosition || raw.position || snap.primary_position || snap.position || "Position",
+    secondary_position: raw.secondaryPosition || raw.secondary_position || snap.secondary_position || "",
+    class_year: raw.graduationClass || raw.graduation_class || raw.classYear || snap.graduation_class || snap.graduation_year || "Class Year",
+    city_state: raw.cityState || raw.city_state || snap.city_state || "City, State",
+    school: raw.schoolProgram || raw.school || snap.school_program || snap.school || "School / Program",
+    height: raw.height || snap.height || "Height",
+    weight: raw.weight || snap.weight || "Weight",
+    dash40: raw.dash40 || raw.forty || raw.speedIndex || snap.dash40 || "--",
+    vertical_jump: raw.verticalJump || raw.vertical_jump || raw.explosiveness || snap.vertical_jump || "--",
+    shuttle: raw.shuttle || snap.shuttle || "",
+    broad_jump: raw.broadJump || raw.broad_jump || snap.broad_jump || "",
+    highlight_url: raw.highlightUrl || raw.highlight_url || snap.highlight_url || "",
+    game_film_url: raw.gameFilmUrl || raw.game_film_url || snap.game_film_url || "",
+    social_profile_url: raw.socialProfileUrl || raw.social_profile_url || "",
+    recruiting_profile_url: raw.recruitingProfileUrl || raw.recruiting_profile_url || "",
+    verified_event_source: raw.verifiedEventSource || raw.verified_event_source || snap.verified_event_source || "",
+    position_notes: raw.positionNotes || raw.position_notes || snap.position_notes || "",
+    archetype: raw.archetype || raw.positionArchetype || raw.position_archetype || "",
+    varsity_years: raw.varsityYears || raw.varsity_years || snap.varsity_years || "",
+    starter_status: raw.starterStatus || raw.starter_status || snap.starter_status || "",
+    recruiting_tier: raw.recruitingTier || raw.recruiting_tier || snap.recruiting_tier || "",
+    star_rating: raw.starRating || raw.star_rating || raw.stars || "",
+    trait_scores: raw.traitScores || raw.trait_scores || {},
+    guardian_email: raw.guardianEmail || raw.parentEmail || raw.guardian_email || snap.guardian_email || "",
+    guardian_phone: raw.guardianPhone || raw.parentPhone || raw.guardian_phone || snap.guardian_phone || "",
+    guardian_approval_status:
+      raw.guardianApprovalStatus ||
+      raw.guardian_approval_status ||
+      snap.guardian_approval_status ||
+      snap.parent_approval_status ||
+      "PENDING",
+    headshot_url: raw.headshotPublicUrl || raw.headshot_public_url || snap.headshot_public_url || "",
+    verification_status: snap.verification_status || raw.verificationStatus || "UNVERIFIED",
+    score_status: snap.score_status || raw.scoreStatus || "UNVERIFIED",
+    profile_status: raw.profileStatus || raw.profile_status || "CREATED",
+    statscore_label: snap.statscore_label || raw.statscoreLabel || null
+  };
+}
+
+async function loadSnapshot(){
+  const snapshotId = getSnapshotId();
+  if (!snapshotId) return null;
+
+  const db = getDb();
+  if (!db) return null;
+
+  const { data, error } = await db.rpc("get_statscore_snapshot", {
+    p_snapshot_id: snapshotId
   });
+
+  if (error) {
+    console.error("get_statscore_snapshot RPC failed:", error);
+    return null;
+  }
+
+  return normalizeSnapshot(data);
+}
+
+async function loadParentGovernance(snapshotId){
+  const db = getDb();
+  if (!db || !snapshotId) return null;
+
+  const { data, error } = await db
+    .from("sc_parent_approval_requests")
+    .select("*")
+    .eq("snapshot_id", snapshotId)
+    .order("created_at", { ascending:false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error){
+    console.error("Parent governance load failed:", error);
+    return null;
+  }
+
+  return data || null;
+}
+
+function applyParentGovernance(snapshot, governance){
+  if (!snapshot) return snapshot;
+  if (!governance) return snapshot;
+
+  snapshot.guardian_approval_status =
+    governance.status ||
+    governance.approval_status ||
+    governance.request_status ||
+    snapshot.guardian_approval_status ||
+    "PENDING";
+
+  snapshot.parent_governance = {
+    status: governance.status || governance.approval_status || governance.request_status || "pending",
+    profile_participation: !!governance.profile_participation,
+    public_visibility: !!governance.public_visibility,
+    recruiter_access: !!governance.recruiter_access,
+    messaging_access: !!governance.messaging_access,
+    media_exposure: !!governance.media_exposure,
+    counselor_access: !!governance.counselor_access
+  };
+
+  return snapshot;
+}
+
+function hasProductionEvidence(snapshot){
+  return !!(
+    toNumber(snapshot.dash40) ||
+    toNumber(snapshot.vertical_jump) ||
+    toNumber(snapshot.shuttle) ||
+    toNumber(snapshot.broad_jump) ||
+    snapshot.position_notes ||
+    snapshot.verified_event_source ||
+    snapshot.highlight_url ||
+    snapshot.game_film_url
+  );
+}
+
+function computeUnverifiedScore(snapshot){
+  const pos = getPositionKey(snapshot.position);
+  const forty = toNumber(snapshot.dash40);
+  const vertical = toNumber(snapshot.vertical_jump);
+  const shuttle = toNumber(snapshot.shuttle);
+  let score = 58;
+
+  if (pos === "WR"){
+    if (forty){
+      if (forty <= 4.40) score += 18;
+      else if (forty <= 4.50) score += 15;
+      else if (forty <= 4.60) score += 10;
+      else score += 5;
+    }
+
+    if (vertical){
+      if (vertical >= 38) score += 12;
+      else if (vertical >= 34) score += 8;
+      else score += 4;
+    }
+
+    if (shuttle){
+      if (shuttle <= 4.25) score += 6;
+      else if (shuttle <= 4.45) score += 4;
+      else score += 2;
+    }
+
+    if (snapshot.secondary_position) score += 2;
+    if (snapshot.position_notes) score += 3;
+    if (snapshot.highlight_url || snapshot.game_film_url) score += 4;
+    if (snapshot.verified_event_source) score += 4;
+  } else {
+    if (forty) score += 9;
+    if (vertical) score += 7;
+    if (shuttle) score += 4;
+    if (snapshot.highlight_url || snapshot.game_film_url) score += 5;
+    if (snapshot.verified_event_source) score += 5;
+  }
+
+  return Math.max(60, Math.min(89, Math.round(score)));
+}
+
+function resolveProfileStates(snapshot){
+  const guardianRaw = upper(snapshot.guardian_approval_status);
+  const verificationRaw = upper(snapshot.verification_status);
+  const gov = snapshot.parent_governance || {};
+
+  const guardianApproved = guardianRaw === "APPROVED" || upper(gov.status) === "APPROVED";
+  const guardianModified = guardianRaw === "MODIFIED" || upper(gov.status) === "MODIFIED";
+  const guardianDenied = guardianRaw === "DENIED" || upper(gov.status) === "DENIED";
+  const guardianRevoked = guardianRaw === "REVOKED" || upper(gov.status) === "REVOKED";
+
+  const verified = verificationRaw === "VERIFIED";
+  const hasMetrics = hasProductionEvidence(snapshot);
+  const unverifiedScore = hasMetrics ? computeUnverifiedScore(snapshot) : null;
+
+  let guardianState = "PARENT RELEASE REQUIRED";
+  if (guardianApproved) guardianState = "PARENT RELEASE APPROVED";
+  if (guardianModified) guardianState = "PARENT RELEASE MODIFIED";
+  if (guardianDenied) guardianState = "PARENT RELEASE DENIED";
+  if (guardianRevoked) guardianState = "PARENT RELEASE REVOKED";
+
+  const profileReleased = guardianApproved && gov.profile_participation;
+  const publicReleased = guardianApproved && gov.public_visibility;
+  const recruiterReleased = guardianApproved && gov.recruiter_access;
+  const mediaReleased = guardianApproved && gov.media_exposure;
+
+  return {
+    snapshotState: "SNAPSHOT ACTIVE",
+    releaseState: guardianApproved ? "PARENT RELEASE APPROVED" : "PARENT RELEASE PENDING",
+    verificationState: verified ? "VERIFIED STATS-CORE" : "UNVERIFIED STATS-CORE",
+    scoreState: verified ? "OFFICIAL" : hasMetrics ? "UNVERIFIED" : "PENDING",
+    guardianState,
+    visibilityState: publicReleased ? "CONTROLLED RELEASE" : "LIMITED",
+    recruitingState: recruiterReleased ? (verified ? "ENABLED" : "PENDING VERIFICATION") : "LOCKED",
+    shareState: publicReleased ? "CONTROLLED" : "LOCKED",
+    mediaState: mediaReleased ? "RELEASED" : "LOCKED",
+    profileParticipationState: profileReleased ? "ACTIVE" : "PRIVATE",
+    guardianApproved,
+    verified,
+    hasMetrics,
+    unverifiedScore
+  };
+}
+
+function renderAthleteImage(src, fullName){
+  const frame = document.getElementById("athleteImageFrame");
+  if (!frame) return;
+
+  if (src) {
+    frame.innerHTML = `<img src="${escapeHTML(src)}" alt="${escapeHTML(fullName)} athlete image">`;
+  } else {
+    frame.textContent = "Athlete Image Required";
+  }
+}
+
+const FALLBACK_POSITION_TRAITS = {
+  QB:["Processing","Timing","Accuracy","Pocket Control","Pressure Response","Production Efficiency"],
+  RB:["Vision","Burst","Contact Balance","Explosive Runs","Ball Security","Volume Translation"],
+  WR:["Release Package","Separation","Route Timing","Ball Tracking","YAC Threat","Production Translation"],
+  TE:["Catch Radius","Route Leverage","Blocking Fit","Red Zone Value","Physicality","Production Translation"],
+  DB:["Coverage Technique","Ball Skills","Recovery Speed","Hip Fluidity","Tackling","Field Awareness"],
+  LB:["Read Recognition","Tackling","Pursuit","Coverage Drop","Block Shedding","Leadership"],
+  EDGE:["First Step","Bend","Rush Plan","Motor","Run Fit","Power Translation"],
+  ATH:["Athletic Utility","Speed","Explosiveness","Readiness","Coachability","Role Translation"]
+};
+
+function normalizeTraitObject(trait){
+  if (typeof trait === "string") return { name: trait, score: null };
+  if (trait && typeof trait === "object") {
+    return {
+      name: trait.name || trait.label || trait.trait || "Trait",
+      score: trait.score ?? trait.value ?? null
+    };
+  }
+  return { name: "Trait", score: null };
+}
+
+function deriveProjectedTraitScore(snapshot, traitName, states){
+  const pos = getPositionKey(snapshot.position);
+  const name = upper(traitName);
+  const base = states.unverifiedScore || 68;
+  const forty = toNumber(snapshot.dash40);
+  const vertical = toNumber(snapshot.vertical_jump);
+
+  let score = base;
+
+  if (pos === "WR"){
+    if (name.includes("RELEASE")) score += forty && forty <= 4.55 ? 3 : 0;
+    if (name.includes("SEPARATION")) score += forty && forty <= 4.55 ? 5 : 0;
+    if (name.includes("ROUTE")) score += snapshot.position_notes ? 4 : -3;
+    if (name.includes("TRACKING")) score += vertical && vertical >= 36 ? 4 : 0;
+    if (name.includes("YAC")) score += forty && forty <= 4.55 ? 3 : 0;
+    if (name.includes("TRANSLATION")) score += (forty && vertical) ? 4 : -2;
+  }
+
+  return Math.max(52, Math.min(92, Math.round(score)));
+}
+
+function resolvePositionTraits(snapshot){
+  const key = getPositionKey(snapshot.position);
+  const engine =
+    window.STATScorePositionMatrixEngine ||
+    window.STATScorePositionMatrix ||
+    window.STATScorePositionEngine;
+
+  try {
+    if (engine?.getTraits) {
+      const result = engine.getTraits({
+        sport: snapshot.sport,
+        position: snapshot.position,
+        archetype: snapshot.archetype,
+        snapshot
+      });
+      if (Array.isArray(result)) return result;
+    }
+
+    if (engine?.resolveMatrix) {
+      const matrix = engine.resolveMatrix(snapshot.sport, snapshot.position, snapshot.archetype, snapshot);
+      if (Array.isArray(matrix?.traits)) return matrix.traits;
+    }
+
+    if (engine?.getMatrix) {
+      const matrix = engine.getMatrix({
+        sport: snapshot.sport,
+        position: snapshot.position,
+        archetype: snapshot.archetype,
+        snapshot
+      });
+      if (Array.isArray(matrix?.traits)) return matrix.traits;
+    }
+  } catch {}
+
+  return FALLBACK_POSITION_TRAITS[key] || FALLBACK_POSITION_TRAITS.ATH;
+}
+
+function renderPositionTraits(snapshot, states){
+  const container = document.getElementById("traitContainer");
+  if (!container) return;
+
+  const traits = resolvePositionTraits(snapshot).map(normalizeTraitObject);
+
+  container.innerHTML = traits.map(trait => {
+    const rawScore =
+      trait.score ??
+      snapshot.trait_scores?.[trait.name] ??
+      snapshot.trait_scores?.[trait.name.toLowerCase()] ??
+      null;
+
+    const projectedScore = rawScore ?? (states.hasMetrics ? deriveProjectedTraitScore(snapshot, trait.name, states) : null);
+    const hasScore = projectedScore !== null && projectedScore !== undefined && projectedScore !== "";
+    const scoreNumber = Number(projectedScore);
+    const width = hasScore && Number.isFinite(scoreNumber) ? Math.max(5, Math.min(100, scoreNumber)) : 18;
+
+    const label = states.verified ? projectedScore : hasScore ? `${projectedScore} U` : "--";
+
+    return `
+      <div class="trait">
+        <div class="trait-name">${escapeHTML(trait.name)}</div>
+        <div class="bar">
+          <div class="fill ${states.verified ? "" : "unverified"} ${hasScore ? "" : "pending-fill"}" style="width:${width}%"></div>
+        </div>
+        <div class="trait-score ${hasScore ? "" : "pending"}">${escapeHTML(label)}</div>
+      </div>
+    `;
+  }).join("");
+}
+
+function renderAthleteDossier(snapshot, states){
+  const positionKey = getPositionKey(snapshot.position);
+  const archetype = snapshot.archetype || (positionKey === "WR" ? "Speed / Space WR Projection" : `${snapshot.position} Production Projection`);
+
+  const athleticSignalParts = [];
+  if (snapshot.dash40 && snapshot.dash40 !== "--") athleticSignalParts.push(`${snapshot.dash40} speed`);
+  if (snapshot.vertical_jump && snapshot.vertical_jump !== "--") athleticSignalParts.push(`${snapshot.vertical_jump}" vertical`);
+
+  setText("dossierArchetype", archetype);
+  setText("dossierProductionSignal", states.hasMetrics ? "Submitted Metrics Active" : "Production Evidence Pending");
+  setText("dossierTranslation", states.hasMetrics ? `${snapshot.position} Translation Under Review` : "Pending Evidence");
+  setText("dossierAthleticSignal", athleticSignalParts.length ? athleticSignalParts.join(" · ") : "Metric Signal Pending");
+  setText("dossierVerification", states.verified ? "Verified" : "Unverified");
+  setText("dossierVisibility", states.visibilityState);
+}
+
+function renderSTATScoreIntelligence(snapshot, states){
+  const pos = getPositionKey(snapshot.position);
+  const score = states.unverifiedScore || "--";
+
+  setText("scMatrixVersion", matrixVersionForPosition(snapshot.position));
+  setText("scProductionSignal", states.hasMetrics ? `UNVERIFIED ${pos} PRODUCTION SIGNAL` : "PRODUCTION SIGNAL PENDING");
+  setText("scFinalScore", states.hasMetrics ? `${score} / UNVERIFIED` : "--");
+  setText("scEvidenceState", states.verified ? "VERIFIED EVIDENCE" : "SUBMITTED / UNVERIFIED");
+  setText("scTranslationOutlook", states.hasMetrics ? `${pos} ROLE TRANSLATION REVIEW` : "TRANSLATION PENDING");
+  setText("scVerificationGaps", states.verified ? "NONE ACTIVE" : "FILM / COACH / EVALUATOR");
+  setText("scRoleValue", states.hasMetrics ? `${pos} POSITIONAL VALUE` : "ROLE VALUE PENDING");
+
+  setText("scProductionExplanation", states.hasMetrics
+    ? `The current signal is based on submitted ${pos} role evidence and athletic indicators. It remains unverified until production evidence is confirmed.`
+    : "Not enough submitted production evidence exists to generate a role-specific signal."
+  );
+
+  setText("scScoreBasis", states.hasMetrics
+    ? "The score reflects position-specific production indicators, submitted athletic metrics, and current evidence completeness. It is not an official verified rating."
+    : "Score basis requires position data, metrics, production evidence, or verified inputs."
+  );
+
+  setText("scEvidenceExplanation", states.verified
+    ? "Evidence has passed verification gates."
+    : "Evidence is currently submitted but not confirmed by coach, evaluator, trusted film, or verified event source."
+  );
+
+  setText("scTranslationExplanation", states.hasMetrics
+    ? `Current data suggests ${snapshot.position} production potential, but upward translation requires verified film, production consistency, and competition context.`
+    : "Translation outlook requires production evidence and role-specific review."
+  );
+
+  setText("scVerificationExplanation", states.verified
+    ? "Official intelligence unlocked."
+    : "Verification gaps include coach confirmation, evaluator review, film validation, and trusted production record."
+  );
+
+  setText("scRoleValueExplanation", states.hasMetrics
+    ? `This profile is evaluated by what the athlete can produce at ${snapshot.position}, not generic athleticism alone.`
+    : "Role value will activate when production evidence is submitted."
+  );
+
+  const reasons = [
+    `STATS-CORE evaluates ${snapshot.position} by positional production, consistency, and upward translatability.`,
+    states.hasMetrics ? `Submitted metrics support an unverified ${pos} production signal.` : "Production signal is pending additional evidence.",
+    states.hasMetrics && snapshot.dash40 && snapshot.dash40 !== "--" ? `Speed evidence submitted: ${snapshot.dash40}.` : "Speed evidence is missing or incomplete.",
+    states.hasMetrics && snapshot.vertical_jump && snapshot.vertical_jump !== "--" ? `Explosive evidence submitted: ${snapshot.vertical_jump} vertical.` : "Explosive evidence is missing or incomplete.",
+    `Verification state: ${states.verificationState}.`,
+    `Parent release state: ${states.guardianState}.`,
+    `Recruiting state: ${states.recruitingState}.`,
+    "The score remains UNVERIFIED until production evidence is confirmed through trusted verification gates."
+  ];
+
+  const list = document.getElementById("scWhyList");
+  if (list) list.innerHTML = reasons.map(reason => `<li>${escapeHTML(reason)}</li>`).join("");
+}
+
+function renderGuardianGovernance(snapshot, states){
+  const snapshotId = snapshot.snapshot_id || getSnapshotId();
+
+  const approvalUrl = `parent.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
+  const parentRoomUrl = `parent.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
+  const verificationUrl = `verification.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
+
+  const routeMap = {
+    flowProfile: `player-profile.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
+    flowSnapshot: `snapshot-intake.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
+    flowVerification: `verification.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
+    flowParent: `parent.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
+    flowMultiBox: `multi-box.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
+    flowCrystal: `crystal-registry.html?snapshot_id=${encodeURIComponent(snapshotId)}`
+  };
+
+  Object.entries(routeMap).forEach(([id, href]) => {
+    const el = document.getElementById(id);
+    if (el) el.href = href;
+  });
+
+  setText("guardianStatus", states.guardianState);
+  setText("visibilityStatus", states.visibilityState);
+  setText("recruitingStatus", states.recruitingState);
+
+  const guardianEl = document.getElementById("guardianStatus");
+  const visibilityEl = document.getElementById("visibilityStatus");
+  const recruitingEl = document.getElementById("recruitingStatus");
+
+  if (guardianEl) guardianEl.className = states.guardianApproved ? "live" : "warning";
+  if (visibilityEl) visibilityEl.className = states.visibilityState === "CONTROLLED RELEASE" ? "live" : "warning";
+  if (recruitingEl) recruitingEl.className = states.recruitingState === "ENABLED" ? "live" : "locked";
+
+  const approvalBtn = document.getElementById("parentApprovalAction");
+  const footerApprovalBtn = document.getElementById("footerParentApprovalAction");
+  const verificationBtn = document.getElementById("verificationAction");
+  const snapshotPathBtn = document.getElementById("snapshotPathAction");
+  const shareBtn = document.getElementById("shareProfileAction");
+  const recruiterBtn = document.getElementById("recruiterAccessAction");
+
+  if (approvalBtn) {
+    approvalBtn.href = states.guardianApproved ? parentRoomUrl : approvalUrl;
+    approvalBtn.className = states.guardianApproved ? "action approved" : "action primary";
+    approvalBtn.innerHTML = states.guardianApproved ? `Parent Release Approved <span>✓</span>` : `Request Parent Approval <span>›</span>`;
+  }
+
+  if (footerApprovalBtn) {
+    footerApprovalBtn.href = states.guardianApproved ? parentRoomUrl : approvalUrl;
+    footerApprovalBtn.textContent = states.guardianApproved ? "Parent Release Approved ✓" : "Request Approval ›";
+  }
+
+  if (verificationBtn) verificationBtn.href = verificationUrl;
+  if (snapshotPathBtn) snapshotPathBtn.href = `snapshot-intake.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
+
+  if (shareBtn) {
+    if (states.shareState === "CONTROLLED") {
+      shareBtn.className = "action secondary";
+      shareBtn.innerHTML = `Share Profile <span>Controlled</span>`;
+      shareBtn.onclick = copyShareLink;
+    } else {
+      shareBtn.className = "action locked";
+      shareBtn.innerHTML = `🔒 Share Profile <span>Locked</span>`;
+      shareBtn.onclick = null;
+    }
+  }
+
+  if (recruiterBtn) {
+    if (states.recruitingState === "ENABLED") {
+      recruiterBtn.className = "action secondary";
+      recruiterBtn.innerHTML = `Recruiter Access <span>›</span>`;
+      recruiterBtn.onclick = () => {
+        window.location.href = `recruiter-requests.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
+      };
+    } else {
+      recruiterBtn.className = "action locked";
+      recruiterBtn.innerHTML = `🔒 Recruiter Access <span>${states.recruitingState}</span>`;
+      recruiterBtn.onclick = null;
+    }
+  }
+
+  setText("recruiterViewStatus", states.recruitingState === "ENABLED"
+    ? "Recruiter visibility is enabled under governed parent release and verification rules."
+    : "Recruiter visibility remains locked until parent release and verification gates allow controlled access."
+  );
+
+  setText("contactStatusText", states.recruitingState === "ENABLED"
+    ? "Communication enabled through Multi-Box™ permissions."
+    : "Recruiter communication remains locked."
+  );
+}
+
+function renderProfile(snapshot){
+  const states = resolveProfileStates(snapshot);
+  const statscoreLabel = states.verificationState;
+  const nameParts = splitName(snapshot.athlete_display_name);
+
+  const athleteName = document.getElementById("athleteName");
+  if (athleteName) {
+    athleteName.innerHTML = `${escapeHTML(nameParts.first)}<span>${escapeHTML(nameParts.last)}</span>`;
+  }
+
+  setText("captionName", snapshot.athlete_display_name);
+  setText("captionMeta", `${snapshot.position} · ${formatClassYear(snapshot.class_year)}`);
+  setText("verificationBadge", states.verified ? "VERIFIED" : "UNVERIFIED");
+  setText("recordStatus", "Snapshot Loaded");
+  setText("footerSnapshotState", snapshot.snapshot_id ? `Snapshot ID: ${snapshot.snapshot_id}` : "Snapshot Intelligence Layer");
+
+  setText("identitySub", `${states.snapshotState} · ${statscoreLabel}`);
+  setText("tagPosition", snapshot.position);
+  setText("tagHeight", snapshot.height);
+  setText("tagWeight", snapshot.weight);
+  setText("tagCity", snapshot.city_state);
+  setText("tagSchool", snapshot.school);
+  setText("tagClass", snapshot.class_year);
+
+  setText("starDisplay", states.hasMetrics ? starDisplayFromScore(states.unverifiedScore) : "☆☆☆☆☆");
+  setText("signalText", statscoreLabel);
+  setText("evaluationStatus", states.hasMetrics ? `${snapshot.position} Production Signal · ${statscoreLabel}` : `${states.snapshotState} · ${statscoreLabel}`);
+
+  setText("profileBio",
+    `${snapshot.athlete_display_name} is a ${snapshot.class_year} ${snapshot.sport} athlete listed at ${snapshot.position}. STATS-CORE evaluates this profile by position-specific production, consistency, evidence support, and upward translatability. Current score intelligence is ${states.verified ? "verified" : "unverified"} and remains governed by parent release and verification controls.`
+  );
+
+  setText("scoreValue", states.unverifiedScore || "--");
+  setText("scoreStatus", states.verificationState);
+
+  setText("scoreNote", states.hasMetrics
+    ? "This UNVERIFIED STATS-CORE is generated from submitted snapshot metrics and position-production logic. It is not official until verification gates are complete."
+    : "STATS-CORE requires submitted production evidence before score intelligence activates."
+  );
+
+  setText("metricSpeed", snapshot.dash40);
+  setText("metricExplosive", snapshot.vertical_jump);
+  setText("metricReadiness", states.hasMetrics ? "UNVERIFIED SIGNAL" : "PENDING");
+  setText("metricVisibility", states.visibilityState);
+
+  setText("gameFilmStatus", snapshot.highlight_url || snapshot.game_film_url || "Film not submitted. Verified film is required to strengthen production confidence.");
+  setText("campStatus", snapshot.verified_event_source || "Camp / combine evidence pending.");
+  setText("mediaStatus", snapshot.social_profile_url || snapshot.recruiting_profile_url || "PHNX Sports media exposure remains governed by parent release.");
+  setText("exposureLaneText", `Visibility is currently ${states.visibilityState}. Recruiter actions remain ${states.recruitingState}.`);
+  setText("primaryFocus", snapshot.position_notes || "Add verified film, coach review, and production data to strengthen the position matrix.");
+  setText("verificationNeed", "Coach confirmation, evaluator review, trusted film, verified metrics, and production consistency.");
+  setText("nextSnapshotText", "Update snapshot after verified film, coach review, or production evidence is added.");
+
+  renderAthleteImage(snapshot.headshot_url, snapshot.athlete_display_name);
+  renderGuardianGovernance(snapshot, states);
+  renderAthleteDossier(snapshot, states);
+  renderPositionTraits(snapshot, states);
+  renderSTATScoreIntelligence(snapshot, states);
+}
+
+function renderNoSnapshot(){
+  setText("recordStatus","No Snapshot Loaded");
+  setText("identitySub","Awaiting Snapshot Intake");
+  setText("scoreStatus","No Snapshot");
+  setText("profileBio","No submitted Snapshot record was found. Run Snapshot Intake to generate this athlete profile.");
+
+  renderPositionTraits({
+    position:"ATH",
+    sport:"Football",
+    trait_scores:{}
+  }, {
+    hasMetrics:false,
+    verified:false,
+    unverifiedScore:null
+  });
+}
+
+function copyShareLink(){
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(window.location.href);
+    alert("Profile link copied.");
+  }
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const snapshot = await loadSnapshot();
+
+  if (!snapshot) {
+    renderNoSnapshot();
+    return;
+  }
+
+  const governance = await loadParentGovernance(snapshot.snapshot_id);
+  const governedSnapshot = applyParentGovernance(snapshot, governance);
+
+  renderProfile(governedSnapshot);
 });
 </script>
 
 </body>
-</html> 
+</html>
+
+ 
