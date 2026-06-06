@@ -61,7 +61,7 @@ button{font-family:inherit;cursor:pointer}
   color:#111;
   border-bottom:3px solid var(--red);
   display:grid;
-  grid-template-columns:390px 250px repeat(4,118px) 1fr 42px 42px 155px;
+  grid-template-columns:430px 260px repeat(4,118px) 1fr 42px 42px 155px;
   gap:10px;
   align-items:center;
   padding:0 22px;
@@ -70,12 +70,23 @@ button{font-family:inherit;cursor:pointer}
   z-index:50;
 }
 
-.logo{
-  height:118px;
-  width:370px;
+.logo-authority{
+  height:128px;
+  width:430px;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  overflow:visible;
+}
+
+.logo-authority img{
+  height:106px;
+  width:395px;
+  max-width:none;
   object-fit:contain;
   object-position:left center;
-}
+  display:block;
+} 
 
 .title h1{
   color:var(--red2);
@@ -709,7 +720,9 @@ button{font-family:inherit;cursor:pointer}
 <div class="page">
 
 <header class="header">
-  <img class="logo" src="sc_trans_logo.png" alt="STATS-CORE">
+  <a class="logo-authority" href="index.html" aria-label="STATS-CORE Home">
+  <img src="sc_trans_logo.png" alt="STATS-CORE Athlete Lifecycle System">
+</a> 
 
   <div class="title">
     <h1>Athlete Dashboard</h1>
@@ -922,7 +935,7 @@ button{font-family:inherit;cursor:pointer}
 </div>
 
 <footer class="footer">
-  <img src="sc_trans_logo.png" alt="STATS-CORE">
+  <img src="sc_emblem.png" alt="STATS-CORE">
   <div>National Athlete Infrastructure • Secure • Verified • Controlled</div>
   <div>© STATS-CORE Systems</div>
 </footer>
@@ -935,5 +948,112 @@ document.addEventListener("DOMContentLoaded",()=>{
 });
 </script>
 
+<style id="SC_LOGO_AUTHORITY_FINAL_FIX">
+/* === ONE-INSERT HEADER + FOOTER LOGO AUTHORITY FIX === */
+
+.header{
+  height:128px !important;
+  grid-template-columns:430px 245px 112px 112px 112px 112px 220px 0 0 0 !important;
+  gap:10px !important;
+  padding:0 22px !important;
+  overflow:hidden !important;
+}
+
+.logo,
+.logo-authority img{
+  width:395px !important;
+  height:106px !important;
+  max-width:none !important;
+  object-fit:contain !important;
+  object-position:left center !important;
+  display:block !important;
+}
+
+.logo-authority{
+  width:430px !important;
+  height:128px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  overflow:visible !important;
+}
+
+.title h1{
+  font-size:1.20rem !important;
+  line-height:1.05 !important;
+}
+
+.title p{
+  font-size:.62rem !important;
+  line-height:1.28 !important;
+}
+
+.head-stat{
+  min-height:48px !important;
+  padding-left:10px !important;
+}
+
+.head-stat span{
+  font-size:.58rem !important;
+}
+
+.head-stat b{
+  font-size:.72rem !important;
+}
+
+.search{
+  width:220px !important;
+  max-width:220px !important;
+}
+
+.header .icon,
+.header .user{
+  display:none !important;
+}
+
+/* Footer logo authority without stretching page */
+.footer{
+  grid-template-columns:360px 1fr 240px !important;
+  height:82px !important;
+  padding:0 22px !important;
+  overflow:hidden !important;
+}
+
+.footer img{
+  width:340px !important;
+  height:74px !important;
+  max-width:none !important;
+  object-fit:contain !important;
+  object-position:left center !important;
+  display:block !important;
+}
+
+@media(max-width:900px){
+  .header{
+    grid-template-columns:430px 245px 112px 112px 112px 112px 220px !important;
+    height:128px !important;
+  }
+
+  .footer{
+    grid-template-columns:360px 1fr 240px !important;
+    height:82px !important;
+  }
+}
+</style>
+
+<script id="SC_LOGO_AUTHORITY_DOM_FIX">
+document.addEventListener("DOMContentLoaded", () => {
+  const headerLogo = document.querySelector("header .logo");
+  if (headerLogo && !headerLogo.closest(".logo-authority")) {
+    const wrap = document.createElement("a");
+    wrap.className = "logo-authority";
+    wrap.href = "index.html";
+    wrap.setAttribute("aria-label", "STATS-CORE Home");
+    headerLogo.parentNode.insertBefore(wrap, headerLogo);
+    wrap.appendChild(headerLogo);
+  }
+});
+</script> 
+  
 </body>
 </html> 
