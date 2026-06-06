@@ -207,15 +207,15 @@ button{
   grid-template-columns:250px minmax(1030px,1fr);
   gap:12px;
   padding:12px 14px 0;
-  align-items:stretch;
+  align-items:start;
 }
 
 .left-rail{
   display:grid;
-  grid-template-rows:auto auto 1fr;
+  grid-template-rows:auto auto auto;
   gap:12px;
-  min-height:calc(100vh - 205px);
-}
+  align-content:start;
+} 
 
 .rail-box,
 .card,
@@ -826,12 +826,13 @@ button{
 }
 
 .footer img{
-  height:58px;
-  width:300px;
-  object-fit:contain;
-  object-position:left center;
-}
-
+    height:78px;
+    width:420px;
+    max-width:none;
+    object-fit:contain;
+    object-position:left center;
+} 
+   
 /* =====================================================
    RESPONSIVE
 ===================================================== */
@@ -882,7 +883,7 @@ button{
   }
 
   .footer{
-    grid-template-columns:260px 1fr 260px;
+    grid-template-columns:380px 1fr 260px;
     height:64px;
     gap:0;
     padding:0 24px;
