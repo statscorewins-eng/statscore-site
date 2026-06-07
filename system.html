@@ -130,15 +130,48 @@ a{text-decoration:none;color:inherit;}
   transform:translateX(-34px);
 }
 
+.header-tools{
+  display:grid;
+  grid-template-rows:30px 36px;
+  gap:8px;
+  padding:10px 20px 10px 0;
+}
+
+.utility-row{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:12px;
+}
+
+.utility-search{
+  width:260px;
+  height:30px;
+  border:1px solid rgba(0,0,0,.26);
+  background:rgba(255,255,255,.72);
+  color:#111;
+  padding:0 10px;
+  font-size:.62rem;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  outline:none;
+}
+
+.user-icon{
+  width:31px;
+  height:31px;
+  border:3px solid #111;
+  border-radius:50%;
+} 
+  
 .header-nav{
   display:flex;
   justify-content:flex-end;
   align-items:center;
-  gap:24px;
-  padding-right:24px;
-  height:100%;
-  color:#111;
-  white-space:nowrap;
+  gap:7px;
+  padding-right:20px;
+  height:30px;
 }
 
 .header-nav a{
@@ -1074,6 +1107,12 @@ a{text-decoration:none;color:inherit;}
 
   <div class="header-title">National Athlete Infrastructure</div>
 
+  <div class="header-tools">
+  <div class="utility-row">
+    <input class="utility-search" type="search" placeholder="Search athlete intelligence...">
+    <div class="user-icon"></div>
+  </div>
+
   <nav class="header-nav">
     <a class="active" href="system.html">System</a>
     <a href="player-profile.html">Profile</a>
@@ -1081,6 +1120,8 @@ a{text-decoration:none;color:inherit;}
     <a href="privacy.html">Privacy</a>
     <a href="terms.html">Terms</a>
   </nav>
+</div> 
+
 </header>
 
 <section class="tab-rail">
