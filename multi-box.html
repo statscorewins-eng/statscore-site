@@ -1474,10 +1474,24 @@ function wireEvents(){
 window.history.scrollRestoration="manual";
 
 document.addEventListener("DOMContentLoaded",async()=>{
+  
   window.scrollTo(0,0);
   initSupabase();
   wireEvents();
+  
   setRole("Athlete",document.querySelector('.channel[data-role="Athlete"]'));
+  
+const loggedRole =
+  localStorage.getItem("statscore_role") ||
+  localStorage.getItem("STATSCORE_ROLE") ||
+  "athlete";
+  
+document.body.setAttribute("data-role", loggedRole.toLowerCase());
+
+if(loggedRole.toLowerCase() !== "admin" && loggedRole.toLowerCase() !== "system"){
+  document.querySelector(".tab-rail")?.remove();
+} 
+  
   await loadSupabaseAudit();
   await loadSupabaseState();
   setMessage("Multi-Box ready");
