@@ -1056,6 +1056,34 @@ a{text-decoration:none;color:inherit;}
     border-top:1px solid rgba(255,255,255,.08);
   }
 }
+
+/* FORCE PLAYER-PROFILE HEADER TABS TO SHOW */
+.header{
+  height:96px !important;
+  grid-template-columns:380px 1fr 520px !important;
+}
+
+.header-tools{
+  grid-column:auto !important;
+  display:grid !important;
+  grid-template-rows:30px 36px !important;
+  overflow:visible !important;
+}
+
+.top-nav{
+  display:flex !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  justify-content:flex-end !important;
+  flex-wrap:nowrap !important;
+  overflow:visible !important;
+}
+
+.top-nav a{
+  display:flex !important;
+  white-space:nowrap !important;
+} 
+  
 </style>
 </head>
 
@@ -1079,12 +1107,14 @@ a{text-decoration:none;color:inherit;}
     </div>
 
     <nav class="top-nav">
-      <a href="athlete-dashboard.html">⌂ Dashboard</a>
-      <a class="active" href="player-profile.html">♙ Profile</a>
-      <a href="crystal-report.html">▥ Reports</a>
-      <a href="multi-box.html">✉ Messages</a>
-      <a href="profile-access.html">⚙ Settings</a>
-    </nav>
+  <a href="athlete-dashboard.html">⌂ Dashboard</a>
+  <a class="active" href="player-profile.html">♙ Profile</a>
+  <a href="crystal-report.html">▥ Reports</a>
+  <a href="multi-box.html">✉ Messages</a>
+  <a href="profile-access.html">⚙ Settings</a>
+  <a href="privacy.html">Privacy</a>
+  <a href="terms.html">Terms</a>
+</nav> 
   </div>
 </header> 
   
