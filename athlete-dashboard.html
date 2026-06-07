@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -24,7 +24,7 @@
   --line2:rgba(126,216,255,.18);
   --text:#f4f4ef;
   --muted:#aeb8c4;
-  --max:1536px;
+  --max:1600px;
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
@@ -42,7 +42,8 @@ a{text-decoration:none;color:inherit;display:block}
 button,input{font-family:inherit}
 
 .page{
-  width:min(100%,var(--max));
+  width:1600px;
+  max-width:none
   min-width:1366px;
   min-height:100vh;
   margin:0 auto;
@@ -945,6 +946,103 @@ button,input{font-family:inherit}
 @media(max-width:900px){
   .page{min-width:1366px}
 }
+
+  /* =====================================================
+   FINAL PARITY TIGHTENING PATCH
+   Reference Photo Alignment
+===================================================== */
+
+/* Prevent right rail cut-off */
+.shell{
+  grid-template-columns:180px minmax(0,1fr) 270px;
+  align-items:stretch;
+}
+
+/* Give center room after widening right rail */
+.hero{
+  grid-template-columns:300px minmax(0,1fr) 365px;
+}
+
+/* Photo box must align with Athlete Profile bottom */
+.photo-box,
+.identity,
+.index-card{
+  height:236px;
+  min-height:236px;
+}
+
+.photo-box img{
+  height:100%;
+  object-fit:cover;
+  object-position:center top;
+}
+
+/* Tighten hero rhythm */
+.identity{
+  padding:14px 16px;
+}
+
+.athlete-name{
+  font-size:2.55rem;
+  margin-bottom:10px;
+}
+
+/* Red authority frame around Athlete Intelligence */
+.athlete-intel{
+  border:2px solid var(--red) !important;
+  background:linear-gradient(180deg,rgba(8,13,20,.98),rgba(4,8,14,.95)) !important;
+  box-shadow:inset 0 0 0 1px rgba(255,43,31,.18) !important;
+  min-height:250px;
+}
+
+/* Make lower left box feel locked to visibility path */
+.left-rail{
+  grid-template-rows:auto auto 1fr;
+}
+
+.athlete-intel{
+  align-self:stretch;
+}
+
+/* Right rail title no longer cuts off */
+.right-rail{
+  width:270px;
+}
+
+.side-card h3{
+  font-size:.61rem;
+  letter-spacing:.10em;
+  white-space:nowrap;
+}
+
+/* Watchlist integrates with right rail */
+.right-rail .side-card:last-child{
+  min-height:250px;
+}
+
+/* Stronger watchlist fit */
+.watch-row{
+  grid-template-columns:30px minmax(0,1fr) 42px;
+}
+
+.watch-row b,
+.watch-row span{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+/* Equalize lower row bottom rhythm */
+.lower-grid .block{
+  min-height:190px;
+}
+
+/* Visibility path should match reference: stacked title */
+.flow-title{
+  line-height:1.05;
+  font-size:.74rem;
+} 
+  
 </style>
 </head>
 
@@ -1259,7 +1357,7 @@ button,input{font-family:inherit}
 </div>
 
 <section class="flow">
-  <div class="flow-title">Visibility Path</div>
+  <div class="flow-title">Visibility<br>Path</div>
   <a class="flow-step" href="player-profile.html"><div class="flow-icon">▣</div><div><b>Profile</b><span>Public / Private</span></div></a>
   <a class="flow-step" href="snapshot-intake.html"><div class="flow-icon">▥</div><div><b>Snapshot</b><span>Data Intake</span></div></a>
   <a class="flow-step" href="verification.html"><div class="flow-icon">♙</div><div><b>Verification</b><span>Trust Layer</span></div></a>
