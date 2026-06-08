@@ -1410,25 +1410,68 @@ document.addEventListener("DOMContentLoaded",()=>{
 <!-- STATS-CORE EXPLAINABILITY ENGINE -->
 <script src="statscore-explainability-engine.js"></script> 
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> 
+
   <script>
-document.addEventListener("DOMContentLoaded",()=>{
+document.addEventListener("DOMContentLoaded", async ()=>{
   console.log("STATS-CORE Eligibility Runtime Loaded");
 
-  var demoSnapshot = {
-    athlete_name:"Ammiel Steele",
-    current_gpa:3.45,
-    transcript_available:"yes",
-    ncaa_status:"eligible",
-    core_courses_completed:7,
-    core_courses_required:7,
-    sat:1080,
-    act:24,
-    counselor_contact:"yes"
-  };
+  var SUPABASE_URL = "https://oyjmpbuxvfxusmbouldi.supabase.co";
+  var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk";
+
+  var supabaseClient = window.supabase
+    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    : null;
+
+  async function loadLatestSnapshot(){
+    if(!supabaseClient){
+      console.error("STATS-CORE Supabase client not available.");
+      return null;
+    }
+
+    var result = await supabaseClient
+      .from("sc_snapshot_intakes")
+      .select("*")
+      .ilike("athlete_name","%Ammiel%")
+      .order("created_at",{ascending:false})
+      .limit(1)
+      .single();
+
+    if(result.error){
+      console.error("STATS-CORE Snapshot Load Error:", result.error);
+      return null;
+    }
+
+    console.log("STATS-CORE Live Snapshot Loaded:", result.data);
+
+    var payload = result.data.intake_payload || {};
+
+    return {
+      athlete_id: result.data.athlete_id || null,
+      snapshot_id: result.data.snapshot_id || null,
+      athlete_name: result.data.athlete_name || "Athlete",
+
+      current_gpa: payload.gpa || payload.current_gpa || payload.coreGpa || 0,
+      transcript_available: payload.transcript_available || payload.transcriptAvailable || "unknown",
+      ncaa_status: payload.ncaa_status || payload.ncaaEligibilityStatus || "unknown",
+      core_courses_completed: payload.core_courses_completed || payload.coreCoursesCompleted || 0,
+      core_courses_required: payload.core_courses_required || payload.coreCoursesRequired || 16,
+      sat: payload.sat || 0,
+      act: payload.act || 0,
+      counselor_contact: payload.counselor_contact || payload.counselorContact || "unknown",
+
+      school: payload.school || payload.schoolProgram || "",
+      state: payload.state || "",
+      district: payload.district || "",
+      graduation_year: payload.graduationClass || payload.graduation_year || ""
+    };
+  }
+
+  var liveSnapshot = await loadLatestSnapshot();
 
   var eligibility = window.STATSCORE_RUN_ELIGIBILITY
-    ? window.STATSCORE_RUN_ELIGIBILITY(demoSnapshot)
-    : null;
+    ? window.STATSCORE_RUN_ELIGIBILITY(liveSnapshot)
+    : null; 
 
   console.log("STATS-CORE Eligibility Output:", eligibility);
 
