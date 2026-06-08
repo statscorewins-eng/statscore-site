@@ -1166,7 +1166,7 @@ button,input{font-family:inherit}
       </div>
     </a>
 
-    <a class="panel index-card" href="rankings.html">
+    <a class="panel index-card" href="player-profile.html#stats-core-snapshot"> 
       <div class="ring-wrap">
         <div class="ring">
           <b>87.6</b>
@@ -1383,122 +1383,245 @@ document.addEventListener("DOMContentLoaded",()=>{
 });
 </script>
 
-<!-- STATS-CORE DOCTRINE -->
-<script src="statscore-doctrine.js"></script>
-
-<!-- STATS-CORE ENGINE REGISTRY -->
+script src="statscore-doctrine.js"></script>
 <script src="statscore-engine-registry.js"></script>
-
-<!-- STATS-CORE ENGINE EXECUTION -->
 <script src="statscore-engine-execution.js"></script>
-
-<!-- STATS-CORE PRODUCTION MATRIX -->
 <script src="statscore-production-matrix.js"></script>
-
-<!-- STATS-CORE ACADEMIC MATRIX -->
 <script src="statscore-academic-matrix.js"></script>
-
-<!-- STATS-CORE ELIGIBILITY ENGINE -->
 <script src="statscore-eligibility-engine.js"></script>
-
-<!-- STATS-CORE CRYSTAL ENGINE -->
 <script src="statscore-crystal-engine.js"></script>
-
-<!-- STATS-CORE RECRUITING INTEREST REGISTRY -->
 <script src="statscore-recruiting-interest-registry.js"></script>
+<script src="statscore-explainability-engine.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<!-- STATS-CORE EXPLAINABILITY ENGINE -->
-<script src="statscore-explainability-engine.js"></script> 
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  console.log("STATS-CORE Athlete Dashboard Runtime Loaded");
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> 
+  const SUPABASE_URL = "https://oyjmpbuxvfxusmbouldi.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk";
 
-  <script>
-document.addEventListener("DOMContentLoaded", async ()=>{
-  console.log("STATS-CORE Eligibility Runtime Loaded");
+  const params = new URLSearchParams(window.location.search);
+  const urlSnapshotId = params.get("snapshot_id");
 
-  var SUPABASE_URL = "https://oyjmpbuxvfxusmbouldi.supabase.co";
-  var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk";
+  const db = window.STATSCORE_SUPABASE_CLIENT || (
+    window.supabase
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+      : null
+  );
 
-  var supabaseClient = window.supabase
-    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-    : null;
+  window.STATSCORE_SUPABASE_CLIENT = db;
 
-  async function loadLatestSnapshot(){
-    if(!supabaseClient){
-      console.error("STATS-CORE Supabase client not available.");
-      return null;
+  function val(...items){
+    for(const item of items){
+      if(item !== undefined && item !== null && String(item).trim() !== "") return item;
     }
+    return "";
+  }
 
-    var result = await supabaseClient
-  .from("sc_snapshot_intakes")
-  .select("*")
-  .eq("athlete_name","Ammiel Steele")
-  .order("created_at",{ascending:false})
-  .limit(1); 
+  function setText(selector, value){
+    const el = document.querySelector(selector);
+    if(el) el.textContent = value;
+  }
 
-    if(result.error){
-      console.error("STATS-CORE Snapshot Load Error:", result.error);
-      return null;
-    }
+  function setHTML(selector, value){
+    const el = document.querySelector(selector);
+    if(el) el.innerHTML = value;
+  }
 
-    console.log("STATS-CORE Live Snapshot Loaded:", result.data);
+  function normalize(row){
+    const p = row?.intake_payload || {};
 
-    var payload = result.data.intake_payload || {};
+    const first = val(p.firstName, p.first_name, p.first, "");
+    const last = val(p.lastName, p.last_name, p.last, "");
+    const fullName = val(row?.athlete_name, `${first} ${last}`.trim(), "Athlete Profile");
 
     return {
-      athlete_id: result.data.athlete_id || null,
-      snapshot_id: result.data.snapshot_id || null,
-      athlete_name: result.data.athlete_name || "Athlete",
+      raw: row,
+      payload: p,
+      snapshot_id: row?.snapshot_id || urlSnapshotId || "",
+      athlete_name: fullName,
+      first_name: first,
+      last_name: last,
+      graduation_year: val(p.graduationClass, p.graduation_year, p.classYear, ""),
+      city_state: val(p.cityState, p.city_state, p.city, ""),
+      school: val(p.schoolProgram, p.school, p.program, ""),
+      sport: val(p.primarySport, p.primary_sport, ""),
+      height: val(p.height, ""),
+      weight: val(p.weight, ""),
+      primary_position: val(p.primaryPosition, p.primary_position, p.position, ""),
+      secondary_position: val(p.secondaryPosition, p.secondary_position, ""),
+      jersey: val(p.jerseyNumber, p.jersey_number, ""),
+      dominant: val(p.dominantHandFoot, p.dominant_hand_foot, ""),
 
-      current_gpa: payload.gpa || payload.current_gpa || payload.coreGpa || 0,
-      transcript_available: payload.transcript_available || payload.transcriptAvailable || "unknown",
-      ncaa_status: payload.ncaa_status || payload.ncaaEligibilityStatus || "unknown",
-      core_courses_completed: payload.core_courses_completed || payload.coreCoursesCompleted || 0,
-      core_courses_required: payload.core_courses_required || payload.coreCoursesRequired || 16,
-      sat: payload.sat || 0,
-      act: payload.act || 0,
-      counselor_contact: payload.counselor_contact || payload.counselorContact || "unknown",
+      forty: val(p.forty, p.fortyYardDash, p.forty_yard_dash, p["40"], "--"),
+      vertical: val(p.vertical, p.verticalJump, p.vertical_jump, "--"),
+      shuttle: val(p.shuttle, "--"),
+      broad: val(p.broad, p.broadJump, p.broad_jump, "--"),
+      bench: val(p.bench, p.strengthMarker, p.bench_strength_marker, "--"),
 
-      school: payload.school || payload.schoolProgram || "",
-      state: payload.state || "",
-      district: payload.district || "",
-      graduation_year: payload.graduationClass || payload.graduation_year || ""
+      gpa: val(p.gpa, p.current_gpa, p.coreGpa, "--"),
+      sat: val(p.sat, "--"),
+      act: val(p.act, "--"),
+      ncaa_status: val(p.ncaa_status, p.ncaaEligibilityStatus, "Unknown"),
+      transcript_available: val(p.transcript_available, p.transcriptAvailable, "Unknown"),
+
+      headshot: val(
+        p.headshot_url,
+        p.headshotUrl,
+        p.athlete_image_url,
+        p.athleteImageUrl,
+        p.photo_url,
+        p.photoUrl,
+        p.image_url,
+        p.imageUrl,
+        p.headshotDataUrl,
+        p.photoDataUrl,
+        ""
+      ),
+
+      highlight: val(p.highlightUrl, p.highlight_reel_url, p.highlight_url, ""),
+      social: val(p.socialProfileUrl, p.social_profile_url, ""),
+      gameFilm: val(p.gameFilmUrl, p.game_film_url, ""),
+      recruitingProfile: val(p.recruitingProfileUrl, p.recruiting_profile_url, "")
     };
   }
 
-  var liveSnapshot = await loadLatestSnapshot();
+  async function loadSnapshot(){
+    if(!db){
+      console.error("Supabase client unavailable.");
+      return null;
+    }
 
-  var eligibility = window.STATSCORE_RUN_ELIGIBILITY
-    ? window.STATSCORE_RUN_ELIGIBILITY(liveSnapshot)
-    : null; 
+    let query = db.from("sc_snapshot_intakes").select("*");
 
-  console.log("STATS-CORE Eligibility Output:", eligibility);
+    if(urlSnapshotId){
+      query = query.eq("snapshot_id", urlSnapshotId).limit(1).maybeSingle();
+    }else{
+      query = query.order("created_at", { ascending:false }).limit(1).maybeSingle();
+    }
 
-  if(!eligibility || !eligibility.ok) return;
+    const { data, error } = await query;
 
-  var card = document.querySelector('.summary-grid a[href="eligibility.html"]');
-  if(!card) return;
+    if(error){
+      console.error("Dashboard snapshot load failed:", error);
+      return null;
+    }
 
-  var title = card.querySelector("b");
-  var lines = card.querySelectorAll("p");
+    if(!data){
+      console.warn("No dashboard snapshot found.");
+      return null;
+    }
 
-  if(title){
-  title.textContent = eligibility.display_status || "CLEAR";
-}
+    console.log("Dashboard snapshot loaded:", data);
+    return normalize(data);
+  }
 
-if(lines[0]){
-  lines[0].innerHTML =
-    (eligibility.portability_label || "Eligibility Portable") + "<br>" +
-    (eligibility.ncaa_display || "NCAA: ELIGIBLE");
-}
+  function preserveSnapshotLinks(snapshotId){
+    if(!snapshotId) return;
 
-if(lines[1]){
-  lines[1].innerHTML =
-    "Risk: " + (eligibility.risk_label || eligibility.eligibility_risk) + "<br>" +
-    "Score: " + eligibility.eligibility_risk_score + "<br>" +
-    "Last Check: " + (eligibility.last_audit || new Date().toLocaleDateString());
-} 
+    document.querySelectorAll("a[href]").forEach(a=>{
+      const href = a.getAttribute("href");
+      if(!href || href.startsWith("#") || href.startsWith("http") || href.startsWith("mailto:")) return;
 
+      const url = new URL(href, window.location.origin);
+      url.searchParams.set("snapshot_id", snapshotId);
+      a.setAttribute("href", url.pathname.replace("/", "") + url.search);
+    });
+  }
+
+  function renderDashboard(s){
+    if(!s) return;
+
+    preserveSnapshotLinks(s.snapshot_id);
+
+    const profileUrl = `player-profile.html?snapshot_id=${encodeURIComponent(s.snapshot_id)}`;
+
+    document.querySelectorAll('a[href*="player-profile.html"]').forEach(a=>{
+      a.href = profileUrl;
+    });
+
+    const photo = document.querySelector(".photo-box img");
+    if(photo){
+      if(s.headshot){
+        photo.src = s.headshot;
+        photo.alt = s.athlete_name;
+      }else{
+        photo.removeAttribute("src");
+        photo.alt = "Athlete image not loaded";
+      }
+    }
+
+    setText(".athlete-name", s.athlete_name);
+
+    const tags = document.querySelectorAll(".tag-row .tag");
+    if(tags[0]) tags[0].textContent = s.primary_position || "Position";
+    if(tags[1]) tags[1].textContent = s.sport || "Athlete";
+    if(tags[2]) tags[2].textContent = s.height || "Height";
+    if(tags[3]) tags[3].textContent = s.weight ? `${s.weight} lbs` : "Weight";
+    if(tags[4]) tags[4].textContent = s.graduation_year ? `Class of ${s.graduation_year}` : "Class Year";
+
+    const meta = document.querySelectorAll(".meta-line span");
+    if(meta[0]) meta[0].textContent = `📍 ${s.city_state || "City, State"}`;
+    if(meta[1]) meta[1].textContent = `🏫 ${s.school || "School / Program"}`;
+
+    setHTML(".snapshot-id", `Snapshot ID:<br>${s.snapshot_id}`);
+
+    const metrics = document.querySelectorAll(".mid-grid .metrics .metric b");
+    if(metrics[0]) metrics[0].textContent = s.forty;
+    if(metrics[1]) metrics[1].textContent = s.vertical;
+    if(metrics[2]) metrics[2].textContent = s.broad;
+    if(metrics[3]) metrics[3].textContent = s.shuttle;
+    if(metrics[4]) metrics[4].textContent = s.bench;
+
+    const academicMetrics = document.querySelectorAll('.mid-grid a[href*="college-pathway"] .metric b');
+    if(academicMetrics[0]) academicMetrics[0].textContent = s.gpa;
+    if(academicMetrics[1]) academicMetrics[1].textContent = s.sat;
+    if(academicMetrics[2]) academicMetrics[2].textContent = s.act;
+
+    const filmText = document.querySelector('.mid-grid a[href*="media.html"] p:nth-of-type(2)');
+    if(filmText){
+      filmText.textContent = s.highlight || s.gameFilm ? "Film link connected from Snapshot Intake" : "Film evidence pending";
+    }
+
+    if(window.STATSCORE_RUN_ELIGIBILITY){
+      const eligibility = window.STATSCORE_RUN_ELIGIBILITY({
+        current_gpa: s.gpa,
+        transcript_available: s.transcript_available,
+        ncaa_status: s.ncaa_status,
+        core_courses_completed: s.payload.core_courses_completed || s.payload.coreCoursesCompleted || 0,
+        core_courses_required: s.payload.core_courses_required || s.payload.coreCoursesRequired || 16,
+        sat: s.sat,
+        act: s.act
+      });
+
+      console.log("Dashboard eligibility output:", eligibility);
+
+      const card = document.querySelector('.summary-grid a[href*="eligibility.html"]');
+      if(card && eligibility){
+        const title = card.querySelector("b");
+        const lines = card.querySelectorAll("p");
+
+        if(title) title.textContent = eligibility.display_status || "Pending";
+        if(lines[0]){
+          lines[0].innerHTML =
+            (eligibility.portability_label || "Eligibility Review") + "<br>" +
+            (eligibility.ncaa_display || `NCAA: ${s.ncaa_status}`);
+        }
+        if(lines[1]){
+          lines[1].innerHTML =
+            "Risk: " + (eligibility.risk_label || eligibility.eligibility_risk || "Pending") + "<br>" +
+            "Score: " + (eligibility.eligibility_risk_score || "--") + "<br>" +
+            "Last Check: " + new Date().toLocaleDateString();
+        }
+      }
+    }
+
+    console.log("Dashboard rendered for:", s.athlete_name, s.snapshot_id);
+  }
+
+  const snapshot = await loadSnapshot();
+  renderDashboard(snapshot);
 });
 </script> 
 
