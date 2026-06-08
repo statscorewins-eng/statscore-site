@@ -1430,12 +1430,11 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     }
 
     var result = await supabaseClient
-      .from("sc_snapshot_intakes")
-      .select("*")
-      .ilike("athlete_name","%Ammiel%")
-      .order("created_at",{ascending:false})
-      .limit(1)
-      .single();
+  .from("sc_snapshot_intakes")
+  .select("*")
+  .eq("athlete_name","Ammiel Steele")
+  .order("created_at",{ascending:false})
+  .limit(1); 
 
     if(result.error){
       console.error("STATS-CORE Snapshot Load Error:", result.error);
