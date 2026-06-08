@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1513,10 +1513,22 @@ function normalizeSnapshot(response){
 
 async function loadSnapshot(){
   const snapshotId = getSnapshotId();
-  if (!snapshotId) return null;
 
   const db = getDb();
   if (!db) return null;
+
+  if (!snapshotId) {
+    const latest = await db
+      .from("sc_snapshot_intakes")
+      .select("*")
+      .order("created_at", { ascending:false })
+      .limit(1)
+      .maybeSingle();
+
+    if (latest.error || !latest.data) return null;
+
+    return normalizeSnapshot(latest.data);
+  }
 
   const { data, error } = await db.rpc("get_statscore_snapshot", {
     p_snapshot_id: snapshotId
@@ -1528,9 +1540,9 @@ async function loadSnapshot(){
   }
 
   return normalizeSnapshot(data);
-}
+} 
 
-async function loadParentGovernance(snapshotId){
+ async function loadParentGovernance(snapshotId){
   const db = getDb();
   if (!db || !snapshotId) return null;
 
@@ -2058,6 +2070,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 </script>
 
+
+  
 </body>
 </html>
 
