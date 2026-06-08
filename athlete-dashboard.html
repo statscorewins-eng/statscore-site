@@ -1395,5 +1395,68 @@ document.addEventListener("DOMContentLoaded",()=>{
 <!-- STATS-CORE PRODUCTION MATRIX -->
 <script src="statscore-production-matrix.js"></script>
 
+<!-- STATS-CORE ACADEMIC MATRIX -->
+<script src="statscore-academic-matrix.js"></script>
+
+<!-- STATS-CORE ELIGIBILITY ENGINE -->
+<script src="statscore-eligibility-engine.js"></script>
+
+<!-- STATS-CORE CRYSTAL ENGINE -->
+<script src="statscore-crystal-engine.js"></script>
+
+<!-- STATS-CORE RECRUITING INTEREST REGISTRY -->
+<script src="statscore-recruiting-interest-registry.js"></script>
+
+<!-- STATS-CORE EXPLAINABILITY ENGINE -->
+<script src="statscore-explainability-engine.js"></script> 
+
+  <script>
+document.addEventListener("DOMContentLoaded",()=>{
+  console.log("STATS-CORE Eligibility Runtime Loaded");
+
+  var demoSnapshot = {
+    athlete_name:"Ammiel Steele",
+    current_gpa:3.45,
+    transcript_available:"yes",
+    ncaa_status:"eligible",
+    core_courses_completed:7,
+    core_courses_required:7,
+    sat:1080,
+    act:24,
+    counselor_contact:"yes"
+  };
+
+  var eligibility = window.STATSCORE_RUN_ELIGIBILITY
+    ? window.STATSCORE_RUN_ELIGIBILITY(demoSnapshot)
+    : null;
+
+  console.log("STATS-CORE Eligibility Output:", eligibility);
+
+  if(!eligibility || !eligibility.ok) return;
+
+  var card = document.querySelector('.summary-grid a[href="eligibility.html"]');
+  if(!card) return;
+
+  var title = card.querySelector("b");
+  var lines = card.querySelectorAll("p");
+
+  if(title){
+    title.textContent = eligibility.eligibility_status
+      .replace("ELIGIBILITY_","")
+      .replaceAll("_"," ");
+  }
+
+  if(lines[0]){
+    lines[0].textContent = eligibility.portability_label;
+  }
+
+  if(lines[1]){
+    lines[1].innerHTML =
+      "Risk: " + eligibility.eligibility_risk + "<br>" +
+      "Score: " + eligibility.eligibility_risk_score;
+  }
+});
+</script> 
+
 </body>
 </html> 
