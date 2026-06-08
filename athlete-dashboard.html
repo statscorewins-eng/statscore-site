@@ -1042,7 +1042,37 @@ button,input{font-family:inherit}
   line-height:1.05;
   font-size:.74rem;
 }
- 
+
+.ring{
+  background:
+    radial-gradient(circle at 35% 28%,rgba(255,255,255,.38),transparent 18%),
+    conic-gradient(from -12deg,#ff2b1f 0 52%,#ff6a00 52% 70%,#f4c542 70% 84%,rgba(255,255,255,.10) 84% 100%);
+  box-shadow:
+    0 0 18px rgba(255,43,31,.55),
+    0 0 34px rgba(255,106,0,.35),
+    inset 0 0 18px rgba(255,255,255,.18);
+}
+.ring:after{
+  content:"";
+  position:absolute;
+  inset:-5px;
+  border-radius:50%;
+  border:1px solid rgba(244,197,66,.35);
+  box-shadow:0 0 22px rgba(244,197,66,.28);
+  pointer-events:none;
+}
+.photo-placeholder{
+  width:100%;
+  height:100%;
+  display:grid;
+  place-items:center;
+  color:var(--blue);
+  font-weight:900;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  background:linear-gradient(135deg,rgba(126,216,255,.10),rgba(0,0,0,.50));
+} 
+  
 </style>
 </head>
 
@@ -1380,22 +1410,10 @@ button,input{font-family:inherit}
 <script>
 document.addEventListener("DOMContentLoaded",()=>{
   console.log("STATS-CORE Athlete Dashboard Command Shell Loaded");
-
-  function withSnapshotUrl(page){
-    const params = new URLSearchParams(window.location.search);
-    const snapshotId = params.get("snapshot_id");
-    if(!snapshotId) return page;
-    return page + "?snapshot_id=" + encodeURIComponent(snapshotId);
-  }
-
-  document.querySelectorAll('a[href="player-profile.html"]').forEach(a=>{
-    a.href = withSnapshotUrl("player-profile.html");
-  });
 });
-</script> 
+</script>
 
-
-script src="statscore-doctrine.js"></script>
+<script src="statscore-doctrine.js"></script>
 <script src="statscore-engine-registry.js"></script>
 <script src="statscore-engine-execution.js"></script>
 <script src="statscore-production-matrix.js"></script>
@@ -1411,231 +1429,229 @@ document.addEventListener("DOMContentLoaded", async () => {
   console.log("STATS-CORE Athlete Dashboard Runtime Loaded");
 
   const SUPABASE_URL = "https://oyjmpbuxvfxusmbouldi.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXAiLCJyZWYiOiJveWptcGJ1eHZmeHVzbWJvdWxkaSIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzY5NDQ5MTU3LCJleHAiOjIwODUwMjUxNTd9.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk";
 
+  const CANON_VIEW = "statscore_player_profile_view";
   const params = new URLSearchParams(window.location.search);
-  const urlSnapshotId = params.get("snapshot_id");
+  const snapshotId =
+    params.get("snapshot_id") ||
+    localStorage.getItem("STATSCORE_ACTIVE_SNAPSHOT_ID") ||
+    "";
 
   const db = window.STATSCORE_SUPABASE_CLIENT || (
-    window.supabase
-      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-      : null
+    window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null
   );
-
   window.STATSCORE_SUPABASE_CLIENT = db;
 
-  function val(...items){
-    for(const item of items){
-      if(item !== undefined && item !== null && String(item).trim() !== "") return item;
+  const safe = (...v) => {
+    for(const x of v){
+      if(x !== undefined && x !== null && String(x).trim() !== "") return x;
     }
     return "";
-  }
+  };
 
-  function setText(selector, value){
-    const el = document.querySelector(selector);
-    if(el) el.textContent = value;
-  }
+  const setText = (sel,val) => {
+    const el = document.querySelector(sel);
+    if(el) el.textContent = val;
+  };
 
-  function setHTML(selector, value){
-    const el = document.querySelector(selector);
-    if(el) el.innerHTML = value;
+  const setHTML = (sel,val) => {
+    const el = document.querySelector(sel);
+    if(el) el.innerHTML = val;
+  };
+
+  function storagePublic(path){
+    if(!path) return "";
+    if(String(path).startsWith("http")) return path;
+    return `${SUPABASE_URL}/storage/v1/object/public/${String(path).replace(/^\/+/,"")}`;
   }
 
   function normalize(row){
-    const p = row?.intake_payload || {};
+    const raw = row || {};
+    const p = raw.intake_payload || raw.raw_payload || raw.payload || {};
 
-    const first = val(p.firstName, p.first_name, p.first, "");
-    const last = val(p.lastName, p.last_name, p.last, "");
-    const fullName = val(row?.athlete_name, `${first} ${last}`.trim(), "Athlete Profile");
+    const first = safe(raw.first_name, p.firstName, p.first_name);
+    const last = safe(raw.last_name, p.lastName, p.last_name);
+    const full = safe(raw.athlete_display_name, raw.athlete_name, `${first} ${last}`.trim(), "Athlete Profile");
 
     return {
-      raw: row,
-      payload: p,
-      snapshot_id: row?.snapshot_id || urlSnapshotId || "",
-      athlete_name: fullName,
-      first_name: first,
-      last_name: last,
-      graduation_year: val(p.graduationClass, p.graduation_year, p.classYear, ""),
-      city_state: val(p.cityState, p.city_state, p.city, ""),
-      school: val(p.schoolProgram, p.school, p.program, ""),
-      sport: val(p.primarySport, p.primary_sport, ""),
-      height: val(p.height, ""),
-      weight: val(p.weight, ""),
-      primary_position: val(p.primaryPosition, p.primary_position, p.position, ""),
-      secondary_position: val(p.secondaryPosition, p.secondary_position, ""),
-      jersey: val(p.jerseyNumber, p.jersey_number, ""),
-      dominant: val(p.dominantHandFoot, p.dominant_hand_foot, ""),
+      raw,
+      payload:p,
+      snapshot_id:safe(raw.snapshot_id, snapshotId),
+      athlete_id:safe(raw.athlete_id),
+      name:full,
+      first,
+      last,
+      sport:safe(raw.primary_sport, raw.sport, p.primarySport, p.primary_sport),
+      position:safe(raw.primary_position, raw.position, p.primaryPosition, p.primary_position, p.position),
+      height:safe(raw.height, p.height),
+      weight:safe(raw.weight, p.weight),
+      grad:safe(raw.graduation_class, raw.graduation_year, p.graduationClass, p.graduation_year),
+      cityState:safe(raw.city_state, p.cityState, p.city_state, p.city),
+      school:safe(raw.school_program, raw.school, p.schoolProgram, p.school),
 
-      forty: val(p.forty, p.fortyYardDash, p.forty_yard_dash, p["40"], "--"),
-      vertical: val(p.vertical, p.verticalJump, p.vertical_jump, "--"),
-      shuttle: val(p.shuttle, "--"),
-      broad: val(p.broad, p.broadJump, p.broad_jump, "--"),
-      bench: val(p.bench, p.strengthMarker, p.bench_strength_marker, "--"),
+      forty:safe(raw.dash40, raw.forty, p.dash40, p.forty, p.fortyYardDash, "--"),
+      vertical:safe(raw.vertical_jump, p.verticalJump, p.vertical_jump, "--"),
+      broad:safe(raw.broad_jump, p.broadJump, p.broad_jump, "--"),
+      shuttle:safe(raw.shuttle, p.shuttle, "--"),
+      bench:safe(raw.strength_mark, p.strengthMarker, p.bench, "--"),
 
-      gpa: val(p.gpa, p.current_gpa, p.coreGpa, "--"),
-      sat: val(p.sat, "--"),
-      act: val(p.act, "--"),
-      ncaa_status: val(p.ncaa_status, p.ncaaEligibilityStatus, "Unknown"),
-      transcript_available: val(p.transcript_available, p.transcriptAvailable, "Unknown"),
+      gpa:safe(raw.current_gpa, p.gpa, p.current_gpa, "--"),
+      sat:safe(raw.sat, p.sat, "--"),
+      act:safe(raw.act, p.act, "--"),
+      ncaa:safe(raw.ncaa_eligibility, raw.ncaa_status, p.ncaaEligibilityStatus, p.ncaa_status, "Unknown"),
 
-      headshot: val(
-        p.headshot_url,
+      scoreStatus:safe(raw.score_status, raw.verification_status, "UNVERIFIED"),
+      snapshotStatus:safe(raw.snapshot_status, "SUBMITTED"),
+      verificationStatus:safe(raw.verification_status, "UNVERIFIED"),
+
+      coreScore:safe(raw.statscore_score, raw.core_score, raw.snapshot_score, raw.overall_score, ""),
+      positionScore:safe(raw.position_score, ""),
+      athleticScore:safe(raw.athletic_score, ""),
+      productionScore:safe(raw.production_score, ""),
+      academicScore:safe(raw.academic_score, ""),
+      characterScore:safe(raw.character_score, ""),
+
+      headshot:storagePublic(safe(
+        raw.headshot_public_url,
+        raw.headshot_url,
+        raw.headshot_path,
+        raw.photo_url,
         p.headshotUrl,
-        p.athlete_image_url,
+        p.headshot_url,
         p.athleteImageUrl,
-        p.photo_url,
-        p.photoUrl,
-        p.image_url,
-        p.imageUrl,
-        p.headshotDataUrl,
-        p.photoDataUrl,
-        ""
-      ),
-
-      highlight: val(p.highlightUrl, p.highlight_reel_url, p.highlight_url, ""),
-      social: val(p.socialProfileUrl, p.social_profile_url, ""),
-      gameFilm: val(p.gameFilmUrl, p.game_film_url, ""),
-      recruitingProfile: val(p.recruitingProfileUrl, p.recruiting_profile_url, "")
+        p.photoUrl
+      ))
     };
   }
 
-  async function loadSnapshot(){
+  async function loadProfile(){
     if(!db){
-      console.error("Supabase client unavailable.");
+      console.error("Supabase unavailable.");
       return null;
     }
 
-    let query = db.from("sc_snapshot_intakes").select("*");
+    let q = db.from(CANON_VIEW).select("*");
 
-    if(urlSnapshotId){
-      query = query.eq("snapshot_id", urlSnapshotId).limit(1).maybeSingle();
+    if(snapshotId){
+      q = q.eq("snapshot_id", snapshotId).maybeSingle();
     }else{
-      query = query.order("created_at", { ascending:false }).limit(1).maybeSingle();
+      q = q.order("created_at",{ascending:false}).limit(1).maybeSingle();
     }
 
-    const { data, error } = await query;
+    const {data,error} = await q;
 
     if(error){
-      console.error("Dashboard snapshot load failed:", error);
+      console.error("Dashboard canonical profile load failed:", error);
       return null;
     }
 
     if(!data){
-      console.warn("No dashboard snapshot found.");
+      console.warn("No canonical profile found in statscore_player_profile_view.");
       return null;
     }
 
-    console.log("Dashboard snapshot loaded:", data);
     return normalize(data);
   }
 
-  function preserveSnapshotLinks(snapshotId){
-    if(!snapshotId) return;
+  function routeAllLinks(id){
+    if(!id) return;
+    localStorage.setItem("STATSCORE_ACTIVE_SNAPSHOT_ID", id);
 
     document.querySelectorAll("a[href]").forEach(a=>{
       const href = a.getAttribute("href");
       if(!href || href.startsWith("#") || href.startsWith("http") || href.startsWith("mailto:")) return;
 
-      const url = new URL(href, window.location.origin);
-      url.searchParams.set("snapshot_id", snapshotId);
-      a.setAttribute("href", url.pathname.replace("/", "") + url.search);
+      const [base,hash=""] = href.split("#");
+      const url = new URL(base, window.location.origin);
+      url.searchParams.set("snapshot_id", id);
+
+      a.setAttribute("href", url.pathname.replace("/","") + url.search + (hash ? `#${hash}` : ""));
     });
   }
 
-  function renderDashboard(s){
+  function render(s){
     if(!s) return;
 
-    preserveSnapshotLinks(s.snapshot_id);
+    routeAllLinks(s.snapshot_id);
 
-    const profileUrl = `player-profile.html?snapshot_id=${encodeURIComponent(s.snapshot_id)}`;
+    setText(".athlete-name", s.name);
+    setHTML(".snapshot-id", `Snapshot ID:<br>${s.snapshot_id}`);
 
-    document.querySelectorAll('a[href*="player-profile.html"]').forEach(a=>{
-      a.href = profileUrl;
-    });
+    const photoBox = document.querySelector(".photo-box");
+    const img = document.querySelector(".photo-box img");
 
-    const photo = document.querySelector(".photo-box img");
-    if(photo){
-      if(s.headshot){
-        photo.src = s.headshot;
-        photo.alt = s.athlete_name;
-      }else{
-        photo.removeAttribute("src");
-        photo.alt = "Athlete image not loaded";
-      }
+    if(s.headshot && img){
+      img.src = s.headshot;
+      img.alt = s.name;
+    }else if(photoBox){
+      photoBox.innerHTML = `<div class="photo-placeholder">Athlete Image Required</div>`;
     }
 
-    setText(".athlete-name", s.athlete_name);
-
     const tags = document.querySelectorAll(".tag-row .tag");
-    if(tags[0]) tags[0].textContent = s.primary_position || "Position";
+    if(tags[0]) tags[0].textContent = s.position || "Position";
     if(tags[1]) tags[1].textContent = s.sport || "Athlete";
     if(tags[2]) tags[2].textContent = s.height || "Height";
     if(tags[3]) tags[3].textContent = s.weight ? `${s.weight} lbs` : "Weight";
-    if(tags[4]) tags[4].textContent = s.graduation_year ? `Class of ${s.graduation_year}` : "Class Year";
+    if(tags[4]) tags[4].textContent = s.grad ? `Class of ${s.grad}` : "Class Year";
 
     const meta = document.querySelectorAll(".meta-line span");
-    if(meta[0]) meta[0].textContent = `📍 ${s.city_state || "City, State"}`;
+    if(meta[0]) meta[0].textContent = `📍 ${s.cityState || "City, State"}`;
     if(meta[1]) meta[1].textContent = `🏫 ${s.school || "School / Program"}`;
 
-    setHTML(".snapshot-id", `Snapshot ID:<br>${s.snapshot_id}`);
+    const verified = String(s.verificationStatus).toUpperCase() === "VERIFIED";
+    const releaseApproved = /APPROVED|RELEASED/i.test(JSON.stringify(s.raw));
 
-    const metrics = document.querySelectorAll(".mid-grid .metrics .metric b");
-    if(metrics[0]) metrics[0].textContent = s.forty;
-    if(metrics[1]) metrics[1].textContent = s.vertical;
-    if(metrics[2]) metrics[2].textContent = s.broad;
-    if(metrics[3]) metrics[3].textContent = s.shuttle;
-    if(metrics[4]) metrics[4].textContent = s.bench;
-
-    const academicMetrics = document.querySelectorAll('.mid-grid a[href*="college-pathway"] .metric b');
-    if(academicMetrics[0]) academicMetrics[0].textContent = s.gpa;
-    if(academicMetrics[1]) academicMetrics[1].textContent = s.sat;
-    if(academicMetrics[2]) academicMetrics[2].textContent = s.act;
-
-    const filmText = document.querySelector('.mid-grid a[href*="media.html"] p:nth-of-type(2)');
-    if(filmText){
-      filmText.textContent = s.highlight || s.gameFilm ? "Film link connected from Snapshot Intake" : "Film evidence pending";
+    const status = document.querySelectorAll(".status-pill");
+    if(status[0]){
+      status[0].textContent = verified ? "✓ Profile Verified" : "⚠ Profile Unverified";
+      status[0].className = verified ? "status-pill green" : "status-pill gold";
+    }
+    if(status[1]){
+      status[1].textContent = releaseApproved ? "✓ Parent Release: Approved" : "⚠ Parent Release: Required";
+      status[1].className = releaseApproved ? "status-pill green" : "status-pill gold";
     }
 
-    if(window.STATSCORE_RUN_ELIGIBILITY){
-      const eligibility = window.STATSCORE_RUN_ELIGIBILITY({
-        current_gpa: s.gpa,
-        transcript_available: s.transcript_available,
-        ncaa_status: s.ncaa_status,
-        core_courses_completed: s.payload.core_courses_completed || s.payload.coreCoursesCompleted || 0,
-        core_courses_required: s.payload.core_courses_required || s.payload.coreCoursesRequired || 16,
-        sat: s.sat,
-        act: s.act
-      });
+    const ringScore = document.querySelector(".ring b");
+    const ringStatus = document.querySelector(".ring small");
+    if(ringScore) ringScore.textContent = s.coreScore || "--";
+    if(ringStatus) ringStatus.textContent = s.scoreStatus || "Unverified";
 
-      console.log("Dashboard eligibility output:", eligibility);
+    const scoreLines = document.querySelectorAll(".score-line b");
+    if(scoreLines[0]) scoreLines[0].textContent = s.positionScore || "--";
+    if(scoreLines[1]) scoreLines[1].textContent = s.athleticScore || "--";
+    if(scoreLines[2]) scoreLines[2].textContent = s.productionScore || "--";
+    if(scoreLines[3]) scoreLines[3].textContent = s.academicScore || "--";
+    if(scoreLines[4]) scoreLines[4].textContent = s.characterScore || "--";
 
-      const card = document.querySelector('.summary-grid a[href*="eligibility.html"]');
-      if(card && eligibility){
-        const title = card.querySelector("b");
-        const lines = card.querySelectorAll("p");
+    const perf = document.querySelectorAll('.mid-grid a[href*="readiness"] .metric b');
+    if(perf[0]) perf[0].textContent = s.forty;
+    if(perf[1]) perf[1].textContent = s.vertical;
+    if(perf[2]) perf[2].textContent = s.broad;
+    if(perf[3]) perf[3].textContent = s.shuttle;
+    if(perf[4]) perf[4].textContent = s.bench;
 
-        if(title) title.textContent = eligibility.display_status || "Pending";
-        if(lines[0]){
-          lines[0].innerHTML =
-            (eligibility.portability_label || "Eligibility Review") + "<br>" +
-            (eligibility.ncaa_display || `NCAA: ${s.ncaa_status}`);
-        }
-        if(lines[1]){
-          lines[1].innerHTML =
-            "Risk: " + (eligibility.risk_label || eligibility.eligibility_risk || "Pending") + "<br>" +
-            "Score: " + (eligibility.eligibility_risk_score || "--") + "<br>" +
-            "Last Check: " + new Date().toLocaleDateString();
-        }
-      }
+    const acad = document.querySelectorAll('.mid-grid a[href*="college-pathway"] .metric b');
+    if(acad[0]) acad[0].textContent = s.gpa;
+    if(acad[1]) acad[1].textContent = s.sat;
+    if(acad[2]) acad[2].textContent = s.act;
+
+    const eligibilityCard = document.querySelector('.summary-grid a[href*="eligibility"]');
+    if(eligibilityCard){
+      const title = eligibilityCard.querySelector("b");
+      const lines = eligibilityCard.querySelectorAll("p");
+      if(title) title.textContent = s.ncaa && s.ncaa !== "Unknown" ? s.ncaa : "Review";
+      if(lines[0]) lines[0].innerHTML = `NCAA Status<br>${s.ncaa}`;
+      if(lines[1]) lines[1].innerHTML = `GPA: ${s.gpa}<br>Snapshot: ${s.snapshotStatus}`;
     }
 
-    console.log("Dashboard rendered for:", s.athlete_name, s.snapshot_id);
+    console.log("STATS-CORE Dashboard rendered:", s.name, s.snapshot_id);
   }
 
-  const snapshot = await loadSnapshot();
-  renderDashboard(snapshot);
+  const profile = await loadProfile();
+  render(profile);
 });
-</script> 
+</script>
 
 </body>
 </html> 
