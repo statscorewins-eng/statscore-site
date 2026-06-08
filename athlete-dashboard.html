@@ -42,9 +42,9 @@ a{text-decoration:none;color:inherit;display:block}
 button,input{font-family:inherit}
 
 .page{
-  width:1600px;
-  max-width:none
-  min-width:1366px;
+  width:100%;
+  max-width:1800px;
+  min-width:1366px; 
   min-height:100vh;
   margin:0 auto;
   background:
@@ -1377,11 +1377,236 @@ button,input{font-family:inherit}
 </main>
 </div>
 
+<!-- SUPABASE -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- STATS-CORE INTELLIGENCE STACK -->
+<script src="statscore-doctrine.js"></script>
+<script src="statscore-engine-registry.js"></script>
+<script src="statscore-engine-execution.js"></script>
+<script src="statscore-production-matrix.js"></script>
+<script src="statscore-academic-matrix.js"></script>
+<script src="statscore-pathway-engine.js"></script>
+<script src="statscore-crystal-engine.js"></script>
+<script src="statscore-recruiting-interest-registry.js"></script>
+<script src="statscore-explainability-engine.js"></script>
+
 <script>
-document.addEventListener("DOMContentLoaded",()=>{
-  console.log("STATS-CORE Athlete Dashboard Command Shell Loaded");
+/* ============================================================
+   STATS-CORE ATHLETE DASHBOARD LIVE SNAPSHOT RUNTIME
+   Purpose:
+   Replaces seeded dashboard values with real Supabase snapshot data.
+============================================================ */
+
+const STATSCORE_SUPABASE_URL = "https://oyjmpbuxvfxusmbouldi.supabase.co";
+
+/* IMPORTANT:
+   Replace this with your public anon key.
+   Do NOT use service role key in browser.
+*/
+const STATSCORE_SUPABASE_ANON_KEY = "PASTE_PUBLIC_ANON_KEY_HERE";
+
+const scClient = window.supabase.createClient(
+  STATSCORE_SUPABASE_URL,
+  STATSCORE_SUPABASE_ANON_KEY
+);
+
+function getSnapshotIdFromRuntime(){
+  const params = new URLSearchParams(window.location.search);
+
+  return (
+    params.get("snapshot_id") ||
+    params.get("snapshot") ||
+    localStorage.getItem("statscore_current_snapshot_id") ||
+    localStorage.getItem("statscore_snapshot_id") ||
+    null
+  );
+}
+
+function safe(v, fallback = "—"){
+  return v === undefined || v === null || v === "" ? fallback : v;
+}
+
+function fullName(payload, row){
+  return (
+    row?.athlete_name ||
+    `${safe(payload.firstName,"").trim()} ${safe(payload.lastName,"").trim()}`.trim() ||
+    "Athlete"
+  );
+}
+
+async function loadDashboardSnapshot(){
+  const snapshotId = getSnapshotIdFromRuntime();
+
+  let query = scClient
+    .from("sc_snapshot_intakes")
+    .select("*")
+    .order("created_at", { ascending:false })
+    .limit(1);
+
+  if(snapshotId){
+    query = scClient
+      .from("sc_snapshot_intakes")
+      .select("*")
+      .eq("snapshot_id", snapshotId)
+      .limit(1);
+  }
+
+  const { data, error } = await query;
+
+  if(error){
+    console.error("STATS-CORE dashboard snapshot load failed:", error);
+    return null;
+  }
+
+  return data?.[0] || null;
+}
+
+function normalizeSnapshot(row){
+  const payload = row?.intake_payload || {};
+
+  return {
+    snapshot_id: row.snapshot_id,
+    athlete_id: row.athlete_id || payload.athlete_id || null,
+    athlete_display_name: fullName(payload, row),
+    athlete_name: fullName(payload, row),
+
+    first_name: payload.firstName || payload.first_name || "",
+    last_name: payload.lastName || payload.last_name || "",
+
+    city: payload.city || "",
+    state: payload.state || "",
+    school: payload.school || payload.schoolProgram || "",
+    sport: payload.primarySport || payload.sport || "",
+    position: payload.primaryPosition || payload.position || "",
+    secondary_position: payload.secondaryPosition || "",
+
+    height: payload.height || "",
+    weight: payload.weight || "",
+    graduation_year: payload.graduationClass || payload.gradYear || "",
+
+    current_gpa: payload.gpa || payload.current_gpa || "",
+    ncaa_status: payload.ncaaEligibilityStatus || payload.ncaa_status || "",
+    transcript_available: payload.transcriptAvailable || "",
+    counselor_contact: payload.counselorContact || "",
+
+    forty: payload.fortyDash || payload.forty || "",
+    vertical: payload.vertical || "",
+    shuttle: payload.shuttle || "",
+    broad_jump: payload.broadJump || "",
+    strength_marker: payload.strengthMarker || "",
+
+    highlight_url: payload.highlightUrl || "",
+    film_url: payload.gameFilmUrl || "",
+    recruiting_profile_url: payload.recruitingProfileUrl || "",
+
+    verification_status: payload.verificationStatus || "unverified",
+    created_at: row.created_at
+  };
+}
+
+function renderDashboard(snapshot){
+  const name = snapshot.athlete_display_name;
+
+  document.querySelector(".athlete-name").textContent = name;
+
+  const photo = document.querySelector(".photo-box img");
+  if(photo){
+    photo.alt = name;
+  }
+
+  const tags = document.querySelector(".tag-row");
+  if(tags){
+    tags.innerHTML = `
+      <span class="tag">${safe(snapshot.position)}</span>
+      <span class="tag">${safe(snapshot.sport)}</span>
+      <span class="tag">${safe(snapshot.height)}</span>
+      <span class="tag">${safe(snapshot.weight)} lbs</span>
+      <span class="tag">Class of ${safe(snapshot.graduation_year)}</span>
+    `;
+  }
+
+  const meta = document.querySelector(".meta-line");
+  if(meta){
+    meta.innerHTML = `
+      <span>📍 ${safe(snapshot.city)}, ${safe(snapshot.state)}</span>
+      <span>🏫 ${safe(snapshot.school)}</span>
+    `;
+  }
+
+  const snapshotId = document.querySelector(".snapshot-id");
+  if(snapshotId){
+    snapshotId.innerHTML = `Snapshot ID:<br>${safe(snapshot.snapshot_id)}`;
+  }
+
+  const academicCard = document.querySelector('.summary-grid a[href="eligibility.html"]');
+  if(academicCard){
+    academicCard.querySelector("b").textContent = safe(snapshot.ncaa_status, "Review Needed");
+    academicCard.querySelectorAll("p")[1].innerHTML = `GPA: ${safe(snapshot.current_gpa)}<br>Transcript: ${safe(snapshot.transcript_available)}`;
+  }
+
+  const performanceBlock = document.querySelector('.mid-grid a[href="readiness.html"] .metrics');
+  if(performanceBlock){
+    performanceBlock.innerHTML = `
+      <div class="metric"><b>${safe(snapshot.forty)}</b><span>40 Yard Dash</span></div>
+      <div class="metric"><b>${safe(snapshot.vertical)}</b><span>Vertical Jump</span></div>
+      <div class="metric"><b>${safe(snapshot.broad_jump)}</b><span>Broad Jump</span></div>
+      <div class="metric"><b>${safe(snapshot.shuttle)}</b><span>Shuttle</span></div>
+      <div class="metric"><b>${safe(snapshot.strength_marker)}</b><span>Strength Marker</span></div>
+    `;
+  }
+}
+
+function runIntelligence(snapshot){
+  const academic = window.STATSCORE_EVALUATE_ACADEMICS
+    ? window.STATSCORE_EVALUATE_ACADEMICS(snapshot)
+    : null;
+
+  const pathway = window.STATSCORE_PATHWAY_ENGINE?.buildPathwayReport
+    ? window.STATSCORE_PATHWAY_ENGINE.buildPathwayReport(snapshot)
+    : window.STATScore?.PathwayEngine?.buildPathwayReport?.(snapshot);
+
+  const explanation = window.STATSCORE_EXPLAIN_DECISION
+    ? window.STATSCORE_EXPLAIN_DECISION({
+        athlete_name: snapshot.athlete_display_name,
+        snapshot_id: snapshot.snapshot_id,
+        academic,
+        pathway,
+        audience: "ATHLETE"
+      })
+    : null;
+
+  console.log("STATS-CORE Academic Output:", academic);
+  console.log("STATS-CORE Pathway Output:", pathway);
+  console.log("STATS-CORE Explainability Output:", explanation);
+
+  const nextSteps = document.querySelector('.right-rail a[href="readiness.html"]');
+  if(nextSteps && explanation?.next_best_step){
+    const firstNext = nextSteps.querySelector(".next-row span");
+    if(firstNext) firstNext.textContent = explanation.next_best_step;
+  }
+}
+
+document.addEventListener("DOMContentLoaded", async ()=>{
+  console.log("STATS-CORE Athlete Dashboard Live Runtime Loaded");
+
+  const row = await loadDashboardSnapshot();
+
+  if(!row){
+    console.warn("No live snapshot found. Dashboard remains in seeded fallback mode.");
+    return;
+  }
+
+  const snapshot = normalizeSnapshot(row);
+
+  localStorage.setItem("statscore_current_snapshot_id", snapshot.snapshot_id);
+
+  renderDashboard(snapshot);
+  runIntelligence(snapshot);
+
+  console.log("STATS-CORE Dashboard Snapshot Loaded:", snapshot);
 });
-</script>
+</script> 
 
 </body>
 </html> 
