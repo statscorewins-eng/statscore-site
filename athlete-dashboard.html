@@ -1441,20 +1441,22 @@ document.addEventListener("DOMContentLoaded",()=>{
   var lines = card.querySelectorAll("p");
 
   if(title){
-    title.textContent = eligibility.eligibility_status
-      .replace("ELIGIBILITY_","")
-      .replaceAll("_"," ");
-  }
+  title.textContent = eligibility.display_status || "CLEAR";
+}
 
-  if(lines[0]){
-    lines[0].textContent = eligibility.portability_label;
-  }
+if(lines[0]){
+  lines[0].innerHTML =
+    (eligibility.portability_label || "Eligibility Portable") + "<br>" +
+    (eligibility.ncaa_display || "NCAA: ELIGIBLE");
+}
 
-  if(lines[1]){
-    lines[1].innerHTML =
-      "Risk: " + eligibility.eligibility_risk + "<br>" +
-      "Score: " + eligibility.eligibility_risk_score;
-  }
+if(lines[1]){
+  lines[1].innerHTML =
+    "Risk: " + (eligibility.risk_label || eligibility.eligibility_risk) + "<br>" +
+    "Score: " + eligibility.eligibility_risk_score + "<br>" +
+    "Last Check: " + (eligibility.last_audit || new Date().toLocaleDateString());
+} 
+
 });
 </script> 
 
