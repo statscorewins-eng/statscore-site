@@ -1380,8 +1380,20 @@ button,input{font-family:inherit}
 <script>
 document.addEventListener("DOMContentLoaded",()=>{
   console.log("STATS-CORE Athlete Dashboard Command Shell Loaded");
+
+  function withSnapshotUrl(page){
+    const params = new URLSearchParams(window.location.search);
+    const snapshotId = params.get("snapshot_id");
+    if(!snapshotId) return page;
+    return page + "?snapshot_id=" + encodeURIComponent(snapshotId);
+  }
+
+  document.querySelectorAll('a[href="player-profile.html"]').forEach(a=>{
+    a.href = withSnapshotUrl("player-profile.html");
+  });
 });
-</script>
+</script> 
+
 
 script src="statscore-doctrine.js"></script>
 <script src="statscore-engine-registry.js"></script>
