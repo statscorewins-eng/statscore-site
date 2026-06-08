@@ -15,7 +15,7 @@
    - Eligibility risk routes the athlete; it does not erase the athlete.
 ============================================================ */
 
-(function(){
+(function(){ 
   "use strict";
 
   window.STATSCORE_ELIGIBILITY_ENGINE = {
