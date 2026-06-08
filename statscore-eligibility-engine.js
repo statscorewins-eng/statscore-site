@@ -1,6 +1,6 @@
 /* ============================================================
    STATS-CORE™ ELIGIBILITY ENGINE
-   File: statscore-eligibility-engine.js
+   File: statscore-eligibility-engine.js 
    Version: STATSCORE-ELIGIBILITY-ENGINE-V1
 
    Purpose:
@@ -101,11 +101,16 @@
         athlete_id: normalized.athlete_id,
         snapshot_id: normalized.snapshot_id,
         athlete_name: normalized.athlete_name,
-
-        eligibility_status: this.resolveEligibilityStatus(eligibilityRisk),
-        eligibility_risk: eligibilityRisk,
-        eligibility_risk_score: riskScore,
-
+         
+eligibility_status: this.resolveEligibilityStatus(eligibilityRisk),
+display_status: this.resolveDisplayStatus(eligibilityRisk),
+risk_label: this.resolveRiskLabel(eligibilityRisk),
+ncaa_display: this.resolveGoverningDisplay(normalized.ncaa_status, "NCAA"),
+state_display: this.resolveStateDisplay(normalized),
+district_display: this.resolveDistrictDisplay(normalized),
+last_audit: new Date().toLocaleDateString(),
+eligibility_risk: eligibilityRisk,
+eligibility_risk_score: riskScore, 
         portability_status: portability.status,
         portability_label: portability.label,
 
@@ -454,13 +459,61 @@
     },
 
     resolveEligibilityStatus(risk){
-      if(risk === this.RISK_LEVELS.CLEAR) return "ELIGIBILITY_CLEAR";
-      if(risk === this.RISK_LEVELS.MONITOR) return "ELIGIBILITY_MONITOR";
-      if(risk === this.RISK_LEVELS.REVIEW) return "ELIGIBILITY_REVIEW_REQUIRED";
-      if(risk === this.RISK_LEVELS.HIGH_RISK) return "ELIGIBILITY_HIGH_RISK";
-      if(risk === this.RISK_LEVELS.BLOCKED) return "ELIGIBILITY_BLOCKED_PENDING_RECORDS";
-      return "ELIGIBILITY_UNKNOWN";
-    },
+    if(risk === this.RISK_LEVELS.CLEAR) return "ELIGIBILITY_CLEAR";
+    if(risk === this.RISK_LEVELS.MONITOR) return "ELIGIBILITY_MONITOR";
+    if(risk === this.RISK_LEVELS.REVIEW) return "ELIGIBILITY_REVIEW_REQUIRED";
+    if(risk === this.RISK_LEVELS.HIGH_RISK) return "ELIGIBILITY_HIGH_RISK";
+    if(risk === this.RISK_LEVELS.BLOCKED) return "ELIGIBILITY_BLOCKED_PENDING_RECORDS";
+    return "ELIGIBILITY_UNKNOWN";
+},
+
+resolveDisplayStatus(risk){
+    if(risk === this.RISK_LEVELS.CLEAR) return "CLEAR";
+    if(risk === this.RISK_LEVELS.MONITOR) return "MONITOR";
+    if(risk === this.RISK_LEVELS.REVIEW) return "REVIEW";
+    if(risk === this.RISK_LEVELS.HIGH_RISK) return "HIGH RISK";
+    if(risk === this.RISK_LEVELS.BLOCKED) return "BLOCKED";
+    return "UNKNOWN";
+},
+
+resolveRiskLabel(risk){
+    if(risk === this.RISK_LEVELS.CLEAR) return "LOW";
+    if(risk === this.RISK_LEVELS.MONITOR) return "MODERATE";
+    if(risk === this.RISK_LEVELS.REVIEW) return "REVIEW REQUIRED";
+    if(risk === this.RISK_LEVELS.HIGH_RISK) return "HIGH";
+    if(risk === this.RISK_LEVELS.BLOCKED) return "BLOCKED";
+    return "UNKNOWN";
+},
+
+resolveGoverningDisplay(value,label){
+    const v = this.lower(value || "");
+
+    if(v.includes("eligible") || v.includes("verified") || v.includes("on track")){
+        return `${label}: ELIGIBLE`;
+    }
+
+    if(v.includes("review") || v.includes("needs")){
+        return `${label}: REVIEW`;
+    }
+
+    if(v.includes("not started")){
+        return `${label}: NOT STARTED`;
+    }
+
+    return `${label}: UNKNOWN`;
+},
+
+resolveStateDisplay(p){
+    return p.state
+        ? `STATE: ${String(p.state).toUpperCase()} REVIEW`
+        : "STATE: UNKNOWN";
+},
+
+resolveDistrictDisplay(p){
+    return p.district
+        ? `DISTRICT: ${String(p.district).toUpperCase()} REVIEW`
+        : "DISTRICT: UNKNOWN";
+}, 
 
     resolvePortability(risk, flags){
       if(risk === this.RISK_LEVELS.CLEAR){
