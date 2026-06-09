@@ -1427,8 +1427,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   console.log("STATS-CORE Athlete Dashboard Runtime Loaded");
 
   const SUPABASE_URL = "https://oyjmpbuxvfxusmbouldi.supabase.co";
-  const SUPABASE_ANON_KEY = "YOUR_ANON_KEY_HERE";
-  const CANON_VIEW = "statscore_player_profile_view";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk";
+  const CANON_VIEW = "statscore_snapshots";
 
   const params = new URLSearchParams(window.location.search);
   const snapshotId =
@@ -1490,66 +1490,59 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function normalize(row){
-    const r = row || {};
-    const p = r.intake_payload || r.payload || r.raw_payload || {};
+  const r = row || {};
 
-    const first = safe(r.first_name,p.firstName,p.first_name);
-    const last = safe(r.last_name,p.lastName,p.last_name);
-    const name = safe(r.athlete_display_name,r.athlete_name,`${first} ${last}`.trim(),"Athlete Profile");
+  const first = safe(r.first_name);
+  const last = safe(r.last_name);
 
-    return {
-      raw:r,
-      payload:p,
-      snapshot_id:safe(r.snapshot_id,snapshotId),
-      athlete_id:safe(r.athlete_id),
-      name,
-      sport:safe(r.primary_sport,r.sport,p.primarySport,p.primary_sport,"Athlete"),
-      position:safe(r.primary_position,r.position,p.primaryPosition,p.primary_position,p.position,"Position"),
-      height:safe(r.height,p.height),
-      weight:safe(r.weight,p.weight),
-      grad:safe(r.graduation_class,r.graduation_year,p.graduationClass,p.graduation_year),
-      cityState:safe(r.city_state,p.cityState,p.city_state,p.city),
-      school:safe(r.school_program,r.school,p.schoolProgram,p.school),
+  return {
+    raw:r,
+    snapshot_id:safe(r.snapshot_id,snapshotId),
+    athlete_id:safe(r.athlete_id),
+    name:safe(r.athlete_display_name,`${first} ${last}`.trim(),"Athlete Profile"),
+    sport:safe(r.primary_sport,r.sport,"Athlete"),
+    position:safe(r.primary_position,r.position,"Position"),
+    height:safe(r.height),
+    weight:safe(r.weight),
+    grad:safe(r.graduation_class,r.graduation_year),
+    cityState:safe(r.city_state),
+    school:safe(r.school_program,r.school),
 
-      forty:safe(r.dash40,r.forty,p.dash40,p.forty,p.fortyYardDash,"--"),
-      vertical:safe(r.vertical_jump,p.verticalJump,p.vertical_jump,"--"),
-      broad:safe(r.broad_jump,p.broadJump,p.broad_jump,"--"),
-      shuttle:safe(r.shuttle,p.shuttle,"--"),
-      bench:safe(r.strength_mark,r.strength_marker,p.strengthMarker,p.bench,"--"),
+    forty:safe(r.dash40,r.forty,"--"),
+    vertical:safe(r.vertical_jump,"--"),
+    broad:safe(r.broad_jump,"--"),
+    shuttle:safe(r.shuttle,"--"),
+    bench:safe(r.strength_marker,"--"),
 
-      gpa:safe(r.current_gpa,p.gpa,p.current_gpa,"--"),
-      sat:safe(r.sat,p.sat,"--"),
-      act:safe(r.act,p.act,"--"),
-      classRank:safe(r.class_rank,p.classRank,p.class_rank,"--"),
-      ncaa:safe(r.ncaa_eligibility,r.ncaa_status,p.ncaaEligibilityStatus,p.ncaa_status,"Unknown"),
-      transcript:safe(r.transcript_available,p.transcriptAvailable,p.transcript_available,"Unknown"),
+    gpa:safe(r.current_gpa,"--"),
+    sat:safe(r.sat,"--"),
+    act:safe(r.act,"--"),
+    classRank:safe(r.class_rank,"--"),
+    ncaa:safe(r.ncaa_eligibility,r.ncaa_status,"Unknown"),
+    transcript:safe(r.transcript_available,"Unknown"),
 
-      snapshotStatus:safe(r.snapshot_status,"SUBMITTED"),
-      verification:safe(r.verification_status,"UNVERIFIED"),
-      release:safe(r.parent_release_status,r.guardian_status,p.parentReleaseStatus,"PENDING"),
+    snapshotStatus:safe(r.snapshot_status,"SUBMITTED"),
+    verification:safe(r.verification_status,"UNVERIFIED"),
+    release:safe(r.parent_release_status,r.guardian_status,"PENDING"),
 
-      coreScore:safe(r.statscore_score,r.core_score,r.snapshot_score,r.overall_score,"--"),
-      positionScore:safe(r.position_score,"--"),
-      athleticScore:safe(r.athletic_score,"--"),
-      productionScore:safe(r.production_score,"--"),
-      academicScore:safe(r.academic_score,"--"),
-      characterScore:safe(r.character_score,"--"),
+    coreScore:safe(r.statscore_score,r.core_score,r.snapshot_score,r.overall_score,"--"),
+    positionScore:safe(r.position_score,"--"),
+    athleticScore:safe(r.athletic_score,"--"),
+    productionScore:safe(r.production_score,"--"),
+    academicScore:safe(r.academic_score,"--"),
+    characterScore:safe(r.character_score,"--"),
 
-      headshot:storageUrl(safe(
-        r.headshot_public_url,
-        r.headshot_url,
-        r.headshot_path,
-        r.photo_url,
-        p.headshotUrl,
-        p.headshot_url,
-        p.athleteImageUrl,
-        p.photoUrl
-      )),
+    headshot:storageUrl(safe(
+      r.headshot_public_url,
+      r.headshot_url,
+      r.headshot_path,
+      r.photo_url
+    )),
 
-      highlight:safe(r.highlight_url,p.highlightUrl,p.highlight_url),
-      gameFilm:safe(r.game_film_url,p.gameFilmUrl,p.game_film_url)
-    };
-  }
+    highlight:safe(r.highlight_url),
+    gameFilm:safe(r.game_film_url)
+  };
+} 
 
   function routeLinks(id){
     if(!id) return;
