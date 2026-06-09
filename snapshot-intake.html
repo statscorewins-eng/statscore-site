@@ -599,13 +599,13 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="statscore-data.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="statscore-data.js"></script>
+
 <script>
 const SNAPSHOT_DRAFT_KEY = "statscore_snapshot_draft_v1";
 const SNAPSHOT_RECEIPT_KEY = "statscore_latest_snapshot_receipt_v1";
 const PARENT_APPROVAL_RECEIPT_KEY = "statscore_latest_parent_approval_receipt_v1";
-const PHNX_MEDIA_RECEIPT_KEY = "phnx_sports_latest_media_ingest_receipt_v1";
-const PHNX_PRODUCTION_RECEIPT_KEY = "phnx_sports_latest_production_queue_receipt_v1";
-const STATSCORE_LOGIN_CONTEXT_KEY = "statscore_login_context_v1";
 const STATSCORE_DASHBOARD_CONTEXT_KEY = "statscore_athlete_dashboard_context_v1";
 const STATSCORE_ACTIVE_SNAPSHOT_ID_KEY = "STATSCORE_ACTIVE_SNAPSHOT_ID";
 
@@ -617,6 +617,7 @@ const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk";
 
 const SNAPSHOT_TABLE = "statscore_snapshots";
+const HEADSHOT_BUCKET = "athlete-headshots";
 
 function $(id){
   return document.getElementById(id);
@@ -749,41 +750,70 @@ function getHeadshotInput(){
   return $("athleteHeadshotUpload") || document.querySelector('input[type="file"]');
 }
 
-function fileToDataUrl(file){
-  return new Promise((resolve, reject) => {
-    if (!file) return resolve(null);
-
-    const reader = new FileReader();
-
-    reader.onload = () => {
-      resolve({
-        name: file.name,
-        type: file.type,
-        size: file.size,
-        data_url: reader.result
-      });
-    };
-
-    reader.onerror = () => reject(new Error("Headshot could not be read."));
-    reader.readAsDataURL(file);
-  });
-}
-
-async function getHeadshotPayload(){
+async function getHeadshotPayload(snapshotId){
   const input = getHeadshotInput();
   const file = input?.files?.[0] || null;
+
   if (!file) return null;
 
-  return await fileToDataUrl(file);
+  const db = getDb();
+
+  const fileName = String(file.name || "").toLowerCase();
+  const valid =
+    file.type.startsWith("image/") ||
+    fileName.endsWith(".png") ||
+    fileName.endsWith(".jpg") ||
+    fileName.endsWith(".jpeg") ||
+    fileName.endsWith(".webp") ||
+    fileName.endsWith(".heic") ||
+    fileName.endsWith(".heif");
+
+  if (!valid){
+    throw new Error("Unsupported image format. Upload JPG, PNG, WEBP, HEIC, or HEIF.");
+  }
+
+  const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+  const filePath = `${snapshotId}/headshot.${ext}`;
+
+  const { error: uploadError } = await db.storage
+    .from(HEADSHOT_BUCKET)
+    .upload(filePath, file, {
+      cacheControl: "3600",
+      upsert: true,
+      contentType: file.type || "image/jpeg"
+    });
+
+  if (uploadError){
+    console.error("Headshot upload failed:", uploadError);
+    throw new Error(uploadError.message || "Headshot upload failed.");
+  }
+
+  const { data } = db.storage
+    .from(HEADSHOT_BUCKET)
+    .getPublicUrl(filePath);
+
+  if (!data?.publicUrl){
+    throw new Error("Headshot uploaded but no public URL was returned.");
+  }
+
+  console.log("STATS-CORE Headshot Public URL:", data.publicUrl);
+
+  return {
+    name: file.name,
+    type: file.type,
+    size: file.size,
+    path: filePath,
+    url: data.publicUrl
+  };
 }
 
-function buildSnapshotPayload(headshotPayload){
+function buildSnapshotPayload(snapshotId, headshotPayload){
   const firstName = firstValue(["firstName"]);
   const lastName = firstValue(["lastName"]);
   const athleteDisplayName = normalizeAthleteName(firstName, lastName, "");
 
   const row = {
-    snapshot_id: uuid(),
+    snapshot_id: snapshotId,
     athlete_id: null,
 
     snapshot_status: "submitted",
@@ -832,7 +862,7 @@ function buildSnapshotPayload(headshotPayload){
     coach_email: firstValue(["coachEmail"]) || null,
     verification_permission: firstValue(["verificationPermission"]) || null,
 
-    headshot_url: headshotPayload?.data_url || null,
+    headshot_url: headshotPayload?.url || null,
 
     submitted_at: nowISO(),
     created_at: nowISO(),
@@ -840,6 +870,8 @@ function buildSnapshotPayload(headshotPayload){
 
     raw_payload: {
       source_page: "snapshot-intake.html",
+      headshot_bucket: HEADSHOT_BUCKET,
+      headshot_path: headshotPayload?.path || null,
       headshot_file_name: headshotPayload?.name || null,
       headshot_file_type: headshotPayload?.type || null,
       headshot_file_size: headshotPayload?.size || null
@@ -975,6 +1007,7 @@ function createSnapshotReceipt(snapshotRow, parentApprovalReceipt){
     school_program: snapshotRow.school_program,
     sport: snapshotRow.primary_sport,
     position: snapshotRow.primary_position,
+    headshot_url: snapshotRow.headshot_url || null,
     snapshot_mode: classification.mode,
     is_test_snapshot: classification.isTest,
     is_active_snapshot: classification.isActive,
@@ -1008,6 +1041,7 @@ function createAthleteDashboardContext(snapshotRow, receipt){
     school: snapshotRow.school_program,
     sport: snapshotRow.primary_sport,
     position: snapshotRow.primary_position,
+    headshotUrl: snapshotRow.headshot_url || null,
     dashboardUrl: receipt.dashboard_url,
     profileUrl: receipt.profile_url,
     receipt,
@@ -1017,7 +1051,8 @@ function createAthleteDashboardContext(snapshotRow, receipt){
       profile: "Profile Tool accessed from Dashboard",
       snapshotIntake: "Athlete Data Capture",
       multiBox: "Communication Layer",
-      canonicalSource: "statscore_snapshots"
+      canonicalSource: "statscore_snapshots",
+      headshotPipeline: "Supabase Storage URL stored in statscore_snapshots.headshot_url"
     }
   };
 
@@ -1048,8 +1083,20 @@ async function submitSnapshot(event){
     setStatus("statusProfile", "Submitting", "var(--gold)");
     setStatus("statusScore", "Not Issued", "var(--gold)");
 
-    const headshotPayload = await getHeadshotPayload();
-    const snapshotPayload = buildSnapshotPayload(headshotPayload);
+    const snapshotId = uuid();
+
+    setStatus("statusPhnxMedia", "Uploading Headshot", "var(--gold)");
+    const headshotPayload = await getHeadshotPayload(snapshotId);
+
+    if (headshotPayload?.url){
+      setStatus("mediaStatusHeadshot", "URL Saved", "var(--green)");
+      setStatus("statusPhnxMedia", "Headshot URL Ready", "var(--green)");
+    } else {
+      setStatus("mediaStatusHeadshot", "No Headshot", "var(--gold)");
+      setStatus("statusPhnxMedia", "No Headshot URL", "var(--gold)");
+    }
+
+    const snapshotPayload = buildSnapshotPayload(snapshotId, headshotPayload);
 
     validateSnapshotPayload(snapshotPayload);
 
@@ -1063,7 +1110,11 @@ async function submitSnapshot(event){
     setStatus("statusMetrics", "Captured", "var(--green)");
     setStatus("statusAcademic", "Captured", "var(--green)");
     setStatus("statusVerification", "Unverified", "var(--gold)");
-    setStatus("statusPhnxMedia", snapshotRow.headshot_url ? "Headshot URL Saved" : "No Headshot URL", snapshotRow.headshot_url ? "var(--green)" : "var(--gold)");
+    setStatus(
+      "statusPhnxMedia",
+      snapshotRow.headshot_url ? "Headshot URL Saved" : "No Headshot URL",
+      snapshotRow.headshot_url ? "var(--green)" : "var(--gold)"
+    );
 
     const parentApprovalReceipt = await createParentApprovalRequest(snapshotRow);
 
@@ -1161,12 +1212,12 @@ function bindHeadshotRuntime(){
 
     if (removeHeadshotBtn) removeHeadshotBtn.style.display = "flex";
     if (addHeadshotBtn) addHeadshotBtn.innerHTML = "Change Headshot <span>↻</span>";
-    if (headshotUploadText) headshotUploadText.textContent = "HEADSHOT URL READY";
+    if (headshotUploadText) headshotUploadText.textContent = "HEADSHOT READY FOR STORAGE";
     if (headshotUploadHint) headshotUploadHint.textContent = file.name;
 
     setStatus("mediaStatusHeadshot", "Attached", "var(--green)");
     setStatus("statusPhnxMedia", "Queued After Submit", "var(--gold)");
-    setMessage("Headshot attached. Submit Snapshot to save headshot_url.", "var(--green)");
+    setMessage("Headshot attached. Submit Snapshot to upload image and save headshot_url.", "var(--green)");
   }
 
   if (uploadBox) uploadBox.addEventListener("click", openHeadshotPicker);
