@@ -752,9 +752,17 @@ function getHeadshotInput(){
 
 async function getHeadshotPayload(snapshotId){
   const input = getHeadshotInput();
+
+  console.log("HEADSHOT INPUT FOUND:", input);
+  console.log("HEADSHOT INPUT ID:", input?.id);
+  console.log("HEADSHOT FILE COUNT:", input?.files?.length || 0);
+  console.log("HEADSHOT FIRST FILE:", input?.files?.[0] || null);
+
   const file = input?.files?.[0] || null;
 
-  if (!file) return null;
+  if (!file){
+    throw new Error("No headshot file found in athleteHeadshotUpload input.");
+  } 
 
   const db = getDb();
 
