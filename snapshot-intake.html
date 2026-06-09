@@ -607,8 +607,16 @@ const PHNX_MEDIA_RECEIPT_KEY = "phnx_sports_latest_media_ingest_receipt_v1";
 const PHNX_PRODUCTION_RECEIPT_KEY = "phnx_sports_latest_production_queue_receipt_v1";
 const STATSCORE_LOGIN_CONTEXT_KEY = "statscore_login_context_v1";
 const STATSCORE_DASHBOARD_CONTEXT_KEY = "statscore_athlete_dashboard_context_v1";
+const STATSCORE_ACTIVE_SNAPSHOT_ID_KEY = "STATSCORE_ACTIVE_SNAPSHOT_ID";
 
-const STATSCORE_ACTIVE_TEST_SNAPSHOT_ID = "f7503b84-12a6-46d6-a095-f727e70e078f";
+const SUPABASE_URL = "https://oyjmpbuxvfxusmbouldi.supabase.co";
+const SUPABASE_ANON_KEY =
+  window.STATSCORE_SUPABASE_ANON_KEY ||
+  window.SUPABASE_ANON_KEY ||
+  window.supabaseAnonKey ||
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk";
+
+const SNAPSHOT_TABLE = "statscore_snapshots";
 
 function $(id){
   return document.getElementById(id);
@@ -618,23 +626,28 @@ function getField(key){
   return document.getElementById(key) || document.querySelector(`[name="${key}"]`);
 }
 
-function setMessage(message, color = "var(--green)"){
-  const el = $("systemMessage");
-  if (!el) return;
-  el.textContent = message || "";
-  el.style.color = color;
+function nowISO(){
+  return new Date().toISOString();
 }
 
-function setStatus(id, text, color = "var(--green)"){
-  const el = $(id);
-  if (!el) return;
-  el.textContent = text || "";
-  el.style.color = color;
+function uuid(){
+  if (crypto && crypto.randomUUID) return crypto.randomUUID();
+
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    const v = c === "x" ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
+function safeText(value){
+  if (value === undefined || value === null) return "";
+  return String(value).trim();
 }
 
 function safeValue(key){
   const el = getField(key);
-  return el && typeof el.value !== "undefined" ? String(el.value || "").trim() : "";
+  return el && typeof el.value !== "undefined" ? safeText(el.value) : "";
 }
 
 function firstValue(keys){
@@ -645,135 +658,20 @@ function firstValue(keys){
   return "";
 }
 
-function safeChecked(key){
-  const el = getField(key);
-  return !!(el && typeof el.checked !== "undefined" && el.checked);
+function setMessage(message, color = "var(--green)"){
+  const el = $("systemMessage");
+  if (!el) return;
+
+  el.textContent = message || "";
+  el.style.color = color;
 }
 
-function firstChecked(keys){
-  for (const key of keys){
-    const el = getField(key);
-    if (el && typeof el.checked !== "undefined") return !!el.checked;
-  }
-  return false;
-}
+function setStatus(id, text, color = "var(--green)"){
+  const el = $(id);
+  if (!el) return;
 
-function nowISO(){
-  return new Date().toISOString();
-}
-
-function getSupabaseConfig(){
-  return {
-    url:
-      window.STATSCORE_SUPABASE_URL ||
-      window.SUPABASE_URL ||
-      window.supabaseUrl ||
-      "https://oyjmpbuxvfxusmbouldi.supabase.co",
-    key:
-      window.STATSCORE_SUPABASE_ANON_KEY ||
-      window.SUPABASE_ANON_KEY ||
-      window.supabaseAnonKey ||
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk"
-  };
-} 
-
-function assertSupabaseConfig(){
-  const config = getSupabaseConfig();
-  if (!config.url || !config.key){
-    throw new Error("Missing Supabase configuration.");
-  }
-  return config;
-}
-
-async function supabaseRequest(path, options = {}){
-  const { url, key } = assertSupabaseConfig();
-
-  const headers = {
-    apikey: key,
-    Authorization: `Bearer ${key}`,
-    "Content-Type": "application/json",
-    ...(options.headers || {})
-  };
-
-  if (options.prefer){
-    headers.Prefer = options.prefer;
-  } else if (!headers.Prefer){
-    headers.Prefer = "return=representation";
-  }
-
-  const response = await fetch(`${url}${path}`, {
-    ...options,
-    headers
-  });
-
-  const raw = await response.text();
-  let data = null;
-
-  try {
-    data = raw ? JSON.parse(raw) : null;
-  } catch {
-    data = raw;
-  }
-
-  if (!response.ok){
-    const msg =
-      typeof data === "string"
-        ? data
-        : data?.message || data?.hint || data?.details || JSON.stringify(data);
-    throw new Error(msg || "Supabase request failed.");
-  }
-
-  return data;
-}
-
-function normalizeAthleteName(firstName, lastName, fallback){
-  const combined = `${firstName || ""} ${lastName || ""}`.trim();
-  return combined || fallback || "";
-}
-
-function buildSnapshotDraft(){
-  const firstName = firstValue(["firstName", "athleteFirstName", "playerFirstName"]);
-  const lastName = firstValue(["lastName", "athleteLastName", "playerLastName"]);
-  const athleteName = normalizeAthleteName(
-    firstName,
-    lastName,
-    firstValue(["athleteName", "playerName", "fullName", "name"])
-  );
-
-  return {
-    athlete_name: athleteName,
-    first_name: firstName,
-    last_name: lastName,
-
-    school: firstValue(["schoolProgram", "school", "athleteSchool", "playerSchool"]),
-    sport: firstValue(["primarySport", "sport", "athleteSport", "playerSport"]),
-    position: firstValue(["primaryPosition", "position", "athletePosition", "playerPosition"]),
-    graduation_year: firstValue(["graduationClass", "graduationYear", "gradYear", "classYear"]),
-    grade: firstValue(["grade", "athleteGrade"]),
-    age: firstValue(["age", "athleteAge"]),
-    city: firstValue(["city", "athleteCity"]),
-    state: firstValue(["state", "athleteState"]),
-    city_state: firstValue(["cityState"]),
-    height: firstValue(["height", "athleteHeight"]),
-    weight: firstValue(["weight", "athleteWeight"]),
-    gpa: firstValue(["currentGpa", "gpa", "athleteGpa"]),
-    email: firstValue(["athleteEmail", "email", "playerEmail"]),
-    phone: firstValue(["athletePhone", "phone", "playerPhone"]),
-
-    guardian_name: firstValue(["guardianName", "parentName", "parentGuardianName"]),
-    guardian_email: firstValue(["guardianEmail", "parentEmail", "parentGuardianEmail"]),
-    guardian_phone: firstValue(["guardianPhone", "parentPhone", "parentGuardianPhone"]),
-    coach_name: firstValue(["coachName"]),
-    coach_email: firstValue(["coachEmail"]),
-
-    recruiting_visibility: firstChecked(["recruitingVisibility", "profileVisibility", "visibilityRecruiting"]),
-    media_permission: firstChecked(["mediaPermission", "highlightPermission", "mediaRelease"]),
-    guardian_consent_required: true,
-    parent_approval_required: true,
-
-    created_source: "snapshot-intake.html",
-    updated_at: nowISO()
-  };
+  el.textContent = text || "";
+  el.style.color = color;
 }
 
 function setFieldValue(key, value){
@@ -782,60 +680,76 @@ function setFieldValue(key, value){
   if (typeof el.value !== "undefined") el.value = value;
 }
 
-function setFieldChecked(key, value){
-  const el = getField(key);
-  if (!el || typeof el.checked === "undefined") return;
-  el.checked = !!value;
+function normalizeAthleteName(firstName, lastName, fallback){
+  const combined = `${firstName || ""} ${lastName || ""}`.trim();
+  return combined || fallback || "";
 }
 
-function saveSnapshotDraft(){
-  const draft = buildSnapshotDraft();
-  localStorage.setItem(SNAPSHOT_DRAFT_KEY, JSON.stringify(draft));
-  setMessage("Snapshot draft saved.", "var(--green)");
-}
-
-function restoreSnapshotDraft(){
-  const raw = localStorage.getItem(SNAPSHOT_DRAFT_KEY);
-  if (!raw) return;
-
-  let draft = null;
-  try {
-    draft = JSON.parse(raw);
-  } catch {
-    return;
+function getDb(){
+  if (!window.supabase){
+    throw new Error("Supabase client did not load.");
   }
 
-  setFieldValue("firstName", draft.first_name);
-  setFieldValue("lastName", draft.last_name);
-  setFieldValue("schoolProgram", draft.school);
-  setFieldValue("primarySport", draft.sport);
-  setFieldValue("primaryPosition", draft.position);
-  setFieldValue("graduationClass", draft.graduation_year);
-  setFieldValue("cityState", draft.city_state);
-  setFieldValue("height", draft.height);
-  setFieldValue("weight", draft.weight);
-  setFieldValue("currentGpa", draft.gpa);
+  if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY === "PASTE_YOUR_ANON_KEY_HERE"){
+    throw new Error("Missing Supabase anon key.");
+  }
 
-  setFieldValue("guardianName", draft.guardian_name);
-  setFieldValue("guardianEmail", draft.guardian_email);
-  setFieldValue("guardianPhone", draft.guardian_phone);
-  setFieldValue("coachName", draft.coach_name);
-  setFieldValue("coachEmail", draft.coach_email);
+  if (!window.STATSCORE_SUPABASE_CLIENT){
+    window.STATSCORE_SUPABASE_CLIENT = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY,
+      {
+        auth:{
+          persistSession:false,
+          autoRefreshToken:false,
+          detectSessionInUrl:false
+        }
+      }
+    );
+  }
+
+  return window.STATSCORE_SUPABASE_CLIENT;
+}
+
+function classifySnapshot(row){
+  const status = String(row?.snapshot_status || "").toUpperCase();
+  const verification = String(row?.verification_status || "").toUpperCase();
+  const scoreStatus = String(row?.score_status || "").toUpperCase();
+  const first = String(row?.first_name || "").toUpperCase();
+  const last = String(row?.last_name || "").toUpperCase();
+  const display = String(row?.athlete_display_name || "").toUpperCase();
+
+  const isTest =
+    status.includes("TEST") ||
+    verification.includes("TEST") ||
+    scoreStatus.includes("TEST") ||
+    first === "TEST" ||
+    last === "ATHLETE" ||
+    display.includes("TEST ATHLETE");
+
+  const isArchived =
+    status === "ARCHIVED" ||
+    status === "DELETED" ||
+    status === "INACTIVE";
+
+  const isActive =
+    !isTest &&
+    !isArchived &&
+    ["ACTIVE","SUBMITTED","READY"].includes(status);
+
+  return {
+    isTest,
+    isArchived,
+    isActive,
+    mode: isTest ? "TEST" : isArchived ? "ARCHIVED" : isActive ? "ACTIVE" : "REVIEW"
+  };
 }
 
 function getHeadshotInput(){
-  return (
-    $("athleteHeadshotUpload") ||
-    $("headshotUpload") ||
-    $("headshot") ||
-    $("athleteHeadshot") ||
-    $("profileImage") ||
-    document.querySelector('input[type="file"][accept*="image"]') ||
-    document.querySelector('input[type="file"]')
-  );
+  return $("athleteHeadshotUpload") || document.querySelector('input[type="file"]');
 }
 
-function fileToBase64(file){
+function fileToDataUrl(file){
   return new Promise((resolve, reject) => {
     if (!file) return resolve(null);
 
@@ -850,7 +764,7 @@ function fileToBase64(file){
       });
     };
 
-    reader.onerror = () => reject(new Error("Headshot upload could not be read."));
+    reader.onerror = () => reject(new Error("Headshot could not be read."));
     reader.readAsDataURL(file);
   });
 }
@@ -859,421 +773,265 @@ async function getHeadshotPayload(){
   const input = getHeadshotInput();
   const file = input?.files?.[0] || null;
   if (!file) return null;
-  return await fileToBase64(file);
+
+  return await fileToDataUrl(file);
 }
 
-async function uploadHeadshotIfPresent(snapshotId){
-  const headshot = await getHeadshotPayload();
-  if (!headshot) return null;
+function buildSnapshotPayload(headshotPayload){
+  const firstName = firstValue(["firstName"]);
+  const lastName = firstValue(["lastName"]);
+  const athleteDisplayName = normalizeAthleteName(firstName, lastName, "");
 
   const row = {
-    snapshot_id: snapshotId,
-    media_type: "HEADSHOT",
-    file_name: headshot.name,
-    file_type: headshot.type,
-    file_size: headshot.size,
-    file_data_url: headshot.data_url,
-    source_page: "snapshot-intake.html",
-    created_at: nowISO()
+    snapshot_id: uuid(),
+    athlete_id: null,
+
+    snapshot_status: "submitted",
+    verification_status: "UNVERIFIED",
+    score_status: "UNVERIFIED",
+
+    first_name: firstName || null,
+    last_name: lastName || null,
+    athlete_display_name: athleteDisplayName || null,
+
+    graduation_class: firstValue(["graduationClass"]) || null,
+    city_state: firstValue(["cityState"]) || null,
+    school_program: firstValue(["schoolProgram"]) || null,
+    primary_sport: firstValue(["primarySport"]) || null,
+
+    height: firstValue(["height"]) || null,
+    weight: firstValue(["weight"]) || null,
+    primary_position: firstValue(["primaryPosition"]) || null,
+    secondary_position: firstValue(["secondaryPosition"]) || null,
+    dominant_hand_foot: firstValue(["dominantHandFoot"]) || null,
+    jersey_number: firstValue(["jerseyNumber"]) || null,
+
+    dash40: firstValue(["dash40"]) || null,
+    vertical_jump: firstValue(["verticalJump"]) || null,
+    shuttle: firstValue(["shuttle"]) || null,
+    broad_jump: firstValue(["broadJump"]) || null,
+    strength_marker: firstValue(["strengthMarker"]) || null,
+    verified_event_source: firstValue(["verifiedEventSource"]) || null,
+    position_notes: firstValue(["positionNotes"]) || null,
+
+    current_gpa: firstValue(["currentGpa"]) || null,
+    ncaa_eligibility: firstValue(["ncaaEligibilityStatus"]) || null,
+    transcript_available: firstValue(["transcriptAvailable"]) || null,
+    counselor_contact: firstValue(["counselorContactAvailable"]) || null,
+    academic_notes: firstValue(["academicNotes"]) || null,
+
+    highlight_url: firstValue(["highlightUrl"]) || null,
+    social_profile_url: firstValue(["socialProfileUrl"]) || null,
+    game_film_url: firstValue(["gameFilmUrl"]) || null,
+    recruiting_profile_url: firstValue(["recruitingProfileUrl"]) || null,
+
+    guardian_name: firstValue(["guardianName"]) || null,
+    guardian_email: firstValue(["guardianEmail"]) || null,
+    guardian_phone: firstValue(["guardianPhone"]) || null,
+    coach_name: firstValue(["coachName"]) || null,
+    coach_email: firstValue(["coachEmail"]) || null,
+    verification_permission: firstValue(["verificationPermission"]) || null,
+
+    headshot_url: headshotPayload?.data_url || null,
+
+    submitted_at: nowISO(),
+    created_at: nowISO(),
+    updated_at: nowISO(),
+
+    raw_payload: {
+      source_page: "snapshot-intake.html",
+      headshot_file_name: headshotPayload?.name || null,
+      headshot_file_type: headshotPayload?.type || null,
+      headshot_file_size: headshotPayload?.size || null
+    }
   };
+
+  return row;
+}
+
+function validateSnapshotPayload(row){
+  if (!row.first_name || !row.last_name) throw new Error("Athlete first and last name are required.");
+  if (!row.school_program) throw new Error("School / Program is required.");
+  if (!row.primary_sport) throw new Error("Primary sport is required.");
+  if (!row.primary_position) throw new Error("Primary position is required.");
+  if (!row.guardian_name) throw new Error("Guardian name is required.");
+  if (!row.guardian_email) throw new Error("Guardian email is required.");
+
+  return true;
+}
+
+function saveSnapshotDraft(){
+  const draft = {
+    firstName: safeValue("firstName"),
+    lastName: safeValue("lastName"),
+    graduationClass: safeValue("graduationClass"),
+    cityState: safeValue("cityState"),
+    schoolProgram: safeValue("schoolProgram"),
+    primarySport: safeValue("primarySport"),
+    height: safeValue("height"),
+    weight: safeValue("weight"),
+    primaryPosition: safeValue("primaryPosition"),
+    currentGpa: safeValue("currentGpa"),
+    guardianName: safeValue("guardianName"),
+    guardianEmail: safeValue("guardianEmail"),
+    guardianPhone: safeValue("guardianPhone"),
+    coachName: safeValue("coachName"),
+    coachEmail: safeValue("coachEmail"),
+    updated_at: nowISO()
+  };
+
+  localStorage.setItem(SNAPSHOT_DRAFT_KEY, JSON.stringify(draft));
+  setMessage("Snapshot draft saved.", "var(--green)");
+}
+
+function restoreSnapshotDraft(){
+  const raw = localStorage.getItem(SNAPSHOT_DRAFT_KEY);
+  if (!raw) return;
+
+  let draft = null;
 
   try {
-    const inserted = await supabaseRequest("/rest/v1/sc_snapshot_media", {
-      method: "POST",
-      body: JSON.stringify(row)
-    });
-
-    return Array.isArray(inserted) ? inserted[0] : inserted;
+    draft = JSON.parse(raw);
   } catch {
-    const receipt = {
-      receipt_type: "HEADSHOT_LOCAL_CAPTURE_ONLY",
-      snapshot_id: snapshotId,
-      media_type: "HEADSHOT",
-      file_name: headshot.name,
-      file_type: headshot.type,
-      file_size: headshot.size,
-      created_at: nowISO()
-    };
-
-    localStorage.setItem(`${PHNX_MEDIA_RECEIPT_KEY}_headshot`, JSON.stringify(receipt));
-    return receipt;
-  }
-}
-
-function extractSnapshotId(result){
-  if (!result) return "";
-
-  if (typeof result === "string"){
-    return result;
+    return;
   }
 
-  if (Array.isArray(result)){
-    return extractSnapshotId(result[0]);
-  }
-
-  return (
-    result.snapshot_id ||
-    result.id ||
-    result.sc_snapshot_id ||
-    result.athlete_snapshot_id ||
-    result?.data?.snapshot_id ||
-    result?.snapshot?.snapshot_id ||
-    ""
-  );
-}
-
-function normalizeSnapshotResult(result, fallbackPayload){
-  const row = Array.isArray(result) ? result[0] : result || {};
-  const snapshotId = extractSnapshotId(result);
-
-  return {
-    ...row,
-    snapshot_id: snapshotId,
-    athlete_name: row.athlete_name || fallbackPayload.athlete_name,
-    school: row.school || fallbackPayload.school,
-    sport: row.sport || fallbackPayload.sport,
-    position: row.position || fallbackPayload.position
-  };
-}
-
-async function findDuplicateProfile(payload){
-  const athleteName = encodeURIComponent(payload.athlete_name || "");
-  const school = encodeURIComponent(payload.school || "");
-  const sport = encodeURIComponent(payload.sport || "");
-  const position = encodeURIComponent(payload.position || "");
-
-  if (!payload.athlete_name || !payload.school) return null;
-
-  const path =
-    `/rest/v1/sc_athlete_snapshots` +
-    `?athlete_name=eq.${athleteName}` +
-    `&school=eq.${school}` +
-    (payload.sport ? `&sport=eq.${sport}` : "") +
-    (payload.position ? `&position=eq.${position}` : "") +
-    `&select=*` +
-    `&order=created_at.desc` +
-    `&limit=1`;
-
-  try {
-    const rows = await supabaseRequest(path, {
-      method: "GET",
-      headers: { Prefer: "return=representation" }
-    });
-
-    return Array.isArray(rows) && rows.length ? rows[0] : null;
-  } catch {
-    return null;
-  }
-}
-
-async function submitStatscoreSnapshot(payload){
-  const duplicate = await findDuplicateProfile(payload);
-
-  if (duplicate && (duplicate.snapshot_id || duplicate.id)){
-    return {
-      ...duplicate,
-      snapshot_id: duplicate.snapshot_id || duplicate.id,
-      duplicate_profile: true,
-      duplicate_handled: true
-    };
-  }
-
-  const rpcBodies = [
-    { p_payload: payload },
-    { payload },
-    payload
-  ];
-
-  for (const body of rpcBodies){
-    try {
-      const result = await supabaseRequest("/rest/v1/rpc/submit_statscore_snapshot", {
-        method: "POST",
-        body: JSON.stringify(body)
-      });
-
-      const snapshotId = extractSnapshotId(result);
-      if (snapshotId) return result;
-    } catch {}
-  }
-
-  const insertPayload = {
-    athlete_name: payload.athlete_name,
-    first_name: payload.first_name || null,
-    last_name: payload.last_name || null,
-    school: payload.school || null,
-    sport: payload.sport || null,
-    position: payload.position || null,
-    graduation_year: payload.graduation_year || null,
-    grade: payload.grade || null,
-    age: payload.age || null,
-    city: payload.city || null,
-    state: payload.state || null,
-    height: payload.height || null,
-    weight: payload.weight || null,
-    gpa: payload.gpa || null,
-    email: payload.email || null,
-    phone: payload.phone || null,
-    guardian_name: payload.guardian_name || null,
-    guardian_email: payload.guardian_email || null,
-    guardian_phone: payload.guardian_phone || null,
-    recruiting_visibility: !!payload.recruiting_visibility,
-    media_permission: !!payload.media_permission,
-    parent_approval_required: true,
-    intake_json: payload,
-    created_source: "snapshot-intake.html",
-    created_at: nowISO()
-  };
-
-  return await supabaseRequest("/rest/v1/sc_athlete_snapshots", {
-    method: "POST",
-    body: JSON.stringify(insertPayload)
+  Object.keys(draft).forEach(key => {
+    setFieldValue(key, draft[key]);
   });
 }
 
-async function createPHNXMediaIngest(snapshotId, payload, headshotResult){
-  const mediaPayload = {
-    snapshot_id: snapshotId,
-    athlete_name: payload.athlete_name,
-    school: payload.school,
-    sport: payload.sport,
-    position: payload.position,
-    media_type: "SNAPSHOT_INTAKE",
-    headshot_attached: !!headshotResult,
-    source_page: "snapshot-intake.html",
-    status: "INGESTED",
-    created_at: nowISO()
-  };
+async function insertSnapshot(row){
+  const db = getDb();
 
-  let result = null;
+  const { data, error } = await db
+    .from(SNAPSHOT_TABLE)
+    .insert(row)
+    .select("*")
+    .single();
 
-  try {
-    result = await supabaseRequest("/rest/v1/phnx_sports_media_ingest", {
-      method: "POST",
-      body: JSON.stringify(mediaPayload)
-    });
-  } catch {
-    try {
-      result = await supabaseRequest("/rest/v1/sc_media_ingest", {
-        method: "POST",
-        body: JSON.stringify(mediaPayload)
-      });
-    } catch {
-      result = mediaPayload;
-    }
+  if (error){
+    console.error("statscore_snapshots insert failed:", error);
+    throw new Error(error.message || "Snapshot insert failed.");
   }
 
-  const receipt = {
-    receipt_type: "PHNX_MEDIA_INGEST",
-    snapshot_id: snapshotId,
-    athlete_name: payload.athlete_name,
-    status: "INGESTED",
-    result: Array.isArray(result) ? result[0] : result,
-    created_at: nowISO()
-  };
-
-  localStorage.setItem(PHNX_MEDIA_RECEIPT_KEY, JSON.stringify(receipt));
-  return receipt;
+  return data;
 }
 
-async function createPHNXProductionQueue(snapshotId, payload, mediaReceipt){
-  const queuePayload = {
-    snapshot_id: snapshotId,
-    athlete_name: payload.athlete_name,
-    school: payload.school,
-    sport: payload.sport,
-    position: payload.position,
-    production_type: "ATHLETE_PROFILE_BUILD",
-    status: "QUEUED",
-    source_page: "snapshot-intake.html",
-    media_receipt: mediaReceipt || null,
-    created_at: nowISO()
-  };
-
-  let result = null;
-
-  try {
-    result = await supabaseRequest("/rest/v1/phnx_sports_production_queue", {
-      method: "POST",
-      body: JSON.stringify(queuePayload)
-    });
-  } catch {
-    try {
-      result = await supabaseRequest("/rest/v1/sc_production_queue", {
-        method: "POST",
-        body: JSON.stringify(queuePayload)
-      });
-    } catch {
-      result = queuePayload;
-    }
-  }
-
-  const receipt = {
-    receipt_type: "PHNX_PRODUCTION_QUEUE",
-    snapshot_id: snapshotId,
-    athlete_name: payload.athlete_name,
-    status: "QUEUED",
-    result: Array.isArray(result) ? result[0] : result,
-    created_at: nowISO()
-  };
-
-  localStorage.setItem(PHNX_PRODUCTION_RECEIPT_KEY, JSON.stringify(receipt));
-  return receipt;
-}
-
-function extractApprovalRequestId(result){
-  if (!result) return null;
-  const row = Array.isArray(result) ? result[0] : result;
-  return row?.approval_request_id || row?.request_id || row?.id || null;
-}
-
-async function createParentApprovalRequestFromSnapshot(snapshotId, payload){
-  if (!snapshotId){
-    throw new Error("Parent Approval request blocked: missing snapshot_id.");
-  }
+async function createParentApprovalRequest(snapshotRow){
+  const db = getDb();
 
   const approvalPayload = {
-    snapshot_id: snapshotId,
-    athlete_name: payload.athlete_name,
-    guardian_name: payload.guardian_name,
-    guardian_email: payload.guardian_email,
-    requester_name: "STATScore System",
+    snapshot_id: snapshotRow.snapshot_id,
+    athlete_name: snapshotRow.athlete_display_name,
+    guardian_name: snapshotRow.guardian_name,
+    guardian_email: snapshotRow.guardian_email,
+    requester_name: "STATS-CORE System",
     requester_role: "system",
     request_type: "parent_permission_scope",
     status: "pending",
     requested_at: nowISO(),
-    created_at: nowISO()
+    created_at: nowISO(),
+    updated_at: nowISO()
   };
 
-  const existingPath =
-    `/rest/v1/sc_parent_approval_requests` +
-    `?snapshot_id=eq.${encodeURIComponent(snapshotId)}` +
-    `&select=*` +
-    `&limit=1`;
+  const { data, error } = await db
+    .from("sc_parent_approval_requests")
+    .upsert(approvalPayload, { onConflict:"snapshot_id" })
+    .select("*")
+    .maybeSingle();
 
-  const existing = await supabaseRequest(existingPath, { method: "GET" });
-
-  let result = null;
-
-  if (Array.isArray(existing) && existing.length){
-    result = await supabaseRequest(
-      `/rest/v1/sc_parent_approval_requests?snapshot_id=eq.${encodeURIComponent(snapshotId)}`,
-      {
-        method: "PATCH",
-        body: JSON.stringify({
-          guardian_name: approvalPayload.guardian_name,
-          guardian_email: approvalPayload.guardian_email,
-          requester_name: approvalPayload.requester_name,
-          requester_role: approvalPayload.requester_role,
-          request_type: approvalPayload.request_type,
-          status: "pending",
-          updated_at: nowISO()
-        })
-      }
-    );
-  } else {
-    result = await supabaseRequest("/rest/v1/sc_parent_approval_requests", {
-      method: "POST",
-      body: JSON.stringify(approvalPayload)
-    });
+  if (error){
+    console.warn("Parent approval request not created:", error);
+    return null;
   }
-
-  const approvalRequestId = extractApprovalRequestId(result);
 
   const receipt = {
     receipt_type: "PARENT_APPROVAL_REQUEST_CREATED",
-    snapshot_id: snapshotId,
-    approval_request_id: approvalRequestId,
-    athlete_name: payload.athlete_name,
-    guardian_name: payload.guardian_name,
-    guardian_email: payload.guardian_email,
+    snapshot_id: snapshotRow.snapshot_id,
+    athlete_name: snapshotRow.athlete_display_name,
+    guardian_name: snapshotRow.guardian_name,
+    guardian_email: snapshotRow.guardian_email,
     status: "pending",
+    result: data,
     created_at: nowISO()
   };
 
   localStorage.setItem(PARENT_APPROVAL_RECEIPT_KEY, JSON.stringify(receipt));
   return receipt;
-} 
+}
 
-function createSnapshotReceipt(snapshotId, payload, snapshotRow, parentApprovalReceipt, mediaReceipt, productionReceipt){
+function createSnapshotReceipt(snapshotRow, parentApprovalReceipt){
+  const classification = classifySnapshot(snapshotRow);
+
   const receipt = {
     receipt_type: "STATSCORE_SNAPSHOT_SUBMITTED",
-    snapshot_id: snapshotId,
-    athlete_name: payload.athlete_name,
-    school: payload.school,
-    sport: payload.sport,
-    position: payload.position,
-    duplicate_profile: !!snapshotRow?.duplicate_profile,
-    duplicate_handled: !!snapshotRow?.duplicate_handled,
-    dashboard_url: `athlete-dashboard.html?snapshot_id=${encodeURIComponent(snapshotId)}&role=athlete&from=snapshot-intake`,
-    profile_url: `player-profile.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
-    parent_room_url: `parent.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
-    parent_approval_url: `parent-approval.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
+    source_table: "public.statscore_snapshots",
+    snapshot_id: snapshotRow.snapshot_id,
+    athlete_id: snapshotRow.athlete_id,
+    athlete_name: snapshotRow.athlete_display_name,
+    first_name: snapshotRow.first_name,
+    last_name: snapshotRow.last_name,
+    school_program: snapshotRow.school_program,
+    sport: snapshotRow.primary_sport,
+    position: snapshotRow.primary_position,
+    snapshot_mode: classification.mode,
+    is_test_snapshot: classification.isTest,
+    is_active_snapshot: classification.isActive,
+    is_archived_snapshot: classification.isArchived,
+    dashboard_url: `athlete-dashboard.html?snapshot_id=${encodeURIComponent(snapshotRow.snapshot_id)}&role=athlete&from=snapshot-intake`,
+    profile_url: `player-profile.html?snapshot_id=${encodeURIComponent(snapshotRow.snapshot_id)}`,
+    parent_approval_url: `parent-approval.html?snapshot_id=${encodeURIComponent(snapshotRow.snapshot_id)}`,
     parent_approval_receipt: parentApprovalReceipt || null,
-    media_receipt: mediaReceipt || null,
-    production_receipt: productionReceipt || null,
     created_at: nowISO()
   };
 
   localStorage.setItem(SNAPSHOT_RECEIPT_KEY, JSON.stringify(receipt));
+  localStorage.setItem(STATSCORE_ACTIVE_SNAPSHOT_ID_KEY, snapshotRow.snapshot_id);
+  sessionStorage.setItem(STATSCORE_ACTIVE_SNAPSHOT_ID_KEY, snapshotRow.snapshot_id);
+  sessionStorage.setItem("statscore_snapshot_id", snapshotRow.snapshot_id);
+  sessionStorage.setItem("statscore_athlete_name", snapshotRow.athlete_display_name || "");
+
   return receipt;
 }
 
-function createAthleteDashboardContext(snapshotId, payload, receipt){
-  const loginRaw = sessionStorage.getItem(STATSCORE_LOGIN_CONTEXT_KEY) || localStorage.getItem(STATSCORE_LOGIN_CONTEXT_KEY);
-  let loginContext = null;
-
-  try {
-    loginContext = loginRaw ? JSON.parse(loginRaw) : null;
-  } catch {
-    loginContext = null;
-  }
-
-  const dashboardContext = {
-    system: "STATScore",
+function createAthleteDashboardContext(snapshotRow, receipt){
+  const context = {
+    system: "STATS-CORE",
     sourcePage: "snapshot-intake.html",
+    sourceTable: "public.statscore_snapshots",
     detectedRole: "athlete",
     roleLabel: "Athlete",
-    snapshotId,
-    athleteName: payload.athlete_name,
-    school: payload.school,
-    sport: payload.sport,
-    position: payload.position,
-    dashboardUrl: `athlete-dashboard.html?snapshot_id=${encodeURIComponent(snapshotId)}&role=athlete&from=snapshot-intake`,
-    profileUrl: `player-profile.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
+    snapshotId: snapshotRow.snapshot_id,
+    athleteId: snapshotRow.athlete_id,
+    athleteName: snapshotRow.athlete_display_name,
+    school: snapshotRow.school_program,
+    sport: snapshotRow.primary_sport,
+    position: snapshotRow.primary_position,
+    dashboardUrl: receipt.dashboard_url,
+    profileUrl: receipt.profile_url,
     receipt,
-    loginContext,
     timestamp: nowISO(),
     doctrine: {
       dashboard: "Navigation Layer",
       profile: "Profile Tool accessed from Dashboard",
       snapshotIntake: "Athlete Data Capture",
-      multiBox: "Communication Layer"
+      multiBox: "Communication Layer",
+      canonicalSource: "statscore_snapshots"
     }
   };
 
-  sessionStorage.setItem(STATSCORE_DASHBOARD_CONTEXT_KEY, JSON.stringify(dashboardContext));
-  localStorage.setItem(STATSCORE_DASHBOARD_CONTEXT_KEY, JSON.stringify(dashboardContext));
+  sessionStorage.setItem(STATSCORE_DASHBOARD_CONTEXT_KEY, JSON.stringify(context));
+  localStorage.setItem(STATSCORE_DASHBOARD_CONTEXT_KEY, JSON.stringify(context));
   sessionStorage.setItem("statscore_role", "athlete");
-  sessionStorage.setItem("statscore_snapshot_id", snapshotId);
-  sessionStorage.setItem("statscore_athlete_name", payload.athlete_name);
-  sessionStorage.setItem("statscore_next_dashboard", dashboardContext.dashboardUrl);
+  sessionStorage.setItem("statscore_next_dashboard", context.dashboardUrl);
 
-  return dashboardContext;
-}
-
-function validateSnapshotPayload(payload){
-  if (!payload.athlete_name) throw new Error("Athlete name is required.");
-  if (!payload.school) throw new Error("School is required.");
-  if (!payload.sport) throw new Error("Sport is required.");
-  if (!payload.position) throw new Error("Position is required.");
-  if (!payload.guardian_name) throw new Error("Guardian name is required.");
-  if (!payload.guardian_email) throw new Error("Guardian email is required.");
-  return true;
+  return context;
 }
 
 function routeToAthleteDashboard(snapshotId){
-  const target = `athlete-dashboard.html?snapshot_id=${encodeURIComponent(snapshotId)}&role=athlete&from=snapshot-intake&status=snapshot-complete`;
-  window.location.href = target;
+  window.location.href =
+    `athlete-dashboard.html?snapshot_id=${encodeURIComponent(snapshotId)}&role=athlete&from=snapshot-intake&status=snapshot-complete`;
 }
 
 async function submitSnapshot(event){
@@ -1281,74 +1039,61 @@ async function submitSnapshot(event){
     event.preventDefault();
   }
 
+  const submitBtn = $("submitSnapshotBtn");
+
   try {
-    setMessage("Submitting STATScore Snapshot...", "var(--gold)");
-    setStatus("snapshotStatus", "Submitting...", "var(--gold)");
+    if (submitBtn) submitBtn.disabled = true;
 
-    const payload = buildSnapshotDraft();
-    validateSnapshotPayload(payload);
+    setMessage("Submitting STATS-CORE Snapshot...", "var(--gold)");
+    setStatus("statusProfile", "Submitting", "var(--gold)");
+    setStatus("statusScore", "Not Issued", "var(--gold)");
 
-    localStorage.setItem(SNAPSHOT_DRAFT_KEY, JSON.stringify(payload));
+    const headshotPayload = await getHeadshotPayload();
+    const snapshotPayload = buildSnapshotPayload(headshotPayload);
 
-    const snapshotResult = await submitStatscoreSnapshot(payload);
-    const snapshotRow = normalizeSnapshotResult(snapshotResult, payload);
-    const snapshotId = snapshotRow.snapshot_id;
+    validateSnapshotPayload(snapshotPayload);
 
-    if (!snapshotId){
-      throw new Error("Snapshot submit completed but no snapshot_id was returned.");
+    const snapshotRow = await insertSnapshot(snapshotPayload);
+
+    if (!snapshotRow?.snapshot_id){
+      throw new Error("Snapshot saved but snapshot_id was not returned.");
     }
 
-    setStatus("snapshotStatus", "Snapshot Created", "var(--green)");
+    setStatus("statusProfile", "Created", "var(--green)");
+    setStatus("statusMetrics", "Captured", "var(--green)");
+    setStatus("statusAcademic", "Captured", "var(--green)");
+    setStatus("statusVerification", "Unverified", "var(--gold)");
+    setStatus("statusPhnxMedia", snapshotRow.headshot_url ? "Headshot URL Saved" : "No Headshot URL", snapshotRow.headshot_url ? "var(--green)" : "var(--gold)");
 
-    const headshotResult = await uploadHeadshotIfPresent(snapshotId);
+    const parentApprovalReceipt = await createParentApprovalRequest(snapshotRow);
 
-    setStatus("mediaStatus", "Media Ingest Running", "var(--gold)");
-    const mediaReceipt = await createPHNXMediaIngest(snapshotId, payload, headshotResult);
-    setStatus("mediaStatus", "Media Ingest Complete", "var(--green)");
-
-    setStatus("productionStatus", "Production Queue Running", "var(--gold)");
-    const productionReceipt = await createPHNXProductionQueue(snapshotId, payload, mediaReceipt);
-    setStatus("productionStatus", "Production Queued", "var(--green)");
-
-    setStatus("parentApprovalStatus", "Parent Approval Pending", "var(--gold)");
-    const parentApprovalReceipt = await createParentApprovalRequestFromSnapshot(snapshotId, payload);
-    setStatus("parentApprovalStatus", "Parent Approval Request Created", "var(--green)");
-
-    const receipt = createSnapshotReceipt(
-      snapshotId,
-      payload,
-      snapshotRow,
-      parentApprovalReceipt,
-      mediaReceipt,
-      productionReceipt
-    );
-
-    createAthleteDashboardContext(snapshotId, payload, receipt);
+    const receipt = createSnapshotReceipt(snapshotRow, parentApprovalReceipt);
+    createAthleteDashboardContext(snapshotRow, receipt);
 
     localStorage.removeItem(SNAPSHOT_DRAFT_KEY);
+
+    const viewProfileBtn = $("viewProfileBtn");
+    if (viewProfileBtn){
+      viewProfileBtn.href = receipt.dashboard_url;
+    }
 
     setMessage("Snapshot complete. Routing to Athlete Dashboard.", "var(--green)");
 
     setTimeout(() => {
-      routeToAthleteDashboard(snapshotId);
+      routeToAthleteDashboard(snapshotRow.snapshot_id);
     }, 500);
 
   } catch (error){
-    console.error(error);
+    console.error("Snapshot submit failed:", error);
+
     setMessage(error?.message || "Snapshot submission failed.", "var(--red)");
-    setStatus("snapshotStatus", "Submission Failed", "var(--red)");
+    setStatus("statusProfile", "Failed", "var(--red)");
+
+    if (submitBtn) submitBtn.disabled = false;
   }
 }
 
-function bindSnapshotRuntime(){
-  restoreSnapshotDraft();
-
-  const viewProfileBtn = $("viewProfileBtn");
-  if (viewProfileBtn){
-    viewProfileBtn.href = "athlete-dashboard.html?role=athlete&from=snapshot-intake";
-    viewProfileBtn.innerHTML = "Continue to Dashboard <span>›</span>";
-  }
-
+function bindHeadshotRuntime(){
   const headshotInput = $("athleteHeadshotUpload");
   const uploadBox = $("headshotUploadBox");
   const addHeadshotBtn = $("addHeadshotBtn");
@@ -1385,20 +1130,11 @@ function bindSnapshotRuntime(){
   function handleHeadshotSelected(){
     const file = headshotInput?.files?.[0];
 
-    if (!file){
-      return;
-    }
-
-    const allowedTypes = [
-      "image/png",
-      "image/jpeg",
-      "image/webp",
-      "image/heic",
-      "image/heif"
-    ];
+    if (!file) return;
 
     const fileName = String(file.name || "").toLowerCase();
-    const allowedExtension =
+    const valid =
+      file.type.startsWith("image/") ||
       fileName.endsWith(".png") ||
       fileName.endsWith(".jpg") ||
       fileName.endsWith(".jpeg") ||
@@ -1406,7 +1142,7 @@ function bindSnapshotRuntime(){
       fileName.endsWith(".heic") ||
       fileName.endsWith(".heif");
 
-    if (!allowedTypes.includes(file.type) && !allowedExtension){
+    if (!valid){
       clearHeadshot();
       setMessage("Unsupported image format. Upload JPG, PNG, WEBP, HEIC, or HEIF.", "var(--red)");
       return;
@@ -1425,83 +1161,57 @@ function bindSnapshotRuntime(){
 
     if (removeHeadshotBtn) removeHeadshotBtn.style.display = "flex";
     if (addHeadshotBtn) addHeadshotBtn.innerHTML = "Change Headshot <span>↻</span>";
-    if (headshotUploadText) headshotUploadText.textContent = "HEADSHOT READY";
+    if (headshotUploadText) headshotUploadText.textContent = "HEADSHOT URL READY";
     if (headshotUploadHint) headshotUploadHint.textContent = file.name;
 
     setStatus("mediaStatusHeadshot", "Attached", "var(--green)");
     setStatus("statusPhnxMedia", "Queued After Submit", "var(--gold)");
-    setMessage("Headshot attached. Submit Snapshot to complete ingest.", "var(--green)");
+    setMessage("Headshot attached. Submit Snapshot to save headshot_url.", "var(--green)");
   }
 
-  if (uploadBox){
-    uploadBox.addEventListener("click", openHeadshotPicker);
+  if (uploadBox) uploadBox.addEventListener("click", openHeadshotPicker);
+  if (addHeadshotBtn) addHeadshotBtn.addEventListener("click", openHeadshotPicker);
+  if (removeHeadshotBtn) removeHeadshotBtn.addEventListener("click", clearHeadshot);
+  if (headshotInput) headshotInput.addEventListener("change", handleHeadshotSelected);
+}
+
+function bindSnapshotRuntime(){
+  restoreSnapshotDraft();
+  bindHeadshotRuntime();
+
+  const viewProfileBtn = $("viewProfileBtn");
+  if (viewProfileBtn){
+    viewProfileBtn.href = "athlete-dashboard.html?role=athlete&from=snapshot-intake";
+    viewProfileBtn.innerHTML = "Continue to Dashboard <span>›</span>";
   }
 
-  if (addHeadshotBtn){
-    addHeadshotBtn.addEventListener("click", openHeadshotPicker);
-  }
-
-  if (removeHeadshotBtn){
-    removeHeadshotBtn.addEventListener("click", clearHeadshot);
-  }
-
-  if (headshotInput){
-    headshotInput.addEventListener("change", handleHeadshotSelected);
-  }
-
-  const form =
-    $("snapshotForm") ||
-    $("snapshot-intake-form") ||
-    $("statscoreSnapshotForm") ||
-    document.querySelector("form");
+  const form = $("snapshotForm") || document.querySelector("form");
 
   if (form){
     form.addEventListener("submit", submitSnapshot);
   }
 
-  const submitButtons = [
-    $("submitSnapshot"),
-    $("submitSnapshotBtn"),
-    $("createSnapshot"),
-    $("createSnapshotBtn"),
-    $("finishSnapshot"),
-    $("finishSnapshotBtn")
-  ].filter(Boolean);
+  const submitBtn = $("submitSnapshotBtn");
+  if (submitBtn){
+    submitBtn.addEventListener("click", submitSnapshot);
+  }
 
-  submitButtons.forEach(btn => {
-    btn.addEventListener("click", submitSnapshot);
-  });
-
-  const saveButtons = [
-    $("saveDraft"),
-    $("saveDraftBtn"),
-    $("saveSnapshotDraft"),
-    $("saveSnapshotDraftBtn")
-  ].filter(Boolean);
-
-  saveButtons.forEach(btn => {
-    btn.addEventListener("click", (event) => {
+  const saveDraftBtn = $("saveDraftBtn");
+  if (saveDraftBtn){
+    saveDraftBtn.addEventListener("click", event => {
       if (event) event.preventDefault();
       saveSnapshotDraft();
     });
-  });
+  }
 
-  const clearButtons = [
-    $("clearDraft"),
-    $("clearDraftBtn"),
-    $("removeDraft"),
-    $("removeDraftBtn")
-  ].filter(Boolean);
-
-  clearButtons.forEach(btn => {
-    btn.addEventListener("click", (event) => {
+  const requestVerificationBtn = $("requestVerificationBtn");
+  if (requestVerificationBtn){
+    requestVerificationBtn.addEventListener("click", event => {
       if (event) event.preventDefault();
-      localStorage.removeItem(SNAPSHOT_DRAFT_KEY);
-      clearHeadshot(event);
-      setMessage("Snapshot draft removed.", "var(--green)");
+      setMessage("Submit Snapshot first. Verification opens after snapshot_id is created.", "var(--gold)");
     });
-  });
-} 
+  }
+}
 
 document.addEventListener("DOMContentLoaded", bindSnapshotRuntime);
 </script> 
