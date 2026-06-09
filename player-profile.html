@@ -1513,34 +1513,56 @@ function normalizeSnapshot(response){
 
 async function loadSnapshot(){
   const snapshotId = getSnapshotId();
-
   const db = getDb();
-  if (!db) return null;
 
-  if (!snapshotId) {
-    const latest = await db
-      .from("sc_snapshot_intakes")
-      .select("*")
-      .order("created_at", { ascending:false })
-      .limit(1)
-      .maybeSingle();
+  if(!db) return null;
 
-    if (latest.error || !latest.data) return null;
+  let query = db
+    .from("statscore_snapshots")
+    .select("*");
 
-    return normalizeSnapshot(latest.data);
+  if(snapshotId){
+    query = query.eq("snapshot_id", snapshotId).maybeSingle();
+  }else{
+    query = query.order("created_at", { ascending:false }).limit(1).maybeSingle();
   }
 
-  const { data, error } = await db.rpc("get_statscore_snapshot", {
-    p_snapshot_id: snapshotId
-  });
+  const { data, error } = await query;
 
-  if (error) {
-    console.error("get_statscore_snapshot RPC failed:", error);
+  if(error){
+    console.error("STATS-CORE Player Profile snapshot load failed:", error);
     return null;
   }
 
+  if(!data){
+    console.warn("No STATS-CORE snapshot found.");
+    return null;
+  }
+
+  console.log("STATS-CORE Player Profile canonical snapshot:", data);
   return normalizeSnapshot(data);
 } 
+
+
+ const { data, error } = await db
+  .from("statscore_snapshots")
+  .select("*")
+  .eq("snapshot_id", snapshotId)
+  .maybeSingle();
+
+if (error) {
+  console.error("statscore_snapshots direct load failed:", error);
+  return null;
+}
+
+if (!data) {
+  console.warn("No statscore snapshot found:", snapshotId);
+  return null;
+}
+
+console.log("Player Profile canonical snapshot:", data);
+
+return normalizeSnapshot(data); 
 
  async function loadParentGovernance(snapshotId){
   const db = getDb();
