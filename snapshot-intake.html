@@ -616,31 +616,25 @@ const SUPABASE_ANON_KEY =
 const SNAPSHOT_TABLE = "statscore_snapshots";
 const HEADSHOT_BUCKET = "statscore-headshots";
 
-function $(id){
-  return document.getElementById(id);
-}
+function $(id){ return document.getElementById(id); }
 
 function getField(key){
   return document.getElementById(key) || document.querySelector(`[name="${key}"]`);
 }
 
-function nowISO(){
-  return new Date().toISOString();
-}
+function nowISO(){ return new Date().toISOString(); }
 
 function uuid(){
-  if (crypto && crypto.randomUUID) return crypto.randomUUID();
-
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
-    const r = Math.random() * 16 | 0;
-    const v = c === "x" ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
+  return crypto?.randomUUID ? crypto.randomUUID() :
+    "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
+      const r = Math.random() * 16 | 0;
+      const v = c === "x" ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
 }
 
 function safeText(value){
-  if (value === undefined || value === null) return "";
-  return String(value).trim();
+  return value === undefined || value === null ? "" : String(value).trim();
 }
 
 function safeValue(key){
@@ -659,7 +653,6 @@ function firstValue(keys){
 function setMessage(message, color = "var(--green)"){
   const el = $("systemMessage");
   if (!el) return;
-
   el.textContent = message || "";
   el.style.color = color;
 }
@@ -667,7 +660,6 @@ function setMessage(message, color = "var(--green)"){
 function setStatus(id, text, color = "var(--green)"){
   const el = $(id);
   if (!el) return;
-
   el.textContent = text || "";
   el.style.color = color;
 }
@@ -679,16 +671,12 @@ function setFieldValue(key, value){
 }
 
 function normalizeAthleteName(firstName, lastName, fallback){
-  const combined = `${firstName || ""} ${lastName || ""}`.trim();
-  return combined || fallback || "";
+  return `${firstName || ""} ${lastName || ""}`.trim() || fallback || "";
 }
 
 function getDb(){
-  if (!window.supabase){
-    throw new Error("Supabase client did not load.");
-  }
-
-  if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY === "PASTE_YOUR_ANON_KEY_HERE"){
+  if (!window.supabase) throw new Error("Supabase client did not load.");
+  if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY === "YOUR_ANON_KEY_HERE"){
     throw new Error("Missing Supabase anon key.");
   }
 
@@ -709,57 +697,65 @@ function getDb(){
   return window.STATSCORE_SUPABASE_CLIENT;
 }
 
-function classifySnapshot(row){
-  const status = String(row?.snapshot_status || "").toUpperCase();
-  const verification = String(row?.verification_status || "").toUpperCase();
-  const scoreStatus = String(row?.score_status || "").toUpperCase();
-  const first = String(row?.first_name || "").toUpperCase();
-  const last = String(row?.last_name || "").toUpperCase();
-  const display = String(row?.athlete_display_name || "").toUpperCase();
-
-  const isTest =
-    status.includes("TEST") ||
-    verification.includes("TEST") ||
-    scoreStatus.includes("TEST") ||
-    first === "TEST" ||
-    last === "ATHLETE" ||
-    display.includes("TEST ATHLETE");
-
-  const isArchived =
-    status === "ARCHIVED" ||
-    status === "DELETED" ||
-    status === "INACTIVE";
-
-  const isActive =
-    !isTest &&
-    !isArchived &&
-    ["ACTIVE","SUBMITTED","READY"].includes(status);
-
-  return {
-    isTest,
-    isArchived,
-    isActive,
-    mode: isTest ? "TEST" : isArchived ? "ARCHIVED" : isActive ? "ACTIVE" : "REVIEW"
-  };
+function getHeadshotInput(){
+  return $("athleteHeadshotUpload");
 }
 
-function getHeadshotInput(){
-  return document.getElementById("athleteHeadshotUpload");
+function previewHeadshot(file){
+  const preview = $("headshotPreview");
+  const text = $("headshotUploadText");
+  const hint = $("headshotUploadHint");
+  const addBtn = $("addHeadshotBtn");
+  const removeBtn = $("removeHeadshotBtn");
+
+  if (!file || !preview) return;
+
+  const reader = new FileReader();
+
+  reader.onload = function(event){
+    preview.src = event.target.result;
+    preview.style.display = "block";
+
+    if (text) text.textContent = "HEADSHOT READY FOR STORAGE";
+    if (hint) hint.textContent = file.name;
+    if (addBtn) addBtn.innerHTML = "Change Headshot <span>↻</span>";
+    if (removeBtn) removeBtn.style.display = "flex";
+
+    setStatus("mediaStatusHeadshot", "Attached", "var(--green)");
+    setStatus("statusPhnxMedia", "Queued After Submit", "var(--gold)");
+    setMessage("Headshot attached. Submit Snapshot to upload image and save headshot_url.", "var(--green)");
+  };
+
+  reader.onerror = function(){
+    setMessage("Headshot preview failed to load.", "var(--red)");
+  };
+
+  reader.readAsDataURL(file);
 }
 
 async function getHeadshotPayload(snapshotId){
   const input = getHeadshotInput();
   const file = input?.files?.[0] || null;
 
-  if (!file){
-    throw new Error("No headshot file selected.");
+  if (!file) throw new Error("No headshot file selected.");
+
+  const fileName = String(file.name || "").toLowerCase();
+  const valid =
+    file.type.startsWith("image/") ||
+    fileName.endsWith(".png") ||
+    fileName.endsWith(".jpg") ||
+    fileName.endsWith(".jpeg") ||
+    fileName.endsWith(".webp") ||
+    fileName.endsWith(".heic") ||
+    fileName.endsWith(".heif");
+
+  if (!valid){
+    throw new Error("Unsupported image format. Upload JPG, PNG, WEBP, HEIC, or HEIF.");
   }
 
   const db = getDb();
-
-  const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
-  const safeExt = ext.replace(/[^a-z0-9]/g, "") || "jpg";
-  const filePath = `${snapshotId}/headshot.${safeExt}`;
+  const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+  const filePath = `${snapshotId}/headshot.${ext}`;
 
   const { error: uploadError } = await db.storage
     .from(HEADSHOT_BUCKET)
@@ -790,7 +786,7 @@ async function getHeadshotPayload(snapshotId){
     type: file.type || "image/jpeg",
     size: file.size
   };
-} 
+}
 
 const STATSCORE_SNAPSHOT_COLUMNS = new Set([
   "snapshot_id",
@@ -836,8 +832,6 @@ const STATSCORE_SNAPSHOT_COLUMNS = new Set([
   "headshot_bucket",
   "headshot_path",
   "headshot_public_url",
-  "headshot_filename",
-  "headshot_mime_type",
   "headshot_url",
   "counselor_contact",
   "raw_payload",
@@ -848,13 +842,9 @@ const STATSCORE_SNAPSHOT_COLUMNS = new Set([
 
 function filterSnapshotSchema(row){
   const clean = {};
-
   Object.keys(row).forEach(key => {
-    if (STATSCORE_SNAPSHOT_COLUMNS.has(key)){
-      clean[key] = row[key];
-    }
+    if (STATSCORE_SNAPSHOT_COLUMNS.has(key)) clean[key] = row[key];
   });
-
   return clean;
 }
 
@@ -863,10 +853,9 @@ function buildSnapshotPayload(snapshotId, headshotPayload){
   const lastName = firstValue(["lastName"]);
   const athleteDisplayName = normalizeAthleteName(firstName, lastName, "");
 
-  const row = {
+  return filterSnapshotSchema({
     snapshot_id: snapshotId,
     athlete_id: null,
-
     snapshot_status: "submitted",
     verification_status: "pending_review",
     score_status: "not_issued",
@@ -918,8 +907,6 @@ function buildSnapshotPayload(snapshotId, headshotPayload){
     headshot_path: headshotPayload?.path || null,
     headshot_public_url: headshotPayload?.url || null,
     headshot_url: headshotPayload?.url || null,
-    headshot_filename: headshotPayload?.name || null,
-    headshot_mime_type: headshotPayload?.type || null,
 
     raw_payload: {
       source_page: "snapshot-intake.html",
@@ -934,9 +921,7 @@ function buildSnapshotPayload(snapshotId, headshotPayload){
     submitted_at: nowISO(),
     created_at: nowISO(),
     updated_at: nowISO()
-  };
-
-  return filterSnapshotSchema(row);
+  });
 }
 
 function validateSnapshotPayload(row){
@@ -965,7 +950,41 @@ async function insertSnapshot(row){
   }
 
   return data;
-} 
+}
+
+function saveSnapshotDraft(){
+  const draft = {
+    firstName: safeValue("firstName"),
+    lastName: safeValue("lastName"),
+    graduationClass: safeValue("graduationClass"),
+    cityState: safeValue("cityState"),
+    schoolProgram: safeValue("schoolProgram"),
+    primarySport: safeValue("primarySport"),
+    height: safeValue("height"),
+    weight: safeValue("weight"),
+    primaryPosition: safeValue("primaryPosition"),
+    currentGpa: safeValue("currentGpa"),
+    guardianName: safeValue("guardianName"),
+    guardianEmail: safeValue("guardianEmail"),
+    guardianPhone: safeValue("guardianPhone"),
+    coachName: safeValue("coachName"),
+    coachEmail: safeValue("coachEmail"),
+    updated_at: nowISO()
+  };
+
+  localStorage.setItem(SNAPSHOT_DRAFT_KEY, JSON.stringify(draft));
+  setMessage("Snapshot draft saved.", "var(--green)");
+}
+
+function restoreSnapshotDraft(){
+  const raw = localStorage.getItem(SNAPSHOT_DRAFT_KEY);
+  if (!raw) return;
+
+  let draft = null;
+  try { draft = JSON.parse(raw); } catch { return; }
+
+  Object.keys(draft).forEach(key => setFieldValue(key, draft[key]));
+}
 
 async function createParentApprovalRequest(snapshotRow){
   const db = getDb();
@@ -1010,6 +1029,24 @@ async function createParentApprovalRequest(snapshotRow){
   return receipt;
 }
 
+function classifySnapshot(row){
+  const status = String(row?.snapshot_status || "").toUpperCase();
+  const verification = String(row?.verification_status || "").toUpperCase();
+  const first = String(row?.first_name || "").toUpperCase();
+  const display = String(row?.athlete_display_name || "").toUpperCase();
+
+  const isTest = status.includes("TEST") || verification.includes("TEST") || first === "TEST" || display.includes("TEST ATHLETE");
+  const isArchived = ["ARCHIVED","DELETED","INACTIVE"].includes(status);
+  const isActive = !isTest && !isArchived && ["ACTIVE","SUBMITTED","READY"].includes(status);
+
+  return {
+    isTest,
+    isArchived,
+    isActive,
+    mode: isTest ? "TEST" : isArchived ? "ARCHIVED" : isActive ? "ACTIVE" : "REVIEW"
+  };
+}
+
 function createSnapshotReceipt(snapshotRow, parentApprovalReceipt){
   const classification = classifySnapshot(snapshotRow);
 
@@ -1026,9 +1063,6 @@ function createSnapshotReceipt(snapshotRow, parentApprovalReceipt){
     position: snapshotRow.primary_position,
     headshot_url: snapshotRow.headshot_url || null,
     snapshot_mode: classification.mode,
-    is_test_snapshot: classification.isTest,
-    is_active_snapshot: classification.isActive,
-    is_archived_snapshot: classification.isArchived,
     dashboard_url: `athlete-dashboard.html?snapshot_id=${encodeURIComponent(snapshotRow.snapshot_id)}&role=athlete&from=snapshot-intake`,
     profile_url: `player-profile.html?snapshot_id=${encodeURIComponent(snapshotRow.snapshot_id)}`,
     parent_approval_url: `parent-approval.html?snapshot_id=${encodeURIComponent(snapshotRow.snapshot_id)}`,
@@ -1062,15 +1096,7 @@ function createAthleteDashboardContext(snapshotRow, receipt){
     dashboardUrl: receipt.dashboard_url,
     profileUrl: receipt.profile_url,
     receipt,
-    timestamp: nowISO(),
-    doctrine: {
-      dashboard: "Navigation Layer",
-      profile: "Profile Tool accessed from Dashboard",
-      snapshotIntake: "Athlete Data Capture",
-      multiBox: "Communication Layer",
-      canonicalSource: "statscore_snapshots",
-      headshotPipeline: "Supabase Storage URL stored in statscore_snapshots.headshot_url"
-    }
+    timestamp: nowISO()
   };
 
   sessionStorage.setItem(STATSCORE_DASHBOARD_CONTEXT_KEY, JSON.stringify(context));
@@ -1087,9 +1113,7 @@ function routeToAthleteDashboard(snapshotId){
 }
 
 async function submitSnapshot(event){
-  if (event && typeof event.preventDefault === "function"){
-    event.preventDefault();
-  }
+  event?.preventDefault?.();
 
   const submitBtn = $("submitSnapshotBtn");
 
@@ -1098,40 +1122,22 @@ async function submitSnapshot(event){
 
     setMessage("Submitting STATS-CORE Snapshot...", "var(--gold)");
     setStatus("statusProfile", "Submitting", "var(--gold)");
-    setStatus("statusScore", "Not Issued", "var(--gold)");
 
     const snapshotId = uuid();
 
     setStatus("statusPhnxMedia", "Uploading Headshot", "var(--gold)");
     const headshotPayload = await getHeadshotPayload(snapshotId);
 
-    if (headshotPayload?.url){
-      setStatus("mediaStatusHeadshot", "URL Saved", "var(--green)");
-      setStatus("statusPhnxMedia", "Headshot URL Ready", "var(--green)");
-    } else {
-      setStatus("mediaStatusHeadshot", "No Headshot", "var(--gold)");
-      setStatus("statusPhnxMedia", "No Headshot URL", "var(--gold)");
-    }
-
     const snapshotPayload = buildSnapshotPayload(snapshotId, headshotPayload);
-
     validateSnapshotPayload(snapshotPayload);
 
     const snapshotRow = await insertSnapshot(snapshotPayload);
-
-    if (!snapshotRow?.snapshot_id){
-      throw new Error("Snapshot saved but snapshot_id was not returned.");
-    }
 
     setStatus("statusProfile", "Created", "var(--green)");
     setStatus("statusMetrics", "Captured", "var(--green)");
     setStatus("statusAcademic", "Captured", "var(--green)");
     setStatus("statusVerification", "Unverified", "var(--gold)");
-    setStatus(
-      "statusPhnxMedia",
-      snapshotRow.headshot_url ? "Headshot URL Saved" : "No Headshot URL",
-      snapshotRow.headshot_url ? "var(--green)" : "var(--gold)"
-    );
+    setStatus("statusPhnxMedia", "Headshot URL Saved", "var(--green)");
 
     const parentApprovalReceipt = await createParentApprovalRequest(snapshotRow);
 
@@ -1141,111 +1147,73 @@ async function submitSnapshot(event){
     localStorage.removeItem(SNAPSHOT_DRAFT_KEY);
 
     const viewProfileBtn = $("viewProfileBtn");
-    if (viewProfileBtn){
-      viewProfileBtn.href = receipt.dashboard_url;
-    }
+    if (viewProfileBtn) viewProfileBtn.href = receipt.dashboard_url;
 
     setMessage("Snapshot complete. Routing to Athlete Dashboard.", "var(--green)");
 
-    setTimeout(() => {
-      routeToAthleteDashboard(snapshotRow.snapshot_id);
-    }, 500);
+    setTimeout(() => routeToAthleteDashboard(snapshotRow.snapshot_id), 500);
 
   } catch (error){
     console.error("Snapshot submit failed:", error);
-
     setMessage(error?.message || "Snapshot submission failed.", "var(--red)");
     setStatus("statusProfile", "Failed", "var(--red)");
-
     if (submitBtn) submitBtn.disabled = false;
   }
 }
 
 function bindHeadshotRuntime(){
-  const headshotInput = $("athleteHeadshotUpload");
-  const uploadBox = $("headshotUploadBox");
-  const addHeadshotBtn = $("addHeadshotBtn");
-  const removeHeadshotBtn = $("removeHeadshotBtn");
-  const headshotPreview = $("headshotPreview");
-  const headshotUploadText = $("headshotUploadText");
-  const headshotUploadHint = $("headshotUploadHint");
+  const input = $("athleteHeadshotUpload");
+  const box = $("headshotUploadBox");
+  const addBtn = $("addHeadshotBtn");
+  const removeBtn = $("removeHeadshotBtn");
+  const preview = $("headshotPreview");
 
-  function openHeadshotPicker(event){
-    if (event) event.preventDefault();
-    if (headshotInput) headshotInput.click();
+  if (!input || !preview){
+    setMessage("Headshot input or preview element missing.", "var(--red)");
+    return;
+  }
+
+  function openPicker(event){
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
+    input.click();
   }
 
   function clearHeadshot(event){
-    if (event) event.preventDefault();
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
 
-    if (headshotInput) headshotInput.value = "";
+    input.value = "";
+    preview.removeAttribute("src");
+    preview.style.display = "none";
 
-    if (headshotPreview){
-      headshotPreview.src = "";
-      headshotPreview.style.display = "none";
-    }
-
-    if (removeHeadshotBtn) removeHeadshotBtn.style.display = "none";
-    if (addHeadshotBtn) addHeadshotBtn.innerHTML = "Begin Media Ingest <span>+</span>";
-    if (headshotUploadText) headshotUploadText.textContent = "PHNX SPORTS MEDIA INGEST";
-    if (headshotUploadHint) headshotUploadHint.textContent = "Click to upload JPG, PNG, WEBP, HEIC, or HEIF";
+    if (removeBtn) removeBtn.style.display = "none";
+    if ($("headshotUploadText")) $("headshotUploadText").textContent = "PHNX SPORTS MEDIA INGEST";
+    if ($("headshotUploadHint")) $("headshotUploadHint").textContent = "Click to upload JPG, PNG, WEBP, HEIC, or HEIF";
+    if (addBtn) addBtn.innerHTML = "Begin Media Ingest <span>+</span>";
 
     setStatus("mediaStatusHeadshot", "Required", "var(--gold)");
     setStatus("statusPhnxMedia", "Not Queued", "var(--gold)");
     setMessage("Headshot removed.", "var(--green)");
   }
 
-  function handleHeadshotSelected(){
-    const file = headshotInput?.files?.[0];
-
-    if (!file) return;
-
-    const fileName = String(file.name || "").toLowerCase();
-    const valid =
-      file.type.startsWith("image/") ||
-      fileName.endsWith(".png") ||
-      fileName.endsWith(".jpg") ||
-      fileName.endsWith(".jpeg") ||
-      fileName.endsWith(".webp") ||
-      fileName.endsWith(".heic") ||
-      fileName.endsWith(".heif");
-
-    if (!valid){
-      clearHeadshot();
-      setMessage("Unsupported image format. Upload JPG, PNG, WEBP, HEIC, or HEIF.", "var(--red)");
+  input.addEventListener("change", function(){
+    const file = input.files?.[0] || null;
+    if (!file){
+      setMessage("No headshot file selected.", "var(--red)");
       return;
     }
+    previewHeadshot(file);
+  });
 
-    if (headshotPreview && file.type !== "image/heic" && file.type !== "image/heif"){
-      const reader = new FileReader();
-
-      reader.onload = () => {
-        headshotPreview.src = reader.result;
-        headshotPreview.style.display = "block";
-      };
-
-      reader.readAsDataURL(file);
-    }
-
-    if (removeHeadshotBtn) removeHeadshotBtn.style.display = "flex";
-    if (addHeadshotBtn) addHeadshotBtn.innerHTML = "Change Headshot <span>↻</span>";
-    if (headshotUploadText) headshotUploadText.textContent = "HEADSHOT READY FOR STORAGE";
-    if (headshotUploadHint) headshotUploadHint.textContent = file.name;
-
-    setStatus("mediaStatusHeadshot", "Attached", "var(--green)");
-    setStatus("statusPhnxMedia", "Queued After Submit", "var(--gold)");
-    setMessage("Headshot attached. Submit Snapshot to upload image and save headshot_url.", "var(--green)");
-  }
-
-  if (uploadBox) uploadBox.addEventListener("click", openHeadshotPicker);
-  if (addHeadshotBtn) addHeadshotBtn.addEventListener("click", openHeadshotPicker);
-  if (removeHeadshotBtn) removeHeadshotBtn.addEventListener("click", clearHeadshot);
-  if (headshotInput) headshotInput.addEventListener("change", handleHeadshotSelected);
+  box?.addEventListener("click", openPicker);
+  addBtn?.addEventListener("click", openPicker);
+  removeBtn?.addEventListener("click", clearHeadshot);
 }
 
 function bindSnapshotRuntime(){
-  restoreSnapshotDraft();
   bindHeadshotRuntime();
+  restoreSnapshotDraft();
 
   const viewProfileBtn = $("viewProfileBtn");
   if (viewProfileBtn){
@@ -1253,32 +1221,18 @@ function bindSnapshotRuntime(){
     viewProfileBtn.innerHTML = "Continue to Dashboard <span>›</span>";
   }
 
-  const form = $("snapshotForm") || document.querySelector("form");
+  $("snapshotForm")?.addEventListener("submit", submitSnapshot);
+  $("submitSnapshotBtn")?.addEventListener("click", submitSnapshot);
 
-  if (form){
-    form.addEventListener("submit", submitSnapshot);
-  }
+  $("saveDraftBtn")?.addEventListener("click", event => {
+    event?.preventDefault?.();
+    saveSnapshotDraft();
+  });
 
-  const submitBtn = $("submitSnapshotBtn");
-  if (submitBtn){
-    submitBtn.addEventListener("click", submitSnapshot);
-  }
-
-  const saveDraftBtn = $("saveDraftBtn");
-  if (saveDraftBtn){
-    saveDraftBtn.addEventListener("click", event => {
-      if (event) event.preventDefault();
-      saveSnapshotDraft();
-    });
-  }
-
-  const requestVerificationBtn = $("requestVerificationBtn");
-  if (requestVerificationBtn){
-    requestVerificationBtn.addEventListener("click", event => {
-      if (event) event.preventDefault();
-      setMessage("Submit Snapshot first. Verification opens after snapshot_id is created.", "var(--gold)");
-    });
-  }
+  $("requestVerificationBtn")?.addEventListener("click", event => {
+    event?.preventDefault?.();
+    setMessage("Submit Snapshot first. Verification opens after snapshot_id is created.", "var(--gold)");
+  });
 }
 
 document.addEventListener("DOMContentLoaded", bindSnapshotRuntime);
