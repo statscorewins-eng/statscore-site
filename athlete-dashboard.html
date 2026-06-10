@@ -1606,17 +1606,26 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function renderRing(s){
-    setText(".ring b",s.coreScore);
-    setText(".ring small",s.verification || "Unverified");
+  const score = String( 
+    s.coreScore ||
+    s.statscore_score ||
+    s.snapshot_score ||
+    s.score ||
+    s.raw_payload?.coreScore ||
+    s.raw_payload?.statscore_score ||
+    "--"
+); 
 
-    const lines = document.querySelectorAll(".score-line b");
-    if(lines[0]) lines[0].textContent = s.positionScore;
-    if(lines[1]) lines[1].textContent = s.athleticScore;
-    if(lines[2]) lines[2].textContent = s.productionScore;
-    if(lines[3]) lines[3].textContent = s.academicScore;
-    if(lines[4]) lines[4].textContent = s.characterScore;
-  }
+  setText("_ring_b", score);
+  setText("_ring_small", s.verification || s.verification_status || "Unverified");
 
+  const lines = document.querySelectorAll(".score-line b");
+  if(lines[0]) lines[0].textContent = s.positionScore || score;
+  if(lines[1]) lines[1].textContent = s.athleticScore || score;
+  if(lines[2]) lines[2].textContent = s.productionScore || score;
+  if(lines[3]) lines[3].textContent = s.academicScore || "--";
+  if(lines[4]) lines[4].textContent = s.characterScore || "--";
+} 
   function renderMetrics(s){
     const perf = document.querySelectorAll('.mid-grid a[href*="readiness"] .metric b');
     if(perf[0]) perf[0].textContent = s.forty;
