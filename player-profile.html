@@ -1402,7 +1402,13 @@ function escapeHTML(value){
 }
 
 function getSnapshotId(){
-  return new URLSearchParams(window.location.search).get("snapshot_id");
+  const params = new URLSearchParams(window.location.search);
+  return (
+    params.get("snapshot_id") ||
+    localStorage.getItem("STATSCORE_ACTIVE_SNAPSHOT_ID") ||
+    sessionStorage.getItem("STATSCORE_ACTIVE_SNAPSHOT_ID") ||
+    ""
+  );
 }
 
 function upper(value){
@@ -1424,6 +1430,14 @@ function splitName(fullName){
 
 function getDb(){
   return window.STATScoreData?.getClient?.() || window.STATScoreSupabase || null;
+}
+
+function storageUrl(value){
+  if (!value) return "";
+  const v = String(value);
+  if (v.startsWith("http") || v.startsWith("data:image")) return v;
+
+  return `https://oyjmpbuxvfxusmbouldi.supabase.co/storage/v1/object/public/${v.replace(/^\/+/,"")}`;
 }
 
 function getPositionKey(position){
@@ -1450,64 +1464,72 @@ function starDisplayFromScore(score){
   return "★★★★★".slice(0, stars) + "☆☆☆☆☆".slice(0, 5 - stars);
 }
 
-function formatClassYear(value){
-  return value || "Class Year";
-}
+function normalizeSnapshot(row){
+  if (!row) return null;
 
-function normalizeSnapshot(response){
-  if (!response || response.success !== true || !response.snapshot) return null;
+  const raw = row.raw_payload || {};
 
-  const snap = response.snapshot;
-  const raw = snap.raw_payload || {};
+  const first = row.first_name || raw.firstName || "";
+  const last = row.last_name || raw.lastName || "";
 
   const fullName =
+    row.athlete_display_name ||
     raw.athlete_display_name ||
-    [raw.firstName, raw.lastName].filter(Boolean).join(" ").trim() ||
-    raw.athlete_name ||
-    snap.athlete_display_name ||
-    snap.athlete_name ||
+    [first, last].filter(Boolean).join(" ").trim() ||
     "Athlete Profile";
 
   return {
-    snapshot_id: snap.snapshot_id,
+    snapshot_id: row.snapshot_id,
     athlete_display_name: fullName,
-    sport: raw.primarySport || raw.sport || snap.primary_sport || snap.sport || "Sport",
-    position: raw.primaryPosition || raw.position || snap.primary_position || snap.position || "Position",
-    secondary_position: raw.secondaryPosition || raw.secondary_position || snap.secondary_position || "",
-    class_year: raw.graduationClass || raw.graduation_class || raw.classYear || snap.graduation_class || snap.graduation_year || "Class Year",
-    city_state: raw.cityState || raw.city_state || snap.city_state || "City, State",
-    school: raw.schoolProgram || raw.school || snap.school_program || snap.school || "School / Program",
-    height: raw.height || snap.height || "Height",
-    weight: raw.weight || snap.weight || "Weight",
-    dash40: raw.dash40 || raw.forty || raw.speedIndex || snap.dash40 || "--",
-    vertical_jump: raw.verticalJump || raw.vertical_jump || raw.explosiveness || snap.vertical_jump || "--",
-    shuttle: raw.shuttle || snap.shuttle || "",
-    broad_jump: raw.broadJump || raw.broad_jump || snap.broad_jump || "",
-    highlight_url: raw.highlightUrl || raw.highlight_url || snap.highlight_url || "",
-    game_film_url: raw.gameFilmUrl || raw.game_film_url || snap.game_film_url || "",
-    social_profile_url: raw.socialProfileUrl || raw.social_profile_url || "",
-    recruiting_profile_url: raw.recruitingProfileUrl || raw.recruiting_profile_url || "",
-    verified_event_source: raw.verifiedEventSource || raw.verified_event_source || snap.verified_event_source || "",
-    position_notes: raw.positionNotes || raw.position_notes || snap.position_notes || "",
-    archetype: raw.archetype || raw.positionArchetype || raw.position_archetype || "",
-    varsity_years: raw.varsityYears || raw.varsity_years || snap.varsity_years || "",
-    starter_status: raw.starterStatus || raw.starter_status || snap.starter_status || "",
-    recruiting_tier: raw.recruitingTier || raw.recruiting_tier || snap.recruiting_tier || "",
-    star_rating: raw.starRating || raw.star_rating || raw.stars || "",
-    trait_scores: raw.traitScores || raw.trait_scores || {},
-    guardian_email: raw.guardianEmail || raw.parentEmail || raw.guardian_email || snap.guardian_email || "",
-    guardian_phone: raw.guardianPhone || raw.parentPhone || raw.guardian_phone || snap.guardian_phone || "",
+    sport: row.primary_sport || raw.primarySport || raw.sport || "Sport",
+    position: row.primary_position || raw.primaryPosition || raw.position || "Position",
+    secondary_position: row.secondary_position || raw.secondaryPosition || "",
+    class_year: row.graduation_class || raw.graduationClass || raw.classYear || "Class Year",
+    city_state: row.city_state || raw.cityState || "City, State",
+    school: row.school_program || raw.schoolProgram || raw.school || "School / Program",
+
+    height: row.height || raw.height || "Height",
+    weight: row.weight || raw.weight || "Weight",
+
+    dash40: row.dash40 || raw.dash40 || raw.forty || "--",
+    vertical_jump: row.vertical_jump || raw.verticalJump || raw.vertical_jump || "--",
+    shuttle: row.shuttle || raw.shuttle || "--",
+    broad_jump: row.broad_jump || raw.broadJump || raw.broad_jump || "--",
+    strength_marker: row.strength_marker || raw.strengthMarker || "--",
+
+    current_gpa: row.current_gpa || raw.currentGpa || "--",
+    ncaa_eligibility_status: row.ncaa_eligibility_status || raw.ncaaEligibilityStatus || "Review",
+    transcript_available: row.transcript_available || raw.transcriptAvailable || "Unknown",
+
+    highlight_url: row.highlight_url || raw.highlightUrl || "",
+    game_film_url: row.game_film_url || raw.gameFilmUrl || "",
+    social_profile_url: row.social_profile_url || raw.socialProfileUrl || "",
+    recruiting_profile_url: row.recruiting_profile_url || raw.recruitingProfileUrl || "",
+    verified_event_source: row.verified_event_source || raw.verifiedEventSource || "",
+    position_notes: row.position_notes || raw.positionNotes || "",
+
+    guardian_email: row.guardian_email || raw.guardianEmail || "",
+    guardian_phone: row.guardian_phone || raw.guardianPhone || "",
     guardian_approval_status:
+      row.guardian_approval_status ||
+      row.parent_approval_status ||
       raw.guardianApprovalStatus ||
-      raw.guardian_approval_status ||
-      snap.guardian_approval_status ||
-      snap.parent_approval_status ||
       "PENDING",
-    headshot_url: raw.headshotPublicUrl || raw.headshot_public_url || snap.headshot_public_url || "",
-    verification_status: snap.verification_status || raw.verificationStatus || "UNVERIFIED",
-    score_status: snap.score_status || raw.scoreStatus || "UNVERIFIED",
-    profile_status: raw.profileStatus || raw.profile_status || "CREATED",
-    statscore_label: snap.statscore_label || raw.statscoreLabel || null
+
+    verification_status: row.verification_status || raw.verificationStatus || "UNVERIFIED",
+    score_status: row.score_status || raw.scoreStatus || "UNVERIFIED",
+
+    headshot_url: storageUrl(
+      row.headshot_public_url ||
+      row.headshot_url ||
+      row.headshot_path ||
+      raw.headshot_url ||
+      raw.headshotPublicUrl ||
+      ""
+    ),
+
+    trait_scores: raw.traitScores || raw.trait_scores || {},
+    raw: row
   };
 }
 
@@ -1515,56 +1537,39 @@ async function loadSnapshot(){
   const snapshotId = getSnapshotId();
   const db = getDb();
 
-  if(!db) return null;
+  if (!db){
+    console.error("STATS-CORE Player Profile: Supabase client missing.");
+    return null;
+  }
 
-  let query = db
-    .from("statscore_snapshots")
-    .select("*");
+  let query = db.from("statscore_snapshots").select("*");
 
-  if(snapshotId){
+  if (snapshotId){
     query = query.eq("snapshot_id", snapshotId).maybeSingle();
-  }else{
+  } else {
     query = query.order("created_at", { ascending:false }).limit(1).maybeSingle();
   }
 
   const { data, error } = await query;
 
-  if(error){
+  if (error){
     console.error("STATS-CORE Player Profile snapshot load failed:", error);
     return null;
   }
 
-  if(!data){
+  if (!data){
     console.warn("No STATS-CORE snapshot found.");
     return null;
   }
 
+  localStorage.setItem("STATSCORE_ACTIVE_SNAPSHOT_ID", data.snapshot_id);
+  sessionStorage.setItem("STATSCORE_ACTIVE_SNAPSHOT_ID", data.snapshot_id);
+
   console.log("STATS-CORE Player Profile canonical snapshot:", data);
   return normalizeSnapshot(data);
-} 
-
-
- const { data, error } = await db
-  .from("statscore_snapshots")
-  .select("*")
-  .eq("snapshot_id", snapshotId)
-  .maybeSingle();
-
-if (error) {
-  console.error("statscore_snapshots direct load failed:", error);
-  return null;
 }
 
-if (!data) {
-  console.warn("No statscore snapshot found:", snapshotId);
-  return null;
-}
-
-console.log("Player Profile canonical snapshot:", data);
-
-return normalizeSnapshot(data); 
-
- async function loadParentGovernance(snapshotId){
+async function loadParentGovernance(snapshotId){
   const db = getDb();
   if (!db || !snapshotId) return null;
 
@@ -1577,7 +1582,7 @@ return normalizeSnapshot(data);
     .maybeSingle();
 
   if (error){
-    console.error("Parent governance load failed:", error);
+    console.warn("Parent governance load failed:", error);
     return null;
   }
 
@@ -1585,8 +1590,7 @@ return normalizeSnapshot(data);
 }
 
 function applyParentGovernance(snapshot, governance){
-  if (!snapshot) return snapshot;
-  if (!governance) return snapshot;
+  if (!snapshot || !governance) return snapshot;
 
   snapshot.guardian_approval_status =
     governance.status ||
@@ -1626,6 +1630,8 @@ function computeUnverifiedScore(snapshot){
   const forty = toNumber(snapshot.dash40);
   const vertical = toNumber(snapshot.vertical_jump);
   const shuttle = toNumber(snapshot.shuttle);
+  const broad = toNumber(snapshot.broad_jump);
+
   let score = 58;
 
   if (pos === "WR"){
@@ -1648,7 +1654,7 @@ function computeUnverifiedScore(snapshot){
       else score += 2;
     }
 
-    if (snapshot.secondary_position) score += 2;
+    if (broad) score += 2;
     if (snapshot.position_notes) score += 3;
     if (snapshot.highlight_url || snapshot.game_film_url) score += 4;
     if (snapshot.verified_event_source) score += 4;
@@ -1656,6 +1662,7 @@ function computeUnverifiedScore(snapshot){
     if (forty) score += 9;
     if (vertical) score += 7;
     if (shuttle) score += 4;
+    if (broad) score += 2;
     if (snapshot.highlight_url || snapshot.game_film_url) score += 5;
     if (snapshot.verified_event_source) score += 5;
   }
@@ -1669,36 +1676,21 @@ function resolveProfileStates(snapshot){
   const gov = snapshot.parent_governance || {};
 
   const guardianApproved = guardianRaw === "APPROVED" || upper(gov.status) === "APPROVED";
-  const guardianModified = guardianRaw === "MODIFIED" || upper(gov.status) === "MODIFIED";
-  const guardianDenied = guardianRaw === "DENIED" || upper(gov.status) === "DENIED";
-  const guardianRevoked = guardianRaw === "REVOKED" || upper(gov.status) === "REVOKED";
-
   const verified = verificationRaw === "VERIFIED";
   const hasMetrics = hasProductionEvidence(snapshot);
   const unverifiedScore = hasMetrics ? computeUnverifiedScore(snapshot) : null;
 
-  let guardianState = "PARENT RELEASE REQUIRED";
-  if (guardianApproved) guardianState = "PARENT RELEASE APPROVED";
-  if (guardianModified) guardianState = "PARENT RELEASE MODIFIED";
-  if (guardianDenied) guardianState = "PARENT RELEASE DENIED";
-  if (guardianRevoked) guardianState = "PARENT RELEASE REVOKED";
-
-  const profileReleased = guardianApproved && gov.profile_participation;
   const publicReleased = guardianApproved && gov.public_visibility;
   const recruiterReleased = guardianApproved && gov.recruiter_access;
-  const mediaReleased = guardianApproved && gov.media_exposure;
 
   return {
     snapshotState: "SNAPSHOT ACTIVE",
-    releaseState: guardianApproved ? "PARENT RELEASE APPROVED" : "PARENT RELEASE PENDING",
     verificationState: verified ? "VERIFIED STATS-CORE" : "UNVERIFIED STATS-CORE",
     scoreState: verified ? "OFFICIAL" : hasMetrics ? "UNVERIFIED" : "PENDING",
-    guardianState,
+    guardianState: guardianApproved ? "PARENT RELEASE APPROVED" : "PARENT RELEASE REQUIRED",
     visibilityState: publicReleased ? "CONTROLLED RELEASE" : "LIMITED",
     recruitingState: recruiterReleased ? (verified ? "ENABLED" : "PENDING VERIFICATION") : "LOCKED",
     shareState: publicReleased ? "CONTROLLED" : "LOCKED",
-    mediaState: mediaReleased ? "RELEASED" : "LOCKED",
-    profileParticipationState: profileReleased ? "ACTIVE" : "PRIVATE",
     guardianApproved,
     verified,
     hasMetrics,
@@ -1710,7 +1702,7 @@ function renderAthleteImage(src, fullName){
   const frame = document.getElementById("athleteImageFrame");
   if (!frame) return;
 
-  if (src) {
+  if (src){
     frame.innerHTML = `<img src="${escapeHTML(src)}" alt="${escapeHTML(fullName)} athlete image">`;
   } else {
     frame.textContent = "Athlete Image Required";
@@ -1730,13 +1722,13 @@ const FALLBACK_POSITION_TRAITS = {
 
 function normalizeTraitObject(trait){
   if (typeof trait === "string") return { name: trait, score: null };
-  if (trait && typeof trait === "object") {
+  if (trait && typeof trait === "object"){
     return {
       name: trait.name || trait.label || trait.trait || "Trait",
       score: trait.score ?? trait.value ?? null
     };
   }
-  return { name: "Trait", score: null };
+  return { name:"Trait", score:null };
 }
 
 function deriveProjectedTraitScore(snapshot, traitName, states){
@@ -1745,55 +1737,26 @@ function deriveProjectedTraitScore(snapshot, traitName, states){
   const base = states.unverifiedScore || 68;
   const forty = toNumber(snapshot.dash40);
   const vertical = toNumber(snapshot.vertical_jump);
+  const shuttle = toNumber(snapshot.shuttle);
 
   let score = base;
 
   if (pos === "WR"){
     if (name.includes("RELEASE")) score += forty && forty <= 4.55 ? 3 : 0;
     if (name.includes("SEPARATION")) score += forty && forty <= 4.55 ? 5 : 0;
-    if (name.includes("ROUTE")) score += snapshot.position_notes ? 4 : -3;
+    if (name.includes("ROUTE")) score += snapshot.position_notes ? 4 : -2;
     if (name.includes("TRACKING")) score += vertical && vertical >= 36 ? 4 : 0;
     if (name.includes("YAC")) score += forty && forty <= 4.55 ? 3 : 0;
     if (name.includes("TRANSLATION")) score += (forty && vertical) ? 4 : -2;
   }
+
+  if (shuttle && shuttle <= 4.3) score += 2;
 
   return Math.max(52, Math.min(92, Math.round(score)));
 }
 
 function resolvePositionTraits(snapshot){
   const key = getPositionKey(snapshot.position);
-  const engine =
-    window.STATScorePositionMatrixEngine ||
-    window.STATScorePositionMatrix ||
-    window.STATScorePositionEngine;
-
-  try {
-    if (engine?.getTraits) {
-      const result = engine.getTraits({
-        sport: snapshot.sport,
-        position: snapshot.position,
-        archetype: snapshot.archetype,
-        snapshot
-      });
-      if (Array.isArray(result)) return result;
-    }
-
-    if (engine?.resolveMatrix) {
-      const matrix = engine.resolveMatrix(snapshot.sport, snapshot.position, snapshot.archetype, snapshot);
-      if (Array.isArray(matrix?.traits)) return matrix.traits;
-    }
-
-    if (engine?.getMatrix) {
-      const matrix = engine.getMatrix({
-        sport: snapshot.sport,
-        position: snapshot.position,
-        archetype: snapshot.archetype,
-        snapshot
-      });
-      if (Array.isArray(matrix?.traits)) return matrix.traits;
-    }
-  } catch {}
-
   return FALLBACK_POSITION_TRAITS[key] || FALLBACK_POSITION_TRAITS.ATH;
 }
 
@@ -1812,10 +1775,8 @@ function renderPositionTraits(snapshot, states){
 
     const projectedScore = rawScore ?? (states.hasMetrics ? deriveProjectedTraitScore(snapshot, trait.name, states) : null);
     const hasScore = projectedScore !== null && projectedScore !== undefined && projectedScore !== "";
-    const scoreNumber = Number(projectedScore);
-    const width = hasScore && Number.isFinite(scoreNumber) ? Math.max(5, Math.min(100, scoreNumber)) : 18;
-
-    const label = states.verified ? projectedScore : hasScore ? `${projectedScore} U` : "--";
+    const width = hasScore ? Math.max(5, Math.min(100, Number(projectedScore))) : 18;
+    const label = hasScore ? `${projectedScore} U` : "--";
 
     return `
       <div class="trait">
@@ -1827,22 +1788,6 @@ function renderPositionTraits(snapshot, states){
       </div>
     `;
   }).join("");
-}
-
-function renderAthleteDossier(snapshot, states){
-  const positionKey = getPositionKey(snapshot.position);
-  const archetype = snapshot.archetype || (positionKey === "WR" ? "Speed / Space WR Projection" : `${snapshot.position} Production Projection`);
-
-  const athleticSignalParts = [];
-  if (snapshot.dash40 && snapshot.dash40 !== "--") athleticSignalParts.push(`${snapshot.dash40} speed`);
-  if (snapshot.vertical_jump && snapshot.vertical_jump !== "--") athleticSignalParts.push(`${snapshot.vertical_jump}" vertical`);
-
-  setText("dossierArchetype", archetype);
-  setText("dossierProductionSignal", states.hasMetrics ? "Submitted Metrics Active" : "Production Evidence Pending");
-  setText("dossierTranslation", states.hasMetrics ? `${snapshot.position} Translation Under Review` : "Pending Evidence");
-  setText("dossierAthleticSignal", athleticSignalParts.length ? athleticSignalParts.join(" · ") : "Metric Signal Pending");
-  setText("dossierVerification", states.verified ? "Verified" : "Unverified");
-  setText("dossierVisibility", states.visibilityState);
 }
 
 function renderSTATScoreIntelligence(snapshot, states){
@@ -1858,22 +1803,22 @@ function renderSTATScoreIntelligence(snapshot, states){
   setText("scRoleValue", states.hasMetrics ? `${pos} POSITIONAL VALUE` : "ROLE VALUE PENDING");
 
   setText("scProductionExplanation", states.hasMetrics
-    ? `The current signal is based on submitted ${pos} role evidence and athletic indicators. It remains unverified until production evidence is confirmed.`
+    ? `The current signal is based on submitted ${pos} role evidence and athletic indicators.`
     : "Not enough submitted production evidence exists to generate a role-specific signal."
   );
 
   setText("scScoreBasis", states.hasMetrics
-    ? "The score reflects position-specific production indicators, submitted athletic metrics, and current evidence completeness. It is not an official verified rating."
+    ? "The score reflects position-specific production indicators, submitted athletic metrics, and evidence completeness. It is not official until verified."
     : "Score basis requires position data, metrics, production evidence, or verified inputs."
   );
 
   setText("scEvidenceExplanation", states.verified
     ? "Evidence has passed verification gates."
-    : "Evidence is currently submitted but not confirmed by coach, evaluator, trusted film, or verified event source."
+    : "Evidence is submitted but not confirmed by coach, evaluator, trusted film, or verified event source."
   );
 
   setText("scTranslationExplanation", states.hasMetrics
-    ? `Current data suggests ${snapshot.position} production potential, but upward translation requires verified film, production consistency, and competition context.`
+    ? `Current data suggests ${snapshot.position} production potential pending film and competition-context verification.`
     : "Translation outlook requires production evidence and role-specific review."
   );
 
@@ -1883,33 +1828,48 @@ function renderSTATScoreIntelligence(snapshot, states){
   );
 
   setText("scRoleValueExplanation", states.hasMetrics
-    ? `This profile is evaluated by what the athlete can produce at ${snapshot.position}, not generic athleticism alone.`
+    ? `This profile is evaluated by what the athlete can produce at ${snapshot.position}.`
     : "Role value will activate when production evidence is submitted."
   );
 
   const reasons = [
     `STATS-CORE evaluates ${snapshot.position} by positional production, consistency, and upward translatability.`,
     states.hasMetrics ? `Submitted metrics support an unverified ${pos} production signal.` : "Production signal is pending additional evidence.",
-    states.hasMetrics && snapshot.dash40 && snapshot.dash40 !== "--" ? `Speed evidence submitted: ${snapshot.dash40}.` : "Speed evidence is missing or incomplete.",
-    states.hasMetrics && snapshot.vertical_jump && snapshot.vertical_jump !== "--" ? `Explosive evidence submitted: ${snapshot.vertical_jump} vertical.` : "Explosive evidence is missing or incomplete.",
+    snapshot.dash40 && snapshot.dash40 !== "--" ? `Speed evidence submitted: ${snapshot.dash40}.` : "Speed evidence is missing or incomplete.",
+    snapshot.vertical_jump && snapshot.vertical_jump !== "--" ? `Explosive evidence submitted: ${snapshot.vertical_jump}.` : "Explosive evidence is missing or incomplete.",
     `Verification state: ${states.verificationState}.`,
     `Parent release state: ${states.guardianState}.`,
-    `Recruiting state: ${states.recruitingState}.`,
-    "The score remains UNVERIFIED until production evidence is confirmed through trusted verification gates."
+    `Recruiting state: ${states.recruitingState}.`
   ];
 
   const list = document.getElementById("scWhyList");
   if (list) list.innerHTML = reasons.map(reason => `<li>${escapeHTML(reason)}</li>`).join("");
 }
 
+function renderAthleteDossier(snapshot, states){
+  const pos = getPositionKey(snapshot.position);
+  const archetype = pos === "WR" ? "Speed / Space WR Projection" : `${snapshot.position} Production Projection`;
+
+  const athleticSignalParts = [];
+  if (snapshot.dash40 && snapshot.dash40 !== "--") athleticSignalParts.push(`${snapshot.dash40} speed`);
+  if (snapshot.vertical_jump && snapshot.vertical_jump !== "--") athleticSignalParts.push(`${snapshot.vertical_jump} vertical`);
+
+  setText("dossierArchetype", archetype);
+  setText("dossierProductionSignal", states.hasMetrics ? "Submitted Metrics Active" : "Production Evidence Pending");
+  setText("dossierTranslation", states.hasMetrics ? `${snapshot.position} Translation Under Review` : "Pending Evidence");
+  setText("dossierAthleticSignal", athleticSignalParts.length ? athleticSignalParts.join(" · ") : "Metric Signal Pending");
+  setText("dossierVerification", states.verified ? "Verified" : "Unverified");
+  setText("dossierVisibility", states.visibilityState);
+}
+
 function renderGuardianGovernance(snapshot, states){
   const snapshotId = snapshot.snapshot_id || getSnapshotId();
 
-  const approvalUrl = `parent.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
-  const parentRoomUrl = `parent.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
-  const verificationUrl = `verification.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
-
-  const routeMap = {
+  const routes = {
+    parentApprovalAction: `parent.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
+    footerParentApprovalAction: `parent.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
+    verificationAction: `verification.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
+    snapshotPathAction: `snapshot-intake.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
     flowProfile: `player-profile.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
     flowSnapshot: `snapshot-intake.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
     flowVerification: `verification.html?snapshot_id=${encodeURIComponent(snapshotId)}`,
@@ -1918,7 +1878,7 @@ function renderGuardianGovernance(snapshot, states){
     flowCrystal: `crystal-registry.html?snapshot_id=${encodeURIComponent(snapshotId)}`
   };
 
-  Object.entries(routeMap).forEach(([id, href]) => {
+  Object.entries(routes).forEach(([id, href]) => {
     const el = document.getElementById(id);
     if (el) el.href = href;
   });
@@ -1936,80 +1896,33 @@ function renderGuardianGovernance(snapshot, states){
   if (recruitingEl) recruitingEl.className = states.recruitingState === "ENABLED" ? "live" : "locked";
 
   const approvalBtn = document.getElementById("parentApprovalAction");
-  const footerApprovalBtn = document.getElementById("footerParentApprovalAction");
-  const verificationBtn = document.getElementById("verificationAction");
-  const snapshotPathBtn = document.getElementById("snapshotPathAction");
-  const shareBtn = document.getElementById("shareProfileAction");
-  const recruiterBtn = document.getElementById("recruiterAccessAction");
-
-  if (approvalBtn) {
-    approvalBtn.href = states.guardianApproved ? parentRoomUrl : approvalUrl;
+  if (approvalBtn){
     approvalBtn.className = states.guardianApproved ? "action approved" : "action primary";
     approvalBtn.innerHTML = states.guardianApproved ? `Parent Release Approved <span>✓</span>` : `Request Parent Approval <span>›</span>`;
   }
 
-  if (footerApprovalBtn) {
-    footerApprovalBtn.href = states.guardianApproved ? parentRoomUrl : approvalUrl;
+  const footerApprovalBtn = document.getElementById("footerParentApprovalAction");
+  if (footerApprovalBtn){
     footerApprovalBtn.textContent = states.guardianApproved ? "Parent Release Approved ✓" : "Request Approval ›";
   }
-
-  if (verificationBtn) verificationBtn.href = verificationUrl;
-  if (snapshotPathBtn) snapshotPathBtn.href = `snapshot-intake.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
-
-  if (shareBtn) {
-    if (states.shareState === "CONTROLLED") {
-      shareBtn.className = "action secondary";
-      shareBtn.innerHTML = `Share Profile <span>Controlled</span>`;
-      shareBtn.onclick = copyShareLink;
-    } else {
-      shareBtn.className = "action locked";
-      shareBtn.innerHTML = `🔒 Share Profile <span>Locked</span>`;
-      shareBtn.onclick = null;
-    }
-  }
-
-  if (recruiterBtn) {
-    if (states.recruitingState === "ENABLED") {
-      recruiterBtn.className = "action secondary";
-      recruiterBtn.innerHTML = `Recruiter Access <span>›</span>`;
-      recruiterBtn.onclick = () => {
-        window.location.href = `recruiter-requests.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
-      };
-    } else {
-      recruiterBtn.className = "action locked";
-      recruiterBtn.innerHTML = `🔒 Recruiter Access <span>${states.recruitingState}</span>`;
-      recruiterBtn.onclick = null;
-    }
-  }
-
-  setText("recruiterViewStatus", states.recruitingState === "ENABLED"
-    ? "Recruiter visibility is enabled under governed parent release and verification rules."
-    : "Recruiter visibility remains locked until parent release and verification gates allow controlled access."
-  );
-
-  setText("contactStatusText", states.recruitingState === "ENABLED"
-    ? "Communication enabled through Multi-Box™ permissions."
-    : "Recruiter communication remains locked."
-  );
 }
 
 function renderProfile(snapshot){
   const states = resolveProfileStates(snapshot);
-  const statscoreLabel = states.verificationState;
   const nameParts = splitName(snapshot.athlete_display_name);
 
   const athleteName = document.getElementById("athleteName");
-  if (athleteName) {
+  if (athleteName){
     athleteName.innerHTML = `${escapeHTML(nameParts.first)}<span>${escapeHTML(nameParts.last)}</span>`;
   }
 
   setText("captionName", snapshot.athlete_display_name);
-  setText("captionMeta", `${snapshot.position} · ${formatClassYear(snapshot.class_year)}`);
+  setText("captionMeta", `${snapshot.position} · ${snapshot.class_year}`);
   setText("verificationBadge", states.verified ? "VERIFIED" : "UNVERIFIED");
   setText("recordStatus", "Snapshot Loaded");
   setText("footerSnapshotState", snapshot.snapshot_id ? `Snapshot ID: ${snapshot.snapshot_id}` : "Snapshot Intelligence Layer");
 
-  setText("identitySub", `${states.snapshotState} · ${statscoreLabel}`);
+  setText("identitySub", `${states.snapshotState} · ${states.verificationState}`);
   setText("tagPosition", snapshot.position);
   setText("tagHeight", snapshot.height);
   setText("tagWeight", snapshot.weight);
@@ -2018,18 +1931,18 @@ function renderProfile(snapshot){
   setText("tagClass", snapshot.class_year);
 
   setText("starDisplay", states.hasMetrics ? starDisplayFromScore(states.unverifiedScore) : "☆☆☆☆☆");
-  setText("signalText", statscoreLabel);
-  setText("evaluationStatus", states.hasMetrics ? `${snapshot.position} Production Signal · ${statscoreLabel}` : `${states.snapshotState} · ${statscoreLabel}`);
+  setText("signalText", states.verificationState);
+  setText("evaluationStatus", states.hasMetrics ? `${snapshot.position} Production Signal · ${states.verificationState}` : `${states.snapshotState} · ${states.verificationState}`);
 
   setText("profileBio",
-    `${snapshot.athlete_display_name} is a ${snapshot.class_year} ${snapshot.sport} athlete listed at ${snapshot.position}. STATS-CORE evaluates this profile by position-specific production, consistency, evidence support, and upward translatability. Current score intelligence is ${states.verified ? "verified" : "unverified"} and remains governed by parent release and verification controls.`
+    `${snapshot.athlete_display_name} is a ${snapshot.class_year} ${snapshot.sport} athlete listed at ${snapshot.position}. STATS-CORE evaluates this profile by position-specific production, evidence support, verification status, and parent-controlled release governance.`
   );
 
   setText("scoreValue", states.unverifiedScore || "--");
-  setText("scoreStatus", states.verificationState);
+  setText("scoreStatus", states.scoreState);
 
   setText("scoreNote", states.hasMetrics
-    ? "This UNVERIFIED STATS-CORE is generated from submitted snapshot metrics and position-production logic. It is not official until verification gates are complete."
+    ? "This UNVERIFIED STATS-CORE score is generated from submitted snapshot metrics and position-production logic. It is not official until verification gates are complete."
     : "STATS-CORE requires submitted production evidence before score intelligence activates."
   );
 
@@ -2038,19 +1951,23 @@ function renderProfile(snapshot){
   setText("metricReadiness", states.hasMetrics ? "UNVERIFIED SIGNAL" : "PENDING");
   setText("metricVisibility", states.visibilityState);
 
-  setText("gameFilmStatus", snapshot.highlight_url || snapshot.game_film_url || "Film not submitted. Verified film is required to strengthen production confidence.");
-  setText("campStatus", snapshot.verified_event_source || "Camp / combine evidence pending.");
-  setText("mediaStatus", snapshot.social_profile_url || snapshot.recruiting_profile_url || "PHNX Sports media exposure remains governed by parent release.");
-  setText("exposureLaneText", `Visibility is currently ${states.visibilityState}. Recruiter actions remain ${states.recruitingState}.`);
-  setText("primaryFocus", snapshot.position_notes || "Add verified film, coach review, and production data to strengthen the position matrix.");
-  setText("verificationNeed", "Coach confirmation, evaluator review, trusted film, verified metrics, and production consistency.");
-  setText("nextSnapshotText", "Update snapshot after verified film, coach review, or production evidence is added.");
+  setText("gameFilmStatus", snapshot.highlight_url || snapshot.game_film_url || "Film evidence not submitted.");
+  setText("campStatus", snapshot.verified_event_source || "Event evidence pending.");
+  setText("mediaStatus", snapshot.social_profile_url || snapshot.recruiting_profile_url || "PHNX Sports media release requires parent approval.");
+  setText("recruiterViewStatus", "Recruiter visibility is governed by parent release and verification status.");
+  setText("contactStatusText", "Communication routes through Multi-Box™ permissions.");
+  setText("exposureLaneText", `Visibility is currently ${states.visibilityState}. Recruiting is ${states.recruitingState}.`);
+  setText("primaryFocus", snapshot.position_notes || "Generated from production evidence and position matrix.");
+  setText("verificationNeed", "Coach confirmation, film review, evaluator input, or trusted metric evidence.");
+  setText("nextSnapshotText", "Update after verified production evidence is added.");
 
   renderAthleteImage(snapshot.headshot_url, snapshot.athlete_display_name);
   renderGuardianGovernance(snapshot, states);
   renderAthleteDossier(snapshot, states);
   renderPositionTraits(snapshot, states);
   renderSTATScoreIntelligence(snapshot, states);
+
+  console.log("STATS-CORE Player Profile rendered:", snapshot.athlete_display_name, snapshot.snapshot_id, states);
 }
 
 function renderNoSnapshot(){
@@ -2059,11 +1976,7 @@ function renderNoSnapshot(){
   setText("scoreStatus","No Snapshot");
   setText("profileBio","No submitted Snapshot record was found. Run Snapshot Intake to generate this athlete profile.");
 
-  renderPositionTraits({
-    position:"ATH",
-    sport:"Football",
-    trait_scores:{}
-  }, {
+  renderPositionTraits({ position:"ATH", sport:"Football", trait_scores:{} }, {
     hasMetrics:false,
     verified:false,
     unverifiedScore:null
@@ -2071,16 +1984,14 @@ function renderNoSnapshot(){
 }
 
 function copyShareLink(){
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(window.location.href);
-    alert("Profile link copied.");
-  }
+  navigator.clipboard?.writeText(window.location.href);
+  alert("Profile link copied.");
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
   const snapshot = await loadSnapshot();
 
-  if (!snapshot) {
+  if (!snapshot){
     renderNoSnapshot();
     return;
   }
@@ -2092,9 +2003,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 </script>
 
-
-  
 </body>
-</html>
+</html> 
 
- 
