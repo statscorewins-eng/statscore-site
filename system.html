@@ -1736,20 +1736,17 @@ async function searchProfileRecords(query){
     return;
   }
 
-  const q = normalizeSearchValue(query);
+  const q = String(query || "").trim().toLowerCase();
   if (!q) {
-    alert("Enter athlete name, snapshot ID, school, city, or position.");
+    alert("Enter athlete name or snapshot ID.");
     return;
   }
 
   const { data, error } = await db
     .from("statscore_snapshots")
-    .select("snapshot_id, athlete_display_name, first_name, last_name, school_program, school, city_state, primary_position, primary_sport, created_at")
-    .or(
-      `snapshot_id.ilike.%${q}%,athlete_display_name.ilike.%${q}%,first_name.ilike.%${q}%,last_name.ilike.%${q}%,school_program.ilike.%${q}%,school.ilike.%${q}%,city_state.ilike.%${q}%,primary_position.ilike.%${q}%`
-    )
+    .select("*")
     .order("created_at", { ascending:false })
-    .limit(10);
+    .limit(100);
 
   if (error) {
     console.error("STATS-CORE search failed:", error);
@@ -1757,46 +1754,64 @@ async function searchProfileRecords(query){
     return;
   }
 
-  if (!data || !data.length) {
+  const matches = (data || []).filter(r => {
+    const raw = r.raw_payload || {};
+    const searchable = [
+      r.snapshot_id,
+      r.athlete_display_name,
+      r.first_name,
+      r.last_name,
+      r.school_program,
+      r.school,
+      r.city_state,
+      r.primary_position,
+      r.primary_sport,
+      raw.firstName,
+      raw.lastName,
+      raw.athlete_display_name,
+      raw.schoolProgram,
+      raw.primaryPosition,
+      raw.cityState
+    ].join(" ").toLowerCase();
+
+    return searchable.includes(q);
+  });
+
+  if (!matches.length) {
     alert("No athlete profile records found.");
     return;
   }
 
-  if (data.length === 1) {
-    window.location.href = `player-profile.html?snapshot_id=${encodeURIComponent(data[0].snapshot_id)}`;
+  if (matches.length === 1) {
+    window.location.href = `player-profile.html?snapshot_id=${encodeURIComponent(matches[0].snapshot_id)}`;
     return;
   }
 
   const choice = prompt(
-    data.map((r, i) => {
-      const name = r.athlete_display_name || `${r.first_name || ""} ${r.last_name || ""}`.trim() || "Unnamed Athlete";
-      const school = r.school_program || r.school || "School Pending";
+    matches.map((r, i) => {
+      const raw = r.raw_payload || {};
+      const name =
+        r.athlete_display_name ||
+        raw.athlete_display_name ||
+        `${r.first_name || raw.firstName || ""} ${r.last_name || raw.lastName || ""}`.trim() ||
+        "Unnamed Athlete";
+
+      const school =
+        r.school_program ||
+        r.school ||
+        raw.schoolProgram ||
+        "School Pending";
+
       return `${i + 1}. ${name} | ${school} | ${r.snapshot_id}`;
     }).join("\n\n") + "\n\nEnter number to open:"
   );
 
   const index = Number(choice) - 1;
-  if (data[index]) {
-    window.location.href = `player-profile.html?snapshot_id=${encodeURIComponent(data[index].snapshot_id)}`;
+  if (matches[index]) {
+    window.location.href = `player-profile.html?snapshot_id=${encodeURIComponent(matches[index].snapshot_id)}`;
   }
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-  const searchInput =
-    document.querySelector(".utility-search") ||
-    document.querySelector('input[type="search"]') ||
-    document.querySelector('input[placeholder*="Search"]');
-
-  if (!searchInput) return;
-
-  searchInput.addEventListener("keydown", e => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      searchProfileRecords(searchInput.value);
-    }
-  });
-});
 </script> 
-
+  
 </body>
 </html> 
