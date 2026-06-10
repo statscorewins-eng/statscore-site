@@ -1720,7 +1720,83 @@ window.STATScoreSupabaseClient = window.STATScoreSupabase;
 
 <script src="statscore-explainability-engine.js"></script> 
 
-  
+<script>
+function getDb(){
+  return window.STATScoreData?.getClient?.() || window.STATScoreSupabase || null;
+}
+
+function normalizeSearchValue(v){
+  return String(v || "").trim();
+}
+
+async function searchProfileRecords(query){
+  const db = getDb();
+  if (!db) {
+    alert("Supabase client not loaded.");
+    return;
+  }
+
+  const q = normalizeSearchValue(query);
+  if (!q) {
+    alert("Enter athlete name, snapshot ID, school, city, or position.");
+    return;
+  }
+
+  const { data, error } = await db
+    .from("statscore_snapshots")
+    .select("snapshot_id, athlete_display_name, first_name, last_name, school_program, school, city_state, primary_position, primary_sport, created_at")
+    .or(
+      `snapshot_id.ilike.%${q}%,athlete_display_name.ilike.%${q}%,first_name.ilike.%${q}%,last_name.ilike.%${q}%,school_program.ilike.%${q}%,school.ilike.%${q}%,city_state.ilike.%${q}%,primary_position.ilike.%${q}%`
+    )
+    .order("created_at", { ascending:false })
+    .limit(10);
+
+  if (error) {
+    console.error("STATS-CORE search failed:", error);
+    alert("Search failed. Check console.");
+    return;
+  }
+
+  if (!data || !data.length) {
+    alert("No athlete profile records found.");
+    return;
+  }
+
+  if (data.length === 1) {
+    window.location.href = `player-profile.html?snapshot_id=${encodeURIComponent(data[0].snapshot_id)}`;
+    return;
+  }
+
+  const choice = prompt(
+    data.map((r, i) => {
+      const name = r.athlete_display_name || `${r.first_name || ""} ${r.last_name || ""}`.trim() || "Unnamed Athlete";
+      const school = r.school_program || r.school || "School Pending";
+      return `${i + 1}. ${name} | ${school} | ${r.snapshot_id}`;
+    }).join("\n\n") + "\n\nEnter number to open:"
+  );
+
+  const index = Number(choice) - 1;
+  if (data[index]) {
+    window.location.href = `player-profile.html?snapshot_id=${encodeURIComponent(data[index].snapshot_id)}`;
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const searchInput =
+    document.querySelector(".utility-search") ||
+    document.querySelector('input[type="search"]') ||
+    document.querySelector('input[placeholder*="Search"]');
+
+  if (!searchInput) return;
+
+  searchInput.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      searchProfileRecords(searchInput.value);
+    }
+  });
+});
+</script> 
 
 </body>
 </html> 
