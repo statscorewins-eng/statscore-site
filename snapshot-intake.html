@@ -599,9 +599,6 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="statscore-data.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="statscore-data.js"></script>
-
 <script>
 const SNAPSHOT_DRAFT_KEY = "statscore_snapshot_draft_v1";
 const SNAPSHOT_RECEIPT_KEY = "statscore_latest_snapshot_receipt_v1";
@@ -795,7 +792,7 @@ async function getHeadshotPayload(snapshotId){
   };
 } 
 
-function validateSnapshotPayload(row){const STATSCORE_SNAPSHOT_COLUMNS = new Set([
+const STATSCORE_SNAPSHOT_COLUMNS = new Set([
   "snapshot_id",
   "athlete_id",
   "snapshot_status",
@@ -851,11 +848,17 @@ function validateSnapshotPayload(row){const STATSCORE_SNAPSHOT_COLUMNS = new Set
 
 function filterSnapshotSchema(row){
   const clean = {};
+
   Object.keys(row).forEach(key => {
     if (STATSCORE_SNAPSHOT_COLUMNS.has(key)){
       clean[key] = row[key];
     }
-  function buildSnapshotPayload(snapshotId, headshotPayload){
+  });
+
+  return clean;
+}
+
+function buildSnapshotPayload(snapshotId, headshotPayload){
   const firstName = firstValue(["firstName"]);
   const lastName = firstValue(["lastName"]);
   const athleteDisplayName = normalizeAthleteName(firstName, lastName, "");
@@ -963,9 +966,6 @@ async function insertSnapshot(row){
 
   return data;
 } 
-
-  return clean;
-}
 
 async function createParentApprovalRequest(snapshotRow){
   const db = getDb();
