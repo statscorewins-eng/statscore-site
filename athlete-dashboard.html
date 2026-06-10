@@ -1752,5 +1752,127 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 </script>
 
+<script>
+(function(){
+  function q(id){ return document.getElementById(id); }
+
+  function setText(id,value){
+    const el = q(id);
+    if(el) el.textContent = value || "--";
+  }
+
+  function getSnapshotId(){
+    const p = new URLSearchParams(window.location.search);
+    return p.get("snapshot_id") ||
+      localStorage.getItem("STATSCORE_ACTIVE_SNAPSHOT_ID") ||
+      sessionStorage.getItem("STATSCORE_ACTIVE_SNAPSHOT_ID") ||
+      "";
+  }
+
+  function toNumber(value){
+    const n = Number(String(value || "").replace(/[^\d.]/g,""));
+    return Number.isFinite(n) ? n : null;
+  }
+
+  function upper(v){ return String(v || "").toUpperCase(); }
+
+  function getPositionKey(position){
+    const p = upper(position);
+    if(p.includes("WR") || p.includes("RECEIVER")) return "WR";
+    if(p.includes("QB") || p.includes("QUARTERBACK")) return "QB";
+    if(p.includes("RB") || p.includes("RUNNING")) return "RB";
+    if(p.includes("TE")) return "TE";
+    if(p.includes("DB") || p.includes("CORNER") || p.includes("SAFETY")) return "DB";
+    if(p.includes("LB")) return "LB";
+    return "ATH";
+  }
+
+  function computeSnapshotScore(snap){
+    const pos = getPositionKey(snap.primary_position || snap.position);
+    const forty = toNumber(snap.dash40);
+    const vertical = toNumber(snap.vertical_jump);
+    const shuttle = toNumber(snap.shuttle);
+    const broad = toNumber(snap.broad_jump);
+
+    let score = 58;
+
+    if(pos === "WR"){
+      if(forty){
+        if(forty <= 4.40) score += 18;
+        else if(forty <= 4.50) score += 15;
+        else if(forty <= 4.60) score += 10;
+        else score += 5;
+      }
+
+      if(vertical){
+        if(vertical >= 38) score += 12;
+        else if(vertical >= 34) score += 8;
+        else score += 4;
+      }
+
+      if(shuttle){
+        if(shuttle <= 4.25) score += 6;
+        else if(shuttle <= 4.45) score += 4;
+        else score += 2;
+      }
+
+      if(broad) score += 2;
+      if(snap.position_notes) score += 3;
+      if(snap.highlight_url || snap.game_film_url) score += 4;
+      if(snap.verified_event_source) score += 4;
+    }else{
+      if(forty) score += 9;
+      if(vertical) score += 7;
+      if(shuttle) score += 4;
+      if(broad) score += 2;
+      if(snap.highlight_url || snap.game_film_url) score += 5;
+      if(snap.verified_event_source) score += 5;
+    }
+
+    return Math.max(60, Math.min(89, Math.round(score)));
+  }
+
+  async function run(){
+    const db = window.STATScoreData?.getClient?.() || window.STATScoreSupabase || window.supabaseClient;
+    const snapshotId = getSnapshotId();
+
+    if(!db || !snapshotId){
+      console.warn("Dashboard score bridge missing db or snapshot_id.");
+      return;
+    }
+
+    const { data, error } = await db
+      .from("statscore_snapshots")
+      .select("*")
+      .eq("snapshot_id", snapshotId)
+      .maybeSingle();
+
+    if(error || !data){
+      console.error("Dashboard score bridge failed:", error || "No snapshot found");
+      return;
+    }
+
+    const score = computeSnapshotScore(data);
+
+    setText("scoreValue", score);
+    setText("snapshotScore", score);
+    setText("statscoreScore", score);
+    setText("statsCoreScore", score);
+    setText("dashboardScore", score);
+
+    setText("positionScore", score);
+    setText("athleticScore", score);
+    setText("productionScore", score);
+
+    console.log("STATS-CORE Dashboard Score Bridge:", {
+      snapshot_id:snapshotId,
+      athlete:data.athlete_display_name,
+      score
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", run);
+})();
+  
 </body>
 </html> 
