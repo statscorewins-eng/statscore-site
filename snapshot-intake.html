@@ -875,11 +875,7 @@ function filterSnapshotSchema(row){
     if (STATSCORE_SNAPSHOT_COLUMNS.has(key)){
       clean[key] = row[key];
     }
-  });
-  return clean;
-}
-
-function buildSnapshotPayload(snapshotId, headshotPayload){
+  function buildSnapshotPayload(snapshotId, headshotPayload){
   const firstName = firstValue(["firstName"]);
   const lastName = firstValue(["lastName"]);
   const athleteDisplayName = normalizeAthleteName(firstName, lastName, "");
@@ -960,6 +956,16 @@ function buildSnapshotPayload(snapshotId, headshotPayload){
   return filterSnapshotSchema(row);
 }
 
+function validateSnapshotPayload(row){
+  if (!row.first_name || !row.last_name) throw new Error("Athlete first and last name are required.");
+  if (!row.school_program) throw new Error("School / Program is required.");
+  if (!row.primary_sport) throw new Error("Primary sport is required.");
+  if (!row.primary_position) throw new Error("Primary position is required.");
+  if (!row.guardian_name) throw new Error("Guardian name is required.");
+  if (!row.guardian_email) throw new Error("Guardian email is required.");
+  return true;
+}
+
 async function insertSnapshot(row){
   const db = getDb();
   const cleanRow = filterSnapshotSchema(row);
@@ -978,72 +984,7 @@ async function insertSnapshot(row){
   return data;
 } 
 
-  if (!row.first_name || !row.last_name) throw new Error("Athlete first and last name are required.");
-  if (!row.school_program) throw new Error("School / Program is required.");
-  if (!row.primary_sport) throw new Error("Primary sport is required.");
-  if (!row.primary_position) throw new Error("Primary position is required.");
-  if (!row.guardian_name) throw new Error("Guardian name is required.");
-  if (!row.guardian_email) throw new Error("Guardian email is required.");
-
-  return true;
-}
-
-function saveSnapshotDraft(){
-  const draft = {
-    firstName: safeValue("firstName"),
-    lastName: safeValue("lastName"),
-    graduationClass: safeValue("graduationClass"),
-    cityState: safeValue("cityState"),
-    schoolProgram: safeValue("schoolProgram"),
-    primarySport: safeValue("primarySport"),
-    height: safeValue("height"),
-    weight: safeValue("weight"),
-    primaryPosition: safeValue("primaryPosition"),
-    currentGpa: safeValue("currentGpa"),
-    guardianName: safeValue("guardianName"),
-    guardianEmail: safeValue("guardianEmail"),
-    guardianPhone: safeValue("guardianPhone"),
-    coachName: safeValue("coachName"),
-    coachEmail: safeValue("coachEmail"),
-    updated_at: nowISO()
-  };
-
-  localStorage.setItem(SNAPSHOT_DRAFT_KEY, JSON.stringify(draft));
-  setMessage("Snapshot draft saved.", "var(--green)");
-}
-
-function restoreSnapshotDraft(){
-  const raw = localStorage.getItem(SNAPSHOT_DRAFT_KEY);
-  if (!raw) return;
-
-  let draft = null;
-
-  try {
-    draft = JSON.parse(raw);
-  } catch {
-    return;
-  }
-
-  Object.keys(draft).forEach(key => {
-    setFieldValue(key, draft[key]);
-  });
-}
-
-async function insertSnapshot(row){
-  const db = getDb();
-
-  const { data, error } = await db
-    .from(SNAPSHOT_TABLE)
-    .insert(row)
-    .select("*")
-    .single();
-
-  if (error){
-    console.error("statscore_snapshots insert failed:", error);
-    throw new Error(error.message || "Snapshot insert failed.");
-  }
-
-  return data;
+  return clean;
 }
 
 async function createParentApprovalRequest(snapshotRow){
