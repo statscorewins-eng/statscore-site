@@ -815,6 +815,70 @@ async function getHeadshotPayload(snapshotId){
   };
 }
 
+function validateSnapshotPayload(row){const STATSCORE_SNAPSHOT_COLUMNS = new Set([
+  "snapshot_id",
+  "athlete_id",
+  "snapshot_status",
+  "verification_status",
+  "score_status",
+  "first_name",
+  "last_name",
+  "athlete_display_name",
+  "graduation_class",
+  "city_state",
+  "school_program",
+  "primary_sport",
+  "height",
+  "weight",
+  "primary_position",
+  "secondary_position",
+  "dominant_hand_foot",
+  "jersey_number",
+  "dash40",
+  "vertical_jump",
+  "shuttle",
+  "broad_jump",
+  "strength_marker",
+  "verified_event_source",
+  "position_notes",
+  "current_gpa",
+  "ncaa_eligibility_status",
+  "transcript_available",
+  "counselor_contact_available",
+  "academic_notes",
+  "highlight_url",
+  "social_profile_url",
+  "game_film_url",
+  "recruiting_profile_url",
+  "guardian_name",
+  "guardian_email",
+  "guardian_phone",
+  "coach_name",
+  "coach_email",
+  "verification_permission",
+  "headshot_bucket",
+  "headshot_path",
+  "headshot_public_url",
+  "headshot_filename",
+  "headshot_mime_type",
+  "headshot_url",
+  "counselor_contact",
+  "raw_payload",
+  "submitted_at",
+  "created_at",
+  "updated_at"
+]);
+
+function filterSnapshotSchema(row){
+  const clean = {};
+  Object.keys(row).forEach(key => {
+    if (STATSCORE_SNAPSHOT_COLUMNS.has(key)){
+      clean[key] = row[key];
+    }
+  });
+  return clean;
+}
+
 function buildSnapshotPayload(snapshotId, headshotPayload){
   const firstName = firstValue(["firstName"]);
   const lastName = firstValue(["lastName"]);
@@ -825,8 +889,8 @@ function buildSnapshotPayload(snapshotId, headshotPayload){
     athlete_id: null,
 
     snapshot_status: "submitted",
-    verification_status: "UNVERIFIED",
-    score_status: "UNVERIFIED",
+    verification_status: "pending_review",
+    score_status: "not_issued",
 
     first_name: firstName || null,
     last_name: lastName || null,
@@ -853,8 +917,9 @@ function buildSnapshotPayload(snapshotId, headshotPayload){
     position_notes: firstValue(["positionNotes"]) || null,
 
     current_gpa: firstValue(["currentGpa"]) || null,
-    ncaa_eligibility: firstValue(["ncaaEligibilityStatus"]) || null,
+    ncaa_eligibility_status: firstValue(["ncaaEligibilityStatus"]) || null,
     transcript_available: firstValue(["transcriptAvailable"]) || null,
+    counselor_contact_available: firstValue(["counselorContactAvailable"]) || null,
     counselor_contact: firstValue(["counselorContactAvailable"]) || null,
     academic_notes: firstValue(["academicNotes"]) || null,
 
@@ -870,26 +935,49 @@ function buildSnapshotPayload(snapshotId, headshotPayload){
     coach_email: firstValue(["coachEmail"]) || null,
     verification_permission: firstValue(["verificationPermission"]) || null,
 
+    headshot_bucket: headshotPayload?.bucket || null,
+    headshot_path: headshotPayload?.path || null,
+    headshot_public_url: headshotPayload?.url || null,
     headshot_url: headshotPayload?.url || null,
-
-    submitted_at: nowISO(),
-    created_at: nowISO(),
-    updated_at: nowISO(),
+    headshot_filename: headshotPayload?.name || null,
+    headshot_mime_type: headshotPayload?.type || null,
 
     raw_payload: {
       source_page: "snapshot-intake.html",
-      headshot_bucket: HEADSHOT_BUCKET,
+      headshot_bucket: headshotPayload?.bucket || null,
       headshot_path: headshotPayload?.path || null,
+      headshot_url: headshotPayload?.url || null,
       headshot_file_name: headshotPayload?.name || null,
       headshot_file_type: headshotPayload?.type || null,
       headshot_file_size: headshotPayload?.size || null
-    }
+    },
+
+    submitted_at: nowISO(),
+    created_at: nowISO(),
+    updated_at: nowISO()
   };
 
-  return row;
+  return filterSnapshotSchema(row);
 }
 
-function validateSnapshotPayload(row){
+async function insertSnapshot(row){
+  const db = getDb();
+  const cleanRow = filterSnapshotSchema(row);
+
+  const { data, error } = await db
+    .from(SNAPSHOT_TABLE)
+    .insert(cleanRow)
+    .select("*")
+    .single();
+
+  if (error){
+    console.error("statscore_snapshots insert failed:", error);
+    throw new Error(error.message || "Snapshot insert failed.");
+  }
+
+  return data;
+} 
+
   if (!row.first_name || !row.last_name) throw new Error("Athlete first and last name are required.");
   if (!row.school_program) throw new Error("School / Program is required.");
   if (!row.primary_sport) throw new Error("Primary sport is required.");
