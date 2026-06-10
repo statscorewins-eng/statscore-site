@@ -747,41 +747,22 @@ function classifySnapshot(row){
 }
 
 function getHeadshotInput(){
-  return $("athleteHeadshotUpload") || document.querySelector('input[type="file"]');
+  return document.getElementById("athleteHeadshotUpload");
 }
 
 async function getHeadshotPayload(snapshotId){
   const input = getHeadshotInput();
-
-  console.log("HEADSHOT INPUT FOUND:", input);
-  console.log("HEADSHOT INPUT ID:", input?.id);
-  console.log("HEADSHOT FILE COUNT:", input?.files?.length || 0);
-  console.log("HEADSHOT FIRST FILE:", input?.files?.[0] || null);
-
   const file = input?.files?.[0] || null;
 
   if (!file){
-    throw new Error("No headshot file found in athleteHeadshotUpload input.");
-  } 
+    throw new Error("No headshot file selected.");
+  }
 
   const db = getDb();
 
-  const fileName = String(file.name || "").toLowerCase();
-  const valid =
-    file.type.startsWith("image/") ||
-    fileName.endsWith(".png") ||
-    fileName.endsWith(".jpg") ||
-    fileName.endsWith(".jpeg") ||
-    fileName.endsWith(".webp") ||
-    fileName.endsWith(".heic") ||
-    fileName.endsWith(".heif");
-
-  if (!valid){
-    throw new Error("Unsupported image format. Upload JPG, PNG, WEBP, HEIC, or HEIF.");
-  }
-
   const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
-  const filePath = `${snapshotId}/headshot.${ext}`;
+  const safeExt = ext.replace(/[^a-z0-9]/g, "") || "jpg";
+  const filePath = `${snapshotId}/headshot.${safeExt}`;
 
   const { error: uploadError } = await db.storage
     .from(HEADSHOT_BUCKET)
@@ -804,16 +785,15 @@ async function getHeadshotPayload(snapshotId){
     throw new Error("Headshot uploaded but no public URL was returned.");
   }
 
-  console.log("STATS-CORE Headshot Public URL:", data.publicUrl);
-
   return {
-    name: file.name,
-    type: file.type,
-    size: file.size,
+    bucket: HEADSHOT_BUCKET,
     path: filePath,
-    url: data.publicUrl
+    url: data.publicUrl,
+    name: file.name,
+    type: file.type || "image/jpeg",
+    size: file.size
   };
-}
+} 
 
 function validateSnapshotPayload(row){const STATSCORE_SNAPSHOT_COLUMNS = new Set([
   "snapshot_id",
