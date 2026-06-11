@@ -1650,7 +1650,7 @@ window.STATScoreSupabaseClient = window.STATScoreSupabase;
     document.body.style.overflow = "";
   }
 
-  function appendSnapshotContextToLinks(){
+  function appendSnapshotContextToLink
     const params = new URLSearchParams(window.location.search);
     const snapshotId =
       params.get("snapshot_id") ||
@@ -1810,7 +1810,8 @@ async function searchProfileRecords(query){
   if (matches[index]) {
     window.location.href = `player-profile.html?snapshot_id=${encodeURIComponent(matches[index].snapshot_id)}`;
   }
-}
+} 
+
 </script> 
   
 </body>
