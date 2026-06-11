@@ -1422,6 +1422,85 @@ document.addEventListener("DOMContentLoaded",()=>{
 <script src="statscore-explainability-engine.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+  function normalizeSearchValue(v){
+  return String(v || "").trim().toLowerCase();
+}
+
+async function searchProfileRecords(query){
+  const db = getDb();
+  if (!db){
+    alert("Supabase client not loaded.");
+    return;
+  }
+
+  const q = normalizeSearchValue(query);
+  if (!q){
+    alert("Enter athlete name, snapshot ID, school, city, or position.");
+    return;
+  }
+
+  const { data, error } = await db
+    .from("statscore_snapshots")
+    .select("*")
+    .order("created_at", { ascending:false })
+    .limit(100);
+
+  if (error){
+    console.error("STATS-CORE dashboard search failed:", error);
+    alert("Search failed. Check console.");
+    return;
+  }
+
+  const matches = (data || []).filter(row => {
+    const raw = row.raw_payload || {};
+
+    const haystack = [
+      row.snapshot_id,
+      row.athlete_display_name,
+      row.first_name,
+      row.last_name,
+      row.school_program,
+      row.city_state,
+      row.primary_sport,
+      row.primary_position,
+      raw.athlete_display_name,
+      raw.firstName,
+      raw.lastName,
+      raw.schoolProgram,
+      raw.cityState,
+      raw.primarySport,
+      raw.primaryPosition
+    ].map(normalizeSearchValue).join(" ");
+
+    return haystack.includes(q);
+  });
+
+  if (!matches.length){
+    alert("No matching STATS-CORE profile found.");
+    return;
+  }
+
+  const chosen = matches[0];
+
+  window.location.href =
+    `athlete-dashboard.html?snapshot_id=${encodeURIComponent(chosen.snapshot_id)}&role=athlete&from=search`;
+}
+
+function bindAthleteDashboardSearch(){
+  const input =
+    document.querySelector(".utility-search") ||
+    document.querySelector("input[type='search']");
+
+  if (!input) return;
+
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter"){
+      e.preventDefault();
+      searchProfileRecords(input.value);
+    }
+  });
+} 
+  
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("STATS-CORE Athlete Dashboard Runtime Loaded");
