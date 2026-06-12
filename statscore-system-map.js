@@ -1,5 +1,5 @@
 window.STATSCORE_SYSTEM_MAP = {
-  map_version: "v1.0",
+  map_version: "v1.1",
   map_status: "ACTIVE",
   system_name: "STATS-CORE",
   system_identity: "Athlete Decision Intelligence System",
@@ -14,6 +14,9 @@ window.STATSCORE_SYSTEM_MAP = {
   required_startup_files: [
     "statscore-doctrine.js",
     "statscore-system-map.js",
+    "statscore-athlete-efbp-map.js",
+    "statscore-page-map.js",
+    "statscore-dashboard-map.js",
     "statscore-engine-registry.js",
     "statscore-routing.js"
   ],
@@ -30,10 +33,7 @@ window.STATSCORE_SYSTEM_MAP = {
   },
 
   master_flows: {
-    public_entry_flow: [
-      "index.html",
-      "login.html"
-    ],
+    public_entry_flow: ["index.html", "login.html"],
 
     athlete_flow: [
       "login.html",
@@ -49,10 +49,7 @@ window.STATSCORE_SYSTEM_MAP = {
       "role-specific-tools"
     ],
 
-    admin_flow: [
-      "login.html",
-      "system.html"
-    ],
+    admin_flow: ["login.html", "system.html"],
 
     athlete_data_flow: [
       "snapshot-intake.html",
@@ -142,15 +139,21 @@ window.STATSCORE_SYSTEM_MAP = {
         "player-profile.html",
         "eligibility.html",
         "readiness.html",
+        "college-pathway.html",
         "media.html",
         "crystal-report.html",
         "multi-box.html",
         "parent-approval.html",
-        "events.html"
+        "events.html",
+        "verification.html"
       ],
       data_rule: "Must render athlete information dynamically by snapshot_id. No permanent hardcoded athlete records.",
       connected_engines: [
         "statscore-doctrine.js",
+        "statscore-system-map.js",
+        "statscore-athlete-efbp-map.js",
+        "statscore-page-map.js",
+        "statscore-dashboard-map.js",
         "statscore-engine-registry.js",
         "statscore-engine-execution.js",
         "statscore-production-matrix.js",
@@ -160,9 +163,9 @@ window.STATSCORE_SYSTEM_MAP = {
       dashboard_card_routes: {
         eligibility_status: "eligibility.html",
         exposure_score: "media.html",
-        recruiting_readiness: "recruiter-access.html",
+        recruiting_readiness: "college-pathway.html",
         performance_trend: "readiness.html",
-        profile_completeness: "player-profile.html",
+        profile_completeness: "action-plan.html",
         crystal_reports: "crystal-report.html",
         multibox_communication: "multi-box.html",
         upcoming_events: "events.html",
@@ -255,7 +258,11 @@ window.STATSCORE_SYSTEM_MAP = {
     "coach.html": {
       role: "Coach",
       layer: "Role Tool Room",
-      purpose: "Coach-facing athlete support, evaluation, and verification surface."
+      purpose: "Coach-facing athlete support, evaluation, and verification surface.",
+      do_not_drift: [
+        "Coach is a contributor, not the system authority.",
+        "Coach input may support athlete intelligence but cannot become final truth without evidence."
+      ]
     },
 
     "counselor.html": {
@@ -315,10 +322,13 @@ window.STATSCORE_SYSTEM_MAP = {
     "college-pathway.html": {
       role: "Athlete / Counselor / Recruiter",
       layer: "Pathway Intelligence",
-      purpose: "Best probability pathway based on athletic, academic, eligibility, and fit signals.",
+      purpose: "Best probability pathway based on athletic, academic, eligibility, visibility, development, and fit signals.",
       connected_engines: [
         "statscore-pathway-engine.js",
-        "statscore-pathway-intelligence-engine.js"
+        "statscore-pathway-intelligence-engine.js",
+        "statscore-production-matrix.js",
+        "statscore-academic-matrix.js",
+        "statscore-explainability-engine.js"
       ]
     },
 
@@ -331,10 +341,11 @@ window.STATSCORE_SYSTEM_MAP = {
     "crystal-report.html": {
       role: "Athlete / Recruiter / Program / Counselor",
       layer: "Report Output",
-      purpose: "Generated intelligence report derived from registry, profile, verification, and engines.",
+      purpose: "Generated intelligence report derived from registry, profile, verification, matrices, and engines.",
       connected_engines: [
         "statscore-crystal-engine.js",
-        "statscore-crystal-reports.js"
+        "statscore-crystal-reports.js",
+        "statscore-explainability-engine.js"
       ]
     },
 
@@ -350,7 +361,7 @@ window.STATSCORE_SYSTEM_MAP = {
 
     "events.html": {
       role: "Athlete / System",
-      layer: "Events",
+      layer: "Events / Opportunities",
       purpose: "Camps, combines, showcases, calendar events, and athlete opportunity routing.",
       connected_engines: ["statscore-event-engine.js"]
     },
@@ -380,8 +391,11 @@ window.STATSCORE_SYSTEM_MAP = {
     "verification.html": {
       role: "Coach / Counselor / Evaluator / Admin",
       layer: "Verification",
-      purpose: "Trust layer for confirming athlete evidence, metrics, academic status, and profile validity.",
-      connected_engines: ["statscore-verification-engine.js"]
+      purpose: "Trust layer for confirming athlete evidence, metrics, academic status, source claims, and profile validity.",
+      connected_engines: [
+        "statscore-verification-engine.js",
+        "statscore-evidence-engine.js"
+      ]
     },
 
     "verification-request.html": {
@@ -393,14 +407,28 @@ window.STATSCORE_SYSTEM_MAP = {
     "visibility-rules.html": {
       role: "System / Parent / Admin",
       layer: "Visibility Governance",
-      purpose: "Controls profile visibility, release rules, recruiting visibility, and access constraints."
+      purpose: "Controls profile visibility, release rules, recruiting visibility, media exposure, and access constraints."
     },
 
     "audit-trail.html": {
       role: "Admin / System",
       layer: "Audit",
-      purpose: "Receipts, traceability, and system activity trail.",
+      purpose: "Receipts, traceability, system activity trail, and governance proof.",
       connected_engines: ["statscore-receipt-ledger-engine.js"]
+    },
+
+    "opportunities.html": {
+      role: "Athlete / System",
+      layer: "Opportunity Intelligence",
+      purpose: "Recommended future page for best-fit programs, camps, showcases, recruiter targets, and opportunity channels.",
+      build_status: "MISSING"
+    },
+
+    "action-plan.html": {
+      role: "Athlete",
+      layer: "Action Plan Intelligence",
+      purpose: "Recommended future page for prioritized next actions across academics, development, exposure, verification, and pathway.",
+      build_status: "MISSING"
     },
 
     "privacy.html": {
@@ -419,6 +447,10 @@ window.STATSCORE_SYSTEM_MAP = {
   engines: {
     governance_and_core: [
       "statscore-doctrine.js",
+      "statscore-system-map.js",
+      "statscore-athlete-efbp-map.js",
+      "statscore-page-map.js",
+      "statscore-dashboard-map.js",
       "statscore-core.js",
       "statscore-data.js",
       "statscore-routing.js",
@@ -502,13 +534,28 @@ window.STATSCORE_SYSTEM_MAP = {
     before_editing_any_page: [
       "Read statscore-doctrine.js.",
       "Read statscore-system-map.js.",
-      "Confirm the page exists in STATSCORE_SYSTEM_MAP.pages.",
-      "Confirm page layer, purpose, and route before editing.",
+      "Read statscore-athlete-efbp-map.js.",
+      "Read statscore-page-map.js.",
+      "Read statscore-dashboard-map.js.",
+      "Confirm the page exists in STATSCORE_PAGE_MAP.pages.",
+      "Confirm page layer, purpose, route, powered_by engines, and build_status before editing.",
+      "If editing athlete-dashboard.html, confirm the dashboard card exists in STATSCORE_DASHBOARD_MAP.dashboard_cards.",
       "Preserve existing shell unless user explicitly orders redesign.",
       "Do not hardcode athlete-specific records.",
       "If page map is missing or incomplete, update the map first.",
+      "If dashboard card map is missing or incomplete, update the dashboard map first.",
       "If editing dashboard cards, preserve Dashboard = Navigation Layer doctrine.",
       "If editing athlete data rendering, route by snapshot_id from registry/source."
+    ],
+
+    before_editing_any_engine: [
+      "Read statscore-doctrine.js.",
+      "Read statscore-system-map.js.",
+      "Read statscore-engine-registry.js.",
+      "Confirm the engine belongs to a mapped engine category.",
+      "Confirm the engine supports a mapped page, dashboard card, or athlete EFBP question.",
+      "Do not create duplicate engines when existing matrix/engine logic already supports the function.",
+      "If new engine is required, update statscore-system-map.js and statscore-engine-registry.js."
     ],
 
     prohibited_actions: [
@@ -518,10 +565,12 @@ window.STATSCORE_SYSTEM_MAP = {
       "Do not make Multi-Box a dashboard.",
       "Do not allow exposure to equal recruiter interest.",
       "Do not allow communication to equal offer.",
+      "Do not allow coach input to become final athlete truth without evidence.",
       "Do not remove mapping, doctrine, or governance scripts."
     ],
 
-    missing_map_rule: "If a stream identifies that a page, engine, or route is missing from STATSCORE_SYSTEM_MAP, it must generate the correct mapping before continuing code work."
+    missing_map_rule:
+      "If a stream identifies that a page, engine, dashboard card, route, or athlete EFBP question is missing from the maps, it must generate the correct mapping before continuing code work."
   }
 };
 
