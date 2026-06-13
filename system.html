@@ -73,7 +73,9 @@ a{text-decoration:none;color:inherit;}
   grid-template-columns:390px minmax(420px,1fr) 430px;
   align-items:stretch;
   border-bottom:2px solid var(--red);
-  overflow:hidden;
+  overflow:visible !important;
+  position:relative;
+  z-index:5000;
 }
 
 .logo-tab{
@@ -135,6 +137,9 @@ a{text-decoration:none;color:inherit;}
   grid-template-rows:30px 36px;
   gap:8px;
   padding:10px 20px 10px 0;
+  position:relative;
+  overflow:visible !important;
+  z-index:6000;
 }
 
 .utility-row{
@@ -142,6 +147,9 @@ a{text-decoration:none;color:inherit;}
   justify-content:flex-end;
   align-items:center;
   gap:12px;
+  position:relative;
+  overflow:visible !important;
+  z-index:7000;
 }
 
 .utility-search{
@@ -157,33 +165,6 @@ a{text-decoration:none;color:inherit;}
   text-transform:uppercase;
   outline:none;
 }
-  
-.header-nav{
-  display:flex;
-  justify-content:flex-end;
-  align-items:center;
-  gap:7px;
-  padding-right:20px;
-  height:30px;
-}
-
-.header-nav a{
-  font-weight:900;
-  font-size:.75rem;
-  letter-spacing:.13em;
-  text-transform:uppercase;
-  padding-bottom:12px;
-  border-bottom:2px solid transparent;
-}
-
-.header-nav a.active{
-  color:var(--red);
-  border-bottom-color:var(--red);
-}
-
-  .header{
-  overflow:visible !important;
-} 
 
 .header-nav{
   display:flex !important;
@@ -192,6 +173,8 @@ a{text-decoration:none;color:inherit;}
   gap:7px !important;
   flex-wrap:nowrap !important;
   overflow:visible !important;
+  padding-right:20px;
+  height:30px;
 }
 
 .header-nav a{
@@ -216,8 +199,67 @@ a{text-decoration:none;color:inherit;}
   color:var(--red) !important;
   border-color:var(--red) !important;
   background:rgba(255,43,31,.08) !important;
-} 
-  
+}
+
+/* STATS-CORE SEARCH RESULTS */
+
+#statscoreSearchResults{
+  position:absolute;
+  top:38px;
+  right:0;
+  width:min(460px,92vw);
+  max-height:380px;
+  overflow-y:auto;
+  display:none;
+  background:#07111f !important;
+  border:1px solid #ff3b2f;
+  box-shadow:0 22px 70px rgba(0,0,0,.92);
+  z-index:999999;
+  padding:14px;
+}
+
+#statscoreSearchResults.active{
+  display:block;
+}
+
+.search-result-card{
+  display:block;
+  background:#0b1b2e !important;
+  border:1px solid rgba(255,59,47,.7);
+  padding:14px;
+  margin-bottom:12px;
+  color:#fff !important;
+  cursor:pointer;
+}
+
+.search-result-card:hover{
+  background:#13263d !important;
+  border-color:#ff3b2f;
+}
+
+.search-result-card b{
+  display:block;
+  color:#fff !important;
+  font-size:.78rem;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.search-result-card span{
+  display:block;
+  color:#45e5ff !important;
+  font-size:.7rem;
+  margin-top:4px;
+}
+
+.search-result-card em{
+  display:block;
+  color:#ff3b2f !important;
+  font-style:normal;
+  font-size:.64rem;
+  margin-top:6px;
+}
+
 /* TRUE FOLDER TAB RAIL */
 
 .tab-rail{
@@ -1026,10 +1068,32 @@ a{text-decoration:none;color:inherit;}
     line-height:1.35;
     letter-spacing:.22em;
     padding:18px 22px;
+    transform:none;
+  }
+
+  .header-tools{
+    grid-template-rows:auto;
+    padding:0 14px 14px;
+  }
+
+  .utility-row{
+    justify-content:center;
+  }
+
+  .utility-search{
+    width:100%;
+    max-width:360px;
+  }
+
+  #statscoreSearchResults{
+    top:36px;
+    right:50%;
+    transform:translateX(50%);
+    width:min(360px,92vw);
   }
 
   .header-nav{
-    display:none;
+    display:none !important;
   }
 
   .main{
@@ -1119,60 +1183,10 @@ a{text-decoration:none;color:inherit;}
     width:160px;
   }
 
- .secure{
-  justify-content:center;
+  .secure{
+    justify-content:center;
+  }
 }
-
-.header-tools{
-  position:relative;
-}
-
-#statscoreSearchResults{
-  position:absolute;
-  top:48px;
-  right:0;
-  width:min(540px,92vw);
-  max-height:430px;
-  overflow-y:auto;
-  background:#07111f !important;
-  border:1px solid #ff3b2f;
-  box-shadow:0 22px 70px rgba(0,0,0,.92);
-  z-index:999999;
-  padding:14px;
-  display:none;
-}
-
-#statscoreSearchResults.active{
-  display:block;
-}
-
-.search-result-card{
-  background:#0b1b2e !important;
-  border:1px solid rgba(255,59,47,.7);
-  padding:14px;
-  margin-bottom:12px;
-  color:#fff !important;
-  cursor:pointer;
-}
-
-.search-result-card b{
-  display:block;
-  color:#fff !important;
-}
-
-.search-result-card span{
-  display:block;
-  color:#45e5ff !important;
-}
-
-.search-result-card em{
-  display:block;
-  color:#ff3b2f !important;
-  font-style:normal;
-}
-
-} 
-  
 </style>
 </head>
 
@@ -1182,25 +1196,25 @@ a{text-decoration:none;color:inherit;}
 
 <header class="header">
   <a class="logo-tab" href="index.html">
-    <img src="sc_logo_i.png" alt="STATScore">
+    <img src="sc_logo_i.png" alt="STATS-CORE">
   </a>
 
   <div class="header-title">National Athlete Infrastructure</div>
 
   <div class="header-tools">
-  <div class="utility-row">
-    <input class="utility-search" type="search" placeholder="Search Intelligence...">
-<div id="statscoreSearchResults"></div> 
- 
-  <nav class="header-nav">
-    <a class="active" href="system.html">System</a>
-    <a href="player-profile.html">Profile</a>
-    <a href="multi-box.html">Multi-Box</a>
-    <a href="privacy.html">Privacy</a>
-    <a href="terms.html">Terms</a>
-  </nav>
-</div> 
+    <div class="utility-row">
+      <input class="utility-search" type="search" placeholder="Search Intelligence...">
+      <div id="statscoreSearchResults"></div>
+    </div>
 
+    <nav class="header-nav">
+      <a class="active" href="system.html">System</a>
+      <a href="player-profile.html">Profile</a>
+      <a href="multi-box.html">Multi-Box</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+    </nav>
+  </div>
 </header>
 
 <section class="tab-rail">
@@ -1297,7 +1311,7 @@ a{text-decoration:none;color:inherit;}
       <div class="arrow">›</div>
     </a>
 
-    <a class="mb-item" href="recruiter-requests.html" data-context-link>
+    <a class="mb-item" href="recruiter-request.html" data-context-link>
       <div class="mb-icon">👥</div>
       <div>
         <b>Recruiter Requests</b>
@@ -1464,7 +1478,7 @@ a{text-decoration:none;color:inherit;}
 <footer class="footer">
 
   <div class="footer-logo">
-    <img src="sc_logo_i.png" alt="STATScore">
+    <img src="sc_logo_i.png" alt="STATS-CORE">
   </div>
 
   <div>
@@ -1476,7 +1490,7 @@ a{text-decoration:none;color:inherit;}
   </div>
 
   <div>
-    © STATScore Systems<br>
+    © STATS-CORE Systems<br>
     All Rights Reserved.
   </div>
 
@@ -1491,7 +1505,7 @@ a{text-decoration:none;color:inherit;}
     <div class="overview-modal-head">
       <div>
         <div class="overview-modal-kicker" id="overviewModalKicker">System Overview</div>
-        <h2 class="overview-modal-title" id="overviewModalTitle">STATScore Overview</h2>
+        <h2 class="overview-modal-title" id="overviewModalTitle">STATS-CORE Overview</h2>
       </div>
       <button class="overview-modal-close" type="button" id="overviewModalClose" aria-label="Close overview">×</button>
     </div>
@@ -1587,23 +1601,23 @@ window.STATScoreSupabaseClient = window.STATScoreSupabase;
       kicker: "System Overview · 04",
       title: "Initial National Sports",
       summary:
-        "STATScore launches with four initial national sports lanes. Each sport keeps its own evaluation logic, position intelligence, verification path, and readiness context. The sports are not blended into one generic athlete score.",
+        "STATS-CORE launches with four initial national sports lanes. Each sport keeps its own evaluation logic, position intelligence, verification path, and readiness context. The sports are not blended into one generic athlete score.",
       details: [
         ["Football", "Football is the primary launch lane with position matrix logic, athletic traits, readiness signals, recruiting fit, and verification workflow."],
         ["Basketball", "Basketball is included as an initial national sport lane for athlete profile creation, visibility, performance context, and future sport-specific scoring."],
         ["Baseball", "Baseball is included as an initial national sport lane with future support for position, performance, development, and recruiting intelligence."],
-        ["Track", "Track is included because measurable performance, event specificity, and verification timing align strongly with STATScore’s evidence-based model."]
+        ["Track", "Track is included because measurable performance, event specificity, and verification timing align strongly with STATS-CORE’s evidence-based model."]
       ]
     },
     access: {
       kicker: "System Overview · 08",
       title: "User Access Areas",
       summary:
-        "STATScore operates through eight governed access areas. Each role receives controlled visibility, specific permissions, and a defined operating lane so the athlete record remains protected.",
+        "STATS-CORE operates through eight governed access areas. Each role receives controlled visibility, specific permissions, and a defined operating lane so the athlete record remains protected.",
       details: [
         ["Athlete", "Builds and maintains the verified athlete profile, performance identity, readiness path, and lifecycle record."],
         ["Parent", "Controls guardian approval, profile participation, messaging, visibility, media exposure, and minor-athlete protection."],
-        ["Coach", "Supports athlete context, team signal, development information, and verification coordination."],
+        ["Coach", "Supports athlete context, team signal, development information, and verification coordination. Coach input is contributor data, not final truth."],
         ["Counselor", "Supports academic readiness, eligibility review, NCAA awareness, and school-based coordination."],
         ["Recruiter", "Requests governed access through verification and Multi-Box permission rules."],
         ["Program", "Represents schools, teams, academies, camps, and development programs within governed access."],
@@ -1615,30 +1629,30 @@ window.STATScoreSupabaseClient = window.STATScoreSupabase;
       kicker: "System Overview · 05",
       title: "Verification Levels",
       summary:
-        "STATScore uses five verification levels to separate submitted information from confirmed athlete intelligence. This prevents unverified claims from being treated as official recruiting-grade data.",
+        "STATS-CORE uses five verification levels to separate submitted information from confirmed athlete intelligence. This prevents unverified claims from being treated as official recruiting-grade data.",
       details: [
         ["Level 1 · Unverified", "Profile or snapshot data has been submitted, but evidence and guardian approval are not complete."],
         ["Level 2 · Submitted", "Athlete information exists in the system and is staged for review, routing, or completion."],
         ["Level 3 · Document Verified", "Identity, academic, eligibility, or supporting documents have been reviewed or attached to the athlete record."],
         ["Level 4 · Event Verified", "Performance data or measurements have been validated through a verified event, combine, camp, evaluator, or controlled source."],
-        ["Level 5 · Fully Verified", "Athlete profile, evidence, governance, visibility, and scoring requirements are complete for official STATScore release."]
+        ["Level 5 · Fully Verified", "Athlete profile, evidence, governance, visibility, and scoring requirements are complete for official STATS-CORE release."]
       ]
     },
     "verified-system": {
       kicker: "System Overview · 01",
       title: "Verified Athlete System",
       summary:
-        "STATScore is one governed athlete lifecycle infrastructure. The system connects profile creation, verification, readiness, eligibility, visibility, recruiting, communication, and audit governance into a single controlled athlete record.",
+        "STATS-CORE is one governed athlete lifecycle infrastructure. The system connects profile creation, verification, readiness, eligibility, visibility, recruiting, communication, and audit governance into a single controlled athlete record.",
       details: [
         ["Single Athlete Record", "The athlete profile becomes the central governed record for identity, sport, position, readiness, verification, and visibility."],
         ["Governed Visibility", "Public exposure, recruiter access, messaging, and media lanes remain locked until the required permissions are satisfied."],
         ["Runtime Intelligence", "Engines support scoring, search, readiness, eligibility, media, communication, audit, and governance synchronization."],
-        ["Lifecycle Infrastructure", "STATScore is not a static profile page. It is a protected pathway from intake to verified opportunity readiness."]
+        ["Lifecycle Infrastructure", "STATS-CORE is not a static profile page. It is a protected pathway from intake to verified opportunity readiness."]
       ]
     },
     "full-flow": {
       kicker: "System Flow",
-      title: "STATScore Athlete Lifecycle Flow",
+      title: "STATS-CORE Athlete Lifecycle Flow",
       summary:
         "The system flow shows how an athlete moves through the governed lifecycle. Each stage has a purpose and should become progressively more connected to runtime state, approvals, and receipts.",
       details: [
@@ -1668,7 +1682,6 @@ window.STATScoreSupabaseClient = window.STATScoreSupabase;
     kicker.textContent = data.kicker;
     title.textContent = data.title;
     summary.textContent = data.summary;
-
     details.innerHTML = "";
 
     data.details.forEach(function(item){
@@ -1700,7 +1713,7 @@ window.STATScoreSupabaseClient = window.STATScoreSupabase;
     document.body.style.overflow = "";
   }
 
-  function appendSnapshotContextToLink
+  function appendSnapshotContextToLinks(){
     const params = new URLSearchParams(window.location.search);
     const snapshotId =
       params.get("snapshot_id") ||
@@ -1746,8 +1759,12 @@ window.STATScoreSupabaseClient = window.STATScoreSupabase;
 })();
 </script>
 
-<!-- STATS-CORE DOCTRINE -->
+<!-- STATS-CORE DOCTRINE / MAP STACK -->
 <script src="statscore-doctrine.js"></script>
+<script src="statscore-system-map.js"></script>
+<script src="statscore-athlete-efbp-map.js"></script>
+<script src="statscore-page-map.js"></script>
+<script src="statscore-dashboard-map.js"></script>
 
 <!-- STATS-CORE ENGINE REGISTRY -->
 <script src="statscore-engine-registry.js"></script>
@@ -1765,10 +1782,8 @@ window.STATScoreSupabaseClient = window.STATScoreSupabase;
 <script src="statscore-eligibility-engine.js"></script>
 
 <script src="statscore-crystal-engine.js"></script>
-
 <script src="statscore-recruiting-interest-registry.js"></script>
-
-<script src="statscore-explainability-engine.js"></script> 
+<script src="statscore-explainability-engine.js"></script>
 
 <script>
 function getDb(){
@@ -1876,7 +1891,7 @@ async function searchProfileRecords(query){
   resultsBox.classList.add("active");
 
   resultsBox.querySelectorAll("[data-snapshot-id]").forEach(card => {
-    card.addEventListener("click", () => {
+    card.addEventListener("click", function(){
       openAthleteProfile(card.getAttribute("data-snapshot-id"));
     });
   });
