@@ -1775,22 +1775,30 @@ function getDb(){
   return window.STATScoreData?.getClient?.() || window.STATScoreSupabase || null;
 }
 
-function normalizeSearchValue(v){
-  return String(v || "").trim();
+function openAthleteProfile(snapshotId){
+  if(!snapshotId) return;
+  window.location.href =
+    `player-profile.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
 }
 
 async function searchProfileRecords(query){
   const db = getDb();
-  if (!db) {
-    alert("Supabase client not loaded.");
+  const resultsBox = document.getElementById("statscoreSearchResults");
+
+  if(!resultsBox) return;
+
+  resultsBox.innerHTML = "";
+  resultsBox.classList.remove("active");
+
+  if(!db){
+    resultsBox.innerHTML =
+      `<div class="search-result-card"><b>Supabase client not loaded.</b></div>`;
+    resultsBox.classList.add("active");
     return;
   }
 
   const q = String(query || "").trim().toLowerCase();
-  if (!q) {
-    alert("Enter athlete name or snapshot ID.");
-    return;
-  }
+  if(!q) return;
 
   const { data, error } = await db
     .from("statscore_snapshots")
@@ -1798,9 +1806,11 @@ async function searchProfileRecords(query){
     .order("created_at", { ascending:false })
     .limit(100);
 
-  if (error) {
+  if(error){
     console.error("STATS-CORE search failed:", error);
-    alert("Search failed. Check console.");
+    resultsBox.innerHTML =
+      `<div class="search-result-card"><b>Search failed.</b><span>Check console.</span></div>`;
+    resultsBox.classList.add("active");
     return;
   }
 
@@ -1827,41 +1837,71 @@ async function searchProfileRecords(query){
     return searchable.includes(q);
   });
 
-  if (!matches.length) {
-    alert("No athlete profile records found.");
+  if(!matches.length){
+    resultsBox.innerHTML =
+      `<div class="search-result-card"><b>No athlete profile records found.</b></div>`;
+    resultsBox.classList.add("active");
     return;
   }
 
-  if (matches.length === 1) {
-    window.location.href = `player-profile.html?snapshot_id=${encodeURIComponent(matches[0].snapshot_id)}`;
-    return;
+  resultsBox.innerHTML = matches.map(r => {
+    const raw = r.raw_payload || {};
+
+    const name =
+      r.athlete_display_name ||
+      raw.athlete_display_name ||
+      `${r.first_name || raw.firstName || ""} ${r.last_name || raw.lastName || ""}`.trim() ||
+      "Unnamed Athlete";
+
+    const school =
+      r.school_program ||
+      r.school ||
+      raw.schoolProgram ||
+      "School Pending";
+
+    const sport = r.primary_sport || raw.primarySport || "Sport Pending";
+    const position = r.primary_position || raw.primaryPosition || "Position Pending";
+    const grad = r.graduation_class || raw.graduationClass || "Class Pending";
+
+    return `
+      <div class="search-result-card" data-snapshot-id="${r.snapshot_id}">
+        <b>${name}</b>
+        <span>${sport} · ${position} · ${grad}</span>
+        <span>${school}</span>
+        <em>Snapshot ID: ${r.snapshot_id}</em>
+      </div>
+    `;
+  }).join("");
+
+  resultsBox.classList.add("active");
+
+  resultsBox.querySelectorAll("[data-snapshot-id]").forEach(card => {
+    card.addEventListener("click", () => {
+      openAthleteProfile(card.getAttribute("data-snapshot-id"));
+    });
+  });
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+  const input = document.querySelector(".utility-search");
+  const resultsBox = document.getElementById("statscoreSearchResults");
+
+  if(input){
+    input.addEventListener("keydown", function(e){
+      if(e.key === "Enter"){
+        e.preventDefault();
+        searchProfileRecords(input.value);
+      }
+    });
   }
 
-  const choice = prompt(
-    matches.map((r, i) => {
-      const raw = r.raw_payload || {};
-      const name =
-        r.athlete_display_name ||
-        raw.athlete_display_name ||
-        `${r.first_name || raw.firstName || ""} ${r.last_name || raw.lastName || ""}`.trim() ||
-        "Unnamed Athlete";
-
-      const school =
-        r.school_program ||
-        r.school ||
-        raw.schoolProgram ||
-        "School Pending";
-
-      return `${i + 1}. ${name} | ${school} | ${r.snapshot_id}`;
-    }).join("\n\n") + "\n\nEnter number to open:"
-  );
-
-  const index = Number(choice) - 1;
-  if (matches[index]) {
-    window.location.href = `player-profile.html?snapshot_id=${encodeURIComponent(matches[index].snapshot_id)}`;
-  }
-} 
-
+  document.addEventListener("click", function(e){
+    if(!resultsBox || !input) return;
+    if(!resultsBox.contains(e.target) && e.target !== input){
+      resultsBox.classList.remove("active");
+    }
+  });
+});
 </script> 
   
 </body>
