@@ -1,50 +1,28 @@
-<!DOCTYPE html>  
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
 <title>STATS-CORE™ | Athlete Dashboard</title>
 <link rel="icon" type="image/png" href="sc_emblem.png" />
 
 <style>
 :root{
-  --red:#ff2b1f;
-  --red2:#b90710;
-  --gold:#f4c542;
-  --green:#25d366;
-  --blue:#7ed8ff;
-  --purple:#8b7cff;
-  --white:#f4f4ef;
-  --bg:#020407;
-  --panel:rgba(5,9,15,.90);
-  --panel2:rgba(8,13,20,.94);
-  --panel3:rgba(10,16,24,.82);
-  --line:rgba(255,255,255,.10);
-  --line2:rgba(126,216,255,.18);
-  --text:#f4f4ef;
-  --muted:#aeb8c4;
-  --max:1600px;
+  --red:#ff2b1f;--red2:#b90710;--gold:#f4c542;--green:#25d366;
+  --blue:#7ed8ff;--purple:#8b7cff;--white:#f4f4ef;--bg:#020407;
+  --panel:rgba(5,9,15,.90);--panel2:rgba(8,13,20,.94);
+  --line:rgba(255,255,255,.10);--text:#f4f4ef;--muted:#aeb8c4;
 }
-
 *{box-sizing:border-box;margin:0;padding:0}
-
-html,body{
-  width:100%;
-  min-height:100%;
-  background:#000;
-  color:var(--text);
-  font-family:Arial,Helvetica,sans-serif;
-}
-
+html,body{width:100%;min-height:100%;background:#000;color:var(--text);font-family:Arial,Helvetica,sans-serif}
 body{overflow:auto}
 a{text-decoration:none;color:inherit;display:block}
 button,input{font-family:inherit}
 
 .page{
-  width:1600px;
-  max-width:none;
-  min-width:1366px;
+  width:100%;
+  max-width:1600px;
+  min-width:1180px;
   min-height:100vh;
   margin:0 auto;
   background:
@@ -52,11 +30,9 @@ button,input{font-family:inherit}
     radial-gradient(circle at 52% 38%,rgba(0,140,255,.12),transparent 44%),
     repeating-linear-gradient(135deg,rgba(255,255,255,.012) 0,rgba(255,255,255,.012) 1px,transparent 1px,transparent 8px),
     #020407;
-  overflow-x:auto;
 }
 
 /* HEADER */
-
 .header{
   height:96px;
   background:linear-gradient(180deg,#fff,#ececec);
@@ -64,1015 +40,162 @@ button,input{font-family:inherit}
   display:grid;
   grid-template-columns:380px 1fr 520px;
   align-items:center;
+  overflow:visible;
+  position:relative;
+  z-index:50;
 }
-
 .logo-tab{
   height:96px;
   background:linear-gradient(145deg,#181818,#070707 70%,#000);
   clip-path:polygon(0 0,78% 0,100% 100%,0 100%);
-  display:flex;
-  align-items:center;
-  padding-left:28px;
-  position:relative;
+  display:flex;align-items:center;padding-left:28px;position:relative;
 }
-
-.logo-tab:before{
-  content:"";
-  position:absolute;
-  top:0;
-  left:0;
-  width:170px;
-  height:15px;
-  background:var(--red);
-  clip-path:polygon(0 0,92% 0,100% 100%,0 100%);
-}
-
-.logo-tab:after{
-  content:"";
-  position:absolute;
-  bottom:0;
-  left:0;
-  right:42px;
-  height:3px;
-  background:var(--red);
-}
-
-.logo-tab img{
-  width:286px;
-  height:auto;
-  display:block;
-  object-fit:contain;
-}
-
-.header-title{
-  text-align:center;
-  color:#111;
-  font-weight:900;
-  font-size:.78rem;
-  letter-spacing:.24em;
-  text-transform:uppercase;
-  line-height:1.38;
-}
-
-.header-tools{
-  padding:10px 20px 10px 0;
-  display:grid;
-  grid-template-rows:30px 36px;
-  gap:8px;
-}
-
-.utility-row{
-  display:flex;
-  justify-content:flex-end;
-  align-items:center;
-  gap:12px;
-}
-
+.logo-tab:before{content:"";position:absolute;top:0;left:0;width:170px;height:15px;background:var(--red);clip-path:polygon(0 0,92% 0,100% 100%,0 100%)}
+.logo-tab:after{content:"";position:absolute;bottom:0;left:0;right:42px;height:3px;background:var(--red)}
+.logo-tab img{width:286px;height:auto;display:block;object-fit:contain}
+.header-title{text-align:center;color:#111;font-weight:900;font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;line-height:1.38}
+.header-tools{position:relative;padding:10px 20px 10px 0;display:grid;grid-template-rows:30px 36px;gap:8px}
+.utility-row{display:flex;justify-content:flex-end;align-items:center;gap:12px}
 .utility-search{
-  width:260px;
-  height:30px;
-  border:1px solid rgba(0,0,0,.26);
-  background:rgba(255,255,255,.72);
-  color:#111;
-  padding:0 10px;
-  font-size:.62rem;
-  font-weight:900;
-  letter-spacing:.08em;
-  text-transform:uppercase;
-  outline:none;
+  width:300px;height:32px;border:1px solid rgba(0,0,0,.26);background:rgba(255,255,255,.78);
+  color:#111;padding:0 34px 0 10px;font-size:.62rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;outline:none;
 }
-
-.user-icon{
-  width:31px;
-  height:31px;
-  border:3px solid #111;
-  border-radius:50%;
-  position:relative;
+.search-clear{
+  width:22px;height:22px;border:0;background:transparent;color:#111;font-weight:900;font-size:1rem;margin-left:-42px;cursor:pointer;display:none;
 }
-
-.user-icon:before{
-  content:"";
-  position:absolute;
-  top:5px;
-  left:8px;
-  width:9px;
-  height:9px;
-  border-radius:50%;
-  background:#111;
-}
-
-.user-icon:after{
-  content:"";
-  position:absolute;
-  bottom:5px;
-  left:5px;
-  width:15px;
-  height:9px;
-  border-radius:9px 9px 2px 2px;
-  background:#111;
-}
-
-.top-nav{
-  display:flex;
-  justify-content:flex-end;
-  gap:7px;
-}
-
+.search-clear.active{display:block}
+.user-icon{width:31px;height:31px;border:3px solid #111;border-radius:50%;position:relative}
+.user-icon:before{content:"";position:absolute;top:5px;left:8px;width:9px;height:9px;border-radius:50%;background:#111}
+.user-icon:after{content:"";position:absolute;bottom:5px;left:5px;width:15px;height:9px;border-radius:9px 9px 2px 2px;background:#111}
+.top-nav{display:flex;justify-content:flex-end;gap:7px}
 .top-nav a{
-  height:30px;
-  min-width:80px;
-  border:1px solid rgba(0,0,0,.22);
-  color:#111;
-  background:rgba(255,255,255,.55);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
-  font-size:.56rem;
-  font-weight:900;
-  letter-spacing:.06em;
-  text-transform:uppercase;
+  height:30px;min-width:80px;border:1px solid rgba(0,0,0,.22);color:#111;background:rgba(255,255,255,.55);
+  display:flex;align-items:center;justify-content:center;gap:6px;font-size:.56rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;
 }
+.top-nav a.active{color:var(--red);border-color:var(--red);background:rgba(255,43,31,.08)}
+.nav-count{margin-left:4px;background:var(--red);width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:.58rem;color:#fff}
 
-.top-nav a.active{
-  color:var(--red);
-  border-color:var(--red);
-  background:rgba(255,43,31,.08);
+#athleteSearchResults{
+  position:absolute;top:46px;right:64px;width:540px;max-height:420px;overflow-y:auto;
+  background:rgba(5,9,15,.98);border:1px solid var(--red);box-shadow:0 22px 70px rgba(0,0,0,.92);
+  z-index:99999;padding:12px;display:none;
 }
+#athleteSearchResults.active{display:block}
+.search-title{color:#fff;font-size:.72rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px;border-bottom:1px solid rgba(255,255,255,.12);padding-bottom:8px}
+.search-card{border:1px solid rgba(255,43,31,.55);background:rgba(126,216,255,.08);padding:10px;margin-bottom:8px;cursor:pointer}
+.search-card:hover{background:rgba(255,43,31,.12)}
+.search-card b{display:block;color:#fff;font-size:.76rem;text-transform:uppercase}
+.search-card span{display:block;color:var(--blue);font-size:.62rem;margin-top:3px}
+.search-card em{display:block;color:var(--red);font-size:.56rem;font-style:normal;margin-top:3px}
 
-/* MAIN LAYOUT */
-
-.main{
-  padding:10px 8px 0;
-}
-
-.shell{
-  display:grid;
-  grid-template-columns:180px 1fr 252px;
-  gap:8px;
-}
-
-.panel{
-  background:linear-gradient(180deg,var(--panel2),var(--panel));
-  border:1px solid var(--line);
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.025);
-}
-
-.panel:hover{
-  border-color:rgba(126,216,255,.34);
-  box-shadow:0 0 0 1px rgba(126,216,255,.10), inset 0 0 0 1px rgba(255,255,255,.025);
-}
-
-.section-title{
-  color:var(--red);
-  font-size:.62rem;
-  font-weight:900;
-  letter-spacing:.16em;
-  text-transform:uppercase;
-  margin-bottom:10px;
-}
+/* LAYOUT */
+.main{padding:10px 8px 0}
+.shell{display:grid;grid-template-columns:180px minmax(0,1fr) 270px;gap:8px;align-items:stretch}
+.panel{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);box-shadow:inset 0 0 0 1px rgba(255,255,255,.025)}
+.panel:hover{border-color:rgba(126,216,255,.34);box-shadow:0 0 0 1px rgba(126,216,255,.10), inset 0 0 0 1px rgba(255,255,255,.025)}
+.section-title{color:var(--red);font-size:.62rem;font-weight:900;letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px}
 
 /* LEFT RAIL */
-
-.left-rail{
-  display:grid;
-  gap:8px;
-  align-content:start;
-}
-
-.nav-box,.quick-box,.athlete-intel{
-  padding:12px;
-}
-
-.nav-item{
-  height:31px;
-  display:flex;
-  align-items:center;
-  gap:9px;
-  padding:0 10px;
-  border:1px solid transparent;
-  color:#dce7ef;
-  font-size:.66rem;
-  font-weight:900;
-  text-transform:capitalize;
-}
-
-.nav-item.active{
-  color:#fff;
-  background:linear-gradient(90deg,var(--red2),var(--red));
-  border-color:rgba(255,255,255,.14);
-}
-
-.nav-count{
-  margin-left:auto;
-  background:var(--red);
-  width:18px;
-  height:18px;
-  border-radius:50%;
-  display:grid;
-  place-items:center;
-  font-size:.58rem;
-  color:#fff;
-}
-
-.quick-btn{
-  height:28px;
-  margin-bottom:7px;
-  border:1px solid rgba(255,255,255,.10);
-  padding:0 9px;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  color:#e7f6ff;
-  font-size:.62rem;
-  font-weight:900;
-  text-transform:capitalize;
-}
-
-.quick-btn.red{
-  color:#fff;
-  background:linear-gradient(90deg,var(--red2),var(--red));
-}
-
-.intel-row{
-  display:grid;
-  grid-template-columns:14px 1fr auto;
-  gap:8px;
-  align-items:center;
-  margin:8px 0;
-  font-size:.62rem;
-  font-weight:900;
-}
-
-.dot{
-  width:10px;
-  height:10px;
-  border-radius:50%;
-}
-
-.dot.red{background:var(--red)}
-.dot.gold{background:var(--gold)}
-.dot.green{background:var(--green)}
-
-.color-key{
-  border-top:1px solid rgba(255,255,255,.08);
-  margin-top:10px;
-  padding-top:8px;
-  display:grid;
-  gap:4px;
-  font-size:.56rem;
-  font-weight:900;
-}
-
-.color-key span:nth-child(1){color:var(--red)}
-.color-key span:nth-child(2){color:var(--gold)}
-.color-key span:nth-child(3){color:var(--green)}
-
-.open-intel{
-  height:30px;
-  margin-top:10px;
-  border:1px solid rgba(255,255,255,.16);
-  color:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:.56rem;
-  font-weight:900;
-  text-transform:uppercase;
-}
-
+.left-rail{display:grid;gap:8px;align-content:start;grid-template-rows:auto auto 1fr}
+.nav-box,.quick-box,.athlete-intel{padding:12px}
+.nav-item{height:31px;display:flex;align-items:center;gap:9px;padding:0 10px;border:1px solid transparent;color:#dce7ef;font-size:.66rem;font-weight:900;text-transform:capitalize}
+.nav-item.active{color:#fff;background:linear-gradient(90deg,var(--red2),var(--red));border-color:rgba(255,255,255,.14)}
+.quick-btn{height:28px;margin-bottom:7px;border:1px solid rgba(255,255,255,.10);padding:0 9px;display:flex;align-items:center;gap:8px;color:#e7f6ff;font-size:.62rem;font-weight:900;text-transform:capitalize}
+.quick-btn.red{color:#fff;background:linear-gradient(90deg,var(--red2),var(--red))}
+.athlete-intel{border:2px solid var(--red)!important;background:linear-gradient(180deg,rgba(8,13,20,.98),rgba(4,8,14,.95))!important;box-shadow:inset 0 0 0 1px rgba(255,43,31,.18)!important;min-height:250px}
+.intel-row{display:grid;grid-template-columns:14px 1fr auto;gap:8px;align-items:center;margin:8px 0;font-size:.62rem;font-weight:900}
+.dot{width:10px;height:10px;border-radius:50%}.dot.red{background:var(--red)}.dot.gold{background:var(--gold)}.dot.green{background:var(--green)}
+.color-key{border-top:1px solid rgba(255,255,255,.08);margin-top:10px;padding-top:8px;display:grid;gap:4px;font-size:.56rem;font-weight:900}
+.color-key span:nth-child(1){color:var(--red)}.color-key span:nth-child(2){color:var(--gold)}.color-key span:nth-child(3){color:var(--green)}
+.open-intel{height:30px;margin-top:10px;border:1px solid rgba(255,255,255,.16);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.56rem;font-weight:900;text-transform:uppercase} 
 /* CENTER */
-
-.center{
-  display:grid;
-  gap:8px;
-}
-
-.hero{
-  display:grid;
-  grid-template-columns:300px 1fr 365px;
-  gap:8px;
-}
-
-.photo-box{
-  height:224px;
-  overflow:hidden;
-}
-
-.photo-box img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  object-position:center top;
-  display:block;
-}
-
-.identity{
-  padding:16px;
-  min-height:224px;
-}
-
-.identity-kicker{
-  color:var(--red);
-  font-size:.64rem;
-  font-weight:900;
-  letter-spacing:.22em;
-  text-transform:uppercase;
-  margin-bottom:8px;
-}
-
-.athlete-name{
-  font-family:"Arial Narrow","Helvetica Neue Condensed",Impact,Arial,sans-serif;
-  font-size:2.65rem;
-  line-height:.92;
-  letter-spacing:.02em;
-  text-transform:uppercase;
-  margin-bottom:12px;
-  color:var(--blue);
-  text-shadow:0 0 14px rgba(126,216,255,.42);
-}
-
-.tag-row{
-  display:flex;
-  gap:6px;
-  flex-wrap:wrap;
-  margin-bottom:12px;
-}
-
-.tag{
-  border:1px solid rgba(255,255,255,.16);
-  padding:6px 9px;
-  font-size:.58rem;
-  font-weight:900;
-  text-transform:uppercase;
-  background:rgba(255,255,255,.025);
-}
-
-.meta-line{
-  display:flex;
-  gap:20px;
-  color:#dcebf4;
-  font-size:.66rem;
-  font-weight:800;
-  margin:8px 0;
-}
-
-.status-row{
-  display:flex;
-  gap:8px;
-  margin-top:14px;
-  align-items:center;
-}
-
-.status-pill{
-  border:1px solid rgba(255,255,255,.14);
-  padding:7px 11px;
-  font-size:.58rem;
-  font-weight:900;
-  text-transform:uppercase;
-}
-
+.center{display:grid;gap:8px}
+.hero{display:grid;grid-template-columns:300px minmax(0,1fr) 365px;gap:8px}
+.photo-box,.identity,.index-card{height:236px;min-height:236px}
+.photo-box{overflow:hidden}
+.photo-box img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
+.photo-placeholder{width:100%;height:100%;display:grid;place-items:center;color:var(--blue);font-weight:900;letter-spacing:.18em;text-transform:uppercase;background:linear-gradient(135deg,rgba(126,216,255,.10),rgba(0,0,0,.50))}
+.identity{padding:14px 16px}
+.identity-kicker{color:var(--red);font-size:.64rem;font-weight:900;letter-spacing:.22em;text-transform:uppercase;margin-bottom:8px}
+.athlete-name{font-family:"Arial Narrow","Helvetica Neue Condensed",Impact,Arial,sans-serif;font-size:2.55rem;line-height:.92;letter-spacing:.02em;text-transform:uppercase;margin-bottom:10px;color:var(--blue);text-shadow:0 0 14px rgba(126,216,255,.42)}
+.tag-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.tag{border:1px solid rgba(255,255,255,.16);padding:6px 9px;font-size:.58rem;font-weight:900;text-transform:uppercase;background:rgba(255,255,255,.025)}
+.meta-line{display:flex;gap:20px;color:#dcebf4;font-size:.66rem;font-weight:800;margin:8px 0}
+.status-row{display:flex;gap:8px;margin-top:14px;align-items:center}
+.status-pill{border:1px solid rgba(255,255,255,.14);padding:7px 11px;font-size:.58rem;font-weight:900;text-transform:uppercase}
 .status-pill.green{color:var(--green);border-color:rgba(37,211,102,.45)}
 .status-pill.gold{color:var(--gold);border-color:rgba(244,197,66,.45)}
+.snapshot-id{color:var(--blue);font-size:.58rem;font-weight:900;text-transform:uppercase;margin-left:auto;line-height:1.25}
 
-.snapshot-id{
-  color:var(--blue);
-  font-size:.58rem;
-  font-weight:900;
-  text-transform:uppercase;
-  margin-left:auto;
-  line-height:1.25;
-}
-
-.index-card{
-  padding:14px;
-  display:grid;
-  grid-template-columns:132px 1fr;
-  gap:14px;
-}
-
-.ring-wrap{
-  display:grid;
-  place-items:center;
-}
-
-.ring{
-  width:126px;
-  height:126px;
-  border-radius:50%;
-  background:conic-gradient(var(--red) 0 67%,var(--gold) 67% 82%,rgba(255,255,255,.10) 82% 100%);
-  display:grid;
-  place-items:center;
-  position:relative;
-}
-
-.ring:before{
-  content:"";
-  position:absolute;
-  inset:16px;
-  border-radius:50%;
-  background:#101720;
-}
-
-.ring b{
-  position:relative;
-  z-index:2;
-  font-size:2.35rem;
-}
-
-.ring small{
-  position:absolute;
-  z-index:2;
-  bottom:28px;
-  color:var(--gold);
-  font-size:.48rem;
-  font-weight:900;
-  text-transform:uppercase;
-}
-
-.ring-label{
-  margin-top:10px;
-  text-align:center;
-  color:var(--blue);
-  font-size:.62rem;
-  font-weight:900;
-  letter-spacing:.08em;
-  text-transform:uppercase;
-  line-height:1.25;
-}
-
-.score-lines{
-  display:grid;
-  align-content:center;
-  gap:8px;
-}
-
-.score-line{
-  display:flex;
-  justify-content:space-between;
-  border-bottom:1px solid rgba(255,255,255,.06);
-  padding-bottom:5px;
-  color:#dfeaf1;
-  font-size:.64rem;
-  font-weight:800;
-}
-
+.index-card{padding:14px;display:grid;grid-template-columns:132px 1fr;gap:14px}
+.ring-wrap{display:grid;place-items:center}
+.ring{width:126px;height:126px;border-radius:50%;background:radial-gradient(circle at 35% 28%,rgba(255,255,255,.38),transparent 18%),conic-gradient(from -12deg,#ff2b1f 0 52%,#ff6a00 52% 70%,#f4c542 70% 84%,rgba(255,255,255,.10) 84% 100%);display:grid;place-items:center;position:relative;box-shadow:0 0 18px rgba(255,43,31,.55),0 0 34px rgba(255,106,0,.35),inset 0 0 18px rgba(255,255,255,.18)}
+.ring:before{content:"";position:absolute;inset:16px;border-radius:50%;background:#101720}
+.ring:after{content:"";position:absolute;inset:-5px;border-radius:50%;border:1px solid rgba(244,197,66,.35);box-shadow:0 0 22px rgba(244,197,66,.28);pointer-events:none}
+.ring b{position:relative;z-index:2;font-size:2.35rem}
+.ring small{position:absolute;z-index:2;bottom:28px;color:var(--gold);font-size:.48rem;font-weight:900;text-transform:uppercase}
+.ring-label{margin-top:10px;text-align:center;color:var(--blue);font-size:.62rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;line-height:1.25}
+.score-lines{display:grid;align-content:center;gap:8px}
+.score-line{display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.06);padding-bottom:5px;color:#dfeaf1;font-size:.64rem;font-weight:800}
 .score-line b{color:#fff}
 
-/* SUMMARY CARDS */
+.summary-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.stat-card{min-height:116px;padding:13px}
+.stat-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.stat-icon{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.05);color:var(--red);font-weight:900}
+.stat-card h3{color:#dfeaf1;font-size:.64rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.stat-card b{display:block;font-size:1.55rem;margin:5px 0}
+.stat-card p{color:var(--muted);font-size:.62rem;line-height:1.4}
 
-.summary-grid{
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  gap:8px;
-}
-
-.stat-card{
-  min-height:116px;
-  padding:13px;
-}
-
-.stat-top{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-bottom:10px;
-}
-
-.stat-icon{
-  width:30px;
-  height:30px;
-  border-radius:50%;
-  display:grid;
-  place-items:center;
-  background:rgba(255,255,255,.05);
-  color:var(--red);
-  font-weight:900;
-}
-
-.stat-card h3{
-  color:#dfeaf1;
-  font-size:.64rem;
-  font-weight:900;
-  letter-spacing:.08em;
-  text-transform:uppercase;
-}
-
-.stat-card b{
-  display:block;
-  font-size:1.55rem;
-  margin:5px 0;
-}
-
-.stat-card p{
-  color:var(--muted);
-  font-size:.62rem;
-  line-height:1.4;
-}
-
-/* MID GRID */
-
-.mid-grid{
-  display:grid;
-  grid-template-columns:1.05fr .95fr 1fr 1fr;
-  gap:8px;
-}
-
-.block{
-  padding:12px;
-  min-height:172px;
-}
-
-.block h3{
-  color:var(--red);
-  font-size:.66rem;
-  font-weight:900;
-  letter-spacing:.13em;
-  text-transform:uppercase;
-  margin-bottom:10px;
-}
-
-.metrics{
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  gap:6px;
-}
-
-.metric{
-  border-right:1px solid rgba(255,255,255,.08);
-  padding-right:6px;
-}
-
+.mid-grid{display:grid;grid-template-columns:1.05fr .95fr 1fr 1fr;gap:8px}
+.block{padding:12px;min-height:172px}
+.block h3{color:var(--red);font-size:.66rem;font-weight:900;letter-spacing:.13em;text-transform:uppercase;margin-bottom:10px}
+.metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.metric{border-right:1px solid rgba(255,255,255,.08);padding-right:6px}
 .metric:last-child{border-right:0}
-
-.metric b{
-  display:block;
-  font-size:1.08rem;
-}
-
-.metric span{
-  color:var(--muted);
-  font-size:.54rem;
-  font-weight:800;
-}
-
-.strengths{
-  display:flex;
-  flex-wrap:wrap;
-  gap:6px;
-  margin-top:14px;
-}
-
-.strengths span{
-  border:1px solid rgba(255,255,255,.12);
-  padding:6px 8px;
-  font-size:.55rem;
-  color:#dcebf4;
-}
-
-.film-window{
-  height:95px;
-  border:1px solid rgba(255,255,255,.12);
-  background:
-    linear-gradient(135deg,rgba(126,216,255,.12),rgba(0,0,0,.45)),
-    url("athlete-film.jpg") center/cover;
-  display:grid;
-  place-items:center;
-}
-
-.play{
-  width:48px;
-  height:48px;
-  border-radius:50%;
-  background:rgba(0,0,0,.68);
-  display:grid;
-  place-items:center;
-  font-size:1.3rem;
-}
-
-.crystal{
-  display:grid;
-  place-items:center;
-  text-align:center;
-}
-
-.crystal-icon{
-  font-size:3.1rem;
-  color:var(--blue);
-}
-
-.mini-btn{
-  height:27px;
-  border:1px solid rgba(255,255,255,.14);
-  background:rgba(255,255,255,.02);
-  color:#fff;
-  display:grid;
-  place-items:center;
-  font-size:.56rem;
-  font-weight:900;
-  text-transform:uppercase;
-  margin-top:8px;
-}
-
-/* LOWER ACTIVITY */
-
-.lower-grid{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:8px;
-}
-
-.list-row{
-  display:grid;
-  grid-template-columns:34px 1fr auto;
-  gap:8px;
-  align-items:center;
-  padding:7px 0;
-  border-bottom:1px solid rgba(255,255,255,.06);
-}
-
-.avatar-dot{
-  width:25px;
-  height:25px;
-  border-radius:50%;
-  background:linear-gradient(180deg,#1e6cbe,#0d2037);
-  display:grid;
-  place-items:center;
-  font-size:.55rem;
-}
-
-.list-row b{
-  font-size:.64rem;
-  display:block;
-}
-
-.list-row span{
-  color:var(--muted);
-  font-size:.54rem;
-}
-
-.list-row time{
-  color:var(--muted);
-  font-size:.52rem;
-}
-
-.event-row{
-  display:grid;
-  grid-template-columns:42px 1fr;
-  gap:8px;
-  padding:7px 0;
-  border-bottom:1px solid rgba(255,255,255,.06);
-}
-
-.date{
-  border:1px solid rgba(255,255,255,.12);
-  text-align:center;
-  padding:4px;
-  font-weight:900;
-  font-size:.72rem;
-}
-
-.date span{
-  display:block;
-  color:var(--red);
-  font-size:.50rem;
-}
-
-.view-btn{
-  height:28px;
-  border:1px solid rgba(255,255,255,.12);
-  background:rgba(255,255,255,.025);
-  color:#fff;
-  display:grid;
-  place-items:center;
-  font-size:.58rem;
-  font-weight:900;
-  text-transform:uppercase;
-  margin-top:8px;
-}
-
-/* RIGHT RAIL */
-
-.right-rail{
-  display:grid;
-  gap:8px;
-  align-content:start;
-}
-
-.side-card{
-  padding:13px;
-}
-
-.side-card h3{
-  color:var(--red);
-  font-size:.64rem;
-  letter-spacing:.13em;
-  text-transform:uppercase;
-  margin-bottom:12px;
-}
-
-.gov-row{
-  display:grid;
-  grid-template-columns:28px 1fr auto;
-  gap:8px;
-  align-items:center;
-  padding:9px 0;
-  border-bottom:1px solid rgba(255,255,255,.06);
-}
-
-.gov-row span{
-  font-size:.62rem;
-  color:#dcebf4;
-  font-weight:800;
-}
-
-.gov-row b{
-  font-size:.56rem;
-  text-transform:uppercase;
-}
-
-.green{color:var(--green)}
-.gold{color:var(--gold)}
-.blue{color:var(--blue)}
-.red{color:var(--red)}
-
-.permission-btn{
-  height:32px;
-  border:1px solid rgba(255,255,255,.14);
-  color:#fff;
-  display:grid;
-  place-items:center;
-  font-size:.58rem;
-  font-weight:900;
-  text-transform:uppercase;
-  margin-top:10px;
-}
-
-.next-row{
-  display:grid;
-  grid-template-columns:20px 1fr auto;
-  gap:8px;
-  padding:8px 0;
-  border-bottom:1px solid rgba(255,255,255,.06);
-  align-items:center;
-}
-
-.next-row span{
-  color:#dcebf4;
-  font-size:.60rem;
-}
-
-.next-row b{
-  font-size:.52rem;
-  text-transform:uppercase;
-}
-
-.watch-row{
-  display:grid;
-  grid-template-columns:28px 1fr auto;
-  gap:8px;
-  align-items:center;
-  padding:8px 0;
-  border-bottom:1px solid rgba(255,255,255,.06);
-}
-
-.watch-row b{
-  display:block;
-  font-size:.60rem;
-}
-
-.watch-row span{
-  color:var(--muted);
-  font-size:.52rem;
-}
-
-.watch-row time{
-  color:var(--blue);
-  font-size:.50rem;
-  font-weight:900;
-}
-
-/* FLOW */
-
-.flow{
-  margin-top:8px;
-  display:grid;
-  grid-template-columns:170px repeat(6,1fr) 210px;
-  min-height:54px;
-  border:1px solid var(--line);
-  background:rgba(5,9,15,.88);
-}
-
-.flow-title{
-  color:var(--red);
-  font-size:.70rem;
-  font-weight:900;
-  letter-spacing:.13em;
-  text-transform:uppercase;
-  display:flex;
-  align-items:center;
-  padding-left:18px;
-  background:linear-gradient(90deg,rgba(255,43,31,.10),transparent);
-}
-
-.flow-step{
-  border-left:1px solid rgba(255,255,255,.08);
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:0 14px;
-}
-
-.flow-icon{
-  width:30px;
-  height:30px;
-  border-radius:50%;
-  display:grid;
-  place-items:center;
-  background:rgba(255,255,255,.08);
-}
-
-.flow-step b{
-  display:block;
-  font-size:.60rem;
-  text-transform:uppercase;
-}
-
-.flow-step span{
-  color:var(--muted);
-  font-size:.52rem;
-}
-
-.request{
-  margin:8px;
-  border:1px solid var(--red);
-  color:var(--red);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:.66rem;
-  font-weight:900;
-  text-transform:uppercase;
-}
-
-/* FOOTER */
-
-.footer{
-  height:52px;
-  display:grid;
-  grid-template-columns:220px 1fr 260px 230px;
-  align-items:center;
-  border-top:1px solid rgba(255,255,255,.08);
-  color:#c9d6df;
-  font-size:.62rem;
-  letter-spacing:.08em;
-  text-transform:uppercase;
-  padding:0 16px;
-}
-
-.footer img{
-  width:178px;
-  height:auto;
-  display:block;
-}
-
-.footer .ok{
-  color:var(--green);
-  font-weight:900;
-}
-
-/* RESPONSIVE LOCK */
-
-@media(max-width:900px){
-  .page{min-width:1366px}
-}
-
-  /* =====================================================
-   FINAL PARITY TIGHTENING PATCH
-   Reference Photo Alignment
-===================================================== */
-
-/* Prevent right rail cut-off */
-.shell{
-  grid-template-columns:180px minmax(0,1fr) 270px;
-  align-items:stretch;
-}
-
-/* Give center room after widening right rail */
-.hero{
-  grid-template-columns:300px minmax(0,1fr) 365px;
-}
-
-/* Photo box must align with Athlete Profile bottom */
-.photo-box,
-.identity,
-.index-card{
-  height:236px;
-  min-height:236px;
-}
-
-.photo-box img{
-  height:100%;
-  object-fit:cover;
-  object-position:center top;
-}
-
-/* Tighten hero rhythm */
-.identity{
-  padding:14px 16px;
-}
-
-.athlete-name{
-  font-size:2.55rem;
-  margin-bottom:10px;
-}
-
-/* Red authority frame around Athlete Intelligence */
-.athlete-intel{
-  border:2px solid var(--red) !important;
-  background:linear-gradient(180deg,rgba(8,13,20,.98),rgba(4,8,14,.95)) !important;
-  box-shadow:inset 0 0 0 1px rgba(255,43,31,.18) !important;
-  min-height:250px;
-}
-
-/* Make lower left box feel locked to visibility path */
-.left-rail{
-  grid-template-rows:auto auto 1fr;
-}
-
-.athlete-intel{
-  align-self:stretch;
-}
-
-/* Right rail title no longer cuts off */
-.right-rail{
-  width:270px;
-}
-
-.side-card h3{
-  font-size:.61rem;
-  letter-spacing:.10em;
-  white-space:nowrap;
-}
-
-/* Watchlist integrates with right rail */
-.right-rail .side-card:last-child{
-  min-height:250px;
-}
-
-/* Stronger watchlist fit */
-.watch-row{
-  grid-template-columns:30px minmax(0,1fr) 42px;
-}
-
-.watch-row b,
-.watch-row span{
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-}
-
-/* Equalize lower row bottom rhythm */
-.lower-grid .block{
-  min-height:190px;
-}
-
-/* Visibility path should match reference: stacked title */
-.flow-title{
-  line-height:1.05;
-  font-size:.74rem;
-}
-
-.ring{
-  background:
-    radial-gradient(circle at 35% 28%,rgba(255,255,255,.38),transparent 18%),
-    conic-gradient(from -12deg,#ff2b1f 0 52%,#ff6a00 52% 70%,#f4c542 70% 84%,rgba(255,255,255,.10) 84% 100%);
-  box-shadow:
-    0 0 18px rgba(255,43,31,.55),
-    0 0 34px rgba(255,106,0,.35),
-    inset 0 0 18px rgba(255,255,255,.18);
-}
-.ring:after{
-  content:"";
-  position:absolute;
-  inset:-5px;
-  border-radius:50%;
-  border:1px solid rgba(244,197,66,.35);
-  box-shadow:0 0 22px rgba(244,197,66,.28);
-  pointer-events:none;
-}
-.photo-placeholder{
-  width:100%;
-  height:100%;
-  display:grid;
-  place-items:center;
-  color:var(--blue);
-  font-weight:900;
-  letter-spacing:.18em;
-  text-transform:uppercase;
-  background:linear-gradient(135deg,rgba(126,216,255,.10),rgba(0,0,0,.50));
-} 
-  
+.metric b{display:block;font-size:1.08rem}
+.metric span{color:var(--muted);font-size:.54rem;font-weight:800}
+.strengths{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.strengths span{border:1px solid rgba(255,255,255,.12);padding:6px 8px;font-size:.55rem;color:#dcebf4}
+.phnx-window{height:95px;border:1px solid rgba(255,255,255,.12);background:linear-gradient(135deg,rgba(126,216,255,.12),rgba(0,0,0,.45));display:grid;place-items:center;text-align:center;color:#fff;font-size:.66rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em}
+.crystal{display:grid;place-items:center;text-align:center}
+.crystal-icon{font-size:3.1rem;color:var(--blue)}
+.mini-btn{height:27px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.02);color:#fff;display:grid;place-items:center;font-size:.56rem;font-weight:900;text-transform:uppercase;margin-top:8px}
+
+.lower-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.list-row{display:grid;grid-template-columns:34px 1fr auto;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.avatar-dot{width:25px;height:25px;border-radius:50%;background:linear-gradient(180deg,#1e6cbe,#0d2037);display:grid;place-items:center;font-size:.55rem}
+.list-row b{font-size:.64rem;display:block}
+.list-row span{color:var(--muted);font-size:.54rem}
+.list-row time{color:var(--muted);font-size:.52rem}
+.event-row{display:grid;grid-template-columns:42px 1fr;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.date{border:1px solid rgba(255,255,255,.12);text-align:center;padding:4px;font-weight:900;font-size:.72rem}
+.date span{display:block;color:var(--red);font-size:.50rem}
+.view-btn{height:28px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.025);color:#fff;display:grid;place-items:center;font-size:.58rem;font-weight:900;text-transform:uppercase;margin-top:8px}
+
+.right-rail{display:grid;gap:8px;align-content:start;width:270px}
+.side-card{padding:13px}
+.side-card h3{color:var(--red);font-size:.61rem;letter-spacing:.10em;text-transform:uppercase;margin-bottom:12px;white-space:nowrap}
+.gov-row{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.gov-row span{font-size:.62rem;color:#dcebf4;font-weight:800}.gov-row b{font-size:.56rem;text-transform:uppercase}
+.green{color:var(--green)}.gold{color:var(--gold)}.blue{color:var(--blue)}.red{color:var(--red)}
+.permission-btn{height:32px;border:1px solid rgba(255,255,255,.14);color:#fff;display:grid;place-items:center;font-size:.58rem;font-weight:900;text-transform:uppercase;margin-top:10px}
+.next-row{display:grid;grid-template-columns:20px 1fr auto;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);align-items:center}
+.next-row span{color:#dcebf4;font-size:.60rem}.next-row b{font-size:.52rem;text-transform:uppercase}
+.watch-row{display:grid;grid-template-columns:30px minmax(0,1fr) 42px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.watch-row b,.watch-row span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.watch-row b{display:block;font-size:.60rem}.watch-row span{color:var(--muted);font-size:.52rem}.watch-row time{color:var(--blue);font-size:.50rem;font-weight:900}
+
+.flow{margin-top:8px;display:grid;grid-template-columns:170px repeat(6,1fr) 210px;min-height:54px;border:1px solid var(--line);background:rgba(5,9,15,.88)}
+.flow-title{color:var(--red);font-size:.74rem;font-weight:900;letter-spacing:.13em;text-transform:uppercase;display:flex;align-items:center;padding-left:18px;background:linear-gradient(90deg,rgba(255,43,31,.10),transparent);line-height:1.05}
+.flow-step{border-left:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px;padding:0 14px}
+.flow-icon{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.08)}
+.flow-step b{display:block;font-size:.60rem;text-transform:uppercase}.flow-step span{color:var(--muted);font-size:.52rem}
+.request{margin:8px;border:1px solid var(--red);color:var(--red);display:flex;align-items:center;justify-content:center;font-size:.66rem;font-weight:900;text-transform:uppercase}
+
+.footer{height:52px;display:grid;grid-template-columns:220px 1fr 260px 230px;align-items:center;border-top:1px solid rgba(255,255,255,.08);color:#c9d6df;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;padding:0 16px}
+.footer img{width:178px;height:auto;display:block}.footer .ok{color:var(--green);font-weight:900}
+.disabled{opacity:.55;cursor:not-allowed}
+@media(max-width:900px){.page{min-width:1180px}}
 </style>
 </head>
 
@@ -1091,295 +214,258 @@ button,input{font-family:inherit}
 
   <div class="header-tools">
     <div class="utility-row">
-      <input class="utility-search" type="search" placeholder="Search athlete intelligence...">
+      <input class="utility-search" type="search" placeholder="Search athlete intelligence..." autocomplete="off">
+      <button class="search-clear" type="button" aria-label="Clear search">×</button>
       <div class="user-icon"></div>
     </div>
 
+    <div id="athleteSearchResults"></div>
+
     <nav class="top-nav">
       <a class="active" href="athlete-dashboard.html">⌂ Dashboard</a>
-      <a href="player-profile.html">♙ Profile</a>
-      <a href="crystal-report.html">▥ Reports</a>
-      <a href="multi-box.html">✉ Messages <span class="nav-count">5</span></a>
-      <a href="profile-access.html">⚙ Settings</a>
+      <a href="player-profile.html" data-context-link data-requires-snapshot>♙ Profile</a>
+      <a href="crystal-report.html" data-context-link data-requires-snapshot>▥ Reports</a>
+      <a href="multi-box.html" data-context-link data-requires-snapshot>✉ Messages <span class="nav-count">0</span></a>
+      <a href="profile-access.html" data-context-link data-requires-snapshot>⚙ Settings</a>
     </nav>
   </div>
 </header>
 
 <main class="main">
-
-<div class="shell">
-
+<div class="shell"> 
 <aside class="left-rail">
   <section class="panel nav-box">
     <div class="section-title">Athlete Navigation</div>
     <a class="nav-item active" href="athlete-dashboard.html">▦ Dashboard</a>
-    <a class="nav-item" href="player-profile.html">♙ Profile</a>
-    <a class="nav-item" href="readiness.html">▥ Performance</a>
-    <a class="nav-item" href="college-pathway.html">▣ Academics</a>
-    <a class="nav-item" href="media.html">▶ Film & Evidence</a>
-    <a class="nav-item" href="crystal-report.html">◇ Reports</a>
-    <a class="nav-item" href="recruiter-access.html">☊ Recruiting</a>
-    <a class="nav-item" href="multi-box.html">✉ Multi-Box™ <span class="nav-count">5</span></a>
-    <a class="nav-item" href="events.html">▣ Calendar</a>
-    <a class="nav-item" href="audit-trail.html">☰ Activity Feed</a>
-    <a class="nav-item" href="readiness.html">↻ Next Steps</a>
+    <a class="nav-item" href="player-profile.html" data-context-link data-requires-snapshot>♙ Profile</a>
+    <a class="nav-item" href="athletic-snapshot.html" data-context-link data-requires-snapshot>▥ Athletic Snapshot</a>
+    <a class="nav-item" href="academic-intelligence.html" data-context-link data-requires-snapshot>▣ Academics</a>
+    <a class="nav-item" href="phnx-sports-media.html" data-context-link data-requires-snapshot>▶ PHNX Sports Media</a>
+    <a class="nav-item" href="crystal-report.html" data-context-link data-requires-snapshot>◇ Reports</a>
+    <a class="nav-item" href="recruiting-readiness.html" data-context-link data-requires-snapshot>☊ Recruiting</a>
+    <a class="nav-item" href="multi-box.html" data-context-link data-requires-snapshot>✉ Multi-Box™ <span class="nav-count">0</span></a>
+    <a class="nav-item" href="events.html" data-context-link data-requires-snapshot>▣ Calendar</a>
+    <a class="nav-item" href="activity-feed.html" data-context-link data-requires-snapshot>☰ Activity Feed</a>
+    <a class="nav-item" href="athlete-intelligence.html" data-context-link data-requires-snapshot>↻ Next Steps</a>
   </section>
 
   <section class="panel quick-box">
     <div class="section-title">Quick Actions</div>
-    <a class="quick-btn" href="media.html">▧ Upload Film</a>
-    <a class="quick-btn" href="player-profile.html">★ Add Achievement</a>
-    <a class="quick-btn" href="verification-request.html">☊ Request Evaluation</a>
-    <a class="quick-btn" href="profile-access.html">↗ Share Profile</a>
+    <a class="quick-btn" href="phnx-sports-media.html" data-context-link data-requires-snapshot>▧ Upload Film</a>
+    <a class="quick-btn" href="player-profile.html" data-context-link data-requires-snapshot>★ Add Achievement</a>
+    <a class="quick-btn" href="verification-request.html" data-context-link data-requires-snapshot>☊ Request Evaluation</a>
+    <a class="quick-btn" href="profile-access.html" data-context-link data-requires-snapshot>↗ Share Profile</a>
     <a class="quick-btn red" href="snapshot-intake.html">🛡 View Snapshot Path</a>
   </section>
 
   <section class="panel athlete-intel">
     <div class="section-title">Athlete Intelligence</div>
-
-    <a class="intel-row" href="readiness.html">
-      <span class="dot red"></span>
-      <span>Requires Action</span>
-      <b>3</b>
+    <a class="intel-row" href="athlete-intelligence.html" data-context-link data-requires-snapshot>
+      <span class="dot red"></span><span>Requires Action</span><b data-intel-action>—</b>
     </a>
-
-    <a class="intel-row" href="recruiter-request.html">
-      <span class="dot gold"></span>
-      <span>Opportunity Queue</span>
-      <b>8</b>
+    <a class="intel-row" href="recruiting-activity.html" data-context-link data-requires-snapshot>
+      <span class="dot gold"></span><span>Opportunity Queue</span><b data-intel-opportunity>—</b>
     </a>
-
-    <a class="intel-row" href="audit-trail.html">
-      <span class="dot green"></span>
-      <span>Activity Feed</span>
-      <b>24</b>
+    <a class="intel-row" href="activity-feed.html" data-context-link data-requires-snapshot>
+      <span class="dot green"></span><span>Activity Feed</span><b data-intel-feed>—</b>
     </a>
-
     <div class="color-key">
       <span>Red = Requires Action</span>
       <span>Yellow = Opportunity</span>
       <span>Green = Informational</span>
     </div>
-
-    <a class="open-intel" href="readiness.html">Open Intelligence →</a>
+    <a class="open-intel" href="athlete-intelligence.html" data-context-link data-requires-snapshot>Open Intelligence →</a>
   </section>
 </aside>
 
 <section class="center">
 
   <section class="hero">
-    <a class="panel photo-box" href="player-profile.html">
-      <img src="Ammiel_Steele_Headshot.png" alt="Ammiel Steele">
+    <a class="panel photo-box" href="player-profile.html" data-context-link data-requires-snapshot>
+      <div class="photo-placeholder" data-photo-placeholder>Athlete Image Required</div>
+      <img data-athlete-image alt="Athlete Image" style="display:none">
     </a>
 
-    <a class="panel identity" href="player-profile.html">
+    <a class="panel identity" href="player-profile.html" data-context-link data-requires-snapshot>
       <div class="identity-kicker">Athlete Profile</div>
-      <h1 class="athlete-name">Ammiel Steele</h1>
+      <h1 class="athlete-name" data-athlete-name>Athlete Dashboard</h1>
 
       <div class="tag-row">
-        <span class="tag">WR</span>
-        <span class="tag">Athlete</span>
-        <span class="tag">6'2"</span>
-        <span class="tag">185 lbs</span>
-        <span class="tag">Class of 2026</span>
+        <span class="tag" data-athlete-position>Position</span>
+        <span class="tag" data-athlete-sport>Sport</span>
+        <span class="tag" data-athlete-height>Height</span>
+        <span class="tag" data-athlete-weight>Weight</span>
+        <span class="tag" data-athlete-class>Class Year</span>
       </div>
 
       <div class="meta-line">
-        <span>📍 Atlanta, Georgia</span>
-        <span>🏫 Northside High School</span>
+        <span data-athlete-location>📍 Snapshot Required</span>
+        <span data-athlete-school>🏫 Search or open a snapshot record</span>
       </div>
 
       <div class="status-row">
-        <span class="status-pill green">✓ Profile Verified</span>
-        <span class="status-pill gold">⚠ Parent Release: Approved</span>
-        <span class="snapshot-id">Snapshot ID:<br>SNAP-2026-00187</span>
+        <span class="status-pill gold" data-profile-status>Profile Not Loaded</span>
+        <span class="status-pill gold" data-parent-status>Parent Release: Pending</span>
+        <span class="snapshot-id">Snapshot ID:<br><span data-snapshot-id>No Snapshot ID</span></span>
       </div>
     </a>
 
-    <a class="panel index-card" href="player-profile.html#stats-core-snapshot"> 
+    <a class="panel index-card" href="athletic-snapshot.html" data-context-link data-requires-snapshot>
       <div class="ring-wrap">
         <div class="ring">
-          <b>87.6</b>
-          <small>Unverified</small>
+          <b data-core-score>—</b>
+          <small data-score-state>Pending</small>
         </div>
         <div class="ring-label">STATS-CORE /<br>Snapshot</div>
       </div>
-
       <div class="score-lines">
-        <div class="score-line"><span>Position Score</span><b>88.2</b></div>
-        <div class="score-line"><span>Athletic Score</span><b>85.9</b></div>
-        <div class="score-line"><span>Production Score</span><b>84.7</b></div>
-        <div class="score-line"><span>Academic Score</span><b>82.1</b></div>
-        <div class="score-line"><span>Character Score</span><b>90.3</b></div>
+        <div class="score-line"><span>Position Score</span><b data-position-score>—</b></div>
+        <div class="score-line"><span>Athletic Score</span><b data-athletic-score>—</b></div>
+        <div class="score-line"><span>Production Score</span><b data-production-score>—</b></div>
+        <div class="score-line"><span>Academic Score</span><b data-academic-score>—</b></div>
+        <div class="score-line"><span>Character Score</span><b data-character-score>—</b></div>
       </div>
     </a>
   </section>
 
   <section class="summary-grid">
-    <a class="panel stat-card" href="eligibility.html">
+    <a class="panel stat-card" href="eligibility.html" data-context-link data-requires-snapshot>
       <div class="stat-top"><div class="stat-icon green">✓</div><h3>Eligibility Status</h3></div>
-      <b>Eligible</b>
-      <p>NCAA / NAIA / NJCAA</p>
-      <p>Core Courses: 7 / 7<br>GPA: 3.45</p>
+      <b data-card-eligibility>Pending</b>
+      <p data-card-eligibility-line1>NCAA / NAIA / NJCAA</p>
+      <p data-card-eligibility-line2>Core Courses: —<br>GPA: —</p>
     </a>
 
-    <a class="panel stat-card" href="rankings.html">
+    <a class="panel stat-card" href="exposure-engine.html" data-context-link data-requires-snapshot>
       <div class="stat-top"><div class="stat-icon blue">◉</div><h3>Exposure Score</h3></div>
-      <b>72.4</b>
-      <p>Medium Exposure</p>
-      <p>Events: 4<br>Media Reach: 18.2K</p>
+      <b data-card-exposure>Pending</b>
+      <p>PHNX Sports visibility layer</p>
+      <p data-card-exposure-line>Media Reach: Pending</p>
     </a>
 
-    <a class="panel stat-card" href="recruiter-access.html">
+    <a class="panel stat-card" href="recruiting-readiness.html" data-context-link data-requires-snapshot>
       <div class="stat-top"><div class="stat-icon purple">☊</div><h3>Recruiting Readiness</h3></div>
-      <b>High</b>
-      <p>Strong Interest Level</p>
-      <p>Schools Contacted: 12<br>Offers: 1</p>
+      <b data-card-recruiting>Pending</b>
+      <p>Program fit and offer readiness</p>
+      <p data-card-recruiting-line>Interest Registry: Pending</p>
     </a>
 
-    <a class="panel stat-card" href="readiness.html">
+    <a class="panel stat-card" href="development-engine.html" data-context-link data-requires-snapshot>
       <div class="stat-top"><div class="stat-icon gold">↗</div><h3>Performance Trend</h3></div>
-      <b>Upward</b>
-      <p>Last 90 Days</p>
-      <p>Trend Strength: Strong<br>Improvement: +18%</p>
+      <b data-card-trend>Pending</b>
+      <p>Athletic development movement</p>
+      <p data-card-trend-line>History Required</p>
     </a>
 
-    <a class="panel stat-card" href="profile-access.html">
+    <a class="panel stat-card" href="profile-completion.html" data-context-link data-requires-snapshot>
       <div class="stat-top"><div class="stat-icon blue">◷</div><h3>Profile Completeness</h3></div>
-      <b>86%</b>
-      <p>Profile Complete</p>
-      <p>Required Fields: 24 / 28<br>Missing: 4 Items</p>
+      <b data-card-complete>0%</b>
+      <p>Profile completion state</p>
+      <p data-card-complete-line>Required Fields: Pending</p>
     </a>
   </section>
 
   <section class="mid-grid">
-    <a class="panel block" href="readiness.html">
+    <a class="panel block" href="athletic-snapshot.html" data-context-link data-requires-snapshot>
       <h3>Performance Overview</h3>
       <div class="metrics">
-        <div class="metric"><b>4.48</b><span>40 Yard Dash</span></div>
-        <div class="metric"><b>38.5</b><span>Vertical Jump</span></div>
-        <div class="metric"><b>10'6"</b><span>Broad Jump</span></div>
-        <div class="metric"><b>4.21</b><span>Shuttle</span></div>
-        <div class="metric"><b>315</b><span>Bench Press</span></div>
+        <div class="metric"><b data-metric-40>—</b><span>40 Yard Dash</span></div>
+        <div class="metric"><b data-metric-vertical>—</b><span>Vertical Jump</span></div>
+        <div class="metric"><b data-metric-broad>—</b><span>Broad Jump</span></div>
+        <div class="metric"><b data-metric-shuttle>—</b><span>Shuttle</span></div>
+        <div class="metric"><b data-metric-strength>—</b><span>Strength</span></div>
       </div>
-      <div class="strengths">
-        <span>Speed</span><span>Route Running</span><span>Hands</span><span>Acceleration</span><span>Play Strength</span>
-      </div>
+      <div class="strengths"><span>Speed</span><span>Explosiveness</span><span>Agility</span><span>Strength</span><span>Position Fit</span></div>
     </a>
 
-    <a class="panel block" href="college-pathway.html">
+    <a class="panel block" href="academic-intelligence.html" data-context-link data-requires-snapshot>
       <h3>Academic Overview</h3>
       <div class="metrics">
-        <div class="metric"><b>3.45</b><span>GPA Core</span></div>
-        <div class="metric"><b>1080</b><span>SAT</span></div>
-        <div class="metric"><b>24</b><span>ACT</span></div>
-        <div class="metric"><b>Top 35%</b><span>Class Rank</span></div>
+        <div class="metric"><b data-academic-gpa>—</b><span>GPA Core</span></div>
+        <div class="metric"><b data-academic-sat>—</b><span>SAT</span></div>
+        <div class="metric"><b data-academic-act>—</b><span>ACT</span></div>
+        <div class="metric"><b data-academic-rank>—</b><span>Class Rank</span></div>
       </div>
-      <div class="strengths">
-        <span>Math</span><span>Science</span><span>English</span><span>Attendance</span>
-      </div>
+      <div class="strengths"><span>Core Courses</span><span>NCAA Track</span><span>Transcript</span><span>Graduation</span></div>
     </a>
 
-    <a class="panel block" href="media.html">
-      <h3>Athletic Snapshot</h3>
-      <div class="film-window"><div class="play">▶</div></div>
-      <p style="margin-top:8px;font-size:.64rem;font-weight:900">Latest Highlight Film</p>
-      <p style="color:var(--muted);font-size:.58rem">Uploaded: May 2, 2026</p>
+    <a class="panel block" href="phnx-sports-media.html" data-context-link data-requires-snapshot>
+      <h3>PHNX Sports Media</h3>
+      <div class="phnx-window">Film · Highlights · Player Cards</div>
+      <p style="margin-top:8px;font-size:.64rem;font-weight:900" data-media-title>Media Production Layer</p>
+      <p style="color:var(--muted);font-size:.58rem" data-media-status>Upload or connect film through PHNX Sports Media</p>
     </a>
 
-    <a class="panel block crystal" href="crystal-report.html">
+    <a class="panel block crystal" href="crystal-report.html" data-context-link data-requires-snapshot>
       <h3>Crystal Reports</h3>
       <div class="crystal-icon">🔷</div>
       <p style="font-size:.70rem;font-weight:900;color:var(--blue)">Athlete Registry</p>
-      <p style="font-size:.58rem;color:var(--muted)">Profile ID: CRYS-26-00187<br>Status: Registered</p>
+      <p style="font-size:.58rem;color:var(--muted)" data-crystal-status>Profile ID: Pending<br>Status: Not Loaded</p>
       <div class="mini-btn">View Report</div>
     </a>
-  </section>
-
-  <section class="lower-grid">
-    <a class="panel block" href="recruiter-access.html">
+  </section> 
+<section class="lower-grid">
+    <a class="panel block" href="recruiting-activity.html" data-context-link data-requires-snapshot>
       <h3>Recruiting Activity</h3>
-      <div class="list-row"><div class="avatar-dot">GS</div><div><b>Georgia State University</b><span>Contact Issued</span></div><time>May 6</time></div>
-      <div class="list-row"><div class="avatar-dot">AS</div><div><b>Appalachian State</b><span>Interest Shown</span></div><time>May 5</time></div>
-      <div class="list-row"><div class="avatar-dot">KS</div><div><b>Kennesaw State</b><span>Email Sent</span></div><time>May 5</time></div>
+      <div class="list-row"><div class="avatar-dot">SC</div><div><b>Recruiting Registry</b><span data-recruiting-row1>Awaiting verified interest</span></div><time>—</time></div>
+      <div class="list-row"><div class="avatar-dot">PR</div><div><b>Program Views</b><span data-recruiting-row2>Pending exposure activity</span></div><time>—</time></div>
+      <div class="list-row"><div class="avatar-dot">RQ</div><div><b>Access Requests</b><span data-recruiting-row3>No active requests loaded</span></div><time>—</time></div>
       <div class="view-btn">View All Activity</div>
     </a>
 
-    <a class="panel block" href="multi-box.html">
+    <a class="panel block" href="multi-box.html" data-context-link data-requires-snapshot>
       <h3>Multi-Box™ Communication</h3>
-      <div class="list-row"><div class="avatar-dot">C</div><div><b>Coach Thompson</b><span>Great work on the film.</span></div><time>2m</time></div>
-      <div class="list-row"><div class="avatar-dot">R</div><div><b>Recruiting Coordinator</b><span>We’d like to schedule a call.</span></div><time>1h</time></div>
-      <div class="list-row"><div class="avatar-dot">A</div><div><b>Academic Advisor</b><span>Check in on SAT prep.</span></div><time>1d</time></div>
+      <div class="list-row"><div class="avatar-dot">MB</div><div><b>System</b><span>Governed communication ready</span></div><time>—</time></div>
+      <div class="list-row"><div class="avatar-dot">RC</div><div><b>Recruiter Window</b><span data-message-row2>Controlled by permissions</span></div><time>—</time></div>
+      <div class="list-row"><div class="avatar-dot">EV</div><div><b>Evaluator Window</b><span data-message-row3>Verification dependent</span></div><time>—</time></div>
       <div class="view-btn">Open Multi-Box</div>
     </a>
 
-    <a class="panel block" href="events.html">
+    <a class="panel block" href="events.html" data-context-link data-requires-snapshot>
       <h3>Upcoming Events</h3>
-      <div class="event-row"><div class="date"><span>MAY</span>17</div><div><b>Rivals Camp</b><span>Atlanta, GA</span></div></div>
-      <div class="event-row"><div class="date"><span>JUN</span>01</div><div><b>7v7 Tournament</b><span>Atlanta, GA</span></div></div>
-      <div class="event-row"><div class="date"><span>JUN</span>14</div><div><b>Elite WR Showcase</b><span>Birmingham, AL</span></div></div>
+      <div class="event-row"><div class="date"><span>—</span>--</div><div><b>Events Pending</b><span>Camp/combine calendar not loaded</span></div></div>
+      <div class="event-row"><div class="date"><span>—</span>--</div><div><b>PHNX Combine</b><span>Available when scheduled</span></div></div>
+      <div class="event-row"><div class="date"><span>—</span>--</div><div><b>Evaluator Session</b><span>Requires certified evaluator</span></div></div>
       <div class="view-btn">View Calendar</div>
     </a>
 
-    <a class="panel block" href="audit-trail.html">
+    <a class="panel block" href="activity-feed.html" data-context-link data-requires-snapshot>
       <h3>Activity Feed</h3>
-      <div class="list-row"><div class="avatar-dot">↻</div><div><b>Snapshot Updated</b><span>Metrics and profile updated</span></div><time>May 6</time></div>
-      <div class="list-row"><div class="avatar-dot">✓</div><div><b>Film Uploaded</b><span>Highlight film added</span></div><time>May 2</time></div>
-      <div class="list-row"><div class="avatar-dot">✓</div><div><b>Parent Release Approved</b><span>Governance permissions updated</span></div><time>Apr 28</time></div>
+      <div class="list-row"><div class="avatar-dot">↻</div><div><b>Snapshot</b><span data-feed-row1>Waiting for activity</span></div><time>—</time></div>
+      <div class="list-row"><div class="avatar-dot">✓</div><div><b>Verification</b><span data-feed-row2>Pending verification receipts</span></div><time>—</time></div>
+      <div class="list-row"><div class="avatar-dot">✓</div><div><b>Governance</b><span data-feed-row3>Parent gate pending/controlled</span></div><time>—</time></div>
       <div class="view-btn">View Full Feed</div>
     </a>
   </section>
-
 </section>
 
 <aside class="right-rail">
-  <a class="panel side-card" href="profile-access.html">
+  <a class="panel side-card" href="profile-access.html" data-context-link data-requires-snapshot>
     <h3>Governance & Access</h3>
-    <div class="gov-row"><div>♙</div><span>Guardian Status</span><b class="green">Approved</b></div>
-    <div class="gov-row"><div>◉</div><span>Visibility</span><b class="blue">Controlled</b></div>
-    <div class="gov-row"><div>▣</div><span>Recruiting Access</span><b class="green">Enabled</b></div>
-    <div class="gov-row"><div>◎</div><span>Media Exposure</span><b class="gold">Limited</b></div>
-    <div class="gov-row"><div>↗</div><span>Profile Sharing</span><b class="blue">Controlled</b></div>
+    <div class="gov-row"><div>♙</div><span>Guardian Status</span><b class="gold" data-gov-guardian>Pending</b></div>
+    <div class="gov-row"><div>◉</div><span>Visibility</span><b class="blue" data-gov-visibility>Controlled</b></div>
+    <div class="gov-row"><div>▣</div><span>Recruiting Access</span><b class="gold" data-gov-recruiting>Locked</b></div>
+    <div class="gov-row"><div>◎</div><span>Media Exposure</span><b class="gold" data-gov-media>Limited</b></div>
+    <div class="gov-row"><div>↗</div><span>Profile Sharing</span><b class="blue" data-gov-sharing>Controlled</b></div>
     <div class="permission-btn">Manage Permissions</div>
   </a>
 
-  <a class="panel side-card" href="readiness.html">
+  <a class="panel side-card" href="athlete-intelligence.html" data-context-link data-requires-snapshot>
     <h3>Next Steps</h3>
-    <div class="next-row"><div>☑</div><span>Upload Season Film</span><b class="red">High</b></div>
-    <div class="next-row"><div>☑</div><span>Request Coach Evaluation</span><b class="red">High</b></div>
-    <div class="next-row"><div>☑</div><span>Add Camp Results</span><b class="gold">Medium</b></div>
+    <div class="next-row"><div>☑</div><span>Complete Snapshot</span><b class="red">High</b></div>
+    <div class="next-row"><div>☑</div><span>Upload PHNX Media</span><b class="red">High</b></div>
+    <div class="next-row"><div>☑</div><span>Request Coach Evaluation</span><b class="gold">Medium</b></div>
     <div class="next-row"><div>☑</div><span>Update Academic Profile</span><b class="gold">Medium</b></div>
-    <div class="next-row"><div>☑</div><span>Complete Strength Test</span><b class="green">Low</b></div>
+    <div class="next-row"><div>☑</div><span>Complete Verification</span><b class="green">Low</b></div>
     <div class="permission-btn">View Full Path</div>
   </a>
 
-  <a class="panel side-card" href="rankings.html">
+  <a class="panel side-card" href="exposure-engine.html" data-context-link data-requires-snapshot>
     <h3>Viewed By / Watchlist</h3>
-
-    <div class="watch-row">
-      <div class="avatar-dot">GS</div>
-      <div><b>Georgia State</b><span>Viewed Profile</span></div>
-      <time>Today</time>
-    </div>
-
-    <div class="watch-row">
-      <div class="avatar-dot">AS</div>
-      <div><b>Appalachian State</b><span>Following Athlete</span></div>
-      <time>May 6</time>
-    </div>
-
-    <div class="watch-row">
-      <div class="avatar-dot">SA</div>
-      <div><b>South Alabama</b><span>Viewed Film</span></div>
-      <time>May 5</time>
-    </div>
-
-    <div class="watch-row">
-      <div class="avatar-dot">UAB</div>
-      <div><b>UAB</b><span>Requested Info</span></div>
-      <time>May 4</time>
-    </div>
-
+    <div class="watch-row"><div class="avatar-dot">SC</div><div><b>Exposure Registry</b><span>Pending verified views</span></div><time>—</time></div>
+    <div class="watch-row"><div class="avatar-dot">PR</div><div><b>Programs</b><span>Watchlist not loaded</span></div><time>—</time></div>
+    <div class="watch-row"><div class="avatar-dot">RC</div><div><b>Recruiters</b><span>Access controlled</span></div><time>—</time></div>
+    <div class="watch-row"><div class="avatar-dot">EV</div><div><b>Evaluators</b><span>Certified only</span></div><time>—</time></div>
     <div class="permission-btn">View Exposure</div>
   </a>
 </aside>
@@ -1388,13 +474,13 @@ button,input{font-family:inherit}
 
 <section class="flow">
   <div class="flow-title">Visibility<br>Path</div>
-  <a class="flow-step" href="player-profile.html"><div class="flow-icon">▣</div><div><b>Profile</b><span>Public / Private</span></div></a>
+  <a class="flow-step" href="player-profile.html" data-context-link data-requires-snapshot><div class="flow-icon">▣</div><div><b>Profile</b><span>Public / Private</span></div></a>
   <a class="flow-step" href="snapshot-intake.html"><div class="flow-icon">▥</div><div><b>Snapshot</b><span>Data Intake</span></div></a>
-  <a class="flow-step" href="verification.html"><div class="flow-icon">♙</div><div><b>Verification</b><span>Trust Layer</span></div></a>
-  <a class="flow-step" href="parent-approval.html"><div class="flow-icon">♙</div><div><b>Parent Gate</b><span>Release Approval</span></div></a>
-  <a class="flow-step" href="multi-box.html"><div class="flow-icon">▦</div><div><b>Multi-Box™</b><span>Permissions</span></div></a>
-  <a class="flow-step" href="crystal-registry.html"><div class="flow-icon">◇</div><div><b>Crystal Registry</b><span>Athlete Registry</span></div></a>
-  <a class="request" href="parent-approval.html">Request Approval →</a>
+  <a class="flow-step" href="verification-request.html" data-context-link data-requires-snapshot><div class="flow-icon">♙</div><div><b>Verification</b><span>Trust Layer</span></div></a>
+  <a class="flow-step" href="parent-approval.html" data-context-link data-requires-snapshot><div class="flow-icon">♙</div><div><b>Parent Gate</b><span>Release Approval</span></div></a>
+  <a class="flow-step" href="multi-box.html" data-context-link data-requires-snapshot><div class="flow-icon">▦</div><div><b>Multi-Box™</b><span>Permissions</span></div></a>
+  <a class="flow-step" href="crystal-registry.html" data-context-link data-requires-snapshot><div class="flow-icon">◇</div><div><b>Crystal Registry</b><span>Athlete Registry</span></div></a>
+  <a class="request" href="parent-approval.html" data-context-link data-requires-snapshot>Request Approval →</a>
 </section>
 
 <footer class="footer">
@@ -1407,10 +493,231 @@ button,input{font-family:inherit}
 </main>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
-document.addEventListener("DOMContentLoaded",()=>{
-  console.log("STATS-CORE Athlete Dashboard Command Shell Loaded");
+const SUPABASE_URL = "https://oyjmpbuxvfxusmbouldi.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk";
+
+window.STATScoreSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}
 });
+window.STATScoreSupabaseClient = window.STATScoreSupabase;
+
+const DASH = {
+  getDb(){return window.STATScoreData?.getClient?.() || window.STATScoreSupabase || null;},
+  qs(s){return document.querySelector(s);},
+  qsa(s){return Array.from(document.querySelectorAll(s));},
+  set(sel,val,fallback="—"){const el=this.qs(sel);if(el)el.textContent=(val!==undefined&&val!==null&&String(val).trim()!=="")?val:fallback;},
+  html(sel,val){const el=this.qs(sel);if(el)el.innerHTML=val||"";},
+  val(...v){for(const x of v){if(x!==undefined&&x!==null&&String(x).trim()!=="")return x;}return "";},
+  norm(v){return String(v||"").trim().toLowerCase();},
+  snapshotId(){
+    const p=new URLSearchParams(location.search);
+    return this.val(p.get("snapshot_id"),p.get("snapshot"),p.get("id"),localStorage.getItem("STATSCORE_ACTIVE_SNAPSHOT_ID"));
+  },
+  storageUrl(v){
+    if(!v)return "";
+    v=String(v);
+    if(v.startsWith("http")||v.startsWith("data:image"))return v;
+    return `${SUPABASE_URL}/storage/v1/object/public/${v.replace(/^\/+/,"")}`;
+  },
+  number(v){const n=Number(String(v||"").replace(/[^\d.]/g,""));return Number.isFinite(n)?n:null;},
+  computeScore(s){
+    let score=58;
+    const forty=this.number(s.forty), vertical=this.number(s.vertical), shuttle=this.number(s.shuttle), broad=this.number(s.broad);
+    if(forty) score += forty<=4.45?16:forty<=4.60?10:5;
+    if(vertical) score += vertical>=36?10:vertical>=32?7:3;
+    if(shuttle) score += shuttle<=4.35?6:3;
+    if(broad) score += 3;
+    if(s.highlight||s.gameFilm) score += 4;
+    if(/verified/i.test(s.verification)) score += 5;
+    return Math.max(60,Math.min(92,Math.round(score)));
+  },
+  normalize(row){
+    const r=row||{}, raw=r.raw_payload||{};
+    const first=this.val(r.first_name,raw.firstName), last=this.val(r.last_name,raw.lastName);
+    const s={
+      snapshot_id:this.val(r.snapshot_id,raw.snapshot_id),
+      name:this.val(r.athlete_display_name,raw.athlete_display_name,`${first} ${last}`.trim(),"Athlete Profile"),
+      sport:this.val(r.primary_sport,raw.primarySport,r.sport),
+      position:this.val(r.primary_position,raw.primaryPosition,r.position),
+      height:this.val(r.height,raw.height),
+      weight:this.val(r.weight,raw.weight),
+      grad:this.val(r.graduation_class,raw.graduationClass,r.graduation_year),
+      cityState:this.val(r.city_state,raw.cityState),
+      school:this.val(r.school_program,r.school,raw.schoolProgram),
+      forty:this.val(r.dash40,raw.dash40,r.forty),
+      vertical:this.val(r.vertical_jump,raw.verticalJump),
+      broad:this.val(r.broad_jump,raw.broadJump),
+      shuttle:this.val(r.shuttle,raw.shuttle),
+      strength:this.val(r.strength_marker,raw.strengthMarker),
+      gpa:this.val(r.current_gpa,r.gpa,raw.currentGpa,raw.gpa),
+      sat:this.val(r.sat,raw.sat),
+      act:this.val(r.act,raw.act),
+      rank:this.val(r.class_rank,raw.classRank),
+      ncaa:this.val(r.ncaa_eligibility_status,r.ncaa_status,raw.ncaaEligibilityStatus,"Needs Review"),
+      verification:this.val(r.verification_status,raw.verificationStatus,"UNVERIFIED"),
+      release:this.val(r.parent_release_status,r.guardian_status,raw.guardianApprovalStatus,"PENDING"),
+      headshot:this.storageUrl(this.val(r.headshot_public_url,r.headshot_url,r.headshot_path,r.photo_url,raw.headshotPublicUrl,raw.headshot_url)),
+      highlight:this.val(r.highlight_url,raw.highlightUrl),
+      gameFilm:this.val(r.game_film_url,raw.gameFilmUrl),
+      raw
+    };
+    s.coreScore=this.val(r.statscore_score,r.core_score,r.snapshot_score,r.overall_score,raw.coreScore,raw.snapshotScore) || this.computeScore(s);
+    return s;
+  },
+  async load(){
+    const id=this.snapshotId();
+    if(!id){this.blank();return;}
+    const db=this.getDb();
+    if(!db){console.error("Supabase client not loaded.");this.blank();return;}
+    const {data,error}=await db.from("statscore_snapshots").select("*").eq("snapshot_id",id).maybeSingle();
+    if(error){console.error("Athlete Dashboard load failed:",error);this.blank();return;}
+    if(!data){this.blank();return;}
+    this.render(this.normalize(data));
+  },
+  blank(){
+    document.body.setAttribute("data-dashboard-state","blank");
+    this.qsa("[data-requires-snapshot]").forEach(a=>a.classList.add("disabled"));
+  },
+  attachLinks(id){
+    if(!id)return;
+    localStorage.setItem("STATSCORE_ACTIVE_SNAPSHOT_ID",id);
+    sessionStorage.setItem("STATSCORE_ACTIVE_SNAPSHOT_ID",id);
+    this.qsa("[data-context-link]").forEach(a=>{
+      const href=a.getAttribute("href");
+      if(!href||href==="#"||href.startsWith("http")||href.startsWith("mailto:"))return;
+      const url=new URL(href,location.href);
+      url.searchParams.set("snapshot_id",id);
+      a.setAttribute("href",url.pathname.replace(/^\//,"")+url.search+url.hash);
+      a.classList.remove("disabled");
+    });
+  },
+  render(s){
+    document.body.setAttribute("data-dashboard-state","loaded");
+    this.attachLinks(s.snapshot_id);
+
+    this.set("[data-athlete-name]",s.name);
+    this.set("[data-athlete-position]",s.position,"Position");
+    this.set("[data-athlete-sport]",s.sport,"Sport");
+    this.set("[data-athlete-height]",s.height,"Height");
+    this.set("[data-athlete-weight]",s.weight ? `${s.weight} lbs` : "Weight","Weight");
+    this.set("[data-athlete-class]",s.grad ? `Class of ${s.grad}` : "Class Year","Class Year");
+    this.set("[data-athlete-location]",`📍 ${s.cityState||"City, State"}`);
+    this.set("[data-athlete-school]",`🏫 ${s.school||"School / Program"}`);
+    this.set("[data-snapshot-id]",s.snapshot_id);
+
+    const img=this.qs("[data-athlete-image]"), ph=this.qs("[data-photo-placeholder]");
+    if(s.headshot&&img){img.src=s.headshot;img.style.display="block";if(ph)ph.style.display="none";}else{if(img)img.style.display="none";if(ph)ph.style.display="grid";}
+
+    const verified=/verified/i.test(s.verification), approved=/approved|active|released/i.test(s.release);
+    const ps=this.qs("[data-profile-status]"), prs=this.qs("[data-parent-status]");
+    if(ps){ps.textContent=verified?"✓ Profile Verified":"⚠ Profile Unverified";ps.className=verified?"status-pill green":"status-pill gold";}
+    if(prs){prs.textContent=approved?"✓ Parent Release: Approved":"⚠ Parent Release: Required";prs.className=approved?"status-pill green":"status-pill gold";}
+
+    this.set("[data-core-score]",s.coreScore);
+    this.set("[data-score-state]",s.verification);
+    this.set("[data-position-score]",s.raw.position_score||s.coreScore);
+    this.set("[data-athletic-score]",s.raw.athletic_score||s.coreScore);
+    this.set("[data-production-score]",s.raw.production_score||"—");
+    this.set("[data-academic-score]",s.raw.academic_score||s.gpa||"—");
+    this.set("[data-character-score]",s.raw.character_score||"—");
+
+    this.set("[data-card-eligibility]",s.ncaa);
+    this.html("[data-card-eligibility-line2]",`Core Courses: —<br>GPA: ${s.gpa||"—"}`);
+    this.set("[data-card-exposure]",s.highlight||s.gameFilm?"Connected":"Pending");
+    this.set("[data-card-recruiting]","Review");
+    this.set("[data-card-trend]","Pending");
+
+    const fields=[s.name,s.sport,s.position,s.height,s.weight,s.grad,s.school,s.cityState,s.gpa,s.headshot].filter(Boolean).length;
+    const pct=Math.round(fields/10*100);
+    this.set("[data-card-complete]",pct+"%");
+    this.html("[data-card-complete-line]",`Core Fields: ${fields} / 10<br>Missing: ${10-fields}`);
+
+    this.set("[data-metric-40]",s.forty);
+    this.set("[data-metric-vertical]",s.vertical);
+    this.set("[data-metric-broad]",s.broad);
+    this.set("[data-metric-shuttle]",s.shuttle);
+    this.set("[data-metric-strength]",s.strength);
+    this.set("[data-academic-gpa]",s.gpa);
+    this.set("[data-academic-sat]",s.sat);
+    this.set("[data-academic-act]",s.act);
+    this.set("[data-academic-rank]",s.rank);
+
+    this.set("[data-media-status]",s.highlight||s.gameFilm?"Film link connected from Snapshot Intake":"Media evidence pending");
+    this.html("[data-crystal-status]",`Profile ID: ${s.snapshot_id}<br>Status: Registered`);
+    this.set("[data-gov-guardian]",approved?"Approved":"Pending");
+    this.set("[data-gov-recruiting]",approved?"Enabled":"Locked");
+    this.set("[data-intel-action]",approved?2:3);
+    this.set("[data-intel-opportunity]",0);
+    this.set("[data-intel-feed]",1);
+
+    console.log("STATS-CORE Athlete Dashboard rendered:",s.name,s.snapshot_id);
+  },
+  async search(q){
+    const db=this.getDb();
+    const box=this.qs("#athleteSearchResults");
+    if(!box||!db)return;
+    q=this.norm(q);
+    box.innerHTML="";
+    box.classList.remove("active");
+    if(!q)return;
+
+    const {data,error}=await db.from("statscore_snapshots").select("*").order("created_at",{ascending:false}).limit(100);
+    if(error){box.innerHTML=`<div class="search-card"><b>Search Failed</b><span>Check console.</span></div>`;box.classList.add("active");return;}
+
+    const matches=(data||[]).filter(r=>{
+      const raw=r.raw_payload||{};
+      return [
+        r.snapshot_id,r.athlete_display_name,r.first_name,r.last_name,r.school_program,r.school,r.city_state,r.primary_sport,r.primary_position,
+        raw.athlete_display_name,raw.firstName,raw.lastName,raw.schoolProgram,raw.cityState,raw.primarySport,raw.primaryPosition
+      ].map(this.norm).join(" ").includes(q);
+    });
+
+    if(!matches.length){box.innerHTML=`<div class="search-title">STATS-CORE Search Results</div><div class="search-card"><b>No matching records found.</b></div>`;box.classList.add("active");return;}
+
+    box.innerHTML=`<div class="search-title">STATS-CORE Search Results (${matches.length})</div>`+matches.map(r=>{
+      const raw=r.raw_payload||{};
+      const name=this.val(r.athlete_display_name,raw.athlete_display_name,`${this.val(r.first_name,raw.firstName)} ${this.val(r.last_name,raw.lastName)}`.trim(),"Unnamed Athlete");
+      const sport=this.val(r.primary_sport,raw.primarySport,"Sport Pending");
+      const pos=this.val(r.primary_position,raw.primaryPosition,"Position Pending");
+      const grad=this.val(r.graduation_class,raw.graduationClass,"Class Pending");
+      const school=this.val(r.school_program,r.school,raw.schoolProgram,"School Pending");
+      return `<div class="search-card" data-open-snapshot="${r.snapshot_id}">
+        <b>${name}</b><span>${sport} · ${pos} · ${grad}</span><span>${school}</span><em>Snapshot ID: ${r.snapshot_id}</em>
+      </div>`;
+    }).join("");
+    box.classList.add("active");
+    this.qsa("[data-open-snapshot]").forEach(card=>{
+      card.addEventListener("click",()=>{
+        const id=card.getAttribute("data-open-snapshot");
+        localStorage.setItem("STATSCORE_ACTIVE_SNAPSHOT_ID",id);
+        location.href=`athlete-dashboard.html?snapshot_id=${encodeURIComponent(id)}&role=athlete&from=search`;
+      });
+    });
+  },
+  bind(){
+    const input=this.qs(".utility-search"), clear=this.qs(".search-clear"), box=this.qs("#athleteSearchResults");
+    if(input){
+      input.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();this.search(input.value);if(clear)clear.classList.add("active");}});
+      input.addEventListener("input",()=>{if(clear)clear.classList.toggle("active",!!input.value.trim());});
+    }
+    if(clear){
+      clear.addEventListener("click",()=>{input.value="";clear.classList.remove("active");if(box){box.innerHTML="";box.classList.remove("active");}input.focus();});
+    }
+    document.addEventListener("click",e=>{if(!box||!input)return;if(!box.contains(e.target)&&e.target!==input&&e.target!==clear)box.classList.remove("active");});
+    document.addEventListener("keydown",e=>{if(e.key==="Escape"&&box)box.classList.remove("active");});
+    this.qsa("[data-requires-snapshot]").forEach(a=>{
+      a.addEventListener("click",e=>{if(!this.snapshotId()){e.preventDefault();alert("Load an athlete snapshot before opening this intelligence room.");}});
+    });
+  },
+  init(){this.bind();this.load();}
+};
+
+document.addEventListener("DOMContentLoaded",()=>DASH.init());
+</script>
+
 <script src="statscore-doctrine.js"></script>
 <script src="statscore-engine-registry.js"></script>
 <script src="statscore-engine-execution.js"></script>
@@ -1420,627 +727,6 @@ document.addEventListener("DOMContentLoaded",()=>{
 <script src="statscore-crystal-engine.js"></script>
 <script src="statscore-recruiting-interest-registry.js"></script>
 <script src="statscore-explainability-engine.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  function normalizeSearchValue(v){
-  return String(v || "").trim().toLowerCase();
-}
-
-async function searchProfileRecords(query){
-  const db = getDb();
-  if (!db){
-    alert("Supabase client not loaded.");
-    return;
-  }
-
-  const q = normalizeSearchValue(query);
-  if (!q){
-    alert("Enter athlete name, snapshot ID, school, city, or position.");
-    return;
-  }
-
-  const { data, error } = await db
-    .from("statscore_snapshots")
-    .select("*")
-    .order("created_at", { ascending:false })
-    .limit(100);
-
-  if (error){
-    console.error("STATS-CORE dashboard search failed:", error);
-    alert("Search failed. Check console.");
-    return;
-  }
-
-  const matches = (data || []).filter(row => {
-    const raw = row.raw_payload || {};
-
-    const haystack = [
-      row.snapshot_id,
-      row.athlete_display_name,
-      row.first_name,
-      row.last_name,
-      row.school_program,
-      row.city_state,
-      row.primary_sport,
-      row.primary_position,
-      raw.athlete_display_name,
-      raw.firstName,
-      raw.lastName,
-      raw.schoolProgram,
-      raw.cityState,
-      raw.primarySport,
-      raw.primaryPosition
-    ].map(normalizeSearchValue).join(" ");
-
-    return haystack.includes(q);
-  });
-
-  if (!matches.length){
-    alert("No matching STATS-CORE profile found.");
-    return;
-  }
-
-  const chosen = matches[0];
-
-  window.location.href =
-    `athlete-dashboard.html?snapshot_id=${encodeURIComponent(chosen.snapshot_id)}&role=athlete&from=search`;
-}
-
-function bindAthleteDashboardSearch(){
-  const input =
-    document.querySelector(".utility-search") ||
-    document.querySelector("input[type='search']");
-
-  if (!input) return;
-
-  input.addEventListener("keydown", e => {
-    if (e.key === "Enter"){
-      e.preventDefault();
-      searchProfileRecords(input.value);
-    }
-  });
-} 
-  
-<script>
-const params = new URLSearchParams(window.location.search);
-
-const snapshotId =
-  params.get("snapshot_id") ||
-  localStorage.getItem("STATSCORE_ACTIVE_SNAPSHOT_ID") ||
-  sessionStorage.getItem("STATSCORE_ACTIVE_SNAPSHOT_ID") ||
-  "";
-
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false }
-});
-
-window.STATScoreDashboardDB = db;
-
-function safe(...values){
-  for(const value of values){
-    if(value !== undefined && value !== null && String(value).trim() !== "") return value;
-  }
-  return "";
-}
-
-function pick(...values){
-  return safe(...values);
-}
-
-function getDb(){
-  return window.STATScoreDashboardDB ||
-         window.STATScoreSupabase ||
-         window.STATScoreData?.getClient?.() ||
-         db ||
-         null;
-}
-
-function storageUrl(value){
-  if(!value) return "";
-  const v = String(value);
-  if(v.startsWith("http") || v.startsWith("data:image")) return v;
-  return `${SUPABASE_URL}/storage/v1/object/public/${v.replace(/^\/+/,"")}`;
-}
-
-function setText(target,value){
-  const el =
-    document.querySelector(target) ||
-    document.getElementById(target);
-
-  if(el) el.textContent = value || "--";
-}
-
-function setHTML(target,value){
-  const el =
-    document.querySelector(target) ||
-    document.getElementById(target);
-
-  if(el) el.innerHTML = value || "";
-}
-
-function toNumber(value){
-  const n = Number(String(value || "").replace(/[^\d.]/g,""));
-  return Number.isFinite(n) ? n : null;
-}
-
-function upper(v){
-  return String(v || "").toUpperCase();
-}
-
-function getPositionKey(position){
-  const p = upper(position);
-  if(p.includes("WR") || p.includes("RECEIVER")) return "WR";
-  if(p.includes("QB") || p.includes("QUARTERBACK")) return "QB";
-  if(p.includes("RB") || p.includes("RUNNING")) return "RB";
-  if(p.includes("TE")) return "TE";
-  if(p.includes("DB") || p.includes("CORNER") || p.includes("SAFETY")) return "DB";
-  if(p.includes("LB")) return "LB";
-  return "ATH";
-}
-
-function computeSnapshotScore(snap){
-  const pos = getPositionKey(snap.primary_position || snap.position);
-  const forty = toNumber(snap.dash40);
-  const vertical = toNumber(snap.vertical_jump);
-  const shuttle = toNumber(snap.shuttle);
-  const broad = toNumber(snap.broad_jump);
-
-  let score = 58;
-
-  if(pos === "WR"){
-    if(forty){
-      if(forty <= 4.40) score += 18;
-      else if(forty <= 4.50) score += 15;
-      else if(forty <= 4.60) score += 10;
-      else score += 5;
-    }
-
-    if(vertical){
-      if(vertical >= 38) score += 12;
-      else if(vertical >= 34) score += 8;
-      else score += 4;
-    }
-
-    if(shuttle){
-      if(shuttle <= 4.25) score += 6;
-      else if(shuttle <= 4.45) score += 4;
-      else score += 2;
-    }
-
-    if(broad) score += 2;
-    if(snap.position_notes) score += 3;
-    if(snap.highlight_url || snap.game_film_url) score += 4;
-    if(snap.verified_event_source) score += 4;
-  }else{
-    if(forty) score += 9;
-    if(vertical) score += 7;
-    if(shuttle) score += 4;
-    if(broad) score += 2;
-    if(snap.highlight_url || snap.game_film_url) score += 5;
-    if(snap.verified_event_source) score += 5;
-  }
-
-  return Math.max(60, Math.min(89, Math.round(score)));
-}
-
-function normalize(row){
-  const r = row || {};
-  const raw = r.raw_payload || {};
-
-  const first = safe(r.first_name, raw.firstName);
-  const last = safe(r.last_name, raw.lastName);
-
-  const normalized = {
-    raw:r,
-    payload:raw,
-
-    snapshot_id:safe(r.snapshot_id,snapshotId),
-    athlete_id:safe(r.athlete_id),
-    name:safe(r.athlete_display_name, raw.athlete_display_name, `${first} ${last}`.trim(), "Athlete Profile"),
-
-    sport:safe(r.primary_sport, raw.primarySport, r.sport, "Athlete"),
-    position:safe(r.primary_position, raw.primaryPosition, r.position, "Position"),
-    height:safe(r.height, raw.height),
-    weight:safe(r.weight, raw.weight),
-    grad:safe(r.graduation_class, raw.graduationClass, r.graduation_year),
-    cityState:safe(r.city_state, raw.cityState),
-    school:safe(r.school_program, raw.schoolProgram, r.school),
-
-    forty:safe(r.dash40, raw.dash40, r.forty, "--"),
-    vertical:safe(r.vertical_jump, raw.verticalJump, "--"),
-    broad:safe(r.broad_jump, raw.broadJump, "--"),
-    shuttle:safe(r.shuttle, raw.shuttle, "--"),
-    bench:safe(r.strength_marker, raw.strengthMarker, "--"),
-
-    gpa:safe(r.current_gpa, raw.currentGpa, "--"),
-    sat:safe(r.sat, raw.sat, "--"),
-    act:safe(r.act, raw.act, "--"),
-    classRank:safe(r.class_rank, raw.classRank, "--"),
-    ncaa:safe(r.ncaa_eligibility, raw.ncaaEligibility, r.ncaa_status, "Unknown"),
-    transcript:safe(r.transcript_available, raw.transcriptAvailable, "Unknown"),
-
-    snapshotStatus:safe(r.snapshot_status,"SUBMITTED"),
-    verification:safe(r.verification_status, raw.verificationStatus, "UNVERIFIED"),
-    release:safe(r.parent_release_status, r.guardian_status, raw.guardianApprovalStatus, "PENDING"),
-
-    positionScore:safe(r.position_score),
-    athleticScore:safe(r.athletic_score),
-    productionScore:safe(r.production_score),
-    academicScore:safe(r.academic_score),
-    characterScore:safe(r.character_score),
-
-    headshot:storageUrl(safe(
-      r.headshot_public_url,
-      r.headshot_url,
-      r.headshot_path,
-      r.photo_url,
-      raw.headshotPublicUrl,
-      raw.headshot_public_url
-    )),
-
-    highlight:safe(r.highlight_url, raw.highlightUrl),
-    gameFilm:safe(r.game_film_url, raw.gameFilmUrl)
-  };
-
-  normalized.coreScore = safe(
-    r.statscore_score,
-    r.core_score,
-    r.snapshot_score,
-    r.overall_score,
-    raw.coreScore,
-    raw.statscore_score,
-    raw.snapshotScore
-  );
-
-  if(!normalized.coreScore || normalized.coreScore === "--"){
-    normalized.coreScore = computeSnapshotScore({
-      primary_position:normalized.position,
-      dash40:normalized.forty,
-      vertical_jump:normalized.vertical,
-      shuttle:normalized.shuttle,
-      broad_jump:normalized.broad,
-      position_notes:safe(r.position_notes, raw.positionNotes),
-      highlight_url:normalized.highlight,
-      game_film_url:normalized.gameFilm,
-      verified_event_source:safe(r.verified_event_source, raw.verifiedEventSource)
-    });
-  }
-
-  return normalized;
-}
-
-async function loadProfile(){
-  let query = db.from(CANON_VIEW).select("*");
-
-  if(snapshotId){
-    query = query.eq("snapshot_id", snapshotId).maybeSingle();
-  }else{
-    query = query.order("created_at",{ascending:false}).limit(1).maybeSingle();
-  }
-
-  const {data,error} = await query;
-
-  if(error){
-    console.error("Dashboard canonical view load failed:", error);
-    return null;
-  }
-
-  if(!data){
-    console.warn("No canonical dashboard profile found.");
-    return null;
-  }
-
-  console.log("Dashboard canonical row:", data);
-  return normalize(data);
-}
-
-function routeLinks(id){
-  if(!id) return;
-
-  localStorage.setItem("STATSCORE_ACTIVE_SNAPSHOT_ID",id);
-  sessionStorage.setItem("STATSCORE_ACTIVE_SNAPSHOT_ID",id);
-
-  document.querySelectorAll("a[href]").forEach(a=>{
-    const href = a.getAttribute("href");
-    if(!href || href.startsWith("#") || href.startsWith("http") || href.startsWith("mailto:")) return;
-
-    const parts = href.split("#");
-    const base = parts[0];
-    const hash = parts[1] ? `#${parts[1]}` : "";
-
-    const url = new URL(base || window.location.pathname, window.location.origin);
-    url.searchParams.set("snapshot_id",id);
-
-    a.setAttribute("href",url.pathname.replace("/","") + url.search + hash);
-  });
-}
-
-function renderIdentity(s){
-  setText(".athlete-name",s.name);
-  setHTML(".snapshot-id",`Snapshot ID:<br>${s.snapshot_id}`);
-
-  const photoBox = document.querySelector(".photo-box");
-  const img = document.querySelector(".photo-box img");
-
-  if(s.headshot && img){
-    img.src = s.headshot;
-    img.alt = s.name;
-  }else if(photoBox){
-    photoBox.innerHTML = `<div class="photo-placeholder">Athlete Image Required</div>`;
-  }
-
-  const tags = document.querySelectorAll(".tag-row .tag");
-  if(tags[0]) tags[0].textContent = s.position || "Position";
-  if(tags[1]) tags[1].textContent = s.sport || "Athlete";
-  if(tags[2]) tags[2].textContent = s.height || "Height";
-  if(tags[3]) tags[3].textContent = s.weight ? `${s.weight} lbs` : "Weight";
-  if(tags[4]) tags[4].textContent = s.grad ? `Class of ${s.grad}` : "Class Year";
-
-  const meta = document.querySelectorAll(".meta-line span");
-  if(meta[0]) meta[0].textContent = `📍 ${s.cityState || "City, State"}`;
-  if(meta[1]) meta[1].textContent = `🏫 ${s.school || "School / Program"}`;
-
-  const verified = String(s.verification).toUpperCase() === "VERIFIED";
-  const approved = /APPROVED|ACTIVE|RELEASED/i.test(String(s.release));
-
-  const pills = document.querySelectorAll(".status-pill");
-
-  if(pills[0]){
-    pills[0].textContent = verified ? "✓ Profile Verified" : "⚠ Profile Unverified";
-    pills[0].className = verified ? "status-pill green" : "status-pill gold";
-  }
-
-  if(pills[1]){
-    pills[1].textContent = approved ? "✓ Parent Release: Approved" : "⚠ Parent Release: Required";
-    pills[1].className = approved ? "status-pill green" : "status-pill gold";
-  }
-}
-
-function renderRing(s){
-  const score = s.coreScore || "--";
-
-  setText("#scoreValue", score);
-  setText("#snapshotScore", score);
-  setText("#statscoreScore", score);
-  setText("#statsCoreScore", score);
-  setText("#dashboardScore", score);
-  setText("._ring_b", score);
-  setText("_ring_b", score);
-
-  setText("._ring_small", s.verification || "Unverified");
-  setText("_ring_small", s.verification || "Unverified");
-
-  const lines = document.querySelectorAll(".score-line b");
-  if(lines[0]) lines[0].textContent = s.positionScore || score;
-  if(lines[1]) lines[1].textContent = s.athleticScore || score;
-  if(lines[2]) lines[2].textContent = s.productionScore || score;
-  if(lines[3]) lines[3].textContent = s.academicScore || "--";
-  if(lines[4]) lines[4].textContent = s.characterScore || "--";
-}
-
-function renderMetrics(s){
-  const perf = document.querySelectorAll('.mid-grid a[href*="readiness"] .metric b');
-  if(perf[0]) perf[0].textContent = s.forty;
-  if(perf[1]) perf[1].textContent = s.vertical;
-  if(perf[2]) perf[2].textContent = s.broad;
-  if(perf[3]) perf[3].textContent = s.shuttle;
-  if(perf[4]) perf[4].textContent = s.bench;
-
-  const acad = document.querySelectorAll('.mid-grid a[href*="college-pathway"] .metric b');
-  if(acad[0]) acad[0].textContent = s.gpa;
-  if(acad[1]) acad[1].textContent = s.sat;
-  if(acad[2]) acad[2].textContent = s.act;
-  if(acad[3]) acad[3].textContent = s.classRank;
-}
-
-function renderEligibility(s){
-  const card = document.querySelector('.summary-grid a[href*="eligibility"]');
-  if(!card) return;
-
-  const title = card.querySelector("b");
-  const lines = card.querySelectorAll("p");
-
-  let eligibility = null;
-
-  if(window.STATSCORE_RUN_ELIGIBILITY){
-    eligibility = window.STATSCORE_RUN_ELIGIBILITY({
-      athlete_name:s.name,
-      snapshot_id:s.snapshot_id,
-      current_gpa:s.gpa,
-      gpa:s.gpa,
-      transcript_available:s.transcript,
-      ncaa_status:s.ncaa,
-      sat:s.sat,
-      act:s.act,
-      core_courses_completed:s.raw.core_courses_completed || s.payload.coreCoursesCompleted || 0,
-      core_courses_required:s.raw.core_courses_required || s.payload.coreCoursesRequired || 16,
-      counselor_contact:s.raw.counselor_contact || s.payload.counselorContact || "unknown"
-    });
-  }
-
-  if(title){
-    title.textContent = eligibility?.display_status || (s.ncaa !== "Unknown" ? s.ncaa : "Review");
-  }
-
-  if(lines[0]){
-    lines[0].innerHTML =
-      (eligibility?.portability_label || "Eligibility Review") + "<br>" +
-      (eligibility?.ncaa_display || `NCAA: ${s.ncaa}`);
-  }
-
-  if(lines[1]){
-    lines[1].innerHTML =
-      "Risk: " + (eligibility?.risk_label || eligibility?.eligibility_risk || "Pending") + "<br>" +
-      "GPA: " + s.gpa + "<br>" +
-      "Snapshot: " + s.snapshotStatus;
-  }
-}
-
-function renderSummaryCards(s){
-  const cards = document.querySelectorAll(".summary-grid .stat-card");
-
-  if(cards[1]){
-    const b = cards[1].querySelector("b");
-    const p = cards[1].querySelectorAll("p");
-    if(b) b.textContent = s.highlight || s.gameFilm ? "Connected" : "Pending";
-    if(p[0]) p[0].textContent = s.highlight || s.gameFilm ? "Film Evidence Available" : "Exposure Review";
-    if(p[1]) p[1].innerHTML = "Events: --<br>Media Reach: --";
-  }
-
-  if(cards[2]){
-    const b = cards[2].querySelector("b");
-    const p = cards[2].querySelectorAll("p");
-    if(b) b.textContent = "Review";
-    if(p[0]) p[0].textContent = "Verified Interest Required";
-    if(p[1]) p[1].innerHTML = "Offers: --<br>Commitments: --";
-  }
-
-  if(cards[3]){
-    const b = cards[3].querySelector("b");
-    const p = cards[3].querySelectorAll("p");
-    if(b) b.textContent = "Pending";
-    if(p[0]) p[0].textContent = "Performance Matrix Review";
-    if(p[1]) p[1].innerHTML = "Trend Strength: --<br>Improvement: --";
-  }
-
-  if(cards[4]){
-    const b = cards[4].querySelector("b");
-    const p = cards[4].querySelectorAll("p");
-
-    const fields = [
-      s.name,s.position,s.height,s.weight,s.grad,s.school,s.gpa,s.forty,s.vertical,s.headshot
-    ].filter(Boolean).length;
-
-    const percent = Math.min(100,Math.round((fields/10)*100));
-
-    if(b) b.textContent = percent + "%";
-    if(p[0]) p[0].textContent = percent >= 80 ? "Profile Strong" : "Profile Building";
-    if(p[1]) p[1].innerHTML = `Core Fields: ${fields} / 10<br>Missing: ${10-fields}`;
-  }
-}
-
-function renderMediaAndCrystal(s){
-  const mediaText = document.querySelector('.mid-grid a[href*="media.html"] p:nth-of-type(2)');
-  if(mediaText){
-    mediaText.textContent = s.highlight || s.gameFilm ? "Film link connected from Snapshot Intake" : "Film evidence pending";
-  }
-
-  const crystal = document.querySelector('.mid-grid a[href*="crystal-report.html"] p:nth-of-type(2)');
-  if(crystal){
-    crystal.innerHTML = `Profile ID: ${s.snapshot_id || "Pending"}<br>Status: Registered`;
-  }
-}
-
-function normalizeSearchValue(v){
-  return String(v || "").trim().toLowerCase();
-}
-
-async function searchProfileRecords(query){
-  const db = getDb();
-
-  if(!db){
-    alert("Supabase client not loaded.");
-    return;
-  }
-
-  const q = normalizeSearchValue(query);
-
-  if(!q){
-    alert("Enter athlete name, snapshot ID, school, city, or position.");
-    return;
-  }
-
-  const { data, error } = await db
-    .from("statscore_snapshots")
-    .select("*")
-    .order("created_at",{ascending:false})
-    .limit(100);
-
-  if(error){
-    console.error("STATS-CORE dashboard search failed:",error);
-    alert("Search failed. Check console.");
-    return;
-  }
-
-  const matches = (data || []).filter(row => {
-    const raw = row.raw_payload || {};
-
-    const haystack = [
-      row.snapshot_id,
-      row.athlete_display_name,
-      row.first_name,
-      row.last_name,
-      row.school_program,
-      row.city_state,
-      row.primary_sport,
-      row.primary_position,
-      raw.athlete_display_name,
-      raw.firstName,
-      raw.lastName,
-      raw.schoolProgram,
-      raw.cityState,
-      raw.primarySport,
-      raw.primaryPosition
-    ].map(normalizeSearchValue).join(" ");
-
-    return haystack.includes(q);
-  });
-
-  if(!matches.length){
-    alert("No matching STATS-CORE profile found.");
-    return;
-  }
-
-  const chosen = matches[0];
-
-  localStorage.setItem("STATSCORE_ACTIVE_SNAPSHOT_ID", chosen.snapshot_id);
-  sessionStorage.setItem("STATSCORE_ACTIVE_SNAPSHOT_ID", chosen.snapshot_id);
-
-  window.location.href =
-    `athlete-dashboard.html?snapshot_id=${encodeURIComponent(chosen.snapshot_id)}&role=athlete&from=search`;
-}
-
-function bindAthleteDashboardSearch(){
-  const input =
-    document.querySelector(".utility-search") ||
-    document.querySelector("input[type='search']");
-
-  if(!input) return;
-
-  input.addEventListener("keydown", e => {
-    if(e.key === "Enter"){
-      e.preventDefault();
-      searchProfileRecords(input.value);
-    }
-  });
-}
-
-function render(s){
-  if(!s){
-    console.warn("STATS-CORE Dashboard render skipped: no profile.");
-    return;
-  }
-
-  routeLinks(s.snapshot_id);
-  renderIdentity(s);
-  renderRing(s);
-  renderMetrics(s);
-  renderEligibility(s);
-  renderSummaryCards(s);
-  renderMediaAndCrystal(s);
-
-  console.log("STATS-CORE Dashboard rendered:",s.name,s.snapshot_id,s.coreScore);
-}
-
-document.addEventListener("DOMContentLoaded", async () => {
-  console.log("STATS-CORE Athlete Dashboard Runtime Loaded");
-
-  bindAthleteDashboardSearch();
-
-  const profile = await loadProfile();
-  render(profile);
-});
-</script> 
 
 </body>
 </html> 
