@@ -1942,10 +1942,12 @@ async function loadSnapshot(){
     return;
   }
 
-  console.log("RAW SNAPSHOT DATA", data);
-console.log("NORMALIZED SNAPSHOT DATA", normalize(data));
+const normalizedSnapshot = normalize(data);
 
-renderSnapshot(normalize(data)); 
+console.log("RAW ATHLETIC SNAPSHOT DATA:", data);
+console.log("NORMALIZED ATHLETIC SNAPSHOT DATA:", normalizedSnapshot);
+
+renderSnapshot(normalizedSnapshot); 
 
 document.addEventListener("DOMContentLoaded", loadSnapshot);
 </script>
