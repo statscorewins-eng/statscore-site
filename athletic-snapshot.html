@@ -1241,6 +1241,9 @@ a{
       <span>Current Athletic Tier</span>
       <b data-athletic-tier>Pending Review</b>
 
+      <span>Experience Signal</span>
+      <b data-experience-signal>Pending</b> 
+
       <span>Recommended Athletic Path</span>
       <b class="warning" data-recommended-path>More Evidence Needed</b>
 
@@ -1724,6 +1727,76 @@ function setDot(sel, status){
   el.className = status;
 }
 
+  function stars(index){
+  const full = Math.max(1, Math.min(5, 5 - index));
+  return "★★★★★".slice(0, full) + "☆☆☆☆☆".slice(0, 5 - full);
+}
+
+function getArchetypeName(sport, position, engine){
+  const sp = normalizeSport(sport);
+  const pos = normalizePosition(sport, position);
+  const first = engine?.archetypes?.[0] || "Athlete";
+
+  if(sp === "FOOTBALL" && pos === "QB") return "Field General QB";
+  if(sp === "FOOTBALL" && pos === "WR") return "Explosive Receiver";
+  if(sp === "FOOTBALL" && pos === "RB") return "Backfield Playmaker";
+  if(sp === "FOOTBALL" && pos === "DB") return "Coverage Athlete";
+
+  return first;
+}
+
+function renderAthleticDNA(s, score){
+  const engine = getPositionEngine(s.sport, s.position);
+  const fit = Math.max(55, Math.min(96, Number(score || 0) + 6));
+  const archetype = getArchetypeName(s.sport, s.position, engine);
+  const varsityYears = s.varsity_years || s.raw?.varsity_years || s.payload?.varsityYears || "—";
+const starRating = s.star_rating || s.raw?.star_rating || s.payload?.starRating || "—";
+
+const experienceSignal =
+  varsityYears !== "—" && starRating !== "—"
+    ? `${varsityYears}y/${"*".repeat(Number(starRating))}`
+    : "Experience Pending"; 
+
+  setText("[data-fit-position]", `${s.position || "Position"} Fit`);
+  setText("[data-position-fit]", `${fit}%`);
+  setText("[data-fit-copy]", `${s.name} currently profiles as a ${archetype}. This room shows position fit, primary traits, and the clearest next development move.`);
+
+  const traitList = document.querySelector("[data-trait-list]");
+  if(traitList){
+    traitList.innerHTML = (engine.traits || []).slice(0,5).map((trait,i)=>`
+      <div class="trait-row">
+        <span>${trait}</span>
+        <b>${stars(i)}</b>
+      </div>
+    `).join("");
+  }
+
+  const priorities = [];
+  if(!s.shuttle) priorities.push("Verify Agility / Shuttle");
+  if(!s.highlight && !s.gameFilm) priorities.push("Upload PHNX Sports Media");
+  if(!/verified/i.test(s.verification)) priorities.push("Request Certified Evaluation");
+  priorities.push("Build Exposure Path");
+
+  const priorityList = document.querySelector("[data-priority-list]");
+  if(priorityList){
+    priorityList.innerHTML = priorities.slice(0,4).map((item,i)=>`
+      <div class="priority-row">
+        <span>${item}</span>
+        <b>${String(i+1).padStart(2,"0")}</b>
+      </div>
+    `).join("");
+  }
+
+  setText("[data-pathway-position]", s.position || "Pending");
+  setText("[data-archetype-name]", archetype);
+  setText("[data-archetype-copy]", `${archetype} means the athlete's profile is being read through position-specific traits, measurable alignment, verification strength, and development opportunity.`);
+
+  const tagBox = document.querySelector("[data-archetype-tags]");
+  if(tagBox){
+    tagBox.innerHTML = (engine.archetypes || []).slice(0,4).map(t=>`<span>${t}</span>`).join("");
+  }
+} 
+
 function renderSnapshot(s){
   const score = Number(s.coreScore || 0);
   const standing = standingFromScore(score);
@@ -1810,6 +1883,7 @@ function renderSnapshot(s){
   setText("[data-athletic-tier]", standing);
   setText("[data-recommended-path]", score >= 78 ? "Direct Athletic Path Active" : "Development Path Recommended");
   setText("[data-best-opportunity]", verified ? "Build Exposure" : "Verify Metrics");
+  renderAthleticDNA(s, score); 
 
   setText("[data-receipt-status]", standing);
   setText("[data-receipt-snapshot]", s.snapshot_id);
