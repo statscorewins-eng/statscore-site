@@ -1749,14 +1749,7 @@ function renderAthleticDNA(s, score){
   const engine = getPositionEngine(s.sport, s.position);
   const fit = Math.max(55, Math.min(96, Number(score || 0) + 6));
   const archetype = getArchetypeName(s.sport, s.position, engine);
-  const varsityYears = s.varsity_years || s.raw?.varsity_years || s.payload?.varsityYears || "—";
-const starRating = s.star_rating || s.raw?.star_rating || s.payload?.starRating || "—";
-
-const experienceSignal =
-  varsityYears !== "—" && starRating !== "—"
-    ? `${varsityYears}y/${"*".repeat(Number(starRating))}`
-    : "Experience Pending"; 
-
+  
   setText("[data-fit-position]", `${s.position || "Position"} Fit`);
   setText("[data-position-fit]", `${fit}%`);
   setText("[data-fit-copy]", `${s.name} currently profiles as a ${archetype}. This room shows position fit, primary traits, and the clearest next development move.`);
