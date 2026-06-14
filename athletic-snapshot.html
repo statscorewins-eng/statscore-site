@@ -1949,8 +1949,10 @@ async function loadSnapshot(){
     return;
   }
 
-  renderSnapshot(normalize(data));
-}
+  console.log("RAW SNAPSHOT DATA", data);
+console.log("NORMALIZED SNAPSHOT DATA", normalize(data));
+
+renderSnapshot(normalize(data)); 
 
 document.addEventListener("DOMContentLoaded", loadSnapshot);
 </script>
