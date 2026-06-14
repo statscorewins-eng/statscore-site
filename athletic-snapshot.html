@@ -1,1 +1,1610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>STATS-CORE™ | Athletic Snapshot Intelligence</title>
 
+<meta name="title" content="STATS-CORE™ | Athletic Snapshot Intelligence" />
+<meta name="description" content="Athletic standing, sport intelligence, position comparison, verified metrics, trait signals, development priorities, and STATS-CORE athletic snapshot review." />
+
+<link rel="icon" type="image/png" href="sc_emblem.png" />
+<link rel="apple-touch-icon" href="sc_emblem.png" />
+
+<style>
+:root{
+  --red:#d71920;
+  --red2:#ff2b35;
+  --red-soft:rgba(215,25,32,.12);
+
+  --green:#2fa866;
+  --yellow:#c9a227;
+  --risk:#c84343;
+  --blue:#7ed8ff;
+  --gold:#f4c542;
+
+  --black:#000;
+  --bg:#050606;
+  --panel:#0b0d10;
+  --panel2:#101318;
+  --panel3:#151920;
+
+  --white:#f4f4ef;
+  --text:#d8d9d6;
+  --muted:#9a9d9f;
+  --dim:#6f7478;
+
+  --line:rgba(255,255,255,.14);
+  --line-soft:rgba(255,255,255,.08);
+
+  --max:1536px;
+}
+
+*{box-sizing:border-box;}
+
+html,body{
+  margin:0;
+  background:#000;
+  color:var(--text);
+  font-family:Arial, Helvetica, sans-serif;
+}
+
+body{overflow-x:hidden;}
+
+a{
+  color:inherit;
+  text-decoration:none;
+}
+
+.shell{
+  width:min(var(--max),100%);
+  margin:0 auto;
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 72% 10%,rgba(215,25,32,.06),transparent 24%),
+    radial-gradient(circle at 35% 40%,rgba(255,255,255,.035),transparent 28%),
+    repeating-linear-gradient(135deg,rgba(255,255,255,.012) 0,rgba(255,255,255,.012) 1px,transparent 1px,transparent 8px),
+    #030303;
+}
+
+/* HEADER */
+
+.room-header{
+  min-height:82px;
+  display:grid;
+  grid-template-columns:1fr auto;
+  align-items:center;
+  gap:24px;
+  padding:0 34px;
+  background:linear-gradient(180deg,#f2f2ee,#deded9);
+  border-bottom:2px solid var(--red);
+  color:#111;
+}
+
+.room-title{
+  margin:0;
+  font-size:.96rem;
+  line-height:1.2;
+  font-weight:900;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:#111;
+}
+
+.room-subtitle{
+  margin-top:8px;
+  color:#4b4b4b;
+  font-size:.62rem;
+  font-weight:900;
+  letter-spacing:.24em;
+  text-transform:uppercase;
+}
+
+.room-nav{
+  display:flex;
+  align-items:center;
+  gap:22px;
+}
+
+.room-nav a{
+  font-size:.68rem;
+  font-weight:900;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  padding:12px 0;
+  border-bottom:2px solid transparent;
+}
+
+.room-nav a.active{
+  color:var(--red);
+  border-bottom-color:var(--red);
+}
+
+/* MAIN */
+
+.main{padding:18px;}
+
+.block{margin-top:18px;}
+.block:first-child{margin-top:0;}
+
+.block-head{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-bottom:10px;
+}
+
+.block-kicker{
+  color:var(--red2);
+  font-size:.64rem;
+  font-weight:900;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+
+.block-line{
+  height:1px;
+  flex:1;
+  background:linear-gradient(90deg,rgba(215,25,32,.5),transparent);
+}
+
+.panel{
+  border:1px solid var(--line);
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.04),rgba(255,255,255,.01)),
+    var(--panel);
+  box-shadow:0 18px 45px rgba(0,0,0,.42);
+}
+
+.panel-pad{padding:22px;}
+
+.section-label{
+  color:var(--red2);
+  font-size:.68rem;
+  font-weight:900;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  margin-bottom:16px;
+}
+
+/* INTRO */
+
+.intro{
+  position:relative;
+  display:grid;
+  grid-template-columns:1fr 360px;
+  gap:22px;
+  min-height:164px;
+  padding:26px 28px;
+  overflow:hidden;
+  border:1px solid var(--line);
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.01)),
+    #070707;
+}
+
+.intro:before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  bottom:0;
+  width:4px;
+  background:var(--red);
+}
+
+.intro-label{
+  color:var(--red2);
+  font-size:.68rem;
+  font-weight:900;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+}
+
+.intro h1{
+  margin:10px 0 10px;
+  color:var(--white);
+  font-size:clamp(2rem,3.4vw,3.15rem);
+  line-height:1.02;
+  font-weight:900;
+  letter-spacing:.01em;
+  text-transform:uppercase;
+}
+
+.intro p{
+  margin:0;
+  max-width:900px;
+  color:#d4d4d1;
+  font-size:.92rem;
+  line-height:1.55;
+}
+
+.context-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.context-box{
+  border:1px solid var(--line-soft);
+  background:rgba(0,0,0,.24);
+  padding:13px 14px;
+  min-height:66px;
+}
+
+.context-box span{
+  display:block;
+  color:var(--muted);
+  font-size:.58rem;
+  font-weight:900;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+  margin-bottom:7px;
+}
+
+.context-box b{
+  display:block;
+  color:#fff;
+  font-size:.78rem;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.context-box.warning b{color:var(--yellow);}
+.context-box.good b{color:#7ddca3;}
+
+/* ROOM SECTIONS */
+
+.room-sections{
+  margin-top:12px;
+  border:1px solid var(--line-soft);
+  background:rgba(255,255,255,.025);
+  padding:12px 16px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  flex-wrap:wrap;
+}
+
+.room-sections span{
+  color:var(--muted);
+  font-size:.58rem;
+  font-weight:900;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+
+.room-sections a{
+  color:#e7e7e3;
+  font-size:.62rem;
+  font-weight:900;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  padding:8px 10px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(0,0,0,.22);
+}
+
+.room-sections a.current{
+  color:#fff;
+  border-color:rgba(215,25,32,.45);
+  background:var(--red-soft);
+} 
+/* THREE PANELS */
+
+.top-equal-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+  align-items:stretch;
+}
+
+.equal-panel{min-height:390px;}
+
+.status-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  min-height:34px;
+  padding:0 12px;
+  border:1px solid rgba(201,162,39,.55);
+  background:rgba(201,162,39,.1);
+  color:#e6c75a;
+  font-size:.62rem;
+  font-weight:900;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+
+.status-pill.good{
+  border-color:rgba(47,168,102,.55);
+  color:#7ddca3;
+  background:rgba(47,168,102,.1);
+}
+
+.status-pill.risk{
+  border-color:rgba(200,67,67,.55);
+  color:#ff8585;
+  background:rgba(200,67,67,.1);
+}
+
+.dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  display:inline-block;
+  background:var(--yellow);
+}
+
+.dot.green{background:var(--green);}
+.dot.red{background:var(--risk);}
+.dot.blue{background:var(--blue);}
+
+.standing-title{
+  margin:18px 0 12px;
+  color:#fff;
+  font-size:1.92rem;
+  line-height:1.05;
+  font-weight:900;
+  text-transform:uppercase;
+}
+
+.copy{
+  margin:0;
+  color:#d5d5d2;
+  font-size:.83rem;
+  line-height:1.52;
+}
+
+.snapshot-flex{
+  display:grid;
+  grid-template-columns:142px 1fr;
+  gap:18px;
+  align-items:center;
+  margin-top:18px;
+}
+
+/* PRIMARY RING */
+
+.ring{
+  width:126px;
+  height:126px;
+  border-radius:50%;
+  margin:0 auto 10px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  background:conic-gradient(
+    from 220deg,
+    var(--gold),
+    var(--red),
+    rgba(255,255,255,.08),
+    var(--gold)
+  );
+  position:relative;
+}
+
+.ring:before{
+  content:"";
+  position:absolute;
+  inset:16px;
+  border-radius:50%;
+  background:#101720;
+}
+
+.ring b,
+.ring small,
+.ring span{
+  position:relative;
+  z-index:2;
+}
+
+.ring span{
+  color:var(--red);
+  font-size:.54rem;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  line-height:1;
+  text-align:center;
+}
+
+.ring b{
+  font-size:2.8rem;
+  line-height:.85;
+  margin-top:5px;
+  color:#fff;
+}
+
+.ring small{
+  color:var(--gold);
+  font-size:.48rem;
+  line-height:1.05;
+  max-width:78px;
+  margin-top:4px;
+  text-transform:uppercase;
+  text-align:center;
+  font-weight:900;
+}
+
+.score-lines{
+  display:grid;
+  gap:8px;
+}
+
+.score-line{
+  display:flex;
+  justify-content:space-between;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  padding-bottom:5px;
+  color:#dfeaf1;
+  font-size:.64rem;
+  font-weight:800;
+}
+
+.score-line b{color:#fff;}
+
+.alignment-box{margin-top:20px;}
+
+.alignment-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  margin-bottom:8px;
+}
+
+.alignment-top b{
+  color:#fff;
+  font-size:.62rem;
+  font-weight:900;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+
+.alignment-top span{
+  color:#fff;
+  font-size:1.12rem;
+  font-weight:900;
+}
+
+.meter{
+  height:11px;
+  border:1px solid rgba(255,255,255,.16);
+  background:#050505;
+}
+
+.meter-fill{
+  width:0%;
+  height:100%;
+  background:linear-gradient(90deg,var(--risk),var(--yellow),var(--green));
+}
+
+.summary-stats{
+  margin-top:16px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+}
+
+.summary-stat{
+  min-height:74px;
+  border:1px solid var(--line-soft);
+  background:rgba(0,0,0,.25);
+  padding:11px;
+}
+
+.summary-stat span{
+  display:block;
+  color:var(--muted);
+  font-size:.52rem;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  margin-bottom:7px;
+}
+
+.summary-stat b{
+  display:block;
+  color:#fff;
+  font-size:.9rem;
+  font-weight:900;
+}
+
+.summary-stat small{
+  display:block;
+  margin-top:4px;
+  color:#d7bd55;
+  font-size:.54rem;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+/* POSITION REVIEW */
+
+.compare-grid{
+  display:grid;
+  gap:10px;
+}
+
+.compare-row{
+  display:grid;
+  grid-template-columns:1fr 70px 70px 70px;
+  gap:8px;
+  align-items:center;
+  min-height:42px;
+  border:1px solid var(--line-soft);
+  background:rgba(0,0,0,.24);
+  padding:8px 10px;
+}
+
+.compare-row.head{
+  background:rgba(215,25,32,.08);
+  color:#fff;
+  font-size:.58rem;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+
+.compare-row span{
+  color:#d0d0cd;
+  font-size:.65rem;
+  font-weight:800;
+}
+
+.compare-row b{
+  color:#fff;
+  font-size:.68rem;
+  font-weight:900;
+  text-align:center;
+}
+
+.compare-row .plus{color:#7ddca3;}
+.compare-row .minus{color:#e3c44d;}
+.compare-row .risk{color:#ff8585;}
+
+/* SIGNALS */
+
+.signal-list{
+  display:grid;
+  gap:9px;
+}
+
+.signal-item{
+  display:grid;
+  grid-template-columns:26px 1fr;
+  gap:10px;
+  border:1px solid var(--line-soft);
+  background:rgba(0,0,0,.24);
+  padding:11px;
+  align-items:start;
+}
+
+.signal-item b{
+  display:block;
+  color:#fff;
+  font-size:.64rem;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.signal-item span{
+  display:block;
+  margin-top:4px;
+  color:var(--muted);
+  font-size:.64rem;
+  line-height:1.32;
+}
+
+/* GUIDE */
+
+.signal-guide{padding:20px;}
+
+.guide-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+
+.guide-card{
+  display:grid;
+  grid-template-columns:20px 1fr;
+  gap:12px;
+  min-height:98px;
+  border:1px solid var(--line-soft);
+  background:rgba(0,0,0,.24);
+  padding:16px;
+}
+
+.guide-card b{
+  display:block;
+  color:#fff;
+  font-size:.68rem;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.guide-card p{
+  margin:6px 0 0;
+  color:#c7c9ca;
+  font-size:.7rem;
+  line-height:1.4;
+}
+
+.guide-fine{
+  margin:12px auto 0;
+  max-width:900px;
+  color:#85888c;
+  font-size:.62rem;
+  line-height:1.4;
+  text-align:center;
+}
+
+/* MIDDLE C */
+
+.mid-c-grid{
+  display:grid;
+  grid-template-columns:1fr 360px;
+  gap:14px;
+  align-items:stretch;
+}
+
+.requirement-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+
+.req{
+  min-height:108px;
+  border:1px solid var(--line-soft);
+  background:rgba(0,0,0,.24);
+  padding:14px;
+  position:relative;
+}
+
+.req:before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  right:0;
+  height:3px;
+  background:var(--yellow);
+}
+
+.req.good:before{background:var(--green);}
+.req.risk:before{background:var(--risk);}
+
+.req b{
+  display:block;
+  color:#fff;
+  font-size:.74rem;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.req p{
+  margin:9px 0 0;
+  color:#c9c9c6;
+  font-size:.72rem;
+  line-height:1.42;
+}
+
+.pathway-card span{
+  display:block;
+  color:var(--muted);
+  font-size:.58rem;
+  font-weight:900;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  margin-top:13px;
+}
+
+.pathway-card span:first-of-type{margin-top:0;}
+
+.pathway-card b{
+  display:block;
+  margin-top:5px;
+  color:#fff;
+  font-size:.84rem;
+  font-weight:900;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+
+.pathway-card b.warning{color:#e3c44d;}
+.pathway-card b.good{color:#7ddca3;} 
+/* BOTTOM */
+
+.correction{padding:22px;}
+
+.path-list{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+}
+
+.path-step{
+  min-height:146px;
+  border:1px solid var(--line-soft);
+  background:rgba(0,0,0,.24);
+  padding:16px;
+  position:relative;
+}
+
+.step-num{
+  width:34px;
+  height:34px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(215,25,32,.55);
+  color:var(--red2);
+  font-weight:900;
+  font-size:.82rem;
+  margin-bottom:14px;
+}
+
+.path-step b{
+  display:block;
+  color:#fff;
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.path-step span{
+  display:block;
+  color:#c4c4c1;
+  font-size:.68rem;
+  line-height:1.38;
+  margin-top:6px;
+}
+
+.priority{
+  margin-top:12px;
+  color:#d8be52;
+  font-size:.58rem;
+  font-weight:900;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+
+.receipt{
+  margin-top:18px;
+  border:1px solid var(--line);
+  background:#050505;
+  display:grid;
+  grid-template-columns:210px repeat(5,1fr);
+}
+
+.receipt-title{
+  display:flex;
+  align-items:center;
+  padding:18px;
+  color:#fff;
+  font-size:.74rem;
+  font-weight:900;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  border-right:1px solid var(--line-soft);
+  border-left:3px solid var(--red);
+}
+
+.receipt-cell{
+  min-height:72px;
+  padding:16px;
+  border-right:1px solid var(--line-soft);
+}
+
+.receipt-cell:last-child{border-right:none;}
+
+.receipt-cell span{
+  display:block;
+  color:var(--muted);
+  font-size:.55rem;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  margin-bottom:7px;
+}
+
+.receipt-cell b{
+  display:block;
+  color:#fff;
+  font-size:.68rem;
+  font-weight:900;
+  letter-spacing:.07em;
+  text-transform:uppercase;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:1180px){
+  .room-header{
+    grid-template-columns:1fr;
+    gap:8px;
+    padding:16px 24px;
+  }
+
+  .room-nav{
+    justify-content:flex-start;
+    flex-wrap:wrap;
+    gap:16px;
+  }
+
+  .intro,
+  .top-equal-grid,
+  .mid-c-grid{
+    grid-template-columns:1fr;
+  }
+
+  .snapshot-flex{
+    grid-template-columns:1fr;
+    justify-items:center;
+  }
+
+  .guide-grid,
+  .requirement-grid{
+    grid-template-columns:1fr;
+  }
+
+  .path-list{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .receipt{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .receipt-title{
+    border-right:none;
+    border-bottom:1px solid var(--line-soft);
+  }
+}
+
+@media(max-width:780px){
+  .main{padding:12px 10px 18px;}
+
+  .room-title{font-size:.8rem;}
+
+  .room-subtitle{white-space:normal;}
+
+  .room-nav{display:none;}
+
+  .intro{padding:22px 18px;}
+
+  .intro h1{font-size:2rem;}
+
+  .context-grid,
+  .summary-stats,
+  .path-list,
+  .receipt{
+    grid-template-columns:1fr;
+  }
+
+  .room-sections{display:none;}
+
+  .receipt-cell{
+    border-right:none;
+    border-top:1px solid var(--line-soft);
+  }
+
+  .compare-row{
+    grid-template-columns:1fr;
+  }
+
+  .compare-row b{
+    text-align:left;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="shell">
+
+<header class="room-header">
+  <div>
+    <h1 class="room-title">STATS-CORE Athletic Snapshot Intelligence Room</h1>
+    <div class="room-subtitle">National Athlete Infrastructure · Controlled Athletic Review</div>
+  </div>
+
+  <nav class="room-nav" aria-label="STATS-CORE navigation">
+    <a id="navSystem" href="system.html">System</a>
+    <a id="navDashboard" href="athlete-dashboard.html">Dashboard</a>
+    <a id="navProfile" href="player-profile.html">Profile</a>
+    <a id="navSnapshot" class="active" href="athletic-snapshot.html">Athletic Snapshot</a>
+    <a id="navEligibility" href="eligibility.html">Eligibility</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="terms.html">Terms</a>
+  </nav>
+</header>
+
+<main class="main">
+
+<section class="intro">
+  <div>
+    <div class="intro-label">Athletic Standing Review</div>
+    <h1>Athletic Snapshot Intelligence Center</h1>
+    <p>
+      This room gives the athlete, parent, coach, evaluator, and recruiter a fast view of current athletic standing,
+      verified metrics, position fit, strengths, and the next action needed to improve the athlete’s opportunity path.
+    </p>
+  </div>
+
+  <div class="context-grid">
+    <div class="context-box">
+      <span>Sport</span>
+      <b data-sport>Pending</b>
+    </div>
+
+    <div class="context-box">
+      <span>Position</span>
+      <b data-position>Pending</b>
+    </div>
+
+    <div class="context-box warning">
+      <span>Current Standing</span>
+      <b data-current-standing>Pending</b>
+    </div>
+
+    <div class="context-box warning">
+      <span>Verification</span>
+      <b data-verification>Pending</b>
+    </div>
+  </div>
+</section>
+
+<nav class="room-sections">
+  <span>Room Sections:</span>
+  <a class="current" href="#standing">Overview</a>
+  <a href="#position-review">Position Analysis</a>
+  <a href="#signals">Signals</a>
+  <a href="#guide">Signal Guide</a>
+  <a href="#requirements">Metrics</a>
+  <a href="#correction">Action Path</a>
+  <a href="#receipt">Receipt</a>
+</nav>
+
+<section class="block" id="standing">
+  <div class="block-head">
+    <div class="block-kicker">Middle A · Current Athletic Review</div>
+    <div class="block-line"></div>
+  </div>
+
+  <div class="top-equal-grid">
+
+    <article class="panel panel-pad equal-panel">
+      <div class="section-label">Current Athletic Standing</div>
+
+      <div class="status-pill" data-status-pill>
+        <span class="dot" data-status-dot></span>
+        <span data-status-text>Snapshot Review Pending</span>
+      </div>
+
+      <h2 class="standing-title" data-standing-title>Snapshot Required</h2>
+
+      <p class="copy" data-standing-copy>
+        Load an athlete snapshot to review athletic standing, position fit, verified metrics, and development priorities.
+      </p>
+
+      <div class="snapshot-flex">
+        <div>
+          <div class="ring">
+            <span>STATS-CORE</span>
+            <b data-core-score>—</b>
+            <small data-score-state>PENDING</small>
+          </div>
+        </div>
+
+        <div class="score-lines">
+          <div class="score-line"><span>Position Score</span><b data-position-score>—</b></div>
+          <div class="score-line"><span>Athletic Score</span><b data-athletic-score>—</b></div>
+          <div class="score-line"><span>Production Score</span><b data-production-score>—</b></div>
+          <div class="score-line"><span>Verification Score</span><b data-verification-score>—</b></div>
+        </div>
+      </div>
+
+      <div class="alignment-box">
+        <div class="alignment-top">
+          <b>Athletic Snapshot Alignment</b>
+          <span data-alignment-percent>0%</span>
+        </div>
+
+        <div class="meter">
+          <div class="meter-fill" data-meter-fill></div>
+        </div>
+      </div>
+
+      <div class="summary-stats">
+        <div class="summary-stat">
+          <span>Height</span>
+          <b data-height>—</b>
+          <small>Measured</small>
+        </div>
+
+        <div class="summary-stat">
+          <span>Weight</span>
+          <b data-weight>—</b>
+          <small>Measured</small>
+        </div>
+
+        <div class="summary-stat">
+          <span>Class</span>
+          <b data-class-year>—</b>
+          <small>Timeline</small>
+        </div>
+      </div>
+    </article>
+
+    <article class="panel panel-pad equal-panel" id="position-review">
+      <div class="section-label">Position Prototype Comparison</div>
+
+      <div class="compare-grid">
+        <div class="compare-row head">
+          <span>Metric</span>
+          <b>Prototype</b>
+          <b>Athlete</b>
+          <b>Signal</b>
+        </div>
+
+        <div class="compare-row">
+          <span>Height</span>
+          <b data-proto-height>—</b>
+          <b data-ath-height>—</b>
+          <b data-height-signal>—</b>
+        </div>
+
+        <div class="compare-row">
+          <span>Weight</span>
+          <b data-proto-weight>—</b>
+          <b data-ath-weight>—</b>
+          <b data-weight-signal>—</b>
+        </div>
+
+        <div class="compare-row">
+          <span>40 Yard</span>
+          <b data-proto-40>—</b>
+          <b data-ath-40>—</b>
+          <b data-forty-signal>—</b>
+        </div>
+
+        <div class="compare-row">
+          <span>Vertical</span>
+          <b data-proto-vertical>—</b>
+          <b data-ath-vertical>—</b>
+          <b data-vertical-signal>—</b>
+        </div>
+
+        <div class="compare-row">
+          <span>Shuttle</span>
+          <b data-proto-shuttle>—</b>
+          <b data-ath-shuttle>—</b>
+          <b data-shuttle-signal>—</b>
+        </div>
+      </div>
+
+      <p class="copy" style="margin-top:16px" data-position-copy>
+        Position comparison will activate when sport, position, and measurable data are available.
+      </p>
+    </article>
+
+    <aside class="panel panel-pad equal-panel" id="signals">
+      <div class="section-label">Athletic Signals</div>
+
+      <div class="signal-list">
+        <div class="signal-item">
+          <span class="dot" data-speed-dot></span>
+          <div>
+            <b>Speed</b>
+            <span data-speed-signal>Pending metric review.</span>
+          </div>
+        </div>
+
+        <div class="signal-item">
+          <span class="dot" data-explosion-dot></span>
+          <div>
+            <b>Explosion</b>
+            <span data-explosion-signal>Pending vertical/broad review.</span>
+          </div>
+        </div>
+
+        <div class="signal-item">
+          <span class="dot" data-agility-dot></span>
+          <div>
+            <b>Agility</b>
+            <span data-agility-signal>Pending shuttle review.</span>
+          </div>
+        </div>
+
+        <div class="signal-item">
+          <span class="dot" data-strength-dot></span>
+          <div>
+            <b>Strength / Size</b>
+            <span data-strength-signal>Pending strength/weight review.</span>
+          </div>
+        </div>
+
+        <div class="signal-item">
+          <span class="dot" data-verify-dot></span>
+          <div>
+            <b>Verification</b>
+            <span data-verify-signal>Verification source pending.</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+</section> 
+<section class="block" id="guide">
+  <div class="block-head">
+    <div class="block-kicker">Middle B · Plain-Language Signal Guide</div>
+    <div class="block-line"></div>
+  </div>
+
+  <section class="panel signal-guide">
+    <div class="section-label">Athletic Signal Guide</div>
+
+    <div class="guide-grid">
+      <div class="guide-card">
+        <span class="dot green"></span>
+        <div>
+          <b>Green — Strong / Verified / On Track</b>
+          <p>The current athletic signal is strong, confirmed, or aligned with the athlete’s position pathway.</p>
+        </div>
+      </div>
+
+      <div class="guide-card">
+        <span class="dot"></span>
+        <div>
+          <b>Yellow — Developing / Partial / Needs Evidence</b>
+          <p>The athlete has usable indicators, but the system needs more evidence, better metrics, or verification.</p>
+        </div>
+      </div>
+
+      <div class="guide-card">
+        <span class="dot red"></span>
+        <div>
+          <b>Red — Missing / Weak / Requires Action</b>
+          <p>The athletic signal is missing, under target, or requires immediate correction to improve opportunity.</p>
+        </div>
+      </div>
+    </div>
+
+    <p class="guide-fine">
+      Athletic signals are decision-support indicators. Verified coach, evaluator, camp, combine, and PHNX Sports data carry stronger scoring weight than unverified self-reported data.
+    </p>
+  </section>
+</section>
+
+<section class="block" id="requirements">
+  <div class="block-head">
+    <div class="block-kicker">Middle C · Metrics + Pathway</div>
+    <div class="block-line"></div>
+  </div>
+
+  <div class="mid-c-grid">
+
+    <section class="panel panel-pad">
+      <div class="section-label">Athletic Requirements Breakdown</div>
+
+      <div class="requirement-grid">
+        <div class="req" data-req-speed>
+          <b>Speed Metrics</b>
+          <p data-speed-req>40-yard dash or sport-specific speed metric is pending review.</p>
+        </div>
+
+        <div class="req" data-req-position>
+          <b>Position Metrics</b>
+          <p data-position-req>Position-specific comparison will activate when sport profile is loaded.</p>
+        </div>
+
+        <div class="req" data-req-production>
+          <b>Production Review</b>
+          <p data-production-req>Game production or event production data is pending.</p>
+        </div>
+
+        <div class="req" data-req-verification>
+          <b>Verification Status</b>
+          <p data-verification-req>Certified coach, evaluator, camp, combine, or PHNX verification is needed.</p>
+        </div>
+
+        <div class="req" data-req-film>
+          <b>Film Evidence</b>
+          <p data-film-req>PHNX Sports Media film/highlight evidence is pending.</p>
+        </div>
+
+        <div class="req" data-req-evaluation>
+          <b>Evaluation Status</b>
+          <p data-evaluation-req>Formal athletic evaluation has not been connected yet.</p>
+        </div>
+      </div>
+    </section>
+
+    <aside class="panel panel-pad pathway-card">
+      <div class="section-label">Athletic Pathway Signal</div>
+
+      <span>Primary Sport Signal</span>
+      <b data-primary-sport-signal>Pending</b>
+
+      <span>Current Athletic Tier</span>
+      <b data-athletic-tier>Pending Review</b>
+
+      <span>Recommended Athletic Path</span>
+      <b class="warning" data-recommended-path>More Evidence Needed</b>
+
+      <span>Best Next Opportunity</span>
+      <b data-best-opportunity>Verify Metrics</b>
+    </aside>
+
+  </div>
+</section>
+
+<section class="block" id="correction">
+  <div class="block-head">
+    <div class="block-kicker">Bottom · Required Athletic Action Path</div>
+    <div class="block-line"></div>
+  </div>
+
+  <section class="panel correction">
+    <div class="section-label">Required Athletic Action Path</div>
+
+    <div class="path-list">
+      <div class="path-step">
+        <div class="step-num">01</div>
+        <b>Upload PHNX Sports Media</b>
+        <span>Connect film, highlights, or player media so the system can support exposure and production review.</span>
+        <div class="priority">Priority: High</div>
+      </div>
+
+      <div class="path-step">
+        <div class="step-num">02</div>
+        <b>Verify Metrics</b>
+        <span>Attach combine, camp, coach, evaluator, or PHNX verified measurements to strengthen trust weight.</span>
+        <div class="priority">Priority: Required</div>
+      </div>
+
+      <div class="path-step">
+        <div class="step-num">03</div>
+        <b>Request Coach Evaluation</b>
+        <span>Coach evaluation helps confirm position fit, athletic strengths, and development needs.</span>
+        <div class="priority">Priority: Guidance</div>
+      </div>
+
+      <div class="path-step">
+        <div class="step-num">04</div>
+        <b>Request Certified Evaluation</b>
+        <span>PHNX Sports certified evaluator review can move data from self-reported to trusted intelligence.</span>
+        <div class="priority">Priority: Verification</div>
+      </div>
+    </div>
+  </section>
+</section>
+
+<section class="receipt" id="receipt">
+  <div class="receipt-title">Athletic Snapshot Receipt</div>
+
+  <div class="receipt-cell">
+    <span>Status</span>
+    <b data-receipt-status>Pending</b>
+  </div>
+
+  <div class="receipt-cell">
+    <span>Snapshot ID</span>
+    <b data-receipt-snapshot>Not Loaded</b>
+  </div>
+
+  <div class="receipt-cell">
+    <span>Verification Level</span>
+    <b data-receipt-verification>Pending</b>
+  </div>
+
+  <div class="receipt-cell">
+    <span>Next Review</span>
+    <b data-receipt-next>After Metrics</b>
+  </div>
+
+  <div class="receipt-cell">
+    <span>System Message</span>
+    <b data-receipt-message>Review Required</b>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = "https://oyjmpbuxvfxusmbouldi.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk";
+
+window.STATScoreSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}
+});
+
+function $(s){return document.querySelector(s);}
+function $all(s){return Array.from(document.querySelectorAll(s));}
+
+function safe(...values){
+  for(const v of values){
+    if(v !== undefined && v !== null && String(v).trim() !== "") return v;
+  }
+  return "";
+}
+
+function setText(sel,val,fallback="—"){
+  const el = $(sel);
+  if(el) el.textContent = safe(val,fallback);
+}
+
+function setHTML(sel,val){
+  const el = $(sel);
+  if(el) el.innerHTML = val || "";
+}
+
+function num(v){
+  const n = Number(String(v || "").replace(/[^\d.]/g,""));
+  return Number.isFinite(n) ? n : null;
+}
+
+function getSnapshotId(){
+  const params = new URLSearchParams(window.location.search);
+  return safe(params.get("snapshot_id"), params.get("snapshot"), params.get("id"));
+}
+
+function applySnapshotRoutes(){
+  const snapshotId = getSnapshotId();
+  if(!snapshotId) return;
+
+  const q = `?snapshot_id=${encodeURIComponent(snapshotId)}`;
+
+  const routes = {
+    navSystem:"system.html",
+    navDashboard:"athlete-dashboard.html",
+    navProfile:"player-profile.html",
+    navSnapshot:"athletic-snapshot.html",
+    navEligibility:"eligibility.html"
+  };
+
+  Object.entries(routes).forEach(([id,page])=>{
+    const el = document.getElementById(id);
+    if(el) el.href = `${page}${q}`;
+  });
+
+  document.querySelectorAll("a[href]").forEach(a=>{
+    const href = a.getAttribute("href");
+    if(!href || href.startsWith("#") || href.startsWith("http") || href.startsWith("mailto:")) return;
+    const url = new URL(href, window.location.href);
+    url.searchParams.set("snapshot_id", snapshotId);
+    a.setAttribute("href", url.pathname.replace(/^\//,"") + url.search + url.hash);
+  });
+}
+
+function getPrototype(sport, position){
+  const sp = String(sport || "").toLowerCase();
+  const pos = String(position || "").toUpperCase();
+
+  if(sp.includes("football")){
+    if(pos.includes("QB")) return {height:"6'2", weight:"205", forty:"4.75", vertical:"32", shuttle:"4.35", label:"Football QB Prototype"};
+    if(pos.includes("WR")) return {height:"6'1", weight:"185", forty:"4.52", vertical:"36", shuttle:"4.25", label:"Football WR Prototype"};
+    if(pos.includes("RB")) return {height:"5'10", weight:"200", forty:"4.55", vertical:"34", shuttle:"4.25", label:"Football RB Prototype"};
+    if(pos.includes("DB")) return {height:"5'11", weight:"180", forty:"4.55", vertical:"35", shuttle:"4.22", label:"Football DB Prototype"};
+    if(pos.includes("LB")) return {height:"6'1", weight:"220", forty:"4.75", vertical:"33", shuttle:"4.35", label:"Football LB Prototype"};
+    return {height:"6'0", weight:"190", forty:"4.65", vertical:"34", shuttle:"4.35", label:"Football Athlete Prototype"};
+  }
+
+  if(sp.includes("basketball")) return {height:"6'3", weight:"185", forty:"—", vertical:"32", shuttle:"—", label:"Basketball Athlete Prototype"};
+  if(sp.includes("baseball")) return {height:"6'0", weight:"185", forty:"—", vertical:"—", shuttle:"—", label:"Baseball Athlete Prototype"};
+  if(sp.includes("track")) return {height:"—", weight:"—", forty:"—", vertical:"—", shuttle:"—", label:"Track Event Prototype"};
+
+  return {height:"—", weight:"—", forty:"—", vertical:"—", shuttle:"—", label:"Sport Prototype Pending"};
+}
+
+function computeScore(s){
+  let score = 58;
+  const forty = num(s.forty);
+  const vertical = num(s.vertical);
+  const shuttle = num(s.shuttle);
+  const broad = num(s.broad);
+
+  if(forty) score += forty <= 4.45 ? 16 : forty <= 4.60 ? 10 : 5;
+  if(vertical) score += vertical >= 36 ? 10 : vertical >= 32 ? 7 : 3;
+  if(shuttle) score += shuttle <= 4.35 ? 6 : 3;
+  if(broad) score += 3;
+  if(s.highlight || s.gameFilm) score += 4;
+  if(/verified/i.test(s.verification)) score += 5;
+
+  return Math.max(60, Math.min(92, Math.round(score)));
+}
+
+function standingFromScore(score){
+  score = Number(score || 0);
+  if(score >= 88) return "Advanced";
+  if(score >= 78) return "Competitive";
+  if(score >= 68) return "Developing";
+  if(score >= 60) return "Foundational";
+  return "Pending";
+}
+
+function dotClass(score){
+  score = Number(score || 0);
+  if(score >= 78) return "dot green";
+  if(score >= 60) return "dot";
+  return "dot red";
+}
+
+function normalize(row){
+  const r = row || {};
+  const raw = r.raw_payload || {};
+  const first = safe(r.first_name, raw.firstName);
+  const last = safe(r.last_name, raw.lastName);
+
+  const s = {
+    snapshot_id:safe(r.snapshot_id, raw.snapshot_id),
+    name:safe(r.athlete_display_name, raw.athlete_display_name, `${first} ${last}`.trim(), "Athlete"),
+    sport:safe(r.primary_sport, raw.primarySport, r.sport),
+    position:safe(r.primary_position, raw.primaryPosition, r.position),
+    height:safe(r.height, raw.height),
+    weight:safe(r.weight, raw.weight),
+    classYear:safe(r.graduation_class, raw.graduationClass, r.graduation_year),
+    forty:safe(r.dash40, raw.dash40, r.forty),
+    vertical:safe(r.vertical_jump, raw.verticalJump),
+    broad:safe(r.broad_jump, raw.broadJump),
+    shuttle:safe(r.shuttle, raw.shuttle),
+    strength:safe(r.strength_marker, raw.strengthMarker),
+    verification:safe(r.verification_status, raw.verificationStatus, "UNVERIFIED"),
+    highlight:safe(r.highlight_url, raw.highlightUrl),
+    gameFilm:safe(r.game_film_url, raw.gameFilmUrl),
+    verifiedSource:safe(r.verified_event_source, raw.verifiedEventSource),
+    raw
+  };
+
+  s.coreScore = safe(r.statscore_score, r.core_score, r.snapshot_score, r.overall_score, raw.coreScore, raw.snapshotScore) || computeScore(s);
+  return s;
+}
+
+function setDot(sel, status){
+  const el = $(sel);
+  if(!el) return;
+  el.className = status;
+}
+
+function renderSnapshot(s){
+  const score = Number(s.coreScore || 0);
+  const standing = standingFromScore(score);
+  const verified = /verified/i.test(s.verification);
+  const proto = getPrototype(s.sport, s.position);
+
+  setText("[data-sport]", s.sport, "Pending");
+  setText("[data-position]", s.position, "Pending");
+  setText("[data-current-standing]", standing);
+  setText("[data-verification]", s.verification);
+
+  setText("[data-status-text]", `${standing} Athletic Standing`);
+  setText("[data-standing-title]", `${standing} ${s.position || "Athlete"} Review`);
+  setText("[data-standing-copy]", `${s.name} currently shows a ${standing.toLowerCase()} athletic snapshot based on available sport, position, measurable, media, and verification signals.`);
+  setText("[data-core-score]", score || "—");
+  setText("[data-score-state]", s.verification || "PENDING");
+
+  const statusPill = $("[data-status-pill]");
+  if(statusPill){
+    statusPill.className = score >= 78 ? "status-pill good" : score >= 60 ? "status-pill" : "status-pill risk";
+  }
+  setDot("[data-status-dot]", dotClass(score));
+
+  setText("[data-position-score]", score);
+  setText("[data-athletic-score]", score);
+  setText("[data-production-score]", s.highlight || s.gameFilm ? "Connected" : "Pending");
+  setText("[data-verification-score]", verified ? "Verified" : "Unverified");
+
+  setText("[data-alignment-percent]", `${score}%`);
+  const meter = $("[data-meter-fill]");
+  if(meter) meter.style.width = `${Math.min(100, Math.max(0, score))}%`;
+
+  setText("[data-height]", s.height);
+  setText("[data-weight]", s.weight ? `${s.weight} lbs` : "—");
+  setText("[data-class-year]", s.classYear ? `Class ${s.classYear}` : "—");
+
+  setText("[data-proto-height]", proto.height);
+  setText("[data-proto-weight]", proto.weight);
+  setText("[data-proto-40]", proto.forty);
+  setText("[data-proto-vertical]", proto.vertical);
+  setText("[data-proto-shuttle]", proto.shuttle);
+
+  setText("[data-ath-height]", s.height);
+  setText("[data-ath-weight]", s.weight ? `${s.weight}` : "—");
+  setText("[data-ath-40]", s.forty);
+  setText("[data-ath-vertical]", s.vertical);
+  setText("[data-ath-shuttle]", s.shuttle);
+
+  setText("[data-height-signal]", s.height ? "Loaded" : "Missing");
+  setText("[data-weight-signal]", s.weight ? "Loaded" : "Missing");
+  setText("[data-forty-signal]", s.forty ? "Review" : "Missing");
+  setText("[data-vertical-signal]", s.vertical ? "Review" : "Missing");
+  setText("[data-shuttle-signal]", s.shuttle ? "Review" : "Missing");
+
+  setText("[data-position-copy]", `${proto.label}. This comparison helps show whether the athlete's measurable profile is aligned, developing, or missing evidence for the current position.`);
+
+  const forty = num(s.forty);
+  const vertical = num(s.vertical);
+  const shuttle = num(s.shuttle);
+
+  setDot("[data-speed-dot]", forty ? (forty <= 4.60 ? "dot green" : "dot") : "dot red");
+  setText("[data-speed-signal]", forty ? `40-yard dash recorded at ${s.forty}.` : "Speed metric missing.");
+
+  setDot("[data-explosion-dot]", vertical ? (vertical >= 34 ? "dot green" : "dot") : "dot red");
+  setText("[data-explosion-signal]", vertical ? `Vertical jump recorded at ${s.vertical}.` : "Explosion metric missing.");
+
+  setDot("[data-agility-dot]", shuttle ? (shuttle <= 4.35 ? "dot green" : "dot") : "dot red");
+  setText("[data-agility-signal]", shuttle ? `Shuttle recorded at ${s.shuttle}.` : "Agility metric missing.");
+
+  setDot("[data-strength-dot]", s.weight || s.strength ? "dot" : "dot red");
+  setText("[data-strength-signal]", s.strength ? `Strength marker: ${s.strength}.` : "Strength marker pending.");
+
+  setDot("[data-verify-dot]", verified ? "dot green" : "dot");
+  setText("[data-verify-signal]", verified ? "Athletic data is marked verified." : "Data currently carries unverified or partial trust weight.");
+
+  setText("[data-speed-req]", s.forty ? `Speed metric present: ${s.forty}.` : "Speed metric is missing.");
+  setText("[data-position-req]", s.position ? `${s.position} position profile is active.` : "Position profile is missing.");
+  setText("[data-production-req]", s.highlight || s.gameFilm ? "Film or highlight evidence is connected." : "Production evidence is pending.");
+  setText("[data-verification-req]", verified ? "Verification signal is active." : "Certified verification is needed.");
+  setText("[data-film-req]", s.highlight || s.gameFilm ? "PHNX Sports Media can process connected film." : "Film/highlight evidence is pending.");
+  setText("[data-evaluation-req]", s.verifiedSource ? `Source: ${s.verifiedSource}` : "Certified evaluation has not been connected.");
+
+  setText("[data-primary-sport-signal]", s.sport || "Pending");
+  setText("[data-athletic-tier]", standing);
+  setText("[data-recommended-path]", score >= 78 ? "Direct Athletic Path Active" : "Development Path Recommended");
+  setText("[data-best-opportunity]", verified ? "Build Exposure" : "Verify Metrics");
+
+  setText("[data-receipt-status]", standing);
+  setText("[data-receipt-snapshot]", s.snapshot_id);
+  setText("[data-receipt-verification]", s.verification);
+  setText("[data-receipt-next]", verified ? "After New Metrics" : "After Verification");
+  setText("[data-receipt-message]", score >= 78 ? "Athletic Signal Active" : "Review Required");
+}
+
+async function loadSnapshot(){
+  const snapshotId = getSnapshotId();
+  applySnapshotRoutes();
+
+  if(!snapshotId){
+    console.warn("Athletic Snapshot: no snapshot_id provided.");
+    return;
+  }
+
+  const { data, error } = await window.STATScoreSupabase
+    .from("statscore_snapshots")
+    .select("*")
+    .eq("snapshot_id", snapshotId)
+    .maybeSingle();
+
+  if(error){
+    console.error("Athletic Snapshot load failed:", error);
+    return;
+  }
+
+  if(!data){
+    console.warn("Athletic Snapshot: no record found.");
+    return;
+  }
+
+  renderSnapshot(normalize(data));
+}
+
+document.addEventListener("DOMContentLoaded", loadSnapshot);
+</script>
+
+</body>
+</html> 
