@@ -1795,6 +1795,35 @@ const experienceSignal =
   if(tagBox){
     tagBox.innerHTML = (engine.archetypes || []).slice(0,4).map(t=>`<span>${t}</span>`).join("");
   }
+}
+
+  function buildExperienceSignal(s){
+  const varsityYears =
+    s.varsity_years ||
+    s.varsityYears ||
+    s.raw?.varsity_years ||
+    s.raw?.varsityYears ||
+    s.payload?.varsity_years ||
+    s.payload?.varsityYears ||
+    "—";
+
+  const starRating =
+    s.star_rating ||
+    s.starRating ||
+    s.raw?.star_rating ||
+    s.raw?.starRating ||
+    s.payload?.star_rating ||
+    s.payload?.starRating ||
+    "—";
+
+  const yearsNum = Number(varsityYears);
+  const starsNum = Number(starRating);
+
+  if(!Number.isFinite(yearsNum) || !Number.isFinite(starsNum)){
+    return "Pending";
+  }
+
+  return `${yearsNum}y/${"*".repeat(Math.max(1, Math.min(5, starsNum)))}`;
 } 
 
 function renderSnapshot(s){
@@ -1879,9 +1908,12 @@ function renderSnapshot(s){
   setText("[data-film-req]", s.highlight || s.gameFilm ? "PHNX Sports Media can process connected film." : "Film/highlight evidence is pending.");
   setText("[data-evaluation-req]", s.verifiedSource ? `Source: ${s.verifiedSource}` : "Certified evaluation has not been connected.");
 
-  setText("[data-primary-sport-signal]", s.sport || "Pending");
-  setText("[data-athletic-tier]", standing);
+ setText("[data-primary-sport-signal]", s.sport || "Pending");
+setText("[data-athletic-tier]", standing);
+
+ setText("[data-experience-signal]", buildExperienceSignal(s)); 
   setText("[data-recommended-path]", score >= 78 ? "Direct Athletic Path Active" : "Development Path Recommended");
+  
   setText("[data-best-opportunity]", verified ? "Build Exposure" : "Verify Metrics");
   renderAthleticDNA(s, score); 
 
