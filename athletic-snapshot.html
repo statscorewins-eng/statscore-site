@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -1392,25 +1392,146 @@ function applySnapshotRoutes(){
   });
 }
 
-function getPrototype(sport, position){
-  const sp = String(sport || "").toLowerCase();
-  const pos = String(position || "").toUpperCase();
+function normalizePosition(position){
+  const p = String(position || "").toUpperCase().trim();
 
-  if(sp.includes("football")){
-    if(pos.includes("QB")) return {height:"6'2", weight:"205", forty:"4.75", vertical:"32", shuttle:"4.35", label:"Football QB Prototype"};
-    if(pos.includes("WR")) return {height:"6'1", weight:"185", forty:"4.52", vertical:"36", shuttle:"4.25", label:"Football WR Prototype"};
-    if(pos.includes("RB")) return {height:"5'10", weight:"200", forty:"4.55", vertical:"34", shuttle:"4.25", label:"Football RB Prototype"};
-    if(pos.includes("DB")) return {height:"5'11", weight:"180", forty:"4.55", vertical:"35", shuttle:"4.22", label:"Football DB Prototype"};
-    if(pos.includes("LB")) return {height:"6'1", weight:"220", forty:"4.75", vertical:"33", shuttle:"4.35", label:"Football LB Prototype"};
-    return {height:"6'0", weight:"190", forty:"4.65", vertical:"34", shuttle:"4.35", label:"Football Athlete Prototype"};
+  if(p.includes("QUARTERBACK") || p === "QB") return "QB";
+  if(p.includes("WIDE RECEIVER") || p.includes("RECEIVER") || p === "WR") return "WR";
+  if(p.includes("RUNNING BACK") || p === "RB") return "RB";
+  if(p.includes("TIGHT END") || p === "TE") return "TE";
+  if(p.includes("CORNER") || p.includes("SAFETY") || p.includes("DEFENSIVE BACK") || p === "DB" || p === "CB" || p === "S") return "DB";
+  if(p.includes("LINEBACKER") || p === "LB" || p === "OLB" || p === "MLB") return "LB";
+  if(p.includes("DEFENSIVE LINE") || p.includes("DEFENSIVE END") || p.includes("DEFENSIVE TACKLE") || p === "DL" || p === "DE" || p === "DT") return "DL";
+  if(p.includes("OFFENSIVE LINE") || p.includes("TACKLE") || p.includes("GUARD") || p.includes("CENTER") || p === "OL" || p === "OT" || p === "OG" || p === "C") return "OL";
+
+  return "ATH";
+}
+
+function normalizeSport(sport){
+  const s = String(sport || "").toUpperCase().trim();
+
+  if(s.includes("FOOTBALL")) return "FOOTBALL";
+  if(s.includes("BASKETBALL")) return "BASKETBALL";
+  if(s.includes("BASEBALL")) return "BASEBALL";
+  if(s.includes("TRACK") || s.includes("FIELD")) return "TRACK";
+
+  return "SPORT_PENDING";
+}
+
+function normalizePosition(sport, position){
+  const sp = normalizeSport(sport);
+  const p = String(position || "").toUpperCase().trim();
+
+  if(sp === "FOOTBALL"){
+    if(p.includes("QUARTERBACK") || p === "QB") return "QB";
+    if(p.includes("WIDE RECEIVER") || p.includes("RECEIVER") || p === "WR") return "WR";
+    if(p.includes("RUNNING BACK") || p === "RB") return "RB";
+    if(p.includes("TIGHT END") || p === "TE") return "TE";
+    if(p.includes("CORNER") || p.includes("SAFETY") || p.includes("DEFENSIVE BACK") || p === "DB" || p === "CB" || p === "S") return "DB";
+    if(p.includes("LINEBACKER") || p === "LB" || p === "OLB" || p === "MLB") return "LB";
+    if(p.includes("DEFENSIVE LINE") || p.includes("DEFENSIVE END") || p.includes("DEFENSIVE TACKLE") || p === "DL" || p === "DE" || p === "DT") return "DL";
+    if(p.includes("OFFENSIVE LINE") || p.includes("TACKLE") || p.includes("GUARD") || p.includes("CENTER") || p === "OL" || p === "OT" || p === "OG" || p === "C") return "OL";
+    return "ATH";
   }
 
-  if(sp.includes("basketball")) return {height:"6'3", weight:"185", forty:"—", vertical:"32", shuttle:"—", label:"Basketball Athlete Prototype"};
-  if(sp.includes("baseball")) return {height:"6'0", weight:"185", forty:"—", vertical:"—", shuttle:"—", label:"Baseball Athlete Prototype"};
-  if(sp.includes("track")) return {height:"—", weight:"—", forty:"—", vertical:"—", shuttle:"—", label:"Track Event Prototype"};
+  if(sp === "BASKETBALL"){
+    if(p.includes("POINT GUARD") || p === "PG") return "PG";
+    if(p.includes("SHOOTING GUARD") || p === "SG") return "SG";
+    if(p.includes("SMALL FORWARD") || p === "SF") return "SF";
+    if(p.includes("POWER FORWARD") || p === "PF") return "PF";
+    if(p.includes("CENTER") || p === "C") return "C";
+    if(p.includes("GUARD") || p === "G") return "G";
+    if(p.includes("FORWARD") || p === "F") return "F";
+    return "BASKETBALL_ATH";
+  }
 
-  return {height:"—", weight:"—", forty:"—", vertical:"—", shuttle:"—", label:"Sport Prototype Pending"};
+  if(sp === "BASEBALL"){
+    if(p.includes("PITCHER") || p === "P" || p.includes("RHP") || p.includes("LHP")) return "P";
+    if(p.includes("CATCHER") || p === "C") return "C";
+    if(p.includes("FIRST") || p === "1B") return "1B";
+    if(p.includes("SECOND") || p === "2B") return "2B";
+    if(p.includes("SHORTSTOP") || p === "SS") return "SS";
+    if(p.includes("THIRD") || p === "3B") return "3B";
+    if(p.includes("OUTFIELD") || p === "OF" || p.includes("LEFT FIELD") || p.includes("CENTER FIELD") || p.includes("RIGHT FIELD")) return "OF";
+    if(p.includes("UTILITY") || p === "UTIL") return "UTIL";
+    return "BASEBALL_ATH";
+  }
+
+  if(sp === "TRACK"){
+    if(p.includes("SPRINT") || p.includes("100") || p.includes("200") || p.includes("400")) return "SPRINT";
+    if(p.includes("HURDLE")) return "HURDLES";
+    if(p.includes("800") || p.includes("MIDDLE")) return "MIDDLE_DISTANCE";
+    if(p.includes("1600") || p.includes("3200") || p.includes("DISTANCE") || p.includes("XC") || p.includes("CROSS COUNTRY")) return "DISTANCE";
+    if(p.includes("JUMP") || p.includes("LONG") || p.includes("HIGH") || p.includes("TRIPLE") || p.includes("POLE")) return "JUMPS";
+    if(p.includes("THROW") || p.includes("SHOT") || p.includes("DISCUS") || p.includes("JAVELIN")) return "THROWS";
+    if(p.includes("MULTI") || p.includes("DECATHLON") || p.includes("HEPTATHLON")) return "MULTI";
+    return "TRACK_ATH";
+  }
+
+  return "ATH";
 }
+
+function getPrototype(sport, position){
+  const sp = normalizeSport(sport);
+  const pos = normalizePosition(sport, position);
+
+  const libraries = {
+    FOOTBALL:{
+      QB:{height:"6'2",weight:"205",forty:"4.75",vertical:"32",shuttle:"4.35",label:"Football QB Prototype"},
+      WR:{height:"6'1",weight:"185",forty:"4.52",vertical:"36",shuttle:"4.25",label:"Football WR Prototype"},
+      RB:{height:"5'10",weight:"200",forty:"4.55",vertical:"34",shuttle:"4.25",label:"Football RB Prototype"},
+      TE:{height:"6'4",weight:"235",forty:"4.75",vertical:"32",shuttle:"4.35",label:"Football TE Prototype"},
+      DB:{height:"5'11",weight:"180",forty:"4.55",vertical:"35",shuttle:"4.22",label:"Football DB Prototype"},
+      LB:{height:"6'1",weight:"220",forty:"4.75",vertical:"33",shuttle:"4.35",label:"Football LB Prototype"},
+      DL:{height:"6'3",weight:"255",forty:"5.05",vertical:"29",shuttle:"4.65",label:"Football DL Prototype"},
+      OL:{height:"6'4",weight:"285",forty:"5.30",vertical:"26",shuttle:"4.85",label:"Football OL Prototype"},
+      ATH:{height:"6'0",weight:"190",forty:"4.65",vertical:"34",shuttle:"4.35",label:"Football Athlete Prototype"}
+    },
+
+    BASKETBALL:{
+      PG:{height:"5'11",weight:"165",forty:"—",vertical:"30",shuttle:"—",label:"Basketball PG Prototype"},
+      SG:{height:"6'2",weight:"175",forty:"—",vertical:"32",shuttle:"—",label:"Basketball SG Prototype"},
+      SF:{height:"6'5",weight:"200",forty:"—",vertical:"32",shuttle:"—",label:"Basketball SF Prototype"},
+      PF:{height:"6'7",weight:"220",forty:"—",vertical:"30",shuttle:"—",label:"Basketball PF Prototype"},
+      C:{height:"6'9",weight:"235",forty:"—",vertical:"28",shuttle:"—",label:"Basketball C Prototype"},
+      G:{height:"6'1",weight:"170",forty:"—",vertical:"31",shuttle:"—",label:"Basketball Guard Prototype"},
+      F:{height:"6'6",weight:"210",forty:"—",vertical:"31",shuttle:"—",label:"Basketball Forward Prototype"},
+      BASKETBALL_ATH:{height:"6'3",weight:"185",forty:"—",vertical:"32",shuttle:"—",label:"Basketball Athlete Prototype"}
+    },
+
+    BASEBALL:{
+      P:{height:"6'2",weight:"190",forty:"—",vertical:"—",shuttle:"—",label:"Baseball Pitcher Prototype"},
+      C:{height:"5'11",weight:"195",forty:"—",vertical:"—",shuttle:"—",label:"Baseball Catcher Prototype"},
+      "1B":{height:"6'2",weight:"205",forty:"—",vertical:"—",shuttle:"—",label:"Baseball 1B Prototype"},
+      "2B":{height:"5'10",weight:"170",forty:"—",vertical:"—",shuttle:"—",label:"Baseball 2B Prototype"},
+      SS:{height:"6'0",weight:"175",forty:"—",vertical:"—",shuttle:"—",label:"Baseball SS Prototype"},
+      "3B":{height:"6'1",weight:"190",forty:"—",vertical:"—",shuttle:"—",label:"Baseball 3B Prototype"},
+      OF:{height:"6'0",weight:"180",forty:"—",vertical:"—",shuttle:"—",label:"Baseball OF Prototype"},
+      UTIL:{height:"6'0",weight:"180",forty:"—",vertical:"—",shuttle:"—",label:"Baseball Utility Prototype"},
+      BASEBALL_ATH:{height:"6'0",weight:"185",forty:"—",vertical:"—",shuttle:"—",label:"Baseball Athlete Prototype"}
+    },
+
+    TRACK:{
+      SPRINT:{height:"—",weight:"—",forty:"—",vertical:"—",shuttle:"—",label:"Track Sprint Prototype"},
+      HURDLES:{height:"—",weight:"—",forty:"—",vertical:"—",shuttle:"—",label:"Track Hurdles Prototype"},
+      MIDDLE_DISTANCE:{height:"—",weight:"—",forty:"—",vertical:"—",shuttle:"—",label:"Track Middle Distance Prototype"},
+      DISTANCE:{height:"—",weight:"—",forty:"—",vertical:"—",shuttle:"—",label:"Track Distance Prototype"},
+      JUMPS:{height:"—",weight:"—",forty:"—",vertical:"—",shuttle:"—",label:"Track Jumps Prototype"},
+      THROWS:{height:"—",weight:"—",forty:"—",vertical:"—",shuttle:"—",label:"Track Throws Prototype"},
+      MULTI:{height:"—",weight:"—",forty:"—",vertical:"—",shuttle:"—",label:"Track Multi-Event Prototype"},
+      TRACK_ATH:{height:"—",weight:"—",forty:"—",vertical:"—",shuttle:"—",label:"Track Athlete Prototype"}
+    }
+  };
+
+  return (
+    libraries[sp]?.[pos] ||
+    libraries[sp]?.ATH ||
+    libraries[sp]?.BASKETBALL_ATH ||
+    libraries[sp]?.BASEBALL_ATH ||
+    libraries[sp]?.TRACK_ATH ||
+    {height:"—",weight:"—",forty:"—",vertical:"—",shuttle:"—",label:"Sport Prototype Pending"}
+  );
+} 
 
 function computeScore(s){
   let score = 58;
