@@ -1842,12 +1842,12 @@ function renderSnapshot(s){
   }
   setDot("[data-status-dot]", dotClass(score));
 
-  setText("[data-position-score]", score);
-  setText("[data-athletic-score]", score);
-  setText("[data-production-score]", s.highlight || s.gameFilm ? "Connected" : "Pending");
-  setText("[data-verification-score]", verified ? "Verified" : "Unverified");
-
+  setText("[data-position-score]", s.raw?.position_score || s.coreScore || score);
+setText("[data-athletic-score]", s.raw?.athletic_score || s.coreScore || score);
+setText("[data-production-score]", s.raw?.production_score || "—");
+setText("[data-verification-score]", verified ? "Verified" : "Unverified"); 
   setText("[data-alignment-percent]", `${score}%`);
+  
   const meter = $("[data-meter-fill]");
   if(meter) meter.style.width = `${Math.min(100, Math.max(0, score))}%`;
 
@@ -1948,8 +1948,10 @@ console.log("RAW ATHLETIC SNAPSHOT DATA:", data);
 console.log("NORMALIZED ATHLETIC SNAPSHOT DATA:", normalizedSnapshot);
 
 renderSnapshot(normalizedSnapshot); 
-
+}
+  
 document.addEventListener("DOMContentLoaded", loadSnapshot);
+
 </script>
 
 </body>
