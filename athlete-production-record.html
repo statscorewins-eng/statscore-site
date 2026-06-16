@@ -542,8 +542,21 @@ async function loadProductionRecords(){
 let CURRENT_EDIT_RECORD_ID = null;
 
 function renderProductionLedger(){
-  const box = document.getElementById("productionLedger");
-  if(!box) return;
+  let box = document.getElementById("productionLedger");
+
+if(!box){
+  box = document.createElement("section");
+  box.id = "productionLedger";
+  box.className = "panel panel-pad";
+  box.style.marginTop = "18px";
+
+  const receipt = document.querySelector(".receipt");
+  if(receipt){
+    receipt.insertAdjacentElement("afterend", box);
+  }else{
+ (document.querySelector("main") || document.body).appendChild(box);
+  }
+} 
 
   function getPayload(r){
     return r.production_payload || r.raw_payload || r || {};
