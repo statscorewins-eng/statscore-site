@@ -261,15 +261,25 @@ function setText(sel,val,fallback="—"){
 }
 function val(id){return document.getElementById(id)?.value?.trim() || "";}
 function numVal(id){
-  const v=val(id);
-  if(v==="" || v==="—") return null;
-  const n=Number(String(v).replace(/[^\d.]/g,""));
+  const v = val(id);
+  if(v === "" || v === "—") return null;
+
+  const cleaned = String(v)
+    .trim()
+    .replace(/,/g,"")
+    .replace(/[^\d.-]/g,"");
+
+  if(cleaned === "" || cleaned === "-" || cleaned === "." || cleaned === "-.") return null;
+
+  const n = Number(cleaned);
   return Number.isFinite(n) ? n : null;
-}
+} 
+  
 function getSnapshotId(){
   const p=new URLSearchParams(window.location.search);
   return safe(p.get("snapshot_id"),p.get("snapshot"),p.get("id"));
 }
+  
 function setMessage(msg,type=""){
   const el=$("#systemMessage");
   if(!el) return;
