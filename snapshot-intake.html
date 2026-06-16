@@ -938,19 +938,52 @@ async function insertSnapshot(row){
   const db = getDb();
   const cleanRow = filterSnapshotSchema(row);
 
+  const existing = await db
+  .from(SNAPSHOT_TABLE)
+  .select("*")
+  .eq("athlete_first_name", cleanRow.athlete_first_name)
+  .eq("athlete_last_name", cleanRow.athlete_last_name)
+  .eq("sport", cleanRow.sport)
+  .eq("school_program", cleanRow.school_program)
+  .eq("graduation_class", cleanRow.graduation_class)
+  .maybeSingle();
+
+if(existing.data){
+  const replace = confirm(
+    "A snapshot intake record for this athlete already exists. Do you want to update it?"
+  );
+
+  if(!replace){
+    return existing.data;
+  }
+
   const { data, error } = await db
     .from(SNAPSHOT_TABLE)
-    .insert(cleanRow)
+    .update(cleanRow)
+    .eq("snapshot_id", existing.data.snapshot_id)
     .select("*")
     .single();
 
-  if (error){
-    console.error("statscore_snapshots insert failed:", error);
-    throw new Error(error.message || "Snapshot insert failed.");
+  if(error){
+    console.error("statscore_snapshots update failed:", error);
+    throw new Error(error.message || "Snapshot update failed.");
   }
 
   return data;
 }
+
+const { data, error } = await db
+  .from(SNAPSHOT_TABLE)
+  .insert(cleanRow)
+  .select("*")
+  .single();
+
+if(error){
+  console.error("statscore_snapshots insert failed:", error);
+  throw new Error(error.message || "Snapshot insert failed.");
+}
+
+return data; 
 
 function saveSnapshotDraft(){
   const draft = {
