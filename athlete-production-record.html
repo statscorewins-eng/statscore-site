@@ -260,7 +260,13 @@ function setText(sel,val,fallback="—"){
   if(el) el.textContent=safe(val,fallback);
 }
 function val(id){return document.getElementById(id)?.value?.trim() || "";}
-function numVal(id){
+
+function setVal(id,value){
+  const el=document.getElementById(id);
+  if(el) el.value = value ?? "";
+}
+
+function numVal(id){ 
   const v = val(id);
   if(v === "" || v === "—") return null;
 
@@ -533,7 +539,6 @@ async function loadProductionRecords(){
   renderProductionLedger();
 }
 
-let CURRENT_RECORDS = [];
 let CURRENT_EDIT_RECORD_ID = null;
 
 function renderProductionLedger(){
@@ -661,17 +666,14 @@ function loadSeasonRecord(recordId){
 } 
 
 function resetForm(){
+  CURRENT_EDIT_RECORD_ID = null;
   document.querySelectorAll("input,textarea").forEach(el=>el.value="");
   document.querySelectorAll("select").forEach(el=>el.selectedIndex=0);
-  setMessage("Form cleared.");
-}
+  setMessage("Form cleared. Ready for new season record.");
+} 
 
 document.addEventListener("DOMContentLoaded",loadSnapshot);
 </script> 
-
-<script src="statscore-production-engine.js"></script>
-<script src="statscore-production-router.js"></script>
-<script src="statscore-athlete-production-record.js"></script>
 
 </body>
 </html> 
