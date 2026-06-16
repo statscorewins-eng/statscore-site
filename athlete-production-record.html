@@ -467,17 +467,44 @@ async function saveProductionRecord(){
     raw_payload: record.raw_payload || record
   };
 
-  const { data, error } = await window.STATScoreSupabase
+  const existingCheck = await window.STATScoreSupabase
+  .from("statscore_athlete_production_records")
+  .select("production_record_id")
+  .eq("snapshot_id", safeRecord.snapshot_id)
+  .eq("snapshot_year", safeRecord.snapshot_year)
+  .eq("snapshot_stage", safeRecord.snapshot_stage)
+  .eq("season_label", safeRecord.season_label)
+  .maybeSingle();
+
+if(existingCheck.error){
+  console.error("STATS-CORE EXISTING CHECK ERROR:", existingCheck.error);
+  setMessage(existingCheck.error.message || "Season check failed. Check Supabase console.", "bad");
+  return;
+}
+
+let data, error;
+
+if(existingCheck.data?.production_record_id){
+  const replace = confirm("This season record already exists. Do you want to replace it?");
+  if(!replace){
+    setMessage("Save cancelled. Existing season record was not replaced.", "bad");
+    return;
+  }
+
+  ({ data, error } = await window.STATScoreSupabase
+    .from("statscore_athlete_production_records")
+    .update(safeRecord)
+    .eq("production_record_id", existingCheck.data.production_record_id)
+    .select("production_record_id, verification_level")
+    .single());
+
+} else {
+  ({ data, error } = await window.STATScoreSupabase
     .from("statscore_athlete_production_records")
     .insert(safeRecord)
     .select("production_record_id, verification_level")
-    .single();
-
-  if(error){
-    console.error("STATS-CORE SAVE ERROR:", error);
-    setMessage(error.message || "Save failed. Check Supabase console.","bad");
-    return;
-  }
+    .single());
+} 
 
   setText("[data-record-id]", data?.production_record_id || "Saved");
   setText("[data-receipt-status]", "Saved");
