@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>STATS-CORE™ | Athlete Production Record</title>
+<link rel="icon" type="image/png" href="sc_emblem.png" />
+
+<style>
+:root{--red:#d71920;--red2:#ff2b35;--green:#2fa866;--yellow:#c9a227;--bg:#050606;--panel:#0b0d10;--text:#d8d9d6;--muted:#9a9d9f;--line:rgba(255,255,255,.14);--white:#f4f4ef;--blue:#7ed8ff;--max:1536px}
+*{box-sizing:border-box}
+html,body{margin:0;background:#000;color:var(--text);font-family:Arial,Helvetica,sans-serif}
+body{overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+.shell{width:min(var(--max),100%);margin:0 auto;min-height:100vh;background:radial-gradient(circle at 72% 10%,rgba(215,25,32,.06),transparent 24%),repeating-linear-gradient(135deg,rgba(255,255,255,.012) 0,rgba(255,255,255,.012) 1px,transparent 1px,transparent 8px),#030303}
+.room-header{min-height:82px;display:grid;grid-template-columns:1fr auto;align-items:center;gap:24px;padding:0 34px;background:linear-gradient(180deg,#f2f2ee,#deded9);border-bottom:2px solid var(--red);color:#111}
+.room-title{margin:0;font-size:.96rem;line-height:1.2;font-weight:900;letter-spacing:.22em;text-transform:uppercase}
+.room-subtitle{margin-top:8px;color:#4b4b4b;font-size:.62rem;font-weight:900;letter-spacing:.24em;text-transform:uppercase}
+.room-nav{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.room-nav a{font-size:.66rem;font-weight:900;letter-spacing:.13em;text-transform:uppercase;padding:12px 0;border-bottom:2px solid transparent}
+.room-nav a.active{color:var(--red);border-bottom-color:var(--red)}
+.main{padding:18px}
+.intro{display:grid;grid-template-columns:1fr 390px;gap:22px;padding:26px 28px;border:1px solid var(--line);background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.01)),#070707;position:relative}
+.intro:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--red)}
+.kicker,.section-label{color:var(--red2);font-size:.68rem;font-weight:900;letter-spacing:.22em;text-transform:uppercase}
+.intro h1{margin:10px 0;color:var(--white);font-size:clamp(2rem,3.4vw,3.15rem);line-height:1.02;text-transform:uppercase}
+.intro p{margin:0;color:#d4d4d1;font-size:.92rem;line-height:1.55}
+.context-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.context-box{border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.24);padding:13px 14px;min-height:66px}
+.context-box span{display:block;color:var(--muted);font-size:.58rem;font-weight:900;letter-spacing:.15em;text-transform:uppercase;margin-bottom:7px}
+.context-box b{display:block;color:#fff;font-size:.78rem;font-weight:900;text-transform:uppercase}
+.block{margin-top:18px}
+.block-head{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+.block-line{height:1px;flex:1;background:linear-gradient(90deg,rgba(215,25,32,.5),transparent)}
+.panel{border:1px solid var(--line);background:linear-gradient(145deg,rgba(255,255,255,.04),rgba(255,255,255,.01)),var(--panel);box-shadow:0 18px 45px rgba(0,0,0,.42)}
+.panel-pad{padding:22px}
+.form-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.field{display:grid;gap:7px}
+.field.wide{grid-column:span 2}
+.field.full{grid-column:1/-1}
+label{font-size:.58rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#cfd7d9}
+input,select,textarea{width:100%;background:#080a0d;border:1px solid rgba(126,216,255,.45);color:#fff;padding:13px 14px;font-size:.82rem;font-weight:800;outline:none}
+textarea{min-height:110px;resize:vertical;line-height:1.45}
+input::placeholder,textarea::placeholder{color:#7f8c96}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
+button{border:1px solid rgba(215,25,32,.75);background:rgba(215,25,32,.12);color:#fff;padding:14px 18px;font-size:.68rem;font-weight:900;letter-spacing:.16em;text-transform:uppercase;cursor:pointer}
+button.secondary{border-color:rgba(126,216,255,.55);background:rgba(126,216,255,.08)}
+button.good{border-color:rgba(47,168,102,.7);background:rgba(47,168,102,.1)}
+.status{margin-top:14px;border-left:4px solid var(--yellow);background:rgba(201,162,39,.08);padding:14px;color:#e7d88b;font-size:.75rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.status.good{border-left-color:var(--green);color:#7ddca3;background:rgba(47,168,102,.08)}
+.status.bad{border-left-color:var(--red);color:#ff8b8b;background:rgba(215,25,32,.08)}
+.receipt{margin-top:18px;border:1px solid var(--line);display:grid;grid-template-columns:210px repeat(4,1fr);background:#050505}
+.receipt-title{display:flex;align-items:center;padding:18px;color:#fff;font-size:.74rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase;border-right:1px solid rgba(255,255,255,.08);border-left:3px solid var(--red)}
+.receipt-cell{min-height:72px;padding:16px;border-right:1px solid rgba(255,255,255,.08)}
+.receipt-cell span{display:block;color:var(--muted);font-size:.55rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase;margin-bottom:7px}
+.receipt-cell b{display:block;color:#fff;font-size:.68rem;font-weight:900;text-transform:uppercase}
+@media(max-width:1100px){.room-header,.intro{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr 1fr}.receipt{grid-template-columns:1fr 1fr}.room-nav{display:none}}
+@media(max-width:760px){.main{padding:12px 10px}.form-grid,.context-grid,.receipt{grid-template-columns:1fr}.field.wide{grid-column:auto}}
+</style>
+</head>
+
+<body>
+<div class="shell">
+
+<header class="room-header">
+  <div>
+    <h1 class="room-title">STATS-CORE Athlete Production Record</h1>
+    <div class="room-subtitle">Verified Player Statistics · Production Evidence Entry</div>
+  </div>
+
+  <nav class="room-nav">
+    <a id="navDashboard" href="athlete-dashboard.html">Dashboard</a>
+    <a id="navProfile" href="player-profile.html">Profile</a>
+    <a id="navSnapshot" href="athletic-snapshot.html">Athletic Snapshot</a>
+    <a class="active" id="navProduction" href="athlete-production-record.html">Production Record</a>
+    <a id="navEligibility" href="eligibility.html">Eligibility</a>
+  </nav>
+</header>
+
+<main class="main">
+
+<section class="intro">
+  <div>
+    <div class="kicker">Player Statistics Entry</div>
+    <h1>Athlete Production Record</h1>
+    <p>
+      This page records verified sport and position production. Snapshot metrics describe athletic disposition.
+      Production records describe what the athlete actually produced in competition.
+    </p>
+  </div>
+
+  <div class="context-grid">
+    <div class="context-box"><span>Snapshot ID</span><b data-snapshot-id>Not Loaded</b></div>
+    <div class="context-box"><span>Athlete</span><b data-athlete-name>Pending</b></div>
+    <div class="context-box"><span>Sport</span><b data-sport>Pending</b></div>
+    <div class="context-box"><span>Position</span><b data-position>Pending</b></div>
+  </div>
+</section>
+
+<section class="block">
+  <div class="block-head">
+    <div class="kicker">Production Record · Season + Verification</div>
+    <div class="block-line"></div>
+  </div>
+
+  <section class="panel panel-pad">
+    <div class="form-grid">
+      <div class="field">
+        <label>Season Label</label>
+        <input id="season_label" placeholder="2022 Varsity Season" />
+      </div>
+
+      <div class="field">
+        <label>Snapshot Year</label>
+        <input id="snapshot_year" type="number" placeholder="2022" />
+      </div>
+
+      <div class="field">
+        <label>Snapshot Stage</label>
+        <select id="snapshot_stage">
+          <option value="varsity">Varsity</option>
+          <option value="developmental">Developmental</option>
+          <option value="recruiting">Recruiting</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Grade Level</label>
+        <select id="grade_level">
+          <option value="">Select</option>
+          <option>Freshman</option>
+          <option>Sophomore</option>
+          <option>Junior</option>
+          <option>Senior</option>
+          <option>Career</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Games Played</label>
+        <input id="games_played" type="number" placeholder="30" />
+      </div>
+
+      <div class="field">
+        <label>Varsity Years</label>
+        <input id="varsity_years" type="number" placeholder="4" />
+      </div>
+
+      <div class="field">
+        <label>Letterman Quarters</label>
+        <input id="letterman_quarters" type="number" placeholder="16+" />
+      </div>
+
+      <div class="field">
+        <label>Player of Game Count</label>
+        <input id="player_of_game_count" type="number" placeholder="5" />
+      </div>
+
+      <div class="field">
+        <label>Source Name</label>
+        <input id="source_name" placeholder="Coach / PHNX / MaxPreps / School" />
+      </div>
+
+      <div class="field">
+        <label>Verification Level</label>
+        <select id="verification_level">
+          <option value="self_reported">Self Reported</option>
+          <option value="coach_verified">Coach Verified</option>
+          <option value="phnx_certified_coach">PHNX Certified Coach</option>
+          <option value="phnx_camp_combine">PHNX Camp / Combine</option>
+          <option value="official_stat_source">Official Stat Source</option>
+        </select>
+      </div>
+
+      <div class="field wide">
+        <label>Source URL</label>
+        <input id="source_url" placeholder="https://..." />
+      </div>
+    </div>
+  </section>
+</section>
+
+<section class="block">
+  <div class="block-head">
+    <div class="kicker">Football Production · Quarterback / Offensive Record</div>
+    <div class="block-line"></div>
+  </div>
+
+  <section class="panel panel-pad">
+    <div class="form-grid">
+      <div class="field"><label>Passing Attempts</label><input id="passing_attempts" type="number" placeholder="681" /></div>
+      <div class="field"><label>Completions</label><input id="passing_completions" type="number" placeholder="427" /></div>
+      <div class="field"><label>Passing Yards</label><input id="passing_yards" type="number" placeholder="6219" /></div>
+      <div class="field"><label>Passing TDs</label><input id="passing_tds" type="number" placeholder="51" /></div>
+
+      <div class="field"><label>Interceptions</label><input id="interceptions" type="number" placeholder="27" /></div>
+      <div class="field"><label>QB Rating</label><input id="qb_rating" type="number" step="0.1" placeholder="100.8" /></div>
+      <div class="field"><label>Completion %</label><input id="completion_percentage" type="number" step="0.1" placeholder="62.7" /></div>
+      <div class="field"><label>Passing Yards/Game</label><input id="passing_yards_per_game" type="number" step="0.1" placeholder="207.3" /></div>
+
+      <div class="field"><label>Rushing Attempts</label><input id="rushing_attempts" type="number" placeholder="—" /></div>
+      <div class="field"><label>Rushing Yards</label><input id="rushing_yards" type="number" placeholder="682" /></div>
+      <div class="field"><label>Rushing TDs</label><input id="rushing_tds" type="number" placeholder="—" /></div>
+      <div class="field"><label>Total TDs</label><input id="total_tds" type="number" placeholder="51+" /></div>
+
+      <div class="field"><label>Total Yards</label><input id="total_yards" type="number" placeholder="6901" /></div>
+      <div class="field"><label>Total Yards/Game</label><input id="total_yards_per_game" type="number" step="0.1" placeholder="230.0" /></div>
+      <div class="field"><label>Awards Count</label><input id="awards_count" type="number" placeholder="5" /></div>
+      <div class="field"><label>Star Rating Input</label><input id="star_rating" type="number" min="0" max="5" placeholder="5" /></div>
+
+      <div class="field full">
+        <label>Production Notes</label>
+        <textarea id="production_notes" placeholder="Example: 4-year varsity QB, 6,219 passing yards, 682 rushing yards, 6,901 total offense, 51 passing TDs."></textarea>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="good" onclick="saveProductionRecord()">Save Production Record</button>
+      <button class="secondary" onclick="loadSnapshot()">Reload Snapshot</button>
+      <button onclick="resetForm()">Clear Form</button>
+    </div>
+
+    <div id="systemMessage" class="status">Production record ready. Load with snapshot_id in URL.</div>
+  </section>
+</section>
+
+<section class="receipt">
+  <div class="receipt-title">Production Receipt</div>
+  <div class="receipt-cell"><span>Status</span><b data-receipt-status>Pending</b></div>
+  <div class="receipt-cell"><span>Record</span><b data-record-id>Not Saved</b></div>
+  <div class="receipt-cell"><span>Verification</span><b data-receipt-verification>Pending</b></div>
+  <div class="receipt-cell"><span>Route</span><b>Production Engine</b></div>
+</section>
+
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = "https://oyjmpbuxvfxusmbouldi.supabase.co";
+const SUPABASE_ANON_KEY = "PASTE_YOUR_EXISTING_ANON_KEY_HERE";
+
+window.STATScoreSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}
+});
+
+let CURRENT_SNAPSHOT = null;
+
+function $(s){return document.querySelector(s);}
+function safe(...values){
+  for(const v of values){
+    if(v !== undefined && v !== null && String(v).trim() !== "") return v;
+  }
+  return "";
+}
+function setText(sel,val,fallback="—"){
+  const el=$(sel);
+  if(el) el.textContent=safe(val,fallback);
+}
+function val(id){return document.getElementById(id)?.value?.trim() || "";}
+function numVal(id){
+  const v=val(id);
+  if(v==="") return null;
+  const n=Number(v);
+  return Number.isFinite(n) ? n : null;
+}
+function getSnapshotId(){
+  const p=new URLSearchParams(window.location.search);
+  return safe(p.get("snapshot_id"),p.get("snapshot"),p.get("id"));
+}
+function setMessage(msg,type=""){
+  const el=$("#systemMessage");
+  if(!el) return;
+  el.textContent=msg;
+  el.className="status" + (type ? " " + type : "");
+}
+function applySnapshotRoutes(){
+  const snapshotId=getSnapshotId();
+  if(!snapshotId) return;
+  const q=`?snapshot_id=${encodeURIComponent(snapshotId)}`;
+  const routes={
+    navDashboard:"athlete-dashboard.html",
+    navProfile:"player-profile.html",
+    navSnapshot:"athletic-snapshot.html",
+    navProduction:"athlete-production-record.html",
+    navEligibility:"eligibility.html"
+  };
+  Object.entries(routes).forEach(([id,page])=>{
+    const el=document.getElementById(id);
+    if(el) el.href=page+q;
+  });
+}
+async function loadSnapshot(){
+  applySnapshotRoutes();
+  const snapshotId=getSnapshotId();
+
+  if(!snapshotId){
+    setMessage("No snapshot_id found in URL.", "bad");
+    return;
+  }
+
+  const {data,error}=await window.STATScoreSupabase
+    .from("statscore_snapshots")
+    .select("*")
+    .eq("snapshot_id",snapshotId)
+    .maybeSingle();
+
+  if(error){
+    console.error(error);
+    setMessage("Snapshot load failed. Check Supabase console.", "bad");
+    return;
+  }
+
+  if(!data){
+    setMessage("No snapshot record found.", "bad");
+    return;
+  }
+
+  CURRENT_SNAPSHOT=data;
+
+  const first=safe(data.first_name,data.raw_payload?.firstName);
+  const last=safe(data.last_name,data.raw_payload?.lastName);
+  const name=safe(data.athlete_display_name,`${first} ${last}`.trim(),"Athlete");
+
+  setText("[data-snapshot-id]",data.snapshot_id);
+  setText("[data-athlete-name]",name);
+  setText("[data-sport]",safe(data.primary_sport,data.sport,"Pending"));
+  setText("[data-position]",safe(data.primary_position,data.position,"Pending"));
+
+  if(data.snapshot_stage) document.getElementById("snapshot_stage").value=data.snapshot_stage;
+  if(data.snapshot_year) document.getElementById("snapshot_year").value=data.snapshot_year;
+
+  setMessage("Snapshot loaded. Enter production statistics.", "good");
+}
+
+function buildPayload(){
+  const s=CURRENT_SNAPSHOT || {};
+  const first=safe(s.first_name,s.raw_payload?.firstName);
+  const last=safe(s.last_name,s.raw_payload?.lastName);
+  const athleteName=safe(s.athlete_display_name,`${first} ${last}`.trim(),"Athlete");
+
+  const payload={
+    athlete_name:athleteName,
+    season_label:val("season_label"),
+    grade_level:val("grade_level"),
+    games_played:numVal("games_played"),
+    varsity_years:numVal("varsity_years"),
+    letterman_quarters:numVal("letterman_quarters"),
+    player_of_game_count:numVal("player_of_game_count"),
+    awards_count:numVal("awards_count"),
+    source_name:val("source_name"),
+    source_url:val("source_url"),
+    verification_level:val("verification_level"),
+    passing_attempts:numVal("passing_attempts"),
+    passing_completions:numVal("passing_completions"),
+    passing_yards:numVal("passing_yards"),
+    passing_tds:numVal("passing_tds"),
+    interceptions:numVal("interceptions"),
+    qb_rating:numVal("qb_rating"),
+    completion_percentage:numVal("completion_percentage"),
+    passing_yards_per_game:numVal("passing_yards_per_game"),
+    rushing_attempts:numVal("rushing_attempts"),
+    rushing_yards:numVal("rushing_yards"),
+    rushing_tds:numVal("rushing_tds"),
+    total_yards:numVal("total_yards"),
+    total_tds:numVal("total_tds"),
+    total_yards_per_game:numVal("total_yards_per_game"),
+    star_rating:numVal("star_rating"),
+    production_notes:val("production_notes")
+  };
+
+  return {
+    athlete_id:s.athlete_id || null,
+    snapshot_id:s.snapshot_id,
+    snapshot_stage:val("snapshot_stage") || s.snapshot_stage || "varsity",
+    snapshot_year:numVal("snapshot_year") || s.snapshot_year || null,
+    sport:safe(s.primary_sport,s.sport,"Football"),
+    position:safe(s.primary_position,s.position,"QB"),
+    season_label:payload.season_label,
+    grade_level:payload.grade_level,
+    games_played:payload.games_played,
+    varsity_years:payload.varsity_years,
+    source_name:payload.source_name,
+    source_url:payload.source_url,
+    verification_level:payload.verification_level,
+    passing_yards:payload.passing_yards,
+    passing_tds:payload.passing_tds,
+    passing_attempts:payload.passing_attempts,
+    passing_completions:payload.passing_completions,
+    interceptions:payload.interceptions,
+    rushing_yards:payload.rushing_yards,
+    rushing_tds:payload.rushing_tds,
+    total_yards:payload.total_yards,
+    total_tds:payload.total_tds,
+    player_of_game_count:payload.player_of_game_count,
+    awards_count:payload.awards_count,
+    star_rating:payload.star_rating,
+    production_notes:payload.production_notes,
+    production_payload:payload
+  };
+}
+
+async function saveProductionRecord(){
+  if(!CURRENT_SNAPSHOT){
+    setMessage("Load a snapshot before saving production record.", "bad");
+    return;
+  }
+
+  const record=buildPayload();
+
+  if(!record.snapshot_id){
+    setMessage("Missing snapshot_id. Cannot save.", "bad");
+    return;
+  }
+
+  const {data,error}=await window.STATScoreSupabase
+    .from("statscore_athlete_production_records")
+    .insert(record)
+    .select("*")
+    .single();
+
+  if(error){
+    console.error("Production record save failed:", error);
+    setMessage("Save failed. Confirm table columns match this page.", "bad");
+    return;
+  }
+
+  setText("[data-record-id]",data.production_record_id || "Saved");
+  setText("[data-receipt-status]","Saved");
+  setText("[data-receipt-verification]",record.verification_level);
+  setMessage("Production record saved successfully.", "good");
+}
+
+function resetForm(){
+  document.querySelectorAll("input,textarea").forEach(el=>el.value="");
+  document.querySelectorAll("select").forEach(el=>el.selectedIndex=0);
+  setMessage("Form cleared.");
+}
+
+document.addEventListener("DOMContentLoaded",loadSnapshot);
+</script>
+
+<script src="statscore-production-engine.js"></script>
+<script src="statscore-production-router.js"></script>
+<script src="statscore-athlete-production-record.js"></script>
+
+</body>
+</html> 
