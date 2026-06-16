@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -239,13 +239,14 @@ button.good{border-color:rgba(47,168,102,.7);background:rgba(47,168,102,.1)}
 
 <script>
 const SUPABASE_URL = "https://oyjmpbuxvfxusmbouldi.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk"; 
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk";
 
 window.STATScoreSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}
 });
 
 let CURRENT_SNAPSHOT = null;
+let CURRENT_RECORDS = [];
 
 function $(s){return document.querySelector(s);}
 function safe(...values){
@@ -261,8 +262,8 @@ function setText(sel,val,fallback="—"){
 function val(id){return document.getElementById(id)?.value?.trim() || "";}
 function numVal(id){
   const v=val(id);
-  if(v==="") return null;
-  const n=Number(v);
+  if(v==="" || v==="—") return null;
+  const n=Number(String(v).replace(/[^\d.]/g,""));
   return Number.isFinite(n) ? n : null;
 }
 function getSnapshotId(){
@@ -275,28 +276,25 @@ function setMessage(msg,type=""){
   el.textContent=msg;
   el.className="status" + (type ? " " + type : "");
 }
+
 function applySnapshotRoutes(){
   const snapshotId=getSnapshotId();
   if(!snapshotId) return;
   const q=`?snapshot_id=${encodeURIComponent(snapshotId)}`;
-  const routes={
-    navDashboard:"athlete-dashboard.html",
-    navProfile:"player-profile.html",
-    navSnapshot:"athletic-snapshot.html",
-    navProduction:"athlete-production-record.html",
-    navEligibility:"eligibility.html"
-  };
-  Object.entries(routes).forEach(([id,page])=>{
+  ["navDashboard","navProfile","navSnapshot","navProduction","navEligibility"].forEach(id=>{
     const el=document.getElementById(id);
-    if(el) el.href=page+q;
+    if(!el) return;
+    const base=el.getAttribute("href").split("?")[0];
+    el.href=base+q;
   });
 }
+
 async function loadSnapshot(){
   applySnapshotRoutes();
   const snapshotId=getSnapshotId();
 
   if(!snapshotId){
-    setMessage("No snapshot_id found in URL.", "bad");
+    setMessage("No snapshot_id found in URL.","bad");
     return;
   }
 
@@ -308,12 +306,12 @@ async function loadSnapshot(){
 
   if(error){
     console.error(error);
-    setMessage("Snapshot load failed. Check Supabase console.", "bad");
+    setMessage("Snapshot load failed.","bad");
     return;
   }
 
   if(!data){
-    setMessage("No snapshot record found.", "bad");
+    setMessage("No snapshot found.","bad");
     return;
   }
 
@@ -328,30 +326,27 @@ async function loadSnapshot(){
   setText("[data-sport]",safe(data.primary_sport,data.sport,"Pending"));
   setText("[data-position]",safe(data.primary_position,data.position,"Pending"));
 
-  if(data.snapshot_stage) document.getElementById("snapshot_stage").value=data.snapshot_stage;
-  if(data.snapshot_year) document.getElementById("snapshot_year").value=data.snapshot_year;
+  if(data.snapshot_stage) $("#snapshot_stage").value=data.snapshot_stage;
+  if(data.snapshot_year) $("#snapshot_year").value=data.snapshot_year;
 
-  setMessage("Snapshot loaded. Enter production statistics.", "good");
+  setMessage("Snapshot loaded. Enter one season record at a time.","good");
+  await loadProductionRecords();
 }
 
 function buildPayload(){
-  const s=CURRENT_SNAPSHOT || {};
-  const first=safe(s.first_name,s.raw_payload?.firstName);
-  const last=safe(s.last_name,s.raw_payload?.lastName);
-  const athleteName=safe(s.athlete_display_name,`${first} ${last}`.trim(),"Athlete");
-
-  const payload={
-    athlete_name:athleteName,
+  return {
     season_label:val("season_label"),
+    snapshot_year:numVal("snapshot_year"),
+    snapshot_stage:val("snapshot_stage") || "varsity",
     grade_level:val("grade_level"),
     games_played:numVal("games_played"),
     varsity_years:numVal("varsity_years"),
-    letterman_quarters:numVal("letterman_quarters"),
+    letterman_quarters:val("letterman_quarters"),
     player_of_game_count:numVal("player_of_game_count"),
-    awards_count:numVal("awards_count"),
     source_name:val("source_name"),
     source_url:val("source_url"),
     verification_level:val("verification_level"),
+
     passing_attempts:numVal("passing_attempts"),
     passing_completions:numVal("passing_completions"),
     passing_yards:numVal("passing_yards"),
@@ -360,57 +355,57 @@ function buildPayload(){
     qb_rating:numVal("qb_rating"),
     completion_percentage:numVal("completion_percentage"),
     passing_yards_per_game:numVal("passing_yards_per_game"),
+
     rushing_attempts:numVal("rushing_attempts"),
     rushing_yards:numVal("rushing_yards"),
     rushing_tds:numVal("rushing_tds"),
+
     total_yards:numVal("total_yards"),
     total_tds:numVal("total_tds"),
     total_yards_per_game:numVal("total_yards_per_game"),
+
+    awards_count:numVal("awards_count"),
     star_rating:numVal("star_rating"),
     production_notes:val("production_notes")
   };
+}
+
+function buildRecord(){
+  const s=CURRENT_SNAPSHOT || {};
+  const payload=buildPayload();
 
   return {
     athlete_id:s.athlete_id || null,
     snapshot_id:s.snapshot_id,
-    snapshot_stage:val("snapshot_stage") || s.snapshot_stage || "varsity",
-    snapshot_year:numVal("snapshot_year") || s.snapshot_year || null,
+    snapshot_stage:payload.snapshot_stage,
+    snapshot_year:payload.snapshot_year,
     sport:safe(s.primary_sport,s.sport,"Football"),
-    position:safe(s.primary_position,s.position,"QB"),
+    position:safe(s.primary_position,s.position,"Quarterback"),
     season_label:payload.season_label,
     grade_level:payload.grade_level,
     games_played:payload.games_played,
     varsity_years:payload.varsity_years,
+    letterman_quarters:payload.letterman_quarters,
+    player_of_game_count:payload.player_of_game_count,
+    verification_level:payload.verification_level,
     source_name:payload.source_name,
     source_url:payload.source_url,
-    verification_level:payload.verification_level,
-    passing_yards:payload.passing_yards,
-    passing_tds:payload.passing_tds,
-    passing_attempts:payload.passing_attempts,
-    passing_completions:payload.passing_completions,
-    interceptions:payload.interceptions,
-    rushing_yards:payload.rushing_yards,
-    rushing_tds:payload.rushing_tds,
-    total_yards:payload.total_yards,
-    total_tds:payload.total_tds,
-    player_of_game_count:payload.player_of_game_count,
-    awards_count:payload.awards_count,
-    star_rating:payload.star_rating,
-    production_notes:payload.production_notes,
-    production_payload:payload
+    production_payload:payload,
+    production_totals:{},
+    record_status:"submitted"
   };
 }
 
 async function saveProductionRecord(){
   if(!CURRENT_SNAPSHOT){
-    setMessage("Load a snapshot before saving production record.", "bad");
+    setMessage("Load a snapshot before saving.","bad");
     return;
   }
 
-  const record=buildPayload();
+  const record=buildRecord();
 
-  if(!record.snapshot_id){
-    setMessage("Missing snapshot_id. Cannot save.", "bad");
+  if(!record.season_label){
+    setMessage("Season Label is required.","bad");
     return;
   }
 
@@ -421,15 +416,116 @@ async function saveProductionRecord(){
     .single();
 
   if(error){
-    console.error("Production record save failed:", error);
-    setMessage("Save failed. Confirm table columns match this page.", "bad");
+    console.error(error);
+    setMessage("Save failed. Check Supabase console.","bad");
     return;
   }
 
   setText("[data-record-id]",data.production_record_id || "Saved");
   setText("[data-receipt-status]","Saved");
   setText("[data-receipt-verification]",record.verification_level);
-  setMessage("Production record saved successfully.", "good");
+  setMessage("Season production record saved.","good");
+
+  await loadProductionRecords();
+}
+
+async function loadProductionRecords(){
+  const snapshotId=getSnapshotId();
+
+  const {data,error}=await window.STATScoreSupabase
+    .from("statscore_athlete_production_records")
+    .select("*")
+    .eq("snapshot_id",snapshotId)
+    .order("snapshot_year",{ascending:true});
+
+  if(error){
+    console.error(error);
+    setMessage("Production records failed to load.","bad");
+    return;
+  }
+
+  CURRENT_RECORDS=data || [];
+  renderProductionLedger();
+}
+
+function sum(key){
+  return CURRENT_RECORDS.reduce((t,r)=>t + (Number(r.production_payload?.[key]) || 0),0);
+}
+
+function renderProductionLedger(){
+  let box=document.getElementById("productionLedger");
+  if(!box){
+    box=document.createElement("section");
+    box.id="productionLedger";
+    box.className="panel panel-pad";
+    box.style.marginTop="18px";
+    document.querySelector(".main").appendChild(box);
+  }
+
+  const totals={
+    games:sum("games_played"),
+    passYards:sum("passing_yards"),
+    passTds:sum("passing_tds"),
+    rushYards:sum("rushing_yards"),
+    rushTds:sum("rushing_tds"),
+    totalYards:sum("total_yards"),
+    totalTds:sum("total_tds"),
+    awards:sum("awards_count"),
+    pog:sum("player_of_game_count")
+  };
+
+  box.innerHTML=`
+    <div class="section-label">Season Ledger + Career Totals</div>
+
+    <div class="context-grid" style="margin-bottom:14px">
+      <div class="context-box"><span>Seasons</span><b>${CURRENT_RECORDS.length}</b></div>
+      <div class="context-box"><span>Total Yards</span><b>${totals.totalYards || totals.passYards + totals.rushYards}</b></div>
+      <div class="context-box"><span>Passing Yards</span><b>${totals.passYards}</b></div>
+      <div class="context-box"><span>Passing TDs</span><b>${totals.passTds}</b></div>
+      <div class="context-box"><span>Rushing Yards</span><b>${totals.rushYards}</b></div>
+      <div class="context-box"><span>Total TDs</span><b>${totals.totalTds || totals.passTds + totals.rushTds}</b></div>
+      <div class="context-box"><span>Awards</span><b>${totals.awards}</b></div>
+      <div class="context-box"><span>Player of Game</span><b>${totals.pog}</b></div>
+    </div>
+
+    <div style="overflow:auto;border:1px solid var(--line)">
+      <table style="width:100%;border-collapse:collapse;font-size:.72rem">
+        <thead>
+          <tr style="background:rgba(215,25,32,.12);color:#fff;text-transform:uppercase;letter-spacing:.1em">
+            <th style="padding:12px;text-align:left">Season</th>
+            <th style="padding:12px;text-align:left">Year</th>
+            <th style="padding:12px;text-align:left">Grade</th>
+            <th style="padding:12px;text-align:left">Games</th>
+            <th style="padding:12px;text-align:left">Pass Yds</th>
+            <th style="padding:12px;text-align:left">Pass TD</th>
+            <th style="padding:12px;text-align:left">Rush Yds</th>
+            <th style="padding:12px;text-align:left">Total Yds</th>
+            <th style="padding:12px;text-align:left">Verify</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${CURRENT_RECORDS.map(r=>{
+            const p=r.production_payload || {};
+            return `
+              <tr style="border-top:1px solid var(--line)">
+                <td style="padding:12px">${r.season_label || "—"}</td>
+                <td style="padding:12px">${r.snapshot_year || "—"}</td>
+                <td style="padding:12px">${r.grade_level || "—"}</td>
+                <td style="padding:12px">${p.games_played || "—"}</td>
+                <td style="padding:12px">${p.passing_yards || "—"}</td>
+                <td style="padding:12px">${p.passing_tds || "—"}</td>
+                <td style="padding:12px">${p.rushing_yards || "—"}</td>
+                <td style="padding:12px">${p.total_yards || "—"}</td>
+                <td style="padding:12px">${r.verification_level || "—"}</td>
+              </tr>
+            `;
+          }).join("") || `
+            <tr><td colspan="9" style="padding:18px;color:var(--muted)">No season records saved yet.</td></tr>
+          `}
+        </tbody>
+      </table>
+    </div>
+  `;
 }
 
 function resetForm(){
@@ -439,7 +535,7 @@ function resetForm(){
 }
 
 document.addEventListener("DOMContentLoaded",loadSnapshot);
-</script>
+</script> 
 
 <script src="statscore-production-engine.js"></script>
 <script src="statscore-production-router.js"></script>
