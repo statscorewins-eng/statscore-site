@@ -402,32 +402,80 @@ async function saveProductionRecord(){
     return;
   }
 
-  const record=buildRecord();
+  const record = buildRecord();
 
   if(!record.season_label){
     setMessage("Season Label is required.","bad");
     return;
   }
 
-  const {data,error}=await window.STATScoreSupabase
+  const safeRecord = {
+    athlete_id: record.athlete_id || null,
+    snapshot_id: record.snapshot_id,
+    snapshot_stage: record.snapshot_stage || "varsity",
+    snapshot_year: Number(record.snapshot_year) || null,
+    sport: record.sport || null,
+    position: record.position || null,
+
+    season_label: record.season_label,
+    grade_level: record.grade_level || null,
+    games_played: Number(record.games_played) || 0,
+
+    passing_yards: Number(record.passing_yards) || 0,
+    passing_tds: Number(record.passing_tds) || 0,
+    passing_attempts: Number(record.passing_attempts) || 0,
+    passing_completions: Number(record.passing_completions) || 0,
+    interceptions: Number(record.interceptions) || 0,
+
+    rushing_yards: Number(record.rushing_yards) || 0,
+    rushing_tds: Number(record.rushing_tds) || 0,
+
+    receiving_yards: Number(record.receiving_yards) || 0,
+    receiving_tds: Number(record.receiving_tds) || 0,
+
+    total_yards: Number(record.total_yards) || 0,
+    total_tds: Number(record.total_tds) || 0,
+
+    tackles: Number(record.tackles) || 0,
+    sacks: Number(record.sacks) || 0,
+    interceptions_defense: Number(record.interceptions_defense) || 0,
+    pass_breakups: Number(record.pass_breakups) || 0,
+
+    varsity_years: Number(record.varsity_years) || 0,
+    awards_count: Number(record.awards_count) || 0,
+    player_of_game_count: Number(record.player_of_game_count) || 0,
+    star_rating_input: Number(record.star_rating_input) || 0,
+
+    source_name: record.source_name || null,
+    source_url: record.source_url || null,
+    source_type: record.source_type || null,
+    verification_level: record.verification_level || "Self Reported",
+    production_notes: record.production_notes || null,
+
+    production_payload: record.production_payload || record,
+    production_totals: record.production_totals || {},
+    raw_payload: record.raw_payload || record
+  };
+
+  const { data, error } = await window.STATScoreSupabase
     .from("statscore_athlete_production_records")
-    .insert(record)
-    .select("*")
+    .insert(safeRecord)
+    .select("production_record_id, verification_level")
     .single();
 
   if(error){
-    console.error(error);
-    setMessage("Save failed. Check Supabase console.","bad");
+    console.error("STATS-CORE SAVE ERROR:", error);
+    setMessage(error.message || "Save failed. Check Supabase console.","bad");
     return;
   }
 
-  setText("[data-record-id]",data.production_record_id || "Saved");
-  setText("[data-receipt-status]","Saved");
-  setText("[data-receipt-verification]",record.verification_level);
+  setText("[data-record-id]", data?.production_record_id || "Saved");
+  setText("[data-receipt-status]", "Saved");
+  setText("[data-receipt-verification]", data?.verification_level || safeRecord.verification_level);
   setMessage("Season production record saved.","good");
 
   await loadProductionRecords();
-}
+} 
 
 async function loadProductionRecords(){
   const snapshotId=getSnapshotId();
