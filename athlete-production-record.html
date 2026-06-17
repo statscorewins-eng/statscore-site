@@ -722,7 +722,7 @@ function renderProductionLedger(){
                 return `
                   <tr
                     data-record-id="${id}"
-                    onclick="loadSeasonRecord('${String(p.season_label ?? r.season_label ?? "").replace(/'/g,"\\'")}')"
+                    onclick="loadSeasonRecord(${index})" 
                     style="
                       border-top:1px solid var(--line);
                       cursor:pointer;
