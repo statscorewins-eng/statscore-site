@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>  
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -541,6 +541,65 @@ async function loadProductionRecords(){
 
 let CURRENT_EDIT_RECORD_ID = null;
 
+function loadSeasonRecord(recordIndex){
+  const record = CURRENT_RECORDS[recordIndex];
+
+  if(!record){
+    setMessage("Season record not found.","bad");
+    return;
+  }
+
+  const p = record.production_payload || record.raw_payload || record || {};
+
+  CURRENT_EDIT_RECORD_ID =
+    record.production_record_id ||
+    record.id ||
+    null;
+
+  setVal("seasonLabel", p.season_label ?? record.season_label);
+  setVal("snapshotYear", p.snapshot_year ?? record.snapshot_year);
+  setVal("snapshotStage", p.snapshot_stage ?? record.snapshot_stage);
+  setVal("gradeLevel", p.grade_level ?? record.grade_level);
+
+  setVal("gamesPlayed", p.games_played ?? record.games_played);
+  setVal("varsityYears", p.varsity_years ?? record.varsity_years);
+  setVal("lettermanQuarters", p.letterman_quarters ?? record.letterman_quarters);
+  setVal("playerOfGameCount", p.player_of_game_count ?? record.player_of_game_count);
+
+  setVal("sourceName", p.source_name ?? record.source_name);
+  setVal("verificationLevel", p.verification_level ?? record.verification_level);
+  setVal("sourceUrl", p.source_url ?? record.source_url);
+
+  setVal("passingAttempts", p.passing_attempts ?? record.passing_attempts);
+  setVal("completions", p.completions ?? record.completions);
+  setVal("passingYards", p.passing_yards ?? record.passing_yards);
+  setVal("passingTds", p.passing_tds ?? record.passing_tds);
+
+  setVal("interceptions", p.interceptions ?? record.interceptions);
+  setVal("qbRating", p.qb_rating ?? record.qb_rating);
+  setVal("completionPct", p.completion_pct ?? record.completion_pct);
+  setVal("passingYardsGame", p.passing_yards_game ?? record.passing_yards_game);
+
+  setVal("rushingAttempts", p.rushing_attempts ?? record.rushing_attempts);
+  setVal("rushingYards", p.rushing_yards ?? record.rushing_yards);
+  setVal("rushingTds", p.rushing_tds ?? record.rushing_tds);
+
+  setVal("totalYards", p.total_yards ?? record.total_yards);
+  setVal("totalYardsGame", p.total_yards_game ?? record.total_yards_game);
+  setVal("totalTds", p.total_tds ?? record.total_tds);
+
+  setVal("awardsCount", p.awards_count ?? record.awards_count);
+  setVal("starRatingInput", p.star_rating_input ?? record.star_rating_input);
+  setVal("productionNotes", p.production_notes ?? record.production_notes);
+
+  setMessage("Season record loaded for review/update.","good");
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+}
+
 function renderProductionLedger(){
   let box = document.getElementById("productionLedger");
 
@@ -653,13 +712,13 @@ function renderProductionLedger(){
         <tbody>
           ${
             CURRENT_RECORDS.length
-            ? CURRENT_RECORDS.map(r=>{
+            ?CURRENT_RECORDS.map((r,index)=>{ 
                 const p = getPayload(r);
                 const id = r.production_record_id || r.id || "";
                 return `
                   <tr
                     data-record-id="${id}"
-                    onclick="loadSeasonRecord('${id}')"
+                    onclick="loadSeasonRecord(${index})"
                     style="
                       border-top:1px solid var(--line);
                       cursor:pointer;
