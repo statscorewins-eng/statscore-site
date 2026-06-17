@@ -541,64 +541,68 @@ async function loadProductionRecords(){
 
 let CURRENT_EDIT_RECORD_ID = null;
 
-function loadSeasonRecord(recordIndex){
-  const record = CURRENT_RECORDS[recordIndex];
+function loadSeasonRecord(seasonLabel){
+  const record = CURRENT_RECORDS.find(r=>{
+    const p = r.production_payload || r.raw_payload || {};
+    return String(r.season_label || p.season_label || "").trim() === String(seasonLabel || "").trim();
+  });
 
   if(!record){
-    setMessage("Season record not found.","bad");
+    setMessage("Season record not found for: " + seasonLabel, "bad");
     return;
   }
 
-  const p = record.production_payload || record.raw_payload || record || {};
+  const p = record.production_payload || record.raw_payload || {};
+
+  function pick(key){
+    return record[key] ?? p[key] ?? "";
+  }
 
   CURRENT_EDIT_RECORD_ID =
     record.production_record_id ||
     record.id ||
     null;
 
-  setVal("seasonLabel", p.season_label ?? record.season_label);
-  setVal("snapshotYear", p.snapshot_year ?? record.snapshot_year);
-  setVal("snapshotStage", p.snapshot_stage ?? record.snapshot_stage);
-  setVal("gradeLevel", p.grade_level ?? record.grade_level);
+  setVal("seasonLabel", pick("season_label"));
+  setVal("snapshotYear", pick("snapshot_year"));
+  setVal("snapshotStage", pick("snapshot_stage"));
+  setVal("gradeLevel", pick("grade_level"));
 
-  setVal("gamesPlayed", p.games_played ?? record.games_played);
-  setVal("varsityYears", p.varsity_years ?? record.varsity_years);
-  setVal("lettermanQuarters", p.letterman_quarters ?? record.letterman_quarters);
-  setVal("playerOfGameCount", p.player_of_game_count ?? record.player_of_game_count);
+  setVal("gamesPlayed", pick("games_played"));
+  setVal("varsityYears", pick("varsity_years"));
+  setVal("lettermanQuarters", pick("letterman_quarters"));
+  setVal("playerOfGameCount", pick("player_of_game_count"));
 
-  setVal("sourceName", p.source_name ?? record.source_name);
-  setVal("verificationLevel", p.verification_level ?? record.verification_level);
-  setVal("sourceUrl", p.source_url ?? record.source_url);
+  setVal("sourceName", pick("source_name"));
+  setVal("verificationLevel", pick("verification_level"));
+  setVal("sourceUrl", pick("source_url"));
 
-  setVal("passingAttempts", p.passing_attempts ?? record.passing_attempts);
-  setVal("completions", p.completions ?? record.completions);
-  setVal("passingYards", p.passing_yards ?? record.passing_yards);
-  setVal("passingTds", p.passing_tds ?? record.passing_tds);
+  setVal("passingAttempts", pick("passing_attempts"));
+  setVal("completions", pick("completions"));
+  setVal("passingYards", pick("passing_yards"));
+  setVal("passingTds", pick("passing_tds"));
 
-  setVal("interceptions", p.interceptions ?? record.interceptions);
-  setVal("qbRating", p.qb_rating ?? record.qb_rating);
-  setVal("completionPct", p.completion_pct ?? record.completion_pct);
-  setVal("passingYardsGame", p.passing_yards_game ?? record.passing_yards_game);
+  setVal("interceptions", pick("interceptions"));
+  setVal("qbRating", pick("qb_rating"));
+  setVal("completionPct", pick("completion_pct"));
+  setVal("passingYardsGame", pick("passing_yards_game"));
 
-  setVal("rushingAttempts", p.rushing_attempts ?? record.rushing_attempts);
-  setVal("rushingYards", p.rushing_yards ?? record.rushing_yards);
-  setVal("rushingTds", p.rushing_tds ?? record.rushing_tds);
+  setVal("rushingAttempts", pick("rushing_attempts"));
+  setVal("rushingYards", pick("rushing_yards"));
+  setVal("rushingTds", pick("rushing_tds"));
 
-  setVal("totalYards", p.total_yards ?? record.total_yards);
-  setVal("totalYardsGame", p.total_yards_game ?? record.total_yards_game);
-  setVal("totalTds", p.total_tds ?? record.total_tds);
+  setVal("totalYards", pick("total_yards"));
+  setVal("totalYardsGame", pick("total_yards_game"));
+  setVal("totalTds", pick("total_tds"));
 
-  setVal("awardsCount", p.awards_count ?? record.awards_count);
-  setVal("starRatingInput", p.star_rating_input ?? record.star_rating_input);
-  setVal("productionNotes", p.production_notes ?? record.production_notes);
+  setVal("awardsCount", pick("awards_count"));
+  setVal("starRatingInput", pick("star_rating_input"));
+  setVal("productionNotes", pick("production_notes"));
 
-  setMessage("Season record loaded for review/update.","good");
+  setMessage("Season record loaded: " + seasonLabel, "good");
 
-  window.scrollTo({
-    top:0,
-    behavior:"smooth"
-  });
-}
+  window.scrollTo({ top:0, behavior:"smooth" });
+} 
 
 function renderProductionLedger(){
   let box = document.getElementById("productionLedger");
@@ -718,7 +722,7 @@ function renderProductionLedger(){
                 return `
                   <tr
                     data-record-id="${id}"
-                    onclick="loadSeasonRecord(${index})"
+                    onclick="loadSeasonRecord('${String(p.season_label ?? r.season_label ?? "").replace(/'/g,"\\'")}')"
                     style="
                       border-top:1px solid var(--line);
                       cursor:pointer;
