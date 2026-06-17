@@ -544,26 +544,26 @@ let CURRENT_EDIT_RECORD_ID = null;
 function renderProductionLedger(){
   let box = document.getElementById("productionLedger");
 
-if(!box){
-  box = document.createElement("section");
-  box.id = "productionLedger";
-  box.className = "panel panel-pad";
-  box.style.marginTop = "18px";
+  if(!box){
+    box = document.createElement("section");
+    box.id = "productionLedger";
+    box.className = "panel panel-pad";
+    box.style.marginTop = "18px";
 
-  const receipt = document.querySelector(".receipt");
-  if(receipt){
-    receipt.insertAdjacentElement("afterend", box);
-  }else{
- (document.querySelector("main") || document.body).appendChild(box);
+    const receipt = document.querySelector(".receipt");
+    if(receipt){
+      receipt.insertAdjacentElement("afterend", box);
+    }else{
+      (document.querySelector("main") || document.body).appendChild(box);
+    }
   }
-} 
 
   function getPayload(r){
     return r.production_payload || r.raw_payload || r || {};
   }
 
   function n(v){
-    const x = Number(String(v ?? "").replace(/,/g,""));
+    const x = Number(String(v ?? "").replace(/,/g,"").replace(/[^\d.-]/g,""));
     return Number.isFinite(x) ? x : 0;
   }
 
@@ -594,7 +594,7 @@ if(!box){
   box.innerHTML = `
     <div class="section-label">Season Ledger + Career Totals</div>
 
-    <div class="context-grid">
+    <div class="context-grid" style="margin-bottom:18px;">
       <div class="context-box"><span>Seasons</span><b>${totals.seasons}</b></div>
       <div class="context-box"><span>Total Yards</span><b>${totals.totalYards}</b></div>
       <div class="context-box"><span>Passing Yards</span><b>${totals.passYards}</b></div>
@@ -605,77 +605,47 @@ if(!box){
       <div class="context-box"><span>Player of Game</span><b>${totals.pog}</b></div>
     </div>
 
-    <table class="ledger-table">
-      <thead>
-        <tr>
-          <th>Season</th>
-          <th>Year</th>
-          <th>Grade</th>
-          <th>Games</th>
-          <th>Pass Yds</th>
-          <th>Pass TD</th>
-          <th>Rush Yds</th>
-          <th>Total Yds</th>
-          <th>Verify</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${
-          CURRENT_RECORDS.length
-          ? CURRENT_RECORDS.map(r=>{
-              const p = getPayload(r);
-              const id = r.production_record_id;
-              return `
-                <tr class="season-row" onclick="loadSeasonRecord('${id}')">
-                  <td><b>${show(p.season_label ?? r.season_label)}</b></td>
-                  <td>${show(p.snapshot_year ?? r.snapshot_year)}</td>
-                  <td>${show(p.grade_level ?? r.grade_level)}</td>
-                  <td>${show(p.games_played ?? r.games_played)}</td>
-                  <td>${show(p.passing_yards ?? r.passing_yards)}</td>
-                  <td>${show(p.passing_tds ?? r.passing_tds)}</td>
-                  <td>${show(p.rushing_yards ?? r.rushing_yards)}</td>
-                  <td>${show(p.total_yards ?? r.total_yards)}</td>
-                  <td>${show(p.verification_level ?? r.verification_level ?? "pending")}</td>
-                </tr>
-              `;
-            }).join("")
-          : `<tr><td colspan="9">No season records saved yet.</td></tr>`
-        }
-      </tbody>
-    </table>
+    <div style="overflow:auto;border:1px solid var(--line);">
+      <table style="width:100%;border-collapse:collapse;font-size:.72rem;color:var(--text);">
+        <thead>
+          <tr style="background:rgba(215,25,32,.22);color:#fff;text-transform:uppercase;letter-spacing:.1em;">
+            <th style="padding:12px;text-align:left;">Season</th>
+            <th style="padding:12px;text-align:left;">Year</th>
+            <th style="padding:12px;text-align:left;">Grade</th>
+            <th style="padding:12px;text-align:left;">Games</th>
+            <th style="padding:12px;text-align:left;">Pass Yds</th>
+            <th style="padding:12px;text-align:left;">Pass TD</th>
+            <th style="padding:12px;text-align:left;">Rush Yds</th>
+            <th style="padding:12px;text-align:left;">Total Yds</th>
+            <th style="padding:12px;text-align:left;">Verify</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${
+            CURRENT_RECORDS.length
+            ? CURRENT_RECORDS.map(r=>{
+                const p = getPayload(r);
+                const id = r.production_record_id;
+                return `
+                  <tr onclick="loadSeasonRecord('${id}')" style="border-top:1px solid var(--line);cursor:pointer;">
+                    <td style="padding:12px;"><b>${show(p.season_label ?? r.season_label)}</b></td>
+                    <td style="padding:12px;">${show(p.snapshot_year ?? r.snapshot_year)}</td>
+                    <td style="padding:12px;">${show(p.grade_level ?? r.grade_level)}</td>
+                    <td style="padding:12px;">${show(p.games_played ?? r.games_played)}</td>
+                    <td style="padding:12px;">${show(p.passing_yards ?? r.passing_yards)}</td>
+                    <td style="padding:12px;">${show(p.passing_tds ?? r.passing_tds)}</td>
+                    <td style="padding:12px;">${show(p.rushing_yards ?? r.rushing_yards)}</td>
+                    <td style="padding:12px;">${show(p.total_yards ?? r.total_yards)}</td>
+                    <td style="padding:12px;">${show(p.verification_level ?? r.verification_level ?? "pending")}</td>
+                  </tr>
+                `;
+              }).join("")
+            : `<tr><td colspan="9" style="padding:18px;color:var(--muted);">No season records saved yet.</td></tr>`
+          }
+        </tbody>
+      </table>
+    </div>
   `;
-}
-
-function loadSeasonRecord(recordId){
-  const rec = CURRENT_RECORDS.find(r => String(r.production_record_id) === String(recordId));
-
-  if(!rec){
-    setMessage("Season record not found.", "bad");
-    return;
-  }
-
-  const p = rec.production_payload || rec.raw_payload || rec || {};
-  CURRENT_EDIT_RECORD_ID = rec.production_record_id;
-
-  Object.keys(p).forEach(key=>{
-    const el = document.getElementById(key);
-    if(el) el.value = p[key] ?? "";
-  });
-
-  setVal("seasonLabel", p.season_label ?? rec.season_label ?? "");
-  setVal("snapshotYear", p.snapshot_year ?? rec.snapshot_year ?? "");
-  setVal("snapshotStage", p.snapshot_stage ?? rec.snapshot_stage ?? "varsity");
-  setVal("gradeLevel", p.grade_level ?? rec.grade_level ?? "");
-  setVal("gamesPlayed", p.games_played ?? rec.games_played ?? "");
-  setVal("varsityYears", p.varsity_years ?? rec.varsity_years ?? "");
-  setVal("lettermanQuarters", p.letterman_quarters ?? rec.letterman_quarters ?? "");
-  setVal("playerOfGameCount", p.player_of_game_count ?? rec.player_of_game_count ?? "");
-  setVal("sourceName", p.source_name ?? rec.source_name ?? "");
-  setVal("verificationLevel", p.verification_level ?? rec.verification_level ?? "");
-  setVal("sourceUrl", p.source_url ?? rec.source_url ?? "");
-
-  setMessage("Season record loaded for review/update.", "good");
-  window.scrollTo({ top: 0, behavior: "smooth" });
 } 
 
 function resetForm(){
