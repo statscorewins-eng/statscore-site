@@ -547,19 +547,25 @@ function renderProductionLedger(){
   if(!box){
     box = document.createElement("section");
     box.id = "productionLedger";
-    box.className = "panel panel-pad";
     box.style.marginTop = "18px";
+    box.style.border = "1px solid var(--line)";
+    box.style.background = "rgba(255,255,255,.03)";
+    box.style.padding = "18px";
+    box.style.boxSizing = "border-box";
+    box.style.width = "100%";
+    box.style.overflow = "hidden";
 
     const receipt = document.querySelector(".receipt");
     if(receipt){
       receipt.insertAdjacentElement("afterend", box);
     }else{
-      (document.querySelector("main") || document.body).appendChild(box);
+      const main = document.querySelector("main") || document.body;
+      main.appendChild(box);
     }
   }
 
   function getPayload(r){
-    return r.production_payload || r.raw_payload || r || {};
+    return r.production_payload || r.raw_payload || {};
   }
 
   function n(v){
@@ -592,9 +598,16 @@ function renderProductionLedger(){
   };
 
   box.innerHTML = `
-    <div class="section-label">Season Ledger + Career Totals</div>
+    <div class="section-label" style="margin-bottom:14px;">
+      Season Ledger + Career Totals
+    </div>
 
-    <div class="context-grid" style="margin-bottom:18px;">
+    <div style="
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:10px;
+      margin-bottom:18px;
+    ">
       <div class="context-box"><span>Seasons</span><b>${totals.seasons}</b></div>
       <div class="context-box"><span>Total Yards</span><b>${totals.totalYards}</b></div>
       <div class="context-box"><span>Passing Yards</span><b>${totals.passYards}</b></div>
@@ -605,19 +618,36 @@ function renderProductionLedger(){
       <div class="context-box"><span>Player of Game</span><b>${totals.pog}</b></div>
     </div>
 
-    <div style="overflow:auto;border:1px solid var(--line);">
-      <table style="width:100%;border-collapse:collapse;font-size:.72rem;color:var(--text);">
+    <div style="
+      width:100%;
+      overflow-x:auto;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.22);
+    ">
+      <table style="
+        width:100%;
+        min-width:920px;
+        border-collapse:collapse;
+        table-layout:fixed;
+        font-size:.68rem;
+        color:var(--text);
+      ">
         <thead>
-          <tr style="background:rgba(215,25,32,.22);color:#fff;text-transform:uppercase;letter-spacing:.1em;">
-            <th style="padding:12px;text-align:left;">Season</th>
-            <th style="padding:12px;text-align:left;">Year</th>
-            <th style="padding:12px;text-align:left;">Grade</th>
-            <th style="padding:12px;text-align:left;">Games</th>
-            <th style="padding:12px;text-align:left;">Pass Yds</th>
-            <th style="padding:12px;text-align:left;">Pass TD</th>
-            <th style="padding:12px;text-align:left;">Rush Yds</th>
-            <th style="padding:12px;text-align:left;">Total Yds</th>
-            <th style="padding:12px;text-align:left;">Verify</th>
+          <tr style="
+            background:rgba(215,25,32,.22);
+            color:#fff;
+            text-transform:uppercase;
+            letter-spacing:.08em;
+          ">
+            <th style="padding:10px;text-align:left;width:22%;">Season</th>
+            <th style="padding:10px;text-align:left;width:9%;">Year</th>
+            <th style="padding:10px;text-align:left;width:10%;">Grade</th>
+            <th style="padding:10px;text-align:left;width:8%;">Games</th>
+            <th style="padding:10px;text-align:left;width:10%;">Pass Yds</th>
+            <th style="padding:10px;text-align:left;width:9%;">Pass TD</th>
+            <th style="padding:10px;text-align:left;width:10%;">Rush Yds</th>
+            <th style="padding:10px;text-align:left;width:10%;">Total Yds</th>
+            <th style="padding:10px;text-align:left;width:12%;">Verify</th>
           </tr>
         </thead>
         <tbody>
@@ -625,18 +655,27 @@ function renderProductionLedger(){
             CURRENT_RECORDS.length
             ? CURRENT_RECORDS.map(r=>{
                 const p = getPayload(r);
-                const id = r.production_record_id;
+                const id = r.production_record_id || r.id || "";
                 return `
-                  <tr onclick="loadSeasonRecord('${id}')" style="border-top:1px solid var(--line);cursor:pointer;">
-                    <td style="padding:12px;"><b>${show(p.season_label ?? r.season_label)}</b></td>
-                    <td style="padding:12px;">${show(p.snapshot_year ?? r.snapshot_year)}</td>
-                    <td style="padding:12px;">${show(p.grade_level ?? r.grade_level)}</td>
-                    <td style="padding:12px;">${show(p.games_played ?? r.games_played)}</td>
-                    <td style="padding:12px;">${show(p.passing_yards ?? r.passing_yards)}</td>
-                    <td style="padding:12px;">${show(p.passing_tds ?? r.passing_tds)}</td>
-                    <td style="padding:12px;">${show(p.rushing_yards ?? r.rushing_yards)}</td>
-                    <td style="padding:12px;">${show(p.total_yards ?? r.total_yards)}</td>
-                    <td style="padding:12px;">${show(p.verification_level ?? r.verification_level ?? "pending")}</td>
+                  <tr
+                    data-record-id="${id}"
+                    onclick="loadSeasonRecord('${id}')"
+                    style="
+                      border-top:1px solid var(--line);
+                      cursor:pointer;
+                    "
+                  >
+                    <td style="padding:10px;white-space:normal;"><b>${show(p.season_label ?? r.season_label)}</b></td>
+                    <td style="padding:10px;">${show(p.snapshot_year ?? r.snapshot_year)}</td>
+                    <td style="padding:10px;">${show(p.grade_level ?? r.grade_level)}</td>
+                    <td style="padding:10px;">${show(p.games_played ?? r.games_played)}</td>
+                    <td style="padding:10px;">${show(p.passing_yards ?? r.passing_yards)}</td>
+                    <td style="padding:10px;">${show(p.passing_tds ?? r.passing_tds)}</td>
+                    <td style="padding:10px;">${show(p.rushing_yards ?? r.rushing_yards)}</td>
+                    <td style="padding:10px;">${show(p.total_yards ?? r.total_yards)}</td>
+                    <td style="padding:10px;text-transform:uppercase;font-size:.62rem;">
+                      ${show(p.verification_level ?? r.verification_level ?? "pending")}
+                    </td>
                   </tr>
                 `;
               }).join("")
@@ -644,6 +683,16 @@ function renderProductionLedger(){
           }
         </tbody>
       </table>
+    </div>
+
+    <div style="
+      margin-top:10px;
+      color:var(--muted);
+      font-size:.66rem;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    ">
+      Click a season row to load that season record for review or update.
     </div>
   `;
 } 
