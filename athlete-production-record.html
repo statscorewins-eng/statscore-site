@@ -541,27 +541,22 @@ async function loadProductionRecords(){
 
 let CURRENT_EDIT_RECORD_ID = null;
 
-function loadSeasonRecord(seasonLabel){
-  const record = CURRENT_RECORDS.find(r=>{
-    const p = r.production_payload || r.raw_payload || {};
-    return String(r.season_label || p.season_label || "").trim() === String(seasonLabel || "").trim();
-  });
+unction loadSeasonRecord(recordIndex){
+  const index = Number(recordIndex);
+  const record = CURRENT_RECORDS[index];
 
   if(!record){
-    setMessage("Season record not found for: " + seasonLabel, "bad");
+    setMessage("Season record not found for index: " + recordIndex, "bad");
     return;
   }
 
   const p = record.production_payload || record.raw_payload || {};
 
   function pick(key){
-    return record[key] ?? p[key] ?? "";
+    return p[key] ?? record[key] ?? "";
   }
 
-  CURRENT_EDIT_RECORD_ID =
-    record.production_record_id ||
-    record.id ||
-    null;
+  CURRENT_EDIT_RECORD_ID = record.production_record_id || record.id || null;
 
   setVal("seasonLabel", pick("season_label"));
   setVal("snapshotYear", pick("snapshot_year"));
@@ -578,28 +573,27 @@ function loadSeasonRecord(seasonLabel){
   setVal("sourceUrl", pick("source_url"));
 
   setVal("passingAttempts", pick("passing_attempts"));
-  setVal("completions", pick("completions"));
+  setVal("completions", pick("passing_completions"));
   setVal("passingYards", pick("passing_yards"));
   setVal("passingTds", pick("passing_tds"));
-
   setVal("interceptions", pick("interceptions"));
   setVal("qbRating", pick("qb_rating"));
-  setVal("completionPct", pick("completion_pct"));
-  setVal("passingYardsGame", pick("passing_yards_game"));
+  setVal("completionPct", pick("completion_percentage"));
+  setVal("passingYardsGame", pick("passing_yards_per_game"));
 
   setVal("rushingAttempts", pick("rushing_attempts"));
   setVal("rushingYards", pick("rushing_yards"));
   setVal("rushingTds", pick("rushing_tds"));
 
   setVal("totalYards", pick("total_yards"));
-  setVal("totalYardsGame", pick("total_yards_game"));
+  setVal("totalYardsGame", pick("total_yards_per_game"));
   setVal("totalTds", pick("total_tds"));
 
   setVal("awardsCount", pick("awards_count"));
   setVal("starRatingInput", pick("star_rating_input"));
   setVal("productionNotes", pick("production_notes"));
 
-  setMessage("Season record loaded: " + seasonLabel, "good");
+  setMessage("Season record loaded for review/update.", "good");
 
   window.scrollTo({ top:0, behavior:"smooth" });
 } 
