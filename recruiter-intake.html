@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STATS-CORE | Recruiter Intake</title>
+
+  <style>
+    :root{
+      --black:#050505;
+      --panel:#101114;
+      --panel2:#17181c;
+      --white:#ffffff;
+      --muted:#a7a7a7;
+      --red:#c40000;
+      --green:#22c55e;
+      --yellow:#facc15;
+      --blue:#38bdf8;
+      --line:rgba(255,255,255,.12);
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      background:#050505;
+      color:var(--white);
+      font-family:Arial, Helvetica, sans-serif;
+    }
+
+    header{
+      background:#fff;
+      color:#000;
+      padding:14px 22px;
+      border-bottom:4px solid var(--red);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+
+    .brand{
+      font-weight:900;
+      letter-spacing:.08em;
+      font-size:24px;
+    }
+
+    .brand span{color:var(--red)}
+
+    .subhead{
+      font-size:12px;
+      text-transform:uppercase;
+      color:#333;
+      letter-spacing:.12em;
+    }
+
+    main{
+      display:grid;
+      grid-template-columns:260px 1fr 300px;
+      gap:18px;
+      padding:18px;
+      min-height:calc(100vh - 76px);
+    }
+
+    .rail,.workspace,.rightRail{
+      background:linear-gradient(180deg,#111217,#070708);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:16px;
+      box-shadow:0 0 18px rgba(0,0,0,.55);
+    }
+
+    h1,h2,h3{margin:0}
+
+    h1{
+      font-size:24px;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+    }
+
+    h2{
+      font-size:13px;
+      color:var(--red);
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      margin-bottom:12px;
+    }
+
+    .note{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.45;
+    }
+
+    .section{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:16px;
+      margin-top:16px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:14px;
+    }
+
+    label{
+      display:block;
+      font-size:11px;
+      color:#ccc;
+      text-transform:uppercase;
+      letter-spacing:.1em;
+      margin-bottom:6px;
+    }
+
+    input,select,textarea{
+      width:100%;
+      background:#050505;
+      color:#fff;
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:8px;
+      padding:11px;
+      font-size:14px;
+      outline:none;
+    }
+
+    textarea{min-height:100px;resize:vertical}
+
+    input:focus,select:focus,textarea:focus{
+      border-color:var(--blue);
+      box-shadow:0 0 12px rgba(56,189,248,.25);
+    }
+
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .chip{
+      border:1px solid rgba(255,255,255,.18);
+      background:#080808;
+      padding:9px 12px;
+      border-radius:999px;
+      font-size:12px;
+      cursor:pointer;
+      user-select:none;
+    }
+
+    .chip.active{
+      border-color:var(--red);
+      box-shadow:0 0 12px rgba(196,0,0,.38);
+      color:#fff;
+    }
+
+    .btnbar{
+      display:flex;
+      gap:12px;
+      margin-top:18px;
+      flex-wrap:wrap;
+    }
+
+    button{
+      border:none;
+      border-radius:10px;
+      padding:12px 16px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      cursor:pointer;
+    }
+
+    .primary{
+      background:var(--red);
+      color:white;
+      box-shadow:0 0 16px rgba(196,0,0,.45);
+    }
+
+    .secondary{
+      background:#1e1e1e;
+      color:white;
+      border:1px solid var(--line);
+    }
+
+    .statusCard{
+      background:#070707;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:14px;
+      margin-bottom:12px;
+    }
+
+    .statusTitle{
+      font-size:11px;
+      color:#aaa;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+    }
+
+    .statusValue{
+      font-size:20px;
+      font-weight:900;
+      margin-top:6px;
+    }
+
+    .green{color:var(--green)}
+    .yellow{color:var(--yellow)}
+    .red{color:var(--red)}
+    .blue{color:var(--blue)}
+
+    .receipt{
+      margin-top:16px;
+      background:#050505;
+      border:1px solid var(--line);
+      border-left:4px solid var(--yellow);
+      border-radius:10px;
+      padding:14px;
+      font-size:13px;
+      color:#ddd;
+      white-space:pre-wrap;
+    }
+
+    @media(max-width:1000px){
+      main{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <div>
+    <div class="brand">STATS-<span>CORE</span></div>
+    <div class="subhead">Recruiter Intelligence Intake</div>
+  </div>
+  <div class="subhead">Governed Matchmaking Source Record</div>
+</header>
+
+<main>
+  <aside class="rail">
+    <h2>Purpose</h2>
+    <p class="note">
+      This intake creates the Recruiter Intelligence Profile. It defines program need,
+      system fit, academic standards, and ideal candidate traits.
+    </p>
+
+    <div class="statusCard">
+      <div class="statusTitle">Doctrine</div>
+      <div class="statusValue blue">NEED INTELLIGENCE</div>
+    </div>
+
+    <div class="statusCard">
+      <div class="statusTitle">Athlete Score</div>
+      <div class="statusValue green">PURE</div>
+    </div>
+
+    <div class="statusCard">
+      <div class="statusTitle">Matchmaking</div>
+      <div class="statusValue yellow">RECRUITER SIDE</div>
+    </div>
+  </aside>
+
+  <section class="workspace">
+    <h1>Recruiter Intake</h1>
+    <p class="note">
+      Tell STATS-CORE what your program needs. The system will later compare this
+      Recruiter Intelligence against pure Athlete Intelligence.
+    </p>
+
+    <div class="section">
+      <h2>1. Program Identity</h2>
+      <div class="grid">
+        <div><label>School Name</label><input id="school_name"></div>
+        <div><label>Sport</label>
+          <select id="sport">
+            <option>Football</option>
+            <option>Basketball</option>
+            <option>Baseball</option>
+            <option>Track</option>
+            <option>Softball</option>
+            <option>Volleyball</option>
+            <option>Soccer</option>
+          </select>
+        </div>
+        <div><label>Division / Level</label>
+          <select id="division_level">
+            <option>NCAA D1</option>
+            <option>NCAA D2</option>
+            <option>NCAA D3</option>
+            <option>NAIA</option>
+            <option>JUCO</option>
+            <option>Prep</option>
+            <option>Club</option>
+          </select>
+        </div>
+        <div><label>Conference</label><input id="conference"></div>
+        <div><label>State</label><input id="state"></div>
+        <div><label>Recruiting Scope</label>
+          <select id="recruiting_scope">
+            <option>Local</option>
+            <option>Regional</option>
+            <option>National</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>2. Position Need</h2>
+      <div class="grid">
+        <div><label>Primary Position Needed</label><input id="position_needed" placeholder="QB, WR, CB, PG, Pitcher..."></div>
+        <div><label>Need Priority</label>
+          <select id="need_priority">
+            <option>High</option>
+            <option>Medium</option>
+            <option>Low</option>
+          </select>
+        </div>
+        <div><label>Grad Class Needed</label><input id="grad_class" placeholder="2027"></div>
+        <div><label>Roster Type</label>
+          <select id="roster_type">
+            <option>Immediate Contributor</option>
+            <option>Developmental Prospect</option>
+            <option>Depth Piece</option>
+            <option>Best Available Talent</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>3. System Philosophy</h2>
+      <div class="grid">
+        <div><label>Offensive Philosophy</label><input id="offensive_philosophy" placeholder="Spread, Air Raid, Pro Style, Motion..."></div>
+        <div><label>Defensive Philosophy</label><input id="defensive_philosophy" placeholder="4-3, 3-4, Press, Zone, Multiple..."></div>
+        <div><label>Special Teams / Specialty Need</label><input id="special_teams_philosophy" placeholder="Returner, Kicker, Speed, Utility..."></div>
+        <div><label>Recruiting Philosophy</label><input id="recruiting_philosophy" placeholder="High character, high production, under-recruited..."></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>4. Academic Requirements</h2>
+      <div class="grid">
+        <div><label>Minimum GPA</label><input id="minimum_gpa" placeholder="3.0"></div>
+        <div><label>Eligibility Required</label>
+          <select id="eligibility_required">
+            <option>Yes</option>
+            <option>No</option>
+            <option>Preferred</option>
+          </select>
+        </div>
+        <div><label>Academic Risk Tolerance</label>
+          <select id="academic_risk_tolerance">
+            <option>Low</option>
+            <option>Medium</option>
+            <option>High</option>
+          </select>
+        </div>
+        <div><label>Academic Support Available</label>
+          <select id="academic_support_available">
+            <option>Yes</option>
+            <option>No</option>
+            <option>Limited</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>5. Athlete Priorities</h2>
+      <p class="note">Select the traits that matter most to your program.</p>
+      <div class="chips" id="priority_chips">
+        <div class="chip">Production</div>
+        <div class="chip">Academics</div>
+        <div class="chip">Verification</div>
+        <div class="chip">Leadership</div>
+        <div class="chip">Coachability</div>
+        <div class="chip">Athletic Traits</div>
+        <div class="chip">Immediate Readiness</div>
+        <div class="chip">Long-Term Upside</div>
+        <div class="chip">Character</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>6. Ideal Candidate Notes</h2>
+      <label>Describe the athlete you are looking for</label>
+      <textarea id="ideal_candidate_notes" placeholder="Example: Need a dual-threat QB who can run RPO concepts, lead the locker room, qualify academically, and compete immediately."></textarea>
+    </div>
+
+    <div class="section">
+      <h2>7. Dealbreakers</h2>
+      <div class="chips" id="dealbreaker_chips">
+        <div class="chip">Below GPA Threshold</div>
+        <div class="chip">No Verified Production</div>
+        <div class="chip">No Film</div>
+        <div class="chip">No Eligibility Pathway</div>
+        <div class="chip">No Parent Approval</div>
+        <div class="chip">Disciplinary Concerns</div>
+        <div class="chip">Closed Recruiting Window</div>
+      </div>
+    </div>
+
+    <div class="btnbar">
+      <button class="primary" onclick="saveRecruiterIntake()">Save Recruiter Intelligence</button>
+      <button class="secondary" onclick="buildPreview()">Preview Intelligence Profile</button>
+      <button class="secondary" onclick="resetForm()">Reset</button>
+    </div>
+
+    <div class="receipt" id="receipt">RECEIPT: Recruiter Intake ready.</div>
+  </section>
+
+  <aside class="rightRail">
+    <h2>Governance Rail</h2>
+
+    <div class="statusCard">
+      <div class="statusTitle">Athlete Intelligence</div>
+      <div class="statusValue green">UNCHANGED</div>
+    </div>
+
+    <div class="statusCard">
+      <div class="statusTitle">Recruiter Intelligence</div>
+      <div class="statusValue blue">CREATED HERE</div>
+    </div>
+
+    <div class="statusCard">
+      <div class="statusTitle">Future Output</div>
+      <div class="statusValue yellow">PROGRAM FIT</div>
+    </div>
+
+    <p class="note">
+      This page does not score athletes. It defines program need so future
+      Governed Matchmaking can compare need against existing Athlete Intelligence.
+    </p>
+  </aside>
+</main>
+
+<script>
+  const LOCAL_KEY = "STATSCORE_RECRUITER_INTELLIGENCE_PROFILE";
+
+  function val(id){
+    return document.getElementById(id)?.value?.trim() || "";
+  }
+
+  function selectedChips(containerId){
+    return Array.from(document.querySelectorAll(`#${containerId} .chip.active`))
+      .map(chip => chip.textContent.trim());
+  }
+
+  document.querySelectorAll(".chip").forEach(chip=>{
+    chip.addEventListener("click",()=>chip.classList.toggle("active"));
+  });
+
+  function buildPayload(){
+    return {
+      school_name: val("school_name"),
+      sport: val("sport"),
+      division_level: val("division_level"),
+      conference: val("conference"),
+      state: val("state"),
+      recruiting_scope: val("recruiting_scope"),
+      position_needed: val("position_needed"),
+      need_priority: val("need_priority"),
+      grad_class: val("grad_class"),
+      roster_type: val("roster_type"),
+      offensive_philosophy: val("offensive_philosophy"),
+      defensive_philosophy: val("defensive_philosophy"),
+      special_teams_philosophy: val("special_teams_philosophy"),
+      recruiting_philosophy: val("recruiting_philosophy"),
+      minimum_gpa: val("minimum_gpa"),
+      eligibility_required: val("eligibility_required"),
+      academic_risk_tolerance: val("academic_risk_tolerance"),
+      academic_support_available: val("academic_support_available"),
+      priority_weights: selectedChips("priority_chips"),
+      ideal_candidate_notes: val("ideal_candidate_notes"),
+      dealbreakers: selectedChips("dealbreaker_chips"),
+      doctrine: {
+        athlete_intelligence_pure: true,
+        matchmaking_location: "Recruiter Intelligence",
+        output: "Opportunity Intelligence"
+      },
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+  }
+
+  function validatePayload(payload){
+    const missing = [];
+    if(!payload.school_name) missing.push("School Name");
+    if(!payload.sport) missing.push("Sport");
+    if(!payload.division_level) missing.push("Division / Level");
+    if(!payload.position_needed) missing.push("Primary Position Needed");
+    if(!payload.ideal_candidate_notes) missing.push("Ideal Candidate Notes");
+    return missing;
+  }
+
+  function saveRecruiterIntake(){
+    const payload = buildPayload();
+    const missing = validatePayload(payload);
+
+    if(missing.length){
+      setReceipt(
+        "RECEIPT: SAVE BLOCKED\n\nMissing required fields:\n- " + missing.join("\n- "),
+        "red"
+      );
+      return;
+    }
+
+    localStorage.setItem(LOCAL_KEY, JSON.stringify(payload));
+
+    setReceipt(
+`RECEIPT: RECRUITER INTELLIGENCE SAVED
+
+School: ${payload.school_name}
+Sport: ${payload.sport}
+Level: ${payload.division_level}
+Need: ${payload.position_needed}
+Priority: ${payload.need_priority}
+Scope: ${payload.recruiting_scope}
+
+Doctrine:
+Athlete Intelligence remains PURE.
+Governed Matchmaking stays inside Recruiter Intelligence.
+
+Storage:
+Saved locally under ${LOCAL_KEY}
+
+Next:
+Connect this payload to Supabase table sc_recruiter_intelligence_profiles.`,
+      "green"
+    );
+  }
+
+  function buildPreview(){
+    const payload = buildPayload();
+
+    setReceipt(
+`RECRUITER INTELLIGENCE PREVIEW
+
+PROGRAM:
+${payload.school_name || "Not Set"} | ${payload.sport} | ${payload.division_level}
+
+NEED:
+${payload.position_needed || "Not Set"} | ${payload.need_priority} | ${payload.roster_type}
+
+SYSTEM:
+Offense: ${payload.offensive_philosophy || "Not Set"}
+Defense: ${payload.defensive_philosophy || "Not Set"}
+
+ACADEMICS:
+Minimum GPA: ${payload.minimum_gpa || "Not Set"}
+Eligibility Required: ${payload.eligibility_required}
+
+PRIORITIES:
+${payload.priority_weights.length ? payload.priority_weights.join(", ") : "None Selected"}
+
+DEALBREAKERS:
+${payload.dealbreakers.length ? payload.dealbreakers.join(", ") : "None Selected"}
+
+IDEAL CANDIDATE:
+${payload.ideal_candidate_notes || "Not Set"}`,
+      "yellow"
+    );
+  }
+
+  function resetForm(){
+    document.querySelectorAll("input, textarea").forEach(el=>el.value="");
+    document.querySelectorAll("select").forEach(el=>el.selectedIndex=0);
+    document.querySelectorAll(".chip").forEach(el=>el.classList.remove("active"));
+    setReceipt("RECEIPT: Recruiter Intake reset.", "yellow");
+  }
+
+  function setReceipt(text, color){
+    const receipt = document.getElementById("receipt");
+    receipt.textContent = text;
+    receipt.style.borderLeftColor =
+      color === "green" ? "var(--green)" :
+      color === "red" ? "var(--red)" :
+      "var(--yellow)";
+  }
+</script>
+</body>
+</html> 
