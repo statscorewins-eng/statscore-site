@@ -103,7 +103,7 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
   }
 
   return data || null;
-} 
+}, 
 
 
   renderBlankState(){
