@@ -1,5 +1,5 @@
-window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
-  version: "v1.0",
+window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = { 
+  version: "v1.0", 
   status: "ACTIVE",
   engine_name: "STATS-CORE Athlete Dashboard Engine",
 
@@ -11,7 +11,7 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
     rule_4: "This engine orchestrates dashboard rendering; specialized engines produce intelligence."
   },
 
-  getSnapshotId(){
+  getSnapshotId(){ 
     const params = new URLSearchParams(window.location.search);
     return (
       params.get("snapshot_id") ||
@@ -79,22 +79,32 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
   },
 
   async loadSnapshot(snapshotId){
-    const db = this.getDb();
-    if(!db || !snapshotId) return null;
+  const db = this.getDb();
 
-    const { data, error } = await db
-      .from("statscore_snapshots")
-      .select("*")
-      .eq("snapshot_id", snapshotId)
-      .maybeSingle();
+  console.log("DASHBOARD DEBUG snapshotId:", snapshotId);
+  console.log("DASHBOARD DEBUG db:", db);
 
-    if(error){
-      console.error("Athlete Dashboard snapshot load failed:", error);
-      return null;
-    }
+  if(!db || !snapshotId) return null;
 
-    return data || null;
-  },
+  const cleanSnapshotId = String(snapshotId).trim();
+
+  const { data, error } = await db
+    .from("statscore_snapshots")
+    .select("*")
+    .eq("snapshot_id", cleanSnapshotId)
+    .maybeSingle();
+
+  console.log("DASHBOARD DEBUG query data:", data);
+  console.log("DASHBOARD DEBUG query error:", error);
+
+  if(error){
+    console.error("Athlete Dashboard snapshot load failed:", error);
+    return null;
+  }
+
+  return data || null;
+} 
+
 
   renderBlankState(){
     document.body.setAttribute("data-dashboard-state", "blank");
