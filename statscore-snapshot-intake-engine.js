@@ -1,6 +1,14 @@
-async function insertSnapshot(row){
+async function insertSnapshot(row){ 
   const db = getDb();
   const cleanRow = filterSnapshotSchema(row);
+  console.log("SNAPSHOT INSERT ROW:", row);
+console.log("SNAPSHOT CLEAN ROW:", cleanRow);
+console.log("SNAPSHOT SCORE CHECK:", {
+  row_snapshot_score: row.snapshot_score,
+  row_statscore_snapshot_score: row.statscore_snapshot_score,
+  clean_snapshot_score: cleanRow.snapshot_score,
+  clean_statscore_snapshot_score: cleanRow.statscore_snapshot_score
+}); 
 
   const { data: existingData, error: existingError } = await db
     .from(SNAPSHOT_TABLE)
