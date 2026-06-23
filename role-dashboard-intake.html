@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>STATS-CORE™ — Role Operating Context Intake</title>
+<style>
+/* Use the same full style block from recruiter-intake.html */
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="header">
+  <a class="logo-tab" href="index.html">
+    <img src="sc_logo_black_v2.png" alt="STATS-CORE">
+  </a>
+  <div class="header-title">National Athlete Infrastructure • Controlled Access</div>
+  <nav class="header-nav">
+    <a href="index.html">Entry</a>
+    <a class="active" href="role-dashboard-intake.html">Role Intake</a>
+    <a href="role-dashboard.html">Dashboard</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="terms.html">Terms</a>
+    <div class="user-icon"></div>
+  </nav>
+</header>
+
+<main class="main">
+
+<section class="record-header">
+  <div>
+    <div class="record-kicker">Official Non-Athlete Role Operating Context Intake</div>
+    <h1 class="record-title" id="pageTitle">Role Intake</h1>
+  </div>
+  <div class="record-badge" id="recordBadge">Environment Pending</div>
+</section>
+
+<section class="intake-grid">
+
+<form class="form-panel" id="roleIntakeForm">
+
+  <section class="section">
+    <h2 class="section-title">Login Role Authority</h2>
+    <div class="form-grid">
+      <div class="field">
+        <label>Detected Login Role</label>
+        <input id="detectedRole" type="text" readonly>
+      </div>
+      <div class="field">
+        <label>Role Specialization</label>
+        <select id="specializationKey" required>
+          <option value="">Loading role specializations...</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Operating Identity</h2>
+    <div class="form-grid">
+      <div class="field"><label>First Name</label><input id="firstName" type="text" required></div>
+      <div class="field"><label>Last Name</label><input id="lastName" type="text" required></div>
+      <div class="field"><label>Email</label><input id="email" type="email"></div>
+      <div class="field"><label>Phone</label><input id="phone" type="tel"></div>
+      <div class="field"><label>Official Title</label><input id="officialTitle" type="text" placeholder="Head Coach, Counselor, Recruiter, Trainer"></div>
+      <div class="field"><label>Organization / School / Program</label><input id="organizationName" type="text"></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Universal Sport Scope</h2>
+    <div class="form-grid">
+      <div class="field">
+        <label>Primary Sport</label>
+        <select id="primarySport" required>
+          <option value="">Select sport</option>
+          <option value="football">Football</option>
+          <option value="basketball">Basketball</option>
+          <option value="baseball">Baseball</option>
+          <option value="track">Track</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Team / Program Level</label>
+        <select id="teamLevel">
+          <option value="">Select level</option>
+          <option value="youth">Youth</option>
+          <option value="middle_school">Middle School</option>
+          <option value="junior_varsity">Junior Varsity</option>
+          <option value="varsity">Varsity</option>
+          <option value="club_travel">Club / Travel</option>
+          <option value="college">College</option>
+          <option value="multi_level">Multi-Level</option>
+        </select>
+      </div>
+
+      <div class="field full">
+        <label>Sport Scope</label>
+        <select id="sportScope" multiple>
+          <option value="football">Football</option>
+          <option value="basketball">Basketball</option>
+          <option value="baseball">Baseball</option>
+          <option value="track">Track</option>
+        </select>
+      </div>
+
+      <div class="field full">
+        <label>Position / Event / Group Scope</label>
+        <input id="positionEventGroup" type="text" placeholder="QB, WR, Sprints, Throws, Guards, Pitchers, Full Team">
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Operating Scope</h2>
+    <div class="form-grid">
+      <div class="field">
+        <label>Authority Scope</label>
+        <select id="authorityScope">
+          <option value="assigned_only">Assigned Athletes Only</option>
+          <option value="position_group">Position / Event Group</option>
+          <option value="team_scope">Team Scope</option>
+          <option value="program_scope">Program Scope</option>
+          <option value="academic_scope">Academic Support Scope</option>
+          <option value="recruiting_scope">Recruiting Scope</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Primary Dashboard Need</label>
+        <select id="dashboardNeed">
+          <option value="role_overview">Role Overview</option>
+          <option value="athlete_review">Athlete Review</option>
+          <option value="verification_queue">Verification Queue</option>
+          <option value="academic_support">Academic Support</option>
+          <option value="recruiting_access">Recruiting Access</option>
+          <option value="program_management">Program Management</option>
+        </select>
+      </div>
+
+      <div class="field full">
+        <label>Operating Notes</label>
+        <textarea id="operatingNotes" placeholder="Describe the user’s responsibility, access needs, team/program scope, athlete relationship, or verification authority."></textarea>
+      </div>
+
+      <div class="field">
+        <label>Multi-Box FROM Identity</label>
+        <input id="multiboxIdentity" type="text" readonly>
+      </div>
+    </div>
+  </section>
+
+</form>
+
+<aside class="side-panel">
+  <h2 class="side-title">Role Control</h2>
+  <p class="side-sub">
+    This intake creates the user’s operating role context, specialization, sport scope,
+    dashboard handoff, receipt, and Multi-Box FROM identity.
+  </p>
+
+  <div class="status-card">
+    <div class="status-row"><span>Login Role</span><b id="statusRole">Pending</b></div>
+    <div class="status-row"><span>Specialization</span><b id="statusSpecialization">Pending</b></div>
+    <div class="status-row"><span>Identity</span><b id="statusIdentity">Pending</b></div>
+    <div class="status-row"><span>Sport</span><b id="statusSport">Pending</b></div>
+    <div class="status-row"><span>Context</span><b id="statusContext">Pending</b></div>
+    <div class="status-row"><span>Multi-Box</span><b id="statusMultibox">Pending</b></div>
+  </div>
+
+  <div class="notice" id="roleNotice">
+    Role Intake does not create login credentials. Login already determines the user role. This page creates operating context only.
+  </div>
+
+  <div class="submit-stack">
+    <button id="submitRoleBtn" class="btn primary" type="button">Create Role Context <span>›</span></button>
+    <button id="saveDraftBtn" class="btn" type="button">Save Draft <span>›</span></button>
+    <button id="previewBtn" class="btn green" type="button">Preview Context <span>›</span></button>
+  </div>
+
+  <div class="system-message" id="systemMessage"></div>
+</aside>
+
+</section>
+
+<section class="flow">
+  <div class="flow-title">Role Path</div>
+  <div class="flow-step"><b>Login</b><span>Role Verified</span></div>
+  <div class="flow-step"><b>Specialization</b><span>Function Selected</span></div>
+  <div class="flow-step"><b>Sport</b><span>Scope Captured</span></div>
+  <div class="flow-step"><b>Context</b><span>Supabase Saved</span></div>
+  <div class="flow-step"><b>Dashboard</b><span>Shared Role Shell</span></div>
+  <a id="viewDashboardBtn" class="btn primary" href="role-dashboard.html">Continue to Dashboard <span>›</span></a>
+</section>
+
+<footer class="footer">
+  <div><img src="sc_logo_black_v2.png" alt="STATS-CORE"></div>
+  <div>Official Non-Athlete Role Operating Context Intake</div>
+  <div class="demo-ok">✓ Role Environment Pending</div>
+  <div>© STATS-CORE Systems<br>All Rights Reserved.</div>
+</footer>
+
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="statscore-data.js"></script>
+<script src="statscore-role-intake-core.js"></script>
+<script src="statscore-role-dashboard-intake-engine.js"></script>
+
+</body>
+</html> 
