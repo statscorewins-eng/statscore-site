@@ -1,5 +1,5 @@
 window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
-  version: "v1.1",
+  version: "v1.1", 
   status: "ACTIVE",
   engine_name: "STATS-CORE Athlete Dashboard Engine",
 
@@ -49,31 +49,104 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
     return Number.isFinite(num) ? num : null;
   },
 
-  async loadSnapshot(snapshotId){
-    const db = this.getDb();
-    const cleanSnapshotId = String(snapshotId || "").trim();
+ async loadSnapshot(snapshotId){
+  const db = this.getDb();
+  const cleanSnapshotId = String(snapshotId || "").trim();
 
-    console.log("DASHBOARD LOAD snapshot_id:", cleanSnapshotId);
-    console.log("DASHBOARD DB:", db);
+  console.log("DASHBOARD LOAD snapshot_id:", cleanSnapshotId);
+  console.log("DASHBOARD DB:", db);
 
-    if(!db || !cleanSnapshotId) return null;
+  if(!db || !cleanSnapshotId) return null;
 
-    const { data, error } = await db
-      .from("statscore_snapshots")
-      .select("*")
-      .eq("snapshot_id", cleanSnapshotId)
-      .maybeSingle();
+  // 1. Primary: dashboard/intelligence snapshot table
+  let { data, error } = await db
+    .from("statscore_snapshots")
+    .select("*")
+    .eq("snapshot_id", cleanSnapshotId)
+    .maybeSingle();
 
-    console.log("DASHBOARD SNAPSHOT DATA:", data);
-    console.log("DASHBOARD SNAPSHOT ERROR:", error);
+  console.log("DASHBOARD SNAPSHOT DATA:", data);
+  console.log("DASHBOARD SNAPSHOT ERROR:", error);
 
-    if(error){
-      console.error("Athlete Dashboard snapshot load failed:", error);
-      return null;
-    }
+  if(error){
+    console.error("Athlete Dashboard snapshot load failed:", error);
+    return null;
+  }
 
-    return data || null;
-  },
+  if(data){
+    return {
+      __source_table: "statscore_snapshots",
+      ...data
+    };
+  }
+
+  // 2. Fallback: demo/intake source table
+  const fallback = await db
+    .from("sc_snapshot_intakes")
+    .select("*")
+    .eq("snapshot_id", cleanSnapshotId)
+    .maybeSingle();
+
+  console.log("DASHBOARD INTAKE FALLBACK DATA:", fallback.data);
+  console.log("DASHBOARD INTAKE FALLBACK ERROR:", fallback.error);
+
+  if(fallback.error){
+    console.warn("Athlete Dashboard intake fallback failed:", fallback.error);
+    return null;
+  }
+
+  if(fallback.data){
+    const intake = fallback.data;
+    const payload = intake.intake_payload || {};
+
+    return {
+      __source_table: "sc_snapshot_intakes",
+      snapshot_id: intake.snapshot_id,
+      athlete_id: intake.athlete_id,
+      athlete_display_name:
+        intake.athlete_name ||
+        `${payload.firstName || payload.first_name || ""} ${payload.lastName || payload.last_name || ""}`.trim(),
+
+      first_name: payload.firstName || payload.first_name || "",
+      last_name: payload.lastName || payload.last_name || "",
+
+      primary_sport: intake.sport || payload.primarySport || payload.sport || "",
+      primary_position: intake.position || payload.primaryPosition || payload.position || "",
+      secondary_position: payload.secondaryPosition || payload.secondary_position || "",
+
+      graduation_class: payload.graduationClass || payload.classYear || payload.graduation_year || "",
+      school_program: payload.schoolProgram || payload.school || "",
+      city_state:
+        payload.cityState ||
+        [payload.city, payload.state].filter(Boolean).join(", "),
+
+      height: payload.height || "",
+      weight: payload.weight || "",
+
+      current_gpa: payload.currentGpa || payload.gpa || "",
+      ncaa_eligibility_status: payload.ncaaEligibilityStatus || payload.ncaa_status || "",
+
+      dash40: payload.dash40 || payload.forty || payload.fortyDash || "",
+      vertical_jump: payload.verticalJump || payload.vertical || "",
+      shuttle: payload.shuttle || "",
+      broad_jump: payload.broadJump || payload.broad_jump || "",
+      strength_marker: payload.strengthMarker || payload.strength_marker || "",
+
+      headshot_url:
+        payload.headshotUrl ||
+        payload.headshot_url ||
+        payload.photo_url ||
+        "",
+
+      verification_status: intake.verification_status || "PENDING_REVIEW",
+      score_status: "INTAKE_DEMO",
+
+      raw_payload: payload
+    };
+  }
+
+  return null;
+}, 
 
   async loadProduction(snapshotId){
     const db = this.getDb();
