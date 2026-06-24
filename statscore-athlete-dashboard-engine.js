@@ -1,5 +1,5 @@
 window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
-  version: "v1.2", 
+  version: "v1.3-stream3-spine",
   status: "ACTIVE",
   engine_name: "STATS-CORE Athlete Dashboard Engine",
 
@@ -21,9 +21,21 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
     return window.STATScoreData?.getClient?.() || window.STATScoreSupabase || null;
   },
 
+  scoreAuthority(){
+    return window.STATSCORE_SCORE_AUTHORITY_ENGINE || null;
+  },
+
+  verificationAuthority(){
+    return window.STATSCORE_VERIFICATION_AUTHORITY_ENGINE || null;
+  },
+
+  explainer(){
+    return window.STATSCORE_INTELLIGENCE_EXPLAINER_ENGINE || null;
+  },
+
   setText(selector, value, fallback = "—"){
     const el = document.querySelector(selector);
-    if(el) el.textContent = value || fallback;
+    if(el) el.textContent = value === null || value === undefined || value === "" ? fallback : value;
   },
 
   setAll(selectors, value, fallback = "—"){
@@ -76,28 +88,25 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
     const cleanSnapshotId = String(snapshotId || "").trim();
 
     console.log("DASHBOARD LOAD snapshot_id:", cleanSnapshotId);
-    console.log("DASHBOARD DB:", db);
 
     if(!db || !cleanSnapshotId) return null;
 
-    let { data, error } = await db
+    const primary = await db
       .from("statscore_snapshots")
       .select("*")
       .eq("snapshot_id", cleanSnapshotId)
       .maybeSingle();
 
-    console.log("DASHBOARD SNAPSHOT DATA:", data);
-    console.log("DASHBOARD SNAPSHOT ERROR:", error);
-
-    if(error){
-      console.error("Athlete Dashboard snapshot load failed:", error);
+    if(primary.error){
+      console.error("Athlete Dashboard snapshot load failed:", primary.error);
       return null;
     }
 
-    if(data){
+    if(primary.data){
       return {
         __source_table: "statscore_snapshots",
-        ...data
+        __legacy_fallback: false,
+        ...primary.data
       };
     }
 
@@ -107,11 +116,8 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
       .eq("snapshot_id", cleanSnapshotId)
       .maybeSingle();
 
-    console.log("DASHBOARD INTAKE FALLBACK DATA:", fallback.data);
-    console.log("DASHBOARD INTAKE FALLBACK ERROR:", fallback.error);
-
     if(fallback.error){
-      console.warn("Athlete Dashboard intake fallback failed:", fallback.error);
+      console.warn("Athlete Dashboard legacy intake fallback failed:", fallback.error);
       return null;
     }
 
@@ -121,6 +127,7 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
 
       return {
         __source_table: "sc_snapshot_intakes",
+        __legacy_fallback: true,
         snapshot_id: intake.snapshot_id,
         athlete_id: intake.athlete_id,
         athlete_display_name:
@@ -152,8 +159,10 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
 
         headshot_public_url: payload.headshot_public_url || payload.headshotUrl || payload.headshot_url || payload.photo_url || "",
 
-        verification_status: intake.verification_status || "PENDING_REVIEW",
-        score_status: "INTAKE_DEMO",
+        verification_authority: "SELF_REPORTED",
+        verification_status: "UNVERIFIED",
+        verification_color: "YELLOW",
+        score_status: "COMPOSITE_PENDING",
 
         raw_payload: payload
       };
@@ -216,6 +225,8 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
 
     return {
       source_table: record?.__source_table || "",
+      legacy_fallback: Boolean(record?.__legacy_fallback),
+
       snapshot_id: record?.snapshot_id || raw.snapshot_id || "",
       athlete_id: record?.athlete_id || raw.athlete_id || "",
       name: this.buildAthleteName(record),
@@ -255,18 +266,33 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
         raw.photo_url ||
         "",
 
-      headshot_path: record?.headshot_path || raw.headshot_path || "",
-      headshot_bucket: record?.headshot_bucket || raw.headshot_bucket || "",
+      verification_authority:
+        record?.verification_authority ||
+        raw.verification_authority ||
+        "SELF_REPORTED",
 
-      verification_status: record?.verification_status || raw.verificationStatus || raw.verification_status || "UNVERIFIED",
-      score_status: record?.score_status || raw.scoreStatus || raw.score_status || "UNVERIFIED",
+      verification_status:
+        record?.verification_status ||
+        raw.verificationStatus ||
+        raw.verification_status ||
+        "UNVERIFIED",
 
-      core_score: record?.snapshot_score || record?.overall_score || record?.core_score || raw.snapshot_score || raw.overall_score || raw.core_score || "",
-      position_score: record?.position_score || raw.position_score || "",
-      athletic_score: record?.athletic_score || raw.athletic_score || "",
-      production_score: record?.production_score || raw.production_score || "",
-      academic_score: record?.academic_score || raw.academic_score || "",
-      character_score: record?.character_score || raw.character_score || "",
+      verification_color:
+        record?.verification_color ||
+        raw.verification_color ||
+        "YELLOW",
+
+      score_status:
+        record?.score_status ||
+        raw.scoreStatus ||
+        raw.score_status ||
+        "COMPOSITE_PENDING",
+
+      position_score: record?.position_score || raw.positionScore || raw.position_score || "",
+      athletic_score: record?.athletic_score || raw.athleticScore || raw.athletic_score || "",
+      production_score: record?.production_score || raw.productionScore || raw.production_score || "",
+      academic_score: record?.academic_score || raw.academicScore || raw.academic_score || "",
+      character_score: record?.character_score || raw.characterScore || raw.character_score || "",
 
       exposure_score: record?.exposure_score || raw.exposure_score || "",
       recruiting_readiness: record?.recruiting_readiness || raw.recruiting_readiness || "",
@@ -279,54 +305,46 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
     };
   },
 
-  renderBlankState(){
-    document.body.setAttribute("data-dashboard-state", "blank");
+  getVerificationModel(athlete){
+    const engine = this.verificationAuthority();
 
-    this.setText("[data-athlete-name]", "Athlete Dashboard");
-    this.setText("[data-athlete-position]", "No Athlete Loaded");
-    this.setText("[data-athlete-school]", "Search or open a snapshot record to load athlete intelligence.");
-    this.setText("[data-athlete-location]", "Snapshot Required");
-    this.setText("[data-snapshot-id]", "No Snapshot ID");
-
-    this.setText("[data-athlete-height]", "—");
-    this.setText("[data-athlete-weight]", "—");
-    this.setText("[data-athlete-class]", "—");
-    this.setText("[data-athlete-sport]", "—");
-
-    this.setImage("[data-athlete-image]", "");
-
-    this.setText("[data-core-score]", "—");
-    this.setText("[data-score-state]", "PENDING");
-
-    this.setText("[data-position-score]", "—");
-    this.setText("[data-athletic-score]", "—");
-    this.setText("[data-production-score]", "—");
-    this.setText("[data-academic-score]", "—");
-    this.setText("[data-character-score]", "—");
-
-    this.setText("[data-card-eligibility]", "Pending");
-    this.setText("[data-card-exposure]", "Pending");
-    this.setText("[data-card-recruiting]", "Pending");
-    this.setText("[data-card-trend]", "Pending");
-    this.setText("[data-card-complete]", "0%");
-  },
-
-  renderCardValue(cardKey, value){
-    const map = {
-      eligibility_status: "[data-card-eligibility]",
-      exposure_score: "[data-card-exposure]",
-      recruiting_readiness: "[data-card-recruiting]",
-      performance_trend: "[data-card-trend]",
-      profile_completeness: "[data-card-complete]",
-      production_score: "[data-production-score]",
-      academic_overview: "[data-academic-gpa]",
-      athletic_snapshot: "[data-athletic-score]"
+    const context = {
+      verification_authority: athlete.verification_authority || "SELF_REPORTED",
+      verification_status: athlete.verification_status || "UNVERIFIED",
+      verification_color: athlete.verification_color || "YELLOW"
     };
 
-    const selector = map[cardKey];
-    if(!selector) return;
+    if(engine?.resolveVerificationModel){
+      return engine.resolveVerificationModel(context);
+    }
 
-    this.setText(selector, value, "Pending");
+    return {
+      verification_authority: context.verification_authority,
+      verification_status:
+        context.verification_authority === "SELF_REPORTED" ? "UNVERIFIED" : context.verification_status,
+      verification_color:
+        context.verification_authority === "SELF_REPORTED" ? "YELLOW" : context.verification_color,
+      is_verified: context.verification_status === "VERIFIED" && context.verification_authority !== "SELF_REPORTED",
+      is_self_reported: context.verification_authority === "SELF_REPORTED",
+      performance_traits_unlocked: false,
+      locked_performance_traits: []
+    };
+  },
+
+  getScoreModel(snapshotId){
+    const engine = this.scoreAuthority();
+
+    if(engine?.getDashboardScoreModel){
+      return engine.getDashboardScoreModel(snapshotId);
+    }
+
+    return {
+      snapshot_id: snapshotId,
+      composite_status: "PENDING",
+      composite_display_allowed: false,
+      display_rule: "Composite authority not active.",
+      scores: []
+    };
   },
 
   calculateProfileCompleteness(athlete){
@@ -403,6 +421,52 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
     };
   },
 
+  resolveDashboardScores(athlete){
+    return {
+      composite_label: "STATS-CORE Composite",
+      composite_value: "PENDING",
+      composite_state: "COMPOSITE PENDING",
+
+      position_score: this.scoreValue(athlete.position_score),
+      athletic_score: this.scoreValue(athlete.athletic_score),
+      production_score: this.scoreValue(athlete.production_score),
+      academic_score: this.scoreValue(athlete.academic_score),
+      character_score: this.scoreValue(athlete.character_score)
+    };
+  },
+
+  renderBlankState(){
+    document.body.setAttribute("data-dashboard-state", "blank");
+
+    this.setText("[data-athlete-name]", "Athlete Dashboard");
+    this.setText("[data-athlete-position]", "No Athlete Loaded");
+    this.setText("[data-athlete-school]", "Search or open a snapshot record to load athlete intelligence.");
+    this.setText("[data-athlete-location]", "Snapshot Required");
+    this.setText("[data-snapshot-id]", "No Snapshot ID");
+
+    this.setText("[data-athlete-height]", "—");
+    this.setText("[data-athlete-weight]", "—");
+    this.setText("[data-athlete-class]", "—");
+    this.setText("[data-athlete-sport]", "—");
+
+    this.setImage("[data-athlete-image]", "");
+
+    this.setText("[data-core-score]", "PENDING");
+    this.setText("[data-score-state]", "COMPOSITE PENDING");
+
+    this.setText("[data-position-score]", "—");
+    this.setText("[data-athletic-score]", "—");
+    this.setText("[data-production-score]", "—");
+    this.setText("[data-academic-score]", "—");
+    this.setText("[data-character-score]", "—");
+
+    this.setText("[data-card-eligibility]", "Pending");
+    this.setText("[data-card-exposure]", "Pending");
+    this.setText("[data-card-recruiting]", "Pending");
+    this.setText("[data-card-trend]", "Pending");
+    this.setText("[data-card-complete]", "0%");
+  },
+
   renderAthlete(record, productionRecords = [], approval = null){
     const athlete = this.normalizeRecord(record);
     const production = this.calculateProductionSummary(productionRecords);
@@ -417,6 +481,10 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
     sessionStorage.setItem("STATSCORE_ACTIVE_SNAPSHOT_ID", athlete.snapshot_id);
 
     document.body.setAttribute("data-dashboard-state", "loaded");
+
+    const verification = this.getVerificationModel(athlete);
+    const scoreModel = this.getScoreModel(athlete.snapshot_id);
+    const scores = this.resolveDashboardScores(athlete);
 
     this.setText("[data-athlete-name]", athlete.name || "Unnamed Athlete");
     this.setText("[data-athlete-position]", athlete.position || "Position Pending");
@@ -443,53 +511,14 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
 
     const completeness = this.calculateProfileCompleteness(athlete);
 
-    const coreScore = this.scoreValue(
-  athlete.core_score,
-  athlete.raw?.statscore_score,
-  athlete.raw?.snapshot_score,
-  athlete.raw?.official_score,
-  athlete.raw?.overall_score,
-  athlete.raw?.final_score
-);
+    this.setText("[data-core-score]", scores.composite_value);
+    this.setText("[data-score-state]", scores.composite_state);
 
-const positionScore = this.scoreValue(
-  athlete.position_score,
-  athlete.raw?.positionScore,
-  athlete.raw?.position_score
-);
-
-const athleticScore = this.scoreValue(
-  athlete.athletic_score,
-  athlete.raw?.athleticScore,
-  athlete.raw?.athletic_score
-);
-
-const productionScore = this.scoreValue(
-  athlete.production_score,
-  athlete.raw?.productionScore,
-  athlete.raw?.production_score
-);
-
-const academicScore = this.scoreValue(
-  athlete.academic_score,
-  athlete.raw?.academicScore,
-  athlete.raw?.academic_score
-);
-
-const characterScore = this.scoreValue(
-  athlete.character_score,
-  athlete.raw?.characterScore,
-  athlete.raw?.character_score
-); 
-
-    this.setText("[data-core-score]", coreScore === "—" ? "89" : coreScore);
-    this.setText("[data-score-state]", athlete.verification_status || athlete.score_status || "PENDING");
-
-    this.setText("[data-position-score]", positionScore);
-    this.setText("[data-athletic-score]", athleticScore);
-    this.setText("[data-production-score]", productionScore);
-    this.setText("[data-academic-score]", academicScore);
-    this.setText("[data-character-score]", characterScore);
+    this.setText("[data-position-score]", scores.position_score);
+    this.setText("[data-athletic-score]", scores.athletic_score);
+    this.setText("[data-production-score]", scores.production_score);
+    this.setText("[data-academic-score]", scores.academic_score);
+    this.setText("[data-character-score]", scores.character_score);
 
     this.setText("[data-card-eligibility]", athlete.ncaa_status || "Needs Review");
     this.setText("[data-card-eligibility-line2]", `Core Courses: —\nGPA: ${athlete.gpa || "—"}`);
@@ -499,9 +528,13 @@ const characterScore = this.scoreValue(
 
     this.setText(
       "[data-card-recruiting]",
-      athlete.verification_status === "VERIFIED" ? "Verification Active" : "Needs Verification"
+      verification.is_verified ? "Verification Active" : "Needs Verification"
     );
-    this.setText("[data-card-recruiting-line]", athlete.production_tier || athlete.production_level || "Interest Registry: Pending");
+
+    this.setText(
+      "[data-card-recruiting-line]",
+      athlete.production_tier || athlete.production_level || "Interest Registry: Pending"
+    );
 
     this.setText("[data-card-trend]", production.seasons ? `${production.seasons} Seasons` : "Needs History");
     this.setText("[data-card-trend-line]", production.total_yards !== "—" ? `${production.total_yards} total yards` : "History Required");
@@ -526,7 +559,7 @@ const characterScore = this.scoreValue(
     this.setText("[data-crystal-status]", `Profile ID: ${athlete.snapshot_id}\nStatus: Loaded`);
 
     this.setText("[data-gov-visibility]", "Controlled");
-    this.setText("[data-gov-recruiting]", athlete.verification_status === "VERIFIED" ? "Limited" : "Locked");
+    this.setText("[data-gov-recruiting]", verification.is_verified ? "Limited" : "Locked");
     this.setText("[data-gov-media]", athlete.headshot_url ? "Active" : "Limited");
     this.setText("[data-gov-sharing]", "Controlled");
 
@@ -534,18 +567,20 @@ const characterScore = this.scoreValue(
     this.setText("[data-intel-opportunity]", production.seasons ? "Active" : "—");
     this.setText("[data-intel-feed]", "Loaded");
 
-    this.setText("[data-recruiting-row1]", production.seasons ? `${production.seasons} verified seasons loaded` : "Awaiting verified interest");
-    this.setText("[data-recruiting-row2]", athlete.verification_status === "VERIFIED" ? "Profile verification active" : "Pending exposure activity");
+    this.setText("[data-recruiting-row1]", production.seasons ? `${production.seasons} seasons loaded` : "Awaiting production history");
+    this.setText("[data-recruiting-row2]", verification.is_verified ? "Profile verification active" : "Pending exposure activity");
     this.setText("[data-recruiting-row3]", approvalStatus !== "PENDING" ? `Parent gate: ${approvalStatus}` : "No active requests loaded");
 
     this.setText("[data-feed-row1]", `Snapshot loaded: ${athlete.snapshot_id}`);
-    this.setText("[data-feed-row2]", `Verification: ${athlete.verification_status}`);
+    this.setText("[data-feed-row2]", `Verification: ${verification.verification_status}`);
     this.setText("[data-feed-row3]", `Parent gate: ${approvalStatus}`);
 
     this.attachSnapshotToLinks(athlete.snapshot_id);
 
     console.log("DASHBOARD RENDERED ATHLETE:", athlete);
-    console.log("DASHBOARD PRODUCTION:", production);
+    console.log("DASHBOARD PRODUCTION SUMMARY:", production);
+    console.log("STREAM 3 SCORE MODEL:", scoreModel);
+    console.log("STREAM 3 VERIFICATION MODEL:", verification);
   },
 
   attachSnapshotToLinks(snapshotId){
@@ -599,7 +634,7 @@ const characterScore = this.scoreValue(
   },
 
   async init(){
-    console.log("STATS-CORE Athlete Dashboard Engine v1.2 init");
+    console.log("STATS-CORE Athlete Dashboard Engine v1.3-stream3-spine init");
 
     this.wireCardRouting();
 
