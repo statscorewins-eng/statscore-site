@@ -1,4 +1,4 @@
-window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
+window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = { 
   version: "v1.3-stream3-spine", 
   status: "ACTIVE",
   engine_name: "STATS-CORE Athlete Dashboard Engine",
@@ -629,17 +629,36 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
     });
   },
 
-  wireCardRouting(){
-    document.querySelectorAll("[data-dashboard-route]").forEach(card => {
-      card.addEventListener("click", event => {
-        const snapshotId = this.getSnapshotId();
-        if(!snapshotId){
-          event.preventDefault();
-          alert("Load an athlete snapshot before opening this intelligence room.");
-        }
-      });
+ wireCardRouting(){
+  const snapshotRouteCards = document.querySelectorAll(
+    ".index-card, [data-dashboard-route]"
+  );
+
+  snapshotRouteCards.forEach(card => {
+    card.style.cursor = "pointer";
+
+    card.addEventListener("click", event => {
+      const snapshotId = this.getSnapshotId();
+
+      if(!snapshotId){
+        event.preventDefault();
+        alert("Load an athlete snapshot before opening this intelligence room.");
+        return;
+      }
+
+      const route =
+        card.getAttribute("data-dashboard-route") ||
+        card.getAttribute("href") ||
+        "athletic-snapshot.html";
+
+      event.preventDefault();
+
+      window.location.href =
+        route.split("?")[0] + "?snapshot_id=" + encodeURIComponent(snapshotId);
     });
-  },
+  });
+}, 
+
 
   async init(){
     console.log("STATS-CORE Athlete Dashboard Engine v1.3-stream3-spine init");
