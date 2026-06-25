@@ -1,5 +1,5 @@
 window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
-  version: "v1.3-stream3-spine",
+  version: "v1.3-stream3-spine", 
   status: "ACTIVE",
   engine_name: "STATS-CORE Athlete Dashboard Engine",
 
@@ -423,17 +423,25 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
 
   resolveDashboardScores(athlete){
     return {
-      composite_label: "STATS-CORE Composite",
-      composite_value: "PENDING",
-      composite_state: "COMPOSITE PENDING",
 
-      position_score: this.scoreValue(athlete.position_score),
-      athletic_score: this.scoreValue(athlete.athletic_score),
-      production_score: this.scoreValue(athlete.production_score),
-      academic_score: this.scoreValue(athlete.academic_score),
-      character_score: this.scoreValue(athlete.character_score)
+        composite_label: "Composite Score",
+        
+        composite_value: "🔒",
+
+        composite_state: "COMPOSITE SCORE PENDING",
+
+        position_score: this.scoreValue(athlete.position_score),
+
+        athletic_score: this.scoreValue(athlete.athletic_score),
+
+        production_score: this.scoreValue(athlete.production_score),
+
+        academic_score: this.scoreValue(athlete.academic_score),
+
+        character_score: this.scoreValue(athlete.character_score)
+
     };
-  },
+}, 
 
   renderBlankState(){
     document.body.setAttribute("data-dashboard-state", "blank");
