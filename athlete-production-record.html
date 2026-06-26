@@ -235,9 +235,8 @@ button.good{border-color:rgba(47,168,102,.7);background:rgba(47,168,102,.1)}
 </main>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL = "https://oyjmpbuxvfxusmbouldi.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk";
@@ -246,7 +245,15 @@ window.STATScoreSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_A
   auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}
 });
 
-let CURRENT_SNAPSHOT = null;
+<script src="statscore-stream-9-authority.js"></script>
+<script src="statscore-intelligence-doctrine.js"></script>
+<script src="statscore-score-doctrine.js"></script>
+<script src="statscore-matrix-doctrine.js"></script>
+<script src="statscore-matrix-registry.js"></script> 
+<script src="statscore-production-matrix.js"></script>  
+
+<script>
+let CURRENT_SNAPSHOT = null; 
 let CURRENT_RECORDS = [];
 let CURRENT_EDIT_RECORD_ID = null;
 
@@ -402,9 +409,11 @@ async function loadSnapshot(){
   const snapshotId=getSnapshotId();
 
   if(!snapshotId){
-    setMessage("No snapshot_id found in URL.","bad");
-    return;
-  }
+  CURRENT_RECORDS = [];
+  renderProductionLedger();
+  setMessage("No snapshot_id found in URL.","bad");
+  return;
+} 
 
   const {data,error}=await window.STATScoreSupabase
     .from("statscore_snapshots")
@@ -709,7 +718,10 @@ function resetForm(){
   setMessage("Form cleared. Ready for new season record.");
 }
 
-document.addEventListener("DOMContentLoaded",loadSnapshot);
+document.addEventListener("DOMContentLoaded", function(){
+  renderProductionLedger();
+  loadSnapshot();
+}); 
 </script> 
 
 </body>
