@@ -1,4 +1,80 @@
-/* ============================================================
+/*
+==========================================================
+STATS-CORE™ OWNERSHIP HEADER
+==========================================================
+
+File:
+statscore-self-healing-engine.js
+
+Asset Type:
+JavaScript Operations Engine / Self-Healing
+
+Owner Stream:
+Stream 8 — System Operations / Self-Healing
+
+Primary Operational Authority:
+Stream 8 — System Operations / Self-Healing
+
+Layer:
+Operations / Recovery Support
+
+Runtime Owner:
+System Operations Runtime
+
+Primary Consumers:
+- system.html
+- statscore-engine-health.js
+- statscore-system-operations-map.js
+- Master Integration
+
+Purpose:
+Detects operational failures, missing dependencies,
+broken runtime context, unavailable engines, and
+recoverable system conditions.
+
+Consumes:
+- engine health output
+- runtime state
+- system operations map
+- engine registry
+- page registry
+
+Provides:
+- failure detection
+- recovery recommendations
+- operational warnings
+- self-healing support signals
+
+Primary IDs:
+- engine_id
+- page_id
+- snapshot_id
+- role_id
+- system_state
+- health_status
+
+Cross-Stream Dependencies:
+May observe all Streams for operational integrity.
+May not rewrite another Stream's logic or silently change data.
+
+Does NOT:
+- Calculate intelligence
+- Modify scores
+- Render dashboards
+- Create snapshots
+- Send messages
+- Generate reports
+- Replace governed engines without approval
+
+Status:
+CANON LOCKED
+
+Last Governance Review:
+2026-06-27
+
+==========================================================
+*/ 
+
    STATScore™ Self-Healing Engine
    File: statscore-self-healing-engine.js
 
