@@ -1,4 +1,82 @@
-/* ============================================================
+/*
+==========================================================
+STATS-CORE™ OWNERSHIP HEADER
+==========================================================
+
+File:
+statscore-runtime-state-engine.js
+
+Asset Type:
+JavaScript Infrastructure / Runtime State Engine
+
+Owner Stream:
+Master Integration
+
+Primary Operational Authority:
+Master Integration
+
+Layer:
+Runtime / State Management
+
+Runtime Owner:
+Master Integration Runtime
+
+Primary Consumers:
+- all governed page runtimes
+- statscore-routing.js
+- statscore-engine-loader.js
+- statscore-engine-execution.js
+- system.html
+
+Purpose:
+Maintains active runtime context for STATS-CORE,
+including current snapshot, athlete, role, page,
+and system execution state.
+
+Consumes:
+- URL parameters
+- localStorage
+- sessionStorage
+- Supabase context
+- role context
+
+Provides:
+- runtime_state
+- active snapshot_id
+- active athlete_id
+- active role
+- active role_id
+- page context
+
+Primary IDs:
+- snapshot_id
+- athlete_id
+- role
+- role_id
+- page_id
+- system_state
+
+Cross-Stream Dependencies:
+May provide runtime context to all Streams.
+May not own Stream-specific business logic.
+
+Does NOT:
+- Calculate scores
+- Generate recommendations
+- Render HTML
+- Create snapshots
+- Modify production records
+- Execute communications
+
+Status:
+CANON LOCKED
+
+Last Governance Review:
+2026-06-27
+
+==========================================================
+*/ 
+
    STATScore™ Runtime State Engine
    FULL PRODUCTION FILE
    Version: v1.1
