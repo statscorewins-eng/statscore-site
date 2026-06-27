@@ -1,4 +1,74 @@
-/* ============================================================
+/*
+==========================================================
+STATS-CORE™ OWNERSHIP HEADER
+==========================================================
+
+File:
+statscore-engine-loader.js
+
+Asset Type:
+JavaScript Infrastructure / Engine Loader
+
+Owner Stream:
+Master Integration
+
+Primary Operational Authority:
+Master Integration
+
+Layer:
+Infrastructure / Engine Loading
+
+Runtime Owner:
+Master Integration Runtime
+
+Primary Consumers:
+- system.html
+- page runtimes
+- statscore-engine-execution.js
+- statscore-engine-health.js
+
+Purpose:
+Loads and coordinates required STATS-CORE engines through
+governed dependency order and runtime availability checks.
+
+Consumes:
+- statscore-engine-registry.js
+- statscore-system-map.js
+- statscore-page-map.js
+- runtime context
+
+Provides:
+- Engine loading support
+- Engine dependency readiness
+- Runtime bootstrap support
+
+Primary IDs:
+- engine_id
+- page_id
+- runtime_state
+- system_state
+
+Cross-Stream Dependencies:
+May load engines from all Streams.
+May not alter engine ownership or business logic.
+
+Does NOT:
+- Calculate athlete intelligence
+- Render UI
+- Modify pages
+- Create scores
+- Override engine registry ownership
+- Write production records
+
+Status:
+CANON LOCKED
+
+Last Governance Review:
+2026-06-27
+
+==========================================================
+*/ 
+
    STATScore™ Engine Loader
    File: statscore-engine-loader.js
 
