@@ -1,3 +1,88 @@
+<!--
+==========================================================
+STATS-CORE™ OWNERSHIP HEADER
+==========================================================
+
+File:
+recruiter-access.html
+
+Asset Type:
+HTML Presentation Page
+
+Owner Stream:
+Stream 5 — Shared Role Dashboard / CRM
+
+Primary Operational Authority:
+Stream 5 — Shared Role Dashboard / CRM
+
+System Layer:
+Recruiter Workspace / Access Surface
+
+Primary Runtime:
+statscore-role-access.js
+statscore-athlete-search-engine.js
+
+Primary Intelligence Engine(s):
+statscore-recruiting-interest-registry.js
+statscore-athlete-search-engine.js
+
+Previous Route:
+role-dashboard.html
+login.html
+
+Current Route:
+recruiter-access.html
+
+Next Route(s):
+role-dashboard.html
+player-profile.html
+multi-box.html
+crystal-report.html
+
+Consumes:
+role
+role_id
+recruiter context
+permitted athlete intelligence
+snapshot_id where permitted
+
+Provides:
+Recruiter workspace
+Athlete search/visibility surface
+Recruiter access context
+
+Primary IDs:
+role
+role_id
+recruiter_id
+athlete_id
+snapshot_id
+
+Primary Database Tables:
+statscore_snapshots
+recruiter/interest records where applicable
+
+Cross-Stream Dependencies:
+Consumes Stream 3 athlete intelligence.
+Consumes Stream 6 communication permissions.
+May consume Stream 7 Crystal outputs.
+
+Does NOT:
+- Calculate athlete scores
+- Own athlete intelligence
+- Create snapshots
+- Modify production records
+- Generate Crystal Reports directly
+
+Status:
+CANON LOCKED
+
+Last Governance Review:
+2026-06-27
+
+==========================================================
+--> 
+
 <!DOCTYPE html>  
 <html lang="en">
 <head>
