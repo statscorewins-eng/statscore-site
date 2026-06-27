@@ -1,4 +1,83 @@
-/* ============================================================
+/*
+==========================================================
+STATS-CORE™ OWNERSHIP HEADER
+==========================================================
+
+File:
+statscore-routing.js
+
+Asset Type:
+JavaScript Infrastructure / Routing Authority
+
+Owner Stream:
+Master Integration
+
+Primary Operational Authority:
+Master Integration
+
+Layer:
+Infrastructure / Routing
+
+Runtime Owner:
+Master Integration Runtime
+
+Primary Consumers:
+- index.html
+- login.html
+- snapshot-intake.html
+- athlete-dashboard.html
+- player-profile.html
+- role-dashboard.html
+- system.html
+- all route-aware pages
+
+Purpose:
+Provides governed routing support, route preservation,
+snapshot_id preservation, role-based navigation,
+and page-to-page flow integrity.
+
+Consumes:
+- runtime state
+- snapshot_id
+- role
+- role_id
+- page map
+- system map
+
+Provides:
+- governed routes
+- preserved query context
+- route decisions
+- navigation support
+
+Primary IDs:
+- snapshot_id
+- athlete_id
+- role
+- role_id
+- page_id
+
+Cross-Stream Dependencies:
+May route between all Streams.
+May not implement another Stream's page logic.
+
+Does NOT:
+- Calculate intelligence
+- Render dashboards
+- Create source records
+- Modify scores
+- Generate Crystal Reports
+- Execute communications
+
+Status:
+CANON LOCKED
+
+Last Governance Review:
+2026-06-27
+
+==========================================================
+*/ 
+
    STATScore™ Routing Spine
    File: statscore-routing.js
    Version: STATSCORE-ROUTING-V1
