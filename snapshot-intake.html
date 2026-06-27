@@ -1,3 +1,83 @@
+<!--
+==========================================================
+STATS-CORE™ OWNERSHIP HEADER
+==========================================================
+
+File:
+snapshot-intake.html
+
+Asset Type:
+HTML Presentation Page
+
+Owner Stream:
+Stream 2 — Athlete Source Record
+
+Primary Operational Authority:
+Stream 2 — Athlete Source Record
+
+System Layer:
+Athlete Source / Snapshot Intake
+
+Primary Runtime:
+statscore-data.js
+statscore-routing.js
+
+Primary Intelligence Engine(s):
+None
+
+Previous Route:
+login.html
+
+Current Route:
+snapshot-intake.html
+
+Next Route(s):
+athlete-dashboard.html
+player-profile.html
+parent-approval.html
+verification-request.html
+
+Consumes:
+Athlete identity input
+Athletic input
+Academic input
+Media input
+Guardian input
+
+Provides:
+athlete_id
+snapshot_id
+source record
+
+Primary IDs:
+athlete_id
+snapshot_id
+
+Primary Database Tables:
+statscore_snapshots
+sc_snapshot_intakes
+sc_parent_approval_requests
+
+Cross-Stream Dependencies:
+Provides source data to Stream 3.
+Provides approval context to Stream 6 and Stream 7.
+
+Does NOT:
+- Calculate scores
+- Generate intelligence
+- Render dashboard intelligence
+- Create Crystal Reports
+- Execute communication
+
+Status:
+CANON LOCKED
+
+Last Governance Review:
+2026-06-27
+
+==========================================================
+--> 
+
 <!DOCTYPE html>  
 <html lang="en">
 <head>
