@@ -1,3 +1,76 @@
+/*
+==========================================================
+STATS-CORE™ OWNERSHIP HEADER
+==========================================================
+
+File:
+statscore-dashboard-map.js
+
+Asset Type:
+JavaScript Registry / Dashboard Authority Map
+
+Owner Stream:
+Master Integration
+
+Primary Operational Authority:
+Master Integration
+
+Layer:
+Governance / Dashboard Mapping
+
+Runtime Owner:
+Master Integration Runtime
+
+Primary Consumers:
+- system.html
+- athlete-dashboard.html
+- role-dashboard.html
+- statscore-page-map.js
+- statscore-engine-loader.js
+
+Purpose:
+Defines governed dashboard ownership, dashboard routes,
+dashboard relationships, and dashboard consumption authority.
+
+Consumes:
+- STATS-CORE Canon
+- Page Registry
+- Stream Registry
+- System Map
+
+Provides:
+- Dashboard ownership map
+- Dashboard routing reference
+- Dashboard-to-engine relationship guidance
+
+Primary IDs:
+- dashboard_id
+- page_id
+- role
+- role_id
+- snapshot_id
+
+Cross-Stream Dependencies:
+May reference dashboard relationships across Streams.
+May not implement dashboard rendering or intelligence logic.
+
+Does NOT:
+- Render dashboard UI
+- Calculate athlete intelligence
+- Modify dashboard HTML
+- Execute scoring
+- Perform role intake
+- Execute communications
+
+Status:
+CANON LOCKED
+
+Last Governance Review:
+2026-06-27
+
+==========================================================
+*/ 
+
 window.STATSCORE_DASHBOARD_MAP = {
   map_version: "v1.0",
   map_status: "ACTIVE",
