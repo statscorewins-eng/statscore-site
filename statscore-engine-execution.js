@@ -1,9 +1,74 @@
 /*
-=========================================================
-STATS-CORE™ ENGINE EXECUTION LAYER
-Athlete Decision Intelligence Logic
-=========================================================
-*/
+==========================================================
+STATS-CORE™ OWNERSHIP HEADER
+==========================================================
+
+File:
+statscore-engine-execution.js
+
+Asset Type:
+JavaScript Infrastructure / Engine Execution Layer
+
+Owner Stream:
+Master Integration
+
+Primary Operational Authority:
+Master Integration
+
+Layer:
+Infrastructure / Engine Execution
+
+Runtime Owner:
+Master Integration Runtime
+
+Primary Consumers:
+- system.html
+- page runtimes
+- statscore-engine-loader.js
+- statscore-engine-health.js
+
+Purpose:
+Provides governed execution support for registered engines.
+Coordinates engine calls without owning business logic.
+
+Consumes:
+- statscore-engine-registry.js
+- statscore-engine-loader.js
+- runtime context
+- engine inputs
+
+Provides:
+- Engine execution results
+- Execution status
+- Execution error reporting
+
+Primary IDs:
+- engine_id
+- execution_id
+- snapshot_id
+- athlete_id
+- role_id
+
+Cross-Stream Dependencies:
+May execute registered engines from all Streams.
+May not redefine engine logic or ownership.
+
+Does NOT:
+- Own scoring formulas
+- Render HTML
+- Modify page layout
+- Create snapshots
+- Send communications
+- Generate Crystal Reports independently
+
+Status:
+CANON LOCKED
+
+Last Governance Review:
+2026-06-27
+
+==========================================================
+*/ 
 
 window.STATSCORE_ENGINE_EXECUTION = {
 
