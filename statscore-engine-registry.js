@@ -1,9 +1,75 @@
 /*
-=========================================================
-STATS-CORE™ ENGINE REGISTRY
-Athlete Decision Intelligence Infrastructure
-=========================================================
-*/
+==========================================================
+STATS-CORE™ OWNERSHIP HEADER
+==========================================================
+
+File:
+statscore-engine-registry.js
+
+Asset Type:
+JavaScript Registry / Engine Authority Registry
+
+Owner Stream:
+Master Integration
+
+Primary Operational Authority:
+Master Integration
+
+Layer:
+Governance / Engine Registry
+
+Runtime Owner:
+Master Integration Runtime
+
+Primary Consumers:
+- system.html
+- statscore-engine-loader.js
+- statscore-engine-execution.js
+- statscore-engine-health.js
+- statscore-system-operations-map.js
+
+Purpose:
+Registers official STATS-CORE engines and establishes
+engine ownership, availability, discovery, and authority.
+
+Consumes:
+- STATS-CORE Canon
+- Engine Registry Governance
+- Stream Registry
+- Ownership Registry
+
+Provides:
+- Engine registration authority
+- Engine discovery
+- Engine ownership reference
+- Engine availability reference
+
+Primary IDs:
+- engine_id
+- engine_key
+- stream_key
+- system_state
+
+Cross-Stream Dependencies:
+May register engines from all Streams.
+May not execute or modify another Stream's business logic.
+
+Does NOT:
+- Execute engines
+- Calculate intelligence
+- Render pages
+- Route users
+- Modify Supabase records
+- Generate recommendations
+
+Status:
+CANON LOCKED
+
+Last Governance Review:
+2026-06-27
+
+==========================================================
+*/ 
 
 window.STATSCORE_ENGINE_REGISTRY = {
 
