@@ -1,3 +1,81 @@
+/*
+==========================================================
+STATS-CORE™ OWNERSHIP HEADER
+==========================================================
+
+File:
+statscore-system-map.js
+
+Asset Type:
+JavaScript Registry / System Map
+
+Owner Stream:
+Master Integration
+
+Primary Operational Authority:
+Master Integration
+
+Layer:
+Governance / System Topology
+
+Runtime Owner:
+Master Integration Runtime
+
+Primary Consumers:
+- system.html
+- statscore-engine-loader.js
+- statscore-engine-registry.js
+- statscore-system-operations-map.js
+- Stream startup governance
+
+Purpose:
+Defines the official system topology for STATS-CORE.
+Provides the canonical map of pages, roles, flows,
+system areas, and high-level architectural authority.
+
+Consumes:
+- STATS-CORE Canon
+- Stream Registry
+- Page Registry
+- Engine Registry
+- Runtime Governance
+
+Provides:
+- System structure reference
+- Page and Stream relationship authority
+- Top-level operational map
+- Integration guidance for Master Integration
+
+Primary IDs:
+- athlete_id
+- snapshot_id
+- role
+- role_id
+- system_state
+
+Cross-Stream Dependencies:
+May reference all Streams for mapping purposes.
+May not implement another Stream's business logic.
+
+Does NOT:
+- Perform athlete scoring
+- Calculate intelligence
+- Render dashboards
+- Execute routing
+- Modify Supabase records
+- Own page runtime behavior
+- Generate recommendations
+- Execute communication logic
+
+Status:
+CANON LOCKED
+
+Last Governance Review:
+2026-06-27
+
+==========================================================
+*/ 
+
 window.STATSCORE_SYSTEM_MAP = {
   map_version: "v1.1",
   map_status: "ACTIVE",
