@@ -1,3 +1,79 @@
+<!--
+==========================================================
+STATS-CORE™ OWNERSHIP HEADER
+==========================================================
+
+File:
+system.html
+
+Asset Type:
+HTML Page
+
+Owner Stream:
+Master Integration
+
+Primary Operational Authority:
+Stream 8 — System Operations / Self-Healing
+
+Layer:
+Presentation Layer — System Administration
+
+Runtime Owner:
+statscore-system-runtime.js
+
+Primary Engines:
+- statscore-system-map.js
+- statscore-page-map.js
+- statscore-dashboard-map.js
+- statscore-engine-registry.js
+- statscore-engine-loader.js
+- statscore-engine-health.js
+- statscore-engine-execution.js
+- statscore-runtime-state-engine.js
+- statscore-self-healing-engine.js
+
+Purpose:
+Enterprise operational command center for STATS-CORE.
+Provides governed visibility into system health,
+engine status, routing, diagnostics, governance,
+and administrative operations.
+
+Consumes:
+- All Stream status outputs
+- System registry outputs
+- Engine health outputs
+- Routing map outputs
+- Governance map outputs
+
+Provides:
+Operational status to authorized administrators.
+
+Primary IDs:
+- role
+- role_id
+- system_state
+
+Cross-Stream Dependencies:
+May consume information from all Streams.
+May not modify another Stream's source logic.
+
+Does NOT:
+- Perform athlete scoring
+- Calculate intelligence
+- Perform Snapshot Intake
+- Modify Production Records
+- Generate Crystal Reports
+- Execute Multi-Box communications
+
+Status:
+CANON LOCKED
+
+Last Governance Review:
+2026-06-27
+
+==========================================================
+--> 
+
 <!DOCTYPE html>  
 <html lang="en">
 <head>
