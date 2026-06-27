@@ -1,3 +1,83 @@
+/*
+==========================================================
+STATS-CORE™ OWNERSHIP HEADER
+==========================================================
+
+File:
+statscore-page-map.js
+
+Asset Type:
+JavaScript Registry / Page Authority Map
+
+Owner Stream:
+Master Integration
+
+Primary Operational Authority:
+Master Integration
+
+Layer:
+Governance / Page Authority
+
+Runtime Owner:
+Master Integration Runtime
+
+Primary Consumers:
+- system.html
+- statscore-routing.js
+- statscore-engine-loader.js
+- statscore-dashboard-map.js
+- Page Runtime Engines
+
+Purpose:
+Defines the canonical registration, ownership, and
+governance of every HTML page within STATS-CORE.
+Establishes page authority, runtime relationships,
+routing identity, and Stream ownership.
+
+Consumes:
+- STATS-CORE Canon
+- Stream Registry
+- Ownership Registry
+- System Map
+
+Provides:
+- Page registration
+- Page ownership authority
+- Runtime assignment
+- Navigation authority
+- Stream ownership reference
+
+Primary IDs:
+- page_id
+- page_name
+- page_type
+- role
+- snapshot_id
+
+Cross-Stream Dependencies:
+May reference every Stream for page ownership.
+May not implement page business logic, scoring,
+communication, or runtime behavior.
+
+Does NOT:
+- Render HTML
+- Execute routing
+- Calculate athlete intelligence
+- Perform authentication
+- Execute dashboard logic
+- Modify Supabase records
+- Generate Crystal Reports
+- Execute Multi-Box communications
+
+Status:
+CANON LOCKED
+
+Last Governance Review:
+2026-06-27
+
+==========================================================
+*/ 
+
 Tyron Steele <tsteelefpa@gmail.com>
 5:21 PM (5 minutes ago)
 to me
