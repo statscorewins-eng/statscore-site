@@ -1,3 +1,83 @@
+<!--
+==========================================================
+STATS-CORE™ OWNERSHIP HEADER
+==========================================================
+
+File:
+coach.html
+
+Asset Type:
+HTML Presentation Page
+
+Owner Stream:
+Stream 5 — Shared Role Dashboard / CRM
+
+Primary Operational Authority:
+Stream 5 — Shared Role Dashboard / CRM
+
+System Layer:
+Coach Workspace
+
+Primary Runtime:
+statscore-role-access.js
+
+Primary Intelligence Engine(s):
+statscore-athlete-search-engine.js
+
+Previous Route:
+role-dashboard.html
+
+Current Route:
+coach.html
+
+Next Route(s):
+role-dashboard.html
+multi-box.html
+player-profile.html
+
+Consumes:
+role
+role_id
+permitted athlete intelligence
+coach context
+snapshot_id where permitted
+
+Provides:
+Coach workspace
+Athlete support visibility
+Coach action surface
+
+Primary IDs:
+role
+role_id
+athlete_id
+snapshot_id
+
+Primary Database Tables:
+Role context tables
+statscore_snapshots where permissioned
+
+Cross-Stream Dependencies:
+Consumes Stream 3 athlete intelligence.
+May route to Stream 6 communication.
+May support Stream 2 verification context.
+
+Does NOT:
+- Calculate athlete scores
+- Own source record creation
+- Own production scoring
+- Generate Crystal Reports
+- Modify communication windows
+
+Status:
+CANON LOCKED
+
+Last Governance Review:
+2026-06-27
+
+==========================================================
+--> 
+
 <!DOCTYPE html>    
 <html lang="en">
 <head>
