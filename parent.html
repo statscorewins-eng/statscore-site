@@ -1,3 +1,86 @@
+<!--
+==========================================================
+STATS-CORE™ OWNERSHIP HEADER
+==========================================================
+
+File:
+parent.html
+
+Asset Type:
+HTML Presentation Page
+
+Owner Stream:
+Stream 5 — Shared Role Dashboard / CRM
+
+Primary Operational Authority:
+Stream 5 — Shared Role Dashboard / CRM
+
+System Layer:
+Parent / Guardian Workspace
+
+Primary Runtime:
+statscore-role-access.js
+
+Primary Intelligence Engine(s):
+None
+
+Previous Route:
+role-dashboard.html
+athlete-dashboard.html
+player-profile.html
+
+Current Route:
+parent.html
+
+Next Route(s):
+role-dashboard.html
+multi-box.html
+parent-approval.html
+parent-notices.html
+
+Consumes:
+role
+role_id
+snapshot_id
+guardian approval status
+permitted athlete context
+
+Provides:
+Parent workspace
+Guardian review surface
+Access/approval navigation
+
+Primary IDs:
+role
+role_id
+athlete_id
+snapshot_id
+
+Primary Database Tables:
+sc_parent_approval_requests
+statscore_snapshots
+
+Cross-Stream Dependencies:
+Consumes Stream 2 approval context.
+Consumes Stream 3 athlete profile context.
+May route to Stream 6 communication.
+
+Does NOT:
+- Calculate scores
+- Modify scoring engines
+- Own production editing
+- Generate Crystal Reports
+- Perform role intake
+
+Status:
+CANON LOCKED
+
+Last Governance Review:
+2026-06-27
+
+==========================================================
+--> 
+
 <!DOCTYPE html>    
 <html lang="en">
 <head>
