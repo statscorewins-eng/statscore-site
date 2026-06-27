@@ -1,3 +1,85 @@
+<!--
+==========================================================
+STATS-CORE™ OWNERSHIP HEADER
+==========================================================
+
+File:
+athlete-production-record.html
+
+Asset Type:
+HTML Presentation Page
+
+Owner Stream:
+Stream 3 — Athlete Intelligence
+
+Primary Operational Authority:
+Stream 3 — Athlete Intelligence
+
+System Layer:
+Athlete Production Evidence / Season Ledger
+
+Primary Runtime:
+statscore-athlete-production-record.js
+
+Primary Intelligence Engine(s):
+statscore-production-engine.js
+statscore-production-router.js
+statscore-production-matrix.js
+
+Previous Route:
+athlete-dashboard.html
+player-profile.html
+
+Current Route:
+athlete-production-record.html
+
+Next Route(s):
+athlete-dashboard.html
+player-profile.html
+
+Consumes:
+snapshot_id
+athlete_id
+season production input
+verification level
+production records
+
+Provides:
+Season production records
+Season Ledger
+Career Totals
+Production receipt
+
+Primary IDs:
+athlete_id
+snapshot_id
+production_record_id
+
+Primary Database Tables:
+statscore_snapshots
+statscore_athlete_production_records
+
+Cross-Stream Dependencies:
+Consumes Stream 2 snapshot identity.
+Provides production evidence to Stream 3 intelligence and Stream 9 composite intelligence when available.
+
+Does NOT:
+- Calculate final STATScore
+- Own dashboard rendering
+- Own Crystal Report generation
+- Execute Multi-Box communications
+- Perform role intake
+- Modify source snapshot identity
+
+Status:
+CANON LOCKED
+
+Last Governance Review:
+2026-06-27
+
+==========================================================
+--> 
+
 <!DOCTYPE html>   
 <html lang="en">
 <head>
