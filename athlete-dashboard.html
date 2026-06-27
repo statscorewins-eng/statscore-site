@@ -1,3 +1,96 @@
+<!--
+==========================================================
+STATS-CORE™ OWNERSHIP HEADER
+==========================================================
+
+File:
+athlete-dashboard.html
+
+Asset Type:
+HTML Presentation Page
+
+Owner Stream:
+Stream 3 — Athlete Intelligence
+
+Primary Operational Authority:
+Stream 3 — Athlete Intelligence
+
+System Layer:
+Athlete Intelligence Dashboard
+
+Primary Runtime:
+statscore-athlete-dashboard-engine.js
+
+Primary Intelligence Engine(s):
+statscore-scoring-engine.js
+statscore-production-engine.js
+statscore-academic-matrix.js
+statscore-eligibility-engine.js
+statscore-readiness-engine.js
+statscore-pathway-engine.js
+statscore-recommendation-engine.js
+statscore-explainability-engine.js
+
+Previous Route:
+snapshot-intake.html
+login.html
+
+Current Route:
+athlete-dashboard.html
+
+Next Route(s):
+player-profile.html
+athlete-production-record.html
+multi-box.html
+crystal-report.html
+
+Consumes:
+snapshot_id
+athlete_id
+official athlete intelligence
+production summary
+academic summary
+eligibility summary
+readiness summary
+pathway summary
+recommendations
+
+Provides:
+Athlete dashboard render
+Athlete intelligence visibility
+Next-action visibility
+
+Primary IDs:
+athlete_id
+snapshot_id
+
+Primary Database Tables:
+statscore_snapshots
+statscore_athlete_production_records
+sc_parent_approval_requests
+
+Cross-Stream Dependencies:
+Consumes Stream 2 source record.
+Consumes Stream 9 composite intelligence when available.
+Provides context to Stream 5, Stream 6, and Stream 7.
+
+Does NOT:
+- Create snapshots
+- Edit production records directly
+- Own communication governance
+- Generate Crystal Reports
+- Perform role intake
+- Modify scoring doctrine inside page logic
+
+Status:
+CANON LOCKED
+
+Last Governance Review:
+2026-06-27
+
+==========================================================
+--> 
+
 <!DOCTYPE html>  
 <html lang="en">
 <head>
