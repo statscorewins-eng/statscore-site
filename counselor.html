@@ -1,3 +1,84 @@
+<!--
+==========================================================
+STATS-CORE™ OWNERSHIP HEADER
+==========================================================
+
+File:
+counselor.html
+
+Asset Type:
+HTML Presentation Page
+
+Owner Stream:
+Stream 5 — Shared Role Dashboard / CRM
+
+Primary Operational Authority:
+Stream 5 — Shared Role Dashboard / CRM
+
+System Layer:
+Counselor Workspace
+
+Primary Runtime:
+statscore-role-access.js
+
+Primary Intelligence Engine(s):
+statscore-eligibility-engine.js
+statscore-quarterly-eligibility-engine.js
+statscore-ncaa-eligibility-intelligence-engine.js
+
+Previous Route:
+role-dashboard.html
+
+Current Route:
+counselor.html
+
+Next Route(s):
+role-dashboard.html
+multi-box.html
+player-profile.html
+eligibility.html
+
+Consumes:
+role
+role_id
+permitted academic context
+eligibility context
+snapshot_id where permitted
+
+Provides:
+Counselor workspace
+Academic/eligibility support view
+
+Primary IDs:
+role
+role_id
+athlete_id
+snapshot_id
+
+Primary Database Tables:
+statscore_snapshots
+Eligibility/academic records where applicable
+
+Cross-Stream Dependencies:
+Consumes Stream 3 eligibility intelligence.
+May communicate through Stream 6.
+
+Does NOT:
+- Calculate final STATScore
+- Own athlete production
+- Own role intake
+- Generate Crystal Reports
+- Modify dashboard scoring
+
+Status:
+CANON LOCKED
+
+Last Governance Review:
+2026-06-27
+
+==========================================================
+--> 
+
 <!DOCTYPE html>   
 <html lang="en">
 <head>
