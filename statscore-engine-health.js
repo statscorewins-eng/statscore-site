@@ -1,4 +1,75 @@
-/* ============================================================
+/*
+==========================================================
+STATS-CORE™ OWNERSHIP HEADER
+==========================================================
+
+File:
+statscore-engine-health.js
+
+Asset Type:
+JavaScript Infrastructure / Engine Health Monitor
+
+Owner Stream:
+Stream 8 — System Operations / Self-Healing
+
+Primary Operational Authority:
+Stream 8 — System Operations / Self-Healing
+
+Layer:
+Operations / Diagnostics
+
+Runtime Owner:
+System Operations Runtime
+
+Primary Consumers:
+- system.html
+- statscore-system-operations-map.js
+- statscore-engine-loader.js
+- statscore-engine-execution.js
+
+Purpose:
+Monitors STATS-CORE engine availability, health,
+load status, execution status, and failure signals.
+
+Consumes:
+- statscore-engine-registry.js
+- statscore-engine-loader.js
+- statscore-engine-execution.js
+- runtime state
+
+Provides:
+- Engine health status
+- Diagnostics output
+- Failure visibility
+- Operations reporting
+
+Primary IDs:
+- engine_id
+- health_status
+- system_state
+- execution_id
+
+Cross-Stream Dependencies:
+May monitor all Streams.
+May not modify another Stream's engine logic.
+
+Does NOT:
+- Calculate intelligence
+- Render dashboards
+- Change scores
+- Modify data records
+- Route users
+- Replace failed engines
+
+Status:
+CANON LOCKED
+
+Last Governance Review:
+2026-06-27
+
+==========================================================
+*/ 
+
    STATScore™ Engine Health System
    File: statscore-engine-health.js
 
