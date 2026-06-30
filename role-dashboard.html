@@ -1,0 +1,1653 @@
+<!--
+==========================================================
+STATS-CORE™ OWNERSHIP HEADER
+==========================================================
+
+File:
+role-dashboard.html
+
+Asset Type:
+HTML Presentation Page
+
+Owner Stream:
+Stream 5 — Shared Role Dashboard / CRM
+
+Primary Operational Authority:
+Stream 5 — Shared Role Dashboard / CRM
+
+System Layer:
+Shared Professional Role Workspace
+
+Primary Runtime:
+statscore-role-access.js
+statscore-dashboard-map.js
+
+Primary Intelligence Engine(s):
+statscore-athlete-search-engine.js
+
+Previous Route:
+role-dashboard-intake.html
+login.html
+
+Current Route:
+role-dashboard.html
+
+Next Route(s):
+parent.html
+coach.html
+counselor.html
+evaluator.html
+program.html
+recruiter-access.html
+multi-box.html
+
+Consumes:
+role
+role_id
+role_context
+permissions
+permitted athlete intelligence
+
+Provides:
+Shared role dashboard render
+Role-specific workspace routing
+CRM access surface
+Professional notices
+Assigned athlete visibility
+
+Primary IDs:
+role
+role_id
+athlete_id
+snapshot_id
+
+Primary Database Tables:
+Role context tables
+statscore_snapshots where permissioned
+communication/audit tables where permissioned
+
+Cross-Stream Dependencies:
+Consumes Stream 4 role context.
+Consumes Stream 3 athlete intelligence where permissioned.
+May route to Stream 6 communication.
+May consume Stream 7 Crystal outputs where permissioned.
+
+Does NOT:
+- Create role identity
+- Create athlete snapshots
+- Calculate athlete scores
+- Modify production records
+- Generate Crystal Reports
+- Own Multi-Box communication rules
+- Perform Stream 3 athlete intelligence calculations
+
+Status:
+CANON LOCKED
+
+Last Governance Review:
+2026-06-27
+
+==========================================================
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>STATS-CORE™ | Professional Operations Dashboard</title>
+<link rel="icon" type="image/png" href="sc_emblem.png" />
+
+<style>
+:root{
+  --red:#ff2b1f;
+  --red2:#b90710;
+  --gold:#f4c542;
+  --green:#25d366;
+  --blue:#7ed8ff;
+  --purple:#8b7cff;
+  --white:#f4f4ef;
+  --bg:#020407;
+  --panel:rgba(5,9,15,.90);
+  --panel2:rgba(8,13,20,.94);
+  --line:rgba(255,255,255,.10);
+  --text:#f4f4ef;
+  --muted:#aeb8c4;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  width:100%;
+  min-height:100%;
+  background:#000;
+  color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+}
+body{overflow:auto}
+a{text-decoration:none;color:inherit;display:block}
+button,input,select{font-family:inherit}
+
+.page{
+  width:1600px;
+  max-width:none;
+  min-width:1600px;
+  min-height:100vh;
+  margin:0 auto;
+  background:
+    linear-gradient(90deg,rgba(0,0,0,.98),rgba(4,8,14,.94),rgba(0,0,0,.98)),
+    radial-gradient(circle at 48% 32%,rgba(255,43,31,.10),transparent 38%),
+    radial-gradient(circle at 76% 52%,rgba(126,216,255,.12),transparent 42%),
+    repeating-linear-gradient(135deg,rgba(255,255,255,.012) 0,rgba(255,255,255,.012) 1px,transparent 1px,transparent 8px),
+    #020407;
+}
+
+/* HEADER */
+.header{
+  height:96px;
+  background:linear-gradient(180deg,#fff,#ececec);
+  border-bottom:3px solid var(--red);
+  display:grid;
+  grid-template-columns:380px 1fr 520px;
+  align-items:center;
+  overflow:visible;
+  position:relative;
+  z-index:50;
+}
+
+.logo-tab{
+  height:96px;
+  background:linear-gradient(145deg,#181818,#070707 70%,#000);
+  clip-path:polygon(0 0,78% 0,100% 100%,0 100%);
+  display:flex;
+  align-items:center;
+  padding-left:28px;
+  position:relative;
+}
+
+.logo-tab:before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  width:170px;
+  height:15px;
+  background:var(--red);
+  clip-path:polygon(0 0,92% 0,100% 100%,0 100%);
+}
+
+.logo-tab:after{
+  content:"";
+  position:absolute;
+  bottom:0;
+  left:0;
+  right:42px;
+  height:3px;
+  background:var(--red);
+}
+
+.logo-tab img{
+  width:286px;
+  height:auto;
+  display:block;
+  object-fit:contain;
+}
+
+.header-title{
+  text-align:center;
+  color:#111;
+  font-weight:900;
+  font-size:.78rem;
+  letter-spacing:.24em;
+  text-transform:uppercase;
+  line-height:1.38;
+}
+
+.header-tools{
+  position:relative;
+  padding:10px 20px 10px 0;
+  display:grid;
+  grid-template-rows:30px 36px;
+  gap:8px;
+}
+
+.utility-row{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:12px;
+}
+
+.utility-search{
+  width:300px;
+  height:32px;
+  border:1px solid rgba(0,0,0,.26);
+  background:rgba(255,255,255,.78);
+  color:#111;
+  padding:0 34px 0 10px;
+  font-size:.62rem;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  outline:none;
+}
+
+.search-clear{
+  width:22px;
+  height:22px;
+  border:0;
+  background:transparent;
+  color:#111;
+  font-weight:900;
+  font-size:1rem;
+  margin-left:-42px;
+  cursor:pointer;
+  display:none;
+}
+
+.search-clear.active{display:block}
+
+.user-icon{
+  width:31px;
+  height:31px;
+  border:3px solid #111;
+  border-radius:50%;
+  position:relative;
+}
+
+.user-icon:before{
+  content:"";
+  position:absolute;
+  top:5px;
+  left:8px;
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:#111;
+}
+
+.user-icon:after{
+  content:"";
+  position:absolute;
+  bottom:5px;
+  left:5px;
+  width:15px;
+  height:9px;
+  border-radius:9px 9px 2px 2px;
+  background:#111;
+}
+
+.top-nav{
+  display:flex;
+  justify-content:flex-end;
+  gap:7px;
+}
+
+.top-nav a{
+  height:30px;
+  min-width:86px;
+  border:1px solid rgba(0,0,0,.22);
+  color:#111;
+  background:rgba(255,255,255,.55);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  font-size:.56rem;
+  font-weight:900;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+
+.top-nav a.active{
+  color:var(--red);
+  border-color:var(--red);
+  background:rgba(255,43,31,.08);
+}
+
+.nav-count{
+  margin-left:4px;
+  background:var(--red);
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  font-size:.58rem;
+  color:#fff;
+}
+
+/* SEARCH RESULTS */
+#roleSearchResults{
+  position:absolute;
+  top:46px;
+  right:64px;
+  width:540px;
+  max-height:420px;
+  overflow-y:auto;
+  background:rgba(5,9,15,.98);
+  border:1px solid var(--red);
+  box-shadow:0 22px 70px rgba(0,0,0,.92);
+  z-index:99999;
+  padding:12px;
+  display:none;
+}
+#roleSearchResults.active{display:block}
+
+.search-title{
+  color:#fff;
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  margin-bottom:8px;
+  border-bottom:1px solid rgba(255,255,255,.12);
+  padding-bottom:8px;
+}
+
+.search-card{
+  border:1px solid rgba(255,43,31,.55);
+  background:rgba(126,216,255,.08);
+  padding:10px;
+  margin-bottom:8px;
+  cursor:pointer;
+}
+.search-card:hover{background:rgba(255,43,31,.12)}
+.search-card b{display:block;color:#fff;font-size:.76rem;text-transform:uppercase}
+.search-card span{display:block;color:var(--blue);font-size:.62rem;margin-top:3px}
+.search-card em{display:block;color:var(--red);font-size:.56rem;font-style:normal;margin-top:3px}
+
+/* LAYOUT */
+.main{padding:10px 8px 0}
+.shell{
+  display:grid;
+  grid-template-columns:250px minmax(0,1fr) 300px;
+  gap:8px;
+  align-items:start;
+}
+
+.panel{
+  background:linear-gradient(180deg,var(--panel2),var(--panel));
+  border:1px solid var(--line);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.025);
+}
+
+.panel:hover{
+  border-color:rgba(126,216,255,.34);
+  box-shadow:0 0 0 1px rgba(126,216,255,.10), inset 0 0 0 1px rgba(255,255,255,.025);
+}
+
+.section-title{
+  color:var(--red);
+  font-size:.62rem;
+  font-weight:900;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  margin-bottom:10px;
+}
+
+/* LEFT RAIL */
+.left-rail{
+  display:grid;
+  gap:8px;
+  align-content:start;
+}
+
+.role-card,
+.authority-card,
+.workspace-nav,
+.context-card{
+  padding:13px;
+}
+
+.role-type{
+  color:var(--blue);
+  font-family:"Arial Narrow","Helvetica Neue Condensed",Impact,Arial,sans-serif;
+  font-size:2rem;
+  line-height:.92;
+  letter-spacing:.03em;
+  text-transform:uppercase;
+  margin-bottom:8px;
+  text-shadow:0 0 14px rgba(126,216,255,.34);
+}
+
+.role-name{
+  font-size:.74rem;
+  font-weight:900;
+  text-transform:uppercase;
+  color:#fff;
+  margin-bottom:8px;
+}
+
+.role-meta{
+  color:var(--muted);
+  font-size:.60rem;
+  line-height:1.5;
+  font-weight:800;
+  text-transform:uppercase;
+}
+
+.role-id{
+  color:var(--blue);
+  font-size:.56rem;
+  font-weight:900;
+  margin-top:10px;
+  word-break:break-all;
+  text-transform:uppercase;
+}
+
+.status-pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:25px;
+  padding:6px 9px;
+  border:1px solid rgba(255,255,255,.14);
+  font-size:.55rem;
+  font-weight:900;
+  text-transform:uppercase;
+  margin:4px 4px 0 0;
+}
+
+.status-pill.green{color:var(--green);border-color:rgba(37,211,102,.45)}
+.status-pill.gold{color:var(--gold);border-color:rgba(244,197,66,.45)}
+.status-pill.red{color:var(--red);border-color:rgba(255,43,31,.45)}
+.status-pill.blue{color:var(--blue);border-color:rgba(126,216,255,.45)}
+
+.nav-item{
+  height:32px;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:0 10px;
+  border:1px solid transparent;
+  color:#dce7ef;
+  font-size:.64rem;
+  font-weight:900;
+  text-transform:capitalize;
+}
+
+.nav-item.active{
+  color:#fff;
+  background:linear-gradient(90deg,var(--red2),var(--red));
+  border-color:rgba(255,255,255,.14);
+}
+
+.nav-item.locked{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
+.context-row{
+  display:grid;
+  grid-template-columns:14px 1fr auto;
+  gap:8px;
+  align-items:center;
+  margin:8px 0;
+  font-size:.60rem;
+  font-weight:900;
+}
+
+.dot{width:10px;height:10px;border-radius:50%}
+.dot.red{background:var(--red)}
+.dot.gold{background:var(--gold)}
+.dot.green{background:var(--green)}
+.dot.blue{background:var(--blue)}
+
+.context-row b{
+  color:#fff;
+  font-size:.56rem;
+}
+
+/* CENTER */
+.center{
+  display:grid;
+  gap:8px;
+}
+
+.ops-hero{
+  display:grid;
+  grid-template-columns:1.1fr .9fr 1fr;
+  gap:8px;
+}
+
+.hero-panel{
+  min-height:176px;
+  padding:15px;
+  position:relative;
+  overflow:hidden;
+}
+
+.hero-panel:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 70% 30%,rgba(126,216,255,.13),transparent 44%),
+    linear-gradient(135deg,rgba(255,43,31,.06),transparent 58%);
+  pointer-events:none;
+}
+
+.hero-panel > *{
+  position:relative;
+  z-index:2;
+}
+
+.ops-kicker{
+  color:var(--red);
+  font-size:.64rem;
+  font-weight:900;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+
+.ops-title{
+  font-family:"Arial Narrow","Helvetica Neue Condensed",Impact,Arial,sans-serif;
+  font-size:2.25rem;
+  line-height:.95;
+  letter-spacing:.03em;
+  text-transform:uppercase;
+  color:var(--blue);
+  text-shadow:0 0 14px rgba(126,216,255,.40);
+}
+
+.ops-copy{
+  color:#dcebf4;
+  font-size:.66rem;
+  line-height:1.55;
+  font-weight:800;
+  max-width:96%;
+  margin-top:10px;
+}
+
+.command-tags{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:14px;
+}
+
+.tag{
+  border:1px solid rgba(255,255,255,.16);
+  padding:6px 9px;
+  font-size:.56rem;
+  font-weight:900;
+  text-transform:uppercase;
+  background:rgba(255,255,255,.025);
+}
+
+.ops-meter{
+  display:grid;
+  grid-template-columns:110px 1fr;
+  gap:14px;
+  align-items:center;
+}
+
+.ops-ring{
+  width:106px;
+  height:106px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:conic-gradient(from 220deg,var(--blue),var(--red),rgba(255,255,255,.08),var(--blue));
+  position:relative;
+}
+
+.ops-ring:before{
+  content:"";
+  position:absolute;
+  inset:14px;
+  border-radius:50%;
+  background:#101720;
+}
+
+.ops-ring b,
+.ops-ring span{
+  position:relative;
+  z-index:2;
+  text-align:center;
+}
+
+.ops-ring b{
+  font-size:2.1rem;
+  color:#fff;
+  line-height:.9;
+}
+
+.ops-ring span{
+  display:block;
+  color:var(--blue);
+  font-size:.48rem;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+
+.meter-lines{
+  display:grid;
+  gap:8px;
+}
+
+.meter-line{
+  display:flex;
+  justify-content:space-between;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  padding-bottom:5px;
+  color:#dfeaf1;
+  font-size:.62rem;
+  font-weight:800;
+}
+
+.meter-line b{color:#fff}
+
+.role-focus{
+  display:grid;
+  gap:8px;
+}
+
+.focus-row{
+  display:grid;
+  grid-template-columns:28px 1fr auto;
+  gap:8px;
+  align-items:center;
+  padding:8px 0;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+
+.focus-row div:first-child{
+  width:26px;
+  height:26px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:rgba(255,255,255,.06);
+  color:var(--red);
+  font-weight:900;
+}
+
+.focus-row span{
+  font-size:.61rem;
+  font-weight:900;
+  color:#dcebf4;
+}
+
+.focus-row b{
+  font-size:.53rem;
+  text-transform:uppercase;
+}
+
+/* DASHBOARD GRIDS */
+.work-grid{
+  display:grid;
+  grid-template-columns:1.05fr .95fr;
+  gap:8px;
+}
+
+.block{
+  padding:12px;
+  min-height:200px;
+}
+
+.block h3{
+  color:var(--red);
+  font-size:.66rem;
+  font-weight:900;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  margin-bottom:10px;
+}
+
+.queue-row,
+.athlete-row,
+.notice-row,
+.activity-row{
+  display:grid;
+  grid-template-columns:34px 1fr auto;
+  gap:8px;
+  align-items:center;
+  padding:8px 0;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+
+.avatar-dot{
+  width:25px;
+  height:25px;
+  border-radius:50%;
+  background:linear-gradient(180deg,#1e6cbe,#0d2037);
+  display:grid;
+  place-items:center;
+  font-size:.55rem;
+  font-weight:900;
+}
+
+.queue-row b,
+.athlete-row b,
+.notice-row b,
+.activity-row b{
+  font-size:.64rem;
+  display:block;
+}
+
+.queue-row span,
+.athlete-row span,
+.notice-row span,
+.activity-row span{
+  color:var(--muted);
+  font-size:.54rem;
+}
+
+.queue-row time,
+.athlete-row time,
+.notice-row time,
+.activity-row time{
+  color:var(--blue);
+  font-size:.50rem;
+  font-weight:900;
+  text-transform:uppercase;
+}
+
+.role-command-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+}
+
+.command-card{
+  min-height:132px;
+  padding:13px;
+  position:relative;
+  overflow:hidden;
+}
+
+.command-card:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(135deg,rgba(255,43,31,.06),rgba(126,216,255,.04),transparent);
+  pointer-events:none;
+}
+
+.command-card > *{
+  position:relative;
+  z-index:2;
+}
+
+.command-icon{
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:rgba(255,255,255,.06);
+  color:var(--red);
+  font-weight:900;
+  margin-bottom:10px;
+}
+
+.command-card h3{
+  color:#dfeaf1;
+  font-size:.64rem;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  margin-bottom:6px;
+}
+
+.command-card p{
+  color:var(--muted);
+  font-size:.58rem;
+  line-height:1.38;
+}
+
+.command-card .mini-status{
+  margin-top:10px;
+  color:var(--blue);
+  font-size:.52rem;
+  font-weight:900;
+  text-transform:uppercase;
+}
+
+.route-btn{
+  height:28px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.025);
+  color:#fff;
+  display:grid;
+  place-items:center;
+  font-size:.56rem;
+  font-weight:900;
+  text-transform:uppercase;
+  margin-top:8px;
+}
+
+.role-specific-card{
+  border-color:rgba(255,43,31,.50);
+  box-shadow:inset 0 0 0 1px rgba(255,43,31,.14);
+}
+
+/* RIGHT RAIL */
+.right-rail{
+  display:grid;
+  gap:8px;
+  align-content:start;
+}
+
+.side-card{
+  padding:13px;
+}
+
+.side-card h3{
+  color:var(--red);
+  font-size:.61rem;
+  letter-spacing:.10em;
+  text-transform:uppercase;
+  margin-bottom:12px;
+  white-space:nowrap;
+}
+
+.permission-row{
+  display:grid;
+  grid-template-columns:28px 1fr auto;
+  gap:8px;
+  align-items:center;
+  padding:9px 0;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+
+.permission-row span{
+  font-size:.62rem;
+  color:#dcebf4;
+  font-weight:800;
+}
+
+.permission-row b{
+  font-size:.54rem;
+  text-transform:uppercase;
+}
+
+.green{color:var(--green)}
+.gold{color:var(--gold)}
+.blue{color:var(--blue)}
+.red{color:var(--red)}
+
+.permission-btn{
+  height:32px;
+  border:1px solid rgba(255,255,255,.14);
+  color:#fff;
+  display:grid;
+  place-items:center;
+  font-size:.58rem;
+  font-weight:900;
+  text-transform:uppercase;
+  margin-top:10px;
+}
+
+.message-status{
+  border:1px solid rgba(126,216,255,.28);
+  background:rgba(126,216,255,.08);
+  padding:11px;
+  margin-top:10px;
+}
+
+.message-status b{
+  display:block;
+  color:var(--blue);
+  font-size:.68rem;
+  text-transform:uppercase;
+}
+
+.message-status span{
+  display:block;
+  margin-top:5px;
+  color:var(--muted);
+  font-size:.56rem;
+  line-height:1.4;
+}
+
+/* FLOW */
+.flow{
+  margin-top:8px;
+  display:grid;
+  grid-template-columns:190px repeat(6,1fr) 220px;
+  min-height:54px;
+  border:1px solid var(--line);
+  background:rgba(5,9,15,.88);
+}
+
+.flow-title{
+  color:var(--red);
+  font-size:.74rem;
+  font-weight:900;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  display:flex;
+  align-items:center;
+  padding-left:18px;
+  background:linear-gradient(90deg,rgba(255,43,31,.10),transparent);
+  line-height:1.05;
+}
+
+.flow-step{
+  border-left:1px solid rgba(255,255,255,.08);
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:0 14px;
+}
+
+.flow-icon{
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:rgba(255,255,255,.08);
+}
+
+.flow-step b{
+  display:block;
+  font-size:.60rem;
+  text-transform:uppercase;
+}
+
+.flow-step span{
+  color:var(--muted);
+  font-size:.52rem;
+}
+
+.request{
+  margin:8px;
+  border:1px solid var(--red);
+  color:var(--red);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:.66rem;
+  font-weight:900;
+  text-transform:uppercase;
+}
+
+/* FOOTER */
+.footer{
+  height:52px;
+  display:grid;
+  grid-template-columns:220px 1fr 300px 230px;
+  align-items:center;
+  border-top:1px solid rgba(255,255,255,.08);
+  color:#c9d6df;
+  font-size:.62rem;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  padding:0 16px;
+}
+
+.footer img{
+  width:178px;
+  height:auto;
+  display:block;
+}
+
+.footer .ok{
+  color:var(--green);
+  font-weight:900;
+}
+
+.disabled{
+  opacity:.55;
+  cursor:not-allowed;
+  pointer-events:none;
+}
+
+@media(max-width:900px){
+  .page{min-width:1600px}
+}
+</style>
+</head>
+
+<body>
+<div class="page">
+
+<header class="header">
+  <a class="logo-tab" href="index.html">
+    <img src="sc_logo_i.png" alt="STATS-CORE Athlete Lifecycle System">
+  </a>
+
+  <div class="header-title">
+    National Athlete Infrastructure<br>
+    Professional Operations Dashboard
+  </div>
+
+  <div class="header-tools">
+    <div class="utility-row">
+      <input id="roleSearchInput" class="utility-search" type="search" placeholder="Search permitted athletes..." autocomplete="off">
+      <button id="roleSearchClear" class="search-clear" type="button" aria-label="Clear search">×</button>
+      <div class="user-icon"></div>
+    </div>
+
+    <div id="roleSearchResults"></div>
+
+    <nav class="top-nav">
+      <a class="active" href="role-dashboard.html">⌂ Operations</a>
+      <a id="topWorkspaceLink" href="#">▦ Workspace</a>
+      <a id="topAthletesLink" href="#">♙ Athletes</a>
+      <a id="topMessagesLink" href="multi-box.html">✉ Messages <span class="nav-count" data-message-count>0</span></a>
+      <a href="profile-access.html">⚙ Access</a>
+    </nav>
+  </div>
+</header>
+
+<main class="main">
+
+<div class="shell">
+
+<aside class="left-rail">
+
+  <section class="panel role-card">
+    <div class="section-title">Role Identity</div>
+    <div class="role-type" data-role-title>Professional</div>
+    <div class="role-name" data-role-name>Role Context Pending</div>
+    <div class="role-meta">
+      <div data-role-org>Organization: Pending</div>
+      <div data-role-sport>Sport Scope: Pending</div>
+      <div data-role-authority>Authority: Controlled</div>
+    </div>
+    <div class="role-id">Role ID:<br><span data-role-id>No Role ID</span></div>
+    <div style="margin-top:10px">
+      <span class="status-pill gold" data-role-status>Role Pending</span>
+      <span class="status-pill blue" data-permission-status>Permission Review</span>
+    </div>
+  </section>
+
+  <section class="panel authority-card">
+    <div class="section-title">Authority & Access</div>
+    <div class="context-row"><span class="dot blue"></span><span>Role Loaded</span><b data-state-role>—</b></div>
+    <div class="context-row"><span class="dot gold"></span><span>Context Loaded</span><b data-state-context>—</b></div>
+    <div class="context-row"><span class="dot green"></span><span>Athlete Access</span><b data-state-athletes>—</b></div>
+    <div class="context-row"><span class="dot red"></span><span>Restricted Items</span><b data-state-restricted>—</b></div>
+  </section>
+
+  <section class="panel workspace-nav">
+    <div class="section-title">Workspace Navigation</div>
+    <a class="nav-item active" href="role-dashboard.html">▦ Operations Center</a>
+    <a class="nav-item" id="navWorkspace" href="#">◫ Role Workspace</a>
+    <a class="nav-item" id="navAthleteAccess" href="#">♙ Assigned Athletes</a>
+    <a class="nav-item" id="navCommunication" href="multi-box.html">✉ Multi-Box™</a>
+    <a class="nav-item" id="navReports" href="crystal-report.html">◇ Crystal Access</a>
+    <a class="nav-item" id="navActivity" href="activity-feed.html">☰ Activity Feed</a>
+    <a class="nav-item" href="role-dashboard-intake.html">🛡 Role Context</a>
+  </section>
+
+  <section class="panel context-card">
+    <div class="section-title">Operating Doctrine</div>
+    <div class="context-row"><span class="dot green"></span><span>Capture Truth</span><b>ON</b></div>
+    <div class="context-row"><span class="dot green"></span><span>Preserve Truth</span><b>ON</b></div>
+    <div class="context-row"><span class="dot gold"></span><span>Interpretation</span><b>Stream 9</b></div>
+    <div class="context-row"><span class="dot blue"></span><span>Presentation</span><b>Stream 5</b></div>
+  </section>
+
+</aside>
+
+<section class="center">
+
+  <section class="ops-hero">
+
+    <div class="panel hero-panel">
+      <div class="ops-kicker">Professional Operations Center</div>
+      <h1 class="ops-title" data-dashboard-heading>Role Dashboard</h1>
+      <p class="ops-copy" data-dashboard-summary>
+        Shared professional workspace for role-specific athlete access, notices, tasks, communication routes, and permitted intelligence visibility.
+      </p>
+      <div class="command-tags">
+        <span class="tag" data-role-chip>Role Controlled</span>
+        <span class="tag">Permissioned Access</span>
+        <span class="tag">No Scoring Logic</span>
+        <span class="tag">Stream 5 Runtime</span>
+      </div>
+    </div>
+
+    <div class="panel hero-panel">
+      <div class="ops-kicker">Today’s Operations</div>
+      <div class="ops-meter">
+        <div class="ops-ring">
+          <div>
+            <b data-work-count>—</b>
+            <span>Tasks</span>
+          </div>
+        </div>
+        <div class="meter-lines">
+          <div class="meter-line"><span>Assigned Athletes</span><b data-athlete-count>—</b></div>
+          <div class="meter-line"><span>Pending Actions</span><b data-pending-count>—</b></div>
+          <div class="meter-line"><span>Notices</span><b data-notice-count>—</b></div>
+          <div class="meter-line"><span>Messages</span><b data-message-count>0</b></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel hero-panel">
+      <div class="ops-kicker">Role Focus</div>
+      <div class="role-focus" id="roleFocusList">
+        <div class="focus-row"><div>▦</div><span>Load Role Context</span><b class="gold">Pending</b></div>
+        <div class="focus-row"><div>♙</div><span>Verify Permissions</span><b class="gold">Pending</b></div>
+        <div class="focus-row"><div>✉</div><span>Communication Window</span><b class="blue">Controlled</b></div>
+      </div>
+    </div>
+
+  </section>
+
+  <section class="work-grid">
+
+    <section class="panel block">
+      <h3>My Work Queue</h3>
+      <div id="workQueue">
+        <div class="queue-row"><div class="avatar-dot">SC</div><div><b>Role Context Required</b><span>Complete or load role-dashboard-intake context</span></div><time>OPEN</time></div>
+        <div class="queue-row"><div class="avatar-dot">RA</div><div><b>Permission Review</b><span>Role access must be confirmed before athlete visibility</span></div><time>GATE</time></div>
+        <div class="queue-row"><div class="avatar-dot">MB</div><div><b>Multi-Box Status</b><span>Communication routes remain governed</span></div><time>CTRL</time></div>
+      </div>
+    </section>
+
+    <section class="panel block">
+      <h3>Assigned / Permitted Athletes</h3>
+      <div id="assignedAthletes">
+        <div class="athlete-row"><div class="avatar-dot">—</div><div><b>No Athlete Loaded</b><span>Assigned athletes appear when role permissions allow access</span></div><time>—</time></div>
+        <div class="athlete-row"><div class="avatar-dot">ID</div><div><b>Snapshot Context</b><span>snapshot_id is preserved when available</span></div><time>CTRL</time></div>
+        <div class="athlete-row"><div class="avatar-dot">RG</div><div><b>Role Gate</b><span>Parent governance and role rules control visibility</span></div><time>GOV</time></div>
+      </div>
+    </section>
+
+  </section>
+
+  <section class="role-command-grid" id="commandGrid">
+
+    <a class="panel command-card" data-role-card="parent" href="parent.html">
+      <div class="command-icon">♙</div>
+      <h3>Guardian Operations</h3>
+      <p>Approvals, visibility controls, notices, parent permissions, and athlete release oversight.</p>
+      <div class="mini-status">Parent / Guardian Workspace</div>
+      <div class="route-btn">Open Parent Workspace</div>
+    </a>
+
+    <a class="panel command-card" data-role-card="coach" href="coach.html">
+      <div class="command-icon">▥</div>
+      <h3>Coach Operations</h3>
+      <p>Roster visibility, production verification, athlete support, team context, and development coordination.</p>
+      <div class="mini-status">Coach Workspace</div>
+      <div class="route-btn">Open Coach Workspace</div>
+    </a>
+
+    <a class="panel command-card" data-role-card="counselor" href="counselor.html">
+      <div class="command-icon">▣</div>
+      <h3>Counselor Operations</h3>
+      <p>Academic readiness, eligibility awareness, transcript support, and academic action queues.</p>
+      <div class="mini-status">Academic / Eligibility Workspace</div>
+      <div class="route-btn">Open Counselor Workspace</div>
+    </a>
+
+    <a class="panel command-card" data-role-card="evaluator" href="evaluator.html">
+      <div class="command-icon">◎</div>
+      <h3>Evaluator / Trainer</h3>
+      <p>PHNX camp/combine capture, measurable entry, drill tracking, evidence support, and development logs.</p>
+      <div class="mini-status">Evaluation + Development Workspace</div>
+      <div class="route-btn">Open Evaluator Workspace</div>
+    </a>
+
+    <a class="panel command-card" data-role-card="program" href="program.html">
+      <div class="command-icon">▦</div>
+      <h3>Program Operations</h3>
+      <p>Program profile, roster needs, athlete fit visibility, pipeline context, and organization-level review.</p>
+      <div class="mini-status">Program Workspace</div>
+      <div class="route-btn">Open Program Workspace</div>
+    </a>
+
+    <a class="panel command-card" data-role-card="recruiter" href="recruiter-access.html">
+      <div class="command-icon">☊</div>
+      <h3>Recruiter Access</h3>
+      <p>Permitted athlete search, watchlist context, prospect fit review, and governed recruiting workflow.</p>
+      <div class="mini-status">Recruiter Workspace</div>
+      <div class="route-btn">Open Recruiter Workspace</div>
+    </a>
+
+    <a class="panel command-card" data-role-card="multi-box" href="multi-box.html">
+      <div class="command-icon">✉</div>
+      <h3>Multi-Box™</h3>
+      <p>Governed communication, receipts, role windows, controlled message routes, and audit visibility.</p>
+      <div class="mini-status">Communication Access</div>
+      <div class="route-btn">Open Multi-Box</div>
+    </a>
+
+    <a class="panel command-card" data-role-card="activity" href="activity-feed.html">
+      <div class="command-icon">☰</div>
+      <h3>Activity Feed</h3>
+      <p>Role-visible updates, access events, notices, workflow receipts, and athlete-related system activity.</p>
+      <div class="mini-status">Operational History</div>
+      <div class="route-btn">View Activity</div>
+    </a>
+
+  </section>
+
+  <section class="work-grid">
+
+    <section class="panel block">
+      <h3>Role Activity Feed</h3>
+      <div id="activityFeed">
+        <div class="activity-row"><div class="avatar-dot">↻</div><div><b>Dashboard Loaded</b><span>Professional Operations Dashboard initialized</span></div><time>NOW</time></div>
+        <div class="activity-row"><div class="avatar-dot">ID</div><div><b>Role Context</b><span>Awaiting role_id or stored role profile</span></div><time>GATE</time></div>
+        <div class="activity-row"><div class="avatar-dot">SC</div><div><b>Stream Boundary</b><span>No scoring logic executed on this page</span></div><time>LOCK</time></div>
+      </div>
+    </section>
+
+    <section class="panel block">
+      <h3>Communication Access</h3>
+      <div id="communicationPanel">
+        <div class="notice-row"><div class="avatar-dot">MB</div><div><b>Multi-Box Available</b><span>Message execution remains owned by communication governance</span></div><time>CTRL</time></div>
+        <div class="notice-row"><div class="avatar-dot">RW</div><div><b>Role Window</b><span>Communication access depends on permissions and role rules</span></div><time>GOV</time></div>
+        <div class="notice-row"><div class="avatar-dot">AR</div><div><b>Audit Receipt</b><span>Receipts generated by approved communication workflow</span></div><time>LOCK</time></div>
+      </div>
+    </section>
+
+  </section>
+
+</section>
+
+<aside class="right-rail">
+
+  <section class="panel side-card">
+    <h3>Permissions</h3>
+    <div class="permission-row"><div>♙</div><span>Role Access</span><b class="gold" data-perm-role>Pending</b></div>
+    <div class="permission-row"><div>◉</div><span>Athlete Visibility</span><b class="blue" data-perm-athlete>Controlled</b></div>
+    <div class="permission-row"><div>▣</div><span>Crystal Access</span><b class="gold" data-perm-crystal>Restricted</b></div>
+    <div class="permission-row"><div>✉</div><span>Communication</span><b class="blue" data-perm-message>Controlled</b></div>
+    <div class="permission-row"><div>◎</div><span>Evidence Capture</span><b class="gold" data-perm-evidence>Role Based</b></div>
+    <a class="permission-btn" href="profile-access.html">Review Access</a>
+  </section>
+
+  <section class="panel side-card">
+    <h3>Notices / Pending Actions</h3>
+    <div id="noticePanel">
+      <div class="notice-row"><div class="avatar-dot">!</div><div><b>Role Context</b><span>Load role context from Stream 4 intake</span></div><time>OPEN</time></div>
+      <div class="notice-row"><div class="avatar-dot">G</div><div><b>Governance Gate</b><span>Athlete access depends on permission status</span></div><time>CTRL</time></div>
+      <div class="notice-row"><div class="avatar-dot">S5</div><div><b>Stream 5 Active</b><span>Presentation and workflow only</span></div><time>LOCK</time></div>
+    </div>
+  </section>
+
+  <section class="panel side-card">
+    <h3>Multi-Box™ Status</h3>
+    <div class="permission-row"><div>✉</div><span>Message Window</span><b class="blue" data-message-window>Controlled</b></div>
+    <div class="permission-row"><div>☑</div><span>Receipts</span><b class="green">Enabled</b></div>
+    <div class="permission-row"><div>🛡</div><span>Governance</span><b class="green">Active</b></div>
+    <div class="message-status">
+      <b>Communication Surface</b>
+      <span>This dashboard may route to Multi-Box™ but does not execute message sending.</span>
+    </div>
+    <a class="permission-btn" id="openMultiBoxBtn" href="multi-box.html">Open Multi-Box</a>
+  </section>
+
+  <section class="panel side-card">
+    <h3>System Handoff</h3>
+    <div class="permission-row"><div>4</div><span>Role Context</span><b class="blue">Stream 4</b></div>
+    <div class="permission-row"><div>5</div><span>Role Workspace</span><b class="green">Stream 5</b></div>
+    <div class="permission-row"><div>6</div><span>Communication</span><b class="gold">Stream 6</b></div>
+    <div class="permission-row"><div>7</div><span>Crystal Output</span><b class="gold">Stream 7</b></div>
+    <div class="permission-row"><div>9</div><span>Interpretation</span><b class="red">Stream 9</b></div>
+  </section>
+
+</aside>
+
+</div>
+
+<section class="flow">
+  <div class="flow-title">Role<br>Path</div>
+  <a class="flow-step" href="login.html"><div class="flow-icon">▣</div><div><b>Login</b><span>Access Gate</span></div></a>
+  <a class="flow-step" href="role-dashboard-intake.html"><div class="flow-icon">▥</div><div><b>Role Intake</b><span>Context</span></div></a>
+  <a class="flow-step" href="role-dashboard.html"><div class="flow-icon">▦</div><div><b>Operations</b><span>Dashboard</span></div></a>
+  <a class="flow-step" id="flowWorkspace" href="#"><div class="flow-icon">♙</div><div><b>Workspace</b><span>Role Tools</span></div></a>
+  <a class="flow-step" href="multi-box.html"><div class="flow-icon">✉</div><div><b>Multi-Box™</b><span>Governed</span></div></a>
+  <a class="flow-step" href="activity-feed.html"><div class="flow-icon">☰</div><div><b>Receipts</b><span>Activity</span></div></a>
+  <a class="request" id="primaryAction" href="#">Open Workspace →</a>
+</section>
+
+<footer class="footer">
+  <img src="sc_logo_i.png" alt="STATS-CORE">
+  <div>Governed Professional Role Workspace</div>
+  <div>Shared Role Dashboard / CRM Layer</div>
+  <div class="ok">Stream 5 Shell Active ●</div>
+</footer>
+
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="statscore-core.js"></script>
+<script src="statscore-data.js"></script>
+<script src="statscore-routing.js"></script>
+<script src="statscore-role-access.js"></script>
+<script src="statscore-dashboard-map.js"></script>
+<script src="statscore-athlete-search-engine.js"></script>
+
+<script>
+(function(){
+  "use strict";
+
+  const ROLE_CONFIG = {
+    parent: {
+      title: "Parent / Guardian",
+      heading: "Guardian Operations",
+      summary: "Approval control, athlete visibility, notices, governance actions, and protected communication access.",
+      workspace: "parent.html",
+      authority: "Assigned Athlete Guardian",
+      sport: "Athlete Linked",
+      focus: [
+        ["♙","Approval Requests","High"],
+        ["◉","Visibility Control","Active"],
+        ["✉","Parent Communication","Controlled"]
+      ],
+      queue: [
+        ["PA","Guardian Approval","Review athlete visibility and release status","OPEN"],
+        ["NT","Parent Notices","Check unread notices and pending actions","OPEN"],
+        ["MB","Multi-Box™","Review governed communication access","CTRL"]
+      ]
+    },
+
+    coach: {
+      title: "Coach",
+      heading: "Coach Operations",
+      summary: "Roster support, production verification, athlete development context, evaluation coordination, and team communication.",
+      workspace: "coach.html",
+      authority: "Team / Athlete Support",
+      sport: "Team Sport Scope",
+      focus: [
+        ["▥","Roster Visibility","Active"],
+        ["✓","Verification Queue","Open"],
+        ["↗","Development Support","Active"]
+      ],
+      queue: [
+        ["RV","Roster Review","Review linked athlete roster and support tasks","OPEN"],
+        ["PV","Production Verification","Confirm production or support verification evidence","OPEN"],
+        ["MB","Coach Communication","Open role-governed communication route","CTRL"]
+      ]
+    },
+
+    counselor: {
+      title: "Counselor",
+      heading: "Academic Operations",
+      summary: "Academic readiness, transcript support, NCAA/NAIA/NJCAA eligibility awareness, and student pathway support.",
+      workspace: "counselor.html",
+      authority: "Academic / Eligibility Support",
+      sport: "Student-Athlete Scope",
+      focus: [
+        ["▣","Eligibility Review","High"],
+        ["☑","Transcript Support","Open"],
+        ["⚠","Academic Alerts","Controlled"]
+      ],
+      queue: [
+        ["EL","Eligibility Review","Review academic readiness and eligibility indicators","OPEN"],
+        ["TR","Transcript Support","Check missing academic documents or transcript needs","OPEN"],
+        ["MB","Counselor Communication","Open governed academic support communication","CTRL"]
+      ]
+    },
+
+    evaluator: {
+      title: "Evaluator / Trainer",
+      heading: "Evaluation & Development Operations",
+      summary: "PHNX Sports camp/combine evaluation, measurable capture, sport-position drill tracking, evidence review, and athlete development logs.",
+      workspace: "evaluator.html",
+      authority: "Certified Evaluation / Training",
+      sport: "Sport + Position Scope",
+      focus: [
+        ["◎","Camp / Combine","Active"],
+        ["▧","Measurable Capture","Open"],
+        ["↗","Development Tracking","Active"]
+      ],
+      queue: [
+        ["PH","PHNX Camp / Combine","Select event context and athlete evaluation session","OPEN"],
+        ["MS","Measurable Entry","Record verified athlete measurables and drill results","OPEN"],
+        ["DV","Development Log","Track trainer plan, progress, retest dates, and evidence","OPEN"]
+      ]
+    },
+
+    program: {
+      title: "Program",
+      heading: "Program Operations",
+      summary: "Program profile, roster needs, athlete pipeline visibility, pathway fit review, and organization-level athlete intelligence access.",
+      workspace: "program.html",
+      authority: "Program-Level Review",
+      sport: "Program Scope",
+      focus: [
+        ["▦","Program Needs","Active"],
+        ["♙","Athlete Pipeline","Controlled"],
+        ["◇","Crystal Access","Permissioned"]
+      ],
+      queue: [
+        ["PN","Program Needs","Review roster needs and pathway fit context","OPEN"],
+        ["AP","Athlete Pipeline","Review permissioned athletes and program fit","CTRL"],
+        ["MB","Program Communication","Open governed communication route","CTRL"]
+      ]
+    },
+
+    recruiter: {
+      title: "Recruiter",
+      heading: "Recruiting Operations",
+      summary: "Permissioned athlete search, prospect review, recruiting watchlist, Crystal access, and controlled communication windows.",
+      workspace: "recruiter-access.html",
+      authority: "Recruiting Access",
+      sport: "Recruiting Scope",
+      focus: [
+        ["☊","Athlete Search","Controlled"],
+        ["◇","Crystal Review","Permissioned"],
+        ["✉","Recruiting Window","Governed"]
+      ],
+      queue: [
+        ["AS","Athlete Search","Search athletes permitted by role and parent governance","CTRL"],
+        ["WL","Watchlist Review","Review recruiting interest and program fit context","OPEN"],
+        ["MB","Recruiting Communication","Open Multi-Box™ governed route","CTRL"]
+      ]
+    }
+  };
+
+  function qs(name){
+    return new URLSearchParams(window.location.search).get(name);
+  }
+
+  function getStored(key){
+    try{return localStorage.getItem(key) || "";}catch(e){return "";}
+  }
+
+  function setText(selector,value){
+    document.querySelectorAll(selector).forEach(el => el.textContent = value);
+  }
+
+  function roleFromContext(){
+    const raw =
+      qs("role") ||
+      getStored("statscore_role") ||
+      getStored("role") ||
+      getStored("STATSCORE_ACTIVE_ROLE") ||
+      "professional";
+
+    return String(raw).toLowerCase().replace(/[^a-z_ -]/g,"").trim()
+      .replace("parent_guardian","parent")
+      .replace("guardian","parent")
+      .replace("trainer","evaluator")
+      .replace("evaluator_trainer","evaluator")
+      .replace("recruiting","recruiter");
+  }
+
+  function buildContextUrl(base){
+    const params = new URLSearchParams();
+    const role = roleFromContext();
+    const roleId = qs("role_id") || getStored("statscore_role_id") || getStored("role_id") || "";
+    const athleteId = qs("athlete_id") || getStored("statscore_athlete_id") || getStored("athlete_id") || "";
+    const snapshotId = qs("snapshot_id") || getStored("statscore_snapshot_id") || getStored("snapshot_id") || "";
+
+    if(role) params.set("role",role);
+    if(roleId) params.set("role_id",roleId);
+    if(athleteId) params.set("athlete_id",athleteId);
+    if(snapshotId) params.set("snapshot_id",snapshotId);
+
+    const query = params.toString();
+    return query ? base + "?" + query : base;
+  }
+
+  function highlightRole(role){
+    document.querySelectorAll("[data-role-card]").forEach(card => {
+      card.classList.remove("role-specific-card");
+      const cardRole = card.getAttribute("data-role-card");
+      if(cardRole === role){
+        card.classList.add("role-specific-card");
+      }
+      const href = card.getAttribute("href");
+      if(href && href !== "#"){
+        card.setAttribute("href", buildContextUrl(href));
+      }
+    });
+  }
+
+  function renderFocus(config){
+    const node = document.getElementById("roleFocusList");
+    node.innerHTML = "";
+    config.focus.forEach(item => {
+      const row = document.createElement("div");
+      row.className = "focus-row";
+      row.innerHTML = `<div>${item[0]}</div><span>${item[1]}</span><b class="${item[2].toLowerCase() === "high" ? "red" : item[2].toLowerCase() === "open" ? "gold" : "blue"}">${item[2]}</b>`;
+      node.appendChild(row);
+    });
+  }
+
+  function renderQueue(config){
+    const node = document.getElementById("workQueue");
+    node.innerHTML = "";
+    config.queue.forEach(item => {
+      const row = document.createElement("div");
+      row.className = "queue-row";
+      row.innerHTML = `<div class="avatar-dot">${item[0]}</div><div><b>${item[1]}</b><span>${item[2]}</span></div><time>${item[3]}</time>`;
+      node.appendChild(row);
+    });
+  }
+
+  function initRoutes(config,role){
+    const workspaceUrl = buildContextUrl(config.workspace);
+    const multiBoxUrl = buildContextUrl("multi-box.html");
+    const activityUrl = buildContextUrl("activity-feed.html");
+
+    const routePairs = [
+      ["topWorkspaceLink", workspaceUrl],
+      ["topAthletesLink", buildContextUrl(config.workspace)],
+      ["topMessagesLink", multiBoxUrl],
+      ["navWorkspace", workspaceUrl],
+      ["navAthleteAccess", workspaceUrl],
+      ["navCommunication", multiBoxUrl],
+      ["navReports", buildContextUrl("crystal-report.html")],
+      ["navActivity", activityUrl],
+      ["openMultiBoxBtn", multiBoxUrl],
+      ["flowWorkspace", workspaceUrl],
+      ["primaryAction", workspaceUrl]
+    ];
+
+    routePairs.forEach(([id,url]) => {
+      const el = document.getElementById(id);
+      if(el) el.setAttribute("href",url);
+    });
+
+    document.querySelectorAll("a[href='multi-box.html']").forEach(a => a.setAttribute("href",multiBoxUrl));
+  }
+
+  function initSearch(){
+    const input = document.getElementById("roleSearchInput");
+    const clear = document.getElementById("roleSearchClear");
+    const results = document.getElementById("roleSearchResults");
+
+    if(!input || !clear || !results) return;
+
+    input.addEventListener("input", function(){
+      const value = input.value.trim();
+      clear.classList.toggle("active", !!value);
+
+      if(!value){
+        results.classList.remove("active");
+        results.innerHTML = "";
+        return;
+      }
+
+      results.classList.add("active");
+      results.innerHTML = `
+        <div class="search-title">Permitted Athlete Search</div>
+        <div class="search-card">
+          <b>Search Runtime Pending</b>
+          <span>Query: ${value.replace(/[<>&]/g,"")}</span>
+          <em>statscore-athlete-search-engine.js may hydrate results when connected.</em>
+        </div>
+      `;
+    });
+
+    clear.addEventListener("click", function(){
+      input.value = "";
+      clear.classList.remove("active");
+      results.classList.remove("active");
+      results.innerHTML = "";
+      input.focus();
+    });
+  }
+
+  function boot(){
+    const role = roleFromContext();
+    const config = ROLE_CONFIG[role] || {
+      title: "Professional",
+      heading: "Professional Operations",
+      summary: "Shared role workspace for permissioned athlete access, CRM context, notices, tasks, communication routes, and role-specific operations.",
+      workspace: "role-dashboard-intake.html",
+      authority: "Role Context Required",
+      sport: "Pending",
+      focus: [
+        ["▦","Load Role Context","Pending"],
+        ["♙","Verify Permissions","Pending"],
+        ["✉","Communication Window","Controlled"]
+      ],
+      queue: [
+        ["SC","Role Context Required","Complete or load role-dashboard-intake context","OPEN"],
+        ["RA","Permission Review","Role access must be confirmed before athlete visibility","GATE"],
+        ["MB","Multi-Box Status","Communication routes remain governed","CTRL"]
+      ]
+    };
+
+    const roleId = qs("role_id") || getStored("statscore_role_id") || getStored("role_id") || "No Role ID";
+    const org = qs("organization") || getStored("statscore_role_organization") || getStored("organization") || "Organization: Pending";
+
+    setText("[data-role-title]", config.title);
+    setText("[data-dashboard-heading]", config.heading);
+    setText("[data-dashboard-summary]", config.summary);
+    setText("[data-role-chip]", config.title);
+    setText("[data-role-name]", config.title + " Workspace");
+    setText("[data-role-org]", org.startsWith("Organization") ? org : "Organization: " + org);
+    setText("[data-role-sport]", "Sport Scope: " + config.sport);
+    setText("[data-role-authority]", "Authority: " + config.authority);
+    setText("[data-role-id]", roleId);
+
+    setText("[data-role-status]", role === "professional" ? "Role Pending" : "Role Loaded");
+    setText("[data-permission-status]", "Permission Controlled");
+    setText("[data-state-role]", role === "professional" ? "NO" : "YES");
+    setText("[data-state-context]", roleId === "No Role ID" ? "NO" : "YES");
+    setText("[data-state-athletes]", "CTRL");
+    setText("[data-state-restricted]", "ROLE");
+    setText("[data-work-count]", String(config.queue.length));
+    setText("[data-athlete-count]", "—");
+    setText("[data-pending-count]", String(config.queue.length));
+    setText("[data-notice-count]", "3");
+    setText("[data-perm-role]", role === "professional" ? "Pending" : "Loaded");
+
+    renderFocus(config);
+    renderQueue(config);
+    highlightRole(role);
+    initRoutes(config,role);
+    initSearch();
+
+    try{
+      localStorage.setItem("statscore_role", role);
+      if(roleId !== "No Role ID") localStorage.setItem("statscore_role_id", roleId);
+    }catch(e){}
+  }
+
+  document.addEventListener("DOMContentLoaded", boot);
+})();
+</script>
+
+</body>
+</html> 
