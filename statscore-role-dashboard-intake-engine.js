@@ -2,9 +2,32 @@
    STATS-CORE™
    STREAM 4 — ROLE DASHBOARD INTAKE PAGE ENGINE
    File: statscore-role-dashboard-intake-engine.js
+
+   Owner Stream:
+   Stream 4 — Professional Role Intake
+
+   Purpose:
+   Creates the Professional Operating Profile required by
+   Stream 10 credential verification and Stream 5 dashboard
+   configuration.
+
    Depends on:
    - statscore-data.js
    - statscore-role-intake-core.js
+
+   Provides:
+   - professional identity
+   - role
+   - role_id / role_context_id
+   - role specialization
+   - organization context
+   - sport scope
+   - position/event scope
+   - requested authority scope
+   - primary workflow
+   - dashboard_config_key
+   - Multi-Box FROM identity
+   - Stream 10 credential pending status
    ========================================================= */
 
 (function(){
@@ -12,6 +35,8 @@
 
   const PAGE = "role-dashboard-intake.html";
   const DASHBOARD = "role-dashboard.html";
+  const STREAM_10_STATUS = "pending_stream_10_verification";
+  const DASHBOARD_PENDING_STATUS = "pending_credential_validation";
 
   const $ = id => document.getElementById(id);
 
@@ -36,6 +61,17 @@
   function setValue(id, value){
     const el = $(id);
     if(el) el.value = value || "";
+  }
+
+  function safeKey(value, fallback){
+    const raw = String(value || fallback || "")
+      .toLowerCase()
+      .trim()
+      .replace(/&/g, "and")
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "");
+
+    return raw || String(fallback || "general");
   }
 
   function core(){
@@ -63,11 +99,133 @@
     return select.options[select.selectedIndex]?.text || "";
   }
 
-  function buildDraftPayload(){
+  function getSpecializationPermissions(){
+    const select = $("specializationKey");
+    if(!select) return {};
+
+    const option = select.options[select.selectedIndex];
+    if(!option?.dataset?.permissions) return {};
+
+    try{
+      return JSON.parse(option.dataset.permissions);
+    }catch(err){
+      return {};
+    }
+  }
+
+  function getSpecializationGroup(){
+    const select = $("specializationKey");
+    if(!select) return "";
+
+    const option = select.options[select.selectedIndex];
+    return option?.dataset?.group || "";
+  }
+
+  function normalizeSportScope(primarySport, explicitScope){
+    const scope = Array.isArray(explicitScope) ? explicitScope.filter(Boolean) : [];
+    if(primarySport && !scope.includes(primarySport)) scope.unshift(primarySport);
+    return Array.from(new Set(scope));
+  }
+
+  function generateDashboardConfigKey(input){
+    const role = safeKey(input.role, "role");
+    const specialization = safeKey(input.specialization, "general");
+    const sport = safeKey(input.sport, "multi_sport");
+    const workflow = safeKey(input.workflow, "role_overview");
+
+    return `${role}_${specialization}_${sport}_${workflow}`;
+  }
+
+  function buildProfessionalProfile(){
+    const role = getRole();
+    const user = getUser();
+    const specializationKey = val("specializationKey");
+    const specializationLabel = getSpecializationLabel();
+    const specializationGroup = getSpecializationGroup();
+    const primarySport = val("primarySport");
+    const sportScope = normalizeSportScope(primarySport, selectedValues("sportScope"));
+    const name = fullName() || user.display_name || user.email || "STATS-CORE Professional";
+    const dashboardConfigKey = generateDashboardConfigKey({
+      role: role.role_name,
+      specialization: specializationKey,
+      sport: primarySport,
+      workflow: val("dashboardNeed")
+    });
+
     return {
-      role_name: getRole().role_name,
-      specialization_key: val("specializationKey"),
-      specialization_label: getSpecializationLabel(),
+      profile_type: "stream_4_professional_operating_profile",
+      profile_version: "v1.0",
+      created_by_stream: "STREAM_4_PROFESSIONAL_ROLE_INTAKE",
+
+      user_identity: {
+        user_id: user.user_id || null,
+        email: val("email") || user.email || "",
+        display_name: name
+      },
+
+      professional_identity: {
+        first_name: val("firstName"),
+        last_name: val("lastName"),
+        full_name: name,
+        email: val("email") || user.email || "",
+        phone: val("phone"),
+        official_title: val("officialTitle")
+      },
+
+      role_identity: {
+        role_name: role.role_name,
+        sc_role_id: role.sc_role_id || null,
+        specialization_key: specializationKey,
+        specialization_label: specializationLabel,
+        specialization_group: specializationGroup
+      },
+
+      organization_context: {
+        organization_name: val("organizationName"),
+        team_level: val("teamLevel")
+      },
+
+      scope_context: {
+        primary_sport: primarySport,
+        sport_scope: sportScope,
+        position_event_scope: val("positionEventGroup"),
+        authority_scope_requested: val("authorityScope"),
+        primary_workflow: val("dashboardNeed")
+      },
+
+      credential_context: {
+        credential_status: STREAM_10_STATUS,
+        dashboard_activation_status: DASHBOARD_PENDING_STATUS,
+        credential_authority_stream: "STREAM_10_PHNX_PROFESSIONAL_CERTIFICATION",
+        credential_required: true
+      },
+
+      dashboard_context: {
+        dashboard_config_key: dashboardConfigKey,
+        dashboard_role: role.role_name,
+        default_dashboard: DASHBOARD,
+        primary_workflow: val("dashboardNeed"),
+        dashboard_activation_status: DASHBOARD_PENDING_STATUS
+      },
+
+      multibox_context: {
+        from_role: role.role_name,
+        from_role_label: role.role_name,
+        from_display_name: name,
+        from_specialization: specializationLabel,
+        source_page: PAGE
+      }
+    };
+  }
+
+  function buildDraftPayload(){
+    const profile = buildProfessionalProfile();
+
+    return {
+      role_name: profile.role_identity.role_name,
+      specialization_key: profile.role_identity.specialization_key,
+      specialization_label: profile.role_identity.specialization_label,
+      professional_profile: profile,
 
       identity: {
         first_name: val("firstName"),
@@ -97,16 +255,19 @@
   function buildContextPayload(){
     const role = getRole();
     const user = getUser();
-    const specializationKey = val("specializationKey");
-    const specializationLabel = getSpecializationLabel();
-    const name = fullName() || user.display_name || user.email || "STATS-CORE Role User";
-    const primarySport = val("primarySport");
-    const sportScope = selectedValues("sportScope").length
-      ? selectedValues("sportScope")
-      : primarySport ? [primarySport] : [];
+    const profile = buildProfessionalProfile();
+
+    const specializationKey = profile.role_identity.specialization_key;
+    const specializationLabel = profile.role_identity.specialization_label;
+    const name = profile.professional_identity.full_name;
+    const primarySport = profile.scope_context.primary_sport;
+    const sportScope = profile.scope_context.sport_scope;
+    const dashboardConfigKey = profile.dashboard_context.dashboard_config_key;
 
     const nextPage =
-      `${DASHBOARD}?role=${encodeURIComponent(role.role_name)}&from=role-dashboard-intake`;
+      `${DASHBOARD}?role=${encodeURIComponent(role.role_name)}` +
+      `&dashboard_config_key=${encodeURIComponent(dashboardConfigKey)}` +
+      `&from=role-dashboard-intake`;
 
     return {
       role_name: role.role_name,
@@ -121,34 +282,49 @@
       next_page: nextPage,
 
       identity_context: {
+        professional_profile_type: "stream_4_professional_operating_profile",
         first_name: val("firstName"),
         last_name: val("lastName"),
         full_name: name,
         email: val("email") || user.email || "",
         phone: val("phone"),
         official_title: val("officialTitle"),
-        organization_name: val("organizationName")
+        organization_name: val("organizationName"),
+        user_id: user.user_id || null
       },
 
       operating_context: {
+        professional_profile: profile,
         specialization_key: specializationKey,
         specialization_label: specializationLabel,
+        specialization_group: profile.role_identity.specialization_group,
+        official_title: val("officialTitle"),
+        organization_name: val("organizationName"),
         team_level: val("teamLevel"),
-        position_event_group: val("positionEventGroup"),
-        authority_scope: val("authorityScope"),
-        dashboard_need: val("dashboardNeed"),
-        operating_notes: val("operatingNotes")
+        position_event_scope: val("positionEventGroup"),
+        authority_scope_requested: val("authorityScope"),
+        primary_workflow: val("dashboardNeed"),
+        operating_notes: val("operatingNotes"),
+        credential_status: STREAM_10_STATUS,
+        dashboard_activation_status: DASHBOARD_PENDING_STATUS
       },
 
       dashboard_context: {
         dashboard_role: role.role_name,
+        dashboard_config_key: dashboardConfigKey,
         source_page: PAGE,
         default_dashboard: DASHBOARD,
+        primary_workflow: val("dashboardNeed"),
         primary_dashboard_need: val("dashboardNeed"),
         specialization_key: specializationKey,
         specialization_label: specializationLabel,
         primary_sport: primarySport,
-        sport_scope: sportScope
+        sport_scope: sportScope,
+        position_event_scope: val("positionEventGroup"),
+        authority_scope_requested: val("authorityScope"),
+        credential_status: STREAM_10_STATUS,
+        dashboard_activation_status: DASHBOARD_PENDING_STATUS,
+        credential_authority_source: "STREAM_10_PHNX_PROFESSIONAL_CERTIFICATION"
       },
 
       multibox_context: {
@@ -156,33 +332,43 @@
         from_role_label: role.role_name,
         from_display_name: name,
         from_specialization: specializationLabel,
-        source_page: PAGE
+        source_page: PAGE,
+        credential_status: STREAM_10_STATUS
       },
 
       permissions_context: {
-        authority_scope: val("authorityScope"),
+        permission_status: STREAM_10_STATUS,
+        authority_scope_requested: val("authorityScope"),
         specialization_key: specializationKey,
         specialization_label: specializationLabel,
+        specialization_group: profile.role_identity.specialization_group,
+        specialization_default_permissions: getSpecializationPermissions(),
         sport_scope: sportScope,
-        primary_sport: primarySport
+        primary_sport: primarySport,
+        position_event_scope: val("positionEventGroup"),
+        credential_required: true,
+        credential_authority_stream: "STREAM_10"
       },
 
-      action_type: "role_dashboard_intake_created"
+      action_type: "professional_operating_profile_created"
     };
   }
 
   function syncStatus(){
     const role = getRole();
     const name = fullName();
+    const primarySport = val("primarySport");
+    const specialization = getSpecializationLabel();
+    const authorityScope = val("authorityScope");
 
     setText("statusRole", role.role_name || "Pending");
-    setText("statusSpecialization", getSpecializationLabel() || "Pending");
+    setText("statusSpecialization", specialization || "Pending");
     setText("statusIdentity", name || "Pending");
-    setText("statusSport", val("primarySport") || "Pending");
-    setText("statusContext", val("authorityScope") || "Pending");
+    setText("statusSport", primarySport || "Pending");
+    setText("statusContext", authorityScope || "Pending");
     setText("statusMultibox", name || role.role_name || "Pending");
 
-    setText("recordBadge", name && val("specializationKey") ? "Environment Ready" : "Environment Pending");
+    setText("recordBadge", name && val("specializationKey") && primarySport ? "Profile Ready" : "Profile Pending");
 
     const identity = $("multiboxIdentity");
     if(identity){
@@ -191,7 +377,11 @@
 
     const dashboard = $("viewDashboardBtn");
     if(dashboard && role.role_name){
-      dashboard.href = `${DASHBOARD}?role=${encodeURIComponent(role.role_name)}&from=role-dashboard-intake`;
+      const profile = buildProfessionalProfile();
+      dashboard.href =
+        `${DASHBOARD}?role=${encodeURIComponent(role.role_name)}` +
+        `&dashboard_config_key=${encodeURIComponent(profile.dashboard_context.dashboard_config_key)}` +
+        `&from=role-dashboard-intake`;
     }
   }
 
@@ -229,7 +419,9 @@
     if(!specs.length){
       const option = document.createElement("option");
       option.value = "general";
-      option.textContent = "General Role User";
+      option.textContent = "General Professional";
+      option.dataset.group = "general";
+      option.dataset.permissions = "{}";
       select.appendChild(option);
     }
   }
@@ -249,7 +441,7 @@
         draft_payload: buildDraftPayload()
       });
 
-      showMessage("Draft saved to Supabase.");
+      showMessage("Professional profile draft saved.");
     }catch(err){
       console.error(err);
       showMessage(err.message || "Draft save failed.", "error");
@@ -292,7 +484,7 @@
       const draft = await core().restoreDraft(role.role_name, PAGE);
       if(draft?.draft_payload){
         applyDraftPayload(draft.draft_payload);
-        showMessage("Draft restored.");
+        showMessage("Professional profile draft restored.");
       }
     }catch(err){
       console.warn("Draft restore skipped:", err);
@@ -305,6 +497,8 @@
     if(!val("firstName")) return "First name is required.";
     if(!val("lastName")) return "Last name is required.";
     if(!val("primarySport")) return "Primary sport is required.";
+    if(!val("authorityScope")) return "Authority scope is required.";
+    if(!val("dashboardNeed")) return "Primary dashboard need is required.";
     return "";
   }
 
@@ -316,16 +510,27 @@
         return;
       }
 
-      showMessage("Creating role context...");
+      showMessage("Creating professional operating profile...");
 
       const result = await core().createRoleContext(buildContextPayload());
 
-      showMessage("Role context created. Routing enabled.");
+      const context = result.context;
+      const profile = context.operating_context?.professional_profile || buildProfessionalProfile();
+      const dashboardConfigKey = profile.dashboard_context?.dashboard_config_key || "";
+
+      localStorage.setItem("STATSCORE_PROFESSIONAL_OPERATING_PROFILE", JSON.stringify(profile));
+      localStorage.setItem("STATSCORE_DASHBOARD_CONFIG_KEY", dashboardConfigKey);
+      localStorage.setItem("STATSCORE_CREDENTIAL_STATUS", STREAM_10_STATUS);
+      localStorage.setItem("STATSCORE_DASHBOARD_ACTIVATION_STATUS", DASHBOARD_PENDING_STATUS);
+
+      showMessage("Professional profile created. Credential validation pending.");
 
       const next =
-        `${DASHBOARD}?role=${encodeURIComponent(result.context.role_name)}` +
-        `&role_context_id=${encodeURIComponent(result.context.role_context_id)}` +
-        `&role_instance_id=${encodeURIComponent(result.context.role_instance_id)}` +
+        `${DASHBOARD}?role=${encodeURIComponent(context.role_name)}` +
+        `&role_context_id=${encodeURIComponent(context.role_context_id)}` +
+        `&role_instance_id=${encodeURIComponent(context.role_instance_id)}` +
+        `&dashboard_config_key=${encodeURIComponent(dashboardConfigKey)}` +
+        `&credential_status=${encodeURIComponent(STREAM_10_STATUS)}` +
         `&from=role-dashboard-intake`;
 
       const dashboard = $("viewDashboardBtn");
@@ -337,15 +542,15 @@
 
     }catch(err){
       console.error(err);
-      showMessage(err.message || "Role context creation failed.", "error");
+      showMessage(err.message || "Professional profile creation failed.", "error");
     }
   }
 
   function previewContext(){
     const payload = buildContextPayload();
-    console.log("STATS-CORE Role Intake Preview:", payload);
+    console.log("STATS-CORE Professional Operating Profile Preview:", payload);
     syncStatus();
-    showMessage("Context preview generated in console.");
+    showMessage("Professional operating profile preview generated.");
   }
 
   function bind(){
@@ -364,9 +569,9 @@
       const role = getRole();
       const user = getUser();
 
-      setValue("detectedRole", role.role_name || "No role detected");
+      setValue("detectedRole", role.role_name ? `${role.role_name} — Login Verified` : "No role detected");
       setValue("email", user.email || "");
-      setText("pageTitle", role.role_name ? `${role.role_name} Intake` : "Role Intake");
+      setText("pageTitle", role.role_name ? `${role.role_name} Intake` : "Role Dashboard Intake");
 
       await loadSpecializations();
       await restoreDraft();
@@ -377,7 +582,7 @@
       if(!role.role_name){
         showMessage("No login role detected. Return to login.", "error");
       }else{
-        showMessage("Role intake ready.");
+        showMessage("Professional role intake ready.");
       }
 
     }catch(err){
@@ -385,6 +590,18 @@
       showMessage(err.message || "Role intake failed to initialize.", "error");
     }
   }
+
+  window.STATSCORE_ROLE_DASHBOARD_INTAKE_ENGINE = {
+    buildProfessionalProfile,
+    buildDraftPayload,
+    buildContextPayload,
+    generateDashboardConfigKey,
+    syncStatus,
+    saveDraft,
+    restoreDraft,
+    createContext,
+    previewContext
+  };
 
   document.addEventListener("DOMContentLoaded", init);
 })(); 
