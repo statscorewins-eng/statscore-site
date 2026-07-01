@@ -1,3 +1,112 @@
+<!--
+==========================================================
+STATS-CORE™ OWNERSHIP HEADER
+==========================================================
+
+File:
+role-dashboard-intake.html
+
+Asset Type:
+HTML Presentation Page
+
+Owner Stream:
+Stream 4 — Professional Role Intake
+
+Primary Operational Authority:
+Stream 4 — Professional Role Intake
+
+System Layer:
+Professional Role Identity Intake
+
+Primary Runtime:
+statscore-role-dashboard-intake-engine.js
+
+Primary Intelligence Engine(s):
+None
+
+Previous Route:
+login.html
+
+Current Route:
+role-dashboard-intake.html
+
+Next Route(s):
+role-dashboard.html
+
+Consumes:
+selected login role
+professional identity input
+organization context
+role specialization
+sport scope
+position/event scope
+authority scope request
+workflow preference
+workspace tool request
+communication preference
+credential review request
+
+Provides:
+professional_identity
+role
+role_id
+role_context
+role_context_id
+role_instance_id
+organization_context
+sport_scope
+position_event_scope
+authority_scope_requested
+assigned_access_type
+primary_workflow
+requested_workspace_tools
+communication_context
+credential_review_context
+permissions_context
+dashboard_config_key
+multibox_from_identity
+
+Primary IDs:
+role
+role_id
+role_context_id
+role_instance_id
+dashboard_config_key
+
+Primary Database Tables:
+sc_roles
+sc_role_specializations
+sc_role_intake_contexts
+sc_role_intake_receipts
+sc_role_intake_drafts
+
+Cross-Stream Dependencies:
+Consumes login role from Stream 1.
+Provides professional operating profile to Stream 10 credential review.
+Provides dashboard configuration context to Stream 5.
+Provides communication identity context to Stream 6.
+Provides validation context to Stream 8.
+
+Does NOT:
+- Create login credentials
+- Issue PHNX credentials
+- Verify professional credentials
+- Activate dashboard modules
+- Build role dashboard workspace logic
+- Capture athlete source records
+- Capture athlete evidence
+- Calculate athlete intelligence
+- Generate Crystal Reports
+
+Status:
+CANON LOCKED
+
+Last Governance Review:
+2026-07-01
+
+==========================================================
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,126 +116,551 @@
 
 <style>
 :root{
-  --red:#ff2b1f;--gold:#f4c542;--green:#25d366;--blue:#7ed8ff;
-  --panel:rgba(6,10,18,.58);--line:rgba(255,255,255,.18);
-  --line2:rgba(255,255,255,.32);--text:#f4f4f1;--muted:#b8c3cc;
+  --red:#ff2b1f;
+  --red2:#b90710;
+  --gold:#f4c542;
+  --green:#25d366;
+  --black:#020202;
+  --ink:#05070b;
+  --panel:rgba(6,10,18,.58);
+  --panel2:rgba(7,10,16,.64);
+  --line:rgba(255,255,255,.18);
+  --line2:rgba(255,255,255,.32);
+  --text:#f4f4f1;
+  --muted:#b8c3cc;
+  --blue:#7ed8ff;
+  --silver:#d8e1e7;
   --max:1536px;
 }
-*{box-sizing:border-box}
-html,body{margin:0;background:#000;color:var(--text);font-family:Arial,Helvetica,sans-serif}
-a{text-decoration:none;color:inherit}
+
+*{
+  box-sizing:border-box;
+}
+
+html,
+body{
+  margin:0;
+  background:#000;
+  color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+  min-height:100vh;
+  overflow-x:hidden;
+  overflow-y:auto;
+}
+
+a{
+  text-decoration:none;
+  color:inherit;
+}
+
 .page{
-  width:min(var(--max),100%);margin:0 auto;min-height:100vh;
+  width:min(var(--max),100%);
+  margin:0 auto;
+  min-height:100vh;
   background:
     linear-gradient(90deg,rgba(0,0,0,.88),rgba(0,0,0,.68),rgba(0,0,0,.78)),
     radial-gradient(circle at 45% 20%,rgba(255,43,31,.13),transparent 34%),
-    radial-gradient(circle at 80% 70%,rgba(126,216,255,.11),transparent 34%),#020202;
+    radial-gradient(circle at 80% 70%,rgba(126,216,255,.11),transparent 34%),
+    #020202;
 }
+
 .header{
-  height:92px;background:linear-gradient(180deg,#fff,#ededeb);
-  display:grid;grid-template-columns:390px 1fr 410px;align-items:center;border-bottom:2px solid var(--red);
+  height:92px;
+  background:linear-gradient(180deg,#fff,#ededeb);
+  display:grid;
+  grid-template-columns:390px 1fr 410px;
+  align-items:center;
+  border-bottom:2px solid var(--red);
 }
+
 .logo-tab{
-  height:92px;background:linear-gradient(145deg,#151515,#050505 65%,#000);
+  height:92px;
+  background:linear-gradient(145deg,#151515,#050505 65%,#000);
   clip-path:polygon(0 0,78% 0,100% 100%,0 100%);
-  display:flex;align-items:center;padding-left:26px;position:relative;
+  display:flex;
+  align-items:center;
+  padding-left:26px;
+  position:relative;
 }
-.logo-tab:before{content:"";position:absolute;top:0;left:0;width:140px;height:16px;background:var(--red);clip-path:polygon(0 0,92% 0,100% 100%,0 100%)}
-.logo-tab:after{content:"";position:absolute;bottom:0;left:0;right:34px;height:3px;background:var(--red)}
-.logo-tab img{width:292px}
-.header-title{text-align:center;color:#111;font-weight:900;font-size:.82rem;letter-spacing:.32em;text-transform:uppercase}
-.header-nav{display:flex;justify-content:flex-end;align-items:center;gap:12px;padding-right:24px;height:100%;color:#111}
-.header-nav a{font-weight:900;font-size:.75rem;letter-spacing:.13em;text-transform:uppercase;padding-bottom:12px;border-bottom:2px solid transparent}
-.header-nav a.active{color:var(--red);border-bottom-color:var(--red)}
-.user-icon{width:30px;height:30px;border:3px solid #111;border-radius:50%}
+
+.logo-tab:before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  width:140px;
+  height:16px;
+  background:var(--red);
+  clip-path:polygon(0 0,92% 0,100% 100%,0 100%);
+}
+
+.logo-tab:after{
+  content:"";
+  position:absolute;
+  bottom:0;
+  left:0;
+  right:34px;
+  height:3px;
+  background:var(--red);
+}
+
+.logo-tab img{
+  width:292px;
+  display:block;
+}
+
+.header-title{
+  text-align:center;
+  color:#111;
+  font-weight:900;
+  font-size:.82rem;
+  letter-spacing:.32em;
+  text-transform:uppercase;
+}
+
+.header-nav{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:12px;
+  padding-right:24px;
+  height:100%;
+  color:#111;
+}
+
+.header-nav a{
+  font-weight:900;
+  font-size:.75rem;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  padding-bottom:12px;
+  border-bottom:2px solid transparent;
+}
+
+.header-nav a.active{
+  color:var(--red);
+  border-bottom-color:var(--red);
+}
+
+.user-icon{
+  width:30px;
+  height:30px;
+  border:3px solid #111;
+  border-radius:50%;
+}
+
 .main{
   padding:22px 32px 0;
-  background:repeating-linear-gradient(135deg,rgba(255,255,255,.018) 0,rgba(255,255,255,.018) 1px,transparent 1px,transparent 7px);
+  background:repeating-linear-gradient(
+    135deg,
+    rgba(255,255,255,.018) 0,
+    rgba(255,255,255,.018) 1px,
+    transparent 1px,
+    transparent 7px
+  );
 }
+
 .record-header{
-  display:flex;align-items:flex-end;justify-content:space-between;gap:20px;
-  margin:0 0 16px;padding:0 0 14px;border-bottom:1px solid rgba(255,255,255,.12);
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:20px;
+  margin:0 0 16px;
+  padding:0 0 14px;
+  border-bottom:1px solid rgba(255,255,255,.12);
 }
-.record-kicker{color:var(--red);font-size:.72rem;font-weight:900;letter-spacing:.24em;text-transform:uppercase;margin-bottom:8px}
+
+.record-kicker{
+  color:var(--red);
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.24em;
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+
 .record-title{
-  margin:0;font-family:"Arial Narrow",Impact,Arial,sans-serif;
-  font-size:3.5rem;line-height:.9;letter-spacing:-.04em;text-transform:uppercase;color:#f7f7f1;
+  margin:0;
+  font-family:"Arial Narrow","Helvetica Neue Condensed",Impact,Arial,sans-serif;
+  font-size:3.5rem;
+  line-height:.9;
+  letter-spacing:-.04em;
+  text-transform:uppercase;
+  color:#f7f7f1;
 }
+
 .record-badge{
-  border:1px solid rgba(255,255,255,.16);padding:10px 14px;text-align:center;
-  font-size:.7rem;color:#9fa7b0;font-weight:900;letter-spacing:.18em;text-transform:uppercase;background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.16);
+  padding:10px 14px;
+  text-align:center;
+  font-size:.7rem;
+  color:#9fa7b0;
+  font-weight:900;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  background:rgba(255,255,255,.03);
+  min-width:168px;
 }
-.intake-grid{display:grid;grid-template-columns:1fr 360px;gap:14px}
-.form-panel,.side-panel{background:var(--panel);border:1px solid var(--line);box-shadow:inset 0 0 0 1px rgba(255,255,255,.035)}
-.form-panel{padding:22px}
-.side-panel{padding:20px;align-self:start;position:sticky;top:12px}
-.section{border:1px solid var(--line);background:rgba(7,10,16,.42);padding:20px;margin-bottom:14px}
-.section-title{margin:0 0 8px;color:var(--red);font-size:.76rem;font-weight:900;letter-spacing:.24em;text-transform:uppercase}
-.section-sub{margin:0 0 18px;color:var(--blue);font-size:.8rem;line-height:1.45;font-weight:800}
-.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-.form-grid.three{grid-template-columns:repeat(3,1fr)}
-.field{display:flex;flex-direction:column;gap:7px}
-.field.full{grid-column:1 / -1}
-label{color:#e7f7ff;font-size:.68rem;font-weight:900;letter-spacing:.16em;text-transform:uppercase}
-input,select,textarea{
-  width:100%;min-height:44px;border:1px solid rgba(255,255,255,.24);
-  background:rgba(0,0,0,.36);color:#fff;padding:0 12px;font-size:.9rem;font-weight:700;outline:none;
+
+.intake-grid{
+  display:grid;
+  grid-template-columns:1fr 360px;
+  gap:14px;
 }
-select[multiple]{min-height:132px;padding:10px 12px}
-textarea{min-height:104px;padding:12px;resize:vertical;line-height:1.4}
-input::placeholder,textarea::placeholder{color:rgba(255,255,255,.38)}
-input:focus,select:focus,textarea:focus{border-color:var(--red);box-shadow:0 0 0 1px rgba(255,43,31,.4)}
-.side-title{margin:0 0 8px;font-size:1.7rem;line-height:1;text-transform:uppercase}
-.side-sub{color:var(--blue);font-size:.8rem;line-height:1.45;font-weight:800}
-.status-card{margin-top:18px;border:1px solid var(--line);padding:14px}
+
+.form-panel,
+.side-panel{
+  background:var(--panel);
+  border:1px solid var(--line);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.035);
+}
+
+.form-panel{
+  padding:22px;
+}
+
+.side-panel{
+  padding:20px;
+  align-self:start;
+  position:sticky;
+  top:12px;
+}
+
+.section{
+  border:1px solid var(--line);
+  background:rgba(7,10,16,.42);
+  padding:20px;
+  margin-bottom:14px;
+}
+
+.section-title{
+  margin:0 0 8px;
+  color:var(--red);
+  font-size:.76rem;
+  font-weight:900;
+  letter-spacing:.24em;
+  text-transform:uppercase;
+}
+
+.section-sub{
+  margin:0 0 18px;
+  color:var(--blue);
+  font-size:.8rem;
+  line-height:1.45;
+  font-weight:800;
+}
+
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
+}
+
+.form-grid.three{
+  grid-template-columns:repeat(3,1fr);
+}
+
+.field{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+}
+
+.field.full{
+  grid-column:1 / -1;
+}
+
+label{
+  color:#e7f7ff;
+  font-size:.68rem;
+  font-weight:900;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+
+input,
+select,
+textarea{
+  width:100%;
+  min-height:44px;
+  border:1px solid rgba(255,255,255,.24);
+  background:rgba(0,0,0,.36);
+  color:#fff;
+  padding:0 12px;
+  font-size:.9rem;
+  font-weight:700;
+  outline:none;
+}
+
+select[multiple]{
+  min-height:146px;
+  padding:10px 12px;
+}
+
+textarea{
+  min-height:112px;
+  padding:12px;
+  resize:vertical;
+  line-height:1.4;
+}
+
+input::placeholder,
+textarea::placeholder{
+  color:rgba(255,255,255,.38);
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+  border-color:var(--red);
+  box-shadow:0 0 0 1px rgba(255,43,31,.4);
+}
+
+input[readonly]{
+  color:#dce8ef;
+  background:rgba(255,255,255,.045);
+  border-color:rgba(126,216,255,.22);
+}
+
+.side-title{
+  margin:0 0 8px;
+  font-size:1.7rem;
+  line-height:1;
+  text-transform:uppercase;
+}
+
+.side-sub{
+  color:var(--blue);
+  font-size:.8rem;
+  line-height:1.45;
+  font-weight:800;
+}
+
+.status-card{
+  margin-top:18px;
+  border:1px solid var(--line);
+  padding:14px;
+}
+
 .status-row{
-  display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid rgba(255,255,255,.12);
-  padding:10px 0;font-size:.76rem;text-transform:uppercase;font-weight:900;
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  border-bottom:1px solid rgba(255,255,255,.12);
+  padding:10px 0;
+  font-size:.76rem;
+  text-transform:uppercase;
+  font-weight:900;
 }
-.status-row:last-child{border-bottom:none}
-.status-row span{color:var(--muted)}
-.status-row b{color:var(--gold);text-align:right}
+
+.status-row:last-child{
+  border-bottom:none;
+}
+
+.status-row span{
+  color:var(--muted);
+}
+
+.status-row b{
+  color:var(--gold);
+  text-align:right;
+}
+
 .notice{
-  margin-top:16px;border-left:4px solid var(--red);
+  margin-top:16px;
+  border-left:4px solid var(--red);
   background:linear-gradient(90deg,rgba(255,43,31,.14),rgba(255,255,255,.02));
-  padding:14px;color:#e8f3f8;font-size:.82rem;line-height:1.45;
+  padding:14px;
+  color:#e8f3f8;
+  font-size:.82rem;
+  line-height:1.45;
 }
-.submit-stack{display:grid;gap:10px;margin-top:18px}
-button.btn,a.btn{
-  min-height:48px;border:1px solid var(--line2);display:flex;align-items:center;justify-content:space-between;
-  padding:0 16px;text-transform:uppercase;font-size:.74rem;font-weight:900;letter-spacing:.12em;
-  background:rgba(255,255,255,.02);color:#fff;cursor:pointer;width:100%;
+
+.submit-stack{
+  display:grid;
+  gap:10px;
+  margin-top:18px;
+}
+
+button.btn,
+a.btn{
+  min-height:48px;
+  border:1px solid var(--line2);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 16px;
+  text-transform:uppercase;
+  font-size:.74rem;
+  font-weight:900;
+  letter-spacing:.12em;
+  background:rgba(255,255,255,.02);
+  color:#fff;
+  cursor:pointer;
+  position:relative;
+  z-index:50;
+  width:100%;
   font-family:Arial,Helvetica,sans-serif;
 }
-button.btn.primary,a.btn.primary{border-color:var(--red);background:rgba(255,43,31,.12);color:var(--red)}
-button.btn.green{border-color:var(--green);color:var(--green)}
-button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
-.system-message{margin-top:14px;min-height:22px;font-size:.72rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--green)}
+
+button.btn.primary,
+a.btn.primary{
+  border-color:var(--red);
+  background:rgba(255,43,31,.12);
+  color:var(--red);
+}
+
+button.btn.green,
+a.btn.green{
+  border-color:var(--green);
+  color:var(--green);
+}
+
+button.btn.gold,
+a.btn.gold{
+  border-color:var(--gold);
+  color:var(--gold);
+}
+
+button.btn:hover,
+a.btn:hover{
+  background:rgba(255,255,255,.08);
+}
+
+.system-message{
+  margin-top:14px;
+  min-height:22px;
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--green);
+}
+
 .flow{
-  margin-top:14px;min-height:76px;display:grid;grid-template-columns:170px repeat(5,1fr) 190px;
-  align-items:center;border:1px solid var(--line);background:rgba(4,7,12,.62);
+  margin-top:14px;
+  min-height:76px;
+  display:grid;
+  grid-template-columns:170px repeat(5,1fr) 190px;
+  align-items:center;
+  border:1px solid var(--line);
+  background:rgba(4,7,12,.62);
 }
-.flow-title{color:var(--red);font-weight:900;letter-spacing:.18em;text-transform:uppercase;padding-left:22px}
-.flow-step{border-left:1px solid rgba(255,255,255,.14);padding:0 18px}
-.flow-step b{display:block;font-size:.74rem;text-transform:uppercase}
-.flow-step span{color:var(--muted);font-size:.68rem}
+
+.flow-title{
+  color:var(--red);
+  font-weight:900;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  padding-left:22px;
+}
+
+.flow-step{
+  border-left:1px solid rgba(255,255,255,.14);
+  padding:0 18px;
+}
+
+.flow-step b{
+  display:block;
+  font-size:.74rem;
+  text-transform:uppercase;
+}
+
+.flow-step span{
+  color:var(--muted);
+  font-size:.68rem;
+}
+
 .footer{
-  height:64px;margin-top:10px;border-top:1px solid var(--line);
-  display:grid;grid-template-columns:220px 1fr 300px 260px;align-items:center;
-  color:#cdd7df;font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;
+  height:64px;
+  margin-top:10px;
+  border-top:1px solid var(--line);
+  display:grid;
+  grid-template-columns:220px 1fr 300px 260px;
+  align-items:center;
+  color:#cdd7df;
+  font-size:.74rem;
+  letter-spacing:.08em;
+  text-transform:uppercase;
 }
-.footer img{width:185px}
-.demo-ok{color:var(--green);font-weight:900}
+
+.footer img{
+  width:185px;
+  display:block;
+}
+
+.demo-ok{
+  color:var(--green);
+  font-weight:900;
+}
+
 @media(max-width:900px){
-  .header{grid-template-columns:1fr;height:auto}
-  .logo-tab{width:100%}
-  .header-title{padding:14px}
-  .header-nav{justify-content:center;padding:14px;flex-wrap:wrap}
-  .main{padding:18px 14px 0}
-  .record-header,.intake-grid,.form-grid,.form-grid.three,.flow,.footer{grid-template-columns:1fr}
-  .record-header{align-items:flex-start;flex-direction:column}
-  .record-title{font-size:2.6rem}
-  .side-panel{position:relative;top:auto}
+  .header{
+    grid-template-columns:1fr;
+    height:auto;
+  }
+
+  .logo-tab{
+    width:100%;
+  }
+
+  .header-title{
+    padding:14px;
+  }
+
+  .header-nav{
+    justify-content:center;
+    padding:14px;
+    flex-wrap:wrap;
+  }
+
+  .main{
+    padding:18px 14px 0;
+  }
+
+  .record-header,
+  .intake-grid,
+  .form-grid,
+  .form-grid.three,
+  .flow,
+  .footer{
+    grid-template-columns:1fr;
+  }
+
+  .record-header{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .record-title{
+    font-size:2.6rem;
+  }
+
+  .side-panel{
+    position:relative;
+    top:auto;
+  }
+
+  .flow{
+    gap:0;
+  }
+
+  .flow-title{
+    padding:18px;
+  }
+
+  .flow-step{
+    padding:14px 18px;
+  }
+
+  .footer{
+    height:auto;
+    gap:12px;
+    padding:16px 0;
+  }
 }
 </style>
 </head>
@@ -138,7 +672,9 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
   <a class="logo-tab" href="index.html">
     <img src="sc_logo_black_v2.png" alt="STATS-CORE">
   </a>
+
   <div class="header-title">National Athlete Infrastructure • Controlled Access</div>
+
   <nav class="header-nav">
     <a href="index.html">Entry</a>
     <a class="active" href="role-dashboard-intake.html">Role Intake</a>
@@ -165,30 +701,57 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
 
   <section class="section">
     <h2 class="section-title">1. Professional Identity</h2>
-    <p class="section-sub">Create the professional identity attached to this user’s operating profile.</p>
+    <p class="section-sub">
+      Tell STATS-CORE who is creating this professional operating profile.
+    </p>
+
     <div class="form-grid">
-      <div class="field"><label>First Name</label><input id="firstName" name="firstName" type="text" placeholder="First name" required></div>
-      <div class="field"><label>Last Name</label><input id="lastName" name="lastName" type="text" placeholder="Last name" required></div>
-      <div class="field"><label>Email</label><input id="email" name="email" type="email" placeholder="email@example.com"></div>
-      <div class="field"><label>Phone</label><input id="phone" name="phone" type="tel" placeholder="Optional"></div>
+      <div class="field">
+        <label>First Name</label>
+        <input id="firstName" name="firstName" type="text" placeholder="First name" required>
+      </div>
+
+      <div class="field">
+        <label>Last Name</label>
+        <input id="lastName" name="lastName" type="text" placeholder="Last name" required>
+      </div>
+
+      <div class="field">
+        <label>Email</label>
+        <input id="email" name="email" type="email" placeholder="email@example.com">
+      </div>
+
+      <div class="field">
+        <label>Phone</label>
+        <input id="phone" name="phone" type="tel" placeholder="Optional">
+      </div>
     </div>
   </section>
 
   <section class="section">
-    <h2 class="section-title">2. Role & Specialization</h2>
-    <p class="section-sub">The login role is inherited from Stream 1. Stream 4 captures the operating function inside that role.</p>
+    <h2 class="section-title">2. Role & Professional Function</h2>
+    <p class="section-sub">
+      Your login role is already locked. Select the professional function that best describes how you operate.
+    </p>
+
     <div class="form-grid">
       <div class="field">
         <label>Detected Login Role</label>
         <input id="detectedRole" name="detectedRole" type="text" readonly>
       </div>
+
       <div class="field">
         <label>Role Specialization</label>
         <select id="specializationKey" name="specializationKey" required>
           <option value="">Loading role specializations...</option>
         </select>
       </div>
-      <div class="field"><label>Official Title</label><input id="officialTitle" name="officialTitle" type="text" placeholder="Head Coach, Counselor, Recruiter, Program Director"></div>
+
+      <div class="field">
+        <label>Official Title</label>
+        <input id="officialTitle" name="officialTitle" type="text" placeholder="Head Coach, Counselor, Recruiter, Program Director">
+      </div>
+
       <div class="field">
         <label>Requested Authority Scope</label>
         <select id="authorityScope" name="authorityScope" required>
@@ -207,9 +770,16 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
 
   <section class="section">
     <h2 class="section-title">3. Organization Context</h2>
-    <p class="section-sub">Identify the school, program, company, organization, recruiting service, evaluation group, or family authority context.</p>
+    <p class="section-sub">
+      Identify the school, program, organization, recruiting service, evaluation group, or family authority connected to this profile.
+    </p>
+
     <div class="form-grid">
-      <div class="field"><label>Organization / School / Program</label><input id="organizationName" name="organizationName" type="text" placeholder="School, program, agency, company"></div>
+      <div class="field">
+        <label>Organization / School / Program</label>
+        <input id="organizationName" name="organizationName" type="text" placeholder="School, program, agency, company">
+      </div>
+
       <div class="field">
         <label>Team / Program Level</label>
         <select id="teamLevel" name="teamLevel">
@@ -224,14 +794,25 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
           <option value="family">Family / Guardian</option>
         </select>
       </div>
-      <div class="field"><label>Organization City / State</label><input id="organizationLocation" name="organizationLocation" type="text" placeholder="City, State"></div>
-      <div class="field"><label>Organization Website / Profile</label><input id="organizationUrl" name="organizationUrl" type="url" placeholder="https://"></div>
+
+      <div class="field">
+        <label>Organization City / State</label>
+        <input id="organizationLocation" name="organizationLocation" type="text" placeholder="City, State">
+      </div>
+
+      <div class="field">
+        <label>Organization Website / Profile</label>
+        <input id="organizationUrl" name="organizationUrl" type="url" placeholder="https://">
+      </div>
     </div>
   </section>
 
   <section class="section">
     <h2 class="section-title">4. Sport / Position / Event Scope</h2>
-    <p class="section-sub">Stream 5 uses this to prepare the correct dashboard context across Football, Basketball, Baseball, and Track.</p>
+    <p class="section-sub">
+      Define the sports, position groups, events, and competition environments connected to this professional profile.
+    </p>
+
     <div class="form-grid three">
       <div class="field">
         <label>Primary Sport</label>
@@ -243,7 +824,12 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
           <option value="track">Track</option>
         </select>
       </div>
-      <div class="field"><label>Position / Event / Group Scope</label><input id="positionEventGroup" name="positionEventGroup" type="text" placeholder="QB, WR, Guards, Pitchers, Sprints, Throws, Full Team"></div>
+
+      <div class="field">
+        <label>Position / Event / Group Scope</label>
+        <input id="positionEventGroup" name="positionEventGroup" type="text" placeholder="QB, WR, Guards, Pitchers, Sprints, Throws, Full Team">
+      </div>
+
       <div class="field">
         <label>Competition Context</label>
         <select id="competitionContext" name="competitionContext">
@@ -257,6 +843,7 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
           <option value="evaluation">Evaluation Session</option>
         </select>
       </div>
+
       <div class="field full">
         <label>Sport Scope</label>
         <select id="sportScope" name="sportScope" multiple>
@@ -271,7 +858,10 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
 
   <section class="section">
     <h2 class="section-title">5. Athlete Access Model</h2>
-    <p class="section-sub">Tell Stream 5 what athlete population this professional expects to work with.</p>
+    <p class="section-sub">
+      Tell the system which athlete population this professional expects to work with.
+    </p>
+
     <div class="form-grid">
       <div class="field">
         <label>Assigned Athlete Access Type</label>
@@ -286,6 +876,7 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
           <option value="family_linked_athletes">Family Linked Athletes</option>
         </select>
       </div>
+
       <div class="field">
         <label>Primary Workflow</label>
         <select id="dashboardNeed" name="dashboardNeed" required>
@@ -304,11 +895,14 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
   </section>
 
   <section class="section">
-    <h2 class="section-title">6. Requested Dashboard Modules</h2>
-    <p class="section-sub">Stream 4 records requested modules. Stream 10 and Stream 5 determine what becomes authorized and visible.</p>
+    <h2 class="section-title">6. Workspace Tools Requested</h2>
+    <p class="section-sub">
+      Select the tools this professional expects to use. Final access will be configured after profile and credential review.
+    </p>
+
     <div class="form-grid">
       <div class="field full">
-        <label>Requested Modules</label>
+        <label>Requested Workspace Tools</label>
         <select id="requestedDashboardModules" name="requestedDashboardModules" multiple>
           <option value="assigned_athletes">Assigned Athletes</option>
           <option value="athlete_summary_cards">Athlete Summary Cards</option>
@@ -328,8 +922,11 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
   </section>
 
   <section class="section">
-    <h2 class="section-title">7. Communication Routing</h2>
-    <p class="section-sub">Stream 6 uses this as communication preference context. Actual permissions remain governed.</p>
+    <h2 class="section-title">7. Communication Preferences</h2>
+    <p class="section-sub">
+      Choose the preferred communication route for this professional profile. Actual communication access remains governed by permissions.
+    </p>
+
     <div class="form-grid">
       <div class="field">
         <label>Primary Communication Route</label>
@@ -345,6 +942,7 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
           <option value="program">Program</option>
         </select>
       </div>
+
       <div class="field">
         <label>Multi-Box FROM Identity</label>
         <input id="multiboxIdentity" name="multiboxIdentity" type="text" readonly>
@@ -353,17 +951,21 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
   </section>
 
   <section class="section">
-    <h2 class="section-title">8. Credential Review Path</h2>
-    <p class="section-sub">Stream 10 verifies professional credentials. Stream 4 only captures the credential review request.</p>
+    <h2 class="section-title">8. Professional Credential Review</h2>
+    <p class="section-sub">
+      Tell us whether this professional profile requires credential, certification, organization, or authority review.
+    </p>
+
     <div class="form-grid">
       <div class="field">
         <label>Credential Review Needed?</label>
         <select id="credentialReviewPath" name="credentialReviewPath">
-          <option value="stream10_required">Yes — Send To Stream 10</option>
+          <option value="review_required">Yes — Review Required</option>
           <option value="identity_only">No — Identity Context Only</option>
           <option value="unknown">Unsure — Review Needed</option>
         </select>
       </div>
+
       <div class="field">
         <label>Credential Intent</label>
         <select id="credentialIntent" name="credentialIntent">
@@ -378,28 +980,34 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
           <option value="guardian_authority">Guardian Authority</option>
         </select>
       </div>
+
       <div class="field full">
         <label>Credential / Authority Notes</label>
-        <textarea id="credentialNotes" name="credentialNotes" placeholder="List certifications, coaching role, evaluator/trainer authority, organization authority, or any verification notes."></textarea>
+        <textarea id="credentialNotes" name="credentialNotes" placeholder="List certifications, coaching role, evaluator/trainer authority, organization authority, or verification notes."></textarea>
       </div>
     </div>
   </section>
 
   <section class="section">
-    <h2 class="section-title">9. Professional Operating Notes</h2>
-    <p class="section-sub">Final operating context for Stream 5 dashboard configuration and Stream 8 validation.</p>
+    <h2 class="section-title">9. Profile Review & Operating Notes</h2>
+    <p class="section-sub">
+      Provide any final details that will help configure the professional workspace after review.
+    </p>
+
     <div class="form-grid">
       <div class="field">
-        <label>Dashboard Configuration Status</label>
-        <input id="dashboardConfigStatus" name="dashboardConfigStatus" type="text" value="Pending Stream 5 Configuration" readonly>
+        <label>Workspace Status</label>
+        <input id="workspaceStatus" name="workspaceStatus" type="text" value="Pending Profile Review" readonly>
       </div>
+
       <div class="field">
         <label>Credential Status</label>
-        <input id="credentialStatus" name="credentialStatus" type="text" value="Pending Stream 10 Verification" readonly>
+        <input id="credentialStatus" name="credentialStatus" type="text" value="Pending Credential Review" readonly>
       </div>
+
       <div class="field full">
         <label>Operating Notes</label>
-        <textarea id="operatingNotes" name="operatingNotes" placeholder="Describe responsibility, access needs, athlete relationship, team/program scope, verification authority, communication needs, or dashboard expectations."></textarea>
+        <textarea id="operatingNotes" name="operatingNotes" placeholder="Describe responsibility, access needs, athlete relationship, team/program scope, authority, communication needs, or workspace expectations."></textarea>
       </div>
     </div>
   </section>
@@ -408,7 +1016,9 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
 
 <aside class="side-panel">
   <h2 class="side-title">Profile Setup Status</h2>
-  <p class="side-sub">This intake creates the complete Stream 4 professional operating profile required by Stream 10 and Stream 5.</p>
+  <p class="side-sub">
+    This intake creates a professional operating profile used to configure the user’s workspace and permission review.
+  </p>
 
   <div class="status-card">
     <div class="status-row"><span>Identity</span><b id="statusIdentity">Pending</b></div>
@@ -420,7 +1030,7 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
   </div>
 
   <div class="notice" id="roleNotice">
-    Stream 4 creates identity, role context, workflow needs, and dashboard handoff data. Stream 10 verifies credentials. Stream 5 activates dashboard modules.
+    Complete this profile so STATS-CORE can prepare the correct professional workspace, communication identity, athlete access context, and credential review path.
   </div>
 
   <div class="submit-stack">
@@ -437,17 +1047,17 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
 <section class="flow">
   <div class="flow-title">Profile Path</div>
   <div class="flow-step"><b>Identity</b><span>Professional</span></div>
-  <div class="flow-step"><b>Role</b><span>Specialization</span></div>
-  <div class="flow-step"><b>Scope</b><span>Sport / Event</span></div>
-  <div class="flow-step"><b>Credential</b><span>Stream 10</span></div>
-  <div class="flow-step"><b>Dashboard</b><span>Stream 5</span></div>
+  <div class="flow-step"><b>Role</b><span>Function</span></div>
+  <div class="flow-step"><b>Scope</b><span>Sport / Access</span></div>
+  <div class="flow-step"><b>Review</b><span>Credential</span></div>
+  <div class="flow-step"><b>Workspace</b><span>Configured</span></div>
   <a id="viewDashboardBtn" class="btn primary" href="role-dashboard.html?from=role-dashboard-intake">Continue <span>›</span></a>
 </section>
 
 <footer class="footer">
   <div><img src="sc_logo_black_v2.png" alt="STATS-CORE"></div>
   <div>Official Professional Operating Profile Intake</div>
-  <div class="demo-ok">✓ Stream 4 Profile Pending</div>
+  <div class="demo-ok">✓ Profile Pending Review</div>
   <div>© STATS-CORE Systems<br>All Rights Reserved.</div>
 </footer>
 
