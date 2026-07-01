@@ -1,90 +1,16 @@
-<!--
-==========================================================
-STATS-CORE™ OWNERSHIP HEADER
-==========================================================
-
-File:
-role-dashboard-intake.html
-
-Asset Type:
-HTML Presentation Page
-
-Owner Stream:
-Stream 4 — Role Intake
-
-Primary Operational Authority:
-Stream 4 — Role Intake
-
-System Layer:
-Professional Role Identity Intake
-
-Primary Runtime:
-statscore-role-dashboard-intake-engine.js
-
-Primary Intelligence Engine(s):
-None
-
-Previous Route:
-login.html
-
-Current Route:
-role-dashboard-intake.html
-
-Next Route(s):
-role-dashboard.html
-
-Consumes:
-selected role
-role identity input
-organization context
-
-Provides:
-role
-role_id
-role_context
-permissions context
-
-Primary IDs:
-role
-role_id
-
-Primary Database Tables:
-Role identity tables where applicable
-
-Cross-Stream Dependencies:
-Provides role context to Stream 5.
-May provide communication identity to Stream 6.
-
-Does NOT:
-- Calculate athlete intelligence
-- Create athlete snapshots
-- Modify production records
-- Generate Crystal Reports
-- Own role dashboard workspace logic
-
-Status:
-CANON LOCKED
-
-Last Governance Review:
-2026-06-27
-
-==========================================================
---> 
-
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>STATS-CORE™ — Role Dashboard Intake</title>
+<title>STATS-CORE™ — Professional Role Intake</title>
 
 <style>
 :root{
-  --red:#ff2b1f; --red2:#b90710; --gold:#f4c542; --green:#25d366;
-  --black:#020202; --ink:#05070b; --panel:rgba(6,10,18,.58);
-  --panel2:rgba(7,10,16,.64); --line:rgba(255,255,255,.18);
-  --line2:rgba(255,255,255,.32); --text:#f4f4f1; --muted:#b8c3cc;
-  --blue:#7ed8ff; --silver:#d8e1e7; --max:1536px;
+  --red:#ff2b1f;--gold:#f4c542;--green:#25d366;--blue:#7ed8ff;
+  --panel:rgba(6,10,18,.58);--line:rgba(255,255,255,.18);
+  --line2:rgba(255,255,255,.32);--text:#f4f4f1;--muted:#b8c3cc;
+  --max:1536px;
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:#000;color:var(--text);font-family:Arial,Helvetica,sans-serif}
@@ -123,7 +49,7 @@ a{text-decoration:none;color:inherit}
 }
 .record-kicker{color:var(--red);font-size:.72rem;font-weight:900;letter-spacing:.24em;text-transform:uppercase;margin-bottom:8px}
 .record-title{
-  margin:0;font-family:"Arial Narrow","Helvetica Neue Condensed",Impact,Arial,sans-serif;
+  margin:0;font-family:"Arial Narrow",Impact,Arial,sans-serif;
   font-size:3.5rem;line-height:.9;letter-spacing:-.04em;text-transform:uppercase;color:#f7f7f1;
 }
 .record-badge{
@@ -146,7 +72,7 @@ input,select,textarea{
   width:100%;min-height:44px;border:1px solid rgba(255,255,255,.24);
   background:rgba(0,0,0,.36);color:#fff;padding:0 12px;font-size:.9rem;font-weight:700;outline:none;
 }
-select[multiple]{min-height:112px;padding:10px 12px}
+select[multiple]{min-height:132px;padding:10px 12px}
 textarea{min-height:104px;padding:12px;resize:vertical;line-height:1.4}
 input::placeholder,textarea::placeholder{color:rgba(255,255,255,.38)}
 input:focus,select:focus,textarea:focus{border-color:var(--red);box-shadow:0 0 0 1px rgba(255,43,31,.4)}
@@ -169,17 +95,13 @@ input:focus,select:focus,textarea:focus{border-color:var(--red);box-shadow:0 0 0
 button.btn,a.btn{
   min-height:48px;border:1px solid var(--line2);display:flex;align-items:center;justify-content:space-between;
   padding:0 16px;text-transform:uppercase;font-size:.74rem;font-weight:900;letter-spacing:.12em;
-  background:rgba(255,255,255,.02);color:#fff;cursor:pointer;position:relative;z-index:50;width:100%;
+  background:rgba(255,255,255,.02);color:#fff;cursor:pointer;width:100%;
   font-family:Arial,Helvetica,sans-serif;
 }
 button.btn.primary,a.btn.primary{border-color:var(--red);background:rgba(255,43,31,.12);color:var(--red)}
 button.btn.green{border-color:var(--green);color:var(--green)}
-button.btn.gold{border-color:var(--gold);color:var(--gold)}
 button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
-.system-message{
-  margin-top:14px;min-height:22px;font-size:.72rem;font-weight:900;
-  letter-spacing:.12em;text-transform:uppercase;color:var(--green);
-}
+.system-message{margin-top:14px;min-height:22px;font-size:.72rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--green)}
 .flow{
   margin-top:14px;min-height:76px;display:grid;grid-template-columns:170px repeat(5,1fr) 190px;
   align-items:center;border:1px solid var(--line);background:rgba(4,7,12,.62);
@@ -216,9 +138,7 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
   <a class="logo-tab" href="index.html">
     <img src="sc_logo_black_v2.png" alt="STATS-CORE">
   </a>
-
   <div class="header-title">National Athlete Infrastructure • Controlled Access</div>
-
   <nav class="header-nav">
     <a href="index.html">Entry</a>
     <a class="active" href="role-dashboard-intake.html">Role Intake</a>
@@ -233,10 +153,10 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
 
 <section class="record-header">
   <div>
-    <div class="record-kicker">Official Non-Athlete Operating Environment Intake</div>
-    <h1 class="record-title" id="pageTitle">Role Dashboard Intake</h1>
+    <div class="record-kicker">Official Professional Operating Profile Intake</div>
+    <h1 class="record-title" id="pageTitle">Professional Intake</h1>
   </div>
-  <div class="record-badge" id="recordBadge">Environment Pending</div>
+  <div class="record-badge" id="recordBadge">Profile Pending</div>
 </section>
 
 <section class="intake-grid">
@@ -244,8 +164,8 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
 <form class="form-panel" id="roleIntakeForm">
 
   <section class="section">
-    <h2 class="section-title">Who Are You?</h2>
-    <p class="section-sub">Create your STATS-CORE operating identity. This identity controls dashboard setup, communication routing, and role-based access.</p>
+    <h2 class="section-title">1. Professional Identity</h2>
+    <p class="section-sub">Create the professional identity attached to this user’s operating profile.</p>
     <div class="form-grid">
       <div class="field"><label>First Name</label><input id="firstName" name="firstName" type="text" placeholder="First name" required></div>
       <div class="field"><label>Last Name</label><input id="lastName" name="lastName" type="text" placeholder="Last name" required></div>
@@ -255,40 +175,39 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
   </section>
 
   <section class="section">
-    <h2 class="section-title">What Is Your Role?</h2>
-    <p class="section-sub">Your login role determines the intake path. Select the best operating function for how you work with athletes.</p>
+    <h2 class="section-title">2. Role & Specialization</h2>
+    <p class="section-sub">The login role is inherited from Stream 1. Stream 4 captures the operating function inside that role.</p>
     <div class="form-grid">
       <div class="field">
         <label>Detected Login Role</label>
         <input id="detectedRole" name="detectedRole" type="text" readonly>
       </div>
-
       <div class="field">
         <label>Role Specialization</label>
         <select id="specializationKey" name="specializationKey" required>
           <option value="">Loading role specializations...</option>
         </select>
       </div>
-
       <div class="field"><label>Official Title</label><input id="officialTitle" name="officialTitle" type="text" placeholder="Head Coach, Counselor, Recruiter, Program Director"></div>
-
       <div class="field">
-        <label>Authority Scope</label>
-        <select id="authorityScope" name="authorityScope">
+        <label>Requested Authority Scope</label>
+        <select id="authorityScope" name="authorityScope" required>
+          <option value="">Select scope</option>
           <option value="assigned_only">Assigned Athletes Only</option>
           <option value="position_group">Position / Event Group</option>
           <option value="team_scope">Team Scope</option>
           <option value="program_scope">Program Scope</option>
           <option value="academic_scope">Academic Support Scope</option>
           <option value="recruiting_scope">Recruiting Scope</option>
+          <option value="family_authority">Family / Guardian Authority</option>
         </select>
       </div>
     </div>
   </section>
 
   <section class="section">
-    <h2 class="section-title">Who Do You Represent?</h2>
-    <p class="section-sub">Connect your school, organization, program, recruiting service, evaluation group, or family authority context.</p>
+    <h2 class="section-title">3. Organization Context</h2>
+    <p class="section-sub">Identify the school, program, company, organization, recruiting service, evaluation group, or family authority context.</p>
     <div class="form-grid">
       <div class="field"><label>Organization / School / Program</label><input id="organizationName" name="organizationName" type="text" placeholder="School, program, agency, company"></div>
       <div class="field">
@@ -302,14 +221,17 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
           <option value="club_travel">Club / Travel</option>
           <option value="college">College</option>
           <option value="multi_level">Multi-Level</option>
+          <option value="family">Family / Guardian</option>
         </select>
       </div>
+      <div class="field"><label>Organization City / State</label><input id="organizationLocation" name="organizationLocation" type="text" placeholder="City, State"></div>
+      <div class="field"><label>Organization Website / Profile</label><input id="organizationUrl" name="organizationUrl" type="url" placeholder="https://"></div>
     </div>
   </section>
 
   <section class="section">
-    <h2 class="section-title">Athlete Interest & Access</h2>
-    <p class="section-sub">Tell STATS-CORE which sports, groups, classes, positions, or events matter to your role.</p>
+    <h2 class="section-title">4. Sport / Position / Event Scope</h2>
+    <p class="section-sub">Stream 5 uses this to prepare the correct dashboard context across Football, Basketball, Baseball, and Track.</p>
     <div class="form-grid three">
       <div class="field">
         <label>Primary Sport</label>
@@ -321,21 +243,20 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
           <option value="track">Track</option>
         </select>
       </div>
-
+      <div class="field"><label>Position / Event / Group Scope</label><input id="positionEventGroup" name="positionEventGroup" type="text" placeholder="QB, WR, Guards, Pitchers, Sprints, Throws, Full Team"></div>
       <div class="field">
-        <label>Primary Dashboard Need</label>
-        <select id="dashboardNeed" name="dashboardNeed">
-          <option value="role_overview">Role Overview</option>
-          <option value="athlete_review">Athlete Review</option>
-          <option value="verification_queue">Verification Queue</option>
-          <option value="academic_support">Academic Support</option>
-          <option value="recruiting_access">Recruiting Access</option>
-          <option value="program_management">Program Management</option>
+        <label>Competition Context</label>
+        <select id="competitionContext" name="competitionContext">
+          <option value="">Select context</option>
+          <option value="school">School Season</option>
+          <option value="club_travel">Club / Travel</option>
+          <option value="camp">Camp</option>
+          <option value="combine">Combine</option>
+          <option value="showcase">Showcase</option>
+          <option value="meet">Track Meet</option>
+          <option value="evaluation">Evaluation Session</option>
         </select>
       </div>
-
-      <div class="field"><label>Position / Event / Group Scope</label><input id="positionEventGroup" name="positionEventGroup" type="text" placeholder="QB, WR, Sprints, Guards, Pitchers, Full Team"></div>
-
       <div class="field full">
         <label>Sport Scope</label>
         <select id="sportScope" name="sportScope" multiple>
@@ -349,22 +270,136 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
   </section>
 
   <section class="section">
-    <h2 class="section-title">Workspace & Communication Setup</h2>
-    <p class="section-sub">Prepare the dashboard, Multi-Box FROM identity, and operating notes for role-specific workflow.</p>
+    <h2 class="section-title">5. Athlete Access Model</h2>
+    <p class="section-sub">Tell Stream 5 what athlete population this professional expects to work with.</p>
     <div class="form-grid">
+      <div class="field">
+        <label>Assigned Athlete Access Type</label>
+        <select id="assignedAccessType" name="assignedAccessType" required>
+          <option value="">Select access type</option>
+          <option value="assigned_only">Assigned Athletes Only</option>
+          <option value="team_roster">Team Roster</option>
+          <option value="position_group">Position / Event Group</option>
+          <option value="program_pool">Program Pool</option>
+          <option value="academic_caseload">Academic Caseload</option>
+          <option value="recruiting_pool">Recruiting Pool</option>
+          <option value="family_linked_athletes">Family Linked Athletes</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Primary Workflow</label>
+        <select id="dashboardNeed" name="dashboardNeed" required>
+          <option value="">Select workflow</option>
+          <option value="role_overview">Role Overview</option>
+          <option value="athlete_review">Athlete Review</option>
+          <option value="academic_support">Academic Support</option>
+          <option value="recruiting_access">Recruiting Access</option>
+          <option value="verification_queue">Verification Queue</option>
+          <option value="development_tracking">Development Tracking</option>
+          <option value="program_management">Program Management</option>
+          <option value="family_monitoring">Family / Guardian Monitoring</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">6. Requested Dashboard Modules</h2>
+    <p class="section-sub">Stream 4 records requested modules. Stream 10 and Stream 5 determine what becomes authorized and visible.</p>
+    <div class="form-grid">
+      <div class="field full">
+        <label>Requested Modules</label>
+        <select id="requestedDashboardModules" name="requestedDashboardModules" multiple>
+          <option value="assigned_athletes">Assigned Athletes</option>
+          <option value="athlete_summary_cards">Athlete Summary Cards</option>
+          <option value="task_queue">Task Queue</option>
+          <option value="multibox">Multi-Box Communication</option>
+          <option value="crystal_reports">Crystal Reports</option>
+          <option value="verification_queue">Verification Queue</option>
+          <option value="academic_alerts">Academic Alerts</option>
+          <option value="recruiting_board">Recruiting Board</option>
+          <option value="development_tracker">Development Tracker</option>
+          <option value="program_roster">Program Roster</option>
+          <option value="parent_approval_status">Parent Approval Status</option>
+          <option value="media_review">Media / Film Review</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">7. Communication Routing</h2>
+    <p class="section-sub">Stream 6 uses this as communication preference context. Actual permissions remain governed.</p>
+    <div class="form-grid">
+      <div class="field">
+        <label>Primary Communication Route</label>
+        <select id="communicationRoutePreference" name="communicationRoutePreference">
+          <option value="">Select route</option>
+          <option value="athlete">Athlete</option>
+          <option value="parent_guardian">Parent / Guardian</option>
+          <option value="coach">Coach</option>
+          <option value="counselor">Counselor</option>
+          <option value="recruiter">Recruiter</option>
+          <option value="evaluator">Evaluator</option>
+          <option value="trainer">Trainer</option>
+          <option value="program">Program</option>
+        </select>
+      </div>
       <div class="field">
         <label>Multi-Box FROM Identity</label>
         <input id="multiboxIdentity" name="multiboxIdentity" type="text" readonly>
       </div>
+    </div>
+  </section>
 
+  <section class="section">
+    <h2 class="section-title">8. Credential Review Path</h2>
+    <p class="section-sub">Stream 10 verifies professional credentials. Stream 4 only captures the credential review request.</p>
+    <div class="form-grid">
       <div class="field">
-        <label>Dashboard Destination</label>
-        <input id="dashboardDestination" name="dashboardDestination" type="text" value="role-dashboard.html" readonly>
+        <label>Credential Review Needed?</label>
+        <select id="credentialReviewPath" name="credentialReviewPath">
+          <option value="stream10_required">Yes — Send To Stream 10</option>
+          <option value="identity_only">No — Identity Context Only</option>
+          <option value="unknown">Unsure — Review Needed</option>
+        </select>
       </div>
+      <div class="field">
+        <label>Credential Intent</label>
+        <select id="credentialIntent" name="credentialIntent">
+          <option value="">Select intent</option>
+          <option value="coach_authority">Coach Authority</option>
+          <option value="evaluator_authority">Evaluator Authority</option>
+          <option value="trainer_authority">Trainer Authority</option>
+          <option value="camp_operator_authority">Camp Operator Authority</option>
+          <option value="sport_verifier_authority">Sport Verifier Authority</option>
+          <option value="academic_support_authority">Academic Support Authority</option>
+          <option value="recruiting_authority">Recruiting Authority</option>
+          <option value="guardian_authority">Guardian Authority</option>
+        </select>
+      </div>
+      <div class="field full">
+        <label>Credential / Authority Notes</label>
+        <textarea id="credentialNotes" name="credentialNotes" placeholder="List certifications, coaching role, evaluator/trainer authority, organization authority, or any verification notes."></textarea>
+      </div>
+    </div>
+  </section>
 
+  <section class="section">
+    <h2 class="section-title">9. Professional Operating Notes</h2>
+    <p class="section-sub">Final operating context for Stream 5 dashboard configuration and Stream 8 validation.</p>
+    <div class="form-grid">
+      <div class="field">
+        <label>Dashboard Configuration Status</label>
+        <input id="dashboardConfigStatus" name="dashboardConfigStatus" type="text" value="Pending Stream 5 Configuration" readonly>
+      </div>
+      <div class="field">
+        <label>Credential Status</label>
+        <input id="credentialStatus" name="credentialStatus" type="text" value="Pending Stream 10 Verification" readonly>
+      </div>
       <div class="field full">
         <label>Operating Notes</label>
-        <textarea id="operatingNotes" name="operatingNotes" placeholder="Describe your responsibility, access needs, athlete relationship, team/program scope, verification authority, or communication needs."></textarea>
+        <textarea id="operatingNotes" name="operatingNotes" placeholder="Describe responsibility, access needs, athlete relationship, team/program scope, verification authority, communication needs, or dashboard expectations."></textarea>
       </div>
     </div>
   </section>
@@ -372,11 +407,8 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
 </form>
 
 <aside class="side-panel">
-  <h2 class="side-title">Role Setup Status</h2>
-  <p class="side-sub">
-    This intake creates the user’s operating context, specialization, sport scope,
-    dashboard handoff, receipt, and Multi-Box FROM identity.
-  </p>
+  <h2 class="side-title">Profile Setup Status</h2>
+  <p class="side-sub">This intake creates the complete Stream 4 professional operating profile required by Stream 10 and Stream 5.</p>
 
   <div class="status-card">
     <div class="status-row"><span>Identity</span><b id="statusIdentity">Pending</b></div>
@@ -388,14 +420,13 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
   </div>
 
   <div class="notice" id="roleNotice">
-    Role Intake does not create login credentials. Login already determines the user role.
-    This page creates dashboard setup, operating context, and system handoff.
+    Stream 4 creates identity, role context, workflow needs, and dashboard handoff data. Stream 10 verifies credentials. Stream 5 activates dashboard modules.
   </div>
 
   <div class="submit-stack">
-    <button id="submitRoleBtn" class="btn primary" type="button">Create Dashboard <span>›</span></button>
+    <button id="submitRoleBtn" class="btn primary" type="button">Complete Professional Profile <span>›</span></button>
     <button id="saveDraftBtn" class="btn" type="button">Save Draft <span>›</span></button>
-    <button id="previewBtn" class="btn green" type="button">Preview Dashboard <span>›</span></button>
+    <button id="previewBtn" class="btn green" type="button">Preview Profile <span>›</span></button>
   </div>
 
   <div class="system-message" id="systemMessage"></div>
@@ -404,19 +435,19 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
 </section>
 
 <section class="flow">
-  <div class="flow-title">Role Path</div>
-  <div class="flow-step"><b>Identity</b><span>You</span></div>
-  <div class="flow-step"><b>Role</b><span>Authority</span></div>
-  <div class="flow-step"><b>Access</b><span>Athletes</span></div>
-  <div class="flow-step"><b>Workspace</b><span>Dashboard</span></div>
-  <div class="flow-step"><b>Activate</b><span>Ready</span></div>
-  <a id="viewDashboardBtn" class="btn primary" href="role-dashboard.html?from=role-dashboard-intake">Continue to Dashboard <span>›</span></a>
+  <div class="flow-title">Profile Path</div>
+  <div class="flow-step"><b>Identity</b><span>Professional</span></div>
+  <div class="flow-step"><b>Role</b><span>Specialization</span></div>
+  <div class="flow-step"><b>Scope</b><span>Sport / Event</span></div>
+  <div class="flow-step"><b>Credential</b><span>Stream 10</span></div>
+  <div class="flow-step"><b>Dashboard</b><span>Stream 5</span></div>
+  <a id="viewDashboardBtn" class="btn primary" href="role-dashboard.html?from=role-dashboard-intake">Continue <span>›</span></a>
 </section>
 
 <footer class="footer">
   <div><img src="sc_logo_black_v2.png" alt="STATS-CORE"></div>
-  <div>Official Non-Athlete Role Dashboard Intake</div>
-  <div class="demo-ok">✓ Role Environment Pending</div>
+  <div>Official Professional Operating Profile Intake</div>
+  <div class="demo-ok">✓ Stream 4 Profile Pending</div>
   <div>© STATS-CORE Systems<br>All Rights Reserved.</div>
 </footer>
 
