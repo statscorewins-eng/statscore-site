@@ -478,7 +478,7 @@ a{text-decoration:none;color:inherit}
   text-transform:uppercase;
 }
 
-.rail-btn:hover,
+.rail-btn:hover, 
 .rail-btn.active{
   border-color:var(--blue);
   color:var(--blue);
@@ -1102,15 +1102,14 @@ b.red{color:var(--red)!important}
 </main>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="statscore-data.js"></script>
 <script src="statscore-role-access.js"></script>
 <script src="statscore-receipt-ledger-engine.js"></script>
 <script src="statscore-multi-box-governance-engine.js"></script>
 <script src="statscore-communication-engine.js"></script>
 
 <script>
-const SUPABASE_URL = "https://oyjmpbuxvfxusmbouldi.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk";
-
 let supabaseClient = null;
 let MBX_RUNTIME = null;
 let MBX_DIRECTORIES = [];
@@ -1157,17 +1156,19 @@ function setValue(id,value){
 }
 
 function initSupabase(){
-  try{
-    if(window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY){
-      supabaseClient = window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-      window.supabaseClient = supabaseClient;
-      window.STATScoreSupabase = supabaseClient;
-      window.STATScoreSupabaseClient = supabaseClient;
-      console.info("[STATScore] Multi-Box Supabase connected.");
-    }
-  }catch(error){
-    console.error("[STATScore] Supabase init failed:",error);
-    supabaseClient = null;
+  supabaseClient =
+    window.STATScoreData?.getClient?.() ||
+    window.STATScoreCore?.getClient?.() ||
+    window.supabaseClient ||
+    null;
+
+  if(supabaseClient){
+    window.supabaseClient = supabaseClient;
+    window.STATScoreSupabase = supabaseClient;
+    window.STATScoreSupabaseClient = supabaseClient;
+    console.info("[STATScore] Multi-Box using shared Supabase client.");
+  }else{
+    console.error("[STATScore] Shared Supabase client unavailable.");
   }
 }
 
@@ -1238,10 +1239,10 @@ async function initMultiBoxRuntime(){
 
   setValue("senderChannel", senderLabel);
   setText("currentChannelLabel", senderLabel);
-  setText("currentChannelMeta", `Role: ${senderRole} • Role ID: ${runtime.sender_role_id || "not supplied"}`);
+  setText("currentChannelMeta", `Role: ${senderRole} • Role ID: ${runtime.sender_role_id || "Pending Runtime"}`);
   setText("runtimeBadge", "Runtime Active");
   setText("senderLockedStatus", "Locked");
-  setText("credentialStatus", runtime.credential_status || sessionStorage.getItem("statscore_credential_status") || "Not Supplied");
+  setText("credentialStatus", runtime.credential_status || sessionStorage.getItem("statscore_credential_status") || "Pending Runtime");
 
   const snapshotText = runtime.snapshot_id
     ? `snapshot_id: ${runtime.snapshot_id}`
@@ -1264,12 +1265,27 @@ async function initMultiBoxRuntime(){
 
 function loadTargetRoles(){
   const targetRole = $("targetRole");
+  const targetDirectory = $("targetDirectory");
+  const targetRecipient = $("targetRecipient");
+
   if(!targetRole) return;
 
-  const roles = [...new Set(MBX_DIRECTORIES.map(d => lower(d.target_role)).filter(Boolean))];
+  const roles = [...new Set(
+    MBX_DIRECTORIES
+      .map(d => lower(d.target_role))
+      .filter(Boolean)
+  )];
 
   targetRole.innerHTML = `<option value="">Select Target Role</option>` +
     roles.map(role => `<option value="${esc(role)}">${esc(titleRole(role))}</option>`).join("");
+
+  if(targetDirectory){
+    targetDirectory.innerHTML = `<option value="">Select Target Role First</option>`;
+  }
+
+  if(targetRecipient){
+    targetRecipient.innerHTML = `<option value="">Select Directory First</option>`;
+  }
 
   if(roles.length){
     targetRole.value = roles[0];
@@ -1279,18 +1295,24 @@ function loadTargetRoles(){
 
 function loadDirectoriesForRole(role){
   const targetDirectory = $("targetDirectory");
+  const targetRecipient = $("targetRecipient");
+
   if(!targetDirectory) return;
 
   const dirs = MBX_DIRECTORIES.filter(d => lower(d.target_role) === lower(role));
 
   targetDirectory.innerHTML = `<option value="">Select Target Directory</option>` +
-    dirs.map(d => `<option value="${esc(d.directory_key)}">${esc(d.directory_label)}</option>`).join("");
+    dirs.map(d => `<option value="${esc(d.directory_key)}">${esc(d.directory_label || d.directory_key)}</option>`).join("");
 
   if(dirs.length){
     targetDirectory.value = dirs[0].directory_key;
     loadRecipientsForDirectory(role, dirs[0].directory_key);
+    setMessage(`${titleRole(role)} target role selected. Directory loaded.`);
   }else{
-    $("targetRecipient").innerHTML = `<option value="">No Directory Available</option>`;
+    targetDirectory.innerHTML = `<option value="">No Directory Available</option>`;
+    if(targetRecipient){
+      targetRecipient.innerHTML = `<option value="">Select Directory First</option>`;
+    }
   }
 }
 
@@ -1306,9 +1328,9 @@ async function loadRecipientsForDirectory(role,directoryKey){
 
   const fallback = [
     {
-      id: athleteId || "demo-athlete-001",
-      label: "Ammiel Steele",
-      type: role || "athlete"
+      id: athleteId || "manual-recipient-pending",
+      label: lower(role) === "athlete" ? "Athlete Recipient Pending" : "Recipient Directory Pending",
+      type: role || "recipient"
     }
   ];
 
@@ -1355,6 +1377,8 @@ async function loadRecipientsForDirectory(role,directoryKey){
   if(recipients.length){
     targetRecipient.value = recipients[0].id;
   }
+
+  setMessage("Target directory selected. Recipient selection ready.");
 }
 
 function getPayload(){
@@ -1425,7 +1449,7 @@ async function saveDraft(){
 
   if(result.ok){
     addAudit("Draft Saved",`${titleRole(payload.target_role)} draft saved for ${payload.target_recipient_label || "selected recipient"}.`);
-    setMessage("Draft saved with receipt.");
+    setMessage("Draft saved. No receipt created until transmission.");
     await loadCounts();
   }else{
     addAudit("Draft Failed",result.error || result.status || "Draft failed.");
@@ -1543,6 +1567,11 @@ async function loadCounts(){
   }
 }
 
+function clearComposer(){
+  setValue("subject","");
+  setValue("messageBody","");
+}
+
 function generateCrystalReport(){
   const payload = getPayload();
 
@@ -1598,26 +1627,15 @@ function wireEvents(){
         setMessage("Archived view requested.");
       }
 
-      if(action === "discard-draft"){ 
-
-      if(confirm(
-        "Discard this draft?\n\nThis draft has never been sent.\nNo receipt exists.\n\nContinue?"
-    )){
-
-        clearComposer();
-
-        setMessage("Draft discarded.");
-
-        addAudit(
-            "Draft Discarded",
-            "Unsent draft removed prior to communication."
-        );
-
-    }
-
-} 
-
-      
+      if(action === "discard-draft"){
+        if(confirm(
+          "Discard this draft?\n\nThis draft has never been sent.\nNo receipt exists.\n\nContinue?"
+        )){
+          clearComposer();
+          setMessage("Draft discarded.");
+          addAudit("Draft Discarded","Unsent draft removed prior to communication.");
+        }
+      }
     });
   });
 
@@ -1678,7 +1696,7 @@ document.addEventListener("DOMContentLoaded",async () => {
 window.addEventListener("load",() => {
   setTimeout(() => window.scrollTo(0,0),50);
 });
-</script>
+</script> 
 
 <script src="statscore-data.js"></script>
 
