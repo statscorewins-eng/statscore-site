@@ -1,4 +1,4 @@
-<!--
+<!-- 
 ==========================================================
 STATS-CORE™ OWNERSHIP / ANTI-DRIFT HEADER
 ==========================================================
@@ -890,7 +890,7 @@ b.red{color:var(--red)!important}
 
 <section class="record-header">
   <div>
-    <div class="record-kicker">Stream 6 — Communication & Governance</div>
+    <div class="record-kicker">Governed Communication Workspace</div>
     <h1 class="record-title">Multi-Box™</h1>
   </div>
 
@@ -908,10 +908,11 @@ b.red{color:var(--red)!important}
     </div>
 
     <div class="rail-block">
-      <h3>Actions</h3>
+      <h3>Communication Actions</h3>
       <button class="rail-btn active" type="button" data-action="compose">Compose</button>
       <button class="rail-btn" type="button" data-action="inbox">Inbox</button>
       <button class="rail-btn" type="button" data-action="drafts">Drafts</button>
+      <button class="rail-btn danger-soft" type="button" data-action="discard-draft">Discard Draft</button>
       <button class="rail-btn" type="button" data-action="sent">Sent</button>
       <button class="rail-btn" type="button" data-action="receipts">Receipts</button>
       <button class="rail-btn" type="button" data-action="archived">Archived</button>
@@ -1578,7 +1579,7 @@ function wireEvents(){
       }
 
       if(action === "receipts"){
-        addAudit("Receipts","Receipt ledger available through Stream 6 audit records.");
+        addAudit("Receipts","Receipt ledger available through governed audit records.");
         setMessage("Receipts view requested.");
       }
 
@@ -1586,6 +1587,27 @@ function wireEvents(){
         addAudit("Archived","Archived messages view requested.");
         setMessage("Archived view requested.");
       }
+
+      if(action === "discard-draft"){ 
+
+      if(confirm(
+        "Discard this draft?\n\nThis draft has never been sent.\nNo receipt exists.\n\nContinue?"
+    )){
+
+        clearComposer();
+
+        setMessage("Draft discarded.");
+
+        addAudit(
+            "Draft Discarded",
+            "Unsent draft removed prior to communication."
+        );
+
+    }
+
+} 
+
+      
     });
   });
 
