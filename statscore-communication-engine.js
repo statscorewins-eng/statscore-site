@@ -8,7 +8,7 @@
    → Target Recipient → Governed Message → Receipt / Audit.
 ============================================================ */
 
-(function () {
+(function () { 
   "use strict";
 
   window.STATScore = window.STATScore || {};
@@ -21,7 +21,7 @@
       SENT: "sent",
       BROADCAST: "broadcast",
       ARCHIVED: "archived",
-      DELETED: "deleted",
+      WITHDRAWN: "withdrawn",
       BLOCKED: "blocked"
     },
 
@@ -560,19 +560,18 @@
         reason: "Draft saved. Send validation pending."
       };
 
-      const receiptResult = await this.persistReceipt(
-        this.buildReceipt(saved, evaluation, "draft_saved")
-      );
+     const auditResult = await this.persistAuditEvent(
+  this.buildAuditEvent(saved, null, "draft_saved", {
+    reason: evaluation.reason,
+    receipt_created: false
+  })
+); 
 
-      const auditResult = await this.persistAuditEvent(
-        this.buildAuditEvent(saved, receiptResult.receipt, "draft_saved")
-      );
-
-      return {
+       return {
         ok: true,
         status: "DRAFT_SAVED",
         message: saved,
-        receipt: receiptResult,
+        receipt: null,
         audit: auditResult
       };
     },
