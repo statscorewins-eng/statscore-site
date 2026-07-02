@@ -198,14 +198,19 @@ window.STATScoreData = window.STATScoreData || {};
     return data;
   }
 
-  window.STATScoreData = {
-    getClient,
-    setText,
-    setList,
-    normalizeArray,
-    loadAthleteProfile,
-    loadResolutionQueue,
-    loadActionEngine,
-    loadResolutionStatistics
-  };
+  window.supabaseClient = getClient();
+
+window.STATScoreCore = window.STATScoreCore || {};
+window.STATScoreCore.getClient = getClient;
+
+window.STATScoreData = {
+  getClient,
+  setText,
+  setList,
+  normalizeArray,
+  loadAthleteProfile,
+  loadResolutionQueue,
+  loadActionEngine,
+  loadResolutionStatistics
+}; 
 })(); 
