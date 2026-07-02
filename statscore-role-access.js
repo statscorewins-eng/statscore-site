@@ -1,22 +1,19 @@
 /* ============================================================
    STATScore™ Role Access Spine
    File: statscore-role-access.js
-   Version: STATSCORE-ROLE-ACCESS-V1
+   Version: STATSCORE-ROLE-ACCESS-V2
    Purpose:
-   Central permission enforcement for all role rooms,
-   athlete record access, action authority, visibility lanes,
-   and override boundaries.
+   Central role permission enforcement + locked Multi-Box sender context.
 ============================================================ */
 
 window.STATScoreRoleAccess = (() => {
+  "use strict";
 
-  /* ============================================================
-     ROLE DEFINITIONS
-  ============================================================ */
+  const VERSION = "STATSCORE-ROLE-ACCESS-V2";
 
   const ROLES = {
     ATHLETE: "athlete",
-    PARENT: "parent",
+    PARENT: "parent_guardian",
     COACH: "coach",
     COUNSELOR: "counselor",
     RECRUITER: "recruiter",
@@ -25,9 +22,18 @@ window.STATScoreRoleAccess = (() => {
     ADMIN: "admin"
   };
 
+  const ROLE_ALIASES = {
+    parent: "parent_guardian",
+    guardian: "parent_guardian",
+    parent_guardian: "parent_guardian",
+    head_coach: "coach",
+    position_coach: "coach",
+    program_admin: "program"
+  };
+
   const ROLE_LABELS = {
     athlete: "Athlete",
-    parent: "Parent / Guardian",
+    parent_guardian: "Parent / Guardian",
     coach: "Coach",
     counselor: "Counselor",
     recruiter: "Recruiter",
@@ -36,246 +42,103 @@ window.STATScoreRoleAccess = (() => {
     admin: "Admin"
   };
 
-  /* ============================================================
-     PERMISSION MAP
-  ============================================================ */
+  const MULTIBOX_TARGET_ROLES = {
+    athlete: ["parent_guardian", "coach", "counselor", "program"],
+    parent_guardian: ["coach", "counselor", "program", "recruiter"],
+    coach: ["athlete", "parent_guardian", "counselor", "evaluator", "recruiter", "program"],
+    counselor: ["athlete", "parent_guardian", "coach", "program"],
+    recruiter: ["coach", "program", "parent_guardian", "athlete"],
+    evaluator: ["athlete", "coach", "program"],
+    program: ["coach", "recruiter", "evaluator", "parent_guardian", "athlete"],
+    admin: ["athlete", "parent_guardian", "coach", "counselor", "recruiter", "evaluator", "program"]
+  };
 
   const PERMISSIONS = {
-
     athlete: {
       view_profile: true,
-      view_public_profile: true,
       view_private_identity: true,
       view_academics: false,
-      view_guardian_controls: false,
       view_recruiting: true,
-      view_evaluator_notes: false,
-      view_program_fit: true,
       view_media_queue: true,
-      view_completion: true,
-
       edit_profile: true,
       edit_media: true,
-      edit_academics: false,
-      edit_evaluation: false,
-      edit_verification: false,
-
-      approve_media: false,
-      approve_recruiter_contact: false,
-      approve_guardian_permission: false,
-
       request_verification: true,
-      request_recruiter_access: false,
       request_media_package: true,
-
-      submit_coach_note: false,
-      submit_counselor_note: false,
-      submit_evaluator_score: false,
-
       can_override: false
     },
 
-    parent: {
+    parent_guardian: {
       view_profile: true,
-      view_public_profile: true,
       view_private_identity: true,
       view_academics: true,
       view_guardian_controls: true,
       view_recruiting: true,
-      view_evaluator_notes: false,
-      view_program_fit: true,
       view_media_queue: true,
-      view_completion: true,
-
-      edit_profile: false,
-      edit_media: false,
-      edit_academics: false,
-      edit_evaluation: false,
-      edit_verification: false,
-
       approve_media: true,
       approve_recruiter_contact: true,
       approve_guardian_permission: true,
-
       request_verification: true,
-      request_recruiter_access: false,
       request_media_package: true,
-
-      submit_coach_note: false,
-      submit_counselor_note: false,
-      submit_evaluator_score: false,
-
       can_override: false
     },
 
     coach: {
       view_profile: true,
-      view_public_profile: true,
       view_private_identity: true,
       view_academics: false,
-      view_guardian_controls: false,
       view_recruiting: true,
-      view_evaluator_notes: false,
-      view_program_fit: true,
       view_media_queue: true,
-      view_completion: true,
-
-      edit_profile: false,
-      edit_media: false,
-      edit_academics: false,
-      edit_evaluation: false,
-      edit_verification: false,
-
-      approve_media: false,
-      approve_recruiter_contact: false,
-      approve_guardian_permission: false,
-
       request_verification: true,
-      request_recruiter_access: false,
       request_media_package: true,
-
       submit_coach_note: true,
-      submit_counselor_note: false,
-      submit_evaluator_score: false,
-
       can_override: false
     },
 
     counselor: {
       view_profile: true,
-      view_public_profile: true,
       view_private_identity: true,
       view_academics: true,
-      view_guardian_controls: false,
       view_recruiting: false,
-      view_evaluator_notes: false,
-      view_program_fit: false,
-      view_media_queue: false,
-      view_completion: true,
-
-      edit_profile: false,
-      edit_media: false,
       edit_academics: true,
-      edit_evaluation: false,
-      edit_verification: false,
-
-      approve_media: false,
-      approve_recruiter_contact: false,
-      approve_guardian_permission: false,
-
-      request_verification: true,
-      request_recruiter_access: false,
-      request_media_package: false,
-
-      submit_coach_note: false,
       submit_counselor_note: true,
-      submit_evaluator_score: false,
-
+      request_verification: true,
       can_override: false
     },
 
     recruiter: {
       view_profile: true,
-      view_public_profile: true,
       view_private_identity: false,
       view_academics: false,
-      view_guardian_controls: false,
       view_recruiting: true,
-      view_evaluator_notes: false,
       view_program_fit: true,
-      view_media_queue: false,
-      view_completion: false,
-
-      edit_profile: false,
-      edit_media: false,
-      edit_academics: false,
-      edit_evaluation: false,
-      edit_verification: false,
-
-      approve_media: false,
-      approve_recruiter_contact: false,
-      approve_guardian_permission: false,
-
-      request_verification: false,
       request_recruiter_access: true,
-      request_media_package: false,
-
-      submit_coach_note: false,
-      submit_counselor_note: false,
-      submit_evaluator_score: false,
-
       can_override: false
     },
 
     evaluator: {
       view_profile: true,
-      view_public_profile: true,
       view_private_identity: true,
-      view_academics: false,
-      view_guardian_controls: false,
       view_recruiting: true,
       view_evaluator_notes: true,
-      view_program_fit: true,
-      view_media_queue: true,
-      view_completion: true,
-
-      edit_profile: false,
-      edit_media: false,
-      edit_academics: false,
       edit_evaluation: true,
       edit_verification: true,
-
-      approve_media: false,
-      approve_recruiter_contact: false,
-      approve_guardian_permission: false,
-
-      request_verification: false,
-      request_recruiter_access: false,
-      request_media_package: false,
-
-      submit_coach_note: false,
-      submit_counselor_note: false,
       submit_evaluator_score: true,
-
       can_override: false
     },
 
     program: {
       view_profile: true,
-      view_public_profile: true,
       view_private_identity: true,
-      view_academics: false,
-      view_guardian_controls: false,
       view_recruiting: true,
-      view_evaluator_notes: false,
       view_program_fit: true,
       view_media_queue: true,
-      view_completion: true,
-
-      edit_profile: false,
-      edit_media: false,
-      edit_academics: false,
-      edit_evaluation: false,
-      edit_verification: false,
-
-      approve_media: false,
-      approve_recruiter_contact: false,
-      approve_guardian_permission: false,
-
       request_verification: true,
-      request_recruiter_access: false,
       request_media_package: true,
-
-      submit_coach_note: false,
-      submit_counselor_note: false,
-      submit_evaluator_score: false,
-
       can_override: false
     },
 
     admin: {
       view_profile: true,
-      view_public_profile: true,
       view_private_identity: true,
       view_academics: true,
       view_guardian_controls: true,
@@ -283,475 +146,296 @@ window.STATScoreRoleAccess = (() => {
       view_evaluator_notes: true,
       view_program_fit: true,
       view_media_queue: true,
-      view_completion: true,
-
       edit_profile: true,
       edit_media: true,
       edit_academics: true,
       edit_evaluation: true,
       edit_verification: true,
-
       approve_media: true,
       approve_recruiter_contact: true,
       approve_guardian_permission: true,
-
       request_verification: true,
       request_recruiter_access: true,
       request_media_package: true,
-
       submit_coach_note: true,
       submit_counselor_note: true,
       submit_evaluator_score: true,
-
       can_override: true
     }
-
   };
 
-  /* ============================================================
-     ROLE RULES / OVERRIDE DOCTRINE
-  ============================================================ */
-
-  const ROLE_LIMITS = {
-
-    athlete: [
-      "Athlete may update identity and media but cannot verify themselves.",
-      "Athlete cannot override guardian, evaluator, counselor, or recruiter controls."
-    ],
-
-    parent: [
-      "Parent/Guardian governs permissions, youth protection, media approval, and recruiter contact access.",
-      "Parent cannot issue athletic scores or override evaluator validation."
-    ],
-
-    coach: [
-      "Coach contributes development and performance context.",
-      "Coach does not override verification, eligibility, guardian permissions, evaluator validation, or recruiter visibility."
-    ],
-
-    counselor: [
-      "Counselor contributes academic, eligibility, transcript, and pathway intelligence.",
-      "Counselor does not certify NCAA eligibility as final authority."
-    ],
-
-    recruiter: [
-      "Recruiter may view approved athlete intelligence and request extended access.",
-      "Recruiter does not override verification, eligibility, guardian permissions, or evaluator validation."
-    ],
-
-    evaluator: [
-      "Evaluator verifies metrics, film evidence, position traits, and performance confidence.",
-      "Evaluator does not override guardian permission, counselor academic review, or admin governance."
-    ],
-
-    program: [
-      "Program may manage roster fit, event participation, and organizational context.",
-      "Program does not override athlete verification, guardian approval, or scoring governance."
-    ],
-
-    admin: [
-      "Admin has full system governance access.",
-      "Admin actions must remain audit-ready and receipt-bound."
-    ]
-
-  };
-
-  /* ============================================================
-     UTILITIES
-  ============================================================ */
-
-  function core(){
+  function core() {
     return window.STATScoreCore || null;
   }
 
-  function routing(){
+  function routing() {
     return window.STATScoreRouting || null;
   }
 
-  function normalizeRole(role){
-    return String(role || "").trim().toLowerCase();
+  function getParam(key) {
+    return new URLSearchParams(window.location.search).get(key);
   }
 
-  function getRole(){
+  function normalizeRole(role) {
+    const raw = String(role || "").trim().toLowerCase();
+    return ROLE_ALIASES[raw] || raw;
+  }
+
+  function getAuthenticatedRole() {
     return normalizeRole(
       core()?.getRole?.() ||
       routing()?.getRole?.() ||
+      sessionStorage.getItem("statscore_role") ||
+      sessionStorage.getItem("role") ||
+      getParam("role") ||
       ""
     );
   }
 
-  function getPermissions(role = getRole()){
-    const normalized = normalizeRole(role);
-    return PERMISSIONS[normalized] || {};
+  function getAuthenticatedRoleId() {
+    return (
+      sessionStorage.getItem("statscore_role_id") ||
+      sessionStorage.getItem("role_id") ||
+      getParam("role_id") ||
+      null
+    );
   }
 
-  function hasPermission(permission, role = getRole()){
-    const perms = getPermissions(role);
-    return !!perms[permission];
+  function getAuthenticatedUserId() {
+    return (
+      sessionStorage.getItem("statscore_user_id") ||
+      sessionStorage.getItem("user_id") ||
+      getParam("user_id") ||
+      null
+    );
   }
 
-  function roleName(role = getRole()){
+  function getCredentialStatus() {
+    return String(
+      sessionStorage.getItem("statscore_credential_status") ||
+      sessionStorage.getItem("credential_status") ||
+      getParam("credential_status") ||
+      ""
+    ).trim().toLowerCase();
+  }
+
+  function getSenderLabel(role = getAuthenticatedRole()) {
+    return (
+      sessionStorage.getItem("statscore_sender_label") ||
+      sessionStorage.getItem("sender_label") ||
+      ROLE_LABELS[normalizeRole(role)] ||
+      "Guest"
+    );
+  }
+
+  function getPermissions(role = getAuthenticatedRole()) {
+    return PERMISSIONS[normalizeRole(role)] || {};
+  }
+
+  function hasPermission(permission, role = getAuthenticatedRole()) {
+    return !!getPermissions(role)[permission];
+  }
+
+  function roleName(role = getAuthenticatedRole()) {
     return ROLE_LABELS[normalizeRole(role)] || "Guest";
   }
 
-  function roleLimits(role = getRole()){
-    return ROLE_LIMITS[normalizeRole(role)] || [
-      "No role authority is currently assigned."
-    ];
+  function isAdmin(role = getAuthenticatedRole()) {
+    return normalizeRole(role) === "admin";
   }
 
-  function isAdmin(role = getRole()){
-    return normalizeRole(role) === ROLES.ADMIN;
+  function getAllowedTargetRoles(role = getAuthenticatedRole()) {
+    return MULTIBOX_TARGET_ROLES[normalizeRole(role)] || [];
   }
 
-  /* ============================================================
-     ATHLETE RECORD ACCESS
-  ============================================================ */
-
-  function canViewAthleteRecord(role = getRole()){
-    return hasPermission("view_profile", role);
+  function canTargetRole(targetRole, senderRole = getAuthenticatedRole()) {
+    return getAllowedTargetRoles(senderRole).includes(normalizeRole(targetRole));
   }
 
-  function canViewPrivateIdentity(role = getRole()){
-    return hasPermission("view_private_identity", role);
+  function getMultiBoxSenderContext(context = {}) {
+    const senderRole = normalizeRole(context.sender_role || context.role || getAuthenticatedRole());
+
+    return {
+      sender_user_id: context.sender_user_id || context.user_id || getAuthenticatedUserId(),
+      sender_role: senderRole,
+      sender_role_id: context.sender_role_id || context.role_id || getAuthenticatedRoleId(),
+      sender_label: context.sender_label || getSenderLabel(senderRole),
+      sender_channel_locked: true,
+
+      credential_status:
+        context.credential_status ||
+        context.professional_credential_status ||
+        getCredentialStatus(),
+
+      allowed_target_roles: getAllowedTargetRoles(senderRole),
+
+      athlete_id:
+        context.athlete_id ||
+        sessionStorage.getItem("statscore_athlete_id") ||
+        getParam("athlete_id") ||
+        null,
+
+      snapshot_id:
+        context.snapshot_id ||
+        sessionStorage.getItem("statscore_snapshot_id") ||
+        getParam("snapshot_id") ||
+        null
+    };
   }
 
-  function canViewAcademics(role = getRole()){
-    return hasPermission("view_academics", role);
+  function assertLockedSender(payload = {}, context = {}) {
+    const runtime = getMultiBoxSenderContext(context);
+    const incoming = normalizeRole(payload.sender_role || payload.from_role || runtime.sender_role);
+
+    if (!runtime.sender_role) {
+      return { ok: false, reason: "Missing authenticated sender role.", runtime };
+    }
+
+    if (incoming !== runtime.sender_role) {
+      return {
+        ok: false,
+        reason: "Sender role mismatch. Multi-Box sender channel is locked.",
+        runtime
+      };
+    }
+
+    return { ok: true, reason: "Sender channel locked.", runtime };
   }
 
-  function canViewRecruiting(role = getRole()){
-    return hasPermission("view_recruiting", role);
-  }
-
-  function canViewEvaluatorNotes(role = getRole()){
-    return hasPermission("view_evaluator_notes", role);
-  }
-
-  function canViewMediaQueue(role = getRole()){
-    return hasPermission("view_media_queue", role);
-  }
-
-  function canViewCompletion(role = getRole()){
-    return hasPermission("view_completion", role);
-  }
-
-  /* ============================================================
-     EDIT / SUBMIT AUTHORITY
-  ============================================================ */
-
-  function canEditProfile(role = getRole()){
-    return hasPermission("edit_profile", role);
-  }
-
-  function canEditAcademics(role = getRole()){
-    return hasPermission("edit_academics", role);
-  }
-
-  function canEditEvaluation(role = getRole()){
-    return hasPermission("edit_evaluation", role);
-  }
-
-  function canEditVerification(role = getRole()){
-    return hasPermission("edit_verification", role);
-  }
-
-  function canSubmitCoachNote(role = getRole()){
-    return hasPermission("submit_coach_note", role);
-  }
-
-  function canSubmitCounselorNote(role = getRole()){
-    return hasPermission("submit_counselor_note", role);
-  }
-
-  function canSubmitEvaluatorScore(role = getRole()){
-    return hasPermission("submit_evaluator_score", role);
-  }
-
-  /* ============================================================
-     APPROVAL AUTHORITY
-  ============================================================ */
-
-  function canApproveMedia(role = getRole()){
-    return hasPermission("approve_media", role);
-  }
-
-  function canApproveRecruiterContact(role = getRole()){
-    return hasPermission("approve_recruiter_contact", role);
-  }
-
-  function canApproveGuardianPermission(role = getRole()){
-    return hasPermission("approve_guardian_permission", role);
-  }
-
-  function canOverride(role = getRole()){
-    return hasPermission("can_override", role);
-  }
-
-  /* ============================================================
-     REQUEST AUTHORITY
-  ============================================================ */
-
-  function canRequestVerification(role = getRole()){
-    return hasPermission("request_verification", role);
-  }
-
-  function canRequestRecruiterAccess(role = getRole()){
-    return hasPermission("request_recruiter_access", role);
-  }
-
-  function canRequestMediaPackage(role = getRole()){
-    return hasPermission("request_media_package", role);
-  }
-
-  /* ============================================================
-     VISIBILITY FILTERING
-  ============================================================ */
-
-  function filterSnapshotForRole(snapshot, role = getRole()){
-
+  function filterSnapshotForRole(snapshot, role = getAuthenticatedRole()) {
     if (!snapshot) return null;
 
     const r = normalizeRole(role);
-
     if (isAdmin(r)) return snapshot;
 
     const filtered = { ...snapshot };
 
-    if (!canViewPrivateIdentity(r)) {
+    if (!hasPermission("view_private_identity", r)) {
       filtered.guardian_name = "";
       filtered.guardian_email = "";
       filtered.coach_email = "";
     }
 
-    if (!canViewAcademics(r)) {
+    if (!hasPermission("view_academics", r)) {
       filtered.current_gpa = "";
       filtered.ncaa_status = "";
       filtered.transcript_available = "";
     }
 
-    if (!canViewRecruiting(r)) {
+    if (!hasPermission("view_recruiting", r)) {
       filtered.recruiting_profile_url = "";
       filtered.recruiting_notes = "";
     }
 
-    if (!canViewEvaluatorNotes(r)) {
+    if (!hasPermission("view_evaluator_notes", r)) {
       filtered.evaluator_notes = "";
       filtered.evaluator_score = "";
       filtered.confidence_score = "";
     }
 
-    if (!canViewMediaQueue(r)) {
-      filtered.media_queue_status = "";
-      filtered.production_queue_id = "";
-    }
-
     return filtered;
-
   }
 
-  /* ============================================================
-     DOM ENFORCEMENT
-  ============================================================ */
-
-  function applyVisibilityControls(role = getRole()){
-
+  function applyVisibilityControls(role = getAuthenticatedRole()) {
     const r = normalizeRole(role);
 
     document.querySelectorAll("[data-permission]").forEach((el) => {
-
-      const required =
-        el.getAttribute("data-permission");
-
-      if (!hasPermission(required, r)) {
+      if (!hasPermission(el.getAttribute("data-permission"), r)) {
         el.style.display = "none";
       }
-
     });
 
     document.querySelectorAll("[data-role-only]").forEach((el) => {
+      const roles = String(el.getAttribute("data-role-only") || "")
+        .split(",")
+        .map(v => normalizeRole(v))
+        .filter(Boolean);
 
-      const roles =
-        String(el.getAttribute("data-role-only") || "")
-          .split(",")
-          .map(v => v.trim().toLowerCase())
-          .filter(Boolean);
-
-      if (!roles.includes(r)) {
-        el.style.display = "none";
-      }
-
+      if (!roles.includes(r)) el.style.display = "none";
     });
 
     document.querySelectorAll("[data-admin-only]").forEach((el) => {
-
-      if (!isAdmin(r)) {
-        el.style.display = "none";
-      }
-
+      if (!isAdmin(r)) el.style.display = "none";
     });
-
   }
 
-  function lockUnauthorizedInputs(role = getRole()){
-
+  function lockUnauthorizedInputs(role = getAuthenticatedRole()) {
     const r = normalizeRole(role);
 
     document.querySelectorAll("[data-edit-permission]").forEach((el) => {
-
-      const required =
-        el.getAttribute("data-edit-permission");
-
-      if (!hasPermission(required, r)) {
+      if (!hasPermission(el.getAttribute("data-edit-permission"), r)) {
         el.disabled = true;
         el.setAttribute("aria-disabled", "true");
       }
-
     });
-
   }
 
-  function renderRoleAuthority(targetId = "roleAuthorityNotice", role = getRole()){
-
-    const el = document.getElementById(targetId);
-
-    if (!el) return;
-
-    const limits = roleLimits(role);
-
-    el.innerHTML = `
-      <strong>${roleName(role)} Authority</strong>
-      <ul>
-        ${limits.map(item => `<li>${item}</li>`).join("")}
-      </ul>
-    `;
-
-  }
-
-  /* ============================================================
-     ROLE ACCESS REPORT
-  ============================================================ */
-
-  function buildAccessReport(role = getRole(), snapshot = null){
-
+  function buildAccessReport(role = getAuthenticatedRole(), snapshot = null) {
     const r = normalizeRole(role);
 
     return {
-
+      engine_version: VERSION,
       role: r,
       label: roleName(r),
-
-      can_view_athlete_record: canViewAthleteRecord(r),
-      can_view_private_identity: canViewPrivateIdentity(r),
-      can_view_academics: canViewAcademics(r),
-      can_view_recruiting: canViewRecruiting(r),
-      can_view_evaluator_notes: canViewEvaluatorNotes(r),
-      can_view_media_queue: canViewMediaQueue(r),
-      can_view_completion: canViewCompletion(r),
-
-      can_edit_profile: canEditProfile(r),
-      can_edit_academics: canEditAcademics(r),
-      can_edit_evaluation: canEditEvaluation(r),
-      can_edit_verification: canEditVerification(r),
-
-      can_approve_media: canApproveMedia(r),
-      can_approve_recruiter_contact: canApproveRecruiterContact(r),
-      can_approve_guardian_permission: canApproveGuardianPermission(r),
-
-      can_request_verification: canRequestVerification(r),
-      can_request_recruiter_access: canRequestRecruiterAccess(r),
-      can_request_media_package: canRequestMediaPackage(r),
-
-      can_override: canOverride(r),
-
+      role_id: getAuthenticatedRoleId(),
+      user_id: getAuthenticatedUserId(),
+      credential_status: getCredentialStatus(),
+      allowed_target_roles: getAllowedTargetRoles(r),
+      permissions: getPermissions(r),
+      can_override: hasPermission("can_override", r),
       snapshot_loaded: !!snapshot,
       filtered_snapshot: filterSnapshotForRole(snapshot, r)
-
     };
-
   }
 
-  /* ============================================================
-     INIT
-  ============================================================ */
-
-  function init(options = {}){
-
-    const role = normalizeRole(
-      options.role || getRole()
-    );
+  function init(options = {}) {
+    const role = normalizeRole(options.role || getAuthenticatedRole());
 
     applyVisibilityControls(role);
     lockUnauthorizedInputs(role);
 
-    if (options.renderAuthority !== false) {
-      renderRoleAuthority(
-        options.authorityTargetId || "roleAuthorityNotice",
-        role
-      );
-    }
+    window.STATScoreAccessReport = buildAccessReport(role);
+    window.STATScoreMultiBoxSenderContext = getMultiBoxSenderContext({ role });
 
-    window.STATScoreAccessReport =
-      buildAccessReport(role);
+    console.info("[STATScore Role Access] Engine Loaded:", VERSION, window.STATScoreMultiBoxSenderContext);
 
     return window.STATScoreAccessReport;
-
   }
 
-  /* ============================================================
-     PUBLIC EXPORTS
-  ============================================================ */
-
   return {
-
+    VERSION,
     ROLES,
     ROLE_LABELS,
     PERMISSIONS,
-    ROLE_LIMITS,
+    MULTIBOX_TARGET_ROLES,
 
     normalizeRole,
-    getRole,
+
+    getRole: getAuthenticatedRole,
+    getAuthenticatedRole,
+    getAuthenticatedRoleId,
+    getAuthenticatedUserId,
+    getCredentialStatus,
+    getSenderLabel,
+
     getPermissions,
     hasPermission,
     roleName,
-    roleLimits,
     isAdmin,
 
-    canViewAthleteRecord,
-    canViewPrivateIdentity,
-    canViewAcademics,
-    canViewRecruiting,
-    canViewEvaluatorNotes,
-    canViewMediaQueue,
-    canViewCompletion,
-
-    canEditProfile,
-    canEditAcademics,
-    canEditEvaluation,
-    canEditVerification,
-
-    canSubmitCoachNote,
-    canSubmitCounselorNote,
-    canSubmitEvaluatorScore,
-
-    canApproveMedia,
-    canApproveRecruiterContact,
-    canApproveGuardianPermission,
-    canOverride,
-
-    canRequestVerification,
-    canRequestRecruiterAccess,
-    canRequestMediaPackage,
+    getAllowedTargetRoles,
+    canTargetRole,
+    getMultiBoxSenderContext,
+    assertLockedSender,
 
     filterSnapshotForRole,
-
     applyVisibilityControls,
     lockUnauthorizedInputs,
-    renderRoleAuthority,
-
     buildAccessReport,
     init
-
   };
+})();
 
-})(); 
+document.addEventListener("DOMContentLoaded", () => {
+  window.STATScoreRoleAccess?.init?.();
+}); 
