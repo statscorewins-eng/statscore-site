@@ -919,7 +919,7 @@ b.red{color:var(--red)!important}
     </div>
 
     <div class="rail-block">
-      <h3>Directories</h3>
+      <h3>Target Directories</h3>
       <button class="rail-btn" type="button" data-target-role="athlete">Athletes</button>
       <button class="rail-btn" type="button" data-target-role="parent_guardian">Parents / Guardians</button>
       <button class="rail-btn" type="button" data-target-role="counselor">Counselors</button>
@@ -1044,13 +1044,23 @@ b.red{color:var(--red)!important}
       <div class="status-row"><span>Receipt Ledger</span><b class="green" id="receiptLedgerStatus">Enabled</b></div>
     </div>
 
-    <div class="notice">
-      Multi-Box™ now operates as a locked sender-channel communication workspace.
-      The authenticated dashboard role determines the sender. Only the target role,
-      target directory, and recipient are selectable.
-    </div>
+   <div class="notice">
+    Multi-Box™ now operates as a locked sender-channel communication workspace.
+    The authenticated dashboard role determines the sender. Only the target role,
+    target directory, and recipient are selectable.
+</div>
 
-    <div class="side-section">
+<div class="notice">
+  <strong>COMMUNICATION LIFECYCLE</strong><br><br>
+
+  • Drafts may be discarded prior to transmission.<br>
+  • Once transmitted, communications become governed records.<br>
+  • Governed communications cannot be deleted or altered.<br>
+  • Receipts and audit records preserve accountability, integrity, and chain of custody.
+</div> 
+
+<div class="side-section">
+  
       <div class="metric-row"><span>Unread Notices</span><b id="unreadNoticesMetric">0</b></div>
       <div class="metric-row"><span>Pending Requests</span><b id="pendingRequestsMetric">0</b></div>
       <div class="metric-row"><span>Restricted Windows</span><b id="restrictedWindowsMetric">0</b></div>
@@ -1064,7 +1074,7 @@ b.red{color:var(--red)!important}
       <div class="audit-list" id="auditPanel">
         <div class="audit-item">
           <b>Runtime</b>
-          <span>Waiting for Multi-Box runtime initialization.</span>
+          <span>Runtime initialized. Awaiting target directory.</span>
         </div>
       </div>
     </div>
@@ -1084,7 +1094,7 @@ b.red{color:var(--red)!important}
 
 <footer class="footer">
   <div><img src="sc_logo_i.png" alt="STATScore"></div>
-  <div>Official Governed Communication Infrastructure</div>
+  <div>Official Governed Communication Workspace</div>
   <div class="demo-ok">✓ Multi-Box™ Sender Channel Locked</div>
   <div>© STATScore Systems<br>All Rights Reserved.</div>
 </footer>
@@ -1243,7 +1253,7 @@ async function initMultiBoxRuntime(){
 
   if(!MBX_DIRECTORIES.length){
     addAudit("Directory Warning","No target directories loaded for this sender role.");
-    setMessage("Runtime active, but no target directories loaded.","error");
+    setMessage("Awaiting target directory assignment.","error");
   }else{
     addAudit("Runtime Online",`${senderLabel} channel locked. ${MBX_DIRECTORIES.length} directory route(s) loaded.`);
     setMessage(`Multi-Box ready: ${senderLabel} channel locked.`);
