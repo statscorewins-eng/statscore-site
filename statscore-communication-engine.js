@@ -1,12 +1,11 @@
 /* ============================================================
    STATScore™ Communication Engine
    File: statscore-communication-engine.js
-   Version: STATSCORE-COMMUNICATION-ENGINE-V1
+   Version: STATSCORE-COMMUNICATION-ENGINE-V2
    Purpose:
-   Multi-Box role-to-role communication authority,
-   guardian gating, recruiter-athlete restrictions,
-   NCAA communication-window checks, audit receipts,
-   notifications, and message routing governance.
+   Multi-Box™ locked sender-channel runtime.
+   Authenticated Role Channel → Target Role → Target Directory
+   → Target Recipient → Governed Message → Receipt / Audit.
 ============================================================ */
 
 (function () {
@@ -15,34 +14,22 @@
   window.STATScore = window.STATScore || {};
 
   const CommunicationEngine = {
+    version: "STATSCORE-COMMUNICATION-ENGINE-V2",
 
-    version: "STATSCORE-COMMUNICATION-ENGINE-V1",
-
-    MESSAGE_STATUS: {
-      DRAFT: "DRAFT",
-      QUEUED: "QUEUED",
-      SENT: "SENT",
-      BLOCKED: "BLOCKED",
-      REVIEW_REQUIRED: "REVIEW_REQUIRED",
-      GUARDIAN_REQUIRED: "GUARDIAN_REQUIRED"
+    STATUS: {
+      DRAFT: "draft",
+      SENT: "sent",
+      BROADCAST: "broadcast",
+      ARCHIVED: "archived",
+      DELETED: "deleted",
+      BLOCKED: "blocked"
     },
 
-    PRIORITY: {
-      LOW: "LOW",
-      NORMAL: "NORMAL",
-      HIGH: "HIGH",
-      URGENT: "URGENT"
-    },
-
-    CHANNELS: {
-      ATHLETE: "athlete",
-      PARENT: "parent",
-      COACH: "coach",
-      COUNSELOR: "counselor",
-      RECRUITER: "recruiter",
-      EVALUATOR: "evaluator",
-      PROGRAM: "program",
-      ADMIN: "admin"
+    WINDOW: {
+      OPEN: "open",
+      LIMITED: "limited",
+      RESTRICTED: "restricted",
+      CLOSED: "closed"
     },
 
     nowISO() {
@@ -51,209 +38,341 @@
 
     uuid() {
       if (window.crypto?.randomUUID) return window.crypto.randomUUID();
-      return "msg_" + Date.now() + "_" + Math.random().toString(36).slice(2);
-    },
-
-    core() {
-      return window.STATScoreCore || null;
-    },
-
-    compliance() {
-      return window.STATScore?.ComplianceEngine || null;
-    },
-
-    eventEngine() {
-      return window.STATScore?.EventEngine || null;
-    },
-
-    roleAccess() {
-      return window.STATScoreRoleAccess || null;
+      return "mbx_" + Date.now() + "_" + Math.random().toString(36).slice(2);
     },
 
     lower(value) {
       return String(value || "").trim().toLowerCase();
     },
 
-    safe(value, fallback = "") {
-      return this.core()?.safe?.(value, fallback) ?? (value || fallback);
+    core() {
+      return window.STATScoreCore || null;
     },
 
-    isRecruiterAthleteMessage(fromRole, toRole) {
-      const from = this.lower(fromRole);
-      const to = this.lower(toRole);
-
-      return (
-        (from === "recruiter" && to === "athlete") ||
-        (from === "athlete" && to === "recruiter")
-      );
+    db() {
+      return this.core()?.getClient?.() || window.supabaseClient || null;
     },
 
-    isGuardianRequired(snapshot, fromRole, toRole) {
-      const compliance = this.compliance();
-
-      if (!compliance) return false;
-
-      const athleteInvolved =
-        this.lower(fromRole) === "athlete" ||
-        this.lower(toRole) === "athlete";
-
-      return athleteInvolved && compliance.isMinor?.(snapshot);
+    roleAccess() {
+      return window.STATScoreRoleAccess || null;
     },
 
-    buildMessage(payload = {}) {
+    governance() {
+      return window.STATScore?.MultiBoxGovernanceEngine || null;
+    },
+
+    receiptLedger() {
+      return window.STATScore?.ReceiptLedgerEngine || null;
+    },
+
+    getURLParam(key) {
+      return new URLSearchParams(window.location.search).get(key);
+    },
+
+    getRuntimeContext(context = {}) {
+      const roleAccess = this.roleAccess();
+
+      const senderRole =
+        context.sender_role ||
+        context.role ||
+        roleAccess?.getAuthenticatedRole?.() ||
+        sessionStorage.getItem("statscore_role") ||
+        sessionStorage.getItem("role") ||
+        this.getURLParam("role") ||
+        "athlete";
+
+      const senderRoleId =
+        context.sender_role_id ||
+        context.role_id ||
+        roleAccess?.getAuthenticatedRoleId?.() ||
+        sessionStorage.getItem("statscore_role_id") ||
+        sessionStorage.getItem("role_id") ||
+        this.getURLParam("role_id") ||
+        null;
+
+      const senderUserId =
+        context.sender_user_id ||
+        context.user_id ||
+        sessionStorage.getItem("statscore_user_id") ||
+        sessionStorage.getItem("user_id") ||
+        null;
+
+      const senderLabel =
+        context.sender_label ||
+        context.from_label ||
+        sessionStorage.getItem("statscore_sender_label") ||
+        sessionStorage.getItem("sender_label") ||
+        senderRole;
+
       return {
-        message_id: payload.message_id || this.uuid(),
-        engine_version: this.version,
+        sender_user_id: senderUserId,
+        sender_role: this.lower(senderRole),
+        sender_role_id: senderRoleId,
+        sender_label: senderLabel,
+        sender_channel_locked: true,
 
-        athlete_id: payload.athlete_id || null,
-        snapshot_id: payload.snapshot_id || null,
+        athlete_id:
+          context.athlete_id ||
+          sessionStorage.getItem("statscore_athlete_id") ||
+          this.getURLParam("athlete_id") ||
+          null,
 
-        from_role: this.lower(payload.from_role || "system"),
-        to_role: this.lower(payload.to_role || "admin"),
+        snapshot_id:
+          context.snapshot_id ||
+          sessionStorage.getItem("statscore_snapshot_id") ||
+          this.getURLParam("snapshot_id") ||
+          null,
 
-        from_user_id: payload.from_user_id || null,
-        to_user_id: payload.to_user_id || null,
-
-        subject: payload.subject || "STATScore Message",
-        body: payload.body || "",
-
-        priority: payload.priority || this.PRIORITY.NORMAL,
-        message_status: payload.message_status || this.MESSAGE_STATUS.DRAFT,
-
-        source_room: payload.source_room || "multi-box",
-        route_type: payload.route_type || "ROLE_TO_ROLE",
-
-        compliance_status: "PENDING",
-        compliance_reason: "",
-
-        audit_required: true,
-        locked: true,
-
-        created_at: this.nowISO(),
-        updated_at: this.nowISO()
+        source_page:
+          context.source_page ||
+          document.body?.dataset?.page ||
+          "multi-box.html"
       };
     },
 
-    evaluateMessage(message, snapshot = {}, context = {}) {
-      const compliance = this.compliance();
+    assertLockedSender(payload = {}, runtime = {}) {
+      const incoming = this.lower(payload.sender_role || payload.from_role || runtime.sender_role);
+      const locked = this.lower(runtime.sender_role);
+
+      if (!locked) {
+        return {
+          ok: false,
+          reason: "Missing authenticated sender role."
+        };
+      }
+
+      if (incoming && incoming !== locked) {
+        return {
+          ok: false,
+          reason: "Sender role mismatch. Multi-Box sender channel is locked by dashboard/session context."
+        };
+      }
+
+      return {
+        ok: true,
+        reason: "Sender channel locked."
+      };
+    },
+
+    async loadTargetDirectories(senderRole) {
+      const db = this.db();
+
+      if (!db) {
+        return {
+          ok: false,
+          status: "NO_DB_CLIENT",
+          directories: []
+        };
+      }
+
+      const { data, error } = await db
+        .from("sc_multibox_directories")
+        .select("*")
+        .eq("sender_role", this.lower(senderRole))
+        .eq("is_active", true)
+        .order("target_role", { ascending: true })
+        .order("directory_label", { ascending: true });
+
+      if (error) {
+        console.error("[STATScore] Multi-Box directory load failed:", error);
+        return {
+          ok: false,
+          status: "DIRECTORY_LOAD_FAILED",
+          error,
+          directories: []
+        };
+      }
+
+      return {
+        ok: true,
+        status: "DIRECTORIES_LOADED",
+        directories: data || []
+      };
+    },
+
+    getTargetRolesFromDirectories(directories = []) {
+      return [...new Set(directories.map(d => d.target_role))].filter(Boolean);
+    },
+
+    async loadWindowRule(senderRole, targetRole) {
+      const db = this.db();
+
+      if (!db) {
+        return {
+          ok: false,
+          window_status: "restricted",
+          reason: "Database client unavailable."
+        };
+      }
+
+      const { data, error } = await db
+        .from("sc_multibox_window_rules")
+        .select("*")
+        .eq("sender_role", this.lower(senderRole))
+        .eq("target_role", this.lower(targetRole))
+        .eq("is_active", true)
+        .limit(1)
+        .maybeSingle();
+
+      if (error) {
+        console.error("[STATScore] Multi-Box window rule load failed:", error);
+        return {
+          ok: false,
+          window_status: "restricted",
+          reason: "Window rule lookup failed.",
+          error
+        };
+      }
+
+      if (!data) {
+        return {
+          ok: true,
+          window_status: "restricted",
+          reason: "No explicit communication rule found."
+        };
+      }
+
+      return {
+        ok: true,
+        ...data
+      };
+    },
+
+    async evaluateMessage(message = {}, context = {}) {
+      const lock = this.assertLockedSender(message, context);
+
+      if (!lock.ok) {
+        return {
+          allowed: false,
+          status: this.STATUS.BLOCKED,
+          reason: lock.reason
+        };
+      }
+
+      if (!message.target_role) {
+        return {
+          allowed: false,
+          status: this.STATUS.BLOCKED,
+          reason: "Target role is required."
+        };
+      }
+
+      if (!message.target_directory) {
+        return {
+          allowed: false,
+          status: this.STATUS.BLOCKED,
+          reason: "Target directory is required."
+        };
+      }
+
+      if (!message.is_broadcast && !message.target_recipient_id) {
+        return {
+          allowed: false,
+          status: this.STATUS.BLOCKED,
+          reason: "Target recipient is required for non-broadcast messages."
+        };
+      }
+
+      if (!message.subject || !String(message.subject).trim()) {
+        return {
+          allowed: false,
+          status: this.STATUS.BLOCKED,
+          reason: "Subject is required."
+        };
+      }
 
       if (!message.body || !String(message.body).trim()) {
         return {
           allowed: false,
-          status: this.MESSAGE_STATUS.BLOCKED,
+          status: this.STATUS.BLOCKED,
           reason: "Message body is required."
         };
       }
 
-      if (!message.from_role || !message.to_role) {
+      const rule = await this.loadWindowRule(message.sender_role, message.target_role);
+
+      if (rule.window_status === this.WINDOW.CLOSED) {
         return {
           allowed: false,
-          status: this.MESSAGE_STATUS.BLOCKED,
-          reason: "Message requires source role and target role."
+          status: this.STATUS.BLOCKED,
+          reason: rule.rule_description || "Communication window is closed.",
+          window_rule: rule
         };
       }
 
-      if (this.isRecruiterAthleteMessage(message.from_role, message.to_role)) {
-        const result = compliance?.evaluateMultiBoxMessage?.(message, snapshot, context);
-
-        if (!result) {
-          return {
-            allowed: false,
-            status: this.MESSAGE_STATUS.REVIEW_REQUIRED,
-            reason: "Compliance engine unavailable. Recruiter-athlete communication requires review."
-          };
-        }
-
+      if (rule.blocks_direct_recruiter_contact) {
         return {
-          allowed: !!result.allowed,
-          status: result.allowed ? this.MESSAGE_STATUS.QUEUED : result.status,
-          reason: result.reason,
-          compliance_result: result
+          allowed: false,
+          status: this.STATUS.BLOCKED,
+          reason: rule.rule_description || "Direct recruiter contact is restricted.",
+          window_rule: rule
         };
       }
 
-      if (this.isGuardianRequired(snapshot, message.from_role, message.to_role)) {
-        const guardianOk = compliance?.guardianApproved?.(snapshot);
+      const governance = this.governance();
 
-        if (!guardianOk) {
+      if (governance?.evaluateMultiBoxMessage) {
+        const governed = await governance.evaluateMultiBoxMessage(message, context, rule);
+
+        if (governed && governed.allowed === false) {
           return {
             allowed: false,
-            status: this.MESSAGE_STATUS.GUARDIAN_REQUIRED,
-            reason: "Guardian approval is required before athlete communication."
+            status: this.STATUS.BLOCKED,
+            reason: governed.reason || "Message blocked by Multi-Box governance.",
+            governance_result: governed,
+            window_rule: rule
           };
         }
       }
 
       return {
         allowed: true,
-        status: this.MESSAGE_STATUS.QUEUED,
-        reason: "Message approved for role-to-role routing."
+        status: message.is_broadcast ? this.STATUS.BROADCAST : this.STATUS.SENT,
+        reason: "Message approved for governed Multi-Box routing.",
+        window_rule: rule
       };
     },
 
-    routeMessage(message, snapshot = {}, context = {}) {
-      const evaluation = this.evaluateMessage(message, snapshot, context);
+    buildMessage(payload = {}, context = {}) {
+      const runtime = this.getRuntimeContext(context);
+      const locked = this.assertLockedSender(payload, runtime);
 
-      const routed = {
-        ...message,
-        message_status: evaluation.allowed ? this.MESSAGE_STATUS.QUEUED : evaluation.status,
-        compliance_status: evaluation.status,
-        compliance_reason: evaluation.reason,
-        updated_at: this.nowISO()
-      };
+      if (!locked.ok) {
+        throw new Error(locked.reason);
+      }
 
       return {
-        ok: evaluation.allowed,
-        status: routed.message_status,
-        message: routed,
-        evaluation,
-        receipt: this.buildMessageReceipt(routed, evaluation)
-      };
-    },
+        sender_user_id: runtime.sender_user_id,
+        sender_role: runtime.sender_role,
+        sender_role_id: runtime.sender_role_id,
+        sender_label: runtime.sender_label,
+        sender_channel_locked: true,
 
-    buildMessageReceipt(message, evaluation = {}) {
-      return {
-        receipt_type: "STATSCORE_COMMUNICATION_RECEIPT",
-        engine_version: this.version,
+        target_role: this.lower(payload.target_role || payload.to_role),
+        target_directory: this.lower(payload.target_directory || ""),
+        target_recipient_id: payload.target_recipient_id || payload.to_user_id || null,
+        target_recipient_type: this.lower(payload.target_recipient_type || payload.target_role || payload.to_role),
+        target_recipient_label: payload.target_recipient_label || payload.to_label || null,
 
-        message_id: message.message_id,
-        athlete_id: message.athlete_id,
-        snapshot_id: message.snapshot_id,
+        athlete_id: payload.athlete_id || runtime.athlete_id,
+        snapshot_id: payload.snapshot_id || runtime.snapshot_id,
 
-        from_role: message.from_role,
-        to_role: message.to_role,
-        source_room: message.source_room,
+        message_type: this.lower(payload.message_type || "general"),
+        priority: this.lower(payload.priority || "standard"),
+        communication_window: this.lower(payload.communication_window || "open"),
 
-        status: message.message_status,
-        compliance_status: message.compliance_status,
-        compliance_reason: message.compliance_reason,
+        subject: payload.subject || "",
+        body: payload.body || "",
 
-        allowed: !!evaluation.allowed,
-
-        created_at: this.nowISO(),
-        locked: true
-      };
-    },
-
-    buildNotification(message) {
-      return {
-        notification_id: this.uuid(),
-        message_id: message.message_id,
-
-        athlete_id: message.athlete_id,
-        snapshot_id: message.snapshot_id,
-
-        target_role: message.to_role,
-        message: `New STATScore Multi-Box message: ${message.subject}`,
-
-        read_status: "UNREAD",
-        created_at: this.nowISO(),
-        locked: true
+        status: this.lower(payload.status || this.STATUS.DRAFT),
+        is_broadcast: !!payload.is_broadcast,
+        archived: false,
+        soft_deleted: false
       };
     },
 
     async persistMessage(message) {
-      const db = this.core()?.getClient?.();
+      const db = this.db();
 
       if (!db) {
         return {
@@ -264,13 +383,13 @@
       }
 
       const { data, error } = await db
-        .from("sc_messages")
+        .from("sc_multibox_messages")
         .insert(message)
         .select("*")
         .single();
 
       if (error) {
-        console.error("STATScore message insert failed:", error);
+        console.error("[STATScore] Multi-Box message insert failed:", error);
         return {
           ok: false,
           status: "MESSAGE_INSERT_FAILED",
@@ -287,7 +406,7 @@
     },
 
     async persistReceipt(receipt) {
-      const db = this.core()?.getClient?.();
+      const db = this.db();
 
       if (!db) {
         return {
@@ -298,13 +417,13 @@
       }
 
       const { data, error } = await db
-        .from("statscore_communication_receipts")
+        .from("sc_multibox_receipts")
         .insert(receipt)
         .select("*")
         .single();
 
       if (error) {
-        console.error("STATScore communication receipt insert failed:", error);
+        console.error("[STATScore] Multi-Box receipt insert failed:", error);
         return {
           ok: false,
           status: "RECEIPT_INSERT_FAILED",
@@ -320,86 +439,293 @@
       };
     },
 
-    async persistNotification(notification) {
-      const db = this.core()?.getClient?.();
+    async persistAuditEvent(event) {
+      const db = this.db();
 
       if (!db) {
         return {
           ok: false,
           status: "NO_DB_CLIENT",
-          notification
+          event
         };
       }
 
       const { data, error } = await db
-        .from("statscore_notifications")
-        .insert(notification)
+        .from("sc_multibox_audit_events")
+        .insert(event)
         .select("*")
         .single();
 
       if (error) {
-        console.error("STATScore communication notification insert failed:", error);
+        console.error("[STATScore] Multi-Box audit insert failed:", error);
         return {
           ok: false,
-          status: "NOTIFICATION_INSERT_FAILED",
+          status: "AUDIT_INSERT_FAILED",
           error,
-          notification
+          event
         };
       }
 
       return {
         ok: true,
-        status: "NOTIFICATION_INSERTED",
-        notification: data
+        status: "AUDIT_INSERTED",
+        event: data
       };
     },
 
-    async sendMessage(payload = {}, snapshot = {}, context = {}) {
-      const message = this.buildMessage(payload);
-      const routed = this.routeMessage(message, snapshot, context);
+    buildReceipt(message = {}, evaluation = {}, action = "message_event") {
+      return {
+        message_id: message.id || null,
 
-      if (!routed.ok) {
-        await this.persistReceipt(routed.receipt);
+        receipt_type: "STATSCORE_MULTIBOX_RECEIPT",
+        action,
 
+        sender_user_id: message.sender_user_id || null,
+        sender_role: message.sender_role,
+        sender_role_id: message.sender_role_id || null,
+        sender_label: message.sender_label || null,
+
+        target_role: message.target_role,
+        target_directory: message.target_directory,
+        target_recipient_id: message.target_recipient_id || null,
+        target_recipient_type: message.target_recipient_type || null,
+        target_recipient_label: message.target_recipient_label || null,
+
+        athlete_id: message.athlete_id || null,
+        snapshot_id: message.snapshot_id || null,
+
+        receipt_payload: {
+          engine_version: this.version,
+          status: message.status,
+          communication_window: message.communication_window,
+          allowed: !!evaluation.allowed,
+          reason: evaluation.reason || null,
+          window_rule: evaluation.window_rule || null,
+          locked: true,
+          created_at: this.nowISO()
+        }
+      };
+    },
+
+    buildAuditEvent(message = {}, receipt = {}, eventType = "message_event", payload = {}) {
+      return {
+        message_id: message.id || null,
+        receipt_id: receipt.id || null,
+
+        event_type: eventType,
+
+        actor_user_id: message.sender_user_id || null,
+        actor_role: message.sender_role || null,
+        actor_role_id: message.sender_role_id || null,
+
+        event_payload: {
+          engine_version: this.version,
+          sender_role: message.sender_role,
+          target_role: message.target_role,
+          target_directory: message.target_directory,
+          target_recipient_id: message.target_recipient_id,
+          status: message.status,
+          ...payload
+        }
+      };
+    },
+
+    async saveDraft(payload = {}, context = {}) {
+      let message;
+
+      try {
+        message = this.buildMessage(
+          {
+            ...payload,
+            status: this.STATUS.DRAFT,
+            is_broadcast: false
+          },
+          context
+        );
+      } catch (error) {
         return {
           ok: false,
-          status: routed.status,
-          message: routed.message,
-          evaluation: routed.evaluation,
-          receipt: routed.receipt
+          status: "SENDER_LOCK_FAILED",
+          error: error.message
         };
       }
 
-      routed.message.message_status = this.MESSAGE_STATUS.SENT;
-      routed.message.updated_at = this.nowISO();
+      const messageResult = await this.persistMessage(message);
 
-      const messageResult = await this.persistMessage(routed.message);
-      const receiptResult = await this.persistReceipt(routed.receipt);
-      const notificationResult = await this.persistNotification(
-        this.buildNotification(routed.message)
+      if (!messageResult.ok) return messageResult;
+
+      const saved = messageResult.message;
+      const evaluation = {
+        allowed: true,
+        reason: "Draft saved. Send validation pending."
+      };
+
+      const receiptResult = await this.persistReceipt(
+        this.buildReceipt(saved, evaluation, "draft_saved")
+      );
+
+      const auditResult = await this.persistAuditEvent(
+        this.buildAuditEvent(saved, receiptResult.receipt, "draft_saved")
       );
 
       return {
-        ok: messageResult.ok,
-        status: messageResult.ok ? "MESSAGE_SENT" : messageResult.status,
-        message: messageResult.message,
-        evaluation: routed.evaluation,
+        ok: true,
+        status: "DRAFT_SAVED",
+        message: saved,
         receipt: receiptResult,
-        notification: notificationResult
+        audit: auditResult
       };
     },
 
-    async saveDraft(payload = {}) {
-      const message = this.buildMessage({
-        ...payload,
-        message_status: this.MESSAGE_STATUS.DRAFT
-      });
+    async sendMessage(payload = {}, context = {}) {
+      let message;
 
-      return await this.persistMessage(message);
+      try {
+        message = this.buildMessage(
+          {
+            ...payload,
+            status: this.STATUS.SENT,
+            is_broadcast: false
+          },
+          context
+        );
+      } catch (error) {
+        return {
+          ok: false,
+          status: "SENDER_LOCK_FAILED",
+          error: error.message
+        };
+      }
+
+      const evaluation = await this.evaluateMessage(message, context);
+
+      if (!evaluation.allowed) {
+        message.status = this.STATUS.BLOCKED;
+
+        const blockedResult = await this.persistMessage(message);
+        const blockedMessage = blockedResult.message || message;
+
+        const receiptResult = await this.persistReceipt(
+          this.buildReceipt(blockedMessage, evaluation, "message_blocked")
+        );
+
+        const auditResult = await this.persistAuditEvent(
+          this.buildAuditEvent(blockedMessage, receiptResult.receipt, "message_blocked", {
+            reason: evaluation.reason
+          })
+        );
+
+        return {
+          ok: false,
+          status: "MESSAGE_BLOCKED",
+          reason: evaluation.reason,
+          message: blockedMessage,
+          receipt: receiptResult,
+          audit: auditResult,
+          evaluation
+        };
+      }
+
+      const messageResult = await this.persistMessage(message);
+
+      if (!messageResult.ok) return messageResult;
+
+      const sent = messageResult.message;
+
+      const receiptResult = await this.persistReceipt(
+        this.buildReceipt(sent, evaluation, "message_sent")
+      );
+
+      const auditResult = await this.persistAuditEvent(
+        this.buildAuditEvent(sent, receiptResult.receipt, "message_sent")
+      );
+
+      return {
+        ok: true,
+        status: "MESSAGE_SENT",
+        message: sent,
+        receipt: receiptResult,
+        audit: auditResult,
+        evaluation
+      };
     },
 
-    async loadMessagesForRole(role, snapshotId = null) {
-      const db = this.core()?.getClient?.();
+    async broadcastNotice(payload = {}, context = {}) {
+      let message;
+
+      try {
+        message = this.buildMessage(
+          {
+            ...payload,
+            status: this.STATUS.BROADCAST,
+            is_broadcast: true
+          },
+          context
+        );
+      } catch (error) {
+        return {
+          ok: false,
+          status: "SENDER_LOCK_FAILED",
+          error: error.message
+        };
+      }
+
+      const evaluation = await this.evaluateMessage(message, context);
+
+      if (!evaluation.allowed) {
+        message.status = this.STATUS.BLOCKED;
+
+        const blockedResult = await this.persistMessage(message);
+        const blockedMessage = blockedResult.message || message;
+
+        const receiptResult = await this.persistReceipt(
+          this.buildReceipt(blockedMessage, evaluation, "broadcast_blocked")
+        );
+
+        const auditResult = await this.persistAuditEvent(
+          this.buildAuditEvent(blockedMessage, receiptResult.receipt, "broadcast_blocked", {
+            reason: evaluation.reason
+          })
+        );
+
+        return {
+          ok: false,
+          status: "BROADCAST_BLOCKED",
+          reason: evaluation.reason,
+          message: blockedMessage,
+          receipt: receiptResult,
+          audit: auditResult,
+          evaluation
+        };
+      }
+
+      const messageResult = await this.persistMessage(message);
+
+      if (!messageResult.ok) return messageResult;
+
+      const broadcast = messageResult.message;
+
+      const receiptResult = await this.persistReceipt(
+        this.buildReceipt(broadcast, evaluation, "broadcast_sent")
+      );
+
+      const auditResult = await this.persistAuditEvent(
+        this.buildAuditEvent(broadcast, receiptResult.receipt, "broadcast_sent")
+      );
+
+      return {
+        ok: true,
+        status: "BROADCAST_SENT",
+        message: broadcast,
+        receipt: receiptResult,
+        audit: auditResult,
+        evaluation
+      };
+    },
+
+    async loadMessagesForSender(context = {}, filters = {}) {
+      const db = this.db();
+      const runtime = this.getRuntimeContext(context);
 
       if (!db) {
         return {
@@ -410,19 +736,23 @@
       }
 
       let query = db
-        .from("sc_messages")
+        .from("sc_multibox_messages")
         .select("*")
-        .or(`from_role.eq.${this.lower(role)},to_role.eq.${this.lower(role)}`)
+        .eq("sender_role", runtime.sender_role)
         .order("created_at", { ascending: false });
 
-      if (snapshotId) {
-        query = query.eq("snapshot_id", snapshotId);
+      if (runtime.sender_role_id) {
+        query = query.eq("sender_role_id", runtime.sender_role_id);
       }
+
+      if (filters.status) query = query.eq("status", this.lower(filters.status));
+      if (filters.snapshot_id) query = query.eq("snapshot_id", filters.snapshot_id);
+      if (filters.athlete_id) query = query.eq("athlete_id", filters.athlete_id);
 
       const { data, error } = await query;
 
       if (error) {
-        console.error("STATScore message load failed:", error);
+        console.error("[STATScore] Multi-Box sender message load failed:", error);
         return {
           ok: false,
           status: "MESSAGE_LOAD_FAILED",
@@ -438,38 +768,56 @@
       };
     },
 
-    buildCommunicationSummary(messages = []) {
-      const total = messages.length;
-      const unread = messages.filter(m => m.read_status === "UNREAD").length;
-      const blocked = messages.filter(m => m.message_status === this.MESSAGE_STATUS.BLOCKED).length;
-      const recruiterMessages = messages.filter(m =>
-        this.lower(m.from_role) === "recruiter" || this.lower(m.to_role) === "recruiter"
-      ).length;
+    async loadMessagesForRecipient(context = {}, filters = {}) {
+      const db = this.db();
+      const runtime = this.getRuntimeContext(context);
+
+      if (!db) {
+        return {
+          ok: false,
+          status: "NO_DB_CLIENT",
+          messages: []
+        };
+      }
+
+      let query = db
+        .from("sc_multibox_messages")
+        .select("*")
+        .eq("target_role", runtime.sender_role)
+        .order("created_at", { ascending: false });
+
+      if (filters.snapshot_id) query = query.eq("snapshot_id", filters.snapshot_id);
+      if (filters.athlete_id) query = query.eq("athlete_id", filters.athlete_id);
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error("[STATScore] Multi-Box recipient message load failed:", error);
+        return {
+          ok: false,
+          status: "MESSAGE_LOAD_FAILED",
+          error,
+          messages: []
+        };
+      }
 
       return {
-        total_messages: total,
-        unread_messages: unread,
-        blocked_messages: blocked,
-        recruiter_messages: recruiterMessages,
-        generated_at: this.nowISO()
+        ok: true,
+        status: "RECIPIENT_MESSAGES_LOADED",
+        messages: data || []
       };
     },
 
-    renderCommunicationPanel(targetId, summary) {
-      const el = document.getElementById(targetId);
-      if (!el || !summary) return;
-
-      el.innerHTML = `
-        <div class="communication-kicker">STATScore Multi-Box Intelligence</div>
-        <h2>Communication Governance Active</h2>
-
-        <div class="communication-grid">
-          <div><b>Total</b><span>${summary.total_messages}</span></div>
-          <div><b>Unread</b><span>${summary.unread_messages}</span></div>
-          <div><b>Blocked</b><span>${summary.blocked_messages}</span></div>
-          <div><b>Recruiter Routed</b><span>${summary.recruiter_messages}</span></div>
-        </div>
-      `;
+    buildCommunicationSummary(messages = []) {
+      return {
+        total_messages: messages.length,
+        unread_messages: messages.filter(m => m.read_status === "unread").length,
+        draft_messages: messages.filter(m => m.status === this.STATUS.DRAFT).length,
+        sent_messages: messages.filter(m => m.status === this.STATUS.SENT).length,
+        blocked_messages: messages.filter(m => m.status === this.STATUS.BLOCKED).length,
+        broadcast_messages: messages.filter(m => m.status === this.STATUS.BROADCAST).length,
+        generated_at: this.nowISO()
+      };
     },
 
     explain(result) {
@@ -478,10 +826,26 @@
       return [
         `Status: ${result.status}`,
         `Allowed: ${result.ok ? "YES" : "NO"}`,
-        `Reason: ${result.evaluation?.reason || "--"}`
+        `Reason: ${result.reason || result.evaluation?.reason || "--"}`
       ].join(" | ");
-    }
+    },
 
+    async init(context = {}) {
+      const runtime = this.getRuntimeContext(context);
+      const directoryResult = await this.loadTargetDirectories(runtime.sender_role);
+
+      window.STATScore.MultiBoxRuntime = {
+        engine_version: this.version,
+        runtime,
+        directories: directoryResult.directories || [],
+        target_roles: this.getTargetRolesFromDirectories(directoryResult.directories || []),
+        loaded_at: this.nowISO()
+      };
+
+      console.info("[STATScore] Multi-Box Runtime Initialized:", window.STATScore.MultiBoxRuntime);
+
+      return window.STATScore.MultiBoxRuntime;
+    }
   };
 
   window.STATScore.CommunicationEngine = CommunicationEngine;
