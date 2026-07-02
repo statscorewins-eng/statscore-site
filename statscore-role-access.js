@@ -1,15 +1,20 @@
 /* ============================================================
    STATScore™ Role Access Spine
    File: statscore-role-access.js
-   Version: STATSCORE-ROLE-ACCESS-V2
+   Version: STATSCORE-ROLE-ACCESS-V3
    Purpose:
    Central role permission enforcement + locked Multi-Box sender context.
+
+   Canon:
+   - Multi-Box sender channel is locked by authenticated dashboard/session role.
+   - If no role is supplied, runtime remains pending.
+   - No fallback should silently convert unknown sender to Athlete.
 ============================================================ */
 
 window.STATScoreRoleAccess = (() => {
   "use strict";
 
-  const VERSION = "STATSCORE-ROLE-ACCESS-V2";
+  const VERSION = "STATSCORE-ROLE-ACCESS-V3";
 
   const ROLES = {
     ATHLETE: "athlete",
@@ -19,7 +24,8 @@ window.STATScoreRoleAccess = (() => {
     RECRUITER: "recruiter",
     EVALUATOR: "evaluator",
     PROGRAM: "program",
-    ADMIN: "admin"
+    ADMIN: "admin",
+    PROFESSIONAL: "professional"
   };
 
   const ROLE_ALIASES = {
@@ -28,7 +34,8 @@ window.STATScoreRoleAccess = (() => {
     parent_guardian: "parent_guardian",
     head_coach: "coach",
     position_coach: "coach",
-    program_admin: "program"
+    program_admin: "program",
+    professional: "professional"
   };
 
   const ROLE_LABELS = {
@@ -39,7 +46,8 @@ window.STATScoreRoleAccess = (() => {
     recruiter: "Recruiter",
     evaluator: "Evaluator",
     program: "Program",
-    admin: "Admin"
+    admin: "Admin",
+    professional: "Professional"
   };
 
   const MULTIBOX_TARGET_ROLES = {
@@ -50,7 +58,8 @@ window.STATScoreRoleAccess = (() => {
     recruiter: ["coach", "program", "parent_guardian", "athlete"],
     evaluator: ["athlete", "coach", "program"],
     program: ["coach", "recruiter", "evaluator", "parent_guardian", "athlete"],
-    admin: ["athlete", "parent_guardian", "coach", "counselor", "recruiter", "evaluator", "program"]
+    admin: ["athlete", "parent_guardian", "coach", "counselor", "recruiter", "evaluator", "program"],
+    professional: []
   };
 
   const PERMISSIONS = {
@@ -161,6 +170,15 @@ window.STATScoreRoleAccess = (() => {
       submit_counselor_note: true,
       submit_evaluator_score: true,
       can_override: true
+    },
+
+    professional: {
+      view_profile: false,
+      view_private_identity: false,
+      view_academics: false,
+      view_recruiting: false,
+      can_override: false,
+      runtime_pending: true
     }
   };
 
@@ -188,7 +206,7 @@ window.STATScoreRoleAccess = (() => {
       sessionStorage.getItem("statscore_role") ||
       sessionStorage.getItem("role") ||
       getParam("role") ||
-      ""
+      "professional"
     );
   }
 
@@ -215,7 +233,7 @@ window.STATScoreRoleAccess = (() => {
       sessionStorage.getItem("statscore_credential_status") ||
       sessionStorage.getItem("credential_status") ||
       getParam("credential_status") ||
-      ""
+      "pending"
     ).trim().toLowerCase();
   }
 
@@ -224,7 +242,7 @@ window.STATScoreRoleAccess = (() => {
       sessionStorage.getItem("statscore_sender_label") ||
       sessionStorage.getItem("sender_label") ||
       ROLE_LABELS[normalizeRole(role)] ||
-      "Guest"
+      "Pending Runtime"
     );
   }
 
@@ -237,11 +255,15 @@ window.STATScoreRoleAccess = (() => {
   }
 
   function roleName(role = getAuthenticatedRole()) {
-    return ROLE_LABELS[normalizeRole(role)] || "Guest";
+    return ROLE_LABELS[normalizeRole(role)] || "Pending Runtime";
   }
 
   function isAdmin(role = getAuthenticatedRole()) {
     return normalizeRole(role) === "admin";
+  }
+
+  function isRuntimePending(role = getAuthenticatedRole()) {
+    return normalizeRole(role) === "professional" || !normalizeRole(role);
   }
 
   function getAllowedTargetRoles(role = getAuthenticatedRole()) {
@@ -254,13 +276,15 @@ window.STATScoreRoleAccess = (() => {
 
   function getMultiBoxSenderContext(context = {}) {
     const senderRole = normalizeRole(context.sender_role || context.role || getAuthenticatedRole());
+    const roleId = context.sender_role_id || context.role_id || getAuthenticatedRoleId();
 
     return {
       sender_user_id: context.sender_user_id || context.user_id || getAuthenticatedUserId(),
       sender_role: senderRole,
-      sender_role_id: context.sender_role_id || context.role_id || getAuthenticatedRoleId(),
+      sender_role_id: roleId,
       sender_label: context.sender_label || getSenderLabel(senderRole),
       sender_channel_locked: true,
+      runtime_pending: isRuntimePending(senderRole) || !roleId,
 
       credential_status:
         context.credential_status ||
@@ -287,8 +311,12 @@ window.STATScoreRoleAccess = (() => {
     const runtime = getMultiBoxSenderContext(context);
     const incoming = normalizeRole(payload.sender_role || payload.from_role || runtime.sender_role);
 
-    if (!runtime.sender_role) {
-      return { ok: false, reason: "Missing authenticated sender role.", runtime };
+    if (!runtime.sender_role || runtime.sender_role === "professional") {
+      return {
+        ok: false,
+        reason: "Authenticated sender role is pending. Multi-Box requires a specific locked role channel.",
+        runtime
+      };
     }
 
     if (incoming !== runtime.sender_role) {
@@ -299,7 +327,11 @@ window.STATScoreRoleAccess = (() => {
       };
     }
 
-    return { ok: true, reason: "Sender channel locked.", runtime };
+    return {
+      ok: true,
+      reason: "Sender channel locked.",
+      runtime
+    };
   }
 
   function filterSnapshotForRole(snapshot, role = getAuthenticatedRole()) {
@@ -383,6 +415,7 @@ window.STATScoreRoleAccess = (() => {
       allowed_target_roles: getAllowedTargetRoles(r),
       permissions: getPermissions(r),
       can_override: hasPermission("can_override", r),
+      runtime_pending: isRuntimePending(r) || !getAuthenticatedRoleId(),
       snapshot_loaded: !!snapshot,
       filtered_snapshot: filterSnapshotForRole(snapshot, r)
     };
@@ -422,6 +455,7 @@ window.STATScoreRoleAccess = (() => {
     hasPermission,
     roleName,
     isAdmin,
+    isRuntimePending,
 
     getAllowedTargetRoles,
     canTargetRole,
