@@ -1,11 +1,14 @@
 /* ============================================================
    STATScore™ Multi-Box Governance Engine
    File: statscore-multi-box-governance-engine.js
-   Version: STATSCORE-MULTIBOX-GOVERNANCE-ENGINE-V2
+   Version: STATSCORE-MULTIBOX-GOVERNANCE-ENGINE-V3
    Purpose:
    Enforces locked sender-channel communication governance:
    Sender Role → Target Role → Target Directory → Recipient
-   ============================================================ */
+   Drafts may be discarded.
+   Governed communications may be archived, withdrawn, recalled,
+   audited — never deleted.
+============================================================ */
 
 (function () {
   "use strict";
@@ -13,7 +16,7 @@
   window.STATScore = window.STATScore || {};
 
   const ENGINE_ID = "statscore-multibox-governance-engine";
-  const VERSION = "STATSCORE-MULTIBOX-GOVERNANCE-ENGINE-V2";
+  const VERSION = "STATSCORE-MULTIBOX-GOVERNANCE-ENGINE-V3";
 
   const GovernanceEngine = {
     engine_id: ENGINE_ID,
@@ -24,6 +27,18 @@
       LIMITED: "limited",
       RESTRICTED: "restricted",
       CLOSED: "closed"
+    },
+
+    ACTION: {
+      DRAFT_SAVED: "draft_saved",
+      DRAFT_DISCARDED: "draft_discarded",
+      MESSAGE_SENT: "message_sent",
+      BROADCAST_SENT: "broadcast_sent",
+      ARCHIVED: "archived",
+      WITHDRAWN: "withdrawn",
+      RECALLED: "recalled",
+      RECEIPT_VIEWED: "receipt_viewed",
+      AUDIT_VIEWED: "audit_viewed"
     },
 
     lower(value) {
@@ -48,6 +63,7 @@
 
     getRuntimeContext(context = {}) {
       const roleAccess = this.roleAccess();
+      const params = new URLSearchParams(window.location.search);
 
       return {
         sender_user_id:
@@ -62,7 +78,7 @@
           roleAccess?.getAuthenticatedRole?.() ||
           sessionStorage.getItem("statscore_role") ||
           sessionStorage.getItem("role") ||
-          new URLSearchParams(window.location.search).get("role") ||
+          params.get("role") ||
           "athlete"
         ),
 
@@ -72,19 +88,19 @@
           roleAccess?.getAuthenticatedRoleId?.() ||
           sessionStorage.getItem("statscore_role_id") ||
           sessionStorage.getItem("role_id") ||
-          new URLSearchParams(window.location.search).get("role_id") ||
+          params.get("role_id") ||
           null,
 
         athlete_id:
           context.athlete_id ||
           sessionStorage.getItem("statscore_athlete_id") ||
-          new URLSearchParams(window.location.search).get("athlete_id") ||
+          params.get("athlete_id") ||
           null,
 
         snapshot_id:
           context.snapshot_id ||
           sessionStorage.getItem("statscore_snapshot_id") ||
-          new URLSearchParams(window.location.search).get("snapshot_id") ||
+          params.get("snapshot_id") ||
           null
       };
     },
@@ -273,10 +289,7 @@
       const sender = this.lower(message.sender_role);
       const target = this.lower(message.target_role);
 
-      const recruiterToAthlete =
-        sender === "recruiter" && target === "athlete";
-
-      if (recruiterToAthlete && windowRule.blocks_direct_recruiter_contact) {
+      if (sender === "recruiter" && target === "athlete" && windowRule.blocks_direct_recruiter_contact) {
         return {
           blocked: true,
           reason: windowRule.rule_description || "Direct recruiter-to-athlete contact is restricted."
@@ -289,7 +302,7 @@
       };
     },
 
-    validateBroadcast(message = {}, context = {}) {
+    validateBroadcast(message = {}) {
       if (!message.is_broadcast) {
         return {
           ok: true,
@@ -317,6 +330,82 @@
       return {
         ok: true,
         reason: "Broadcast sender role authorized."
+      };
+    },
+
+    evaluateLifecycleAction(action, record = {}) {
+      const normalized = this.lower(action);
+      const status = this.lower(record.status);
+
+      const forbidden = [
+        "delete",
+        "deleted",
+        "remove",
+        "removed",
+        "destroy",
+        "purge",
+        "erase"
+      ];
+
+      if (forbidden.includes(normalized)) {
+        return {
+          allowed: false,
+          status: "blocked",
+          reason: "Governed communications cannot be deleted or altered."
+        };
+      }
+
+      if (normalized === this.ACTION.DRAFT_DISCARDED) {
+        const allowed = status === "draft";
+
+        return {
+          allowed,
+          status: allowed ? "approved" : "blocked",
+          reason: allowed
+            ? "Draft may be discarded prior to transmission."
+            : "Only unsent drafts may be discarded."
+        };
+      }
+
+      if (
+        normalized === this.ACTION.ARCHIVED ||
+        normalized === this.ACTION.WITHDRAWN ||
+        normalized === this.ACTION.RECALLED
+      ) {
+        const allowed = status === "sent" || status === "broadcast";
+
+        return {
+          allowed,
+          status: allowed ? "approved" : "blocked",
+          reason: allowed
+            ? "Governed communication lifecycle action approved. Audit required."
+            : "Only transmitted communications may be archived, withdrawn, or recalled."
+        };
+      }
+
+      if (
+        normalized === this.ACTION.MESSAGE_SENT ||
+        normalized === this.ACTION.BROADCAST_SENT
+      ) {
+        return {
+          allowed: true,
+          status: "approved",
+          reason: "Transmission requires receipt and audit record."
+        };
+      }
+
+      if (normalized === this.ACTION.DRAFT_SAVED) {
+        return {
+          allowed: true,
+          status: "approved",
+          reason: "Draft saved. No receipt required until transmission."
+        };
+      }
+
+      return {
+        allowed: true,
+        status: "approved",
+        reason: "Lifecycle action allowed."
       };
     },
 
@@ -422,7 +511,7 @@
         };
       }
 
-      const broadcast = this.validateBroadcast(message, context);
+      const broadcast = this.validateBroadcast(message);
 
       if (!broadcast.ok) {
         return {
@@ -493,12 +582,12 @@
     },
 
     init() {
-      if (window.__STATSCORE_MULTIBOX_GOVERNANCE_ENGINE_V2__) {
+      if (window.__STATSCORE_MULTIBOX_GOVERNANCE_ENGINE_V3__) {
         console.warn("[STATScore Multi-Box Governance] Duplicate initialization blocked.");
         return;
       }
 
-      window.__STATSCORE_MULTIBOX_GOVERNANCE_ENGINE_V2__ = true;
+      window.__STATSCORE_MULTIBOX_GOVERNANCE_ENGINE_V3__ = true;
 
       window.STATScoreMultiBoxGovernanceEngine = this;
       window.STATScore.MultiBoxGovernanceEngine = this;
@@ -508,7 +597,7 @@
           engine: ENGINE_ID,
           version: VERSION,
           status: "ONLINE"
-        });
+        }); 
       }
 
       console.info("[STATScore Multi-Box Governance] Engine online:", VERSION);
@@ -520,4 +609,4 @@
   } else {
     GovernanceEngine.init();
   }
-})(); 
+})(); rep
