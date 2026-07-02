@@ -1,12 +1,14 @@
 /* ============================================================
    STATScore™ Receipt Ledger Engine
    File: statscore-receipt-ledger-engine.js
-   Version: STATSCORE-RECEIPT-LEDGER-ENGINE-V2
+   Version: STATSCORE-RECEIPT-LEDGER-ENGINE-V3
    Purpose:
-   Immutable receipt chain + Stream 6 Multi-Box receipt/audit persistence.
-   Tables:
-   - sc_multibox_receipts
-   - sc_multibox_audit_events
+   Immutable receipt chain + Multi-Box receipt/audit persistence.
+
+   Canon:
+   - Drafts may be saved/discarded without receipts.
+   - Sent, broadcast, and blocked governed communications create receipts.
+   - Governed communications are never deleted or altered.
 ============================================================ */
 
 (function () {
@@ -15,7 +17,24 @@
   window.STATScore = window.STATScore || {};
 
   const ENGINE_ID = "sc-receipt-ledger-engine";
-  const VERSION = "STATSCORE-RECEIPT-LEDGER-ENGINE-V2";
+  const VERSION = "STATSCORE-RECEIPT-LEDGER-ENGINE-V3";
+
+  const RECEIPT_REQUIRED_ACTIONS = [
+    "message_sent",
+    "message_blocked",
+    "broadcast_sent",
+    "broadcast_blocked"
+  ];
+
+  const AUDIT_ONLY_ACTIONS = [
+    "draft_saved",
+    "draft_discarded",
+    "archived",
+    "withdrawn",
+    "recalled",
+    "receipt_viewed",
+    "audit_viewed"
+  ];
 
   const LEDGER = {
     initialized: false,
@@ -90,6 +109,14 @@
     );
   }
 
+  function receiptRequired(action) {
+    return RECEIPT_REQUIRED_ACTIONS.includes(lower(action));
+  }
+
+  function auditOnly(action) {
+    return AUDIT_ONLY_ACTIONS.includes(lower(action));
+  }
+
   function publishLedger() {
     window.STATScoreReceiptLedger = LEDGER;
     window.STATScore.ReceiptLedger = LEDGER;
@@ -128,11 +155,10 @@
   function buildMultiBoxReceipt(message = {}, evaluation = {}, action = "message_event") {
     return {
       local_receipt_id: makeReceiptId(action),
-
       message_id: message.id || message.message_id || null,
 
       receipt_type: "STATSCORE_MULTIBOX_RECEIPT",
-      action,
+      action: lower(action),
 
       sender_user_id: message.sender_user_id || null,
       sender_role: lower(message.sender_role || message.from_role),
@@ -151,7 +177,7 @@
       receipt_payload: {
         engine_id: ENGINE_ID,
         version: VERSION,
-        action,
+        action: lower(action),
         status: message.status || message.message_status || null,
         communication_window: message.communication_window || null,
         allowed: !!evaluation.allowed,
@@ -159,6 +185,7 @@
         window_rule: evaluation.window_rule || null,
         directory_rule: evaluation.directory_rule || null,
         locked: true,
+        immutable: true,
         created_at: now()
       }
     };
@@ -167,9 +194,9 @@
   function buildAuditEvent(message = {}, receipt = {}, eventType = "message_event", payload = {}) {
     return {
       message_id: message.id || message.message_id || null,
-      receipt_id: receipt.id || null,
+      receipt_id: receipt?.id || receipt?.receipt_id || null,
 
-      event_type: eventType,
+      event_type: lower(eventType),
 
       actor_user_id: message.sender_user_id || null,
       actor_role: lower(message.sender_role || message.from_role),
@@ -183,6 +210,8 @@
         target_directory: lower(message.target_directory || ""),
         target_recipient_id: message.target_recipient_id || message.to_user_id || null,
         status: message.status || message.message_status || null,
+        receipt_required: receiptRequired(eventType),
+        audit_only: auditOnly(eventType),
         ...payload,
         created_at: now()
       }
@@ -190,6 +219,17 @@
   }
 
   async function persistMultiBoxReceipt(receipt = {}) {
+    const action = lower(receipt.action);
+
+    if (!receiptRequired(action)) {
+      return {
+        ok: false,
+        status: "RECEIPT_NOT_REQUIRED",
+        reason: "This action is audit-only and does not create a receipt.",
+        receipt: null
+      };
+    }
+
     const client = db();
 
     if (!client) {
@@ -204,9 +244,8 @@
       .from("sc_multibox_receipts")
       .insert({
         message_id: receipt.message_id || null,
-
         receipt_type: receipt.receipt_type || "STATSCORE_MULTIBOX_RECEIPT",
-        action: receipt.action || "message_event",
+        action,
 
         sender_user_id: receipt.sender_user_id || null,
         sender_role: receipt.sender_role,
@@ -290,7 +329,32 @@
   }
 
   async function recordMultiBoxEvent(message = {}, evaluation = {}, action = "message_event", auditPayload = {}) {
-    const receiptDraft = buildMultiBoxReceipt(message, evaluation, action);
+    const normalizedAction = lower(action);
+
+    if (auditOnly(normalizedAction)) {
+      const auditDraft = buildAuditEvent(
+        message,
+        null,
+        normalizedAction,
+        {
+          ...auditPayload,
+          receipt_created: false,
+          reason: evaluation.reason || "Audit-only lifecycle event."
+        }
+      );
+
+      const auditResult = await persistAuditEvent(auditDraft);
+
+      return {
+        ok: auditResult.ok,
+        status: auditResult.ok ? "AUDIT_ONLY_EVENT_RECORDED" : "AUDIT_ONLY_EVENT_FAILED",
+        local_receipt: null,
+        receipt: null,
+        audit: auditResult
+      };
+    }
+
+    const receiptDraft = buildMultiBoxReceipt(message, evaluation, normalizedAction);
     const chained = await addToLocalChain(receiptDraft);
 
     const receiptResult = await persistMultiBoxReceipt({
@@ -309,11 +373,12 @@
     const auditDraft = buildAuditEvent(
       message,
       persistedReceipt,
-      action,
+      normalizedAction,
       {
         ...auditPayload,
         local_receipt_id: chained.local_receipt_id,
-        receipt_hash: chained.receipt_hash
+        receipt_hash: chained.receipt_hash,
+        receipt_created: !!receiptResult.ok
       }
     );
 
@@ -329,10 +394,21 @@
   }
 
   async function createReceipt(type, payload = {}, options = {}) {
+    const action = lower(options.action || payload.action || type || "runtime_event");
+
+    if (auditOnly(action)) {
+      return {
+        ok: false,
+        status: "RECEIPT_NOT_REQUIRED",
+        reason: "Audit-only lifecycle actions do not create receipts.",
+        action
+      };
+    }
+
     const genericReceipt = {
       local_receipt_id: options.receipt_id || makeReceiptId(type),
       receipt_type: upper(type || "RUNTIME_EVENT"),
-      action: lower(options.action || payload.action || type || "runtime_event"),
+      action,
 
       sender_user_id: payload.sender_user_id || options.sender_user_id || null,
       sender_role: lower(payload.sender_role || payload.actor_role || options.actor_role || "system"),
@@ -354,6 +430,7 @@
         source_type: "generic_receipt",
         status: options.status || payload.status || "recorded",
         payload,
+        immutable: true,
         created_at: now()
       }
     };
@@ -644,12 +721,12 @@
   }
 
   async function init() {
-    if (window.__SC_RECEIPT_LEDGER_ENGINE_V2__) {
+    if (window.__SC_RECEIPT_LEDGER_ENGINE_V3__) {
       console.warn("[STATScore Receipt Ledger] Duplicate initialization blocked.");
       return;
     }
 
-    window.__SC_RECEIPT_LEDGER_ENGINE_V2__ = true;
+    window.__SC_RECEIPT_LEDGER_ENGINE_V3__ = true;
 
     LEDGER.initialized = true;
     LEDGER.booted_at = now();
@@ -657,18 +734,6 @@
     LEDGER.chain.status = "ACTIVE";
 
     expose();
-
-    await createReceipt(
-      "RECEIPT_LEDGER_ENGINE_ONLINE",
-      {
-        engine_id: ENGINE_ID,
-        version: VERSION
-      },
-      {
-        status: "online",
-        persist: false
-      }
-    );
 
     if (window.STATScoreEngineBus?.emit) {
       window.STATScoreEngineBus.emit("engine_online", {
