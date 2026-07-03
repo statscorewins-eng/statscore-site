@@ -1104,12 +1104,27 @@ b.red{color:var(--red)!important}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="statscore-data.js"></script>
+
+<!-- ==========================================================
+     PHNX OS™ PLATFORM LAYER
+========================================================== -->
+<script src="phnx-professional-identity-engine.js"></script>
+<script src="phnx-workspace-registry-engine.js"></script>
+<script src="phnx-workspace-runtime.js"></script>
+<script src="phnx-session-engine.js"></script>
+<script src="phnx-organization-engine.js"></script>
+<script src="phnx-credential-authority-engine.js"></script>
+
+<!-- ==========================================================
+     STATS-CORE™ STREAM 6 COMMUNICATION LAYER
+========================================================== -->
 <script src="statscore-role-access.js"></script>
 <script src="statscore-receipt-ledger-engine.js"></script>
 <script src="statscore-multi-box-governance-engine.js"></script>
 <script src="statscore-communication-engine.js"></script>
 
 <script>
+ 
 let supabaseClient = null;
 let MBX_RUNTIME = null;
 let MBX_DIRECTORIES = [];
