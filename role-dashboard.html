@@ -1,395 +1,607 @@
-<!DOCTYPE html> 
+<!--
+==========================================================
+STATS-CORE™ OWNERSHIP HEADER
+==========================================================
+
+File:
+role-dashboard.html
+
+Asset Type:
+HTML Presentation Page
+
+Owner Stream:
+Stream 5 — Professional Operations Dashboard / CRM
+
+Primary Operational Authority:
+Stream 5 — Professional Operations Dashboard / CRM
+
+System Layer:
+Professional Operations Workspace
+
+Primary Runtime:
+statscore-role-dashboard-engine.js
+
+Previous Route:
+role-dashboard-intake.html
+login.html
+
+Current Route:
+role-dashboard.html
+
+Next Route(s):
+parent.html
+coach.html
+counselor.html
+evaluator.html
+program.html
+recruiter-access.html
+multi-box.html
+
+Consumes:
+professional_identity
+role
+role_id
+role_context
+role_context_id
+role_instance_id
+organization_context
+sport_scope
+position_event_scope
+authority_scope_requested
+assigned_access_type
+primary_workflow
+requested_workspace_tools
+communication_context
+credential_review_context
+permissions_context
+dashboard_config_key
+multibox_from_identity
+active_workspace
+
+Provides:
+professional workspace dashboard render
+active workspace selector
+workspace-specific modules
+assigned athlete visibility
+role-specific task queue
+workspace route activation
+single governed Multi-Box entry point
+
+Primary IDs:
+role
+role_id
+role_context_id
+role_instance_id
+dashboard_config_key
+phnx_professional_id
+workspace_id
+athlete_id
+snapshot_id
+
+Does NOT:
+- Create role identity
+- Issue credentials
+- Verify credentials
+- Create athlete snapshots
+- Calculate athlete intelligence
+- Generate Crystal Reports
+- Execute Multi-Box message sending
+
+Status:
+CANON LOCKED
+
+Last Governance Review:
+2026-07-01
+
+==========================================================
+-->
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>STATS-CORE™ | Role Dashboard Intake</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>STATS-CORE™ — Professional Dashboard</title>
+<link rel="icon" type="image/png" href="sc_emblem.png" />
 
 <style>
 :root{
-  --red:#ff2b1f;
-  --cyan:#00e5ff;
-  --green:#37d67a;
-  --yellow:#ffb100;
-  --dark:#06101d;
-  --panel:rgba(8,18,34,.82);
-  --line:rgba(255,255,255,.16);
-  --text:#f4f4ef;
-  --muted:#9fb1c7;
+  --red:#ff2b1f;--red2:#b90710;--gold:#f4c542;--green:#25d366;
+  --blue:#7ed8ff;--white:#f4f4ef;--panel:rgba(6,10,18,.78);
+  --panel2:rgba(8,13,20,.92);--line:rgba(255,255,255,.14);
+  --text:#f4f4ef;--muted:#aeb8c4;--max:1536px;
 }
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#000;color:var(--text);font-family:Arial,Helvetica,sans-serif}
+a{text-decoration:none;color:inherit}
+button,input,select{font-family:inherit}
 
-*{box-sizing:border-box}
-
-body{
-  margin:0;
-  font-family:Arial,Helvetica,sans-serif;
+.page{
+  width:min(var(--max),100%);
+  margin:0 auto;
+  min-height:100vh;
   background:
-    linear-gradient(rgba(2,8,18,.86),rgba(2,8,18,.94)),
-    url("stadium-bg.png");
-  background-size:cover;
-  background-position:center;
-  color:var(--text);
+    linear-gradient(90deg,rgba(0,0,0,.92),rgba(4,8,14,.88),rgba(0,0,0,.92)),
+    radial-gradient(circle at 45% 18%,rgba(255,43,31,.14),transparent 32%),
+    radial-gradient(circle at 82% 64%,rgba(126,216,255,.10),transparent 34%),
+    #020407;
 }
 
 .header{
   height:92px;
-  background:#f4f4ef;
-  color:#09111f;
-  display:flex;
+  background:linear-gradient(180deg,#fff,#ededeb);
+  display:grid;
+  grid-template-columns:390px 1fr 420px;
   align-items:center;
-  border-bottom:4px solid var(--red);
+  border-bottom:2px solid var(--red);
 }
-
-.logoBox{
-  width:310px;
+.logo-tab{
   height:92px;
-  background:#111;
+  background:linear-gradient(145deg,#151515,#050505 65%,#000);
+  clip-path:polygon(0 0,78% 0,100% 100%,0 100%);
   display:flex;
   align-items:center;
-  padding-left:36px;
-  clip-path:polygon(0 0,88% 0,100% 100%,0 100%);
+  padding-left:26px;
+  position:relative;
 }
-
-.logoBox img{max-width:220px}
-
-.headerTitle{
-  flex:1;
-  text-align:center;
-  font-weight:900;
-  letter-spacing:.34em;
-  font-size:13px;
+.logo-tab:before{content:"";position:absolute;top:0;left:0;width:140px;height:16px;background:var(--red);clip-path:polygon(0 0,92% 0,100% 100%,0 100%)}
+.logo-tab:after{content:"";position:absolute;bottom:0;left:0;right:34px;height:3px;background:var(--red)}
+.logo-tab img{width:292px;display:block}
+.header-title{text-align:center;color:#111;font-weight:900;font-size:.82rem;letter-spacing:.28em;text-transform:uppercase;line-height:1.35}
+.header-nav{display:flex;justify-content:flex-end;align-items:center;gap:10px;padding-right:22px;color:#111}
+.header-nav a{
+  font-weight:900;font-size:.66rem;letter-spacing:.10em;text-transform:uppercase;
+  padding:8px 10px;border:1px solid rgba(0,0,0,.18);background:rgba(255,255,255,.45)
 }
+.header-nav a.active{color:var(--red);border-color:var(--red);background:rgba(255,43,31,.08)}
+.user-icon{width:30px;height:30px;border:3px solid #111;border-radius:50%}
 
-.shell{
-  min-height:calc(100vh - 92px);
-  padding:34px 46px;
-}
-
-.kicker{
-  color:var(--red);
-  font-size:13px;
-  font-weight:900;
-  letter-spacing:.38em;
-  text-transform:uppercase;
-}
-
-h1{
-  margin:10px 0 28px;
-  font-size:58px;
-  font-weight:900;
-  letter-spacing:-.04em;
-}
-
-.grid{
-  display:grid;
-  grid-template-columns:1fr 340px;
-  gap:28px;
-}
-
+.main{padding:18px 24px 0}
 .panel{
-  background:var(--panel);
+  background:linear-gradient(180deg,var(--panel2),var(--panel));
   border:1px solid var(--line);
-  box-shadow:0 0 28px rgba(0,0,0,.38);
-  padding:26px;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.025);
 }
-
-.section{
-  border:1px solid var(--line);
-  padding:22px;
-  margin-bottom:20px;
-}
-
-.section h2{
-  margin:0 0 10px;
+.section-title{
   color:var(--red);
-  font-size:15px;
-  letter-spacing:.28em;
-  text-transform:uppercase;
-}
-
-.section p{
-  margin:0 0 18px;
-  color:var(--cyan);
-  font-weight:700;
-}
-
-.formGrid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:18px;
-}
-
-label{
-  display:block;
-  color:#fff;
-  font-size:12px;
-  font-weight:900;
-  letter-spacing:.22em;
-  text-transform:uppercase;
-  margin-bottom:8px;
-}
-
-input,select,textarea{
-  width:100%;
-  background:rgba(255,255,255,.06);
-  border:1px solid rgba(159,177,199,.48);
-  color:#fff;
-  padding:15px 16px;
-  font-size:15px;
-  font-weight:700;
-  outline:none;
-}
-
-textarea{min-height:110px;resize:vertical}
-
-input:focus,select:focus,textarea:focus{
-  border-color:var(--cyan);
-  box-shadow:0 0 0 1px rgba(0,229,255,.35);
-}
-
-.full{grid-column:1/-1}
-
-button,.btn{
-  display:inline-flex;
-  justify-content:center;
-  align-items:center;
-  min-height:48px;
-  padding:0 22px;
-  border:1px solid var(--cyan);
-  background:rgba(0,229,255,.12);
-  color:var(--cyan);
+  font-size:.66rem;
   font-weight:900;
   letter-spacing:.16em;
   text-transform:uppercase;
-  cursor:pointer;
-  text-decoration:none;
+  margin-bottom:10px;
 }
 
-button.primary,.btn.primary{
-  background:var(--cyan);
-  color:#06101d;
+.dashboard-shell{
+  display:grid;
+  grid-template-columns:280px 1fr 320px;
+  gap:10px;
+  align-items:start;
 }
 
-button.red{
-  border-color:var(--red);
-  background:rgba(255,43,31,.14);
-  color:#fff;
-}
+.left-rail,.right-rail,.center{display:grid;gap:10px}
+.card{padding:14px}
 
-.side h3{
-  color:var(--red);
-  font-size:13px;
-  letter-spacing:.24em;
+.name{
+  font-family:"Arial Narrow","Helvetica Neue Condensed",Impact,Arial,sans-serif;
+  font-size:2.35rem;
+  line-height:.95;
   text-transform:uppercase;
-  margin:0 0 18px;
+  color:var(--blue);
+  text-shadow:0 0 14px rgba(126,216,255,.35);
+  margin-bottom:8px;
+}
+.meta{color:var(--muted);font-size:.66rem;line-height:1.55;font-weight:800;text-transform:uppercase}
+.meta b{color:#fff}
+.id-line{margin-top:10px;color:var(--blue);font-size:.58rem;font-weight:900;word-break:break-all;text-transform:uppercase}
+
+.workspace-select{
+  width:100%;
+  min-height:42px;
+  border:1px solid rgba(126,216,255,.35);
+  background:rgba(0,0,0,.42);
+  color:#fff;
+  padding:0 10px;
+  font-size:.74rem;
+  font-weight:900;
+  text-transform:uppercase;
 }
 
-.status{
-  border-bottom:1px solid var(--line);
-  padding:12px 0;
+.nav-item{
+  height:34px;
   display:flex;
-  justify-content:space-between;
-  gap:12px;
-  font-size:13px;
+  align-items:center;
+  gap:9px;
+  padding:0 10px;
+  border:1px solid rgba(255,255,255,.08);
+  color:#dce7ef;
+  font-size:.66rem;
+  font-weight:900;
+  text-transform:capitalize;
+}
+.nav-item.active{color:#fff;background:linear-gradient(90deg,var(--red2),var(--red));border-color:rgba(255,255,255,.14)}
+.nav-item.disabled{opacity:.45;pointer-events:none}
+
+.hero{
+  min-height:190px;
+  padding:18px;
+  position:relative;
+  overflow:hidden;
+}
+.hero:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 72% 24%,rgba(126,216,255,.14),transparent 40%),
+    linear-gradient(135deg,rgba(255,43,31,.08),transparent 60%);
+  pointer-events:none;
+}
+.hero>*{position:relative;z-index:2}
+.kicker{color:var(--red);font-size:.68rem;font-weight:900;letter-spacing:.22em;text-transform:uppercase;margin-bottom:8px}
+.hero-title{
+  font-family:"Arial Narrow","Helvetica Neue Condensed",Impact,Arial,sans-serif;
+  font-size:3.1rem;
+  line-height:.92;
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+.hero-sub{color:var(--blue);font-size:.86rem;font-weight:900;text-transform:uppercase;margin-bottom:10px}
+.hero-copy{color:#dcebf4;font-size:.74rem;line-height:1.5;font-weight:800;max-width:980px}
+
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.stat{padding:13px;min-height:96px}
+.stat span{display:block;color:var(--muted);font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em}
+.stat b{display:block;font-size:1.8rem;margin-top:8px;color:#fff}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.block{padding:14px;min-height:240px}
+.row{
+  display:grid;
+  grid-template-columns:38px 1fr auto;
+  gap:10px;
+  align-items:center;
+  padding:10px 0;
+  border-bottom:1px solid rgba(255,255,255,.07);
+}
+.avatar{
+  width:28px;height:28px;border-radius:50%;
+  background:linear-gradient(180deg,#1e6cbe,#0d2037);
+  display:grid;place-items:center;font-size:.58rem;font-weight:900;
+}
+.row b{display:block;font-size:.70rem;text-transform:uppercase}
+.row span{display:block;color:var(--muted);font-size:.58rem;margin-top:2px}
+.row a,.row time{
+  color:var(--blue);
+  font-size:.56rem;
+  font-weight:900;
+  text-transform:uppercase;
 }
 
-.status b{color:var(--cyan);text-transform:uppercase}
-.status span{color:var(--yellow);font-weight:900;text-align:right}
-
-.notice{
-  margin-top:22px;
-  border-left:4px solid var(--red);
-  background:rgba(255,43,31,.10);
-  padding:16px;
-  color:#dbe7f4;
-  line-height:1.45;
-  font-weight:700;
+.tools-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.tool{
+  min-height:142px;
+  padding:14px;
+  position:relative;
+  overflow:hidden;
 }
+.tool:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(135deg,rgba(255,43,31,.07),rgba(126,216,255,.04),transparent);
+}
+.tool>*{position:relative;z-index:2}
+.icon{
+  width:34px;height:34px;border-radius:50%;
+  display:grid;place-items:center;
+  background:rgba(255,255,255,.07);
+  color:var(--red);
+  font-weight:900;
+  margin-bottom:10px;
+}
+.tool h3{font-size:.70rem;font-weight:900;text-transform:uppercase;color:#fff;margin-bottom:7px}
+.tool p{color:var(--muted);font-size:.60rem;line-height:1.4}
+.route-btn{
+  height:30px;
+  margin-top:10px;
+  border:1px solid rgba(255,255,255,.16);
+  display:grid;
+  place-items:center;
+  color:#fff;
+  font-size:.56rem;
+  font-weight:900;
+  text-transform:uppercase;
+}
+.primary-tool{border-color:rgba(255,43,31,.55)}
 
-.actions{
+.pill{
+  display:inline-flex;
+  min-height:26px;
+  align-items:center;
+  padding:6px 9px;
+  margin:4px 4px 0 0;
+  border:1px solid rgba(255,255,255,.15);
+  font-size:.55rem;
+  font-weight:900;
+  text-transform:uppercase;
+}
+.pill.green{color:var(--green);border-color:rgba(37,211,102,.45)}
+.pill.gold{color:var(--gold);border-color:rgba(244,197,66,.45)}
+.pill.blue{color:var(--blue);border-color:rgba(126,216,255,.45)}
+.pill.red{color:var(--red);border-color:rgba(255,43,31,.45)}
+
+.access-row{
+  display:grid;
+  grid-template-columns:30px 1fr auto;
+  gap:8px;
+  align-items:center;
+  padding:10px 0;
+  border-bottom:1px solid rgba(255,255,255,.07);
+}
+.access-row span{font-size:.64rem;color:#dcebf4;font-weight:800}
+.access-row b{font-size:.55rem;text-transform:uppercase}
+.green{color:var(--green)}.gold{color:var(--gold)}.blue{color:var(--blue)}.red{color:var(--red)}
+
+.flow{
+  margin-top:10px;
+  display:grid;
+  grid-template-columns:170px repeat(5,1fr) 210px;
+  min-height:58px;
+  border:1px solid var(--line);
+  background:rgba(5,9,15,.88);
+}
+.flow-title{
+  color:var(--red);
+  font-size:.74rem;
+  font-weight:900;
+  letter-spacing:.13em;
+  text-transform:uppercase;
   display:flex;
-  gap:14px;
-  flex-wrap:wrap;
-  margin-top:18px;
+  align-items:center;
+  padding-left:18px;
+  background:linear-gradient(90deg,rgba(255,43,31,.10),transparent);
+}
+.flow-step{
+  border-left:1px solid rgba(255,255,255,.08);
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:0 14px;
+}
+.flow-icon{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.08)}
+.flow-step b{display:block;font-size:.60rem;text-transform:uppercase}
+.flow-step span{color:var(--muted);font-size:.52rem}
+.request{
+  margin:8px;
+  border:1px solid var(--red);
+  color:var(--red);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:.64rem;
+  font-weight:900;
+  text-transform:uppercase;
 }
 
 .footer{
-  margin-top:34px;
-  border-top:1px solid var(--line);
-  padding-top:18px;
+  height:56px;
   display:grid;
-  grid-template-columns:220px 1fr 220px 220px;
-  gap:18px;
+  grid-template-columns:220px 1fr 260px 220px;
   align-items:center;
-  color:#c9d8e8;
-  font-size:12px;
-  font-weight:800;
+  border-top:1px solid rgba(255,255,255,.08);
+  color:#c9d6df;
+  font-size:.64rem;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  padding:0 8px;
 }
-
-.footer img{max-width:180px}
-.demo-ok{color:var(--green)}
+.footer img{width:178px}
+.footer .ok{color:var(--green);font-weight:900}
 
 @media(max-width:900px){
-  .grid{grid-template-columns:1fr}
-  .formGrid{grid-template-columns:1fr}
-  h1{font-size:42px}
-  .footer{grid-template-columns:1fr}
-  .logoBox{width:240px}
+  .header,.dashboard-shell,.grid-2,.tools-grid,.stat-grid,.flow,.footer{grid-template-columns:1fr}
+  .header{height:auto}
+  .logo-tab{width:100%}
+  .header-title,.header-nav{padding:14px;justify-content:center;flex-wrap:wrap}
 }
 </style>
 </head>
 
 <body>
+<div class="page">
 
 <header class="header">
-  <div class="logoBox">
+  <a class="logo-tab" href="index.html">
     <img src="sc_logo_black_v2.png" alt="STATS-CORE">
-  </div>
-  <div class="headerTitle">
-    NATIONAL ATHLETE INFRASTRUCTURE • CONTROLLED ACCESS
-  </div>
+  </a>
+
+  <div class="header-title">National Athlete Infrastructure • Professional Workspace</div>
+
+  <nav class="header-nav">
+    <a class="active" href="role-dashboard.html">Dashboard</a>
+    <a id="topWorkspaceLink" href="#">Workspace</a>
+    <a id="topMessagesLink" href="multi-box.html">Messages</a>
+    <a href="profile-access.html">Access</a>
+    <div class="user-icon"></div>
+  </nav>
 </header>
 
-<main class="shell">
+<main class="main">
 
-<div class="kicker">Official Professional Operating Profile Intake</div>
-<h1>ROLE DASHBOARD INTAKE</h1>
+<div class="dashboard-shell">
 
-<div class="grid">
+<aside class="left-rail">
 
-<section class="panel">
-
-  <div class="section">
-    <h2>1. Confirm Your Identity</h2>
-    <p>Create the professional identity attached to your PHNX operating profile.</p>
-
-    <div class="formGrid">
-      <div>
-        <label>First Name</label>
-        <input id="firstName" placeholder="First name">
-      </div>
-
-      <div>
-        <label>Last Name</label>
-        <input id="lastName" placeholder="Last name">
-      </div>
-
-      <div>
-        <label>Email</label>
-        <input id="email" type="email" placeholder="email@example.com">
-      </div>
-
-      <div>
-        <label>Phone</label>
-        <input id="phone" placeholder="Optional">
-      </div>
+  <section class="panel card">
+    <div class="section-title">Professional</div>
+    <div class="name" data-professional-name>Loading...</div>
+    <div class="meta">
+      <div><b data-official-title>Professional Role</b></div>
+      <div data-organization-line>Organization: Loading</div>
+      <div data-role-line>Role: Loading</div>
+      <div data-sport-line>Sport: Loading</div>
+      <div data-scope-line>Scope: Loading</div>
     </div>
-  </div>
+    <div class="id-line">PHNX ID:<br><span data-phnx-id>Pending</span></div>
+    <div class="id-line">Role ID:<br><span data-role-id>Pending</span></div>
+  </section>
 
-  <div class="section">
-    <h2>2. Confirm Your Login Role</h2>
-    <p>Your role is inherited from login. Select your operating function inside that role.</p>
-
-    <div class="formGrid">
-      <div>
-        <label>Login Role</label>
-        <select id="loginRole">
-          <option value="coach">Coach</option>
-          <option value="parent_guardian">Parent / Guardian</option>
-          <option value="counselor">Counselor</option>
-          <option value="evaluator">Evaluator</option>
-          <option value="program">Program</option>
-          <option value="recruiter">Recruiter</option>
-          <option value="admin">System Admin</option>
-        </select>
-      </div>
-
-      <div>
-        <label>Role Specialization</label>
-        <input id="roleSpecialization" placeholder="Head Coach, QB Coach, Counselor, Evaluator">
-      </div>
+  <section class="panel card">
+    <div class="section-title">Active Workspace</div>
+    <select id="workspaceSelector" class="workspace-select">
+      <option value="">Loading workspaces...</option>
+    </select>
+    <div style="margin-top:10px" id="workspacePills">
+      <span class="pill gold">Workspace Pending</span>
     </div>
-  </div>
+  </section>
 
-  <div class="section">
-    <h2>3. Create Professional Workspace</h2>
-    <p>This workspace controls dashboard behavior, Multi-Box sender context, and operational access.</p>
+  <section class="panel card">
+    <div class="section-title">Navigation</div>
+    <a class="nav-item active" href="role-dashboard.html">▦ Dashboard</a>
+    <a class="nav-item" id="workspaceNav" href="#">◫ Workspace</a>
+    <a class="nav-item" id="athletesNav" href="#">♙ Assigned Athletes</a>
+    <a class="nav-item" id="reportsNav" href="#">◇ Reports</a>
+    <a class="nav-item" id="activityNav" href="#">☰ Activity</a>
+    <a class="nav-item" id="setupNav" href="role-dashboard-intake.html">🛡 Workspace Setup</a>
+  </section>
 
-    <div class="formGrid">
-      <div>
-        <label>Organization Name</label>
-        <input id="organizationName" placeholder="School, club, program, organization">
+</aside>
+
+<section class="center">
+
+  <section class="panel hero">
+    <div class="kicker" data-workspace-kicker>Professional Workspace</div>
+    <h1 class="hero-title" data-dashboard-title>Loading Dashboard</h1>
+    <div class="hero-sub" data-dashboard-subtitle>Workspace context loading...</div>
+    <p class="hero-copy" data-dashboard-summary>
+      This dashboard displays the active professional workspace, assigned athletes, required actions, role tools, and permitted intelligence.
+    </p>
+  </section>
+
+  <section class="stat-grid">
+    <div class="panel stat"><span>Assigned Athletes</span><b data-athlete-count>—</b></div>
+    <div class="panel stat"><span>Actions Needed</span><b data-action-count>—</b></div>
+    <div class="panel stat"><span>Open Notices</span><b data-notice-count>—</b></div>
+    <div class="panel stat"><span>Workspace Status</span><b data-workspace-status>—</b></div>
+  </section>
+
+  <section class="grid-2">
+    <section class="panel block">
+      <h3 class="section-title">Assigned Athletes</h3>
+      <div id="assignedAthletes">
+        <div class="row">
+          <div class="avatar">—</div>
+          <div><b>No athletes loaded</b><span>Assigned athletes will appear after workspace access is loaded.</span></div>
+          <time>Pending</time>
+        </div>
       </div>
+    </section>
 
-      <div>
-        <label>Organization Type</label>
-        <select id="organizationType">
-          <option value="school">School</option>
-          <option value="club">Club / Travel</option>
-          <option value="recreational_league">Recreational League</option>
-          <option value="college">College / University</option>
-          <option value="training_facility">Training Facility</option>
-          <option value="evaluation_organization">Evaluation Organization</option>
-          <option value="program">Program</option>
-          <option value="organization">Other Organization</option>
-        </select>
+    <section class="panel block">
+      <h3 class="section-title">Actions Needed</h3>
+      <div id="actionsNeeded">
+        <div class="row">
+          <div class="avatar">—</div>
+          <div><b>No actions loaded</b><span>Role-specific tasks will appear when available.</span></div>
+          <time>Pending</time>
+        </div>
       </div>
+    </section>
+  </section>
 
-      <div>
-        <label>Sport / Scope</label>
-        <input id="sport" placeholder="Football, Basketball, Track, Multi-Sport">
+  <section class="tools-grid" id="workspaceTools">
+    <a class="panel tool primary-tool" href="role-dashboard-intake.html">
+      <div class="icon">🛡</div>
+      <h3>Complete Setup</h3>
+      <p>Finish or update your professional operating profile to configure this workspace.</p>
+      <div class="route-btn">Open Setup</div>
+    </a>
+  </section>
+
+  <section class="grid-2">
+    <section class="panel block">
+      <h3 class="section-title">Recent Activity</h3>
+      <div id="recentActivity">
+        <div class="row">
+          <div class="avatar">↻</div>
+          <div><b>Dashboard opened</b><span>Workspace activity will appear here.</span></div>
+          <time>Now</time>
+        </div>
       </div>
+    </section>
 
-      <div>
-        <label>Workspace Title</label>
-        <input id="workspaceTitle" placeholder="Football • Head Coach">
+    <section class="panel block">
+      <h3 class="section-title">Workspace Notices</h3>
+      <div id="workspaceNotices">
+        <div class="row">
+          <div class="avatar">!</div>
+          <div><b>Workspace review</b><span>Credential and permission review may affect available tools.</span></div>
+          <time>Open</time>
+        </div>
       </div>
-
-      <div class="full">
-        <label>Operating Notes</label>
-        <textarea id="operatingNotes" placeholder="Describe the professional operating assignment, roster context, or dashboard purpose."></textarea>
-      </div>
-    </div>
-  </div>
-
-  <div class="actions">
-    <button class="primary" id="createWorkspaceBtn">Create Workspace</button>
-    <a class="btn" id="viewDashboardBtn" href="role-dashboard.html?from=role-dashboard-intake">View Dashboard</a>
-  </div>
+    </section>
+  </section>
 
 </section>
 
-<aside class="panel side">
-  <h3>Runtime Status</h3>
+<aside class="right-rail">
 
-  <div class="status"><b>PHNX Identity</b><span id="identityStatus">Pending</span></div>
-  <div class="status"><b>Workspace Registry</b><span id="workspaceStatus">Pending</span></div>
-  <div class="status"><b>Session</b><span id="sessionStatus">Pending</span></div>
-  <div class="status"><b>Credential</b><span id="credentialStatus">Pending</span></div>
-  <div class="status"><b>Dashboard</b><span id="dashboardStatus">Locked</span></div>
+  <section class="panel card">
+    <div class="section-title">Access</div>
+    <div class="access-row"><div>♙</div><span>Athlete Access</span><b class="gold" data-athlete-access>Pending</b></div>
+    <div class="access-row"><div>◇</div><span>Reports</span><b class="gold" data-report-access>Pending</b></div>
+    <div class="access-row"><div>✉</div><span>Communication</span><b class="blue" data-communication-access>Controlled</b></div>
+    <div class="access-row"><div>✓</div><span>Credentials</span><b class="gold" data-credential-status>Review</b></div>
+  </section>
 
-  <div class="notice" id="systemMessage">
-    PHNX Platform is ready to receive professional identity and workspace context.
-  </div>
+  <section class="panel card">
+    <div class="section-title">Workspace Scope</div>
+    <div class="access-row"><div>🏟</div><span>Sport</span><b class="blue" data-scope-sport>—</b></div>
+    <div class="access-row"><div>◎</div><span>Position/Event</span><b class="blue" data-scope-position>—</b></div>
+    <div class="access-row"><div>▦</div><span>Access Type</span><b class="gold" data-access-type>—</b></div>
+    <div class="access-row"><div>☑</div><span>Workflow</span><b class="green" data-primary-workflow>—</b></div>
+  </section>
+
+  <section class="panel card">
+    <div class="section-title">Communication</div>
+    <div class="meta">
+      <div>From Identity:</div>
+      <div><b data-multibox-from>Pending</b></div>
+      <br>
+      <div>Use Messages only when communication is needed.</div>
+    </div>
+    <a class="nav-item" id="singleMessagesLink" href="multi-box.html" style="margin-top:12px">✉ Open Messages</a>
+  </section>
+
 </aside>
 
 </div>
 
+<section class="flow">
+  <div class="flow-title">Workspace<br>Path</div>
+  <a class="flow-step" href="role-dashboard-intake.html"><div class="flow-icon">▥</div><div><b>Setup</b><span>Profile</span></div></a>
+  <a class="flow-step" href="role-dashboard.html"><div class="flow-icon">▦</div><div><b>Dashboard</b><span>Workspace</span></div></a>
+  <a class="flow-step" id="flowWorkspace" href="#"><div class="flow-icon">◫</div><div><b>Workspace</b><span>Tools</span></div></a>
+  <a class="flow-step" id="flowAthletes" href="#"><div class="flow-icon">♙</div><div><b>Athletes</b><span>Assigned</span></div></a>
+  <a class="flow-step" id="flowReports" href="#"><div class="flow-icon">◇</div><div><b>Reports</b><span>Permitted</span></div></a>
+  <a class="request" id="primaryWorkspaceAction" href="#">Open Workspace →</a>
+</section>
+
 <footer class="footer">
-  <div><img src="sc_logo_black_v2.png" alt="STATS-CORE"></div>
-  <div>Official Professional Operating Profile Intake</div>
-  <div class="demo-ok">✓ Stream 4 Profile Pending</div>
-  <div>© STATS-CORE Systems<br>All Rights Reserved.</div>
+  <img src="sc_logo_black_v2.png" alt="STATS-CORE">
+  <div>Professional Operations Dashboard</div>
+  <div>Workspace Context Active</div>
+  <div class="ok">Ready ●</div>
 </footer>
 
 </main>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="statscore-data.js"></script>
 
-<!-- ==========================================================
-     PHNX OS™ PLATFORM LAYER
-========================================================== -->
+<!-- PHNX OS™ PLATFORM LAYER -->
 <script src="phnx-professional-identity-engine.js"></script>
 <script src="phnx-workspace-registry-engine.js"></script>
 <script src="phnx-workspace-runtime.js"></script>
@@ -399,176 +611,13 @@ button.red{
 <script src="phnx-notification-engine.js"></script>
 <script src="phnx-communication-services-engine.js"></script>
 
-<!-- ==========================================================
-     STATS-CORE™ APPLICATION LAYER
-========================================================== -->
-<script src="statscore-role-intake-core.js"></script>
-<script src="statscore-role-dashboard-intake-engine.js"></script>
-
-<script>
-function $(id){ return document.getElementById(id); }
-
-function val(id){
-  return ($(id)?.value || "").trim();
-}
-
-function setText(id,text){
-  const el = $(id);
-  if(el) el.textContent = text;
-}
-
-function setMessage(text,type="info"){
-  const el = $("systemMessage");
-  if(!el) return;
-  el.textContent = text;
-  el.style.borderLeftColor =
-    type === "error" ? "var(--red)" :
-    type === "success" ? "var(--green)" :
-    "var(--cyan)";
-}
-
-function readRoleFromRuntime(){
-  const params = new URLSearchParams(window.location.search);
-  return (
-    params.get("role") ||
-    sessionStorage.getItem("statscore_role") ||
-    localStorage.getItem("statscore_role") ||
-    "coach"
-  );
-}
-
-function seedRole(){
-  const role = readRoleFromRuntime();
-  $("loginRole").value = role;
-  sessionStorage.setItem("statscore_role", role);
-}
-
-async function createPHNXWorkspace(){
-  const role = val("loginRole") || "coach";
-
-  const first = val("firstName");
-  const last = val("lastName");
-  const displayName = [first,last].filter(Boolean).join(" ") || "PHNX Professional";
-
-  const professionalId =
-    sessionStorage.getItem("phnx_professional_id") ||
-    sessionStorage.getItem("statscore_professional_id") ||
-    "PHNX-PRO-" + Date.now().toString(36).toUpperCase();
-
-  const organizationName = val("organizationName") || "PHNX Runtime Organization";
-  const sport = val("sport") || null;
-  const title = val("workspaceTitle") || val("roleSpecialization") || role;
-
-  const identity = {
-    professional_id: professionalId,
-    phnx_professional_id: professionalId,
-    display_name: displayName,
-    first_name: first || null,
-    last_name: last || null,
-    email: val("email") || null,
-    phone: val("phone") || null,
-    identity_status: "active",
-    credential_status: "pending_runtime",
-    verification_status: "pending_runtime"
-  };
-
-  const organization = {
-    organization_name: organizationName,
-    organization_type: val("organizationType") || "organization",
-    primary_sport: sport,
-    supported_sports: sport ? [sport] : [],
-    verification_status: "pending_runtime",
-    governance_status: "runtime" 
-  };
-
-  const workspace = {
-    professional_id: professionalId,
-    workspace_name: [organizationName,sport,title].filter(Boolean).join(" • "),
-    workspace_type: role,
-    application: "STATS-CORE",
-    organization_name: organizationName,
-    organization_type: val("organizationType") || "organization",
-    sport,
-    assignment_title: title,
-    authority_scope: role,
-    role,
-    role_id: sessionStorage.getItem("statscore_role_id") || role + "-runtime",
-    status: "active",
-    is_active: true,
-    is_default: true,
-    metadata:{
-      source:"role-dashboard-intake",
-      operating_notes: val("operatingNotes") || null
-    }
-  };
-
-  try{
-    if(window.PHNXProfessionalIdentityEngine){
-      await window.PHNXProfessionalIdentityEngine.upsertIdentity(identity);
-      setText("identityStatus","Created");
-    }
-
-    if(window.PHNXOrganizationEngine){
-      const orgResult = await window.PHNXOrganizationEngine.createOrganization(organization);
-      window.PHNXOrganizationEngine.setActiveOrganization(orgResult.organization || organization,{silent:true});
-    }
-
-    if(window.PHNXWorkspaceRegistryEngine){
-      const result = await window.PHNXWorkspaceRegistryEngine.createWorkspace(workspace,{make_default:true});
-      const saved = result.workspace || workspace;
-      window.PHNXWorkspaceRegistryEngine.setActiveWorkspace(saved.workspace_id);
-      setText("workspaceStatus","Active");
-    }
-
-    if(window.PHNXWorkspaceRuntime){
-      await window.PHNXWorkspaceRuntime.init({force_reload:true});
-    }
-
-    if(window.PHNXSessionEngine){
-      await window.PHNXSessionEngine.startSession({
-        professional_id: professionalId,
-        role,
-        application:"STATS-CORE"
-      });
-      setText("sessionStatus","Active");
-    }
-
-    if(window.PHXNCredentialAuthorityEngine){
-      await window.PHXNCredentialAuthorityEngine.loadCredentials({force_reload:true});
-      setText("credentialStatus","Runtime");
-    }
-
-    sessionStorage.setItem("statscore_role",role);
-    sessionStorage.setItem("phnx_professional_id",professionalId);
-    sessionStorage.setItem("statscore_professional_id",professionalId);
-    sessionStorage.setItem("phnx_professional_name",displayName);
-
-    setText("dashboardStatus","Unlocked");
-    setMessage("Professional workspace created. Dashboard is ready.","success");
-
-  }catch(error){
-    console.error("[Role Dashboard Intake] Workspace creation failed:",error);
-    setMessage("Workspace creation failed. Check console for details.","error");
-  }
-}
-
-document.addEventListener("DOMContentLoaded",()=>{
-  seedRole();
-
-  $("createWorkspaceBtn")?.addEventListener("click",createPHNXWorkspace);
-
-  setTimeout(()=>{
-    if(window.PHNXWorkspaceRuntime?.getRuntime){
-      const runtime = window.PHNXWorkspaceRuntime.getRuntime();
-      if(runtime?.workspace_id){
-        setText("workspaceStatus","Loaded");
-        setText("sessionStatus","Ready");
-        setText("dashboardStatus","Ready");
-      }
-    }
-  },500);
-});
-</script>
+<!-- STATS-CORE™ STREAM 5 ROLE DASHBOARD -->
+<script src="statscore-routing.js"></script>
+<script src="statscore-role-access.js"></script>
+<script src="statscore-dashboard-map.js"></script>
+<script src="statscore-athlete-search-engine.js"></script>
+<script src="statscore-role-dashboard-config.js"></script>
+<script src="statscore-role-dashboard-engine.js"></script>
 
 </body>
 </html> 
