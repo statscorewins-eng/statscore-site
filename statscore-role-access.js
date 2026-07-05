@@ -1,24 +1,111 @@
-/* ============================================================
-   STATScore™ Role Access Spine
-   File: statscore-role-access.js
-   Version: STATSCORE-ROLE-ACCESS-V3
-   Purpose:
-   Central role permission enforcement + locked Multi-Box sender context.
+/*
+==========================================================
+STATS-CORE™ OWNERSHIP HEADER
+==========================================================
 
-   Canon:
-   - Multi-Box sender channel is locked by authenticated dashboard/session role.
-   - If no role is supplied, runtime remains pending.
-   - No fallback should silently convert unknown sender to Athlete.
-============================================================ */
+File:
+statscore-role-access.js
+
+Asset Type:
+JavaScript Infrastructure / Role Access Authority
+
+Owner Stream:
+Master Integration
+
+Primary Operational Authority:
+Master Integration
+
+Layer:
+Access Governance / Role Permissions
+
+Runtime Owner:
+Master Integration Runtime
+
+Primary Consumers:
+- login.html
+- role-dashboard-intake.html
+- role-dashboard.html
+- multi-box.html
+- protected role-aware pages
+
+Purpose:
+Provides governed role normalization, role permission enforcement,
+visibility controls, protected input locking, and locked sender
+context for governed communication.
+
+Consumes:
+- role
+- role_id
+- user_id
+- credential_status
+- snapshot_id
+- athlete_id
+- session storage
+- URL route context
+
+Provides:
+- normalized role context
+- permission checks
+- access report
+- filtered snapshot view
+- Multi-Box sender context
+- allowed target roles
+
+Primary IDs:
+- role
+- role_id
+- user_id
+- athlete_id
+- snapshot_id
+
+Cross-Stream Dependencies:
+May support access governance across all Streams.
+May not implement another Stream's business logic.
+
+Does NOT:
+- Authenticate users
+- Calculate intelligence
+- Render dashboards
+- Create athlete source records
+- Modify scores
+- Generate Crystal Reports
+- Send communications
+- Modify Supabase records
+
+Status:
+CANON LOCKED
+
+Last Governance Review:
+2026-07-05
+
+==========================================================
+*/
+
+/*
+============================================================
+STATScore™ Role Access Spine
+File: statscore-role-access.js
+Version: STATSCORE-ROLE-ACCESS-V4
+Purpose:
+Central role permission enforcement + locked Multi-Box sender context.
+
+Canon:
+- Role keys must match routing/session canon.
+- Parent / Guardian display label uses canonical role key: parent.
+- Multi-Box sender channel is locked by authenticated dashboard/session role.
+- If no specific role is supplied, runtime remains pending.
+- No fallback should silently convert unknown sender to Athlete.
+============================================================
+*/
 
 window.STATScoreRoleAccess = (() => {
   "use strict";
 
-  const VERSION = "STATSCORE-ROLE-ACCESS-V3";
+  const VERSION = "STATSCORE-ROLE-ACCESS-V4";
 
   const ROLES = {
     ATHLETE: "athlete",
-    PARENT: "parent_guardian",
+    PARENT: "parent",
     COACH: "coach",
     COUNSELOR: "counselor",
     RECRUITER: "recruiter",
@@ -29,9 +116,11 @@ window.STATScoreRoleAccess = (() => {
   };
 
   const ROLE_ALIASES = {
-    parent: "parent_guardian",
-    guardian: "parent_guardian",
-    parent_guardian: "parent_guardian",
+    parent: "parent",
+    guardian: "parent",
+    parent_guardian: "parent",
+    "parent/guardian": "parent",
+    "parent / guardian": "parent",
     head_coach: "coach",
     position_coach: "coach",
     program_admin: "program",
@@ -40,7 +129,7 @@ window.STATScoreRoleAccess = (() => {
 
   const ROLE_LABELS = {
     athlete: "Athlete",
-    parent_guardian: "Parent / Guardian",
+    parent: "Parent / Guardian",
     coach: "Coach",
     counselor: "Counselor",
     recruiter: "Recruiter",
@@ -50,15 +139,36 @@ window.STATScoreRoleAccess = (() => {
     professional: "Professional"
   };
 
+  const ALL_ROLES = [
+    "athlete",
+    "parent",
+    "coach",
+    "counselor",
+    "recruiter",
+    "evaluator",
+    "program",
+    "admin",
+    "professional"
+  ];
+
+  const PROFESSIONAL_ROLES = [
+    "parent",
+    "coach",
+    "counselor",
+    "recruiter",
+    "evaluator",
+    "program"
+  ];
+
   const MULTIBOX_TARGET_ROLES = {
-    athlete: ["parent_guardian", "coach", "counselor", "program"],
-    parent_guardian: ["coach", "counselor", "program", "recruiter"],
-    coach: ["athlete", "parent_guardian", "counselor", "evaluator", "recruiter", "program"],
-    counselor: ["athlete", "parent_guardian", "coach", "program"],
-    recruiter: ["coach", "program", "parent_guardian", "athlete"],
+    athlete: ["parent", "coach", "counselor", "program"],
+    parent: ["coach", "counselor", "program", "recruiter"],
+    coach: ["athlete", "parent", "counselor", "evaluator", "recruiter", "program"],
+    counselor: ["athlete", "parent", "coach", "program"],
+    recruiter: ["coach", "program", "parent", "athlete"],
     evaluator: ["athlete", "coach", "program"],
-    program: ["coach", "recruiter", "evaluator", "parent_guardian", "athlete"],
-    admin: ["athlete", "parent_guardian", "coach", "counselor", "recruiter", "evaluator", "program"],
+    program: ["coach", "recruiter", "evaluator", "parent", "athlete"],
+    admin: ["athlete", "parent", "coach", "counselor", "recruiter", "evaluator", "program"],
     professional: []
   };
 
@@ -76,7 +186,7 @@ window.STATScoreRoleAccess = (() => {
       can_override: false
     },
 
-    parent_guardian: {
+    parent: {
       view_profile: true,
       view_private_identity: true,
       view_academics: true,
@@ -199,15 +309,45 @@ window.STATScoreRoleAccess = (() => {
     return ROLE_ALIASES[raw] || raw;
   }
 
+  function isKnownRole(role) {
+    return ALL_ROLES.includes(normalizeRole(role));
+  }
+
+  function isProfessionalRole(role) {
+    return PROFESSIONAL_ROLES.includes(normalizeRole(role));
+  }
+
   function getAuthenticatedRole() {
-    return normalizeRole(
+    const role = normalizeRole(
       core()?.getRole?.() ||
       routing()?.getRole?.() ||
       sessionStorage.getItem("statscore_role") ||
+      sessionStorage.getItem("statscore_active_role_v1") ||
       sessionStorage.getItem("role") ||
       getParam("role") ||
-      "professional"
+      ""
     );
+
+    if (!role || !isKnownRole(role)) return "professional";
+
+    return role;
+  }
+
+  function setAuthenticatedRole(role) {
+    const normalized = normalizeRole(role);
+
+    if (!normalized || !isKnownRole(normalized)) {
+      sessionStorage.setItem("statscore_role", "professional");
+      return "professional";
+    }
+
+    sessionStorage.setItem("statscore_role", normalized);
+    sessionStorage.setItem("statscore_active_role_v1", normalized);
+    localStorage.setItem("statscore_active_role_v1", normalized);
+
+    core()?.setRole?.(normalized);
+
+    return normalized;
   }
 
   function getAuthenticatedRoleId() {
@@ -263,7 +403,8 @@ window.STATScoreRoleAccess = (() => {
   }
 
   function isRuntimePending(role = getAuthenticatedRole()) {
-    return normalizeRole(role) === "professional" || !normalizeRole(role);
+    const normalized = normalizeRole(role);
+    return normalized === "professional" || !normalized || !isKnownRole(normalized);
   }
 
   function getAllowedTargetRoles(role = getAuthenticatedRole()) {
@@ -412,6 +553,8 @@ window.STATScoreRoleAccess = (() => {
       role_id: getAuthenticatedRoleId(),
       user_id: getAuthenticatedUserId(),
       credential_status: getCredentialStatus(),
+      is_known_role: isKnownRole(r),
+      is_professional_role: isProfessionalRole(r),
       allowed_target_roles: getAllowedTargetRoles(r),
       permissions: getPermissions(r),
       can_override: hasPermission("can_override", r),
@@ -422,7 +565,7 @@ window.STATScoreRoleAccess = (() => {
   }
 
   function init(options = {}) {
-    const role = normalizeRole(options.role || getAuthenticatedRole());
+    const role = setAuthenticatedRole(options.role || getAuthenticatedRole());
 
     applyVisibilityControls(role);
     lockUnauthorizedInputs(role);
@@ -438,14 +581,20 @@ window.STATScoreRoleAccess = (() => {
   return {
     VERSION,
     ROLES,
+    ROLE_ALIASES,
     ROLE_LABELS,
+    ALL_ROLES,
+    PROFESSIONAL_ROLES,
     PERMISSIONS,
     MULTIBOX_TARGET_ROLES,
 
     normalizeRole,
+    isKnownRole,
+    isProfessionalRole,
 
     getRole: getAuthenticatedRole,
     getAuthenticatedRole,
+    setAuthenticatedRole,
     getAuthenticatedRoleId,
     getAuthenticatedUserId,
     getCredentialStatus,
