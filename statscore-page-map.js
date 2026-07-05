@@ -73,23 +73,19 @@ Status:
 CANON LOCKED
 
 Last Governance Review:
-2026-06-27
+2026-07-05
 
 ==========================================================
-*/ 
-
-Tyron Steele <tsteelefpa@gmail.com>
-5:21 PM (5 minutes ago)
-to me
+*/
 
 window.STATSCORE_PAGE_MAP = {
-  map_version: "v1.0",
+  map_version: "v1.1",
   map_status: "ACTIVE",
   map_name: "STATS-CORE Page Map",
   doctrine: "Pages are shells/templates. Functionality is activated through engines, registry records, and snapshot_id routing.",
 
   global_rules: [
-    "Do not rebuild existing shells.",
+    "Do not rebuild existing shells unless formally ordered.",
     "Do not hardcode athlete-specific records into static HTML pages.",
     "All athlete data must load by snapshot_id from registry/source records.",
     "Dashboard = navigation and awareness layer only.",
@@ -103,7 +99,10 @@ window.STATSCORE_PAGE_MAP = {
     PARTIAL: "Shell exists, but functionality still needs activation.",
     FUNCTIONAL_BUILD_NEEDED: "Page exists but needs real system logic/data.",
     MISSING: "Required page does not currently exist.",
-    SUPPORT: "Legal/support/infrastructure page."
+    SUPPORT: "Legal/support/infrastructure page.",
+    AUDITED_PASS: "Asset has passed Stream 1 audit.",
+    PASS_WITH_ADJUSTMENTS: "Asset passed audit but requires documented corrections.",
+    FAILED_AUDIT: "Asset failed audit and requires build adjustment."
   },
 
   pages: {
@@ -112,15 +111,31 @@ window.STATSCORE_PAGE_MAP = {
       purpose: "Public landing/entry point into STATS-CORE.",
       routes_to: ["login.html"],
       powered_by: [],
-      build_status: "PARTIAL"
+      build_status: "AUDITED_PASS"
     },
 
     "login.html": {
       layer: "Access / Role Detection",
-      purpose: "Detect user role and route user into athlete or role intake flow.",
+      purpose: "Authenticate demo users, detect user role, and route user into athlete, professional, or admin flow.",
       routes_to: ["snapshot-intake.html", "role-dashboard-intake.html", "system.html"],
-      powered_by: ["statscore-role-access.js", "statscore-routing.js"],
-      build_status: "PARTIAL"
+      powered_by: ["statscore-routing.js"],
+      build_status: "AUDITED_PASS"
+    },
+
+    "privacy.html": {
+      layer: "Legal",
+      purpose: "Public-facing privacy policy and data protection notice.",
+      routes_to: ["index.html", "login.html", "terms.html"],
+      powered_by: [],
+      build_status: "AUDITED_PASS"
+    },
+
+    "terms.html": {
+      layer: "Legal",
+      purpose: "Public-facing terms of service.",
+      routes_to: ["index.html", "login.html", "privacy.html"],
+      powered_by: [],
+      build_status: "AUDITED_PASS"
     },
 
     "snapshot-intake.html": {
@@ -177,6 +192,24 @@ window.STATSCORE_PAGE_MAP = {
         "statscore-explainability-engine.js"
       ],
       build_status: "PARTIAL"
+    },
+
+    "role-dashboard-intake.html": {
+      layer: "Professional Role Intake",
+      purpose: "Captures professional role identity/context after login and prepares professional operating context.",
+      routes_to: ["role-dashboard.html"],
+      powered_by: ["statscore-routing.js", "statscore-role-access.js"],
+      build_status: "PARTIAL",
+      do_not_drift: "All non-athlete roles route through this intake page."
+    },
+
+    "role-dashboard.html": {
+      layer: "Professional Operations Dashboard",
+      purpose: "Shared professional operating environment. Loads role/workspace-specific modules according to role, credentials, sport, position/event, and permissions.",
+      routes_to: ["parent.html", "coach.html", "counselor.html", "recruiter-access.html", "evaluator.html", "program.html", "multi-box.html"],
+      powered_by: ["statscore-routing.js", "statscore-role-access.js"],
+      build_status: "PARTIAL",
+      do_not_drift: "Professional dashboards share one governed shell. Role-specific behavior is activated by context."
     },
 
     "eligibility.html": {
@@ -420,22 +453,6 @@ window.STATSCORE_PAGE_MAP = {
       ],
       build_status: "PARTIAL",
       do_not_drift: "System.html is not Athlete Dashboard."
-    },
-
-    "privacy.html": {
-      layer: "Legal",
-      purpose: "Privacy policy.",
-      routes_to: [],
-      powered_by: [],
-      build_status: "SUPPORT"
-    },
-
-    "terms.html": {
-      layer: "Legal",
-      purpose: "Terms of use.",
-      routes_to: [],
-      powered_by: [],
-      build_status: "SUPPORT"
     },
 
     "opportunities.html": {
