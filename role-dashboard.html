@@ -1,4 +1,4 @@
-<!--
+<!-- 
 ==========================================================
 STATS-CORE™ OWNERSHIP HEADER
 ==========================================================
@@ -601,7 +601,12 @@ button,input,select{font-family:inherit}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="statscore-data.js"></script>
 
-<!-- PHNX OS™ PLATFORM LAYER -->
+<!-- ==========================================================
+     PHNX OS™ PLATFORM LAYER
+     Owns professional identity, workspace registry, session,
+     credential authority, organization context, notifications,
+     and communication services.
+========================================================== -->
 <script src="phnx-professional-identity-engine.js"></script>
 <script src="phnx-workspace-registry-engine.js"></script>
 <script src="phnx-workspace-runtime.js"></script>
@@ -611,13 +616,30 @@ button,input,select{font-family:inherit}
 <script src="phnx-notification-engine.js"></script>
 <script src="phnx-communication-services-engine.js"></script>
 
-<!-- STATS-CORE™ STREAM 5 ROLE DASHBOARD -->
+<!-- ==========================================================
+     STATS-CORE™ SHARED CORE
+========================================================== -->
 <script src="statscore-routing.js"></script>
+<script src="statscore-runtime-state-engine.js"></script>
 <script src="statscore-role-access.js"></script>
 <script src="statscore-dashboard-map.js"></script>
 <script src="statscore-athlete-search-engine.js"></script>
+
+<!-- ==========================================================
+     STATS-CORE™ STREAM 5 — PROFESSIONAL WORKSPACE DASHBOARD
+     Stream 5 consumes active_workspace_id.
+     It does not recreate professional identity.
+========================================================== -->
+<script src="statscore-professional-workspace-runtime.js"></script>
+<script src="statscore-active-workspace-engine.js"></script>  
+<script src="statscore-role-context-engine.js"></script>
+<script src="statscore-role-permission-engine.js"></script>
+<script src="statscore-role-navigation-engine.js"></script>
+<script src="statscore-role-widget-engine.js"></script>
+<script src="statscore-role-dashboard-state-engine.js"></script>
 <script src="statscore-role-dashboard-config.js"></script>
-<script src="statscore-role-dashboard-engine.js"></script>
+<script src="statscore-role-dashboard-engine.js"></script> 
+
 
 </body>
 </html> 
