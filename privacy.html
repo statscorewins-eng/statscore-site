@@ -1,47 +1,550 @@
+<!--
+==========================================================
+STATS-CORE™ OWNERSHIP HEADER
+==========================================================
+
+File:
+privacy.html
+
+Asset Type:
+HTML Legal / Public Trust Page
+
+Owner Stream:
+Stream 1 — Public Access / Login
+
+Primary Operational Authority:
+Stream 1 — Public Access
+
+System Layer:
+Public Legal / Privacy Governance
+
+Primary Runtime:
+None
+
+Primary Intelligence Engine(s):
+None
+
+Previous Route:
+index.html / login.html / system navigation
+
+Current Route:
+privacy.html
+
+Next Route(s):
+index.html
+login.html
+terms.html
+
+Consumes:
+Public navigation context only
+
+Provides:
+Privacy governance, public trust language, athlete data protection notice,
+professional identity privacy notice, credential visibility notice, and
+communication/audit record notice.
+
+Primary IDs:
+None
+
+Primary Database Tables:
+None
+
+Cross-Stream Dependencies:
+References privacy implications for athlete data, professional identity,
+credential authority, communication governance, Crystal/Exposure publishing,
+and runtime audit records.
+
+Does NOT:
+- Authenticate users
+- Calculate intelligence
+- Create snapshots
+- Modify athlete data
+- Modify professional records
+- Issue credentials
+- Generate Crystal Reports
+- Execute Multi-Box communication
+- Query database tables
+
+Status:
+CANON LOCKED
+
+Last Governance Review:
+2026-07-05
+
+==========================================================
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Privacy Policy — STATSCORE™</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>STATS-CORE™ | Privacy Policy</title>
+
+<meta name="title" content="STATS-CORE™ | Privacy Policy" />
+<meta
+  name="description"
+  content="STATS-CORE™ Privacy Policy governing athlete data, professional identity, credential visibility, communication records, recruiting visibility, and system audit protections."
+/>
+
+<link rel="icon" type="image/png" href="sc_emblem.png" />
+<link rel="apple-touch-icon" href="sc_emblem.png" />
 
 <style>
-body{
-background:#050505;
-color:#f3f4f6;
-font-family:Arial, sans-serif;
-max-width:900px;
-margin:auto;
-padding:40px 20px;
-line-height:1.6;
+:root{
+  --red:#e02020;
+  --red-bright:#ff3434;
+  --black:#05070a;
+  --dark:#0b1018;
+  --panel:#111823;
+  --line:rgba(224,32,32,.45);
+  --text:#f4f4f1;
+  --muted:#aeb7c3;
+  --white:#ecebe6;
 }
-h1{color:#c9a227;}
-a{color:#c9a227;}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+html,body{
+  width:100%;
+  min-height:100%;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#05070a;
+  color:var(--text);
+}
+
+body{
+  background:
+    linear-gradient(180deg,rgba(5,7,10,.98),rgba(8,12,18,.98)),
+    radial-gradient(circle at top,rgba(224,32,32,.18),transparent 44%);
+}
+
+.topbar{
+  width:100%;
+  background:var(--white);
+  color:#10131a;
+  border-bottom:3px solid var(--red);
+}
+
+.topbar-inner{
+  width:min(1180px,100%);
+  margin:0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px;
+  padding:18px 24px;
+}
+
+.logo{
+  width:260px;
+  max-width:56vw;
+}
+
+.nav{
+  display:flex;
+  align-items:center;
+  gap:24px;
+  font-size:.82rem;
+  font-weight:900;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+
+.nav a{
+  color:#111827;
+  text-decoration:none;
+}
+
+.nav a.active{
+  color:var(--red);
+  border-bottom:2px solid var(--red);
+  padding-bottom:7px;
+}
+
+.hero{
+  width:min(1180px,100%);
+  margin:0 auto;
+  padding:54px 24px 20px;
+}
+
+.kicker{
+  color:var(--red-bright);
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.26em;
+  text-transform:uppercase;
+  margin-bottom:12px;
+}
+
+h1{
+  font-size:clamp(2.8rem,6vw,5.4rem);
+  line-height:.92;
+  letter-spacing:-.06em;
+  text-transform:uppercase;
+  margin-bottom:20px;
+}
+
+.hero p{
+  max-width:860px;
+  color:#d8e0ea;
+  font-size:1.05rem;
+  line-height:1.7;
+  font-weight:700;
+}
+
+.content{
+  width:min(1180px,100%);
+  margin:0 auto;
+  padding:28px 24px 70px;
+  display:grid;
+  grid-template-columns:1fr 320px;
+  gap:28px;
+}
+
+.policy{
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.035);
+  padding:34px;
+}
+
+.section{
+  padding:26px 0;
+  border-bottom:1px solid rgba(255,255,255,.10);
+}
+
+.section:first-child{
+  padding-top:0;
+}
+
+.section:last-child{
+  border-bottom:none;
+  padding-bottom:0;
+}
+
+h2{
+  color:#fff;
+  font-size:1.2rem;
+  line-height:1.25;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  margin-bottom:14px;
+}
+
+p{
+  color:#cbd5e1;
+  font-size:.98rem;
+  line-height:1.7;
+  margin-bottom:12px;
+}
+
+ul{
+  margin:12px 0 0 22px;
+  color:#cbd5e1;
+  line-height:1.7;
+}
+
+li{
+  margin-bottom:8px;
+}
+
+strong{
+  color:#fff;
+}
+
+.side{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+
+.card{
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.035);
+  padding:22px;
+}
+
+.card b{
+  display:block;
+  color:var(--red-bright);
+  font-size:.72rem;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  margin-bottom:10px;
+}
+
+.card span{
+  display:block;
+  color:#fff;
+  font-weight:900;
+  line-height:1.45;
+}
+
+.footer{
+  width:min(1180px,100%);
+  margin:0 auto;
+  padding:0 24px 36px;
+  color:#8d98a5;
+  font-size:.72rem;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+}
+
+@media(max-width:900px){
+  .topbar-inner{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .nav{
+    flex-wrap:wrap;
+    gap:16px;
+  }
+
+  .content{
+    grid-template-columns:1fr;
+  }
+
+  .policy{
+    padding:24px;
+  }
+}
 </style>
 </head>
 
 <body>
 
-<h1>Privacy Policy</h1>
+<header class="topbar">
+  <div class="topbar-inner">
+    <img class="logo" src="sc_blk_logo_i.png" alt="STATS-CORE Athlete Lifecycle System">
 
-<p>STATSCORE™ respects your privacy and is committed to protecting your information.</p>
+    <nav class="nav">
+      <a href="index.html">Entry</a>
+      <a href="login.html">Login</a>
+      <a class="active" href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+    </nav>
+  </div>
+</header>
 
-<h3>Information We Collect</h3>
-<p>We may collect basic information such as name, email, and athletic performance data when voluntarily submitted.</p>
+<section class="hero">
+  <div class="kicker">Public Trust / Privacy Governance</div>
+  <h1>Privacy Policy</h1>
+  <p>
+    STATS-CORE™ is an athlete lifecycle infrastructure system. This policy explains how athlete data,
+    professional identity information, credential visibility, communication records, recruiting visibility,
+    and audit records are protected inside the governed STATS-CORE environment.
+  </p>
+</section>
 
-<h3>How We Use Information</h3>
-<p>Information is used strictly for performance evaluation, system improvement, and institutional reporting.</p>
+<main class="content">
 
-<h3>Data Protection</h3>
-<p>All data is handled securely and is not sold or shared with unauthorized third parties.</p>
+  <article class="policy">
 
-<h3>Third-Party Services</h3>
-<p>We may use secure third-party services for processing and analytics.</p>
+    <section class="section">
+      <h2>1. Privacy Purpose</h2>
+      <p>
+        STATS-CORE™ collects and organizes information to support athlete lifecycle management,
+        performance documentation, eligibility awareness, recruiting visibility, governed communication,
+        credential verification, and system audit integrity.
+      </p>
+      <p>
+        The system is designed to protect athletes, families, professionals, institutions, and authorized
+        users by separating public access, private records, credential authority, intelligence interpretation,
+        communication governance, and exposure publishing.
+      </p>
+    </section>
 
-<h3>Consent</h3>
-<p>By using STATSCORE™, you consent to this policy.</p>
+    <section class="section">
+      <h2>2. Information We May Collect</h2>
+      <p>STATS-CORE may collect information voluntarily submitted by authorized users, including:</p>
+      <ul>
+        <li>Athlete identity information, such as name, school/program, city/state, graduation class, and sport.</li>
+        <li>Athletic performance information, such as production records, measurements, metrics, awards, and verified achievements.</li>
+        <li>Academic and eligibility-related information where submitted for pathway awareness.</li>
+        <li>Media links, profile assets, headshots, highlights, game film, and exposure materials.</li>
+        <li>Parent/guardian consent and approval status.</li>
+        <li>Professional identity information, including role, organization, sport scope, position/event scope, and workspace assignments.</li>
+        <li>PHNX professional credential status, authorization scope, renewal status, and credential audit history.</li>
+        <li>Communication records, receipts, permissions, message windows, and audit trail metadata.</li>
+        <li>Runtime and access information needed to preserve system security, route users, and monitor operational integrity.</li>
+      </ul>
+    </section>
 
-<p><a href="index.html">← Back to Home</a></p>
+    <section class="section">
+      <h2>3. Athlete Data Protection</h2>
+      <p>
+        Athlete data is treated as governed lifecycle information. STATS-CORE does not treat athlete data
+        as casual public content. Athlete records may include sensitive performance, eligibility, recruiting,
+        development, and exposure information.
+      </p>
+      <p>
+        Athlete visibility is controlled through approval status, role permissions, credential authority,
+        verification status, and system governance rules.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>4. Parent / Guardian Consent</h2>
+      <p>
+        Where parent or guardian approval is required, athlete profile visibility, media exposure,
+        recruiter access, communication permissions, and related system functions may be restricted until
+        approval is granted.
+      </p>
+      <p>
+        Parent/guardian approval, denial, modification, revocation, and pending status may be recorded for
+        governance, compliance, and audit purposes.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>5. Professional Identity and Workspace Privacy</h2>
+      <p>
+        Professional users may operate through a PHNX Professional Identity and one or more Professional
+        Workspaces. A workspace represents an operational assignment, such as coach, evaluator, trainer,
+        counselor, recruiter, program administrator, or related professional function.
+      </p>
+      <p>
+        Workspace activity may be associated with the professional identity for audit continuity,
+        credential validation, communication governance, evidence attribution, and operational accountability.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>6. Credential Visibility</h2>
+      <p>
+        PHNX professional credential information may be displayed where necessary to verify authority,
+        support professional attribution, confirm authorized modules, or establish trust in evidence
+        submitted to STATS-CORE.
+      </p>
+      <p>
+        Credential visibility may include credential status, authorized sport, authorized position/event,
+        expiration state, suspension state, revocation state, and certification authority.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>7. Recruiting Visibility Boundaries</h2>
+      <p>
+        STATS-CORE recognizes the doctrine that <strong>Exposure does not equal Interest, Communication,
+        Offer, Commitment, or Placement</strong>.
+      </p>
+      <p>
+        Recruiting visibility may be governed by role permissions, parent/guardian approval, athlete profile
+        status, credential authorization, communication windows, and system access controls.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>8. Communication Records and Multi-Box™ Governance</h2>
+      <p>
+        Governed communication may create records, receipts, timestamps, role context, message status,
+        routing metadata, and audit history. These records are used to protect users, preserve accountability,
+        and support communication governance.
+      </p>
+      <p>
+        Communication permissions may vary by role, athlete status, guardian approval, credential authority,
+        and system-defined communication windows.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>9. Intelligence, Verification, and Reports</h2>
+      <p>
+        STATS-CORE may use governed records to support athlete intelligence, verification confidence,
+        pathway awareness, development interpretation, Crystal Reports, Crystal Registry entries, exposure
+        products, and related lifecycle outputs.
+      </p>
+      <p>
+        Intelligence outputs are governed by system rules and are not created by this public privacy page.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>10. Third-Party Services</h2>
+      <p>
+        STATS-CORE may use secure third-party infrastructure for hosting, authentication, storage,
+        analytics, communications, media processing, operational monitoring, or database services.
+      </p>
+      <p>
+        Third-party services are used to support system operation and are not authorized to sell STATS-CORE
+        data for unrelated purposes.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>11. Data Sharing</h2>
+      <p>
+        STATS-CORE does not sell athlete or professional data. Information may be shared only within
+        governed system functions, authorized user roles, approved visibility rules, verified credential
+        permissions, institutional reporting workflows, or legally required circumstances.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>12. Security and Audit</h2>
+      <p>
+        STATS-CORE may maintain access logs, session context, routing history, credential status,
+        communication receipts, audit events, and runtime records to preserve system integrity.
+      </p>
+      <p>
+        These records support operational monitoring, self-healing, compliance review, and cross-stream
+        governance.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>13. User Responsibilities</h2>
+      <p>
+        Users are responsible for submitting accurate information, maintaining credential integrity,
+        respecting athlete privacy, following communication rules, and using STATS-CORE only through
+        authorized system pathways.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>14. Policy Updates</h2>
+      <p>
+        This policy may be updated as STATS-CORE expands its governed athlete lifecycle infrastructure.
+        Updated versions may reflect changes in public access, athlete records, professional workspaces,
+        credential authority, communication governance, Crystal outputs, or operational audit requirements.
+      </p>
+    </section>
+
+  </article>
+
+  <aside class="side">
+    <div class="card">
+      <b>System Layer</b>
+      <span>Public Legal / Privacy Governance</span>
+    </div>
+
+    <div class="card">
+      <b>Data Sale Policy</b>
+      <span>STATS-CORE does not sell athlete or professional data.</span>
+    </div>
+
+    <div class="card">
+      <b>Visibility Doctrine</b>
+      <span>Exposure does not equal Interest, Communication, Offer, Commitment, or Placement.</span>
+    </div>
+
+    <div class="card">
+      <b>Stream Boundary</b>
+      <span>This page presents privacy governance only. It does not execute intelligence or modify records.</span>
+    </div>
+  </aside>
+
+</main>
+
+<footer class="footer">
+  STATS-CORE™ Systems · Controlled Access Infrastructure · Privacy Governance
+</footer>
 
 </body>
 </html> 
