@@ -71,16 +71,16 @@ Status:
 CANON LOCKED
 
 Last Governance Review:
-2026-06-27
+2026-07-05
 
 ==========================================================
-*/ 
+*/
 
 window.STATSCORE_SYSTEM_MAP = {
-  map_version: "v1.1",
+  map_version: "v1.2",
   map_status: "ACTIVE",
   system_name: "STATS-CORE",
-  system_identity: "Athlete Decision Intelligence System",
+  system_identity: "Athlete Lifecycle Intelligence System",
 
   prime_directive: {
     shell_status: "BUILT",
@@ -174,7 +174,23 @@ window.STATSCORE_SYSTEM_MAP = {
       layer: "Authentication / Role Detection",
       purpose: "Detect user role and route to correct intake/dashboard path.",
       next: ["snapshot-intake.html", "role-dashboard-intake.html", "system.html"],
-      rule: "Athlete routes to Snapshot Intake. Non-athlete roles route to universal role intake."
+      rule: "Athlete routes to Snapshot Intake. Non-athlete roles route to universal role intake. Admin routes to System Operations."
+    },
+
+    "privacy.html": {
+      role: "Public",
+      layer: "Public Legal / Privacy",
+      purpose: "Public-facing privacy policy and data protection notice.",
+      next: ["index.html", "login.html", "terms.html"],
+      data_rule: "Public information page only. Does not authenticate users, modify records, or generate intelligence."
+    },
+
+    "terms.html": {
+      role: "Public",
+      layer: "Public Legal / Terms",
+      purpose: "Public-facing terms of service.",
+      next: ["index.html", "login.html", "privacy.html"],
+      data_rule: "Public information page only. Does not authenticate users, modify records, or generate intelligence."
     },
 
     "snapshot-intake.html": {
@@ -278,6 +294,34 @@ window.STATSCORE_SYSTEM_MAP = {
       ]
     },
 
+    "role-dashboard-intake.html": {
+      role: "Professional",
+      layer: "Professional Role Intake",
+      purpose: "Captures professional role identity/context after login and prepares professional operating context.",
+      previous: ["login.html"],
+      next: ["role-dashboard.html"],
+      connected_engines: ["statscore-routing.js", "statscore-role-access.js"],
+      rule: "All non-athlete professional roles route through this intake page."
+    },
+
+    "role-dashboard.html": {
+      role: "Professional",
+      layer: "Professional Operations Dashboard",
+      purpose: "Shared professional operating environment for authenticated professional users.",
+      previous: ["role-dashboard-intake.html"],
+      next: [
+        "parent.html",
+        "coach.html",
+        "counselor.html",
+        "recruiter-access.html",
+        "evaluator.html",
+        "program.html",
+        "multi-box.html"
+      ],
+      connected_engines: ["statscore-routing.js", "statscore-role-access.js"],
+      rule: "Dashboard behavior follows role context, credential status, sport scope, position/event scope, and permissions."
+    },
+
     "multi-box.html": {
       role: "All Authorized Roles",
       layer: "Governed Communication",
@@ -299,6 +343,7 @@ window.STATSCORE_SYSTEM_MAP = {
       role: "Admin / Back Office",
       layer: "Back Office/Admin",
       purpose: "Administrative command surface for system oversight.",
+      previous: ["login.html"],
       do_not_drift: [
         "System.html is not the athlete dashboard.",
         "System.html is the back office/admin layer."
@@ -507,18 +552,6 @@ window.STATSCORE_SYSTEM_MAP = {
       layer: "Action Plan Intelligence",
       purpose: "Recommended future page for prioritized next actions across academics, development, exposure, verification, and pathway.",
       build_status: "MISSING"
-    },
-
-    "privacy.html": {
-      role: "Public",
-      layer: "Legal",
-      purpose: "Privacy policy."
-    },
-
-    "terms.html": {
-      role: "Public",
-      layer: "Legal",
-      purpose: "Terms of use."
     }
   },
 
