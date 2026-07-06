@@ -44,6 +44,7 @@ Athletic input
 Academic input
 Media input
 Guardian input
+snapshot_id when reviewing existing intake
 
 Provides:
 athlete_id
@@ -76,6 +77,7 @@ Does NOT:
 - Execute communication
 - Issue credentials
 - Configure professional dashboards
+- Expose full role rail
 
 Status:
 CANON LOCKED
@@ -91,7 +93,7 @@ Last Governance Review:
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>STATS-CORE™ — Snapshot Intake</title>
+<title>STATS-CORE™ — Athlete Intake</title>
 
 <style>
 :root{
@@ -138,7 +140,7 @@ a{text-decoration:none;color:inherit}
   height:92px;
   background:linear-gradient(180deg,#fff,#ededeb);
   display:grid;
-  grid-template-columns:390px 1fr 410px;
+  grid-template-columns:390px 1fr 560px;
   align-items:center;
   border-bottom:2px solid var(--red);
 }
@@ -184,8 +186,8 @@ a{text-decoration:none;color:inherit}
   text-align:center;
   color:#111;
   font-weight:900;
-  font-size:.82rem;
-  letter-spacing:.32em;
+  font-size:.78rem;
+  letter-spacing:.24em;
   text-transform:uppercase;
 }
 
@@ -193,31 +195,26 @@ a{text-decoration:none;color:inherit}
   display:flex;
   justify-content:flex-end;
   align-items:center;
-  gap:12px;
+  gap:10px;
   padding-right:24px;
   height:100%;
   color:#111;
+  flex-wrap:wrap;
 }
 
 .header-nav a{
   font-weight:900;
-  font-size:.75rem;
-  letter-spacing:.13em;
+  font-size:.66rem;
+  letter-spacing:.1em;
   text-transform:uppercase;
-  padding-bottom:12px;
+  padding:9px 0;
   border-bottom:2px solid transparent;
+  white-space:nowrap;
 }
 
 .header-nav a.active{
   color:var(--red);
   border-bottom-color:var(--red);
-}
-
-.user-icon{
-  width:30px;
-  height:30px;
-  border:3px solid #111;
-  border-radius:50%;
 }
 
 .main{
@@ -751,6 +748,23 @@ button.btn:hover,a.btn:hover{
   font-weight:900;
 }
 
+@media(max-width:1100px){
+  .header{
+    grid-template-columns:330px 1fr;
+    height:auto;
+  }
+
+  .header-title{
+    padding:14px;
+  }
+
+  .header-nav{
+    grid-column:1 / -1;
+    justify-content:center;
+    padding:12px 18px 16px;
+  }
+}
+
 @media(max-width:900px){
   .header{
     grid-template-columns:1fr;
@@ -820,12 +834,15 @@ button.btn:hover,a.btn:hover{
 
   <div class="header-title">National Athlete Infrastructure • Controlled Access</div>
 
-  <nav class="header-nav">
+  <nav class="header-nav" aria-label="Athlete Intake Navigation">
     <a href="index.html">Entry</a>
-    <a class="active" href="snapshot-intake.html">Profile</a>
+    <a class="active" href="snapshot-intake.html">Athlete Intake</a>
+    <a href="parent-approval.html">Parent Approval</a>
+    <a href="verification-request.html">Verification</a>
+    <a href="athlete-dashboard.html">Dashboard</a>
+    <a href="player-profile.html">Profile</a>
     <a href="privacy.html">Privacy</a>
     <a href="terms.html">Terms</a>
-    <div class="user-icon" aria-hidden="true"></div>
   </nav>
 </header>
 
@@ -834,9 +851,9 @@ button.btn:hover,a.btn:hover{
 <section class="record-header">
   <div>
     <div class="record-kicker">Official Athlete Data Intake</div>
-    <h1 class="record-title">Snapshot Intake</h1>
+    <h1 class="record-title">Athlete Intake</h1>
   </div>
-  <div class="record-badge" id="recordBadge">Scoring Pending</div>
+  <div class="record-badge" id="recordBadge">Source Record Pending</div>
 </section>
 
 <section class="intake-grid">
@@ -1163,16 +1180,16 @@ button.btn:hover,a.btn:hover{
     <div class="status-row"><span>Metrics</span><b id="statusMetrics">Pending</b></div>
     <div class="status-row"><span>Academic</span><b id="statusAcademic">Pending</b></div>
     <div class="status-row"><span>Verification</span><b id="statusVerification">Pending</b></div>
-    <div class="status-row"><span>Score</span><b id="statusScore">Not Issued</b></div>
+    <div class="status-row"><span>Source</span><b id="statusScore">Not Issued</b></div>
     <div class="status-row"><span>PHNX Media</span><b id="statusPhnxMedia">Not Queued</b></div>
   </div>
 
   <div class="notice" id="snapshotNotice">
-    Snapshot Intake will create an UNVERIFIED STATS-CORE source record. PHNX SPORTS media routing is queued only after successful source record creation.
+    Athlete Intake will create or load an UNVERIFIED STATS-CORE source record. PHNX SPORTS media routing is queued only after successful source record creation.
   </div>
 
   <div class="submit-stack">
-    <button id="submitSnapshotBtn" class="btn primary" type="button">Submit Snapshot <span>›</span></button>
+    <button id="submitSnapshotBtn" class="btn primary" type="button">Submit Athlete Intake <span>›</span></button>
     <button id="saveDraftBtn" class="btn" type="button">Save Draft <span>›</span></button>
     <button id="requestVerificationBtn" class="btn green" type="button">Request Verification <span>›</span></button>
   </div>
@@ -1183,13 +1200,13 @@ button.btn:hover,a.btn:hover{
 </section>
 
 <section class="flow">
-  <div class="flow-title">Snapshot Path</div>
+  <div class="flow-title">Athlete Path</div>
   <div class="flow-step"><b>Intake</b><span>Data Capture</span></div>
   <div class="flow-step"><b>Evidence</b><span>Film & Metrics</span></div>
   <div class="flow-step"><b>Permission</b><span>Parent / Guardian</span></div>
   <div class="flow-step"><b>Verification</b><span>Trust Layer</span></div>
   <div class="flow-step"><b>Dashboard</b><span>Navigation Layer</span></div>
-  <a id="viewProfileBtn" class="btn primary" href="athlete-dashboard.html?role=athlete&from=snapshot-intake">Continue to Dashboard <span>›</span></a>
+  <a id="viewProfileBtn" class="btn primary" href="athlete-dashboard.html?role=athlete&from=athlete-intake">Continue to Dashboard <span>›</span></a>
 </section>
 
 <footer class="footer">
@@ -1197,7 +1214,7 @@ button.btn:hover,a.btn:hover{
     <img src="sc_logo_i.png" alt="STATS-CORE™ Athlete Lifecycle System">
   </div>
 
-  <div>Official Athlete Snapshot Intake</div>
+  <div>Official Athlete Intake</div>
 
   <div class="demo-ok">✓ Unverified STATS-CORE Pending Verification</div>
 
