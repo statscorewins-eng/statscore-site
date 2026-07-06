@@ -21,6 +21,7 @@ Athlete Source / Snapshot Intake
 Primary Runtime:
 statscore-data.js
 statscore-routing.js
+statscore-snapshot-intake-engine.js
 
 Primary Intelligence Engine(s):
 None
@@ -48,19 +49,24 @@ Provides:
 athlete_id
 snapshot_id
 source record
+parent approval initiation
+verification request initiation
 
 Primary IDs:
 athlete_id
 snapshot_id
 
 Primary Database Tables:
-statscore_snapshots
-sc_snapshot_intakes
-sc_parent_approval_requests
+public.statscore_snapshots
+public.sc_parent_approval_requests
+
+Legacy / Migration Only:
+public.sc_snapshot_intakes
 
 Cross-Stream Dependencies:
 Provides source data to Stream 3.
 Provides approval context to Stream 6 and Stream 7.
+Provides governed source context to Stream 9.
 
 Does NOT:
 - Calculate scores
@@ -68,43 +74,59 @@ Does NOT:
 - Render dashboard intelligence
 - Create Crystal Reports
 - Execute communication
+- Issue credentials
+- Configure professional dashboards
 
 Status:
 CANON LOCKED
 
 Last Governance Review:
-2026-06-27
+2026-07-06
 
 ==========================================================
---> 
+-->
 
-<!DOCTYPE html>  
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>STATScore™ — Athlete Lifecycle System -- Athlete Intake</title>
+<title>STATS-CORE™ — Snapshot Intake</title>
 
 <style>
 :root{
-  --red:#ff2b1f; --red2:#b90710; --gold:#f4c542; --green:#25d366;
-  --black:#020202; --ink:#05070b; --panel:rgba(6,10,18,.58);
-  --panel2:rgba(7,10,16,.64); --line:rgba(255,255,255,.18);
-  --line2:rgba(255,255,255,.32); --text:#f4f4f1; --muted:#b8c3cc;
-  --blue:#7ed8ff; --silver:#d8e1e7; --max:1536px;
+  --red:#ff2b1f;
+  --red2:#b90710;
+  --gold:#f4c542;
+  --green:#25d366;
+  --black:#020202;
+  --ink:#05070b;
+  --panel:rgba(6,10,18,.58);
+  --panel2:rgba(7,10,16,.64);
+  --line:rgba(255,255,255,.18);
+  --line2:rgba(255,255,255,.32);
+  --text:#f4f4f1;
+  --muted:#b8c3cc;
+  --blue:#7ed8ff;
+  --silver:#d8e1e7;
+  --max:1536px;
 }
 
 *{box-sizing:border-box}
 
 html,body{
-  margin:0; background:#000; color:var(--text);
+  margin:0;
+  background:#000;
+  color:var(--text);
   font-family:Arial,Helvetica,sans-serif;
 }
 
 a{text-decoration:none;color:inherit}
 
 .page{
-  width:min(var(--max),100%); margin:0 auto; min-height:100vh;
+  width:min(var(--max),100%);
+  margin:0 auto;
+  min-height:100vh;
   background:
     linear-gradient(90deg,rgba(0,0,0,.88),rgba(0,0,0,.68),rgba(0,0,0,.78)),
     radial-gradient(circle at 45% 20%,rgba(255,43,31,.13),transparent 34%),
@@ -113,47 +135,90 @@ a{text-decoration:none;color:inherit}
 }
 
 .header{
-  height:92px; background:linear-gradient(180deg,#fff,#ededeb);
-  display:grid; grid-template-columns:390px 1fr 410px;
-  align-items:center; border-bottom:2px solid var(--red);
+  height:92px;
+  background:linear-gradient(180deg,#fff,#ededeb);
+  display:grid;
+  grid-template-columns:390px 1fr 410px;
+  align-items:center;
+  border-bottom:2px solid var(--red);
 }
 
 .logo-tab{
-  height:92px; background:linear-gradient(145deg,#151515,#050505 65%,#000);
+  height:92px;
+  background:linear-gradient(145deg,#151515,#050505 65%,#000);
   clip-path:polygon(0 0,78% 0,100% 100%,0 100%);
-  display:flex; align-items:center; padding-left:26px; position:relative;
+  display:flex;
+  align-items:center;
+  padding-left:26px;
+  position:relative;
 }
 
 .logo-tab:before{
-  content:""; position:absolute; top:0; left:0; width:140px; height:16px;
-  background:var(--red); clip-path:polygon(0 0,92% 0,100% 100%,0 100%);
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  width:140px;
+  height:16px;
+  background:var(--red);
+  clip-path:polygon(0 0,92% 0,100% 100%,0 100%);
 }
 
 .logo-tab:after{
-  content:""; position:absolute; bottom:0; left:0; right:34px; height:3px;
+  content:"";
+  position:absolute;
+  bottom:0;
+  left:0;
+  right:34px;
+  height:3px;
   background:var(--red);
 }
 
-.logo-tab img{width:292px}
+.logo-tab img{
+  width:292px;
+  max-height:76px;
+  object-fit:contain;
+}
 
 .header-title{
-  text-align:center; color:#111; font-weight:900; font-size:.82rem;
-  letter-spacing:.32em; text-transform:uppercase;
+  text-align:center;
+  color:#111;
+  font-weight:900;
+  font-size:.82rem;
+  letter-spacing:.32em;
+  text-transform:uppercase;
 }
 
 .header-nav{
-  display:flex; justify-content:flex-end; align-items:center; gap:12px;
-  padding-right:24px; height:100%; color:#111;
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:12px;
+  padding-right:24px;
+  height:100%;
+  color:#111;
 }
 
 .header-nav a{
-  font-weight:900; font-size:.75rem; letter-spacing:.13em;
-  text-transform:uppercase; padding-bottom:12px; border-bottom:2px solid transparent;
+  font-weight:900;
+  font-size:.75rem;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  padding-bottom:12px;
+  border-bottom:2px solid transparent;
 }
 
-.header-nav a.active{color:var(--red); border-bottom-color:var(--red)}
+.header-nav a.active{
+  color:var(--red);
+  border-bottom-color:var(--red);
+}
 
-.user-icon{width:30px;height:30px;border:3px solid #111;border-radius:50%}
+.user-icon{
+  width:30px;
+  height:30px;
+  border:3px solid #111;
+  border-radius:50%;
+}
 
 .main{
   padding:22px 32px 0;
@@ -161,75 +226,138 @@ a{text-decoration:none;color:inherit}
 }
 
 .record-header{
-  display:flex; align-items:flex-end; justify-content:space-between; gap:20px;
-  margin:0 0 16px; padding:0 0 14px; border-bottom:1px solid rgba(255,255,255,.12);
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:20px;
+  margin:0 0 16px;
+  padding:0 0 14px;
+  border-bottom:1px solid rgba(255,255,255,.12);
 }
 
 .record-kicker{
-  color:var(--red); font-size:.72rem; font-weight:900;
-  letter-spacing:.24em; text-transform:uppercase; margin-bottom:8px;
+  color:var(--red);
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.24em;
+  text-transform:uppercase;
+  margin-bottom:8px;
 }
 
 .record-title{
-  margin:0; font-family:"Arial Narrow","Helvetica Neue Condensed",Impact,Arial,sans-serif;
-  font-size:3.5rem; line-height:.9; letter-spacing:-.04em; text-transform:uppercase;
+  margin:0;
+  font-family:"Arial Narrow","Helvetica Neue Condensed",Impact,Arial,sans-serif;
+  font-size:3.5rem;
+  line-height:.9;
+  letter-spacing:-.04em;
+  text-transform:uppercase;
   color:#f7f7f1;
 }
 
 .record-badge{
-  border:1px solid rgba(255,255,255,.16); padding:10px 14px; text-align:center;
-  font-size:.7rem; color:#9fa7b0; font-weight:900; letter-spacing:.18em;
-  text-transform:uppercase; background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.16);
+  padding:10px 14px;
+  text-align:center;
+  font-size:.7rem;
+  color:#9fa7b0;
+  font-weight:900;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  background:rgba(255,255,255,.03);
 }
 
-.intake-grid{display:grid;grid-template-columns:1fr 360px;gap:14px}
+.intake-grid{
+  display:grid;
+  grid-template-columns:1fr 360px;
+  gap:14px;
+}
 
 .form-panel,.side-panel{
-  background:var(--panel); border:1px solid var(--line);
+  background:var(--panel);
+  border:1px solid var(--line);
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.035);
 }
 
 .form-panel{padding:22px}
 
-.side-panel{padding:20px;align-self:start;position:sticky;top:12px}
+.side-panel{
+  padding:20px;
+  align-self:start;
+  position:sticky;
+  top:12px;
+}
 
 .section{
-  border:1px solid var(--line); background:rgba(7,10,16,.42);
-  padding:20px; margin-bottom:14px;
+  border:1px solid var(--line);
+  background:rgba(7,10,16,.42);
+  padding:20px;
+  margin-bottom:14px;
 }
 
 .section-title{
-  margin:0 0 18px; color:var(--red); font-size:.76rem; font-weight:900;
-  letter-spacing:.24em; text-transform:uppercase;
+  margin:0 0 18px;
+  color:var(--red);
+  font-size:.76rem;
+  font-weight:900;
+  letter-spacing:.24em;
+  text-transform:uppercase;
 }
 
-.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-.form-grid.three{grid-template-columns:repeat(3,1fr)}
-.field{display:flex;flex-direction:column;gap:7px}
-.field.full{grid-column:1 / -1}
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
+}
+
+.form-grid.three{
+  grid-template-columns:repeat(3,1fr);
+}
+
+.field{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+}
+
+.field.full{
+  grid-column:1 / -1;
+}
 
 label{
-  color:#e7f7ff; font-size:.68rem; font-weight:900;
-  letter-spacing:.16em; text-transform:uppercase;
+  color:#e7f7ff;
+  font-size:.68rem;
+  font-weight:900;
+  letter-spacing:.16em;
+  text-transform:uppercase;
 }
 
 input,select,textarea{
-  width:100%; min-height:44px; border:1px solid rgba(255,255,255,.24);
-  background:rgba(0,0,0,.36); color:#fff; padding:0 12px;
-  font-size:.9rem; font-weight:700; outline:none;
+  width:100%;
+  min-height:44px;
+  border:1px solid rgba(255,255,255,.24);
+  background:rgba(0,0,0,.36);
+  color:#fff;
+  padding:0 12px;
+  font-size:.9rem;
+  font-weight:700;
+  outline:none;
 }
 
-textarea{min-height:104px;padding:12px;resize:vertical;line-height:1.4}
+textarea{
+  min-height:104px;
+  padding:12px;
+  resize:vertical;
+  line-height:1.4;
+}
 
-input::placeholder,textarea::placeholder{color:rgba(255,255,255,.38)}
+input::placeholder,textarea::placeholder{
+  color:rgba(255,255,255,.38);
+}
 
 input:focus,select:focus,textarea:focus{
-  border-color:var(--red); box-shadow:0 0 0 1px rgba(255,43,31,.4);
+  border-color:var(--red);
+  box-shadow:0 0 0 1px rgba(255,43,31,.4);
 }
-
-/* ============================================================
-   PHNX SPORTS MEDIA INGEST SYSTEM
-============================================================ */
 
 .media-ingest-section{
   position:relative;
@@ -243,202 +371,441 @@ input:focus,select:focus,textarea:focus{
 
 .media-ingest-section:before{
   content:"PHNX SPORTS";
-  position:absolute; right:22px; top:18px;
+  position:absolute;
+  right:22px;
+  top:18px;
   font-family:"Arial Narrow",Impact,Arial,sans-serif;
-  font-size:3rem; letter-spacing:.08em;
+  font-size:3rem;
+  letter-spacing:.08em;
   color:rgba(255,255,255,.035);
-  font-weight:900; pointer-events:none;
+  font-weight:900;
+  pointer-events:none;
 }
 
 .media-ingest-header{
-  display:flex; justify-content:space-between; align-items:flex-start;
-  gap:18px; margin-bottom:18px; position:relative; z-index:2;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:18px;
+  margin-bottom:18px;
+  position:relative;
+  z-index:2;
 }
 
 .media-kicker{
-  color:var(--red); font-size:.68rem; font-weight:900;
-  letter-spacing:.26em; text-transform:uppercase; margin-bottom:8px;
+  color:var(--red);
+  font-size:.68rem;
+  font-weight:900;
+  letter-spacing:.26em;
+  text-transform:uppercase;
+  margin-bottom:8px;
 }
 
 .media-title{
-  margin:0; font-family:"Arial Narrow",Impact,Arial,sans-serif;
-  font-size:2rem; line-height:.95; letter-spacing:.02em;
+  margin:0;
+  font-family:"Arial Narrow",Impact,Arial,sans-serif;
+  font-size:2rem;
+  line-height:.95;
+  letter-spacing:.02em;
   text-transform:uppercase;
 }
 
 .media-sub{
-  margin:10px 0 0; color:#dceaf0; font-size:.82rem;
-  line-height:1.45; font-weight:800; max-width:760px;
+  margin:10px 0 0;
+  color:#dceaf0;
+  font-size:.82rem;
+  line-height:1.45;
+  font-weight:800;
+  max-width:760px;
 }
 
 .media-route-badge{
-  min-width:190px; border:1px solid rgba(244,197,66,.45);
-  color:var(--gold); background:rgba(244,197,66,.06);
-  padding:10px 12px; text-align:center;
-  font-size:.64rem; font-weight:900; letter-spacing:.18em;
+  min-width:190px;
+  border:1px solid rgba(244,197,66,.45);
+  color:var(--gold);
+  background:rgba(244,197,66,.06);
+  padding:10px 12px;
+  text-align:center;
+  font-size:.64rem;
+  font-weight:900;
+  letter-spacing:.18em;
   text-transform:uppercase;
 }
 
 .media-status-grid{
-  display:grid; grid-template-columns:repeat(4,1fr); gap:10px;
-  margin:14px 0 16px; position:relative; z-index:2;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin:14px 0 16px;
+  position:relative;
+  z-index:2;
 }
 
 .media-status{
-  min-height:74px; border:1px solid rgba(255,255,255,.16);
-  background:rgba(0,0,0,.28); padding:12px;
+  min-height:74px;
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(0,0,0,.28);
+  padding:12px;
 }
 
 .media-status span{
-  display:block; color:var(--muted); font-size:.62rem;
-  font-weight:900; letter-spacing:.16em; text-transform:uppercase;
+  display:block;
+  color:var(--muted);
+  font-size:.62rem;
+  font-weight:900;
+  letter-spacing:.16em;
+  text-transform:uppercase;
 }
 
 .media-status b{
-  display:block; margin-top:8px; color:var(--gold); font-size:.78rem;
-  font-weight:900; letter-spacing:.1em; text-transform:uppercase;
+  display:block;
+  margin-top:8px;
+  color:var(--gold);
+  font-size:.78rem;
+  font-weight:900;
+  letter-spacing:.1em;
+  text-transform:uppercase;
 }
 
 .upload-box{
   min-height:150px;
   border:1px dashed rgba(126,216,255,.44);
-  display:flex; flex-direction:column; gap:10px; align-items:center; justify-content:center;
-  text-align:center; padding:22px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:22px;
   background:
     linear-gradient(135deg,rgba(255,255,255,.025),rgba(126,216,255,.045)),
     repeating-linear-gradient(90deg,rgba(255,255,255,.025) 0,rgba(255,255,255,.025) 1px,transparent 1px,transparent 11px);
-  color:#d7eef8; font-size:.82rem; font-weight:900; letter-spacing:.12em;
-  text-transform:uppercase; cursor:pointer;
+  color:#d7eef8;
+  font-size:.82rem;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  cursor:pointer;
   position:relative;
 }
 
 .upload-box:before,.upload-box:after{
-  content:""; position:absolute; width:34px; height:34px;
-  border-color:var(--red); border-style:solid; opacity:.85;
+  content:"";
+  position:absolute;
+  width:34px;
+  height:34px;
+  border-color:var(--red);
+  border-style:solid;
+  opacity:.85;
 }
 
-.upload-box:before{left:12px; top:12px; border-width:2px 0 0 2px}
-.upload-box:after{right:12px; bottom:12px; border-width:0 2px 2px 0}
+.upload-box:before{
+  left:12px;
+  top:12px;
+  border-width:2px 0 0 2px;
+}
+
+.upload-box:after{
+  right:12px;
+  bottom:12px;
+  border-width:0 2px 2px 0;
+}
 
 .upload-box strong{
   font-family:"Arial Narrow",Impact,Arial,sans-serif;
-  font-size:1.4rem; letter-spacing:.12em;
+  font-size:1.4rem;
+  letter-spacing:.12em;
 }
 
-.upload-box small{font-size:.64rem;color:var(--muted);line-height:1.5}
+.upload-box small{
+  font-size:.64rem;
+  color:var(--muted);
+  line-height:1.5;
+}
 
 #headshotPreview{
-  display:none; margin-top:14px; width:220px; max-width:100%;
-  aspect-ratio:1/1; object-fit:cover; border:1px solid rgba(255,255,255,.25);
+  display:none;
+  margin-top:14px;
+  width:220px;
+  max-width:100%;
+  aspect-ratio:1/1;
+  object-fit:cover;
+  border:1px solid rgba(255,255,255,.25);
   background:#050505;
 }
 
-.headshot-actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.headshot-actions{
+  display:flex;
+  gap:10px;
+  margin-top:12px;
+  flex-wrap:wrap;
+}
 
 .media-routing-panel{
-  margin-top:14px; border:1px solid rgba(255,255,255,.14);
-  background:rgba(0,0,0,.25); padding:14px;
+  margin-top:14px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(0,0,0,.25);
+  padding:14px;
 }
 
 .media-routing-title{
-  color:var(--blue); font-size:.68rem; font-weight:900;
-  letter-spacing:.18em; text-transform:uppercase; margin-bottom:10px;
+  color:var(--blue);
+  font-size:.68rem;
+  font-weight:900;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  margin-bottom:10px;
 }
 
 .media-routing-list{
-  display:grid; grid-template-columns:repeat(4,1fr); gap:8px;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
 }
 
 .media-route-item{
   border-left:2px solid rgba(255,43,31,.72);
-  padding:8px 10px; background:rgba(255,255,255,.035);
+  padding:8px 10px;
+  background:rgba(255,255,255,.035);
 }
 
 .media-route-item b{
-  display:block; font-size:.66rem; letter-spacing:.1em; text-transform:uppercase;
+  display:block;
+  font-size:.66rem;
+  letter-spacing:.1em;
+  text-transform:uppercase;
 }
 
 .media-route-item span{
-  display:block; margin-top:4px; color:var(--muted); font-size:.66rem;
+  display:block;
+  margin-top:4px;
+  color:var(--muted);
+  font-size:.66rem;
 }
 
-.side-title{margin:0 0 8px;font-size:1.7rem;line-height:1;text-transform:uppercase}
+.side-title{
+  margin:0 0 8px;
+  font-size:1.7rem;
+  line-height:1;
+  text-transform:uppercase;
+}
 
-.side-sub{color:var(--blue);font-size:.8rem;line-height:1.45;font-weight:800}
+.side-sub{
+  color:var(--blue);
+  font-size:.8rem;
+  line-height:1.45;
+  font-weight:800;
+}
 
-.status-card{margin-top:18px;border:1px solid var(--line);padding:14px}
+.status-card{
+  margin-top:18px;
+  border:1px solid var(--line);
+  padding:14px;
+}
 
 .status-row{
-  display:flex; justify-content:space-between; gap:12px;
-  border-bottom:1px solid rgba(255,255,255,.12); padding:10px 0;
-  font-size:.76rem; text-transform:uppercase; font-weight:900;
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  border-bottom:1px solid rgba(255,255,255,.12);
+  padding:10px 0;
+  font-size:.76rem;
+  text-transform:uppercase;
+  font-weight:900;
 }
 
-.status-row:last-child{border-bottom:none}
-.status-row span{color:var(--muted)}
-.status-row b{color:var(--gold)}
+.status-row:last-child{
+  border-bottom:none;
+}
+
+.status-row span{
+  color:var(--muted);
+}
+
+.status-row b{
+  color:var(--gold);
+}
 
 .notice{
-  margin-top:16px; border-left:4px solid var(--red);
+  margin-top:16px;
+  border-left:4px solid var(--red);
   background:linear-gradient(90deg,rgba(255,43,31,.14),rgba(255,255,255,.02));
-  padding:14px; color:#e8f3f8; font-size:.82rem; line-height:1.45;
+  padding:14px;
+  color:#e8f3f8;
+  font-size:.82rem;
+  line-height:1.45;
 }
 
-.submit-stack{display:grid;gap:10px;margin-top:18px}
+.submit-stack{
+  display:grid;
+  gap:10px;
+  margin-top:18px;
+}
 
 button.btn,a.btn{
-  min-height:48px; border:1px solid var(--line2); display:flex; align-items:center;
-  justify-content:space-between; padding:0 16px; text-transform:uppercase;
-  font-size:.74rem; font-weight:900; letter-spacing:.12em;
-  background:rgba(255,255,255,.02); color:#fff; cursor:pointer;
-  position:relative; z-index:50; pointer-events:auto; width:100%;
+  min-height:48px;
+  border:1px solid var(--line2);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 16px;
+  text-transform:uppercase;
+  font-size:.74rem;
+  font-weight:900;
+  letter-spacing:.12em;
+  background:rgba(255,255,255,.02);
+  color:#fff;
+  cursor:pointer;
+  position:relative;
+  z-index:50;
+  pointer-events:auto;
+  width:100%;
   font-family:Arial,Helvetica,sans-serif;
 }
 
-button.btn.primary,a.btn.primary{border-color:var(--red);background:rgba(255,43,31,.12);color:var(--red)}
-button.btn.green{border-color:var(--green);color:var(--green)}
-button.btn:disabled{opacity:.55;cursor:not-allowed}
-button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
+button.btn.primary,a.btn.primary{
+  border-color:var(--red);
+  background:rgba(255,43,31,.12);
+  color:var(--red);
+}
+
+button.btn.green{
+  border-color:var(--green);
+  color:var(--green);
+}
+
+button.btn:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
+button.btn:hover,a.btn:hover{
+  background:rgba(255,255,255,.08);
+}
 
 .system-message{
-  margin-top:14px; min-height:22px; font-size:.72rem; font-weight:900;
-  letter-spacing:.12em; text-transform:uppercase; color:var(--green);
+  margin-top:14px;
+  min-height:22px;
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--green);
 }
 
 .flow{
-  margin-top:14px; min-height:76px; display:grid;
-  grid-template-columns:170px repeat(5,1fr) 190px; align-items:center;
-  border:1px solid var(--line); background:rgba(4,7,12,.62);
+  margin-top:14px;
+  min-height:76px;
+  display:grid;
+  grid-template-columns:170px repeat(5,1fr) 190px;
+  align-items:center;
+  border:1px solid var(--line);
+  background:rgba(4,7,12,.62);
 }
 
-.flow-title{color:var(--red);font-weight:900;letter-spacing:.18em;text-transform:uppercase;padding-left:22px}
+.flow-title{
+  color:var(--red);
+  font-weight:900;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  padding-left:22px;
+}
 
-.flow-step{border-left:1px solid rgba(255,255,255,.14);padding:0 18px}
+.flow-step{
+  border-left:1px solid rgba(255,255,255,.14);
+  padding:0 18px;
+}
 
-.flow-step b{display:block;font-size:.74rem;text-transform:uppercase}
-.flow-step span{color:var(--muted);font-size:.68rem}
+.flow-step b{
+  display:block;
+  font-size:.74rem;
+  text-transform:uppercase;
+}
+
+.flow-step span{
+  color:var(--muted);
+  font-size:.68rem;
+}
 
 .footer{
-  height:64px; margin-top:10px; border-top:1px solid var(--line);
-  display:grid; grid-template-columns:220px 1fr 300px 260px; align-items:center;
-  color:#cdd7df; font-size:.74rem; letter-spacing:.08em; text-transform:uppercase;
+  height:64px;
+  margin-top:10px;
+  border-top:1px solid var(--line);
+  display:grid;
+  grid-template-columns:220px 1fr 300px 260px;
+  align-items:center;
+  color:#cdd7df;
+  font-size:.74rem;
+  letter-spacing:.08em;
+  text-transform:uppercase;
 }
 
-.footer img{width:185px}
-.demo-ok{color:var(--green);font-weight:900}
+.footer img{
+  width:185px;
+  max-height:54px;
+  object-fit:contain;
+}
+
+.demo-ok{
+  color:var(--green);
+  font-weight:900;
+}
 
 @media(max-width:900px){
-  .header{grid-template-columns:1fr;height:auto}
-  .logo-tab{width:100%}
-  .header-title{padding:14px}
-  .header-nav{justify-content:center;padding:14px;flex-wrap:wrap}
-  .main{padding:18px 14px 0}
-  .record-header,.intake-grid,.form-grid,.form-grid.three,.flow,.footer{grid-template-columns:1fr}
-  .record-header{align-items:flex-start;flex-direction:column}
-  .record-title{font-size:2.6rem}
-  .side-panel{position:relative;top:auto}
-  .media-ingest-header{flex-direction:column}
-  .media-status-grid,.media-routing-list{grid-template-columns:1fr}
+  .header{
+    grid-template-columns:1fr;
+    height:auto;
+  }
+
+  .logo-tab{
+    width:100%;
+  }
+
+  .header-title{
+    padding:14px;
+  }
+
+  .header-nav{
+    justify-content:center;
+    padding:14px;
+    flex-wrap:wrap;
+  }
+
+  .main{
+    padding:18px 14px 0;
+  }
+
+  .record-header,
+  .intake-grid,
+  .form-grid,
+  .form-grid.three,
+  .flow,
+  .footer{
+    grid-template-columns:1fr;
+  }
+
+  .record-header{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .record-title{
+    font-size:2.6rem;
+  }
+
+  .side-panel{
+    position:relative;
+    top:auto;
+  }
+
+  .media-ingest-header{
+    flex-direction:column;
+  }
+
+  .media-status-grid,
+  .media-routing-list{
+    grid-template-columns:1fr;
+  }
 }
 </style>
 </head>
@@ -448,17 +815,17 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
 
 <header class="header">
   <a class="logo-tab" href="index.html">
-    <img src="sc_logo_black_v2.png" alt="STATScore">
+    <img src="sc_logo_i.png" alt="STATS-CORE™ Athlete Lifecycle System">
   </a>
 
   <div class="header-title">National Athlete Infrastructure • Controlled Access</div>
 
   <nav class="header-nav">
     <a href="index.html">Entry</a>
-    <a class="active" href="player-profile.html">Profile</a>
+    <a class="active" href="snapshot-intake.html">Profile</a>
     <a href="privacy.html">Privacy</a>
     <a href="terms.html">Terms</a>
-    <div class="user-icon"></div>
+    <div class="user-icon" aria-hidden="true"></div>
   </nav>
 </header>
 
@@ -479,17 +846,39 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
   <section class="section">
     <h2 class="section-title">Athlete Identity</h2>
     <div class="form-grid">
-      <div class="field"><label>First Name</label><input name="firstName" type="text" placeholder="Athlete first name" required></div>
-      <div class="field"><label>Last Name</label><input name="lastName" type="text" placeholder="Athlete last name" required></div>
-      <div class="field"><label>Graduation Class</label><input name="graduationClass" type="text" placeholder="Graduation Year"></div>
-      <div class="field"><label>City / State</label><input name="cityState" type="text" placeholder="City, State"></div>
-      <div class="field"><label>School / Program</label><input name="schoolProgram" type="text" placeholder="School or club program"></div>
+      <div class="field">
+        <label>First Name</label>
+        <input name="firstName" type="text" placeholder="Athlete first name" required>
+      </div>
+
+      <div class="field">
+        <label>Last Name</label>
+        <input name="lastName" type="text" placeholder="Athlete last name" required>
+      </div>
+
+      <div class="field">
+        <label>Graduation Class</label>
+        <input name="graduationClass" type="text" placeholder="Graduation Year">
+      </div>
+
+      <div class="field">
+        <label>City / State</label>
+        <input name="cityState" type="text" placeholder="City, State">
+      </div>
+
+      <div class="field">
+        <label>School / Program</label>
+        <input name="schoolProgram" type="text" placeholder="School or club program">
+      </div>
+
       <div class="field">
         <label>Primary Sport</label>
         <select name="primarySport" required>
           <option value="">Select sport</option>
-          <option>Football</option><option>Basketball</option><option>Baseball</option>
-          <option>Softball</option><option>Soccer</option><option>Track & Field</option><option>Volleyball</option>
+          <option value="football">Football</option>
+          <option value="basketball">Basketball</option>
+          <option value="baseball">Baseball</option>
+          <option value="track">Track</option>
         </select>
       </div>
     </div>
@@ -498,55 +887,122 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
   <section class="section">
     <h2 class="section-title">Physical Profile</h2>
     <div class="form-grid three">
-      <div class="field"><label>Height</label><input name="height" type="text" placeholder="Athlete Height"></div>
-      <div class="field"><label>Weight</label><input name="weight" type="text" placeholder="Athlete Weight"></div>
-      <div class="field"><label>Primary Position</label><input name="primaryPosition" type="text" placeholder="Primary Position"></div>
-      <div class="field"><label>Secondary Position</label><input name="secondaryPosition" type="text" placeholder="Optional"></div>
-      <div class="field"><label>Dominant Hand / Foot</label><input name="dominantHandFoot" type="text" placeholder="Right / Left / Both"></div>
-      <div class="field"><label>Jersey Number</label><input name="jerseyNumber" type="text" placeholder="Athlete Number"></div>
+      <div class="field">
+        <label>Height</label>
+        <input name="height" type="text" placeholder="Athlete Height">
+      </div>
+
+      <div class="field">
+        <label>Weight</label>
+        <input name="weight" type="text" placeholder="Athlete Weight">
+      </div>
+
+      <div class="field">
+        <label>Primary Position / Event</label>
+        <input name="primaryPosition" type="text" placeholder="Primary Position or Event">
+      </div>
+
+      <div class="field">
+        <label>Secondary Position / Event</label>
+        <input name="secondaryPosition" type="text" placeholder="Optional">
+      </div>
+
+      <div class="field">
+        <label>Dominant Hand / Foot</label>
+        <input name="dominantHandFoot" type="text" placeholder="Right / Left / Both">
+      </div>
+
+      <div class="field">
+        <label>Jersey Number</label>
+        <input name="jerseyNumber" type="text" placeholder="Athlete Number">
+      </div>
     </div>
   </section>
 
   <section class="section">
     <h2 class="section-title">Performance Metrics</h2>
     <div class="form-grid three">
-      <div class="field"><label>40-Yard Dash</label><input name="dash40" type="text" placeholder="Enter Verified Time"></div>
-      <div class="field"><label>Vertical Jump</label><input name="verticalJump" type="text" placeholder="Enter verified Measurement"></div>
-      <div class="field"><label>Shuttle</label><input name="shuttle" type="text" placeholder="Enter Verified Time"></div>
-      <div class="field"><label>Broad Jump</label><input name="broadJump" type="text" placeholder="Optional"></div>
-      <div class="field"><label>Bench / Strength Marker</label><input name="strengthMarker" type="text" placeholder="Optional"></div>
-      <div class="field"><label>Verified Event Source</label><input name="verifiedEventSource" type="text" placeholder="Camp, combine, school, coach"></div>
-      <div class="field full"><label>Position-Specific Notes</label><textarea name="positionNotes" placeholder="Example: burst, vision, release package, defensive range, shooting efficiency, etc."></textarea></div>
+      <div class="field">
+        <label>40-Yard Dash</label>
+        <input name="dash40" type="text" placeholder="Enter verified time">
+      </div>
+
+      <div class="field">
+        <label>Vertical Jump</label>
+        <input name="verticalJump" type="text" placeholder="Enter verified measurement">
+      </div>
+
+      <div class="field">
+        <label>Shuttle</label>
+        <input name="shuttle" type="text" placeholder="Enter verified time">
+      </div>
+
+      <div class="field">
+        <label>Broad Jump</label>
+        <input name="broadJump" type="text" placeholder="Optional">
+      </div>
+
+      <div class="field">
+        <label>Bench / Strength Marker</label>
+        <input name="strengthMarker" type="text" placeholder="Optional">
+      </div>
+
+      <div class="field">
+        <label>Verified Event Source</label>
+        <input name="verifiedEventSource" type="text" placeholder="Camp, combine, school, coach">
+      </div>
+
+      <div class="field full">
+        <label>Position / Event-Specific Notes</label>
+        <textarea name="positionNotes" placeholder="Example: burst, vision, release package, defensive range, shooting efficiency, sprint mechanics, event readiness, etc."></textarea>
+      </div>
     </div>
   </section>
 
   <section class="section">
     <h2 class="section-title">Academic Readiness</h2>
     <div class="form-grid">
-      <div class="field"><label>Current GPA</label><input name="currentGpa" type="text" placeholder="Current GPA"></div>
+      <div class="field">
+        <label>Current GPA</label>
+        <input name="currentGpa" type="text" placeholder="Current GPA">
+      </div>
+
       <div class="field">
         <label>NCAA Eligibility Status</label>
         <select name="ncaaEligibilityStatus">
           <option value="">Select status</option>
-          <option>Not Started</option><option>In Progress</option><option>On Track</option>
-          <option>Needs Review</option><option>Verified Track</option>
+          <option>Not Started</option>
+          <option>In Progress</option>
+          <option>On Track</option>
+          <option>Needs Review</option>
+          <option>Verified Track</option>
         </select>
       </div>
+
       <div class="field">
         <label>Transcript Available?</label>
         <select name="transcriptAvailable">
           <option value="">Select</option>
-          <option>Yes</option><option>No</option><option>Parent/Guardian Permission Required</option>
+          <option>Yes</option>
+          <option>No</option>
+          <option>Parent/Guardian Permission Required</option>
         </select>
       </div>
+
       <div class="field">
         <label>Counselor Contact Available?</label>
         <select name="counselorContactAvailable">
           <option value="">Select</option>
-          <option>Yes</option><option>No</option><option>Pending</option>
+          <option>Yes</option>
+          <option>No</option>
+          <option>Pending</option>
         </select>
       </div>
-      <div class="field full"><label>Academic Notes</label><textarea name="academicNotes" placeholder="Academic readiness notes, eligibility concerns, honors, course completion, or support needs."></textarea></div>
+
+      <div class="field full">
+        <label>Academic Notes</label>
+        <textarea name="academicNotes" placeholder="Academic readiness notes, eligibility concerns, honors, course completion, or support needs."></textarea>
+      </div>
     </div>
   </section>
 
@@ -560,21 +1016,52 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
           Approved assets prepare player cards, thumbnails, highlight films, and exposure routing.
         </p>
       </div>
+
       <div class="media-route-badge">Media Queue Pending</div>
     </div>
 
     <div class="media-status-grid">
-      <div class="media-status"><span>Headshot</span><b id="mediaStatusHeadshot">Required</b></div>
-      <div class="media-status"><span>Player Card</span><b id="mediaStatusCard">Not Ready</b></div>
-      <div class="media-status"><span>Highlight Film</span><b id="mediaStatusFilm">Pending</b></div>
-      <div class="media-status"><span>PHNX Routing</span><b id="mediaStatusRouting">Queued After Submit</b></div>
+      <div class="media-status">
+        <span>Headshot</span>
+        <b id="mediaStatusHeadshot">Required</b>
+      </div>
+
+      <div class="media-status">
+        <span>Player Card</span>
+        <b id="mediaStatusCard">Not Ready</b>
+      </div>
+
+      <div class="media-status">
+        <span>Highlight Film</span>
+        <b id="mediaStatusFilm">Pending</b>
+      </div>
+
+      <div class="media-status">
+        <span>PHNX Routing</span>
+        <b id="mediaStatusRouting">Queued After Submit</b>
+      </div>
     </div>
 
     <div class="form-grid">
-      <div class="field"><label>Highlight Reel URL</label><input name="highlightUrl" type="url" placeholder="Hudl, YouTube, X, Instagram, etc."></div>
-      <div class="field"><label>Social Profile URL</label><input name="socialProfileUrl" type="url" placeholder="Verified athlete profile link"></div>
-      <div class="field"><label>Game Film URL</label><input name="gameFilmUrl" type="url" placeholder="Optional"></div>
-      <div class="field"><label>Recruiting Profile URL</label><input name="recruitingProfileUrl" type="url" placeholder="Optional"></div>
+      <div class="field">
+        <label>Highlight Reel URL</label>
+        <input name="highlightUrl" type="url" placeholder="Hudl, YouTube, X, Instagram, etc.">
+      </div>
+
+      <div class="field">
+        <label>Social Profile URL</label>
+        <input name="socialProfileUrl" type="url" placeholder="Verified athlete profile link">
+      </div>
+
+      <div class="field">
+        <label>Game Film URL</label>
+        <input name="gameFilmUrl" type="url" placeholder="Optional">
+      </div>
+
+      <div class="field">
+        <label>Recruiting Profile URL</label>
+        <input name="recruitingProfileUrl" type="url" placeholder="Optional">
+      </div>
 
       <div class="field full">
         <label for="athleteHeadshotUpload">Official Athlete Image / Headshot — Required</label>
@@ -597,11 +1084,27 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
 
     <div class="media-routing-panel">
       <div class="media-routing-title">Production Readiness Route</div>
+
       <div class="media-routing-list">
-        <div class="media-route-item"><b>Identity</b><span>Snapshot data</span></div>
-        <div class="media-route-item"><b>Media</b><span>Headshot + film links</span></div>
-        <div class="media-route-item"><b>Package</b><span>Cards / thumbnails / reels</span></div>
-        <div class="media-route-item"><b>Channel</b><span>PHNX SPORTS queue</span></div>
+        <div class="media-route-item">
+          <b>Identity</b>
+          <span>Snapshot data</span>
+        </div>
+
+        <div class="media-route-item">
+          <b>Media</b>
+          <span>Headshot + film links</span>
+        </div>
+
+        <div class="media-route-item">
+          <b>Package</b>
+          <span>Cards / thumbnails / reels</span>
+        </div>
+
+        <div class="media-route-item">
+          <b>Channel</b>
+          <span>PHNX SPORTS queue</span>
+        </div>
       </div>
     </div>
   </section>
@@ -609,11 +1112,31 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
   <section class="section">
     <h2 class="section-title">Parent / Guardian & Verification</h2>
     <div class="form-grid">
-      <div class="field"><label>Parent / Guardian Name</label><input name="guardianName" type="text" placeholder="Full name"></div>
-      <div class="field"><label>Parent / Guardian Email</label><input name="guardianEmail" type="email" placeholder="email@example.com"></div>
-      <div class="field"><label>Parent / Guardian Phone</label><input name="guardianPhone" type="tel" placeholder="Optional"></div>
-      <div class="field"><label>Coach Name</label><input name="coachName" type="text" placeholder="Coach or program contact"></div>
-      <div class="field"><label>Coach Email</label><input name="coachEmail" type="email" placeholder="coach@example.com"></div>
+      <div class="field">
+        <label>Parent / Guardian Name</label>
+        <input name="guardianName" type="text" placeholder="Full name">
+      </div>
+
+      <div class="field">
+        <label>Parent / Guardian Email</label>
+        <input name="guardianEmail" type="email" placeholder="email@example.com">
+      </div>
+
+      <div class="field">
+        <label>Parent / Guardian Phone</label>
+        <input name="guardianPhone" type="tel" placeholder="Optional">
+      </div>
+
+      <div class="field">
+        <label>Coach Name</label>
+        <input name="coachName" type="text" placeholder="Coach or program contact">
+      </div>
+
+      <div class="field">
+        <label>Coach Email</label>
+        <input name="coachEmail" type="email" placeholder="coach@example.com">
+      </div>
+
       <div class="field">
         <label>Verification Permission</label>
         <select name="verificationPermission">
@@ -630,7 +1153,10 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
 
 <aside class="side-panel">
   <h2 class="side-title">Snapshot Control</h2>
-  <p class="side-sub">This intake creates the athlete’s official STATScore profile record and routes approved media into PHNX SPORTS production infrastructure.</p>
+
+  <p class="side-sub">
+    This intake creates the athlete’s official STATS-CORE source record and routes approved media into PHNX SPORTS production infrastructure.
+  </p>
 
   <div class="status-card">
     <div class="status-row"><span>Profile</span><b id="statusProfile">Pending</b></div>
@@ -642,7 +1168,7 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
   </div>
 
   <div class="notice" id="snapshotNotice">
-    Snapshot Intake will create an UNVERIFIED STATScore profile. PHNX SPORTS media routing is queued only after successful profile creation.
+    Snapshot Intake will create an UNVERIFIED STATS-CORE source record. PHNX SPORTS media routing is queued only after successful source record creation.
   </div>
 
   <div class="submit-stack">
@@ -667,10 +1193,15 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
 </section>
 
 <footer class="footer">
-  <div><img src="sc_logo_black_v2.png" alt="STATScore"></div>
+  <div>
+    <img src="sc_logo_i.png" alt="STATS-CORE™ Athlete Lifecycle System">
+  </div>
+
   <div>Official Athlete Snapshot Intake</div>
-  <div class="demo-ok">✓ Unverified STATScore Pending Verification</div>
-  <div>© STATScore Systems<br>All Rights Reserved.</div>
+
+  <div class="demo-ok">✓ Unverified STATS-CORE Pending Verification</div>
+
+  <div>© STATS-CORE Systems<br>All Rights Reserved.</div>
 </footer>
 
 </main>
@@ -678,11 +1209,8 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="statscore-data.js"></script>
+<script src="statscore-routing.js"></script>
 <script src="statscore-snapshot-intake-engine.js"></script>
-
-</body>
-</html> 
-
 
 </body>
 </html> 
