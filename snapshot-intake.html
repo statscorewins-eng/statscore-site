@@ -22,6 +22,7 @@ Primary Runtime:
 statscore-data.js
 statscore-routing.js
 statscore-snapshot-intake-engine.js
+Inline hardened headshot/media ingest runtime
 
 Primary Intelligence Engine(s):
 None
@@ -52,6 +53,9 @@ snapshot_id
 source record
 parent approval initiation
 verification request initiation
+selected headshot file
+headshot preview state
+headshot upload helper
 
 Primary IDs:
 athlete_id
@@ -137,10 +141,6 @@ a{text-decoration:none;color:inherit}
     repeating-linear-gradient(135deg,rgba(255,255,255,.018) 0,rgba(255,255,255,.018) 1px,transparent 1px,transparent 7px),
     #020202;
 }
-
-/* ==========================================================
-   DASHBOARD-MATCHED HEADER SHELL
-========================================================== */
 
 .header{
   height:96px;
@@ -241,13 +241,7 @@ a{text-decoration:none;color:inherit}
   background:rgba(255,43,31,.08);
 }
 
-/* ==========================================================
-   MAIN BODY
-========================================================== */
-
-.main{
-  padding:22px 32px 0;
-}
+.main{padding:22px 32px 0}
 
 .record-header{
   display:flex;
@@ -333,9 +327,7 @@ a{text-decoration:none;color:inherit}
   gap:14px;
 }
 
-.form-grid.three{
-  grid-template-columns:repeat(3,1fr);
-}
+.form-grid.three{grid-template-columns:repeat(3,1fr)}
 
 .field{
   display:flex;
@@ -343,9 +335,7 @@ a{text-decoration:none;color:inherit}
   gap:7px;
 }
 
-.field.full{
-  grid-column:1 / -1;
-}
+.field.full{grid-column:1 / -1}
 
 label{
   color:#e7f7ff;
@@ -374,18 +364,12 @@ textarea{
   line-height:1.4;
 }
 
-input::placeholder,textarea::placeholder{
-  color:rgba(255,255,255,.38);
-}
+input::placeholder,textarea::placeholder{color:rgba(255,255,255,.38)}
 
 input:focus,select:focus,textarea:focus{
   border-color:var(--red);
   box-shadow:0 0 0 1px rgba(255,43,31,.4);
 }
-
-/* ==========================================================
-   PHNX SPORTS MEDIA INGEST
-========================================================== */
 
 .media-ingest-section{
   position:relative;
@@ -517,6 +501,16 @@ input:focus,select:focus,textarea:focus{
   position:relative;
 }
 
+.upload-box.ready{
+  border-color:rgba(37,211,102,.75);
+  box-shadow:0 0 22px rgba(37,211,102,.14);
+}
+
+.upload-box.error{
+  border-color:rgba(255,43,31,.9);
+  box-shadow:0 0 22px rgba(255,43,31,.18);
+}
+
 .upload-box:before,.upload-box:after{
   content:"";
   position:absolute;
@@ -611,10 +605,6 @@ input:focus,select:focus,textarea:focus{
   font-size:.66rem;
 }
 
-/* ==========================================================
-   SIDE PANEL / BUTTONS / FOOTER
-========================================================== */
-
 .side-title{
   margin:0 0 8px;
   font-size:1.7rem;
@@ -646,17 +636,9 @@ input:focus,select:focus,textarea:focus{
   font-weight:900;
 }
 
-.status-row:last-child{
-  border-bottom:none;
-}
-
-.status-row span{
-  color:var(--muted);
-}
-
-.status-row b{
-  color:var(--gold);
-}
+.status-row:last-child{border-bottom:none}
+.status-row span{color:var(--muted)}
+.status-row b{color:var(--gold)}
 
 .notice{
   margin-top:16px;
@@ -711,9 +693,7 @@ button.btn:disabled{
   cursor:not-allowed;
 }
 
-button.btn:hover,a.btn:hover{
-  background:rgba(255,255,255,.08);
-}
+button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
 
 .system-message{
   margin-top:14px;
@@ -789,9 +769,7 @@ button.btn:hover,a.btn:hover{
     height:auto;
   }
 
-  .header-title{
-    padding:14px;
-  }
+  .header-title{padding:14px}
 
   .header-tools{
     grid-column:1 / -1;
@@ -806,21 +784,10 @@ button.btn:hover,a.btn:hover{
     height:auto;
   }
 
-  .logo-tab{
-    width:100%;
-  }
-
-  .header-title{
-    padding:14px;
-  }
-
-  .top-nav{
-    justify-content:center;
-  }
-
-  .main{
-    padding:18px 14px 0;
-  }
+  .logo-tab{width:100%}
+  .header-title{padding:14px}
+  .top-nav{justify-content:center}
+  .main{padding:18px 14px 0}
 
   .record-header,
   .intake-grid,
@@ -836,23 +803,10 @@ button.btn:hover,a.btn:hover{
     flex-direction:column;
   }
 
-  .record-title{
-    font-size:2.6rem;
-  }
-
-  .side-panel{
-    position:relative;
-    top:auto;
-  }
-
-  .media-ingest-header{
-    flex-direction:column;
-  }
-
-  .media-status-grid,
-  .media-routing-list{
-    grid-template-columns:1fr;
-  }
+  .record-title{font-size:2.6rem}
+  .side-panel{position:relative;top:auto}
+  .media-ingest-header{flex-direction:column}
+  .media-status-grid,.media-routing-list{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -901,31 +855,11 @@ button.btn:hover,a.btn:hover{
   <section class="section">
     <h2 class="section-title">Athlete Identity</h2>
     <div class="form-grid">
-      <div class="field">
-        <label>First Name</label>
-        <input name="firstName" type="text" placeholder="Athlete first name" required>
-      </div>
-
-      <div class="field">
-        <label>Last Name</label>
-        <input name="lastName" type="text" placeholder="Athlete last name" required>
-      </div>
-
-      <div class="field">
-        <label>Graduation Class</label>
-        <input name="graduationClass" type="text" placeholder="Graduation Year">
-      </div>
-
-      <div class="field">
-        <label>City / State</label>
-        <input name="cityState" type="text" placeholder="City, State">
-      </div>
-
-      <div class="field">
-        <label>School / Program</label>
-        <input name="schoolProgram" type="text" placeholder="School or club program">
-      </div>
-
+      <div class="field"><label>First Name</label><input name="firstName" type="text" placeholder="Athlete first name" required></div>
+      <div class="field"><label>Last Name</label><input name="lastName" type="text" placeholder="Athlete last name" required></div>
+      <div class="field"><label>Graduation Class</label><input name="graduationClass" type="text" placeholder="Graduation Year"></div>
+      <div class="field"><label>City / State</label><input name="cityState" type="text" placeholder="City, State"></div>
+      <div class="field"><label>School / Program</label><input name="schoolProgram" type="text" placeholder="School or club program"></div>
       <div class="field">
         <label>Primary Sport</label>
         <select name="primarySport" required>
@@ -942,86 +876,32 @@ button.btn:hover,a.btn:hover{
   <section class="section">
     <h2 class="section-title">Physical Profile</h2>
     <div class="form-grid three">
-      <div class="field">
-        <label>Height</label>
-        <input name="height" type="text" placeholder="Athlete Height">
-      </div>
-
-      <div class="field">
-        <label>Weight</label>
-        <input name="weight" type="text" placeholder="Athlete Weight">
-      </div>
-
-      <div class="field">
-        <label>Primary Position / Event</label>
-        <input name="primaryPosition" type="text" placeholder="Primary Position or Event">
-      </div>
-
-      <div class="field">
-        <label>Secondary Position / Event</label>
-        <input name="secondaryPosition" type="text" placeholder="Optional">
-      </div>
-
-      <div class="field">
-        <label>Dominant Hand / Foot</label>
-        <input name="dominantHandFoot" type="text" placeholder="Right / Left / Both">
-      </div>
-
-      <div class="field">
-        <label>Jersey Number</label>
-        <input name="jerseyNumber" type="text" placeholder="Athlete Number">
-      </div>
+      <div class="field"><label>Height</label><input name="height" type="text" placeholder="Athlete Height"></div>
+      <div class="field"><label>Weight</label><input name="weight" type="text" placeholder="Athlete Weight"></div>
+      <div class="field"><label>Primary Position / Event</label><input name="primaryPosition" type="text" placeholder="Primary Position or Event"></div>
+      <div class="field"><label>Secondary Position / Event</label><input name="secondaryPosition" type="text" placeholder="Optional"></div>
+      <div class="field"><label>Dominant Hand / Foot</label><input name="dominantHandFoot" type="text" placeholder="Right / Left / Both"></div>
+      <div class="field"><label>Jersey Number</label><input name="jerseyNumber" type="text" placeholder="Athlete Number"></div>
     </div>
   </section>
 
   <section class="section">
     <h2 class="section-title">Performance Metrics</h2>
     <div class="form-grid three">
-      <div class="field">
-        <label>40-Yard Dash</label>
-        <input name="dash40" type="text" placeholder="Enter verified time">
-      </div>
-
-      <div class="field">
-        <label>Vertical Jump</label>
-        <input name="verticalJump" type="text" placeholder="Enter verified measurement">
-      </div>
-
-      <div class="field">
-        <label>Shuttle</label>
-        <input name="shuttle" type="text" placeholder="Enter verified time">
-      </div>
-
-      <div class="field">
-        <label>Broad Jump</label>
-        <input name="broadJump" type="text" placeholder="Optional">
-      </div>
-
-      <div class="field">
-        <label>Bench / Strength Marker</label>
-        <input name="strengthMarker" type="text" placeholder="Optional">
-      </div>
-
-      <div class="field">
-        <label>Verified Event Source</label>
-        <input name="verifiedEventSource" type="text" placeholder="Camp, combine, school, coach">
-      </div>
-
-      <div class="field full">
-        <label>Position / Event-Specific Notes</label>
-        <textarea name="positionNotes" placeholder="Example: burst, vision, release package, defensive range, shooting efficiency, sprint mechanics, event readiness, etc."></textarea>
-      </div>
+      <div class="field"><label>40-Yard Dash</label><input name="dash40" type="text" placeholder="Enter verified time"></div>
+      <div class="field"><label>Vertical Jump</label><input name="verticalJump" type="text" placeholder="Enter verified measurement"></div>
+      <div class="field"><label>Shuttle</label><input name="shuttle" type="text" placeholder="Enter verified time"></div>
+      <div class="field"><label>Broad Jump</label><input name="broadJump" type="text" placeholder="Optional"></div>
+      <div class="field"><label>Bench / Strength Marker</label><input name="strengthMarker" type="text" placeholder="Optional"></div>
+      <div class="field"><label>Verified Event Source</label><input name="verifiedEventSource" type="text" placeholder="Camp, combine, school, coach"></div>
+      <div class="field full"><label>Position / Event-Specific Notes</label><textarea name="positionNotes" placeholder="Example: burst, vision, release package, defensive range, shooting efficiency, sprint mechanics, event readiness, etc."></textarea></div>
     </div>
   </section>
 
   <section class="section">
     <h2 class="section-title">Academic Readiness</h2>
     <div class="form-grid">
-      <div class="field">
-        <label>Current GPA</label>
-        <input name="currentGpa" type="text" placeholder="Current GPA">
-      </div>
-
+      <div class="field"><label>Current GPA</label><input name="currentGpa" type="text" placeholder="Current GPA"></div>
       <div class="field">
         <label>NCAA Eligibility Status</label>
         <select name="ncaaEligibilityStatus">
@@ -1033,7 +913,6 @@ button.btn:hover,a.btn:hover{
           <option>Verified Track</option>
         </select>
       </div>
-
       <div class="field">
         <label>Transcript Available?</label>
         <select name="transcriptAvailable">
@@ -1043,7 +922,6 @@ button.btn:hover,a.btn:hover{
           <option>Parent/Guardian Permission Required</option>
         </select>
       </div>
-
       <div class="field">
         <label>Counselor Contact Available?</label>
         <select name="counselorContactAvailable">
@@ -1053,11 +931,7 @@ button.btn:hover,a.btn:hover{
           <option>Pending</option>
         </select>
       </div>
-
-      <div class="field full">
-        <label>Academic Notes</label>
-        <textarea name="academicNotes" placeholder="Academic readiness notes, eligibility concerns, honors, course completion, or support needs."></textarea>
-      </div>
+      <div class="field full"><label>Academic Notes</label><textarea name="academicNotes" placeholder="Academic readiness notes, eligibility concerns, honors, course completion, or support needs."></textarea></div>
     </div>
   </section>
 
@@ -1072,7 +946,7 @@ button.btn:hover,a.btn:hover{
         </p>
       </div>
 
-      <div class="media-route-badge">Media Queue Pending</div>
+      <div class="media-route-badge" id="mediaQueueBadge">Media Queue Pending</div>
     </div>
 
     <div class="media-status-grid">
@@ -1088,6 +962,10 @@ button.btn:hover,a.btn:hover{
       <div class="field"><label>Game Film URL</label><input name="gameFilmUrl" type="url" placeholder="Optional"></div>
       <div class="field"><label>Recruiting Profile URL</label><input name="recruitingProfileUrl" type="url" placeholder="Optional"></div>
 
+      <input id="headshotUrl" name="headshotUrl" type="hidden">
+      <input id="headshotPath" name="headshotPath" type="hidden">
+      <input id="headshotFileName" name="headshotFileName" type="hidden">
+
       <div class="field full">
         <label for="athleteHeadshotUpload">Official Athlete Image / Headshot — Required</label>
 
@@ -1096,7 +974,7 @@ button.btn:hover,a.btn:hover{
           <small id="headshotUploadHint">Click to upload JPG, PNG, WEBP, HEIC, or HEIF</small>
         </label>
 
-        <input id="athleteHeadshotUpload" name="athleteHeadshotUpload" type="file" accept="image/png,image/jpeg,image/webp,image/heic,image/heif" hidden />
+        <input id="athleteHeadshotUpload" name="athleteHeadshotUpload" type="file" accept="image/png,image/jpeg,image/jpg,image/webp,image/heic,image/heif,.png,.jpg,.jpeg,.webp,.heic,.heif" hidden />
 
         <div class="headshot-actions">
           <button id="addHeadshotBtn" class="btn" type="button">Begin Media Ingest <span>+</span></button>
@@ -1194,6 +1072,403 @@ button.btn:hover,a.btn:hover{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="statscore-data.js"></script>
 <script src="statscore-routing.js"></script>
+
+<script>
+/*
+==========================================================
+STREAM 2 — HARDENED HEADSHOT / MEDIA INGEST RUNTIME
+==========================================================
+This runtime guarantees local selection + preview + state capture.
+It also exposes upload helpers for statscore-snapshot-intake-engine.js.
+
+Required engine access:
+window.STATSCORE_SELECTED_HEADSHOT_FILE
+window.STATSCORE_HEADSHOT_STATE
+window.uploadHeadshotForSnapshot(snapshot_id, athlete_id)
+==========================================================
+*/
+
+(function(){
+  "use strict";
+
+  const ACCEPTED_EXTENSIONS = [".png",".jpg",".jpeg",".webp",".heic",".heif"];
+  const ACCEPTED_TYPES = [
+    "image/png",
+    "image/jpeg",
+    "image/jpg",
+    "image/webp",
+    "image/heic",
+    "image/heif"
+  ];
+
+  const DEFAULT_BUCKETS = [
+    window.STATSCORE_HEADSHOT_BUCKET || "athlete-headshots",
+    window.STATSCORE_MEDIA_BUCKET || "statscore-media",
+    "headshots",
+    "athlete-media"
+  ];
+
+  window.STATSCORE_SELECTED_HEADSHOT_FILE = null;
+
+  window.STATSCORE_HEADSHOT_STATE = {
+    selected:false,
+    uploaded:false,
+    file_name:null,
+    file_type:null,
+    file_size:null,
+    preview_url:null,
+    storage_path:null,
+    public_url:null,
+    error:null
+  };
+
+  function qs(id){
+    return document.getElementById(id);
+  }
+
+  function setText(id, text){
+    const el = qs(id);
+    if(el) el.textContent = text;
+  }
+
+  function setValue(id, value){
+    const el = qs(id);
+    if(el) el.value = value || "";
+  }
+
+  function setSystemMessage(text, color){
+    const el = qs("systemMessage");
+    if(!el) return;
+    el.textContent = text || "";
+    el.style.color = color || "#25d366";
+  }
+
+  function setUploadBoxState(state){
+    const box = qs("headshotUploadBox");
+    if(!box) return;
+    box.classList.remove("ready","error");
+    if(state) box.classList.add(state);
+  }
+
+  function fileExtensionAllowed(fileName){
+    const name = String(fileName || "").toLowerCase();
+    return ACCEPTED_EXTENSIONS.some(ext => name.endsWith(ext));
+  }
+
+  function fileTypeAllowed(file){
+    if(!file) return false;
+    return ACCEPTED_TYPES.includes(file.type) || fileExtensionAllowed(file.name);
+  }
+
+  function resetHeadshotState(message){
+    const fileInput = qs("athleteHeadshotUpload");
+    const preview = qs("headshotPreview");
+    const removeBtn = qs("removeHeadshotBtn");
+
+    window.STATSCORE_SELECTED_HEADSHOT_FILE = null;
+
+    window.STATSCORE_HEADSHOT_STATE = {
+      selected:false,
+      uploaded:false,
+      file_name:null,
+      file_type:null,
+      file_size:null,
+      preview_url:null,
+      storage_path:null,
+      public_url:null,
+      error:null
+    };
+
+    if(fileInput) fileInput.value = "";
+
+    if(preview){
+      preview.removeAttribute("src");
+      preview.style.display = "none";
+    }
+
+    if(removeBtn) removeBtn.style.display = "none";
+
+    setText("headshotUploadText", "PHNX SPORTS MEDIA INGEST");
+    setText("headshotUploadHint", "Click to upload JPG, PNG, WEBP, HEIC, or HEIF");
+    setText("mediaStatusHeadshot", "Required");
+    setText("statusPhnxMedia", "Not Queued");
+    setText("mediaQueueBadge", "Media Queue Pending");
+    setValue("headshotUrl", "");
+    setValue("headshotPath", "");
+    setValue("headshotFileName", "");
+    setUploadBoxState(null);
+
+    if(message){
+      setSystemMessage(message, "#f4c542");
+    }
+  }
+
+  function markHeadshotReady(file, previewUrl){
+    window.STATSCORE_SELECTED_HEADSHOT_FILE = file;
+
+    window.STATSCORE_HEADSHOT_STATE = {
+      selected:true,
+      uploaded:false,
+      file_name:file.name,
+      file_type:file.type || "unknown",
+      file_size:file.size || 0,
+      preview_url:previewUrl,
+      storage_path:null,
+      public_url:null,
+      error:null
+    };
+
+    const preview = qs("headshotPreview");
+    const removeBtn = qs("removeHeadshotBtn");
+
+    if(preview){
+      preview.src = previewUrl;
+      preview.style.display = "block";
+    }
+
+    if(removeBtn) removeBtn.style.display = "flex";
+
+    setText("headshotUploadText", "HEADSHOT READY");
+    setText("headshotUploadHint", file.name);
+    setText("mediaStatusHeadshot", "Ready");
+    setText("statusPhnxMedia", "Ready");
+    setText("mediaQueueBadge", "Media Ready");
+    setValue("headshotFileName", file.name);
+    setUploadBoxState("ready");
+    setSystemMessage("Headshot selected and ready for upload.", "#25d366");
+
+    window.dispatchEvent(new CustomEvent("statscore:headshot-ready", {
+      detail:{
+        file,
+        state:window.STATSCORE_HEADSHOT_STATE
+      }
+    }));
+  }
+
+  function markHeadshotUploaded(result){
+    window.STATSCORE_HEADSHOT_STATE.uploaded = true;
+    window.STATSCORE_HEADSHOT_STATE.storage_path = result.storage_path || null;
+    window.STATSCORE_HEADSHOT_STATE.public_url = result.public_url || null;
+    window.STATSCORE_HEADSHOT_STATE.error = null;
+
+    setText("mediaStatusHeadshot", "Uploaded");
+    setText("statusPhnxMedia", "Queued");
+    setText("mediaQueueBadge", "Media Uploaded");
+    setValue("headshotUrl", result.public_url || "");
+    setValue("headshotPath", result.storage_path || "");
+    setUploadBoxState("ready");
+    setSystemMessage("Headshot uploaded and attached to snapshot.", "#25d366");
+
+    window.dispatchEvent(new CustomEvent("statscore:headshot-uploaded", {
+      detail:result
+    }));
+  }
+
+  function markHeadshotError(message){
+    window.STATSCORE_HEADSHOT_STATE.error = message || "Headshot ingest error.";
+    setText("mediaStatusHeadshot", "Error");
+    setText("statusPhnxMedia", "Error");
+    setText("mediaQueueBadge", "Media Error");
+    setUploadBoxState("error");
+    setSystemMessage(message || "Headshot upload failed.", "#ff2b1f");
+
+    window.dispatchEvent(new CustomEvent("statscore:headshot-error", {
+      detail:{ message }
+    }));
+  }
+
+  function openHeadshotPicker(event){
+    if(event){
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    const input = qs("athleteHeadshotUpload");
+    if(!input){
+      markHeadshotError("Headshot input missing. Upload cannot start.");
+      return;
+    }
+
+    input.click();
+  }
+
+  function handleHeadshotSelected(){
+    const input = qs("athleteHeadshotUpload");
+    const file = input && input.files && input.files[0];
+
+    if(!file) return;
+
+    if(!fileTypeAllowed(file)){
+      resetHeadshotState();
+      markHeadshotError("Unsupported headshot format. Use JPG, PNG, WEBP, HEIC, or HEIF.");
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function(evt){
+      const previewUrl = evt && evt.target && evt.target.result;
+      if(!previewUrl){
+        markHeadshotError("Headshot preview failed. Try another image.");
+        return;
+      }
+
+      markHeadshotReady(file, previewUrl);
+    };
+
+    reader.onerror = function(){
+      resetHeadshotState();
+      markHeadshotError("Headshot preview failed. Try another image.");
+    };
+
+    reader.readAsDataURL(file);
+  }
+
+  function getDbSafe(){
+    if(typeof window.getDb === "function") return window.getDb();
+    if(typeof getDb === "function") return getDb();
+
+    if(window.STATSCORE_DB) return window.STATSCORE_DB;
+    if(window.supabaseClient) return window.supabaseClient;
+    if(window.db) return window.db;
+
+    throw new Error("Supabase client not available for headshot upload.");
+  }
+
+  function cleanFilePart(value){
+    return String(value || "")
+      .toLowerCase()
+      .replace(/[^a-z0-9._-]+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "")
+      .slice(0, 80);
+  }
+
+  function getFileExtension(file){
+    const name = String(file && file.name || "");
+    const dot = name.lastIndexOf(".");
+    if(dot >= 0) return name.slice(dot).toLowerCase();
+    if(file && file.type === "image/png") return ".png";
+    if(file && file.type === "image/webp") return ".webp";
+    return ".jpg";
+  }
+
+  async function tryUploadToBucket(db, bucket, path, file){
+    const result = await db.storage
+      .from(bucket)
+      .upload(path, file, {
+        cacheControl:"3600",
+        upsert:true,
+        contentType:file.type || undefined
+      });
+
+    if(result.error) throw result.error;
+
+    const publicResult = db.storage.from(bucket).getPublicUrl(path);
+
+    return {
+      bucket,
+      storage_path:path,
+      public_url:publicResult && publicResult.data ? publicResult.data.publicUrl : null,
+      upload_data:result.data || null
+    };
+  }
+
+  window.uploadHeadshotForSnapshot = async function(snapshotId, athleteId){
+    const file = window.STATSCORE_SELECTED_HEADSHOT_FILE;
+
+    if(!file){
+      return {
+        uploaded:false,
+        skipped:true,
+        reason:"No headshot file selected."
+      };
+    }
+
+    if(!snapshotId){
+      markHeadshotError("Snapshot ID is required before headshot upload.");
+      throw new Error("Snapshot ID is required before headshot upload.");
+    }
+
+    const db = getDbSafe();
+    const safeSnapshot = cleanFilePart(snapshotId);
+    const safeAthlete = cleanFilePart(athleteId || "athlete");
+    const safeName = cleanFilePart(file.name || "headshot");
+    const ext = getFileExtension(file);
+    const path = `${safeSnapshot}/${safeAthlete}-headshot-${Date.now()}-${safeName || "image"}${safeName.endsWith(ext) ? "" : ext}`;
+
+    let lastError = null;
+
+    for(const bucket of DEFAULT_BUCKETS){
+      if(!bucket) continue;
+
+      try{
+        const uploaded = await tryUploadToBucket(db, bucket, path, file);
+        markHeadshotUploaded(uploaded);
+        return {
+          uploaded:true,
+          ...uploaded
+        };
+      }catch(err){
+        lastError = err;
+        if(window.STATSCORE_DEBUG){
+          console.warn("Headshot upload bucket failed:", bucket, err);
+        }
+      }
+    }
+
+    const message = lastError && lastError.message
+      ? lastError.message
+      : "Headshot upload failed. Check Supabase Storage bucket and policies.";
+
+    markHeadshotError(message);
+    throw new Error(message);
+  };
+
+  window.getSelectedHeadshotFile = function(){
+    return window.STATSCORE_SELECTED_HEADSHOT_FILE || null;
+  };
+
+  window.getHeadshotIngestState = function(){
+    return {...window.STATSCORE_HEADSHOT_STATE};
+  };
+
+  function initHeadshotRuntime(){
+    const fileInput = qs("athleteHeadshotUpload");
+    const uploadBox = qs("headshotUploadBox");
+    const addBtn = qs("addHeadshotBtn");
+    const removeBtn = qs("removeHeadshotBtn");
+
+    if(!fileInput || !uploadBox){
+      console.error("STATS-CORE headshot runtime failed: required elements missing.");
+      return;
+    }
+
+    uploadBox.addEventListener("click", openHeadshotPicker);
+
+    if(addBtn){
+      addBtn.addEventListener("click", openHeadshotPicker);
+    }
+
+    fileInput.addEventListener("change", handleHeadshotSelected);
+
+    if(removeBtn){
+      removeBtn.addEventListener("click", function(event){
+        event.preventDefault();
+        event.stopPropagation();
+        resetHeadshotState("Headshot removed.");
+      });
+    }
+
+    setSystemMessage("Headshot ingest runtime active.", "#25d366");
+
+    window.dispatchEvent(new CustomEvent("statscore:headshot-runtime-ready"));
+  }
+
+  document.addEventListener("DOMContentLoaded", initHeadshotRuntime);
+})();
+</script>
+
 <script src="statscore-snapshot-intake-engine.js"></script>
 
 </body>
