@@ -16,7 +16,7 @@ Primary Operational Authority:
 Stream 2 — Athlete Source Record
 
 System Layer:
-Athlete Source / Snapshot Intake
+Athlete Source / Athlete Intake
 
 Primary Runtime:
 statscore-data.js
@@ -94,6 +94,7 @@ Last Governance Review:
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>STATS-CORE™ — Athlete Intake</title>
+<link rel="icon" type="image/png" href="sc_emblem.png" />
 
 <style>
 :root{
@@ -133,25 +134,33 @@ a{text-decoration:none;color:inherit}
     linear-gradient(90deg,rgba(0,0,0,.88),rgba(0,0,0,.68),rgba(0,0,0,.78)),
     radial-gradient(circle at 45% 20%,rgba(255,43,31,.13),transparent 34%),
     radial-gradient(circle at 80% 70%,rgba(126,216,255,.11),transparent 34%),
+    repeating-linear-gradient(135deg,rgba(255,255,255,.018) 0,rgba(255,255,255,.018) 1px,transparent 1px,transparent 7px),
     #020202;
 }
 
+/* ==========================================================
+   DASHBOARD-MATCHED HEADER SHELL
+========================================================== */
+
 .header{
-  height:92px;
-  background:linear-gradient(180deg,#fff,#ededeb);
+  height:96px;
+  background:linear-gradient(180deg,#fff,#ececec);
+  border-bottom:3px solid var(--red);
   display:grid;
-  grid-template-columns:390px 1fr 560px;
+  grid-template-columns:380px 1fr 620px;
   align-items:center;
-  border-bottom:2px solid var(--red);
+  overflow:visible;
+  position:relative;
+  z-index:50;
 }
 
 .logo-tab{
-  height:92px;
-  background:linear-gradient(145deg,#151515,#050505 65%,#000);
+  height:96px;
+  background:linear-gradient(145deg,#181818,#070707 70%,#000);
   clip-path:polygon(0 0,78% 0,100% 100%,0 100%);
   display:flex;
   align-items:center;
-  padding-left:26px;
+  padding-left:28px;
   position:relative;
 }
 
@@ -160,8 +169,8 @@ a{text-decoration:none;color:inherit}
   position:absolute;
   top:0;
   left:0;
-  width:140px;
-  height:16px;
+  width:170px;
+  height:15px;
   background:var(--red);
   clip-path:polygon(0 0,92% 0,100% 100%,0 100%);
 }
@@ -171,14 +180,15 @@ a{text-decoration:none;color:inherit}
   position:absolute;
   bottom:0;
   left:0;
-  right:34px;
+  right:42px;
   height:3px;
   background:var(--red);
 }
 
 .logo-tab img{
-  width:292px;
-  max-height:76px;
+  width:286px;
+  height:auto;
+  display:block;
   object-fit:contain;
 }
 
@@ -189,37 +199,54 @@ a{text-decoration:none;color:inherit}
   font-size:.78rem;
   letter-spacing:.24em;
   text-transform:uppercase;
+  line-height:1.38;
 }
 
-.header-nav{
+.header-tools{
+  position:relative;
+  padding:10px 20px 10px 0;
   display:flex;
   justify-content:flex-end;
   align-items:center;
-  gap:10px;
-  padding-right:24px;
-  height:100%;
-  color:#111;
+}
+
+.top-nav{
+  display:flex;
+  justify-content:flex-end;
+  gap:7px;
   flex-wrap:wrap;
 }
 
-.header-nav a{
+.top-nav a{
+  height:30px;
+  min-width:80px;
+  border:1px solid rgba(0,0,0,.22);
+  color:#111;
+  background:rgba(255,255,255,.55);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  font-size:.56rem;
   font-weight:900;
-  font-size:.66rem;
-  letter-spacing:.1em;
+  letter-spacing:.06em;
   text-transform:uppercase;
-  padding:9px 0;
-  border-bottom:2px solid transparent;
+  padding:0 9px;
   white-space:nowrap;
 }
 
-.header-nav a.active{
+.top-nav a.active{
   color:var(--red);
-  border-bottom-color:var(--red);
+  border-color:var(--red);
+  background:rgba(255,43,31,.08);
 }
+
+/* ==========================================================
+   MAIN BODY
+========================================================== */
 
 .main{
   padding:22px 32px 0;
-  background:repeating-linear-gradient(135deg,rgba(255,255,255,.018) 0,rgba(255,255,255,.018) 1px,transparent 1px,transparent 7px);
 }
 
 .record-header{
@@ -355,6 +382,10 @@ input:focus,select:focus,textarea:focus{
   border-color:var(--red);
   box-shadow:0 0 0 1px rgba(255,43,31,.4);
 }
+
+/* ==========================================================
+   PHNX SPORTS MEDIA INGEST
+========================================================== */
 
 .media-ingest-section{
   position:relative;
@@ -580,6 +611,10 @@ input:focus,select:focus,textarea:focus{
   font-size:.66rem;
 }
 
+/* ==========================================================
+   SIDE PANEL / BUTTONS / FOOTER
+========================================================== */
+
 .side-title{
   margin:0 0 8px;
   font-size:1.7rem;
@@ -758,7 +793,7 @@ button.btn:hover,a.btn:hover{
     padding:14px;
   }
 
-  .header-nav{
+  .header-tools{
     grid-column:1 / -1;
     justify-content:center;
     padding:12px 18px 16px;
@@ -779,10 +814,8 @@ button.btn:hover,a.btn:hover{
     padding:14px;
   }
 
-  .header-nav{
+  .top-nav{
     justify-content:center;
-    padding:14px;
-    flex-wrap:wrap;
   }
 
   .main{
@@ -829,21 +862,26 @@ button.btn:hover,a.btn:hover{
 
 <header class="header">
   <a class="logo-tab" href="index.html">
-    <img src="sc_logo_i.png" alt="STATS-CORE™ Athlete Lifecycle System">
+    <img src="sc_logo_i.png" alt="STATS-CORE Athlete Lifecycle System">
   </a>
 
-  <div class="header-title">National Athlete Infrastructure • Controlled Access</div>
+  <div class="header-title">
+    National Athlete Infrastructure<br>
+    Controlled Access
+  </div>
 
-  <nav class="header-nav" aria-label="Athlete Intake Navigation">
-    <a href="index.html">Entry</a>
-    <a class="active" href="snapshot-intake.html">Athlete Intake</a>
-    <a href="parent-approval.html">Parent Approval</a>
-    <a href="verification-request.html">Verification</a>
-    <a href="athlete-dashboard.html">Dashboard</a>
-    <a href="player-profile.html">Profile</a>
-    <a href="privacy.html">Privacy</a>
-    <a href="terms.html">Terms</a>
-  </nav>
+  <div class="header-tools">
+    <nav class="top-nav" aria-label="Athlete Intake Navigation">
+      <a href="index.html">Entry</a>
+      <a class="active" href="snapshot-intake.html">Athlete Intake</a>
+      <a href="parent-approval.html">Parent Approval</a>
+      <a href="verification-request.html">Verification</a>
+      <a href="athlete-dashboard.html">Dashboard</a>
+      <a href="player-profile.html">Profile</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+    </nav>
+  </div>
 </header>
 
 <main class="main">
@@ -1038,47 +1076,17 @@ button.btn:hover,a.btn:hover{
     </div>
 
     <div class="media-status-grid">
-      <div class="media-status">
-        <span>Headshot</span>
-        <b id="mediaStatusHeadshot">Required</b>
-      </div>
-
-      <div class="media-status">
-        <span>Player Card</span>
-        <b id="mediaStatusCard">Not Ready</b>
-      </div>
-
-      <div class="media-status">
-        <span>Highlight Film</span>
-        <b id="mediaStatusFilm">Pending</b>
-      </div>
-
-      <div class="media-status">
-        <span>PHNX Routing</span>
-        <b id="mediaStatusRouting">Queued After Submit</b>
-      </div>
+      <div class="media-status"><span>Headshot</span><b id="mediaStatusHeadshot">Required</b></div>
+      <div class="media-status"><span>Player Card</span><b id="mediaStatusCard">Not Ready</b></div>
+      <div class="media-status"><span>Highlight Film</span><b id="mediaStatusFilm">Pending</b></div>
+      <div class="media-status"><span>PHNX Routing</span><b id="mediaStatusRouting">Queued After Submit</b></div>
     </div>
 
     <div class="form-grid">
-      <div class="field">
-        <label>Highlight Reel URL</label>
-        <input name="highlightUrl" type="url" placeholder="Hudl, YouTube, X, Instagram, etc.">
-      </div>
-
-      <div class="field">
-        <label>Social Profile URL</label>
-        <input name="socialProfileUrl" type="url" placeholder="Verified athlete profile link">
-      </div>
-
-      <div class="field">
-        <label>Game Film URL</label>
-        <input name="gameFilmUrl" type="url" placeholder="Optional">
-      </div>
-
-      <div class="field">
-        <label>Recruiting Profile URL</label>
-        <input name="recruitingProfileUrl" type="url" placeholder="Optional">
-      </div>
+      <div class="field"><label>Highlight Reel URL</label><input name="highlightUrl" type="url" placeholder="Hudl, YouTube, X, Instagram, etc."></div>
+      <div class="field"><label>Social Profile URL</label><input name="socialProfileUrl" type="url" placeholder="Verified athlete profile link"></div>
+      <div class="field"><label>Game Film URL</label><input name="gameFilmUrl" type="url" placeholder="Optional"></div>
+      <div class="field"><label>Recruiting Profile URL</label><input name="recruitingProfileUrl" type="url" placeholder="Optional"></div>
 
       <div class="field full">
         <label for="athleteHeadshotUpload">Official Athlete Image / Headshot — Required</label>
@@ -1101,27 +1109,11 @@ button.btn:hover,a.btn:hover{
 
     <div class="media-routing-panel">
       <div class="media-routing-title">Production Readiness Route</div>
-
       <div class="media-routing-list">
-        <div class="media-route-item">
-          <b>Identity</b>
-          <span>Snapshot data</span>
-        </div>
-
-        <div class="media-route-item">
-          <b>Media</b>
-          <span>Headshot + film links</span>
-        </div>
-
-        <div class="media-route-item">
-          <b>Package</b>
-          <span>Cards / thumbnails / reels</span>
-        </div>
-
-        <div class="media-route-item">
-          <b>Channel</b>
-          <span>PHNX SPORTS queue</span>
-        </div>
+        <div class="media-route-item"><b>Identity</b><span>Snapshot data</span></div>
+        <div class="media-route-item"><b>Media</b><span>Headshot + film links</span></div>
+        <div class="media-route-item"><b>Package</b><span>Cards / thumbnails / reels</span></div>
+        <div class="media-route-item"><b>Channel</b><span>PHNX SPORTS queue</span></div>
       </div>
     </div>
   </section>
@@ -1129,31 +1121,11 @@ button.btn:hover,a.btn:hover{
   <section class="section">
     <h2 class="section-title">Parent / Guardian & Verification</h2>
     <div class="form-grid">
-      <div class="field">
-        <label>Parent / Guardian Name</label>
-        <input name="guardianName" type="text" placeholder="Full name">
-      </div>
-
-      <div class="field">
-        <label>Parent / Guardian Email</label>
-        <input name="guardianEmail" type="email" placeholder="email@example.com">
-      </div>
-
-      <div class="field">
-        <label>Parent / Guardian Phone</label>
-        <input name="guardianPhone" type="tel" placeholder="Optional">
-      </div>
-
-      <div class="field">
-        <label>Coach Name</label>
-        <input name="coachName" type="text" placeholder="Coach or program contact">
-      </div>
-
-      <div class="field">
-        <label>Coach Email</label>
-        <input name="coachEmail" type="email" placeholder="coach@example.com">
-      </div>
-
+      <div class="field"><label>Parent / Guardian Name</label><input name="guardianName" type="text" placeholder="Full name"></div>
+      <div class="field"><label>Parent / Guardian Email</label><input name="guardianEmail" type="email" placeholder="email@example.com"></div>
+      <div class="field"><label>Parent / Guardian Phone</label><input name="guardianPhone" type="tel" placeholder="Optional"></div>
+      <div class="field"><label>Coach Name</label><input name="coachName" type="text" placeholder="Coach or program contact"></div>
+      <div class="field"><label>Coach Email</label><input name="coachEmail" type="email" placeholder="coach@example.com"></div>
       <div class="field">
         <label>Verification Permission</label>
         <select name="verificationPermission">
@@ -1210,14 +1182,9 @@ button.btn:hover,a.btn:hover{
 </section>
 
 <footer class="footer">
-  <div>
-    <img src="sc_logo_i.png" alt="STATS-CORE™ Athlete Lifecycle System">
-  </div>
-
+  <div><img src="sc_logo_i.png" alt="STATS-CORE™ Athlete Lifecycle System"></div>
   <div>Official Athlete Intake</div>
-
   <div class="demo-ok">✓ Unverified STATS-CORE Pending Verification</div>
-
   <div>© STATS-CORE Systems<br>All Rights Reserved.</div>
 </footer>
 
