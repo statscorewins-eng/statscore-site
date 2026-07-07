@@ -13,53 +13,70 @@ Owner Stream:
 Stream 2 — Athlete Source Record
 
 Primary Operational Authority:
-Stream 2 — Athlete Source Record
+Stream 2 — Athlete Record Intake & Evidence Provenance
 
 System Layer:
-Athlete Source / Athlete Intake
+Athlete Record Intake / Evidence Provenance Capture
 
 Primary Runtime:
 statscore-data.js
 statscore-routing.js
 statscore-snapshot-intake-engine.js
-Inline hardened headshot/media ingest runtime
 
 Primary Intelligence Engine(s):
 None
 
 Previous Route:
 login.html
+role-dashboard.html
+parent.html
+coach.html
+evaluator.html
+trainer workspace
+camp/combine workflow
 
 Current Route:
 snapshot-intake.html
 
 Next Route(s):
-athlete-dashboard.html
-player-profile.html
 parent-approval.html
 verification-request.html
+athlete-dashboard.html
+player-profile.html
+athletic-snapshot.html
 
 Consumes:
 Athlete identity input
-Athletic input
+Universal athlete record input
+Sport-specific evidence input
 Academic input
 Media input
 Guardian input
+Coach/source contact input
+Submitter/source identity
+PHNX Certified ID when applicable
 snapshot_id when reviewing existing intake
 
 Provides:
 athlete_id
 snapshot_id
-source record
+athlete source record
+submitted_by metadata
+source_origin
+trust_classification
+verification_status
+sport_metric_payload
+source_claims_payload
+headshot metadata
 parent approval initiation
 verification request initiation
-selected headshot file
-headshot preview state
-headshot upload helper
 
 Primary IDs:
 athlete_id
 snapshot_id
+submitted_by_user_id
+submitted_by_professional_id
+phnx_certified_id
 
 Primary Database Tables:
 public.statscore_snapshots
@@ -72,6 +89,8 @@ Cross-Stream Dependencies:
 Provides source data to Stream 3.
 Provides approval context to Stream 6 and Stream 7.
 Provides governed source context to Stream 9.
+Consumes PHNX credential authority from Stream 10 when available.
+Preserves runtime audit context for Stream 8.
 
 Does NOT:
 - Calculate scores
@@ -80,14 +99,15 @@ Does NOT:
 - Create Crystal Reports
 - Execute communication
 - Issue credentials
-- Configure professional dashboards
+- Validate PHNX certification
+- Assign intelligence weighting
 - Expose full role rail
 
 Status:
 CANON LOCKED
 
 Last Governance Review:
-2026-07-06
+2026-07-07
 
 ==========================================================
 -->
@@ -97,7 +117,7 @@ Last Governance Review:
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>STATS-CORE™ — Athlete Intake</title>
+<title>STATS-CORE™ — Athlete Record Intake</title>
 <link rel="icon" type="image/png" href="sc_emblem.png" />
 
 <style>
@@ -142,6 +162,7 @@ a{text-decoration:none;color:inherit}
     #020202;
 }
 
+/* DASHBOARD-MATCHED HEADER */
 .header{
   height:96px;
   background:linear-gradient(180deg,#fff,#ececec);
@@ -272,6 +293,15 @@ a{text-decoration:none;color:inherit}
   color:#f7f7f1;
 }
 
+.record-subtitle{
+  margin:12px 0 0;
+  color:#dceaf0;
+  font-size:.86rem;
+  line-height:1.45;
+  font-weight:800;
+  max-width:920px;
+}
+
 .record-badge{
   border:1px solid rgba(255,255,255,.16);
   padding:10px 14px;
@@ -312,6 +342,13 @@ a{text-decoration:none;color:inherit}
   margin-bottom:14px;
 }
 
+.section.phnx-section{
+  border-color:rgba(244,197,66,.38);
+  background:
+    linear-gradient(135deg,rgba(244,197,66,.07),rgba(7,10,16,.48)),
+    rgba(7,10,16,.42);
+}
+
 .section-title{
   margin:0 0 18px;
   color:var(--red);
@@ -319,6 +356,14 @@ a{text-decoration:none;color:inherit}
   font-weight:900;
   letter-spacing:.24em;
   text-transform:uppercase;
+}
+
+.section-note{
+  margin:-8px 0 16px;
+  color:var(--muted);
+  font-size:.74rem;
+  line-height:1.45;
+  font-weight:800;
 }
 
 .form-grid{
@@ -371,6 +416,27 @@ input:focus,select:focus,textarea:focus{
   box-shadow:0 0 0 1px rgba(255,43,31,.4);
 }
 
+/* SPORT EVIDENCE BLOCKS */
+.sport-evidence-block{
+  display:none;
+  border:1px solid rgba(126,216,255,.22);
+  background:rgba(0,0,0,.18);
+  padding:16px;
+  margin-top:14px;
+}
+
+.sport-evidence-block.active{display:block}
+
+.sport-evidence-title{
+  color:var(--blue);
+  font-size:.7rem;
+  font-weight:900;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  margin:0 0 14px;
+}
+
+/* MEDIA INGEST */
 .media-ingest-section{
   position:relative;
   overflow:hidden;
@@ -605,6 +671,7 @@ input:focus,select:focus,textarea:focus{
   font-size:.66rem;
 }
 
+/* SIDE PANEL / BUTTONS */
 .side-title{
   margin:0 0 8px;
   font-size:1.7rem;
@@ -825,7 +892,7 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
   </div>
 
   <div class="header-tools">
-    <nav class="top-nav" aria-label="Athlete Intake Navigation">
+    <nav class="top-nav" aria-label="Athlete Record Intake Navigation">
       <a href="index.html">Entry</a>
       <a class="active" href="snapshot-intake.html">Athlete Intake</a>
       <a href="parent-approval.html">Parent Approval</a>
@@ -842,15 +909,123 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
 
 <section class="record-header">
   <div>
-    <div class="record-kicker">Official Athlete Data Intake</div>
-    <h1 class="record-title">Athlete Intake</h1>
+    <div class="record-kicker">Official Athlete Record Creation</div>
+    <h1 class="record-title">Athlete Record Intake</h1>
+    <p class="record-subtitle">
+      Establish the governed Athlete Record used by Dashboard, Profile, Athletic Snapshot, Production, Academic, PHNX Media, and Crystal intelligence. Intake may be submitted by an athlete, parent, coach, evaluator/trainer, camp/combine operator, program, or authorized administrator.
+    </p>
   </div>
-  <div class="record-badge" id="recordBadge">Source Record Pending</div>
+  <div class="record-badge" id="recordBadge">Record Pending</div>
 </section>
 
 <section class="intake-grid">
 
 <form class="form-panel" id="snapshotForm">
+
+  <!-- Hidden Runtime Fields -->
+  <input id="athleteId" name="athleteId" type="hidden">
+  <input id="snapshotId" name="snapshotId" type="hidden">
+  <input id="sportMetricPayload" name="sportMetricPayload" type="hidden">
+  <input id="sourceClaimsPayload" name="sourceClaimsPayload" type="hidden">
+  <input id="headshotUrl" name="headshotUrl" type="hidden">
+  <input id="headshotPath" name="headshotPath" type="hidden">
+  <input id="headshotFileName" name="headshotFileName" type="hidden">
+
+  <section class="section phnx-section">
+    <h2 class="section-title">Source Origin / Submitted By</h2>
+    <p class="section-note">
+      STATS-CORE records who established this Athlete Record. Certification validates the contributor. Stream 2 records provenance only; Stream 9 interprets confidence later.
+    </p>
+
+    <div class="form-grid three">
+      <div class="field">
+        <label>Source Origin</label>
+        <select id="sourceOrigin" name="sourceOrigin" required>
+          <option value="athlete_self">Athlete Self</option>
+          <option value="parent_guardian">Parent / Guardian</option>
+          <option value="coach_submitted">Coach</option>
+          <option value="evaluator_trainer">Evaluator / Trainer</option>
+          <option value="camp_combine">Camp / Combine</option>
+          <option value="program_submitted">Program / Organization</option>
+          <option value="admin_backoffice">Admin / Back Office</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Submitted By Role</label>
+        <select id="submittedByRole" name="submittedByRole" required>
+          <option value="athlete">Athlete</option>
+          <option value="parent_guardian">Parent / Guardian</option>
+          <option value="coach">Coach</option>
+          <option value="evaluator">Evaluator</option>
+          <option value="trainer">Trainer</option>
+          <option value="camp_operator">Camp / Combine Operator</option>
+          <option value="program_admin">Program Administrator</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Trust Classification</label>
+        <select id="trustClassification" name="trustClassification">
+          <option value="SELF_REPORTED">Self-Reported</option>
+          <option value="PARENT_REPORTED">Parent-Reported</option>
+          <option value="COACH_SUBMITTED">Coach-Submitted</option>
+          <option value="EVALUATOR_SUBMITTED">Evaluator-Submitted</option>
+          <option value="TRAINER_SUBMITTED">Trainer-Submitted</option>
+          <option value="PHNX_CERTIFIED_COACH">PHNX Certified Coach</option>
+          <option value="PHNX_CERTIFIED_EVALUATOR">PHNX Certified Evaluator</option>
+          <option value="PHNX_CERTIFIED_TRAINER">PHNX Certified Trainer</option>
+          <option value="PHNX_SPORTS_COMBINE">PHNX Sports Camp / Combine</option>
+          <option value="OFFICIAL_STAT_SOURCE">Official Stat Source</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Submitted By Name</label>
+        <input id="submittedByName" name="submittedByName" type="text" placeholder="Name of contributor">
+      </div>
+
+      <div class="field">
+        <label>Submitted By Email</label>
+        <input id="submittedByEmail" name="submittedByEmail" type="email" placeholder="contributor@example.com">
+      </div>
+
+      <div class="field">
+        <label>PHNX Certified ID#</label>
+        <input id="phnxCertifiedId" name="phnxCertifiedId" type="text" placeholder="Optional unless certified">
+      </div>
+
+      <div class="field">
+        <label>PHNX Certification Status</label>
+        <select id="phnxCertificationStatus" name="phnxCertificationStatus">
+          <option value="not_provided">Not Provided</option>
+          <option value="pending_validation">Pending Validation</option>
+          <option value="valid">Valid</option>
+          <option value="expired">Expired</option>
+          <option value="suspended">Suspended</option>
+          <option value="not_certified">Not Certified</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Organization / Event</label>
+        <input id="sourceOrganization" name="sourceOrganization" type="text" placeholder="School, team, camp, combine, program">
+      </div>
+
+      <div class="field">
+        <label>Submission Source</label>
+        <select id="submissionSource" name="submissionSource">
+          <option value="snapshot-intake.html">Athlete Record Intake</option>
+          <option value="camp_combine">Camp / Combine</option>
+          <option value="coach_workspace">Coach Workspace</option>
+          <option value="evaluator_workspace">Evaluator Workspace</option>
+          <option value="trainer_workspace">Trainer Workspace</option>
+          <option value="admin_import">Admin Import</option>
+        </select>
+      </div>
+    </div>
+  </section>
 
   <section class="section">
     <h2 class="section-title">Athlete Identity</h2>
@@ -862,7 +1037,7 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
       <div class="field"><label>School / Program</label><input name="schoolProgram" type="text" placeholder="School or club program"></div>
       <div class="field">
         <label>Primary Sport</label>
-        <select name="primarySport" required>
+        <select id="primarySport" name="primarySport" required>
           <option value="">Select sport</option>
           <option value="football">Football</option>
           <option value="basketball">Basketball</option>
@@ -874,27 +1049,73 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
   </section>
 
   <section class="section">
-    <h2 class="section-title">Physical Profile</h2>
+    <h2 class="section-title">Universal Physical Profile</h2>
     <div class="form-grid three">
       <div class="field"><label>Height</label><input name="height" type="text" placeholder="Athlete Height"></div>
       <div class="field"><label>Weight</label><input name="weight" type="text" placeholder="Athlete Weight"></div>
       <div class="field"><label>Primary Position / Event</label><input name="primaryPosition" type="text" placeholder="Primary Position or Event"></div>
       <div class="field"><label>Secondary Position / Event</label><input name="secondaryPosition" type="text" placeholder="Optional"></div>
-      <div class="field"><label>Dominant Hand / Foot</label><input name="dominantHandFoot" type="text" placeholder="Right / Left / Both"></div>
+      <div class="field"><label>Dominant Hand / Foot / Side</label><input name="dominantHandFoot" type="text" placeholder="Right / Left / Both"></div>
       <div class="field"><label>Jersey Number</label><input name="jerseyNumber" type="text" placeholder="Athlete Number"></div>
     </div>
   </section>
 
   <section class="section">
-    <h2 class="section-title">Performance Metrics</h2>
-    <div class="form-grid three">
-      <div class="field"><label>40-Yard Dash</label><input name="dash40" type="text" placeholder="Enter verified time"></div>
-      <div class="field"><label>Vertical Jump</label><input name="verticalJump" type="text" placeholder="Enter verified measurement"></div>
-      <div class="field"><label>Shuttle</label><input name="shuttle" type="text" placeholder="Enter verified time"></div>
-      <div class="field"><label>Broad Jump</label><input name="broadJump" type="text" placeholder="Optional"></div>
-      <div class="field"><label>Bench / Strength Marker</label><input name="strengthMarker" type="text" placeholder="Optional"></div>
-      <div class="field"><label>Verified Event Source</label><input name="verifiedEventSource" type="text" placeholder="Camp, combine, school, coach"></div>
-      <div class="field full"><label>Position / Event-Specific Notes</label><textarea name="positionNotes" placeholder="Example: burst, vision, release package, defensive range, shooting efficiency, sprint mechanics, event readiness, etc."></textarea></div>
+    <h2 class="section-title">Sport-Specific Evidence</h2>
+    <p class="section-note">
+      Sport evidence is captured as facts. Stream 2 does not calculate scores or assign intelligence weighting.
+    </p>
+
+    <div id="footballMetrics" class="sport-evidence-block">
+      <h3 class="sport-evidence-title">Football Evidence</h3>
+      <div class="form-grid three">
+        <div class="field"><label>40-Yard Dash</label><input name="footballDash40" type="text" placeholder="Verified or reported time"></div>
+        <div class="field"><label>Vertical Jump</label><input name="footballVerticalJump" type="text" placeholder="Measurement"></div>
+        <div class="field"><label>Shuttle</label><input name="footballShuttle" type="text" placeholder="Time"></div>
+        <div class="field"><label>Broad Jump</label><input name="footballBroadJump" type="text" placeholder="Optional"></div>
+        <div class="field"><label>Strength Marker</label><input name="footballStrengthMarker" type="text" placeholder="Bench, squat, power clean, etc."></div>
+        <div class="field"><label>Verified Event Source</label><input name="footballVerifiedEventSource" type="text" placeholder="Camp, combine, school, coach"></div>
+        <div class="field full"><label>Football Notes</label><textarea name="footballNotes" placeholder="Burst, release package, coverage ability, football IQ, etc."></textarea></div>
+      </div>
+    </div>
+
+    <div id="basketballMetrics" class="sport-evidence-block">
+      <h3 class="sport-evidence-title">Basketball Evidence</h3>
+      <div class="form-grid three">
+        <div class="field"><label>Wingspan</label><input name="basketballWingspan" type="text" placeholder="Optional"></div>
+        <div class="field"><label>Vertical Jump</label><input name="basketballVerticalJump" type="text" placeholder="Measurement"></div>
+        <div class="field"><label>Lane Agility</label><input name="basketballLaneAgility" type="text" placeholder="Time"></div>
+        <div class="field"><label>3/4 Court Sprint</label><input name="basketballCourtSprint" type="text" placeholder="Time"></div>
+        <div class="field"><label>Primary Skill Marker</label><input name="basketballSkillMarker" type="text" placeholder="Shooting, handle, defense, etc."></div>
+        <div class="field"><label>Verified Event Source</label><input name="basketballVerifiedEventSource" type="text" placeholder="Camp, showcase, school, AAU"></div>
+        <div class="field full"><label>Basketball Notes</label><textarea name="basketballNotes" placeholder="Shooting profile, defensive versatility, handle, court vision, etc."></textarea></div>
+      </div>
+    </div>
+
+    <div id="baseballMetrics" class="sport-evidence-block">
+      <h3 class="sport-evidence-title">Baseball Evidence</h3>
+      <div class="form-grid three">
+        <div class="field"><label>60-Yard Dash</label><input name="baseballDash60" type="text" placeholder="Time"></div>
+        <div class="field"><label>Exit Velocity</label><input name="baseballExitVelocity" type="text" placeholder="MPH"></div>
+        <div class="field"><label>Throwing Velocity</label><input name="baseballThrowingVelocity" type="text" placeholder="MPH"></div>
+        <div class="field"><label>Pop Time</label><input name="baseballPopTime" type="text" placeholder="Catchers only"></div>
+        <div class="field"><label>Bat / Throw Side</label><input name="baseballBatThrowSide" type="text" placeholder="R/R, L/L, S/R, etc."></div>
+        <div class="field"><label>Verified Event Source</label><input name="baseballVerifiedEventSource" type="text" placeholder="Showcase, camp, school"></div>
+        <div class="field full"><label>Baseball Notes</label><textarea name="baseballNotes" placeholder="Arm strength, barrel control, fielding, mound presence, etc."></textarea></div>
+      </div>
+    </div>
+
+    <div id="trackMetrics" class="sport-evidence-block">
+      <h3 class="sport-evidence-title">Track Evidence</h3>
+      <div class="form-grid three">
+        <div class="field"><label>Primary Event</label><input name="trackPrimaryEvent" type="text" placeholder="100m, 200m, LJ, HJ, etc."></div>
+        <div class="field"><label>Best Time / Mark</label><input name="trackBestMark" type="text" placeholder="Time or distance"></div>
+        <div class="field"><label>FAT / Manual</label><select name="trackTimingType"><option value="">Select</option><option>FAT</option><option>Manual</option><option>Estimated</option></select></div>
+        <div class="field"><label>Meet Source</label><input name="trackMeetSource" type="text" placeholder="Meet, invitational, combine"></div>
+        <div class="field"><label>Split Data</label><input name="trackSplitData" type="text" placeholder="Optional"></div>
+        <div class="field"><label>Verified Event Source</label><input name="trackVerifiedEventSource" type="text" placeholder="Meet, timing system, coach"></div>
+        <div class="field full"><label>Track Notes</label><textarea name="trackNotes" placeholder="Event readiness, mechanics, acceleration, endurance, marks, etc."></textarea></div>
+      </div>
     </div>
   </section>
 
@@ -942,7 +1163,6 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
         <h2 class="media-title">Media / Film Ingest</h2>
         <p class="media-sub">
           Upload athlete headshots and connect highlight, game film, social, and recruiting links for PHNX SPORTS media packaging.
-          Approved assets prepare player cards, thumbnails, highlight films, and exposure routing.
         </p>
       </div>
 
@@ -961,10 +1181,6 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
       <div class="field"><label>Social Profile URL</label><input name="socialProfileUrl" type="url" placeholder="Verified athlete profile link"></div>
       <div class="field"><label>Game Film URL</label><input name="gameFilmUrl" type="url" placeholder="Optional"></div>
       <div class="field"><label>Recruiting Profile URL</label><input name="recruitingProfileUrl" type="url" placeholder="Optional"></div>
-
-      <input id="headshotUrl" name="headshotUrl" type="hidden">
-      <input id="headshotPath" name="headshotPath" type="hidden">
-      <input id="headshotFileName" name="headshotFileName" type="hidden">
 
       <div class="field full">
         <label for="athleteHeadshotUpload">Official Athlete Image / Headshot — Required</label>
@@ -988,28 +1204,30 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
     <div class="media-routing-panel">
       <div class="media-routing-title">Production Readiness Route</div>
       <div class="media-routing-list">
-        <div class="media-route-item"><b>Identity</b><span>Snapshot data</span></div>
+        <div class="media-route-item"><b>Identity</b><span>Athlete record</span></div>
         <div class="media-route-item"><b>Media</b><span>Headshot + film links</span></div>
-        <div class="media-route-item"><b>Package</b><span>Cards / thumbnails / reels</span></div>
+        <div class="media-route-item"><b>Evidence</b><span>Trust-tagged intake</span></div>
         <div class="media-route-item"><b>Channel</b><span>PHNX SPORTS queue</span></div>
       </div>
     </div>
   </section>
 
   <section class="section">
-    <h2 class="section-title">Parent / Guardian & Verification</h2>
+    <h2 class="section-title">Parent / Guardian & Source Contact</h2>
     <div class="form-grid">
       <div class="field"><label>Parent / Guardian Name</label><input name="guardianName" type="text" placeholder="Full name"></div>
       <div class="field"><label>Parent / Guardian Email</label><input name="guardianEmail" type="email" placeholder="email@example.com"></div>
       <div class="field"><label>Parent / Guardian Phone</label><input name="guardianPhone" type="tel" placeholder="Optional"></div>
-      <div class="field"><label>Coach Name</label><input name="coachName" type="text" placeholder="Coach or program contact"></div>
-      <div class="field"><label>Coach Email</label><input name="coachEmail" type="email" placeholder="coach@example.com"></div>
+      <div class="field"><label>Coach / Source Contact Name</label><input name="coachName" type="text" placeholder="Coach, evaluator, trainer, or source contact"></div>
+      <div class="field"><label>Coach / Source Contact Email</label><input name="coachEmail" type="email" placeholder="source@example.com"></div>
       <div class="field">
         <label>Verification Permission</label>
         <select name="verificationPermission">
           <option value="">Select</option>
           <option>Parent/Guardian approved</option>
           <option>Athlete approved</option>
+          <option>Coach/source submitted</option>
+          <option>PHNX Certified source submitted</option>
           <option>Pending approval</option>
         </select>
       </div>
@@ -1019,27 +1237,27 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
 </form>
 
 <aside class="side-panel">
-  <h2 class="side-title">Snapshot Control</h2>
+  <h2 class="side-title">Record Control</h2>
 
   <p class="side-sub">
-    This intake creates the athlete’s official STATS-CORE source record and routes approved media into PHNX SPORTS production infrastructure.
+    This intake creates the athlete’s governed STATS-CORE record and preserves who submitted the information, how it was sourced, and how it should be trusted.
   </p>
 
   <div class="status-card">
-    <div class="status-row"><span>Profile</span><b id="statusProfile">Pending</b></div>
-    <div class="status-row"><span>Metrics</span><b id="statusMetrics">Pending</b></div>
-    <div class="status-row"><span>Academic</span><b id="statusAcademic">Pending</b></div>
+    <div class="status-row"><span>Record</span><b id="statusProfile">Pending</b></div>
+    <div class="status-row"><span>Source</span><b id="statusSource">Self-Reported</b></div>
+    <div class="status-row"><span>Trust</span><b id="statusTrust">Pending</b></div>
+    <div class="status-row"><span>Evidence</span><b id="statusMetrics">Pending</b></div>
     <div class="status-row"><span>Verification</span><b id="statusVerification">Pending</b></div>
-    <div class="status-row"><span>Source</span><b id="statusScore">Not Issued</b></div>
     <div class="status-row"><span>PHNX Media</span><b id="statusPhnxMedia">Not Queued</b></div>
   </div>
 
   <div class="notice" id="snapshotNotice">
-    Athlete Intake will create or load an UNVERIFIED STATS-CORE source record. PHNX SPORTS media routing is queued only after successful source record creation.
+    Athlete Record Intake captures evidence. Certification and verification determine trust. Stream 2 records provenance but does not calculate intelligence.
   </div>
 
   <div class="submit-stack">
-    <button id="submitSnapshotBtn" class="btn primary" type="button">Submit Athlete Intake <span>›</span></button>
+    <button id="submitSnapshotBtn" class="btn primary" type="button">Submit Athlete Record <span>›</span></button>
     <button id="saveDraftBtn" class="btn" type="button">Save Draft <span>›</span></button>
     <button id="requestVerificationBtn" class="btn green" type="button">Request Verification <span>›</span></button>
   </div>
@@ -1050,19 +1268,19 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
 </section>
 
 <section class="flow">
-  <div class="flow-title">Athlete Path</div>
-  <div class="flow-step"><b>Intake</b><span>Data Capture</span></div>
-  <div class="flow-step"><b>Evidence</b><span>Film & Metrics</span></div>
-  <div class="flow-step"><b>Permission</b><span>Parent / Guardian</span></div>
-  <div class="flow-step"><b>Verification</b><span>Trust Layer</span></div>
-  <div class="flow-step"><b>Dashboard</b><span>Navigation Layer</span></div>
-  <a id="viewProfileBtn" class="btn primary" href="athlete-dashboard.html?role=athlete&from=athlete-intake">Continue to Dashboard <span>›</span></a>
+  <div class="flow-title">Record Path</div>
+  <div class="flow-step"><b>Intake</b><span>Record Capture</span></div>
+  <div class="flow-step"><b>Evidence</b><span>Sport + Media</span></div>
+  <div class="flow-step"><b>Provenance</b><span>Source Trust</span></div>
+  <div class="flow-step"><b>Parent Gate</b><span>Release Approval</span></div>
+  <div class="flow-step"><b>Dashboard</b><span>Lifecycle Layer</span></div>
+  <a id="viewProfileBtn" class="btn primary" href="athlete-dashboard.html?role=athlete&from=athlete-record-intake">Continue to Dashboard <span>›</span></a>
 </section>
 
 <footer class="footer">
   <div><img src="sc_logo_i.png" alt="STATS-CORE™ Athlete Lifecycle System"></div>
-  <div>Official Athlete Intake</div>
-  <div class="demo-ok">✓ Unverified STATS-CORE Pending Verification</div>
+  <div>Official Athlete Record Intake</div>
+  <div class="demo-ok">✓ Evidence Provenance Active</div>
   <div>© STATS-CORE Systems<br>All Rights Reserved.</div>
 </footer>
 
@@ -1072,403 +1290,6 @@ button.btn:hover,a.btn:hover{background:rgba(255,255,255,.08)}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="statscore-data.js"></script>
 <script src="statscore-routing.js"></script>
-
-<script>
-/*
-==========================================================
-STREAM 2 — HARDENED HEADSHOT / MEDIA INGEST RUNTIME
-==========================================================
-This runtime guarantees local selection + preview + state capture.
-It also exposes upload helpers for statscore-snapshot-intake-engine.js.
-
-Required engine access:
-window.STATSCORE_SELECTED_HEADSHOT_FILE
-window.STATSCORE_HEADSHOT_STATE
-window.uploadHeadshotForSnapshot(snapshot_id, athlete_id)
-==========================================================
-*/
-
-(function(){
-  "use strict";
-
-  const ACCEPTED_EXTENSIONS = [".png",".jpg",".jpeg",".webp",".heic",".heif"];
-  const ACCEPTED_TYPES = [
-    "image/png",
-    "image/jpeg",
-    "image/jpg",
-    "image/webp",
-    "image/heic",
-    "image/heif"
-  ];
-
-  const DEFAULT_BUCKETS = [
-    window.STATSCORE_HEADSHOT_BUCKET || "athlete-headshots",
-    window.STATSCORE_MEDIA_BUCKET || "statscore-media",
-    "headshots",
-    "athlete-media"
-  ];
-
-  window.STATSCORE_SELECTED_HEADSHOT_FILE = null;
-
-  window.STATSCORE_HEADSHOT_STATE = {
-    selected:false,
-    uploaded:false,
-    file_name:null,
-    file_type:null,
-    file_size:null,
-    preview_url:null,
-    storage_path:null,
-    public_url:null,
-    error:null
-  };
-
-  function qs(id){
-    return document.getElementById(id);
-  }
-
-  function setText(id, text){
-    const el = qs(id);
-    if(el) el.textContent = text;
-  }
-
-  function setValue(id, value){
-    const el = qs(id);
-    if(el) el.value = value || "";
-  }
-
-  function setSystemMessage(text, color){
-    const el = qs("systemMessage");
-    if(!el) return;
-    el.textContent = text || "";
-    el.style.color = color || "#25d366";
-  }
-
-  function setUploadBoxState(state){
-    const box = qs("headshotUploadBox");
-    if(!box) return;
-    box.classList.remove("ready","error");
-    if(state) box.classList.add(state);
-  }
-
-  function fileExtensionAllowed(fileName){
-    const name = String(fileName || "").toLowerCase();
-    return ACCEPTED_EXTENSIONS.some(ext => name.endsWith(ext));
-  }
-
-  function fileTypeAllowed(file){
-    if(!file) return false;
-    return ACCEPTED_TYPES.includes(file.type) || fileExtensionAllowed(file.name);
-  }
-
-  function resetHeadshotState(message){
-    const fileInput = qs("athleteHeadshotUpload");
-    const preview = qs("headshotPreview");
-    const removeBtn = qs("removeHeadshotBtn");
-
-    window.STATSCORE_SELECTED_HEADSHOT_FILE = null;
-
-    window.STATSCORE_HEADSHOT_STATE = {
-      selected:false,
-      uploaded:false,
-      file_name:null,
-      file_type:null,
-      file_size:null,
-      preview_url:null,
-      storage_path:null,
-      public_url:null,
-      error:null
-    };
-
-    if(fileInput) fileInput.value = "";
-
-    if(preview){
-      preview.removeAttribute("src");
-      preview.style.display = "none";
-    }
-
-    if(removeBtn) removeBtn.style.display = "none";
-
-    setText("headshotUploadText", "PHNX SPORTS MEDIA INGEST");
-    setText("headshotUploadHint", "Click to upload JPG, PNG, WEBP, HEIC, or HEIF");
-    setText("mediaStatusHeadshot", "Required");
-    setText("statusPhnxMedia", "Not Queued");
-    setText("mediaQueueBadge", "Media Queue Pending");
-    setValue("headshotUrl", "");
-    setValue("headshotPath", "");
-    setValue("headshotFileName", "");
-    setUploadBoxState(null);
-
-    if(message){
-      setSystemMessage(message, "#f4c542");
-    }
-  }
-
-  function markHeadshotReady(file, previewUrl){
-    window.STATSCORE_SELECTED_HEADSHOT_FILE = file;
-
-    window.STATSCORE_HEADSHOT_STATE = {
-      selected:true,
-      uploaded:false,
-      file_name:file.name,
-      file_type:file.type || "unknown",
-      file_size:file.size || 0,
-      preview_url:previewUrl,
-      storage_path:null,
-      public_url:null,
-      error:null
-    };
-
-    const preview = qs("headshotPreview");
-    const removeBtn = qs("removeHeadshotBtn");
-
-    if(preview){
-      preview.src = previewUrl;
-      preview.style.display = "block";
-    }
-
-    if(removeBtn) removeBtn.style.display = "flex";
-
-    setText("headshotUploadText", "HEADSHOT READY");
-    setText("headshotUploadHint", file.name);
-    setText("mediaStatusHeadshot", "Ready");
-    setText("statusPhnxMedia", "Ready");
-    setText("mediaQueueBadge", "Media Ready");
-    setValue("headshotFileName", file.name);
-    setUploadBoxState("ready");
-    setSystemMessage("Headshot selected and ready for upload.", "#25d366");
-
-    window.dispatchEvent(new CustomEvent("statscore:headshot-ready", {
-      detail:{
-        file,
-        state:window.STATSCORE_HEADSHOT_STATE
-      }
-    }));
-  }
-
-  function markHeadshotUploaded(result){
-    window.STATSCORE_HEADSHOT_STATE.uploaded = true;
-    window.STATSCORE_HEADSHOT_STATE.storage_path = result.storage_path || null;
-    window.STATSCORE_HEADSHOT_STATE.public_url = result.public_url || null;
-    window.STATSCORE_HEADSHOT_STATE.error = null;
-
-    setText("mediaStatusHeadshot", "Uploaded");
-    setText("statusPhnxMedia", "Queued");
-    setText("mediaQueueBadge", "Media Uploaded");
-    setValue("headshotUrl", result.public_url || "");
-    setValue("headshotPath", result.storage_path || "");
-    setUploadBoxState("ready");
-    setSystemMessage("Headshot uploaded and attached to snapshot.", "#25d366");
-
-    window.dispatchEvent(new CustomEvent("statscore:headshot-uploaded", {
-      detail:result
-    }));
-  }
-
-  function markHeadshotError(message){
-    window.STATSCORE_HEADSHOT_STATE.error = message || "Headshot ingest error.";
-    setText("mediaStatusHeadshot", "Error");
-    setText("statusPhnxMedia", "Error");
-    setText("mediaQueueBadge", "Media Error");
-    setUploadBoxState("error");
-    setSystemMessage(message || "Headshot upload failed.", "#ff2b1f");
-
-    window.dispatchEvent(new CustomEvent("statscore:headshot-error", {
-      detail:{ message }
-    }));
-  }
-
-  function openHeadshotPicker(event){
-    if(event){
-      event.preventDefault();
-      event.stopPropagation();
-    }
-
-    const input = qs("athleteHeadshotUpload");
-    if(!input){
-      markHeadshotError("Headshot input missing. Upload cannot start.");
-      return;
-    }
-
-    input.click();
-  }
-
-  function handleHeadshotSelected(){
-    const input = qs("athleteHeadshotUpload");
-    const file = input && input.files && input.files[0];
-
-    if(!file) return;
-
-    if(!fileTypeAllowed(file)){
-      resetHeadshotState();
-      markHeadshotError("Unsupported headshot format. Use JPG, PNG, WEBP, HEIC, or HEIF.");
-      return;
-    }
-
-    const reader = new FileReader();
-
-    reader.onload = function(evt){
-      const previewUrl = evt && evt.target && evt.target.result;
-      if(!previewUrl){
-        markHeadshotError("Headshot preview failed. Try another image.");
-        return;
-      }
-
-      markHeadshotReady(file, previewUrl);
-    };
-
-    reader.onerror = function(){
-      resetHeadshotState();
-      markHeadshotError("Headshot preview failed. Try another image.");
-    };
-
-    reader.readAsDataURL(file);
-  }
-
-  function getDbSafe(){
-    if(typeof window.getDb === "function") return window.getDb();
-    if(typeof getDb === "function") return getDb();
-
-    if(window.STATSCORE_DB) return window.STATSCORE_DB;
-    if(window.supabaseClient) return window.supabaseClient;
-    if(window.db) return window.db;
-
-    throw new Error("Supabase client not available for headshot upload.");
-  }
-
-  function cleanFilePart(value){
-    return String(value || "")
-      .toLowerCase()
-      .replace(/[^a-z0-9._-]+/g, "-")
-      .replace(/-+/g, "-")
-      .replace(/^-|-$/g, "")
-      .slice(0, 80);
-  }
-
-  function getFileExtension(file){
-    const name = String(file && file.name || "");
-    const dot = name.lastIndexOf(".");
-    if(dot >= 0) return name.slice(dot).toLowerCase();
-    if(file && file.type === "image/png") return ".png";
-    if(file && file.type === "image/webp") return ".webp";
-    return ".jpg";
-  }
-
-  async function tryUploadToBucket(db, bucket, path, file){
-    const result = await db.storage
-      .from(bucket)
-      .upload(path, file, {
-        cacheControl:"3600",
-        upsert:true,
-        contentType:file.type || undefined
-      });
-
-    if(result.error) throw result.error;
-
-    const publicResult = db.storage.from(bucket).getPublicUrl(path);
-
-    return {
-      bucket,
-      storage_path:path,
-      public_url:publicResult && publicResult.data ? publicResult.data.publicUrl : null,
-      upload_data:result.data || null
-    };
-  }
-
-  window.uploadHeadshotForSnapshot = async function(snapshotId, athleteId){
-    const file = window.STATSCORE_SELECTED_HEADSHOT_FILE;
-
-    if(!file){
-      return {
-        uploaded:false,
-        skipped:true,
-        reason:"No headshot file selected."
-      };
-    }
-
-    if(!snapshotId){
-      markHeadshotError("Snapshot ID is required before headshot upload.");
-      throw new Error("Snapshot ID is required before headshot upload.");
-    }
-
-    const db = getDbSafe();
-    const safeSnapshot = cleanFilePart(snapshotId);
-    const safeAthlete = cleanFilePart(athleteId || "athlete");
-    const safeName = cleanFilePart(file.name || "headshot");
-    const ext = getFileExtension(file);
-    const path = `${safeSnapshot}/${safeAthlete}-headshot-${Date.now()}-${safeName || "image"}${safeName.endsWith(ext) ? "" : ext}`;
-
-    let lastError = null;
-
-    for(const bucket of DEFAULT_BUCKETS){
-      if(!bucket) continue;
-
-      try{
-        const uploaded = await tryUploadToBucket(db, bucket, path, file);
-        markHeadshotUploaded(uploaded);
-        return {
-          uploaded:true,
-          ...uploaded
-        };
-      }catch(err){
-        lastError = err;
-        if(window.STATSCORE_DEBUG){
-          console.warn("Headshot upload bucket failed:", bucket, err);
-        }
-      }
-    }
-
-    const message = lastError && lastError.message
-      ? lastError.message
-      : "Headshot upload failed. Check Supabase Storage bucket and policies.";
-
-    markHeadshotError(message);
-    throw new Error(message);
-  };
-
-  window.getSelectedHeadshotFile = function(){
-    return window.STATSCORE_SELECTED_HEADSHOT_FILE || null;
-  };
-
-  window.getHeadshotIngestState = function(){
-    return {...window.STATSCORE_HEADSHOT_STATE};
-  };
-
-  function initHeadshotRuntime(){
-    const fileInput = qs("athleteHeadshotUpload");
-    const uploadBox = qs("headshotUploadBox");
-    const addBtn = qs("addHeadshotBtn");
-    const removeBtn = qs("removeHeadshotBtn");
-
-    if(!fileInput || !uploadBox){
-      console.error("STATS-CORE headshot runtime failed: required elements missing.");
-      return;
-    }
-
-    uploadBox.addEventListener("click", openHeadshotPicker);
-
-    if(addBtn){
-      addBtn.addEventListener("click", openHeadshotPicker);
-    }
-
-    fileInput.addEventListener("change", handleHeadshotSelected);
-
-    if(removeBtn){
-      removeBtn.addEventListener("click", function(event){
-        event.preventDefault();
-        event.stopPropagation();
-        resetHeadshotState("Headshot removed.");
-      });
-    }
-
-    setSystemMessage("Headshot ingest runtime active.", "#25d366");
-
-    window.dispatchEvent(new CustomEvent("statscore:headshot-runtime-ready"));
-  }
-
-  document.addEventListener("DOMContentLoaded", initHeadshotRuntime);
-})();
-</script>
-
 <script src="statscore-snapshot-intake-engine.js"></script>
 
 </body>
