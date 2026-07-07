@@ -2,26 +2,43 @@
 ==========================================================
 STATS-CORE™ / PHNX SPORTS MEDIA ENGINE
 File: statscore-phnx-media-engine.js
-Version: PHNX-MEDIA-ENGINE-V1
+Version: PHNX-MEDIA-ENGINE-V2-INDUSTRIAL
 Owner: Stream 7 — Crystal / Exposure / Media
-Consumes: Stream 2 Snapshot Intake
+
 Purpose:
-Creates governed PHNX Sports media assets, jobs, events,
-music selection, and receipts from Snapshot Intake media.
+Industrial PHNX Sports media runtime.
+
+Owns:
+- Snapshot Intake media capture
+- PHNX asset registration
+- PHNX media job creation/update
+- Music selection
+- Render bridge
+- YouTube publishing bridge
+- Multi-Box notification bridge
+- Job events
+- Governance receipts
+- Worker claim/release
 ==========================================================
 */
 
 (function () {
   "use strict";
 
-  const ENGINE_VERSION = "PHNX-MEDIA-ENGINE-V1";
+  const ENGINE_VERSION = "PHNX-MEDIA-ENGINE-V2-INDUSTRIAL";
 
   const TABLES = {
     ASSETS: "phnx_media_assets",
     JOBS: "phnx_media_jobs",
     EVENTS: "phnx_media_job_events",
     MUSIC: "phnx_music_library",
-    RECEIPTS: "phnx_media_receipts"
+    RENDERS: "phnx_render_outputs",
+    YOUTUBE: "phnx_youtube_posts",
+    RECEIPTS: "phnx_media_receipts",
+
+    MBX_MESSAGES: "sc_multibox_messages",
+    MBX_RECEIPTS: "sc_multibox_receipts",
+    MBX_AUDIT: "sc_multibox_audit_events"
   };
 
   const JOB_TYPE = "phnx_sports_youtube_package";
@@ -60,11 +77,6 @@ music selection, and receipts from Snapshot Intake media.
     return new Date().toISOString();
   }
 
-  function uuid(prefix = "phnx") {
-    if (window.crypto?.randomUUID) return `${prefix}_${window.crypto.randomUUID()}`;
-    return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-  }
-
   function clean(value) {
     if (value === null || value === undefined) return "";
     return String(value).trim();
@@ -86,7 +98,6 @@ music selection, and receipts from Snapshot Intake media.
   function safeJson(value, fallback = {}) {
     if (!value) return fallback;
     if (typeof value === "object") return value;
-
     try {
       return JSON.parse(value);
     } catch (_) {
@@ -184,7 +195,7 @@ music selection, and receipts from Snapshot Intake media.
         athlete_id: ctx.athlete_id,
         asset_type: "headshot",
         asset_label: "Official Athlete Headshot",
-        source_kind: headshotUrl ? "uploaded_file" : "submitted_file",
+        source_kind: "uploaded_file",
         source_url: headshotUrl || null,
         storage_path: headshotPath || null,
         public_url: headshotUrl || null,
@@ -199,20 +210,34 @@ music selection, and receipts from Snapshot Intake media.
           engine_version: ENGINE_VERSION,
           captured_from: "snapshot-intake.html",
           asset_role: "player_identity",
-          created_at: nowISO()
+          captured_at: nowISO()
         }
       });
     }
 
-    const highlightUrl = valByName("highlightUrl") || saved.highlight_url || "";
-    if (highlightUrl) {
+    const urlAssets = [
+      ["highlightUrl", "highlight_url", "Athlete Highlight Reel", "highlight_film"],
+      ["gameFilmUrl", "game_film_url", "Athlete Game Film", "game_film"],
+      ["socialProfileUrl", "social_profile_url", "Athlete Social Profile", "social_reference"],
+      ["recruitingProfileUrl", "recruiting_profile_url", "Athlete Recruiting Profile", "recruiting_reference"]
+    ];
+
+    urlAssets.forEach(([fieldName, assetType, label, role]) => {
+      const sourceUrl =
+        valByName(fieldName) ||
+        saved[fieldName] ||
+        saved[fieldName.replace(/[A-Z]/g, m => "_" + m.toLowerCase())] ||
+        "";
+
+      if (!sourceUrl) return;
+
       assets.push({
         snapshot_id: ctx.snapshot_id,
         athlete_id: ctx.athlete_id,
-        asset_type: "highlight_url",
-        asset_label: "Athlete Highlight Reel",
+        asset_type: assetType,
+        asset_label: label,
         source_kind: "submitted_url",
-        source_url: highlightUrl,
+        source_url: sourceUrl,
         trust_classification: source.trust_classification,
         source_origin: source.source_origin,
         submitted_by_role: source.submitted_by_role,
@@ -222,83 +247,11 @@ music selection, and receipts from Snapshot Intake media.
         metadata: {
           engine_version: ENGINE_VERSION,
           captured_from: "snapshot-intake.html",
-          asset_role: "highlight_film",
-          created_at: nowISO()
+          asset_role: role,
+          captured_at: nowISO()
         }
       });
-    }
-
-    const gameFilmUrl = valByName("gameFilmUrl") || saved.game_film_url || "";
-    if (gameFilmUrl) {
-      assets.push({
-        snapshot_id: ctx.snapshot_id,
-        athlete_id: ctx.athlete_id,
-        asset_type: "game_film_url",
-        asset_label: "Athlete Game Film",
-        source_kind: "submitted_url",
-        source_url: gameFilmUrl,
-        trust_classification: source.trust_classification,
-        source_origin: source.source_origin,
-        submitted_by_role: source.submitted_by_role,
-        submitted_by_name: source.submitted_by_name,
-        submitted_by_email: source.submitted_by_email,
-        review_status: "pending",
-        metadata: {
-          engine_version: ENGINE_VERSION,
-          captured_from: "snapshot-intake.html",
-          asset_role: "game_film",
-          created_at: nowISO()
-        }
-      });
-    }
-
-    const socialProfileUrl = valByName("socialProfileUrl") || saved.social_profile_url || "";
-    if (socialProfileUrl) {
-      assets.push({
-        snapshot_id: ctx.snapshot_id,
-        athlete_id: ctx.athlete_id,
-        asset_type: "social_profile_url",
-        asset_label: "Athlete Social Profile",
-        source_kind: "submitted_url",
-        source_url: socialProfileUrl,
-        trust_classification: source.trust_classification,
-        source_origin: source.source_origin,
-        submitted_by_role: source.submitted_by_role,
-        submitted_by_name: source.submitted_by_name,
-        submitted_by_email: source.submitted_by_email,
-        review_status: "pending",
-        metadata: {
-          engine_version: ENGINE_VERSION,
-          captured_from: "snapshot-intake.html",
-          asset_role: "social_reference",
-          created_at: nowISO()
-        }
-      });
-    }
-
-    const recruitingProfileUrl = valByName("recruitingProfileUrl") || saved.recruiting_profile_url || "";
-    if (recruitingProfileUrl) {
-      assets.push({
-        snapshot_id: ctx.snapshot_id,
-        athlete_id: ctx.athlete_id,
-        asset_type: "recruiting_profile_url",
-        asset_label: "Athlete Recruiting Profile",
-        source_kind: "submitted_url",
-        source_url: recruitingProfileUrl,
-        trust_classification: source.trust_classification,
-        source_origin: source.source_origin,
-        submitted_by_role: source.submitted_by_role,
-        submitted_by_name: source.submitted_by_name,
-        submitted_by_email: source.submitted_by_email,
-        review_status: "pending",
-        metadata: {
-          engine_version: ENGINE_VERSION,
-          captured_from: "snapshot-intake.html",
-          asset_role: "recruiting_reference",
-          created_at: nowISO()
-        }
-      });
-    }
+    });
 
     return assets.filter(a => a.snapshot_id);
   }
@@ -343,7 +296,7 @@ music selection, and receipts from Snapshot Intake media.
     if (!client || !media_job_id) return null;
 
     try {
-      const eventRow = {
+      const row = {
         media_job_id,
         event_type: event_type || "JOB_EVENT",
         from_status,
@@ -359,7 +312,7 @@ music selection, and receipts from Snapshot Intake media.
 
       const { data, error } = await client
         .from(TABLES.EVENTS)
-        .insert(eventRow)
+        .insert(row)
         .select("*")
         .single();
 
@@ -379,21 +332,23 @@ music selection, and receipts from Snapshot Intake media.
     const sport = ctx.sport || null;
 
     try {
-      let query = client
+      const { data, error } = await client
         .from(TABLES.MUSIC)
         .select("*")
         .eq("active", true)
         .order("track_id", { ascending: true });
 
-      const { data, error } = await query;
       if (error) throw error;
 
       const tracks = Array.isArray(data) ? data : [];
-
       if (!tracks.length) return null;
 
-      const sportMatch = tracks.find(t => clean(t.sport).toLowerCase() === sport && clean(t.intensity).toLowerCase() === "high");
-      if (sportMatch) return sportMatch;
+      const sportHigh = tracks.find(t =>
+        clean(t.sport).toLowerCase() === sport &&
+        clean(t.intensity).toLowerCase() === "high"
+      );
+
+      if (sportHigh) return sportHigh;
 
       const hype = tracks.find(t => clean(t.mood).toLowerCase() === "hype");
       if (hype) return hype;
@@ -415,7 +370,7 @@ music selection, and receipts from Snapshot Intake media.
     if (!assets.length) return registered;
 
     for (const asset of assets) {
-      const existingQuery = client
+      const { data: existing, error: existingError } = await client
         .from(TABLES.ASSETS)
         .select("*")
         .eq("snapshot_id", asset.snapshot_id)
@@ -424,31 +379,26 @@ music selection, and receipts from Snapshot Intake media.
         .limit(1)
         .maybeSingle();
 
-      const { data: existing, error: existingError } = await existingQuery;
-
       if (existingError) throw existingError;
 
       if (existing) {
-        const updatePayload = {
-          ...asset,
-          updated_at: nowISO(),
-          metadata: {
-            ...(existing.metadata || {}),
-            ...(asset.metadata || {}),
-            updated_by_engine: ENGINE_VERSION,
-            updated_at: nowISO()
-          }
-        };
-
         const { data, error } = await client
           .from(TABLES.ASSETS)
-          .update(updatePayload)
+          .update({
+            ...asset,
+            updated_at: nowISO(),
+            metadata: {
+              ...(existing.metadata || {}),
+              ...(asset.metadata || {}),
+              updated_by_engine: ENGINE_VERSION,
+              updated_at: nowISO()
+            }
+          })
           .eq("id", existing.id)
           .select("*")
           .single();
 
         if (error) throw error;
-
         registered.push(data);
 
         await writeReceipt({
@@ -462,7 +412,6 @@ music selection, and receipts from Snapshot Intake media.
             asset_label: data.asset_label
           }
         });
-
       } else {
         const { data, error } = await client
           .from(TABLES.ASSETS)
@@ -471,7 +420,6 @@ music selection, and receipts from Snapshot Intake media.
           .single();
 
         if (error) throw error;
-
         registered.push(data);
 
         await writeReceipt({
@@ -532,16 +480,14 @@ music selection, and receipts from Snapshot Intake media.
         intro: true,
         outro: true
       },
-      music: musicTrack
-        ? {
-            track_id: musicTrack.track_id,
-            track_title: musicTrack.track_title,
-            mood: musicTrack.mood,
-            sport: musicTrack.sport,
-            intensity: musicTrack.intensity,
-            source: "phnx_music_library"
-          }
-        : null,
+      music: musicTrack ? {
+        track_id: musicTrack.track_id,
+        track_title: musicTrack.track_title,
+        mood: musicTrack.mood,
+        sport: musicTrack.sport,
+        intensity: musicTrack.intensity,
+        source: "phnx_music_library"
+      } : null,
       created_at: nowISO()
     };
 
@@ -550,8 +496,7 @@ music selection, and receipts from Snapshot Intake media.
       channel_key: CHANNEL_KEY,
       platform: "youtube",
       title_template: "{{athlete_display_name}} | PHNX Sports Highlight Feature",
-      description_template:
-        "PHNX Sports athlete media package generated from governed STATS-CORE™ intake.",
+      description_template: "PHNX Sports athlete media package generated from governed STATS-CORE™ intake.",
       tags: [
         "PHNX Sports",
         "STATS-CORE",
@@ -563,40 +508,32 @@ music selection, and receipts from Snapshot Intake media.
       created_at: nowISO()
     };
 
-    const jobPayload = {
+    const payload = {
       snapshot_id: ctx.snapshot_id,
       athlete_id: ctx.athlete_id,
-
       job_type: JOB_TYPE,
       channel_key: CHANNEL_KEY,
-
       athlete_display_name: ctx.athlete_display_name,
       sport: ctx.sport,
       primary_position: ctx.primary_position,
       school_program: ctx.school_program,
       graduation_class: ctx.graduation_class,
-
       job_status: STATUS.ASSETS_CAPTURED,
       review_status: "pending",
-
       music_track_id: musicTrack?.track_id || null,
       music_selection_reason: musicTrack
-        ? `Selected by PHNX Media Engine based on sport=${ctx.sport || "unknown"} and available active tracks.`
+        ? `System-selected track based on sport=${ctx.sport || "unknown"} and active PHNX music library.`
         : null,
-
       render_required: true,
       youtube_publish_required: true,
       multibox_notice_required: true,
-
       locked: false,
       attempt_count: 0,
       max_attempts: 3,
       priority: "standard",
-
       input_payload: inputPayload,
       render_payload: renderPayload,
       publish_payload: publishPayload,
-
       updated_at: nowISO()
     };
 
@@ -614,7 +551,7 @@ music selection, and receipts from Snapshot Intake media.
 
       const { data, error } = await client
         .from(TABLES.JOBS)
-        .update(jobPayload)
+        .update(payload)
         .eq("id", existing.id)
         .select("*")
         .single();
@@ -626,11 +563,7 @@ music selection, and receipts from Snapshot Intake media.
         from_status: fromStatus,
         to_status: data.job_status,
         event_type: "JOB_UPDATED",
-        payload: {
-          snapshot_id: ctx.snapshot_id,
-          asset_count: registeredAssets.length,
-          music_track_id: data.music_track_id
-        }
+        payload: { asset_count: registeredAssets.length }
       });
 
       await writeReceipt({
@@ -639,24 +572,15 @@ music selection, and receipts from Snapshot Intake media.
         athlete_id: ctx.athlete_id,
         receipt_type: "PHNX_MEDIA_JOB_UPDATED",
         status: data.job_status,
-        receipt_payload: {
-          job_type: JOB_TYPE,
-          channel_key: CHANNEL_KEY,
-          asset_count: registeredAssets.length
-        }
+        receipt_payload: { asset_count: registeredAssets.length }
       });
 
       return data;
     }
 
-    const createPayload = {
-      ...jobPayload,
-      created_at: nowISO()
-    };
-
     const { data, error } = await client
       .from(TABLES.JOBS)
-      .insert(createPayload)
+      .insert({ ...payload, created_at: nowISO() })
       .select("*")
       .single();
 
@@ -667,11 +591,7 @@ music selection, and receipts from Snapshot Intake media.
       from_status: null,
       to_status: data.job_status,
       event_type: "JOB_CREATED",
-      payload: {
-        snapshot_id: ctx.snapshot_id,
-        asset_count: registeredAssets.length,
-        music_track_id: data.music_track_id
-      }
+      payload: { asset_count: registeredAssets.length }
     });
 
     await writeReceipt({
@@ -680,11 +600,7 @@ music selection, and receipts from Snapshot Intake media.
       athlete_id: ctx.athlete_id,
       receipt_type: "PHNX_MEDIA_JOB_CREATED",
       status: data.job_status,
-      receipt_payload: {
-        job_type: JOB_TYPE,
-        channel_key: CHANNEL_KEY,
-        asset_count: registeredAssets.length
-      }
+      receipt_payload: { asset_count: registeredAssets.length }
     });
 
     return data;
@@ -705,11 +621,7 @@ music selection, and receipts from Snapshot Intake media.
       setText("mediaStatusCard", "Ready");
     }
 
-    if (
-      assets.some(a =>
-        ["highlight_url", "highlight_file", "game_film_url", "game_film_file"].includes(a.asset_type)
-      )
-    ) {
+    if (assets.some(a => ["highlight_url", "highlight_file", "game_film_url", "game_film_file"].includes(a.asset_type))) {
       setText("mediaStatusFilm", "Captured");
     }
 
@@ -718,21 +630,12 @@ music selection, and receipts from Snapshot Intake media.
 
   async function queueSnapshotMediaPackage(saved = {}) {
     if (!saved?.snapshot_id) {
-      console.warn("[PHNX Media] Queue skipped: missing snapshot_id.");
-      return {
-        ok: false,
-        status: "MISSING_SNAPSHOT_ID"
-      };
+      return { ok: false, status: "MISSING_SNAPSHOT_ID" };
     }
 
     if (!hasAnyMediaInput()) {
       updateMediaUI(null, []);
-      return {
-        ok: true,
-        status: "NO_MEDIA_TO_QUEUE",
-        assets: [],
-        job: null
-      };
+      return { ok: true, status: "NO_MEDIA_TO_QUEUE", assets: [], job: null };
     }
 
     try {
@@ -744,12 +647,7 @@ music selection, and receipts from Snapshot Intake media.
 
       updateMediaUI(job, assets);
 
-      return {
-        ok: true,
-        status: "PHNX_MEDIA_QUEUED",
-        assets,
-        job
-      };
+      return { ok: true, status: "PHNX_MEDIA_QUEUED", assets, job };
     } catch (err) {
       console.error("[PHNX Media] Queue failed:", err);
 
@@ -761,18 +659,422 @@ music selection, and receipts from Snapshot Intake media.
         athlete_id: saved.athlete_id || null,
         receipt_type: "PHNX_MEDIA_QUEUE_FAILED",
         status: "FAILED",
-        receipt_payload: {
-          error: err.message || String(err),
-          engine_version: ENGINE_VERSION
-        }
+        receipt_payload: { error: err.message || String(err) }
       });
 
-      return {
-        ok: false,
-        status: "PHNX_MEDIA_QUEUE_FAILED",
-        error: err.message || String(err)
-      };
+      return { ok: false, status: "PHNX_MEDIA_QUEUE_FAILED", error: err.message || String(err) };
     }
+  }
+
+  async function getMediaJob(mediaJobId) {
+    const client = db();
+    const { data, error } = await client
+      .from(TABLES.JOBS)
+      .select("*")
+      .eq("media_job_id", mediaJobId)
+      .maybeSingle();
+
+    if (error) throw error;
+    return data;
+  }
+
+  async function transitionJob(mediaJobId, toStatus, payload = {}) {
+    const client = db();
+    const existing = await getMediaJob(mediaJobId);
+    if (!existing) throw new Error("Media job not found.");
+
+    const updatePayload = {
+      job_status: toStatus,
+      updated_at: nowISO(),
+      ...payload
+    };
+
+    if (toStatus === STATUS.COMPLETED) updatePayload.completed_at = nowISO();
+
+    const { data, error } = await client
+      .from(TABLES.JOBS)
+      .update(updatePayload)
+      .eq("media_job_id", mediaJobId)
+      .select("*")
+      .single();
+
+    if (error) throw error;
+
+    await writeJobEvent({
+      media_job_id: mediaJobId,
+      from_status: existing.job_status,
+      to_status: toStatus,
+      event_type: "JOB_STATUS_CHANGED",
+      payload
+    });
+
+    await writeReceipt({
+      media_job_id: mediaJobId,
+      snapshot_id: data.snapshot_id,
+      athlete_id: data.athlete_id,
+      receipt_type: "PHNX_MEDIA_JOB_STATUS_CHANGED",
+      status: toStatus,
+      receipt_payload: payload
+    });
+
+    return data;
+  }
+
+  async function approveForRender(mediaJobId, reviewNotes = "Approved for PHNX Sports render.") {
+    return transitionJob(mediaJobId, STATUS.APPROVED_FOR_RENDER, {
+      review_status: "approved",
+      render_required: true,
+      error_message: null,
+      render_payload: {
+        ...(await getMediaJob(mediaJobId))?.render_payload,
+        review_notes: reviewNotes,
+        approved_at: nowISO()
+      }
+    });
+  }
+
+  async function queueForRender(mediaJobId) {
+    return transitionJob(mediaJobId, STATUS.QUEUED_FOR_RENDER, {
+      locked: false,
+      locked_at: null,
+      locked_by: null
+    });
+  }
+
+  async function markRendering(mediaJobId, workerId = "phoenix-video-render") {
+    return transitionJob(mediaJobId, STATUS.RENDERING, {
+      locked: true,
+      locked_at: nowISO(),
+      locked_by: workerId
+    });
+  }
+
+  async function recordRenderOutput(options = {}) {
+    const client = db();
+    const mediaJobId = options.media_job_id;
+    if (!mediaJobId) throw new Error("media_job_id is required.");
+
+    const job = await getMediaJob(mediaJobId);
+    if (!job) throw new Error("Media job not found.");
+
+    const renderRow = {
+      media_job_id: mediaJobId,
+      snapshot_id: job.snapshot_id,
+      athlete_id: job.athlete_id,
+      render_status: "rendered",
+      output_type: options.output_type || "youtube_video",
+      output_bucket: options.output_bucket || null,
+      output_path: options.output_path || null,
+      output_url: options.output_url || null,
+      thumbnail_bucket: options.thumbnail_bucket || null,
+      thumbnail_path: options.thumbnail_path || null,
+      thumbnail_url: options.thumbnail_url || null,
+      duration_seconds: options.duration_seconds || null,
+      width: options.width || 1080,
+      height: options.height || 1920,
+      render_engine: options.render_engine || "phoenix-video-render",
+      render_payload: options.render_payload || job.render_payload || {},
+      updated_at: nowISO()
+    };
+
+    const { data: render, error } = await client
+      .from(TABLES.RENDERS)
+      .insert(renderRow)
+      .select("*")
+      .single();
+
+    if (error) throw error;
+
+    await transitionJob(mediaJobId, STATUS.RENDERED, {
+      rendered_video_url: render.output_url,
+      rendered_thumbnail_url: render.thumbnail_url,
+      locked: false,
+      locked_at: null,
+      locked_by: null
+    });
+
+    await writeReceipt({
+      media_job_id: mediaJobId,
+      render_id: render.render_id,
+      snapshot_id: job.snapshot_id,
+      athlete_id: job.athlete_id,
+      receipt_type: "PHNX_RENDER_COMPLETED",
+      status: "RENDERED",
+      receipt_payload: {
+        output_url: render.output_url,
+        thumbnail_url: render.thumbnail_url
+      }
+    });
+
+    return render;
+  }
+
+  async function createOrQueueYouTubePost(mediaJobId) {
+    const client = db();
+    const job = await getMediaJob(mediaJobId);
+    if (!job) throw new Error("Media job not found.");
+
+    const { data: latestRender } = await client
+      .from(TABLES.RENDERS)
+      .select("*")
+      .eq("media_job_id", mediaJobId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const title = `${job.athlete_display_name || "PHNX Athlete"} | PHNX Sports Highlight Feature`;
+    const description = `PHNX Sports athlete media package generated from governed STATS-CORE™ intake.`;
+
+    const postPayload = {
+      media_job_id: mediaJobId,
+      render_id: latestRender?.render_id || null,
+      snapshot_id: job.snapshot_id,
+      athlete_id: job.athlete_id,
+      channel_key: CHANNEL_KEY,
+      title,
+      description,
+      tags: [
+        "PHNX Sports",
+        "STATS-CORE",
+        job.sport,
+        job.primary_position,
+        job.school_program,
+        job.graduation_class
+      ].filter(Boolean),
+      publish_status: "queued",
+      updated_at: nowISO()
+    };
+
+    const { data: existing } = await client
+      .from(TABLES.YOUTUBE)
+      .select("*")
+      .eq("media_job_id", mediaJobId)
+      .maybeSingle();
+
+    let post;
+
+    if (existing) {
+      const { data, error } = await client
+        .from(TABLES.YOUTUBE)
+        .update(postPayload)
+        .eq("id", existing.id)
+        .select("*")
+        .single();
+
+      if (error) throw error;
+      post = data;
+    } else {
+      const { data, error } = await client
+        .from(TABLES.YOUTUBE)
+        .insert(postPayload)
+        .select("*")
+        .single();
+
+      if (error) throw error;
+      post = data;
+    }
+
+    await transitionJob(mediaJobId, STATUS.QUEUED_TO_YOUTUBE, {
+      youtube_post_id: post.youtube_post_id
+    });
+
+    await writeReceipt({
+      media_job_id: mediaJobId,
+      youtube_post_id: post.youtube_post_id,
+      snapshot_id: job.snapshot_id,
+      athlete_id: job.athlete_id,
+      receipt_type: "PHNX_YOUTUBE_POST_QUEUED",
+      status: "QUEUED_TO_YOUTUBE",
+      receipt_payload: {
+        youtube_post_id: post.youtube_post_id,
+        title
+      }
+    });
+
+    return post;
+  }
+
+  async function markYouTubePosted(options = {}) {
+    const client = db();
+    const mediaJobId = options.media_job_id;
+    if (!mediaJobId) throw new Error("media_job_id is required.");
+
+    const job = await getMediaJob(mediaJobId);
+    if (!job) throw new Error("Media job not found.");
+
+    const { data: post, error } = await client
+      .from(TABLES.YOUTUBE)
+      .update({
+        youtube_video_id: options.youtube_video_id || null,
+        youtube_url: options.youtube_url || null,
+        publish_status: "posted",
+        spider_job_id: options.spider_job_id || null,
+        spider_receipt: options.spider_receipt || {},
+        published_at: nowISO(),
+        updated_at: nowISO()
+      })
+      .eq("media_job_id", mediaJobId)
+      .select("*")
+      .single();
+
+    if (error) throw error;
+
+    await transitionJob(mediaJobId, STATUS.POSTED, {
+      youtube_post_id: post.youtube_post_id,
+      youtube_url: post.youtube_url
+    });
+
+    await writeReceipt({
+      media_job_id: mediaJobId,
+      youtube_post_id: post.youtube_post_id,
+      snapshot_id: job.snapshot_id,
+      athlete_id: job.athlete_id,
+      receipt_type: "PHNX_YOUTUBE_POSTED",
+      status: "POSTED",
+      receipt_payload: {
+        youtube_video_id: post.youtube_video_id,
+        youtube_url: post.youtube_url
+      }
+    });
+
+    if (job.multibox_notice_required) {
+      await sendPublishedMultiBoxNotice(mediaJobId);
+    }
+
+    return post;
+  }
+
+  async function sendPublishedMultiBoxNotice(mediaJobId) {
+    const client = db();
+    const job = await getMediaJob(mediaJobId);
+    if (!job) throw new Error("Media job not found.");
+
+    const { data: post } = await client
+      .from(TABLES.YOUTUBE)
+      .select("*")
+      .eq("media_job_id", mediaJobId)
+      .maybeSingle();
+
+    const subject = "Your PHNX Sports media package has been published";
+    const body = [
+      `Your PHNX Sports media package is complete.`,
+      post?.youtube_url ? `Published link: ${post.youtube_url}` : `Publishing record has been completed.`,
+      ``,
+      `Athlete: ${job.athlete_display_name || "Athlete"}`,
+      `Media Job: ${mediaJobId}`
+    ].join("\n");
+
+    const messagePayload = {
+      sender_user_id: null,
+      sender_role: "system",
+      sender_role_id: null,
+      sender_label: "PHNX Sports Media",
+      sender_channel_locked: true,
+
+      target_role: "athlete",
+      target_directory: "athlete_media_notifications",
+      target_recipient_id: job.athlete_id || job.snapshot_id,
+      target_recipient_type: "athlete",
+      target_recipient_label: job.athlete_display_name || "Athlete",
+
+      athlete_id: job.athlete_id || null,
+      snapshot_id: job.snapshot_id || null,
+
+      message_type: "phnx_media_publish_notice",
+      priority: "standard",
+      communication_window: "open",
+
+      subject,
+      body,
+
+      status: "sent",
+      is_broadcast: false,
+      archived: false,
+      soft_deleted: false
+    };
+
+    const { data: message, error: msgError } = await client
+      .from(TABLES.MBX_MESSAGES)
+      .insert(messagePayload)
+      .select("*")
+      .single();
+
+    if (msgError) throw msgError;
+
+    const receiptPayload = {
+      message_id: message.id || null,
+      receipt_type: "STATSCORE_MULTIBOX_RECEIPT",
+      action: "phnx_media_publish_notice_sent",
+
+      sender_user_id: null,
+      sender_role: "system",
+      sender_role_id: null,
+      sender_label: "PHNX Sports Media",
+
+      target_role: "athlete",
+      target_directory: "athlete_media_notifications",
+      target_recipient_id: job.athlete_id || job.snapshot_id,
+      target_recipient_type: "athlete",
+      target_recipient_label: job.athlete_display_name || "Athlete",
+
+      athlete_id: job.athlete_id || null,
+      snapshot_id: job.snapshot_id || null,
+
+      receipt_payload: {
+        engine_version: ENGINE_VERSION,
+        media_job_id: mediaJobId,
+        youtube_url: post?.youtube_url || null,
+        status: "sent",
+        created_at: nowISO()
+      }
+    };
+
+    const { data: receipt, error: receiptError } = await client
+      .from(TABLES.MBX_RECEIPTS)
+      .insert(receiptPayload)
+      .select("*")
+      .single();
+
+    if (receiptError) throw receiptError;
+
+    await client.from(TABLES.MBX_AUDIT).insert({
+      message_id: message.id || null,
+      receipt_id: receipt.id || null,
+      event_type: "phnx_media_publish_notice_sent",
+      actor_user_id: null,
+      actor_role: "system",
+      actor_role_id: null,
+      event_payload: {
+        engine_version: ENGINE_VERSION,
+        media_job_id: mediaJobId,
+        youtube_url: post?.youtube_url || null,
+        created_at: nowISO()
+      }
+    });
+
+    await transitionJob(mediaJobId, STATUS.MULTIBOX_NOTIFIED, {
+      multibox_message_id: message.id || null,
+      multibox_receipt_id: receipt.id || null
+    });
+
+    await transitionJob(mediaJobId, STATUS.COMPLETED, {
+      completed_at: nowISO()
+    });
+
+    await writeReceipt({
+      media_job_id: mediaJobId,
+      youtube_post_id: post?.youtube_post_id || null,
+      snapshot_id: job.snapshot_id,
+      athlete_id: job.athlete_id,
+      receipt_type: "PHNX_MULTIBOX_NOTICE_SENT",
+      status: "MULTIBOX_NOTIFIED",
+      receipt_payload: {
+        message_id: message.id || null,
+        receipt_id: receipt.id || null
+      }
+    });
+
+    return { message, receipt };
   }
 
   async function claimNextJob(workerId = "phnx-media-worker") {
@@ -830,16 +1132,7 @@ music selection, and receipts from Snapshot Intake media.
 
   async function releaseJob(mediaJobId, status = STATUS.FAILED, errorMessage = null) {
     const client = db();
-    if (!client) throw new Error("PHNX Media Engine: Supabase client unavailable.");
-    if (!mediaJobId) throw new Error("mediaJobId is required.");
-
-    const { data: existing, error: findError } = await client
-      .from(TABLES.JOBS)
-      .select("*")
-      .eq("media_job_id", mediaJobId)
-      .maybeSingle();
-
-    if (findError) throw findError;
+    const existing = await getMediaJob(mediaJobId);
     if (!existing) throw new Error("Media job not found.");
 
     const { data, error } = await client
@@ -864,9 +1157,7 @@ music selection, and receipts from Snapshot Intake media.
       from_status: existing.job_status,
       to_status: status,
       event_type: errorMessage ? "JOB_RELEASED_WITH_ERROR" : "JOB_RELEASED",
-      payload: {
-        error_message: errorMessage
-      }
+      payload: { error_message: errorMessage }
     });
 
     return data;
@@ -883,10 +1174,23 @@ music selection, and receipts from Snapshot Intake media.
     registerAssets,
     createOrUpdateMediaJob,
     selectMusicTrack,
+
+    approveForRender,
+    queueForRender,
+    markRendering,
+    recordRenderOutput,
+
+    createOrQueueYouTubePost,
+    markYouTubePosted,
+    sendPublishedMultiBoxNotice,
+
+    transitionJob,
     writeJobEvent,
     writeReceipt,
+
     claimNextJob,
     releaseJob,
+    getMediaJob,
 
     _debug: {
       buildAssetList,
