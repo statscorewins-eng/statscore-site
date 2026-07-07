@@ -3,6 +3,11 @@
 STATS-CORE™ SNAPSHOT / ATHLETE RECORD INTAKE ENGINE
 Stream 2 — Athlete Source Record / Evidence Provenance
 CANON: Sports-Agnostic + PHNX Evidence Trust
+
+PHNX MEDIA INTEGRATION:
+Consumes statscore-phnx-media-engine.js when loaded.
+Creates/updates governed PHNX Sports media assets + media job
+after successful Snapshot Intake submission.
 ==========================================================
 */
 
@@ -36,7 +41,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 /* ======================================================
-   MODE RESOLUTION — THIS FIXES HARDLOAD ISSUE
+   MODE RESOLUTION
 ====================================================== */
 
 function resolveSnapshotIntakeMode() {
@@ -116,6 +121,14 @@ function bindSnapshotIntakeEvents() {
     if (el) el.addEventListener("input", updateSourceTrustFromInputs);
   });
 
+  ["highlightUrl", "gameFilmUrl", "socialProfileUrl", "recruitingProfileUrl"].forEach(name => {
+    const el = document.querySelector(`[name="${name}"]`);
+    if (el) {
+      el.addEventListener("input", updateMediaStatus);
+      el.addEventListener("change", updateMediaStatus);
+    }
+  });
+
   const uploadInput = document.getElementById("athleteHeadshotUpload");
   if (uploadInput) uploadInput.addEventListener("change", handleHeadshotSelection);
 
@@ -140,7 +153,7 @@ function bindSnapshotIntakeEvents() {
 }
 
 /* ======================================================
-   LOAD EXISTING SNAPSHOT — ONLY WITH URL snapshot_id
+   LOAD EXISTING SNAPSHOT
 ====================================================== */
 
 async function loadExistingSnapshot(snapshotId) {
@@ -270,6 +283,8 @@ async function submitSnapshot() {
 
     await maybeCreateParentApproval(saved);
     await maybeUploadHeadshot(saved);
+
+    await maybeQueuePhnxSportsMedia(saved);
 
     setActiveSnapshotId(saved.snapshot_id);
     if (saved.athlete_id) setActiveAthleteId(saved.athlete_id);
@@ -714,6 +729,38 @@ async function maybeUploadHeadshot(saved) {
   }
 }
 
+async function maybeQueuePhnxSportsMedia(saved) {
+  if (!saved?.snapshot_id) return;
+
+  if (!window.STATScorePHNXMediaEngine?.queueSnapshotMediaPackage) {
+    console.warn("[PHNX Media] Engine not loaded. Media queue skipped.");
+    return;
+  }
+
+  const result = await window.STATScorePHNXMediaEngine.queueSnapshotMediaPackage(saved);
+
+  if (result?.ok && result.status === "PHNX_MEDIA_QUEUED") {
+    setText("statusPhnxMedia", "Queued");
+    setText("mediaQueueBadge", "PHNX Media Queued");
+    setText("mediaStatusRouting", result.job?.job_status || "ASSETS CAPTURED");
+    return result;
+  }
+
+  if (result?.ok && result.status === "NO_MEDIA_TO_QUEUE") {
+    setText("statusPhnxMedia", "Not Queued");
+    setText("mediaQueueBadge", "Media Queue Pending");
+    return result;
+  }
+
+  if (!result?.ok) {
+    setText("statusPhnxMedia", "Queue Failed");
+    setText("mediaQueueBadge", "Media Queue Failed");
+    console.warn("[PHNX Media] Snapshot submit media queue failed:", result);
+  }
+
+  return result;
+}
+
 function updateMediaStatus() {
   const hasMedia =
     !!selectedHeadshotFile ||
@@ -725,6 +772,12 @@ function updateMediaStatus() {
 
   setText("mediaQueueBadge", hasMedia ? "Media Queue Ready" : "Media Queue Pending");
   setText("statusPhnxMedia", hasMedia ? "Queued" : "Not Queued");
+
+  if (valByName("highlightUrl") || valByName("gameFilmUrl")) {
+    setText("mediaStatusFilm", "Ready");
+  } else {
+    setText("mediaStatusFilm", "Pending");
+  }
 }
 
 /* ======================================================
@@ -809,12 +862,18 @@ function setActiveSnapshotId(snapshotId) {
   if (!snapshotId) return;
   localStorage.setItem(ACTIVE_SNAPSHOT_KEY, snapshotId);
   sessionStorage.setItem(ACTIVE_SNAPSHOT_KEY, snapshotId);
+
+  sessionStorage.setItem("statscore_snapshot_id", snapshotId);
+  localStorage.setItem("statscore_snapshot_id", snapshotId);
 }
 
 function setActiveAthleteId(athleteId) {
   if (!athleteId) return;
   localStorage.setItem(ACTIVE_ATHLETE_KEY, athleteId);
   sessionStorage.setItem(ACTIVE_ATHLETE_KEY, athleteId);
+
+  sessionStorage.setItem("statscore_athlete_id", athleteId);
+  localStorage.setItem("statscore_athlete_id", athleteId);
 }
 
 function clearActiveSnapshotContext() {
@@ -880,8 +939,6 @@ function updateContinueRoute(snapshotId) {
 /*
 ==========================================================
 SCHEMA FILTER
-Only sends columns known/expected by current STATS-CORE schema.
-Extra fields remain protected inside raw_payload / JSONB payloads.
 ==========================================================
 */
 
