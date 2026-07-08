@@ -3,26 +3,10 @@
 STATS-CORE™ SNAPSHOT / ATHLETE RECORD INTAKE ENGINE
 Stream 2 — Athlete Source Record / Evidence Provenance
 CANON: Sports-Agnostic + PHNX Evidence Trust
-
-STREAM 2 OWNS:
-- Athlete Record creation/update
-- snapshot_id / athlete_id
-- source provenance
-- trust classification capture
-- headshot/media evidence fields
-- parent approval request creation
-- PHNX media handoff packet
-
-STREAM 2 DOES NOT OWN:
-- media editing
-- branding/rebranding
-- YouTube publishing
-- distribution receipts
-- scoring / STATScore
-- dashboard intelligence
 ==========================================================
 */
 
+const ATHLETE_TABLE = "statscore_athletes";
 const SNAPSHOT_TABLE = "statscore_snapshots";
 const AUDIT_TABLE = "sc_snapshot_audit_receipts";
 const PARENT_APPROVAL_TABLE = "sc_parent_approval_requests";
@@ -34,7 +18,7 @@ let selectedHeadshotFile = null;
 let currentIntakeMode = { mode: "create", snapshot_id: null };
 
 /* ======================================================
-   SUPABASE DB RESOLVER — REQUIRED
+   SUPABASE DB RESOLVER
 ====================================================== */
 
 function getDb() {
@@ -338,7 +322,13 @@ async function submitSnapshot() {
   try {
     setText("systemMessage", "Submitting athlete record...");
 
-    const row = await buildSnapshotRow("submitted");
+    let row = await buildSnapshotRow("submitted");
+
+    const athlete = await ensureAthleteExists(row);
+    row.athlete_id = athlete.athlete_id;
+    setVal("athleteId", athlete.athlete_id);
+    setActiveAthleteId(athlete.athlete_id);
+
     saved = await insertSnapshot(row);
 
     saved = await maybeUploadHeadshot(saved);
@@ -367,7 +357,13 @@ async function saveDraftSnapshot() {
   try {
     setText("systemMessage", "Saving draft...");
 
-    const row = await buildSnapshotRow("draft");
+    let row = await buildSnapshotRow("draft");
+
+    const athlete = await ensureAthleteExists(row);
+    row.athlete_id = athlete.athlete_id;
+    setVal("athleteId", athlete.athlete_id);
+    setActiveAthleteId(athlete.athlete_id);
+
     const saved = await insertSnapshot(row);
 
     setActiveSnapshotId(saved.snapshot_id);
@@ -396,7 +392,7 @@ async function buildSnapshotRow(status) {
   const sourceClaims = buildSourceClaimsPayload(fd);
   const sportMetrics = buildSportMetricPayload(fd);
 
-  const athleteId = val("athleteId") || generateAthleteId();
+  const athleteId = val("athleteId") || getActiveAthleteId() || generateAthleteId();
   const snapshotId = val("snapshotId") || getActiveSnapshotId() || generateSnapshotId();
 
   const firstName = clean(fd.get("firstName"));
@@ -492,6 +488,74 @@ async function buildSnapshotRow(status) {
 }
 
 /* ======================================================
+   ATHLETE IDENTITY ROOT
+   REQUIRED BEFORE SNAPSHOT INSERT
+====================================================== */
+
+async function ensureAthleteExists(snapshotRow) {
+  if (!snapshotRow?.athlete_id) {
+    snapshotRow.athlete_id = generateAthleteId();
+  }
+
+  const db = getDb();
+  const athletePayload = filterAthleteSchema({
+    athlete_id: snapshotRow.athlete_id,
+    first_name: snapshotRow.first_name,
+    last_name: snapshotRow.last_name,
+    athlete_display_name:
+      snapshotRow.athlete_display_name ||
+      `${snapshotRow.first_name || ""} ${snapshotRow.last_name || ""}`.trim(),
+    graduation_class: snapshotRow.graduation_class,
+    city_state: snapshotRow.city_state,
+    school_program: snapshotRow.school_program,
+    primary_sport: snapshotRow.primary_sport,
+    updated_at: nowISO()
+  });
+
+  const { data: existingById, error: existingByIdError } = await db
+    .from(ATHLETE_TABLE)
+    .select("*")
+    .eq("athlete_id", athletePayload.athlete_id)
+    .maybeSingle();
+
+  if (existingByIdError) throw existingByIdError;
+
+  if (existingById) {
+    const updatePayload = {
+      ...athletePayload,
+      athlete_id: existingById.athlete_id,
+      updated_at: nowISO()
+    };
+
+    const { data, error } = await db
+      .from(ATHLETE_TABLE)
+      .update(updatePayload)
+      .eq("athlete_id", existingById.athlete_id)
+      .select("*")
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  const createPayload = {
+    ...athletePayload,
+    created_at: nowISO(),
+    updated_at: nowISO()
+  };
+
+  const { data, error } = await db
+    .from(ATHLETE_TABLE)
+    .insert(createPayload)
+    .select("*")
+    .single();
+
+  if (error) throw error;
+
+  return data;
+}
+
+/* ======================================================
    DATABASE INSERT / UPDATE
 ====================================================== */
 
@@ -499,6 +563,10 @@ async function insertSnapshot(row) {
   const db = getDb();
   const cleanRow = filterSnapshotSchema(row || {});
   const incomingSnapshotId = cleanRow.snapshot_id || row?.snapshot_id || getActiveSnapshotId();
+
+  if (!cleanRow.athlete_id) {
+    throw new Error("athlete_id is required before snapshot insert.");
+  }
 
   if (incomingSnapshotId) {
     const { data: existingData, error: existingError } = await db
@@ -513,19 +581,11 @@ async function insertSnapshot(row) {
       const updatePayload = {
         ...cleanRow,
         snapshot_id: existingData.snapshot_id,
-        athlete_id: existingData.athlete_id || cleanRow.athlete_id || row?.athlete_id || generateAthleteId(),
+        athlete_id: existingData.athlete_id || cleanRow.athlete_id,
         updated_at: nowISO(),
         last_source_update_at: nowISO(),
         source_record_status: cleanRow.source_record_status || existingData.source_record_status || "updated"
       };
-
-      await writeSnapshotAuditReceipt({
-        action: "SNAPSHOT_SOURCE_UPDATE",
-        snapshot_id: existingData.snapshot_id,
-        athlete_id: updatePayload.athlete_id,
-        before_record: existingData,
-        after_record: updatePayload
-      });
 
       const { data, error } = await db
         .from(SNAPSHOT_TABLE)
@@ -535,6 +595,15 @@ async function insertSnapshot(row) {
         .single();
 
       if (error) throw error;
+
+      await writeSnapshotAuditReceipt({
+        action: "SNAPSHOT_SOURCE_UPDATE",
+        snapshot_id: data.snapshot_id,
+        athlete_id: data.athlete_id,
+        before_record: existingData,
+        after_record: data
+      });
+
       return data;
     }
   }
@@ -542,7 +611,6 @@ async function insertSnapshot(row) {
   const createPayload = {
     ...cleanRow,
     snapshot_id: cleanRow.snapshot_id || generateSnapshotId(),
-    athlete_id: cleanRow.athlete_id || generateAthleteId(),
     source_record_status: cleanRow.source_record_status || "created",
     created_at: cleanRow.created_at || nowISO(),
     updated_at: nowISO(),
@@ -1087,7 +1155,22 @@ async function writeSnapshotAuditReceipt(receipt) {
 
 function getActiveSnapshotId() {
   const params = new URLSearchParams(window.location.search);
-  return params.get("snapshot_id") || null;
+  return (
+    params.get("snapshot_id") ||
+    sessionStorage.getItem(ACTIVE_SNAPSHOT_KEY) ||
+    localStorage.getItem(ACTIVE_SNAPSHOT_KEY) ||
+    null
+  );
+}
+
+function getActiveAthleteId() {
+  return (
+    sessionStorage.getItem(ACTIVE_ATHLETE_KEY) ||
+    localStorage.getItem(ACTIVE_ATHLETE_KEY) ||
+    sessionStorage.getItem("statscore_athlete_id") ||
+    localStorage.getItem("statscore_athlete_id") ||
+    null
+  );
 }
 
 function setActiveSnapshotId(snapshotId) {
@@ -1175,8 +1258,30 @@ function updateContinueRoute(snapshotId) {
 }
 
 /* ======================================================
-   SCHEMA FILTER
+   SCHEMA FILTERS
 ====================================================== */
+
+function filterAthleteSchema(row) {
+  const allowed = new Set([
+    "athlete_id",
+    "first_name",
+    "last_name",
+    "athlete_display_name",
+    "graduation_class",
+    "city_state",
+    "school_program",
+    "primary_sport",
+    "created_at",
+    "updated_at"
+  ]);
+
+  const cleanRow = {};
+  Object.entries(row || {}).forEach(([key, value]) => {
+    if (allowed.has(key)) cleanRow[key] = value;
+  });
+
+  return cleanRow;
+}
 
 function filterSnapshotSchema(row) {
   const allowed = new Set([
@@ -1263,9 +1368,12 @@ function exposeDebugGlobals() {
     saveDraftSnapshot,
     loadExistingSnapshot,
     insertSnapshot,
+    ensureAthleteExists,
+    filterAthleteSchema,
     filterSnapshotSchema,
     getDb,
     getActiveSnapshotId,
+    getActiveAthleteId,
     maybeQueuePhnxSportsMedia,
     buildMediaHandoffPayloadFromSaved
   };
@@ -1273,6 +1381,8 @@ function exposeDebugGlobals() {
   window.submitSnapshot = submitSnapshot;
   window.saveDraftSnapshot = saveDraftSnapshot;
   window.insertSnapshot = insertSnapshot;
+  window.ensureAthleteExists = ensureAthleteExists;
+  window.filterAthleteSchema = filterAthleteSchema;
   window.filterSnapshotSchema = filterSnapshotSchema;
   window.getDb = getDb;
   window.maybeQueuePhnxSportsMedia = maybeQueuePhnxSportsMedia;
