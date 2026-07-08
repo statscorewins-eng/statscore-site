@@ -6,8 +6,7 @@ CANON: Sports-Agnostic + PHNX Evidence Trust
 
 PHNX MEDIA INTEGRATION:
 Consumes statscore-phnx-media-engine.js when loaded.
-Creates/updates governed PHNX Sports media assets + media job
-after successful Snapshot Intake submission.
+Creates/updates governed PHNX Sports media handoff after successful Snapshot Intake submission.
 ==========================================================
 */
 
@@ -20,6 +19,26 @@ const ACTIVE_ATHLETE_KEY = "STATSCORE_ACTIVE_ATHLETE_ID";
 
 let selectedHeadshotFile = null;
 let currentIntakeMode = { mode: "create", snapshot_id: null };
+
+/* ======================================================
+   SUPABASE DB RESOLVER — STREAM 2 REQUIRED
+====================================================== */
+
+function getDb() {
+  const db =
+    window.supabaseClient ||
+    window.STATSCORE_SUPABASE ||
+    window.STATScoreSupabase ||
+    window.supabase;
+
+  if (!db || typeof db.from !== "function") {
+    throw new Error(
+      "Supabase client is not loaded. Expected window.supabaseClient, window.STATSCORE_SUPABASE, window.STATScoreSupabase, or window.supabase."
+    );
+  }
+
+  return db;
+}
 
 /* ======================================================
    BOOT
@@ -257,6 +276,7 @@ function hydrateFormFromSnapshot(data) {
     setText("headshotUploadText", "Headshot Loaded");
     setText("headshotUploadHint", "Existing athlete media attached");
     document.getElementById("headshotUploadBox")?.classList.add("ready");
+
     const removeBtn = document.getElementById("removeHeadshotBtn");
     if (removeBtn) removeBtn.style.display = "flex";
   }
@@ -281,9 +301,8 @@ async function submitSnapshot() {
     const row = await buildSnapshotRow("submitted");
     const saved = await insertSnapshot(row);
 
-    await maybeCreateParentApproval(saved);
     await maybeUploadHeadshot(saved);
-
+    await maybeCreateParentApproval(saved);
     await maybeQueuePhnxSportsMedia(saved);
 
     setActiveSnapshotId(saved.snapshot_id);
@@ -314,6 +333,7 @@ async function saveDraftSnapshot() {
     setText("recordBadge", "Draft Saved");
     setText("statusProfile", "Draft");
     setText("systemMessage", "Draft saved.");
+
     updateContinueRoute(saved.snapshot_id);
   } catch (err) {
     console.error("Save draft failed:", err);
@@ -323,6 +343,8 @@ async function saveDraftSnapshot() {
 
 async function buildSnapshotRow(status) {
   const form = document.getElementById("snapshotForm");
+  if (!form) throw new Error("snapshotForm not found.");
+
   const fd = new FormData(form);
 
   const sourceClaims = buildSourceClaimsPayload(fd);
@@ -710,6 +732,7 @@ async function maybeUploadHeadshot(saved) {
 
   try {
     if (!window.STATSCORE_UPLOAD_HEADSHOT) {
+      console.warn("[Stream 2] STATSCORE_UPLOAD_HEADSHOT not loaded. Headshot upload skipped.");
       return;
     }
 
@@ -819,7 +842,14 @@ async function maybeCreateParentApproval(saved) {
 }
 
 async function requestSnapshotVerification() {
-  setText("systemMessage", "Verification request route pending.");
+  const snapshotId = val("snapshotId") || getActiveSnapshotId();
+
+  if (!snapshotId) {
+    setText("systemMessage", "Submit or save the athlete record before requesting verification.");
+    return;
+  }
+
+  window.location.href = `verification-request.html?snapshot_id=${encodeURIComponent(snapshotId)}`;
 }
 
 /* ======================================================
@@ -860,6 +890,7 @@ function getActiveSnapshotId() {
 
 function setActiveSnapshotId(snapshotId) {
   if (!snapshotId) return;
+
   localStorage.setItem(ACTIVE_SNAPSHOT_KEY, snapshotId);
   sessionStorage.setItem(ACTIVE_SNAPSHOT_KEY, snapshotId);
 
@@ -869,6 +900,7 @@ function setActiveSnapshotId(snapshotId) {
 
 function setActiveAthleteId(athleteId) {
   if (!athleteId) return;
+
   localStorage.setItem(ACTIVE_ATHLETE_KEY, athleteId);
   sessionStorage.setItem(ACTIVE_ATHLETE_KEY, athleteId);
 
@@ -936,11 +968,9 @@ function updateContinueRoute(snapshotId) {
     : "athlete-dashboard.html?from=athlete-record-intake";
 }
 
-/*
-==========================================================
-SCHEMA FILTER
-==========================================================
-*/
+/* ======================================================
+   SCHEMA FILTER
+====================================================== */
 
 function filterSnapshotSchema(row) {
   const allowed = new Set([
@@ -1015,4 +1045,24 @@ function filterSnapshotSchema(row) {
   });
 
   return cleanRow;
-} 
+}
+
+/* ======================================================
+   GLOBAL DEBUG / COMPATIBILITY EXPORTS
+====================================================== */
+
+window.STATSCORE_SNAPSHOT_INTAKE_ENGINE = {
+  submitSnapshot,
+  saveDraftSnapshot,
+  loadExistingSnapshot,
+  insertSnapshot,
+  filterSnapshotSchema,
+  getDb,
+  getActiveSnapshotId
+};
+
+window.submitSnapshot = submitSnapshot;
+window.saveDraftSnapshot = saveDraftSnapshot;
+window.insertSnapshot = insertSnapshot;
+window.filterSnapshotSchema = filterSnapshotSchema;
+window.getDb = getDb; 
