@@ -4,9 +4,22 @@ STATS-CORE™ SNAPSHOT / ATHLETE RECORD INTAKE ENGINE
 Stream 2 — Athlete Source Record / Evidence Provenance
 CANON: Sports-Agnostic + PHNX Evidence Trust
 
-PHNX MEDIA INTEGRATION:
-Consumes statscore-phnx-media-engine.js when loaded.
-Creates/updates governed PHNX Sports media handoff after successful Snapshot Intake submission.
+STREAM 2 OWNS:
+- Athlete Record creation/update
+- snapshot_id / athlete_id
+- source provenance
+- trust classification capture
+- headshot/media evidence fields
+- parent approval request creation
+- PHNX media handoff packet
+
+STREAM 2 DOES NOT OWN:
+- media editing
+- branding/rebranding
+- YouTube publishing
+- distribution receipts
+- scoring / STATScore
+- dashboard intelligence
 ==========================================================
 */
 
@@ -21,7 +34,7 @@ let selectedHeadshotFile = null;
 let currentIntakeMode = { mode: "create", snapshot_id: null };
 
 /* ======================================================
-   SUPABASE DB RESOLVER — STREAM 2 REQUIRED
+   SUPABASE DB RESOLVER — REQUIRED
 ====================================================== */
 
 function getDb() {
@@ -45,17 +58,24 @@ function getDb() {
 ====================================================== */
 
 document.addEventListener("DOMContentLoaded", async () => {
-  currentIntakeMode = resolveSnapshotIntakeMode();
+  try {
+    currentIntakeMode = resolveSnapshotIntakeMode();
 
-  bindSnapshotIntakeEvents();
-  updateSportEvidenceBlocks();
-  updateSourceTrustFromInputs();
-  updateMediaStatus();
+    bindSnapshotIntakeEvents();
+    updateSportEvidenceBlocks();
+    updateSourceTrustFromInputs();
+    updateMediaStatus();
 
-  if (currentIntakeMode.mode === "edit") {
-    await loadExistingSnapshot(currentIntakeMode.snapshot_id);
-  } else {
-    resetCreateMode();
+    if (currentIntakeMode.mode === "edit") {
+      await loadExistingSnapshot(currentIntakeMode.snapshot_id);
+    } else {
+      resetCreateMode();
+    }
+
+    exposeDebugGlobals();
+  } catch (err) {
+    console.error("Snapshot Intake boot failed:", err);
+    setText("systemMessage", err.message || "Snapshot Intake failed to load.");
   }
 });
 
@@ -98,11 +118,15 @@ function resetCreateMode() {
   setText("statusVerification", "Pending");
   setText("statusPhnxMedia", "Not Queued");
   setText("mediaQueueBadge", "Media Queue Pending");
+  setText("mediaStatusHeadshot", "Required");
+  setText("mediaStatusCard", "Not Ready");
+  setText("mediaStatusFilm", "Pending");
+  setText("mediaStatusRouting", "Queued After Submit");
   setText("systemMessage", "");
 
   const preview = document.getElementById("headshotPreview");
   if (preview) {
-    preview.src = "";
+    preview.removeAttribute("src");
     preview.style.display = "none";
   }
 
@@ -136,8 +160,10 @@ function bindSnapshotIntakeEvents() {
     "phnxCertifiedId"
   ].forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.addEventListener("change", updateSourceTrustFromInputs);
-    if (el) el.addEventListener("input", updateSourceTrustFromInputs);
+    if (el) {
+      el.addEventListener("change", updateSourceTrustFromInputs);
+      el.addEventListener("input", updateSourceTrustFromInputs);
+    }
   });
 
   ["highlightUrl", "gameFilmUrl", "socialProfileUrl", "recruitingProfileUrl"].forEach(name => {
@@ -169,6 +195,16 @@ function bindSnapshotIntakeEvents() {
 
   const verifyBtn = document.getElementById("requestVerificationBtn");
   if (verifyBtn) verifyBtn.addEventListener("click", requestSnapshotVerification);
+
+  const viewBtn = document.getElementById("viewProfileBtn");
+  if (viewBtn) {
+    viewBtn.addEventListener("click", e => {
+      const snapshotId = val("snapshotId") || getActiveSnapshotId();
+      if (!snapshotId) return;
+      e.preventDefault();
+      window.location.href = `athlete-dashboard.html?snapshot_id=${encodeURIComponent(snapshotId)}&from=athlete-record-intake`;
+    });
+  }
 }
 
 /* ======================================================
@@ -203,6 +239,7 @@ async function loadExistingSnapshot(snapshotId) {
     updateSportEvidenceBlocks();
     updateSourceTrustFromInputs();
     updateMediaStatus();
+    updateContinueRoute(data.snapshot_id);
   } catch (err) {
     console.error("Snapshot load failed:", err);
     setText("systemMessage", err.message || "Snapshot load failed.");
@@ -210,9 +247,9 @@ async function loadExistingSnapshot(snapshotId) {
 }
 
 function hydrateFormFromSnapshot(data) {
-  const raw = data.raw_payload || {};
-  const sportPayload = data.sport_metric_payload || raw.sport_metric_payload || {};
-  const sourcePayload = data.source_claims_payload || raw.source_claims_payload || {};
+  const raw = safeObject(data.raw_payload);
+  const sportPayload = safeObject(data.sport_metric_payload || raw.sport_metric_payload);
+  const sourcePayload = safeObject(data.source_claims_payload || raw.source_claims_payload);
 
   setVal("snapshotId", data.snapshot_id || "");
   setVal("athleteId", data.athlete_id || "");
@@ -272,6 +309,7 @@ function hydrateFormFromSnapshot(data) {
       preview.src = headshot;
       preview.style.display = "block";
     }
+
     setText("mediaStatusHeadshot", "Uploaded");
     setText("headshotUploadText", "Headshot Loaded");
     setText("headshotUploadHint", "Existing athlete media attached");
@@ -295,13 +333,15 @@ function hydrateSportPayload(payload) {
 ====================================================== */
 
 async function submitSnapshot() {
+  let saved = null;
+
   try {
     setText("systemMessage", "Submitting athlete record...");
 
     const row = await buildSnapshotRow("submitted");
-    const saved = await insertSnapshot(row);
+    saved = await insertSnapshot(row);
 
-    await maybeUploadHeadshot(saved);
+    saved = await maybeUploadHeadshot(saved);
     await maybeCreateParentApproval(saved);
     await maybeQueuePhnxSportsMedia(saved);
 
@@ -314,9 +354,12 @@ async function submitSnapshot() {
     setText("systemMessage", "Athlete record submitted.");
 
     updateContinueRoute(saved.snapshot_id);
+
+    return saved;
   } catch (err) {
     console.error("Submit snapshot failed:", err);
     setText("systemMessage", err.message || "Submit failed.");
+    return null;
   }
 }
 
@@ -335,9 +378,12 @@ async function saveDraftSnapshot() {
     setText("systemMessage", "Draft saved.");
 
     updateContinueRoute(saved.snapshot_id);
+
+    return saved;
   } catch (err) {
     console.error("Save draft failed:", err);
     setText("systemMessage", err.message || "Draft save failed.");
+    return null;
   }
 }
 
@@ -420,7 +466,17 @@ async function buildSnapshotRow(status) {
     headshot_path: val("headshotPath"),
     headshot_filename: val("headshotFileName"),
 
-    raw_payload: Object.fromEntries(fd.entries()),
+    raw_payload: {
+      ...Object.fromEntries(fd.entries()),
+      sport_metric_payload: sportMetrics,
+      source_claims_payload: sourceClaims,
+      media_handoff_payload: buildMediaHandoffPayloadFromForm(fd, {
+        snapshot_id: snapshotId,
+        athlete_id: athleteId,
+        first_name: firstName,
+        last_name: lastName
+      })
+    },
 
     submitted_at: nowISO(),
     updated_at: nowISO(),
@@ -600,6 +656,86 @@ function buildSportMetricPayload(fd) {
   return universal;
 }
 
+function buildMediaHandoffPayloadFromForm(fd, ids) {
+  return {
+    handoff_type: "PHNX_SPORTS_MEDIA_HANDOFF",
+    handoff_status: "ready_after_snapshot_submit",
+
+    athlete_id: ids.athlete_id,
+    snapshot_id: ids.snapshot_id,
+    athlete_name: `${ids.first_name || ""} ${ids.last_name || ""}`.trim(),
+
+    sport: clean(fd.get("primarySport")),
+    position_or_event: clean(fd.get("primaryPosition")),
+    graduation_class: clean(fd.get("graduationClass")),
+    school_program: clean(fd.get("schoolProgram")),
+    city_state: clean(fd.get("cityState")),
+    jersey_number: clean(fd.get("jerseyNumber")),
+
+    headshot_url: val("headshotUrl"),
+    headshot_path: val("headshotPath"),
+    headshot_filename: val("headshotFileName"),
+
+    highlight_url: clean(fd.get("highlightUrl")),
+    game_film_url: clean(fd.get("gameFilmUrl")),
+    social_profile_url: clean(fd.get("socialProfileUrl")),
+    recruiting_profile_url: clean(fd.get("recruitingProfileUrl")),
+
+    submitted_by_role: clean(fd.get("submittedByRole")),
+    submitted_by_name: clean(fd.get("submittedByName")),
+    submitted_by_email: clean(fd.get("submittedByEmail")),
+    phnx_certified_id: clean(fd.get("phnxCertifiedId")),
+    phnx_certification_status: clean(fd.get("phnxCertificationStatus")),
+    trust_classification: clean(fd.get("trustClassification")) || "SELF_REPORTED",
+
+    media_permission_status: clean(fd.get("verificationPermission")),
+    parent_guardian_name: clean(fd.get("guardianName")),
+    parent_guardian_email: clean(fd.get("guardianEmail")),
+
+    created_at: nowISO()
+  };
+}
+
+function buildMediaHandoffPayloadFromSaved(saved) {
+  return {
+    handoff_type: "PHNX_SPORTS_MEDIA_HANDOFF",
+    handoff_status: "ready",
+
+    athlete_id: saved.athlete_id || null,
+    snapshot_id: saved.snapshot_id || null,
+    athlete_name: saved.athlete_display_name || `${saved.first_name || ""} ${saved.last_name || ""}`.trim(),
+
+    sport: saved.primary_sport || "",
+    position_or_event: saved.primary_position || "",
+    graduation_class: saved.graduation_class || "",
+    school_program: saved.school_program || "",
+    city_state: saved.city_state || "",
+    jersey_number: saved.jersey_number || "",
+
+    headshot_url: saved.headshot_url || "",
+    headshot_path: saved.headshot_path || "",
+    headshot_filename: saved.headshot_filename || "",
+
+    highlight_url: saved.highlight_url || "",
+    game_film_url: saved.game_film_url || "",
+    social_profile_url: saved.social_profile_url || "",
+    recruiting_profile_url: saved.recruiting_profile_url || "",
+
+    submitted_by_role: saved.submitted_by_role || "",
+    submitted_by_name: saved.submitted_by_name || "",
+    submitted_by_email: saved.submitted_by_email || "",
+    phnx_certified_id: saved.phnx_certified_id || "",
+    phnx_certification_status: saved.phnx_certification_status || "",
+    trust_classification: saved.trust_classification || "SELF_REPORTED",
+
+    media_permission_status: saved.verification_permission || "",
+    parent_guardian_name: saved.guardian_name || "",
+    parent_guardian_email: saved.guardian_email || "",
+
+    created_at: nowISO()
+  };
+}
+
 /* ======================================================
    TRUST / STATUS UI
 ====================================================== */
@@ -639,15 +775,11 @@ function inferTrustClassification(role, certification) {
 }
 
 function readableTrust(v) {
-  return String(v || "Pending")
-    .replaceAll("_", " ")
-    .toUpperCase();
+  return String(v || "Pending").replaceAll("_", " ").toUpperCase();
 }
 
 function readableSource(v) {
-  return String(v || "Self-Reported")
-    .replaceAll("_", " ")
-    .toUpperCase();
+  return String(v || "Self-Reported").replaceAll("_", " ").toUpperCase();
 }
 
 /* ======================================================
@@ -708,7 +840,7 @@ function removeSelectedHeadshot() {
 
   const preview = document.getElementById("headshotPreview");
   if (preview) {
-    preview.src = "";
+    preview.removeAttribute("src");
     preview.style.display = "none";
   }
 
@@ -728,12 +860,12 @@ function removeSelectedHeadshot() {
 }
 
 async function maybeUploadHeadshot(saved) {
-  if (!selectedHeadshotFile || !saved?.snapshot_id) return;
+  if (!selectedHeadshotFile || !saved?.snapshot_id) return saved;
 
   try {
     if (!window.STATSCORE_UPLOAD_HEADSHOT) {
       console.warn("[Stream 2] STATSCORE_UPLOAD_HEADSHOT not loaded. Headshot upload skipped.");
-      return;
+      return saved;
     }
 
     const result = await window.STATSCORE_UPLOAD_HEADSHOT({
@@ -743,24 +875,78 @@ async function maybeUploadHeadshot(saved) {
     });
 
     if (result?.publicUrl || result?.public_url) {
-      setVal("headshotUrl", result.publicUrl || result.public_url);
-      setVal("headshotPath", result.path || "");
+      const publicUrl = result.publicUrl || result.public_url;
+      const path = result.path || result.storage_path || "";
+
+      setVal("headshotUrl", publicUrl);
+      setVal("headshotPath", path);
       setVal("headshotFileName", selectedHeadshotFile.name);
+
+      const updatePayload = {
+        headshot_url: publicUrl,
+        headshot_path: path,
+        headshot_filename: selectedHeadshotFile.name,
+        updated_at: nowISO()
+      };
+
+      const { data, error } = await getDb()
+        .from(SNAPSHOT_TABLE)
+        .update(updatePayload)
+        .eq("snapshot_id", saved.snapshot_id)
+        .select("*")
+        .single();
+
+      if (error) throw error;
+
+      setText("mediaStatusHeadshot", "Uploaded");
+      setText("statusPhnxMedia", "Queued");
+      setText("mediaQueueBadge", "Media Queue Ready");
+
+      return {
+        ...saved,
+        ...data,
+        headshot_url: publicUrl,
+        headshot_path: path,
+        headshot_filename: selectedHeadshotFile.name
+      };
     }
+
+    return saved;
   } catch (err) {
     console.warn("Headshot upload skipped/failed:", err);
+    return saved;
   }
 }
 
 async function maybeQueuePhnxSportsMedia(saved) {
-  if (!saved?.snapshot_id) return;
+  if (!saved?.snapshot_id) return null;
 
-  if (!window.STATScorePHNXMediaEngine?.queueSnapshotMediaPackage) {
-    console.warn("[PHNX Media] Engine not loaded. Media queue skipped.");
-    return;
+  const handoffPayload = buildMediaHandoffPayloadFromSaved(saved);
+
+  const hasMedia =
+    !!handoffPayload.headshot_url ||
+    !!handoffPayload.highlight_url ||
+    !!handoffPayload.game_film_url ||
+    !!handoffPayload.social_profile_url ||
+    !!handoffPayload.recruiting_profile_url;
+
+  if (!hasMedia) {
+    setText("statusPhnxMedia", "Not Queued");
+    setText("mediaQueueBadge", "Media Queue Pending");
+    return { ok: true, status: "NO_MEDIA_TO_QUEUE", handoff: handoffPayload };
   }
 
-  const result = await window.STATScorePHNXMediaEngine.queueSnapshotMediaPackage(saved);
+  if (!window.STATScorePHNXMediaEngine?.queueSnapshotMediaPackage) {
+    console.warn("[PHNX Media] Engine not loaded. Handoff prepared but queue skipped.", handoffPayload);
+    setText("statusPhnxMedia", "Handoff Ready");
+    setText("mediaQueueBadge", "Media Handoff Ready");
+    return { ok: true, status: "PHNX_MEDIA_HANDOFF_READY_ENGINE_NOT_LOADED", handoff: handoffPayload };
+  }
+
+  const result = await window.STATScorePHNXMediaEngine.queueSnapshotMediaPackage({
+    ...saved,
+    media_handoff_payload: handoffPayload
+  });
 
   if (result?.ok && result.status === "PHNX_MEDIA_QUEUED") {
     setText("statusPhnxMedia", "Queued");
@@ -809,7 +995,7 @@ function updateMediaStatus() {
 
 async function maybeCreateParentApproval(saved) {
   const guardianEmail = valByName("guardianEmail");
-  if (!guardianEmail || !saved?.snapshot_id) return;
+  if (!guardianEmail || !saved?.snapshot_id) return null;
 
   try {
     const db = getDb();
@@ -835,9 +1021,17 @@ async function maybeCreateParentApproval(saved) {
       updated_at: nowISO()
     };
 
-    await db.from(PARENT_APPROVAL_TABLE).insert(payload);
+    const { data, error } = await db
+      .from(PARENT_APPROVAL_TABLE)
+      .insert(payload)
+      .select("*")
+      .maybeSingle();
+
+    if (error) throw error;
+    return data;
   } catch (err) {
     console.warn("Parent approval request skipped:", err);
+    return null;
   }
 }
 
@@ -858,7 +1052,7 @@ async function requestSnapshotVerification() {
 
 async function writeSnapshotAuditReceipt(receipt) {
   try {
-    if (!receipt?.snapshot_id) return;
+    if (!receipt?.snapshot_id) return null;
 
     const db = getDb();
 
@@ -871,11 +1065,19 @@ async function writeSnapshotAuditReceipt(receipt) {
       created_at: nowISO()
     };
 
-    await db.from(AUDIT_TABLE).insert(payload);
+    const { data, error } = await db
+      .from(AUDIT_TABLE)
+      .insert(payload)
+      .select("*")
+      .maybeSingle();
+
+    if (error) throw error;
+    return data;
   } catch (err) {
     if (window.STATSCORE_DEBUG) {
       console.warn("Snapshot audit receipt skipped:", err);
     }
+    return null;
   }
 }
 
@@ -934,6 +1136,10 @@ function clean(v) {
 
 function normalizeSport(v) {
   return clean(v).toLowerCase();
+}
+
+function safeObject(v) {
+  return v && typeof v === "object" ? v : {};
 }
 
 function val(id) {
@@ -1051,18 +1257,23 @@ function filterSnapshotSchema(row) {
    GLOBAL DEBUG / COMPATIBILITY EXPORTS
 ====================================================== */
 
-window.STATSCORE_SNAPSHOT_INTAKE_ENGINE = {
-  submitSnapshot,
-  saveDraftSnapshot,
-  loadExistingSnapshot,
-  insertSnapshot,
-  filterSnapshotSchema,
-  getDb,
-  getActiveSnapshotId
-};
+function exposeDebugGlobals() {
+  window.STATSCORE_SNAPSHOT_INTAKE_ENGINE = {
+    submitSnapshot,
+    saveDraftSnapshot,
+    loadExistingSnapshot,
+    insertSnapshot,
+    filterSnapshotSchema,
+    getDb,
+    getActiveSnapshotId,
+    maybeQueuePhnxSportsMedia,
+    buildMediaHandoffPayloadFromSaved
+  };
 
-window.submitSnapshot = submitSnapshot;
-window.saveDraftSnapshot = saveDraftSnapshot;
-window.insertSnapshot = insertSnapshot;
-window.filterSnapshotSchema = filterSnapshotSchema;
-window.getDb = getDb; 
+  window.submitSnapshot = submitSnapshot;
+  window.saveDraftSnapshot = saveDraftSnapshot;
+  window.insertSnapshot = insertSnapshot;
+  window.filterSnapshotSchema = filterSnapshotSchema;
+  window.getDb = getDb;
+  window.maybeQueuePhnxSportsMedia = maybeQueuePhnxSportsMedia;
+} 
