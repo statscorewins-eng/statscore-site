@@ -1,7 +1,7 @@
 /* ============================================================
    STATS-CORE™ SCORE AUTHORITY ENGINE
    File: statscore-score-authority-engine.js
-   Version: STATSCORE-SCORE-AUTHORITY-V3
+   Version: STATSCORE-SCORE-AUTHORITY-V4
 
    Owner:
    Stream 9 — Intelligence Matrix & Composite Scoring Authority
@@ -22,7 +22,7 @@
   "use strict";
 
   const ENGINE = "statscore-score-authority-engine.js";
-  const VERSION = "STATSCORE-SCORE-AUTHORITY-V3";
+  const VERSION = "STATSCORE-SCORE-AUTHORITY-V4";
 
   function n(value){
     const num = Number(String(value ?? "").replace(/[^\d.-]/g, ""));
@@ -35,7 +35,11 @@
   }
 
   function upper(value){
-    return String(value || "").trim().toUpperCase().replace(/\s+/g, "_").replace(/-/g, "_");
+    return String(value || "")
+      .trim()
+      .toUpperCase()
+      .replace(/\s+/g, "_")
+      .replace(/-/g, "_");
   }
 
   function normalizeInput(input){
@@ -58,7 +62,9 @@
   function getSportRouter(){
     return (
       window.STATSCORE_SPORT_SCORING_ROUTER ||
+      window.STATScoreSportScoringRouter ||
       window.STATScore?.SportScoringRouter ||
+      window.STATScore?.SportScoringRouterEngine ||
       null
     );
   }
@@ -75,36 +81,141 @@
     return window.STATSCORE_VERIFICATION_AUTHORITY_ENGINE || null;
   }
 
-  function deriveSportScore(snapshot){
-    const router = getSportRouter();
+  function getSportEngineBySport(sport){
+    const s = upper(sport);
 
-    if(router?.score){
-      try{
-        const routed = router.score(snapshot);
-
-        if(routed?.ok){
-          return routed;
-        }
-
-        console.warn("[STATS-CORE Score Authority] Router score unavailable:", routed);
-      }catch(error){
-        console.warn("[STATS-CORE Score Authority] Sport router failed:", error);
-      }
+    if(s === "FOOTBALL" || s === "FB"){
+      return (
+        window.STATScoreFootballScoringEngine ||
+        window.STATScore?.FootballScoringEngine ||
+        null
+      );
     }
 
-    const generic = getGenericScoringEngine();
+    if(s === "BASKETBALL" || s === "BBALL" || s === "HOOPS"){
+      return (
+        window.STATScoreBasketballScoringEngine ||
+        window.STATScore?.BasketballScoringEngine ||
+        null
+      );
+    }
 
-    if(generic?.explainScore){
+    if(s === "BASEBALL" || s === "BASE_BALL" || s === "BB"){
+      return (
+        window.STATScoreBaseballScoringEngine ||
+        window.STATScore?.BaseballScoringEngine ||
+        null
+      );
+    }
+
+    if(s === "TRACK" || s === "TRACK_FIELD" || s === "TRACK_AND_FIELD"){
+      return (
+        window.STATScoreTrackScoringEngine ||
+        window.STATScore?.TrackScoringEngine ||
+        null
+      );
+    }
+
+    return null;
+  }
+
+  function callRouterMethod(router, snapshot){
+    const methods = [
+      "score",
+      "scoreAthlete",
+      "routeScore",
+      "scoreBySport",
+      "calculate",
+      "run"
+    ];
+
+    for(const method of methods){
+      if(typeof router?.[method] !== "function") continue;
+
       try{
-        const output = generic.explainScore(snapshot);
+        const output = router[method](snapshot);
 
         if(output?.ok){
           return output;
         }
+
+        if(output && output.status){
+          console.warn(`[STATS-CORE Score Authority] Router method ${method} returned non-ok:`, output);
+        }
       }catch(error){
-        console.warn("[STATS-CORE Score Authority] Generic scoring failed:", error);
+        console.warn(`[STATS-CORE Score Authority] Router method ${method} failed:`, error);
       }
     }
+
+    return null;
+  }
+
+  function callSportEngineDirect(snapshot){
+    const sport = getSport(snapshot);
+    const engine = getSportEngineBySport(sport);
+
+    if(!engine?.scoreAthlete){
+      console.warn("[STATS-CORE Score Authority] Direct sport engine unavailable:", {
+        sport,
+        football: Boolean(window.STATScoreFootballScoringEngine),
+        basketball: Boolean(window.STATScoreBasketballScoringEngine),
+        baseball: Boolean(window.STATScoreBaseballScoringEngine),
+        track: Boolean(window.STATScoreTrackScoringEngine)
+      });
+
+      return null;
+    }
+
+    try{
+      const output = engine.scoreAthlete(snapshot);
+
+      if(output?.ok){
+        return output;
+      }
+
+      console.warn("[STATS-CORE Score Authority] Direct sport engine returned non-ok:", output);
+      return null;
+    }catch(error){
+      console.warn("[STATS-CORE Score Authority] Direct sport engine failed:", error);
+      return null;
+    }
+  }
+
+  function callGenericScoring(snapshot){
+    const generic = getGenericScoringEngine();
+
+    if(!generic?.explainScore) return null;
+
+    try{
+      const output = generic.explainScore(snapshot);
+
+      if(output?.ok){
+        return output;
+      }
+
+      console.warn("[STATS-CORE Score Authority] Generic scoring returned non-ok:", output);
+      return null;
+    }catch(error){
+      console.warn("[STATS-CORE Score Authority] Generic scoring failed:", error);
+      return null;
+    }
+  }
+
+  function deriveSportScore(snapshot){
+    const router = getSportRouter();
+
+    if(router){
+      const routed = callRouterMethod(router, snapshot);
+      if(routed?.ok) return routed;
+    }else{
+      console.warn("[STATS-CORE Score Authority] Sport router not found. Falling back to direct sport engine.");
+    }
+
+    const direct = callSportEngineDirect(snapshot);
+    if(direct?.ok) return direct;
+
+    const generic = callGenericScoring(snapshot);
+    if(generic?.ok) return generic;
 
     return null;
   }
@@ -281,7 +392,7 @@
     }
 
     return [
-      "Sport-specific scoring router applied.",
+      "Sport-specific scoring authority applied.",
       "Position or event matrix interpreted through available athlete evidence.",
       "Verification status limits official release.",
       "Composite score remains pending until all required authority gates are complete."
