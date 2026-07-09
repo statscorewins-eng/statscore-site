@@ -1,26 +1,28 @@
 /* ============================================================
    STATS-CORE™ SCORE AUTHORITY ENGINE
    File: statscore-score-authority-engine.js
-   Version: STATSCORE-SCORE-AUTHORITY-V2
+   Version: STATSCORE-SCORE-AUTHORITY-V3
 
    Owner:
    Stream 9 — Intelligence Matrix & Composite Scoring Authority
 
    Purpose:
    Creates the governed score model consumed by dashboards,
-   Player Profile, Athletic Snapshot, and future intelligence views.
+   Player Profile, Athletic Snapshot, Crystal outputs, and future
+   intelligence views.
 
    Canon:
    Stream 9 calculates/interprets.
    Stream 3 displays.
    No page independently calculates official intelligence.
+   Sport-specific scoring routes through Sport Scoring Router.
 ============================================================ */
 
 (function(){
   "use strict";
 
   const ENGINE = "statscore-score-authority-engine.js";
-  const VERSION = "STATSCORE-SCORE-AUTHORITY-V2";
+  const VERSION = "STATSCORE-SCORE-AUTHORITY-V3";
 
   function n(value){
     const num = Number(String(value ?? "").replace(/[^\d.-]/g, ""));
@@ -32,12 +34,8 @@
     return num !== null && num > 0;
   }
 
-  function safe(value, fallback = "—"){
-    return value === null || value === undefined || value === "" ? fallback : value;
-  }
-
   function upper(value){
-    return String(value || "").trim().toUpperCase();
+    return String(value || "").trim().toUpperCase().replace(/\s+/g, "_").replace(/-/g, "_");
   }
 
   function normalizeInput(input){
@@ -51,16 +49,22 @@
       snapshot.primary_sport ||
       snapshot.sport ||
       snapshot.raw_payload?.primarySport ||
-      snapshot.raw_payload?.sport
+      snapshot.raw_payload?.primary_sport ||
+      snapshot.raw_payload?.sport ||
+      ""
     );
   }
 
-  function getScoringEngine(){
-    return window.STATScoreScoringEngine || null;
+  function getSportRouter(){
+    return (
+      window.STATSCORE_SPORT_SCORING_ROUTER ||
+      window.STATScore?.SportScoringRouter ||
+      null
+    );
   }
 
-  function getFootballEngine(){
-    return window.STATScoreFootballScoringEngine || window.STATScore?.FootballScoringEngine || null;
+  function getGenericScoringEngine(){
+    return window.STATScoreScoringEngine || null;
   }
 
   function getSynthesisEngine(){
@@ -71,55 +75,36 @@
     return window.STATSCORE_VERIFICATION_AUTHORITY_ENGINE || null;
   }
 
-  function calculateFootballScore(snapshot){
-    const football = getFootballEngine();
-
-    if(!football?.scoreAthlete) return null;
-
-    try{
-      const output = football.scoreAthlete(snapshot);
-
-      if(output?.ok){
-        return output;
-      }
-
-      console.warn("[STATS-CORE Score Authority] Football score unavailable:", output);
-      return null;
-    }catch(error){
-      console.warn("[STATS-CORE Score Authority] Football scoring failed:", error);
-      return null;
-    }
-  }
-
-  function calculateGenericScore(snapshot){
-    const scoring = getScoringEngine();
-
-    if(!scoring?.explainScore) return null;
-
-    try{
-      const output = scoring.explainScore(snapshot);
-
-      if(output?.ok){
-        return output;
-      }
-
-      return null;
-    }catch(error){
-      console.warn("[STATS-CORE Score Authority] Generic scoring failed:", error);
-      return null;
-    }
-  }
-
   function deriveSportScore(snapshot){
-    const sport = getSport(snapshot);
+    const router = getSportRouter();
 
-    if(sport === "FOOTBALL" || !sport){
-      const footballScore = calculateFootballScore(snapshot);
-      if(footballScore) return footballScore;
+    if(router?.score){
+      try{
+        const routed = router.score(snapshot);
+
+        if(routed?.ok){
+          return routed;
+        }
+
+        console.warn("[STATS-CORE Score Authority] Router score unavailable:", routed);
+      }catch(error){
+        console.warn("[STATS-CORE Score Authority] Sport router failed:", error);
+      }
     }
 
-    const genericScore = calculateGenericScore(snapshot);
-    if(genericScore) return genericScore;
+    const generic = getGenericScoringEngine();
+
+    if(generic?.explainScore){
+      try{
+        const output = generic.explainScore(snapshot);
+
+        if(output?.ok){
+          return output;
+        }
+      }catch(error){
+        console.warn("[STATS-CORE Score Authority] Generic scoring failed:", error);
+      }
+    }
 
     return null;
   }
@@ -133,28 +118,51 @@
       return synthesis.synthesize({
         athlete_id: snapshot.athlete_id,
         snapshot_id: snapshot.snapshot_id,
-        profile_state: snapshot.name || snapshot.athlete_display_name ? "ACTIVE" : "UNKNOWN",
-        verification_state: snapshot.verification_status || "UNVERIFIED",
+
+        profile_state:
+          snapshot.name ||
+          snapshot.athlete_display_name ||
+          snapshot.athlete_name
+            ? "ACTIVE"
+            : "UNKNOWN",
+
+        verification_state:
+          snapshot.verification_status ||
+          "UNVERIFIED",
+
         readiness_state:
           scoreOutput?.projection_lane?.lane ||
           scoreOutput?.score_band ||
           "DEVELOPING",
+
         eligibility_state:
           snapshot.ncaa_status ||
           snapshot.ncaa_eligibility_status ||
+          snapshot.raw_payload?.ncaaEligibilityStatus ||
+          snapshot.raw_payload?.ncaa_status ||
           "PARTIAL_REVIEW",
+
         pathway_state:
           scoreOutput?.projection_lane?.lane ||
           scoreOutput?.score_band ||
           "PATH_PENDING",
+
         media_state:
           snapshot.headshot_url ||
           snapshot.headshot_public_url ||
           snapshot.highlight_url ||
-          snapshot.game_film_url
+          snapshot.game_film_url ||
+          snapshot.raw_payload?.headshotUrl ||
+          snapshot.raw_payload?.highlightUrl ||
+          snapshot.raw_payload?.gameFilmUrl
             ? "READY"
             : "PENDING",
-        competition_level: snapshot.competition_level || "UNVERIFIED"
+
+        competition_level:
+          snapshot.competition_level ||
+          snapshot.raw_payload?.competitionLevel ||
+          snapshot.raw_payload?.competition_level ||
+          "UNVERIFIED"
       });
     }catch(error){
       console.warn("[STATS-CORE Score Authority] Synthesis failed:", error);
@@ -162,18 +170,24 @@
     }
   }
 
-  function deriveVerification(snapshot, scoreOutput){
+  function deriveVerification(snapshot){
     const verification = getVerificationEngine();
 
     const context = {
       verification_authority:
         snapshot.verification_authority ||
+        snapshot.raw_payload?.verification_authority ||
         "SELF_REPORTED",
+
       verification_status:
         snapshot.verification_status ||
+        snapshot.raw_payload?.verificationStatus ||
+        snapshot.raw_payload?.verification_status ||
         "UNVERIFIED",
+
       verification_color:
         snapshot.verification_color ||
+        snapshot.raw_payload?.verification_color ||
         "YELLOW"
     };
 
@@ -205,22 +219,24 @@
       n(scoreOutput?.score) ??
       n(snapshot.position_score) ??
       n(snapshot.athletic_score) ??
+      n(snapshot.raw_payload?.positionScore) ??
+      n(snapshot.raw_payload?.athleticScore) ??
       null
     );
   }
 
-  function getProductionScore(snapshot, productionFallback){
+  function getProductionScore(snapshot, finalScore){
     return (
       n(snapshot.production_score) ??
       n(snapshot.raw_payload?.productionScore) ??
       n(snapshot.raw_payload?.production_score) ??
-      productionFallback ??
+      finalScore ??
       null
     );
   }
 
   function getAcademicScore(snapshot){
-    return (
+    const raw = (
       n(snapshot.academic_score) ??
       n(snapshot.raw_payload?.academicScore) ??
       n(snapshot.raw_payload?.academic_score) ??
@@ -230,9 +246,32 @@
       n(snapshot.raw_payload?.currentGpa) ??
       null
     );
+
+    if(raw !== null && raw <= 4.5){
+      return Math.min(100, Math.round((raw / 4.0) * 100));
+    }
+
+    return raw;
   }
 
-  function buildWhy(scoreOutput, snapshot){
+  function getVerificationScore(snapshot, verification){
+    if(verification?.is_verified) return 100;
+
+    const status = upper(
+      snapshot.verification_status ||
+      snapshot.raw_payload?.verificationStatus ||
+      snapshot.raw_payload?.verification_status ||
+      ""
+    );
+
+    if(status.includes("PENDING") || status.includes("REVIEW")){
+      return 65;
+    }
+
+    return 35;
+  }
+
+  function buildWhy(scoreOutput){
     if(Array.isArray(scoreOutput?.why_this_signal) && scoreOutput.why_this_signal.length){
       return scoreOutput.why_this_signal;
     }
@@ -242,8 +281,8 @@
     }
 
     return [
-      "Sport-specific scoring authority applied.",
-      "Position matrix interpreted through available athlete evidence.",
+      "Sport-specific scoring router applied.",
+      "Position or event matrix interpreted through available athlete evidence.",
       "Verification status limits official release.",
       "Composite score remains pending until all required authority gates are complete."
     ];
@@ -254,11 +293,26 @@
       ? [...scoreOutput.risk_flags]
       : [];
 
-    if(!upper(snapshot.verification_status).includes("VERIFIED")){
+    const verificationStatus = upper(
+      snapshot.verification_status ||
+      snapshot.raw_payload?.verificationStatus ||
+      snapshot.raw_payload?.verification_status ||
+      ""
+    );
+
+    if(!verificationStatus.includes("VERIFIED")){
       flags.push("Verification incomplete.");
     }
 
-    if(!snapshot.highlight_url && !snapshot.game_film_url){
+    const hasFilm =
+      snapshot.highlight_url ||
+      snapshot.game_film_url ||
+      snapshot.raw_payload?.highlightUrl ||
+      snapshot.raw_payload?.highlight_url ||
+      snapshot.raw_payload?.gameFilmUrl ||
+      snapshot.raw_payload?.game_film_url;
+
+    if(!hasFilm){
       flags.push("Film evidence missing or incomplete.");
     }
 
@@ -269,37 +323,33 @@
     const snapshot = normalizeInput(input);
     const scoreOutput = deriveSportScore(snapshot);
     const synthesis = deriveSynthesis(snapshot, scoreOutput);
-    const verification = deriveVerification(snapshot, scoreOutput);
+    const verification = deriveVerification(snapshot);
 
     const finalScore = getFinalScore(scoreOutput, snapshot);
 
     const positionScore = finalScore;
     const athleticScore = finalScore;
+    const productionScore = getProductionScore(snapshot, finalScore);
+    const academicScore = getAcademicScore(snapshot);
+    const verificationScore = getVerificationScore(snapshot, verification);
 
-    const productionScore = getProductionScore(
-      snapshot,
-      finalScore
-    );
+    const matrixCode =
+      scoreOutput?.matrix_code ||
+      scoreOutput?.matrix_id ||
+      "MATRIX_PENDING";
 
-    const academicRaw = getAcademicScore(snapshot);
-
-    const academicScore =
-      academicRaw !== null && academicRaw <= 4.5
-        ? Math.round((academicRaw / 4.0) * 100)
-        : academicRaw;
-
-    const verificationScore =
-      verification.is_verified
-        ? 100
-        : upper(snapshot.verification_status).includes("PENDING")
-          ? 65
-          : 35;
+    const scoreBand =
+      scoreOutput?.score_band ||
+      scoreOutput?.band ||
+      "PENDING";
 
     return {
       engine: ENGINE,
       version: VERSION,
       snapshot_id: snapshot.snapshot_id || "",
       athlete_id: snapshot.athlete_id || "",
+
+      sport: getSport(snapshot) || scoreOutput?.sport || "UNKNOWN",
 
       composite_status: "PENDING",
       composite_display_allowed: false,
@@ -327,13 +377,9 @@
         "UNVERIFIED",
 
       final_score: finalScore,
-      score_band:
-        scoreOutput?.score_band ||
-        "PENDING",
-      matrix_id:
-        scoreOutput?.matrix_code ||
-        scoreOutput?.matrix_id ||
-        "MATRIX_PENDING",
+      score_band: scoreBand,
+      matrix_id: matrixCode,
+      matrix_code: matrixCode,
 
       star_signal:
         scoreOutput?.star_signal ||
@@ -349,7 +395,7 @@
         },
 
       risk_flags: buildRiskFlags(scoreOutput, snapshot),
-      why_this_signal: buildWhy(scoreOutput, snapshot),
+      why_this_signal: buildWhy(scoreOutput),
 
       confidence_score:
         n(synthesis?.confidence_score) ??
@@ -390,6 +436,9 @@
       return buildDashboardScoreModel(input);
     }
   };
+
+  window.STATScore = window.STATScore || {};
+  window.STATScore.ScoreAuthorityEngine = window.STATSCORE_SCORE_AUTHORITY_ENGINE;
 
   console.info("[STATS-CORE] Score Authority Engine loaded:", VERSION);
 })(); 
