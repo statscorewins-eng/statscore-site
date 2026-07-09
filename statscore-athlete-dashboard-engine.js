@@ -1,5 +1,5 @@
-window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = { 
-  version: "v1.3-stream3-spine", 
+window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
+  version: "v1.4-stream3-consumes-stream9-authority",
   status: "ACTIVE",
   engine_name: "STATS-CORE Athlete Dashboard Engine",
 
@@ -27,10 +27,6 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
 
   verificationAuthority(){
     return window.STATSCORE_VERIFICATION_AUTHORITY_ENGINE || null;
-  },
-
-  explainer(){
-    return window.STATSCORE_INTELLIGENCE_EXPLAINER_ENGINE || null;
   },
 
   setText(selector, value, fallback = "—"){
@@ -266,6 +262,48 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
         raw.photo_url ||
         "",
 
+      highlight_url:
+        record?.highlight_url ||
+        raw.highlightUrl ||
+        raw.highlight_url ||
+        "",
+
+      game_film_url:
+        record?.game_film_url ||
+        raw.gameFilmUrl ||
+        raw.game_film_url ||
+        "",
+
+      guardian_name:
+        record?.guardian_name ||
+        raw.guardianName ||
+        raw.guardian_name ||
+        "",
+
+      guardian_email:
+        record?.guardian_email ||
+        raw.guardianEmail ||
+        raw.guardian_email ||
+        "",
+
+      coach_name:
+        record?.coach_name ||
+        raw.coachName ||
+        raw.coach_name ||
+        "",
+
+      coach_email:
+        record?.coach_email ||
+        raw.coachEmail ||
+        raw.coach_email ||
+        "",
+
+      competition_level:
+        record?.competition_level ||
+        raw.competitionLevel ||
+        raw.competition_level ||
+        "",
+
       verification_authority:
         record?.verification_authority ||
         raw.verification_authority ||
@@ -331,19 +369,54 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
     };
   },
 
-  getScoreModel(snapshotId){
+  getScoreModel(athlete){
     const engine = this.scoreAuthority();
 
     if(engine?.getDashboardScoreModel){
-      return engine.getDashboardScoreModel(snapshotId);
+      return engine.getDashboardScoreModel(athlete);
     }
 
     return {
-      snapshot_id: snapshotId,
       composite_status: "PENDING",
       composite_display_allowed: false,
+      composite_value: "🔒",
+      composite_state: "COMPOSITE SCORE PENDING",
+      position_score: "—",
+      athletic_score: "—",
+      production_score: "—",
+      academic_score: "—",
+      character_score: "—",
       display_rule: "Composite authority not active.",
       scores: []
+    };
+  },
+
+  resolveDashboardScores(athlete, scoreModel = null){
+    return {
+      composite_label: "Composite Score",
+
+      composite_value:
+        scoreModel?.composite_value ||
+        "🔒",
+
+      composite_state:
+        scoreModel?.composite_state ||
+        "COMPOSITE SCORE PENDING",
+
+      position_score:
+        this.scoreValue(scoreModel?.position_score, athlete.position_score),
+
+      athletic_score:
+        this.scoreValue(scoreModel?.athletic_score, athlete.athletic_score),
+
+      production_score:
+        this.scoreValue(scoreModel?.production_score, athlete.production_score),
+
+      academic_score:
+        this.scoreValue(scoreModel?.academic_score, athlete.academic_score),
+
+      character_score:
+        this.scoreValue(scoreModel?.character_score, athlete.character_score)
     };
   },
 
@@ -421,28 +494,6 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
     };
   },
 
-  resolveDashboardScores(athlete){
-    return {
-
-        composite_label: "Composite Score",
-        
-        composite_value: "🔒",
-
-        composite_state: "COMPOSITE SCORE PENDING",
-
-        position_score: this.scoreValue(athlete.position_score),
-
-        athletic_score: this.scoreValue(athlete.athletic_score),
-
-        production_score: this.scoreValue(athlete.production_score),
-
-        academic_score: this.scoreValue(athlete.academic_score),
-
-        character_score: this.scoreValue(athlete.character_score)
-
-    };
-}, 
-
   renderBlankState(){
     document.body.setAttribute("data-dashboard-state", "blank");
 
@@ -491,8 +542,8 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
     document.body.setAttribute("data-dashboard-state", "loaded");
 
     const verification = this.getVerificationModel(athlete);
-    const scoreModel = this.getScoreModel(athlete.snapshot_id);
-    const scores = this.resolveDashboardScores(athlete);
+    const scoreModel = this.getScoreModel(athlete);
+    const scores = this.resolveDashboardScores(athlete, scoreModel);
 
     this.setText("[data-athlete-name]", athlete.name || "Unnamed Athlete");
     this.setText("[data-athlete-position]", athlete.position || "Position Pending");
@@ -541,7 +592,10 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
 
     this.setText(
       "[data-card-recruiting-line]",
-      athlete.production_tier || athlete.production_level || "Interest Registry: Pending"
+      athlete.production_tier ||
+      athlete.production_level ||
+      scoreModel?.projection_lane?.label ||
+      "Interest Registry: Pending"
     );
 
     this.setText("[data-card-trend]", production.seasons ? `${production.seasons} Seasons` : "Needs History");
@@ -587,7 +641,7 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
 
     console.log("DASHBOARD RENDERED ATHLETE:", athlete);
     console.log("DASHBOARD PRODUCTION SUMMARY:", production);
-    console.log("STREAM 3 SCORE MODEL:", scoreModel);
+    console.log("STREAM 9 SCORE MODEL:", scoreModel);
     console.log("STREAM 3 VERIFICATION MODEL:", verification);
   },
 
@@ -629,39 +683,38 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
     });
   },
 
- wireCardRouting(){
-  const snapshotRouteCards = document.querySelectorAll(
-    ".index-card, [data-dashboard-route]"
-  );
+  wireCardRouting(){
+    const snapshotRouteCards = document.querySelectorAll(
+      ".index-card, [data-dashboard-route]"
+    );
 
-  snapshotRouteCards.forEach(card => {
-    card.style.cursor = "pointer";
+    snapshotRouteCards.forEach(card => {
+      card.style.cursor = "pointer";
 
-    card.addEventListener("click", event => {
-      const snapshotId = this.getSnapshotId();
+      card.addEventListener("click", event => {
+        const snapshotId = this.getSnapshotId();
 
-      if(!snapshotId){
+        if(!snapshotId){
+          event.preventDefault();
+          alert("Load an athlete snapshot before opening this intelligence room.");
+          return;
+        }
+
+        const route =
+          card.getAttribute("data-dashboard-route") ||
+          card.getAttribute("href") ||
+          "athletic-snapshot.html";
+
         event.preventDefault();
-        alert("Load an athlete snapshot before opening this intelligence room.");
-        return;
-      }
 
-      const route =
-        card.getAttribute("data-dashboard-route") ||
-        card.getAttribute("href") ||
-        "athletic-snapshot.html";
-
-      event.preventDefault();
-
-      window.location.href =
-        route.split("?")[0] + "?snapshot_id=" + encodeURIComponent(snapshotId);
+        window.location.href =
+          route.split("?")[0] + "?snapshot_id=" + encodeURIComponent(snapshotId);
+      });
     });
-  });
-}, 
-
+  },
 
   async init(){
-    console.log("STATS-CORE Athlete Dashboard Engine v1.3-stream3-spine init");
+    console.log("STATS-CORE Athlete Dashboard Engine v1.4-stream3-consumes-stream9-authority init");
 
     this.wireCardRouting();
 
