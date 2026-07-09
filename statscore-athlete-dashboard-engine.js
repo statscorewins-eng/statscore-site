@@ -1,5 +1,5 @@
 window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
-  version: "v1.4-stream3-consumes-stream9-authority",
+  version: "v1.5-stream3-dashboard-consumption-bridge",
   status: "ACTIVE",
   engine_name: "STATS-CORE Athlete Dashboard Engine",
 
@@ -18,7 +18,14 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
   },
 
   getDb(){
-    return window.STATScoreData?.getClient?.() || window.STATScoreSupabase || null;
+    return (
+      window.STATScoreData?.getClient?.() ||
+      window.supabaseClient ||
+      window.STATSCORE_SUPABASE ||
+      window.STATScoreSupabase ||
+      window.supabase ||
+      null
+    );
   },
 
   scoreAuthority(){
@@ -47,13 +54,21 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
 
     if(cleanUrl){
       img.src = cleanUrl;
-      img.alt = name;
+      img.alt = name || "Athlete Image";
       img.style.display = "block";
       img.style.width = "100%";
       img.style.height = "100%";
       img.style.objectFit = "cover";
       img.style.objectPosition = "center top";
       if(placeholder) placeholder.style.display = "none";
+
+      img.onerror = () => {
+        img.removeAttribute("src");
+        img.alt = "Athlete Image Required";
+        img.style.display = "none";
+        if(placeholder) placeholder.style.display = "grid";
+        console.warn("Athlete image failed to render:", cleanUrl);
+      };
     }else{
       img.removeAttribute("src");
       img.alt = "Athlete Image Required";
@@ -120,12 +135,15 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
     if(fallback.data){
       const intake = fallback.data;
       const payload = intake.intake_payload || {};
+      const sportPayload = payload.sport_metric_payload || {};
 
       return {
         __source_table: "sc_snapshot_intakes",
         __legacy_fallback: true,
+
         snapshot_id: intake.snapshot_id,
         athlete_id: intake.athlete_id,
+
         athlete_display_name:
           intake.athlete_name ||
           `${payload.firstName || payload.first_name || ""} ${payload.lastName || payload.last_name || ""}`.trim(),
@@ -133,8 +151,8 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
         first_name: payload.firstName || payload.first_name || "",
         last_name: payload.lastName || payload.last_name || "",
 
-        primary_sport: intake.sport || payload.primarySport || payload.sport || "",
-        primary_position: intake.position || payload.primaryPosition || payload.position || "",
+        primary_sport: intake.sport || payload.primarySport || payload.primary_sport || payload.sport || "",
+        primary_position: intake.position || payload.primaryPosition || payload.primary_position || payload.position || "",
         secondary_position: payload.secondaryPosition || payload.secondary_position || "",
 
         graduation_class: payload.graduationClass || payload.classYear || payload.graduation_year || "",
@@ -147,13 +165,30 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
         current_gpa: payload.currentGpa || payload.gpa || "",
         ncaa_eligibility_status: payload.ncaaEligibilityStatus || payload.ncaa_status || "",
 
-        dash40: payload.dash40 || payload.forty || payload.fortyDash || "",
-        vertical_jump: payload.verticalJump || payload.vertical || "",
-        shuttle: payload.shuttle || "",
-        broad_jump: payload.broadJump || payload.broad_jump || "",
-        strength_marker: payload.strengthMarker || payload.strength_marker || "",
+        sport_metric_payload: sportPayload,
 
-        headshot_public_url: payload.headshot_public_url || payload.headshotUrl || payload.headshot_url || payload.photo_url || "",
+        dash40: sportPayload.footballDash40 || payload.dash40 || payload.forty || payload.fortyDash || "",
+        vertical_jump: sportPayload.footballVerticalJump || payload.verticalJump || payload.vertical || "",
+        shuttle: sportPayload.footballShuttle || payload.shuttle || "",
+        broad_jump: sportPayload.footballBroadJump || payload.broadJump || payload.broad_jump || "",
+        strength_marker: sportPayload.footballStrengthMarker || payload.strengthMarker || payload.strength_marker || "",
+
+        headshot_public_url:
+          payload.headshot_public_url ||
+          payload.headshotUrl ||
+          payload.headshot_url ||
+          payload.photo_url ||
+          "",
+
+        headshot_url:
+          payload.headshot_url ||
+          payload.headshot_public_url ||
+          payload.headshotUrl ||
+          payload.photo_url ||
+          "",
+
+        highlight_url: payload.highlightUrl || payload.highlight_url || "",
+        game_film_url: payload.gameFilmUrl || payload.game_film_url || "",
 
         verification_authority: "SELF_REPORTED",
         verification_status: "UNVERIFIED",
@@ -218,6 +253,8 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
 
   normalizeRecord(record){
     const raw = record?.raw_payload || {};
+    const sportPayload = record?.sport_metric_payload || raw.sport_metric_payload || {};
+    const sourcePayload = record?.source_claims_payload || raw.source_claims_payload || {};
 
     return {
       source_table: record?.__source_table || "",
@@ -230,22 +267,57 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
       first_name: record?.first_name || raw.firstName || raw.first_name || "",
       last_name: record?.last_name || raw.lastName || raw.last_name || "",
 
-      sport: record?.primary_sport || record?.sport || raw.primarySport || raw.primary_sport || raw.sport || "",
-      position: record?.primary_position || record?.position || raw.primaryPosition || raw.primary_position || raw.position || "",
-      secondary_position: record?.secondary_position || raw.secondaryPosition || raw.secondary_position || "",
+      sport: record?.primary_sport || record?.sport || raw.primarySport || raw.primary_sport || raw.sport || sportPayload.sport || "",
+      position: record?.primary_position || record?.position || raw.primaryPosition || raw.primary_position || raw.position || sportPayload.primaryPosition || "",
+      secondary_position: record?.secondary_position || raw.secondaryPosition || raw.secondary_position || sportPayload.secondaryPosition || "",
 
       class_year: record?.graduation_class || record?.class_year || raw.graduationClass || raw.classYear || raw.class_year || "",
       school: record?.school_program || record?.school || raw.schoolProgram || raw.school || "",
       city_state: record?.city_state || raw.cityState || raw.city_state || "",
 
-      height: record?.height || raw.height || "",
-      weight: record?.weight || raw.weight || "",
+      height: record?.height || raw.height || sportPayload.height || "",
+      weight: record?.weight || raw.weight || sportPayload.weight || "",
 
-      dash40: record?.dash40 || record?.dash_40 || raw.dash40 || raw.forty || raw.fortyDash || "",
-      vertical_jump: record?.vertical_jump || raw.verticalJump || raw.vertical || "",
-      shuttle: record?.shuttle || raw.shuttle || "",
-      broad_jump: record?.broad_jump || raw.broadJump || raw.broad_jump || "",
-      strength_marker: record?.strength_marker || raw.strengthMarker || raw.strength_marker || "",
+      dash40:
+        record?.dash40 ||
+        record?.dash_40 ||
+        record?.football_dash_40 ||
+        sportPayload.footballDash40 ||
+        raw.dash40 ||
+        raw.forty ||
+        raw.fortyDash ||
+        "",
+
+      vertical_jump:
+        record?.vertical_jump ||
+        record?.football_vertical_jump ||
+        sportPayload.footballVerticalJump ||
+        raw.verticalJump ||
+        raw.vertical ||
+        "",
+
+      shuttle:
+        record?.shuttle ||
+        record?.football_shuttle ||
+        sportPayload.footballShuttle ||
+        raw.shuttle ||
+        "",
+
+      broad_jump:
+        record?.broad_jump ||
+        record?.football_broad_jump ||
+        sportPayload.footballBroadJump ||
+        raw.broadJump ||
+        raw.broad_jump ||
+        "",
+
+      strength_marker:
+        record?.strength_marker ||
+        record?.football_strength_marker ||
+        sportPayload.footballStrengthMarker ||
+        raw.strengthMarker ||
+        raw.strength_marker ||
+        "",
 
       gpa: record?.current_gpa || record?.gpa || raw.currentGpa || raw.gpa || "",
       sat: record?.sat || record?.sat_score || raw.sat || raw.satScore || "",
@@ -262,6 +334,24 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
         raw.photo_url ||
         "",
 
+      headshot_path:
+        record?.headshot_path ||
+        raw.headshotPath ||
+        raw.headshot_path ||
+        "",
+
+      headshot_filename:
+        record?.headshot_filename ||
+        raw.headshotFileName ||
+        raw.headshot_filename ||
+        "",
+
+      headshot_bucket:
+        record?.headshot_bucket ||
+        raw.headshotBucket ||
+        raw.headshot_bucket ||
+        "",
+
       highlight_url:
         record?.highlight_url ||
         raw.highlightUrl ||
@@ -272,6 +362,18 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
         record?.game_film_url ||
         raw.gameFilmUrl ||
         raw.game_film_url ||
+        "",
+
+      social_profile_url:
+        record?.social_profile_url ||
+        raw.socialProfileUrl ||
+        raw.social_profile_url ||
+        "",
+
+      recruiting_profile_url:
+        record?.recruiting_profile_url ||
+        raw.recruitingProfileUrl ||
+        raw.recruiting_profile_url ||
         "",
 
       guardian_name:
@@ -304,9 +406,20 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
         raw.competition_level ||
         "",
 
+      source_origin:
+        record?.source_origin ||
+        sourcePayload.source_origin ||
+        "",
+
+      trust_classification:
+        record?.trust_classification ||
+        sourcePayload.trust_classification ||
+        "",
+
       verification_authority:
         record?.verification_authority ||
         raw.verification_authority ||
+        sourcePayload.trust_classification ||
         "SELF_REPORTED",
 
       verification_status:
@@ -339,6 +452,8 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
       production_level: record?.production_level || raw.production_level || "",
       snapshot_stage: record?.snapshot_stage || raw.snapshot_stage || "",
 
+      sport_metric_payload: sportPayload,
+      source_claims_payload: sourcePayload,
       raw
     };
   },
@@ -394,29 +509,14 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
   resolveDashboardScores(athlete, scoreModel = null){
     return {
       composite_label: "Composite Score",
+      composite_value: scoreModel?.composite_value || "🔒",
+      composite_state: scoreModel?.composite_state || "COMPOSITE SCORE PENDING",
 
-      composite_value:
-        scoreModel?.composite_value ||
-        "🔒",
-
-      composite_state:
-        scoreModel?.composite_state ||
-        "COMPOSITE SCORE PENDING",
-
-      position_score:
-        this.scoreValue(scoreModel?.position_score, athlete.position_score),
-
-      athletic_score:
-        this.scoreValue(scoreModel?.athletic_score, athlete.athletic_score),
-
-      production_score:
-        this.scoreValue(scoreModel?.production_score, athlete.production_score),
-
-      academic_score:
-        this.scoreValue(scoreModel?.academic_score, athlete.academic_score),
-
-      character_score:
-        this.scoreValue(scoreModel?.character_score, athlete.character_score)
+      position_score: this.scoreValue(scoreModel?.position_score, athlete.position_score),
+      athletic_score: this.scoreValue(scoreModel?.athletic_score, athlete.athletic_score),
+      production_score: this.scoreValue(scoreModel?.production_score, athlete.production_score),
+      academic_score: this.scoreValue(scoreModel?.academic_score, athlete.academic_score),
+      character_score: this.scoreValue(scoreModel?.character_score, athlete.character_score)
     };
   },
 
@@ -539,6 +639,11 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
     localStorage.setItem("statscore_active_snapshot_id", athlete.snapshot_id);
     sessionStorage.setItem("STATSCORE_ACTIVE_SNAPSHOT_ID", athlete.snapshot_id);
 
+    if(athlete.athlete_id){
+      localStorage.setItem("STATSCORE_ACTIVE_ATHLETE_ID", athlete.athlete_id);
+      sessionStorage.setItem("STATSCORE_ACTIVE_ATHLETE_ID", athlete.athlete_id);
+    }
+
     document.body.setAttribute("data-dashboard-state", "loaded");
 
     const verification = this.getVerificationModel(athlete);
@@ -585,10 +690,7 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
     this.setText("[data-card-exposure]", athlete.headshot_url ? "Media Active" : "Needs Media");
     this.setText("[data-card-exposure-line]", athlete.headshot_url ? "Media Reach: Active" : "Media Reach: Pending");
 
-    this.setText(
-      "[data-card-recruiting]",
-      verification.is_verified ? "Verification Active" : "Needs Verification"
-    );
+    this.setText("[data-card-recruiting]", verification.is_verified ? "Verification Active" : "Needs Verification");
 
     this.setText(
       "[data-card-recruiting-line]",
@@ -640,6 +742,8 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
     this.attachSnapshotToLinks(athlete.snapshot_id);
 
     console.log("DASHBOARD RENDERED ATHLETE:", athlete);
+    console.log("DASHBOARD HEADSHOT URL:", athlete.headshot_url);
+    console.log("DASHBOARD SPORT PAYLOAD:", athlete.sport_metric_payload);
     console.log("DASHBOARD PRODUCTION SUMMARY:", production);
     console.log("STREAM 9 SCORE MODEL:", scoreModel);
     console.log("STREAM 3 VERIFICATION MODEL:", verification);
@@ -684,9 +788,7 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
   },
 
   wireCardRouting(){
-    const snapshotRouteCards = document.querySelectorAll(
-      ".index-card, [data-dashboard-route]"
-    );
+    const snapshotRouteCards = document.querySelectorAll(".index-card, [data-dashboard-route]");
 
     snapshotRouteCards.forEach(card => {
       card.style.cursor = "pointer";
@@ -714,7 +816,7 @@ window.STATSCORE_ATHLETE_DASHBOARD_ENGINE = {
   },
 
   async init(){
-    console.log("STATS-CORE Athlete Dashboard Engine v1.4-stream3-consumes-stream9-authority init");
+    console.log("STATS-CORE Athlete Dashboard Engine v1.5-stream3-dashboard-consumption-bridge init");
 
     this.wireCardRouting();
 
