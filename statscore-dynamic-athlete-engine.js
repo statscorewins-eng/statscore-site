@@ -1,16 +1,24 @@
 /* ============================================================
    STATScore™ Dynamic Athlete Engine
-   FULL PRODUCTION FILE
-   Version: v1.0
+   File: statscore-dynamic-athlete-engine.js
+   Version: v1.1-stream9-authority-aware
+
    Purpose:
-   Live Athlete Hydration → Intelligence Injection → Profile Rendering
-   ============================================================ */
+   Live Athlete Hydration → Stream 9 Intelligence Consumption
+   → Intelligence Injection → Profile Rendering
+
+   Canon:
+   Stream 3 displays athlete intelligence.
+   Stream 9 produces governed intelligence.
+   This engine may orchestrate/render, but it must consume
+   Stream 9 authority when available.
+============================================================ */
 
 (function () {
   "use strict";
 
   const ENGINE_ID = "sc-dynamic-athlete-engine";
-  const VERSION = "v1.0-live-athlete-orchestrator";
+  const VERSION = "v1.1-stream9-authority-aware";
 
   const ATHLETE_STATE = {
     initialized: false,
@@ -31,7 +39,8 @@
       readiness: null,
       pathway: null,
       eligibility: null,
-      crystal_report: null
+      crystal_report: null,
+      score_authority: null
     },
 
     receipts: [],
@@ -89,12 +98,18 @@
       : value;
   }
 
+  function n(value) {
+    const num = Number(String(value ?? "").replace(/[^\d.-]/g, ""));
+    return Number.isFinite(num) ? num : null;
+  }
+
   function getQueryParam(name) {
     return new URLSearchParams(window.location.search).get(name);
   }
 
   function getSupabase() {
     return (
+      window.STATScoreData?.getClient?.() ||
       window.STATScoreSupabase ||
       window.supabaseClient ||
       null
@@ -117,13 +132,14 @@
     );
   }
 
+  function getScoreAuthority() {
+    return window.STATSCORE_SCORE_AUTHORITY_ENGINE || null;
+  }
+
   function publishAthleteState() {
     window.STATScoreDynamicAthleteState = ATHLETE_STATE;
 
-    if (!window.STATScore) {
-      window.STATScore = {};
-    }
-
+    window.STATScore = window.STATScore || {};
     window.STATScore.DynamicAthleteState = ATHLETE_STATE;
 
     return ATHLETE_STATE;
@@ -182,29 +198,149 @@
     return receipt;
   }
 
+  function normalizeAthleteRecord(record = {}) {
+    const raw = record.raw_payload || record.intake_payload || {};
+
+    return {
+      ...record,
+
+      snapshot_id: record.snapshot_id || raw.snapshot_id || "",
+      athlete_id: record.athlete_id || raw.athlete_id || "",
+
+      athlete_display_name:
+        record.athlete_display_name ||
+        record.athlete_name ||
+        raw.athlete_display_name ||
+        `${record.first_name || raw.firstName || raw.first_name || ""} ${record.last_name || raw.lastName || raw.last_name || ""}`.trim() ||
+        "Athlete",
+
+      first_name: record.first_name || raw.firstName || raw.first_name || "",
+      last_name: record.last_name || raw.lastName || raw.last_name || "",
+
+      sport:
+        record.primary_sport ||
+        record.sport ||
+        raw.primarySport ||
+        raw.primary_sport ||
+        raw.sport ||
+        "",
+
+      primary_sport:
+        record.primary_sport ||
+        record.sport ||
+        raw.primarySport ||
+        raw.primary_sport ||
+        raw.sport ||
+        "",
+
+      position:
+        record.primary_position ||
+        record.position ||
+        raw.primaryPosition ||
+        raw.primary_position ||
+        raw.position ||
+        "",
+
+      primary_position:
+        record.primary_position ||
+        record.position ||
+        raw.primaryPosition ||
+        raw.primary_position ||
+        raw.position ||
+        "",
+
+      graduation_class:
+        record.graduation_class ||
+        record.class_year ||
+        raw.graduationClass ||
+        raw.classYear ||
+        raw.graduation_year ||
+        "",
+
+      school:
+        record.school_program ||
+        record.school_name ||
+        record.school ||
+        raw.schoolProgram ||
+        raw.school ||
+        "",
+
+      school_name:
+        record.school_name ||
+        record.school_program ||
+        record.school ||
+        raw.schoolProgram ||
+        raw.school ||
+        "",
+
+      city_state:
+        record.city_state ||
+        raw.cityState ||
+        raw.city_state ||
+        [raw.city, raw.state].filter(Boolean).join(", ") ||
+        "",
+
+      height: record.height || raw.height || "",
+      weight: record.weight || raw.weight || "",
+
+      headshot_public_url:
+        record.headshot_public_url ||
+        record.headshot_url ||
+        raw.headshot_public_url ||
+        raw.headshotUrl ||
+        raw.headshot_url ||
+        raw.photo_url ||
+        "",
+
+      headshot_url:
+        record.headshot_url ||
+        record.headshot_public_url ||
+        raw.headshot_public_url ||
+        raw.headshotUrl ||
+        raw.headshot_url ||
+        raw.photo_url ||
+        "",
+
+      verification_status:
+        record.verification_status ||
+        raw.verificationStatus ||
+        raw.verification_status ||
+        "UNVERIFIED",
+
+      verification_authority:
+        record.verification_authority ||
+        raw.verification_authority ||
+        "SELF_REPORTED",
+
+      raw_payload: raw
+    };
+  }
+
   function setActiveAthlete(athlete) {
     if (!athlete) {
       warn("Attempted to set empty athlete.");
       return null;
     }
 
-    ATHLETE_STATE.active_athlete = athlete;
-    ATHLETE_STATE.active_snapshot_id = athlete.snapshot_id || null;
-    ATHLETE_STATE.active_athlete_id = athlete.athlete_id || null;
+    const normalized = normalizeAthleteRecord(athlete);
+
+    ATHLETE_STATE.active_athlete = normalized;
+    ATHLETE_STATE.active_snapshot_id = normalized.snapshot_id || null;
+    ATHLETE_STATE.active_athlete_id = normalized.athlete_id || null;
     ATHLETE_STATE.updated_at = now();
 
-    window.STATScoreCurrentAthlete = athlete;
-    window.STATScoreCurrentSnapshot = athlete;
-    window.__STATSCORE_CURRENT_ATHLETE__ = athlete;
+    window.STATScoreCurrentAthlete = normalized;
+    window.STATScoreCurrentSnapshot = normalized;
+    window.__STATSCORE_CURRENT_ATHLETE__ = normalized;
 
     const runtime = getRuntimeEngine();
 
     if (runtime?.setState) {
       runtime.setState(
         {
-          active_athlete: athlete,
-          active_snapshot_id: athlete.snapshot_id || null,
-          active_athlete_id: athlete.athlete_id || null
+          active_athlete: normalized,
+          active_snapshot_id: normalized.snapshot_id || null,
+          active_athlete_id: normalized.athlete_id || null
         },
         {
           action: "dynamic_athlete_set_active"
@@ -214,7 +350,7 @@
 
     publishAthleteState();
 
-    return athlete;
+    return normalized;
   }
 
   async function fetchSingle(table, column, value) {
@@ -269,6 +405,8 @@
 
     if (!athlete) {
       const candidateTables = [
+        "statscore_snapshots",
+        "sc_snapshot_intakes",
         "athlete_profile_snapshots",
         "statscore_athlete_snapshots",
         "athlete_snapshots",
@@ -277,7 +415,6 @@
 
       for (const table of candidateTables) {
         athlete = await fetchSingle(table, "snapshot_id", snapshot_id);
-
         if (athlete) break;
       }
     }
@@ -285,7 +422,6 @@
     if (!athlete) {
       ATHLETE_STATE.hydration_status = "NOT_FOUND";
       ATHLETE_STATE.updated_at = now();
-
       publishAthleteState();
 
       await createAthleteReceipt(
@@ -303,27 +439,26 @@
       return null;
     }
 
-    setActiveAthlete(athlete);
+    const normalized = setActiveAthlete(athlete);
 
     ATHLETE_STATE.hydration_status = "HYDRATED";
     ATHLETE_STATE.updated_at = now();
-
     publishAthleteState();
 
     await createAthleteReceipt(
       "DYNAMIC_ATHLETE_HYDRATED",
       {
         snapshot_id,
-        athlete_id: athlete.athlete_id || null
+        athlete_id: normalized.athlete_id || null
       },
       {
         status: "HYDRATED",
         snapshot_id,
-        athlete_id: athlete.athlete_id || null
+        athlete_id: normalized.athlete_id || null
       }
     );
 
-    return athlete;
+    return normalized;
   }
 
   async function hydrateByAthleteId(athleteId) {
@@ -341,6 +476,8 @@
     publishAthleteState();
 
     const candidateTables = [
+      "statscore_snapshots",
+      "sc_snapshot_intakes",
       "athlete_profile_snapshots",
       "statscore_athlete_snapshots",
       "athlete_snapshots",
@@ -351,7 +488,6 @@
 
     for (const table of candidateTables) {
       athlete = await fetchSingle(table, "athlete_id", athlete_id);
-
       if (athlete) break;
     }
 
@@ -375,27 +511,109 @@
       return null;
     }
 
-    setActiveAthlete(athlete);
+    const normalized = setActiveAthlete(athlete);
 
     ATHLETE_STATE.hydration_status = "HYDRATED";
     ATHLETE_STATE.updated_at = now();
-
     publishAthleteState();
 
     await createAthleteReceipt(
       "DYNAMIC_ATHLETE_HYDRATED_BY_ID",
       {
         athlete_id,
-        snapshot_id: athlete.snapshot_id || null
+        snapshot_id: normalized.snapshot_id || null
       },
       {
         status: "HYDRATED",
         athlete_id,
-        snapshot_id: athlete.snapshot_id || null
+        snapshot_id: normalized.snapshot_id || null
       }
     );
 
-    return athlete;
+    return normalized;
+  }
+
+  function getStream9ScoreModel(athlete) {
+    const authority = getScoreAuthority();
+
+    if (!authority) return null;
+
+    try {
+      if (authority.getProfileScoreModel) {
+        return authority.getProfileScoreModel(athlete);
+      }
+
+      if (authority.getDashboardScoreModel) {
+        return authority.getDashboardScoreModel(athlete);
+      }
+
+      if (authority.explain) {
+        return authority.explain(athlete);
+      }
+    } catch (err) {
+      error("Stream 9 Score Authority failed.", err);
+    }
+
+    return null;
+  }
+
+  function normalizeScoreOutput(score, authorityModel = null) {
+    if (!score && !authorityModel) return null;
+
+    const finalScore =
+      n(authorityModel?.final_score) ??
+      n(score?.score_final) ??
+      n(score?.final_score) ??
+      n(score?.score) ??
+      n(authorityModel?.position_score) ??
+      null;
+
+    return {
+      ...(score || {}),
+
+      score_final:
+        score?.score_final ??
+        score?.final_score ??
+        finalScore,
+
+      final_score:
+        score?.final_score ??
+        score?.score_final ??
+        finalScore,
+
+      matrix_id:
+        score?.matrix_id ||
+        authorityModel?.matrix_id ||
+        "MATRIX_PENDING",
+
+      score_status:
+        score?.score_status ||
+        authorityModel?.score_status ||
+        "UNVERIFIED",
+
+      star_signal:
+        score?.star_signal ||
+        authorityModel?.star_signal ||
+        null,
+
+      projection_lane:
+        score?.projection_lane ||
+        authorityModel?.projection_lane ||
+        null,
+
+      risk_flags:
+        score?.risk_flags ||
+        authorityModel?.risk_flags ||
+        [],
+
+      why_this_signal:
+        score?.why_this_signal ||
+        authorityModel?.why_this_signal ||
+        [],
+
+      traits:
+        Array.isArray(score?.traits) ? score.traits : []
+    };
   }
 
   function runIntelligenceCorridors() {
@@ -412,6 +630,13 @@
 
     const results = {};
 
+    const authorityModel = getStream9ScoreModel(athlete);
+
+    if (authorityModel) {
+      results.score_authority = authorityModel;
+      window.STATScoreCurrentScoreAuthorityModel = authorityModel;
+    }
+
     try {
       if (window.STATScoreFootballScoringEngine?.scoreAthlete) {
         results.score =
@@ -422,10 +647,14 @@
       } else if (window.STATScoreFootballScoringEngine?.renderScoreToWindowAthlete) {
         results.score =
           window.STATScoreFootballScoringEngine.renderScoreToWindowAthlete();
+      } else if (authorityModel?.scoring_output) {
+        results.score = authorityModel.scoring_output;
       }
     } catch (err) {
       error("Football scoring failed.", err);
     }
+
+    results.score = normalizeScoreOutput(results.score, authorityModel);
 
     if (results.score) {
       window.STATScoreCurrentFootballScore = results.score;
@@ -540,11 +769,11 @@
       readiness: results.readiness || window.STATScoreCurrentReadiness || null,
       pathway: results.pathway || window.STATScoreCurrentPathway || null,
       eligibility: results.eligibility || window.STATScoreCurrentNCAAEligibility || null,
-      crystal_report: results.crystal_report || null
+      crystal_report: results.crystal_report || null,
+      score_authority: results.score_authority || null
     };
 
     ATHLETE_STATE.updated_at = now();
-
     publishAthleteState();
 
     const runtime = getRuntimeEngine();
@@ -558,7 +787,8 @@
       {
         athlete_id: athlete.athlete_id || null,
         snapshot_id: athlete.snapshot_id || null,
-        generated_keys: Object.keys(results)
+        generated_keys: Object.keys(results),
+        stream9_authority_consumed: Boolean(results.score_authority)
       },
       {
         status: "GENERATED"
@@ -595,6 +825,9 @@
 
     if (el && src) {
       el.src = src;
+      el.style.display = "block";
+      el.style.objectFit = "cover";
+      el.style.objectPosition = "center top";
       return true;
     }
 
@@ -700,14 +933,21 @@
     const intel = ATHLETE_STATE.intelligence;
 
     const score = intel.score || {};
+    const authority = intel.score_authority || {};
     const verification = intel.verification || {};
     const evidence = intel.evidence || {};
     const readiness = intel.readiness || {};
     const pathway = intel.pathway || {};
     const eligibility = intel.eligibility || {};
 
-    text("[data-score-final]", score.score_final || score.final_score || "--");
-    text("[data-verification-confidence]", verification.confidence_score || "--");
+    const finalScore =
+      score.score_final ||
+      score.final_score ||
+      authority.final_score ||
+      "--";
+
+    text("[data-score-final]", finalScore);
+    text("[data-verification-confidence]", verification.confidence_score || authority.confidence_score || "--");
     text("[data-evidence-score]", evidence.evidence_score || "--");
     text("[data-readiness-score]", readiness.readiness_score || "--");
     text("[data-pathway-fit]", pathway.pathway_fit_score || "--");
@@ -722,11 +962,11 @@
           gap:10px;
         ">
           ${[
-            ["Athletic Signal", score.score_final || score.final_score || "--"],
-            ["Confidence", verification.confidence_score || "--"],
+            ["Athletic Signal", finalScore],
+            ["Confidence", verification.confidence_score || authority.confidence_score || "--"],
             ["Evidence", evidence.evidence_score || "--"],
             ["Readiness", readiness.readiness_score || "--"],
-            ["Pathway", pathway.primary_pathway || "--"],
+            ["Pathway", pathway.primary_pathway || authority.projection_lane?.label || "--"],
             ["Academic", eligibility.eligibility_label || eligibility.eligibility_status || "--"]
           ].map(([label, value]) => `
             <div style="
@@ -761,18 +1001,67 @@
     return true;
   }
 
+  function normalizeTraitList(traits) {
+    if (!Array.isArray(traits)) return [];
+
+    return traits.map((trait, index) => ({
+      name: trait.name || trait.label || trait.trait || `Trait ${index + 1}`,
+      value:
+        trait.value ??
+        trait.score ??
+        trait.grade ??
+        "—",
+      status:
+        trait.status ||
+        trait.state ||
+        "UNVERIFIED",
+      explanation:
+        trait.explanation ||
+        trait.reason ||
+        ""
+    }));
+  }
+
   function renderTraits() {
-    const traits =
-      ATHLETE_STATE.intelligence.score?.traits ||
-      [];
+    const traits = normalizeTraitList(
+      ATHLETE_STATE.intelligence.score?.traits || []
+    );
 
     const container =
       document.querySelector("[data-athlete-traits]") ||
       document.querySelector("[data-statscore-performance-traits]") ||
       document.querySelector("#scPerformanceTraits");
 
-    if (!container || !Array.isArray(traits)) {
-      return false;
+    if (!container) return false;
+
+    if (!traits.length) {
+      container.innerHTML = `
+        <div style="
+          border:1px solid rgba(255,255,255,.1);
+          background:rgba(0,0,0,.24);
+          padding:14px;
+          color:#f4f4ef;
+        ">
+          <div style="
+            color:#ffb100;
+            font-size:11px;
+            font-weight:1000;
+            letter-spacing:.12em;
+            text-transform:uppercase;
+          ">
+            Performance Traits Pending
+          </div>
+          <div style="
+            margin-top:8px;
+            color:#9fe7ff;
+            font-size:12px;
+            line-height:1.45;
+          ">
+            Position-specific traits require the active sport/position scoring matrix.
+          </div>
+        </div>
+      `;
+      return true;
     }
 
     if (window.STATScoreTraitRenderEngine?.renderTraits) {
@@ -818,6 +1107,16 @@
             ">
               ${safe(trait.value)}
             </div>
+
+            <div style="
+              margin-top:4px;
+              color:#9ea4ad;
+              font-size:11px;
+              text-transform:uppercase;
+              letter-spacing:.08em;
+            ">
+              ${safe(trait.status, "UNVERIFIED")}
+            </div>
           </div>
         `).join("")}
       </div>
@@ -836,10 +1135,7 @@
           document.querySelector("#scVerificationBadge");
 
         if (panel && intel.verification) {
-          window.STATScoreVerificationEngine.renderVerificationBadge(
-            panel,
-            intel.verification
-          );
+          window.STATScoreVerificationEngine.renderVerificationBadge(panel, intel.verification);
         }
       }
     } catch (err) {
@@ -853,10 +1149,7 @@
           document.querySelector("#scEvidencePanel");
 
         if (panel && intel.evidence) {
-          window.STATScoreEvidenceEngine.renderEvidencePanel(
-            panel,
-            intel.evidence
-          );
+          window.STATScoreEvidenceEngine.renderEvidencePanel(panel, intel.evidence);
         }
       }
     } catch (err) {
@@ -870,10 +1163,7 @@
           document.querySelector("#scReadinessPanel");
 
         if (panel && intel.readiness) {
-          window.STATScoreReadinessEngine.renderReadiness(
-            panel,
-            intel.readiness
-          );
+          window.STATScoreReadinessEngine.renderReadiness(panel, intel.readiness);
         }
       }
     } catch (err) {
@@ -887,10 +1177,7 @@
           document.querySelector("#scPathwayPanel");
 
         if (panel && intel.pathway) {
-          window.STATScorePathwayIntelligenceEngine.renderPathway(
-            panel,
-            intel.pathway
-          );
+          window.STATScorePathwayIntelligenceEngine.renderPathway(panel, intel.pathway);
         }
       }
     } catch (err) {
@@ -904,10 +1191,7 @@
           document.querySelector("#scNCAAEligibilityPanel");
 
         if (panel && intel.eligibility) {
-          window.STATScoreNCAAEligibilityIntelligenceEngine.renderEligibility(
-            panel,
-            intel.eligibility
-          );
+          window.STATScoreNCAAEligibilityIntelligenceEngine.renderEligibility(panel, intel.eligibility);
         }
       }
     } catch (err) {
@@ -1009,8 +1293,7 @@
       runIntelligenceCorridors();
     }
 
-    const renderResult =
-      renderAthleteProfile();
+    const renderResult = renderAthleteProfile();
 
     return {
       ok: true,
@@ -1080,12 +1363,8 @@
       createAthleteReceipt
     };
 
-    if (!window.STATScore) {
-      window.STATScore = {};
-    }
-
-    window.STATScore.DynamicAthleteEngine =
-      window.STATScoreDynamicAthleteEngine;
+    window.STATScore = window.STATScore || {};
+    window.STATScore.DynamicAthleteEngine = window.STATScoreDynamicAthleteEngine;
 
     publishAthleteState();
   }
