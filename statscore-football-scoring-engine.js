@@ -1,20 +1,188 @@
 /* ============================================================
    STATScore™ Football Scoring Engine
-   FULL PRODUCTION FILE
-   Version: v1.0
+   File: statscore-football-scoring-engine.js
+   Version: v1.1-trait-specific-football-matrix
+
    Purpose:
    Football Athlete Snapshot → Trait Scores → Explainable Football Signal
-   ============================================================ */
+
+   Canon:
+   Stream 9 owns football scoring interpretation.
+   Stream 3 consumes/render outputs.
+   This engine does not publish final composite authority.
+============================================================ */
 
 (function () {
   "use strict";
 
   const ENGINE_ID = "statscore-football-scoring-engine";
-  const VERSION = "v1.0-football-foundation";
+  const VERSION = "v1.1-trait-specific-football-matrix";
 
   const TRAIT_DEFAULT_STATUS = "PROJECTED";
   const VERIFIED_STATUS = "VERIFIED";
   const PENDING_STATUS = "PENDING_VERIFICATION";
+
+  const POSITION_BASELINE = {
+    QB: 63,
+    WR: 66,
+    RB: 66,
+    DB: 65,
+    LB: 64,
+    OL: 62,
+    DL: 63,
+    ATH: 62
+  };
+
+  const QB_TRAIT_BASELINES = {
+    PRO_STYLE_QB: {
+      PROCESSING: 62,
+      DECISION_SPEED: 61,
+      ARM_TALENT: 65,
+      BALL_PLACEMENT: 63,
+      POCKET_PRESENCE: 62,
+      FIELD_VISION: 61,
+      PRESSURE_RESPONSE: 60,
+      LEADERSHIP: 64,
+      TIMING: 62,
+      SHORT_INTERMEDIATE_ACCURACY: 63,
+      POCKET_DISCIPLINE: 62,
+      PROGRESSION_CONTROL: 61,
+      PRE_SNAP_RECOGNITION: 60
+    },
+
+    DUAL_THREAT_QB: {
+      PROCESSING: 61,
+      DECISION_SPEED: 62,
+      BALL_PLACEMENT: 62,
+      ARM_TALENT: 65,
+      FIELD_VISION: 61,
+      POCKET_PRESENCE: 60,
+      ESCAPE_ABILITY: 70,
+      DESIGNED_RUN_VALUE: 69,
+      OPEN_FIELD_THREAT: 70,
+      SCRAMBLE_TO_THROW_ABILITY: 66,
+      BALL_SECURITY: 62,
+      PRESSURE_RESPONSE: 65
+    },
+
+    POCKET_DISTRIBUTOR_QB: {
+      PROCESSING: 64,
+      TIMING: 65,
+      BALL_PLACEMENT: 64,
+      SHORT_INTERMEDIATE_ACCURACY: 65,
+      POCKET_DISCIPLINE: 63,
+      PROGRESSION_CONTROL: 64,
+      PRE_SNAP_RECOGNITION: 63,
+      LEADERSHIP: 64
+    },
+
+    DEVELOPMENTAL_ATHLETE_QB: {
+      RAW_ATHLETICISM: 67,
+      ARM_STRENGTH: 65,
+      IMPROVISATION: 66,
+      PROCESSING_GROWTH: 58,
+      MECHANICS_DEVELOPMENT: 57,
+      COACHABILITY: 64,
+      OPEN_FIELD_THREAT: 67,
+      PROJECTION_UPSIDE: 66
+    }
+  };
+
+  const FOOTBALL_TRAIT_BASELINES = {
+    QB: QB_TRAIT_BASELINES,
+
+    WR: {
+      DEFAULT: {
+        RELEASE_PACKAGE: 63,
+        SEPARATION: 64,
+        HANDS: 65,
+        BALL_TRACKING: 64,
+        BODY_CONTROL: 64,
+        CONTESTED_CATCH: 63,
+        ROUTE_IQ: 62,
+        BOUNDARY_AWARENESS: 62,
+        SHORT_AREA_QUICKNESS: 65,
+        YAC: 65,
+        TOP_END_SPEED: 66,
+        ACCELERATION: 66
+      }
+    },
+
+    RB: {
+      DEFAULT: {
+        VISION: 64,
+        BURST: 66,
+        CONTACT_BALANCE: 65,
+        RECEIVING_ABILITY: 62,
+        BALL_SECURITY: 63,
+        OPEN_FIELD_ABILITY: 66,
+        PASS_PROTECTION: 60,
+        EXPLOSIVE_VALUE: 65,
+        PAD_LEVEL: 63,
+        LEG_DRIVE: 64
+      }
+    },
+
+    DB: {
+      DEFAULT: {
+        HIP_FLUIDITY: 64,
+        MIRROR_ABILITY: 63,
+        PRESS_COVERAGE: 62,
+        RECOVERY_SPEED: 65,
+        BALL_SKILLS: 63,
+        ROUTE_RECOGNITION: 62,
+        CLOSING_BURST: 65,
+        COMPETITIVE_TOUGHNESS: 64,
+        ZONE_IQ: 62,
+        TACKLING: 63
+      }
+    },
+
+    LB: {
+      DEFAULT: {
+        RUN_FIT_IQ: 63,
+        COMMUNICATION: 63,
+        TACKLING: 65,
+        BLOCK_SHEDDING: 63,
+        PLAY_RECOGNITION: 62,
+        LEADERSHIP: 64,
+        INSIDE_RANGE: 64,
+        GAP_DISCIPLINE: 63,
+        COVERAGE_ABILITY: 61,
+        CLOSING_SPEED: 64
+      }
+    },
+
+    OL: {
+      DEFAULT: {
+        PASS_SET: 61,
+        FOOTWORK: 61,
+        ANCHOR: 63,
+        HAND_PLACEMENT: 62,
+        RECOVERY: 60,
+        BALANCE: 62,
+        LENGTH_USAGE: 63,
+        PROCESSING: 62,
+        DRIVE_POWER: 63,
+        LEVERAGE: 62
+      }
+    },
+
+    DL: {
+      DEFAULT: {
+        FIRST_STEP: 64,
+        BEND: 62,
+        HAND_VIOLENCE: 63,
+        CLOSING_SPEED: 64,
+        RUSH_PLAN: 61,
+        EDGE_PRESSURE: 63,
+        MOTOR: 65,
+        DISRUPTION_RATE: 63,
+        GET_OFF: 64,
+        POWER: 63
+      }
+    }
+  };
 
   function log(message, payload) {
     console.log(`[STATScore Football Scoring] ${message}`, payload || "");
@@ -29,23 +197,22 @@
   }
 
   function normalizeUpper(value) {
-    return normalize(value).toUpperCase().replace(/\s+/g, "_");
+    return normalize(value).toUpperCase().replace(/\s+/g, "_").replace(/-/g, "_");
   }
 
   function clamp(value, min = 0, max = 100) {
     const n = Number(value);
     if (Number.isNaN(n)) return null;
-    return Math.max(min, Math.min(max, n));
+    return Math.max(min, Math.min(max, Math.round(n)));
   }
 
   function numberOrNull(value) {
-    const n = Number(String(value || "").replace(/[^\d.]/g, ""));
+    const n = Number(String(value ?? "").replace(/[^\d.]/g, ""));
     return Number.isNaN(n) ? null : n;
   }
 
   function parseHeightToInches(height) {
     const raw = String(height || "").trim();
-
     if (!raw) return null;
 
     const feetInches = raw.match(/(\d+)\s*['’]\s*(\d+)?/);
@@ -55,8 +222,7 @@
       return feet * 12 + inches;
     }
 
-    const numeric = numberOrNull(raw);
-    return numeric || null;
+    return numberOrNull(raw);
   }
 
   function parseWeight(weight) {
@@ -79,13 +245,12 @@
       DB: [4.85, 4.35],
       LB: [5.05, 4.50],
       OL: [5.65, 4.95],
-      DL: [5.45, 4.70]
+      DL: [5.45, 4.70],
+      ATH: [5.10, 4.40]
     };
 
     const [slow, elite] = ranges[pos] || [5.2, 4.45];
-
-    const score = ((slow - dash) / (slow - elite)) * 100;
-    return clamp(Math.round(score));
+    return clamp(((slow - dash) / (slow - elite)) * 100);
   }
 
   function scoreFrame(position, heightInches, weight) {
@@ -100,27 +265,32 @@
       DB: { h: [68, 75], w: [160, 210] },
       LB: { h: [70, 76], w: [195, 245] },
       OL: { h: [73, 80], w: [250, 330] },
-      DL: { h: [72, 79], w: [225, 315] }
+      DL: { h: [72, 79], w: [225, 315] },
+      ATH: { h: [68, 78], w: [160, 245] }
     };
 
-    const target = targets[pos] || { h: [68, 78], w: [160, 260] };
+    const target = targets[pos] || targets.ATH;
 
     let hScore = null;
     let wScore = null;
 
     if (heightInches) {
       const [minH, maxH] = target.h;
-      if (heightInches >= minH && heightInches <= maxH) hScore = 88;
-      else hScore = clamp(88 - Math.abs(heightInches - ((minH + maxH) / 2)) * 7);
+      const midpoint = (minH + maxH) / 2;
+      hScore = heightInches >= minH && heightInches <= maxH
+        ? 88
+        : clamp(88 - Math.abs(heightInches - midpoint) * 7);
     }
 
     if (weight) {
       const [minW, maxW] = target.w;
-      if (weight >= minW && weight <= maxW) wScore = 88;
-      else wScore = clamp(88 - Math.abs(weight - ((minW + maxW) / 2)) * 0.9);
+      const midpoint = (minW + maxW) / 2;
+      wScore = weight >= minW && weight <= maxW
+        ? 88
+        : clamp(88 - Math.abs(weight - midpoint) * 0.9);
     }
 
-    const scores = [hScore, wScore].filter((v) => v !== null);
+    const scores = [hScore, wScore].filter(v => v !== null);
     if (!scores.length) return null;
 
     return Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
@@ -135,16 +305,13 @@
       athlete?.raw_payload?.style,
       athlete?.raw_payload?.strengths,
       athlete?.raw_payload?.weaknesses
-    ]
-      .filter(Boolean)
-      .join(" ")
-      .toLowerCase();
+    ].filter(Boolean).join(" ").toLowerCase();
 
     if (!text) return null;
 
     let hits = 0;
 
-    keywords.forEach((word) => {
+    keywords.forEach(word => {
       if (text.includes(String(word).toLowerCase())) hits += 1;
     });
 
@@ -154,7 +321,12 @@
   }
 
   function evidenceStatus(athlete) {
-    const hasFilm = !!(athlete?.highlight_url || athlete?.game_film_url || athlete?.recruiting_profile_url);
+    const hasFilm = Boolean(
+      athlete?.highlight_url ||
+      athlete?.game_film_url ||
+      athlete?.recruiting_profile_url
+    );
+
     const verified = normalizeUpper(athlete?.verification_status).includes("VERIFIED");
 
     if (verified && hasFilm) return VERIFIED_STATUS;
@@ -192,9 +364,32 @@
     return evidence;
   }
 
+  function getTraitScoreFromPayload(traitName, athlete) {
+    const key = normalizeUpper(traitName);
+
+    const sources = [
+      athlete?.trait_scores,
+      athlete?.raw_payload?.trait_scores,
+      athlete?.raw_payload?.football_trait_scores,
+      athlete?.raw_payload?.position_trait_scores
+    ];
+
+    for (const source of sources) {
+      if (!source || typeof source !== "object") continue;
+
+      if (source[traitName] !== undefined) return source[traitName];
+      if (source[key] !== undefined) return source[key];
+
+      const matchKey = Object.keys(source).find(k => normalizeUpper(k) === key);
+      if (matchKey) return source[matchKey];
+    }
+
+    return null;
+  }
+
   function baseTraitValue(traitName, athlete, matrix) {
     const position = matrix?.position || athlete?.primary_position || athlete?.position;
-    const dash = parseDash40(athlete?.dash40);
+    const dash = parseDash40(athlete?.dash40 || athlete?.dash_40 || athlete?.forty);
     const height = parseHeightToInches(athlete?.height);
     const weight = parseWeight(athlete?.weight);
 
@@ -207,9 +402,12 @@
       PROCESSING: ["processing", "reads", "progression", "decision", "iq"],
       DECISION_SPEED: ["quick decision", "fast read", "decisive", "anticipation"],
       ARM_TALENT: ["arm strength", "velocity", "deep ball", "drive throws"],
+      ARM_STRENGTH: ["arm strength", "velocity", "deep ball", "drive throws"],
       BALL_PLACEMENT: ["accuracy", "placement", "touch", "catchable"],
+      SHORT_INTERMEDIATE_ACCURACY: ["accuracy", "placement", "short", "intermediate"],
       FIELD_VISION: ["vision", "reads field", "sees field", "anticipation"],
       POCKET_PRESENCE: ["pocket", "climb", "pressure", "composure"],
+      POCKET_DISCIPLINE: ["pocket discipline", "climb", "structure", "timing"],
       PRESSURE_RESPONSE: ["pressure", "escape", "composure", "blitz"],
       LEADERSHIP: ["leader", "captain", "command", "communication"],
       ESCAPE_ABILITY: ["escape", "mobile", "scramble", "extend"],
@@ -217,6 +415,9 @@
       OPEN_FIELD_THREAT: ["open field", "explosive", "breakaway", "elusive"],
       SCRAMBLE_TO_THROW_ABILITY: ["scramble to throw", "off platform", "extend play"],
       BALL_SECURITY: ["ball security", "protects ball", "low turnover"],
+      TIMING: ["timing", "rhythm", "anticipation"],
+      PROGRESSION_CONTROL: ["progression", "reads", "control"],
+      PRE_SNAP_RECOGNITION: ["pre snap", "recognition", "coverage"],
       SEPARATION: ["separation", "route", "release"],
       HANDS: ["hands", "catch", "reliable"],
       ROUTE_IQ: ["route iq", "route discipline", "route"],
@@ -233,7 +434,9 @@
       trait.includes("ACCELERATION") ||
       trait.includes("OPEN_FIELD") ||
       trait.includes("ESCAPE") ||
-      trait.includes("RECOVERY")
+      trait.includes("RECOVERY") ||
+      trait.includes("FIRST_STEP") ||
+      trait.includes("GET_OFF")
     ) {
       return speedScore ?? keywordScore ?? null;
     }
@@ -243,7 +446,9 @@
       trait.includes("POWER") ||
       trait.includes("ANCHOR") ||
       trait.includes("PHYSICAL") ||
-      trait.includes("CONTACT")
+      trait.includes("CONTACT") ||
+      trait.includes("STRENGTH") ||
+      trait.includes("DRIVE")
     ) {
       return frameScore ?? keywordScore ?? null;
     }
@@ -251,21 +456,61 @@
     return keywordScore ?? null;
   }
 
-  function applyProjectionFallback(traitName, athlete, matrix) {
-    const pos = normalizeUpper(matrix?.position || athlete?.primary_position);
-    const archetype = normalizeUpper(matrix?.archetype_code || matrix?.archetype);
+  function resolveTraitBaseline(traitName, athlete, matrix) {
+    const position = normalizeUpper(matrix?.position || athlete?.primary_position || athlete?.position || "ATH");
+    const traitKey = normalizeUpper(traitName);
 
-    const baseline = {
-      QB: 64,
-      WR: 66,
-      RB: 66,
-      DB: 65,
-      LB: 64,
-      OL: 62,
-      DL: 63
+    const archetypeCode =
+      normalizeUpper(matrix?.archetype_code) ||
+      normalizeUpper(matrix?.archetype) ||
+      "DEFAULT";
+
+    const positionMap = FOOTBALL_TRAIT_BASELINES[position];
+    const archetypeMap =
+      positionMap?.[archetypeCode] ||
+      positionMap?.DEFAULT ||
+      null;
+
+    if (archetypeMap && archetypeMap[traitKey] !== undefined) {
+      return archetypeMap[traitKey];
+    }
+
+    const base = POSITION_BASELINE[position] ?? POSITION_BASELINE.ATH ?? 60;
+
+    const traitAdjustments = {
+      PROCESSING: -1,
+      DECISION_SPEED: -2,
+      TIMING: -1,
+      ACCURACY: 0,
+      SHORT_INTERMEDIATE_ACCURACY: 0,
+      BALL_PLACEMENT: 0,
+      ARM_TALENT: 2,
+      ARM_STRENGTH: 2,
+      FIELD_VISION: -2,
+      POCKET_PRESENCE: -1,
+      POCKET_DISCIPLINE: -1,
+      PRESSURE_RESPONSE: -3,
+      LEADERSHIP: 1,
+      ESCAPE_ABILITY: 4,
+      DESIGNED_RUN_VALUE: 4,
+      OPEN_FIELD_THREAT: 5,
+      SCRAMBLE_TO_THROW_ABILITY: 3,
+      BALL_SECURITY: -1,
+      RAW_ATHLETICISM: 4,
+      IMPROVISATION: 3,
+      COACHABILITY: 2,
+      PROJECTION_UPSIDE: 3
     };
 
-    let value = baseline[pos] || 60;
+    return clamp(base + (traitAdjustments[traitKey] || 0));
+  }
+
+  function applyProjectionFallback(traitName, athlete, matrix) {
+    let value = resolveTraitBaseline(traitName, athlete, matrix);
+
+    const traitKey = normalizeUpper(traitName);
+    const archetype = normalizeUpper(matrix?.archetype_code || matrix?.archetype);
+    const verified = normalizeUpper(athlete?.verification_status).includes("VERIFIED");
 
     if (archetype.includes("DUAL_THREAT")) {
       const mobileTraits = [
@@ -274,17 +519,16 @@
         "OPEN_FIELD",
         "SCRAMBLE",
         "BURST",
-        "IMPROVISATION"
+        "IMPROVISATION",
+        "ATHLETICISM"
       ];
 
-      if (mobileTraits.some((key) => normalizeUpper(traitName).includes(key))) {
-        value += 8;
+      if (mobileTraits.some(key => traitKey.includes(key))) {
+        value += 3;
       }
     }
 
-    if (athlete?.verification_status && normalizeUpper(athlete.verification_status).includes("VERIFIED")) {
-      value += 3;
-    }
+    if (verified) value += 2;
 
     return clamp(value);
   }
@@ -294,22 +538,23 @@
       trait.value ??
       trait.score ??
       trait.rating ??
-      athlete?.trait_scores?.[trait.name] ??
-      athlete?.raw_payload?.trait_scores?.[trait.name] ??
+      getTraitScoreFromPayload(trait.name, athlete) ??
       null;
 
-    let value = clamp(direct);
+    let value = direct !== null && direct !== undefined && direct !== ""
+      ? clamp(direct)
+      : null;
 
     let source = "DIRECT";
 
     if (value === null) {
       value = baseTraitValue(trait.name, athlete, matrix);
-      source = value === null ? "PROJECTED_BASELINE" : "EVIDENCE_INFERRED";
+      source = value === null ? "TRAIT_SPECIFIC_PROJECTION" : "EVIDENCE_INFERRED";
     }
 
     if (value === null) {
       value = applyProjectionFallback(trait.name, athlete, matrix);
-      source = "ARCHETYPE_PROJECTION";
+      source = "TRAIT_SPECIFIC_PROJECTION";
     }
 
     return {
@@ -323,7 +568,7 @@
   }
 
   function average(values) {
-    const valid = values.filter((v) => typeof v === "number" && !Number.isNaN(v));
+    const valid = values.filter(v => typeof v === "number" && !Number.isNaN(v));
     if (!valid.length) return null;
     return Math.round(valid.reduce((a, b) => a + b, 0) / valid.length);
   }
@@ -354,15 +599,16 @@
       "This athlete";
 
     return {
-      summary: `${name} is evaluated under ${matrix.matrix_code} as ${matrix.archetype}. Current football signal is ${band} based on available profile, metric, film, and verification data.`,
+      summary:
+        `${name} is evaluated under ${matrix.matrix_code} as ${matrix.archetype}. Current football signal is ${band} based on available profile, metric, film, and verification data.`,
       factors: [
         "Sport-specific football matrix applied",
         "Position and archetype context applied",
-        "Trait stack scored through available verified or projected evidence",
+        "Trait stack scored through available verified, inferred, or trait-specific projected evidence",
         "Official score remains subject to verification, evaluator review, and film validation"
       ],
       limitations: [
-        "Trait values are provisional until verified evidence is attached",
+        "Projected trait values are provisional until verified evidence is attached",
         "Full official STATScore requires evaluator-confirmed metrics and film review",
         "Academic and NCAA eligibility scores are separate from athletic score"
       ]
@@ -410,13 +656,15 @@
       };
     }
 
-    const scoredTraits = matrix.traits.map((trait) => scoreTrait(trait, athlete, matrix));
+    const scoredTraits = matrix.traits.map(trait =>
+      scoreTrait(trait, athlete, matrix)
+    );
 
-    const scoreFinal = average(scoredTraits.map((trait) => trait.value));
+    const scoreFinal = average(scoredTraits.map(trait => trait.value));
     const band = calculateBand(scoreFinal);
     const stars = calculateStarProjection(scoreFinal);
 
-    const result = {
+    return {
       ok: true,
       engine_id: ENGINE_ID,
       version: VERSION,
@@ -428,8 +676,10 @@
         [athlete.first_name, athlete.last_name].filter(Boolean).join(" "),
       position: matrix.position,
       archetype: matrix.archetype,
+      archetype_code: matrix.archetype_code,
       matrix_code: matrix.matrix_code,
       score_final: scoreFinal,
+      final_score: scoreFinal,
       score_band: band,
       star_projection: stars,
       official_status:
@@ -440,8 +690,6 @@
       explanation: generateExplanation(athlete, matrix, scoreFinal, band),
       created_at: new Date().toISOString()
     };
-
-    return result;
   }
 
   function renderScoreToWindowAthlete() {
@@ -505,7 +753,7 @@
       calculateStarProjection
     };
 
-    if (!window.STATScore) window.STATScore = {};
+    window.STATScore = window.STATScore || {};
     window.STATScore.FootballScoringEngine = window.STATScoreFootballScoringEngine;
 
     const result = renderScoreToWindowAthlete();
@@ -515,14 +763,14 @@
         engine: ENGINE_ID,
         version: VERSION,
         status: "ONLINE",
-        scored: !!(result && result.ok)
+        scored: Boolean(result && result.ok)
       });
     }
 
     log("Engine online.", {
       engine: ENGINE_ID,
       version: VERSION,
-      scored: !!(result && result.ok)
+      scored: Boolean(result && result.ok)
     });
   }
 
