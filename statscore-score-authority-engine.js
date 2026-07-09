@@ -1,309 +1,177 @@
 /* ============================================================
-   STATS-CORE™
-   Stream 3 — Athlete Intelligence
-   File: statscore-intelligence-layer-registry.js
-   Purpose: Official intelligence layer registry.
-   Doctrine: No page may invent, rename, or collapse score layers.
+   STATS-CORE™ SCORE AUTHORITY ENGINE
+   File: statscore-score-authority-engine.js
+   Owner: Stream 9 — Intelligence Matrix & Composite Scoring Authority
+
+   Purpose:
+   Authority bridge between existing scoring engines and consumer pages.
+
+   This file does NOT invent scoring science.
+   It consumes existing engines:
+   - window.STATScoreScoringEngine
+   - window.STATScore.SynthesisEngine
+
+   Provides:
+   - getDashboardScoreModel(input)
+   - getProfileScoreModel(input)
+
+   Canon:
+   Pages render intelligence.
+   Stream 9 produces governed intelligence.
 ============================================================ */
 
-(function () {
+(function(){
   "use strict";
 
-  const STREAM = "STATS-CORE Stream 3 Athlete Intelligence";
+  const ENGINE = "statscore-score-authority-engine.js";
+  const VERSION = "STATSCORE-SCORE-AUTHORITY-V1";
 
-  const STATUS = {
-    ACTIVE: "ACTIVE",
-    PENDING: "PENDING",
-    LOCKED: "LOCKED",
-    CONSUMED: "CONSUMED"
-  };
+  function n(value){
+    const num = Number(String(value ?? "").replace(/[^\d.-]/g, ""));
+    return Number.isFinite(num) ? num : null;
+  }
 
-  const ROLE_VISIBILITY = {
-    ATHLETE: true,
-    PARENT: true,
-    COACH: true,
-    COUNSELOR: true,
-    RECRUITER: true,
-    EVALUATOR: true,
-    PROGRAM: true,
-    ADMIN: true
-  };
+  function safe(value, fallback = "—"){
+    return value === null || value === undefined || value === "" ? fallback : value;
+  }
 
-  const LAYERS = {
-    ATHLETIC_SCORE: {
-      layer_key: "ATHLETIC_SCORE",
-      label: "Athletic Score",
-      owner_engine: "statscore-dynamic-athlete-engine.js",
-      source_records: [
-        "public.statscore_snapshots",
-        "athletic metric payloads",
-        "camp/combine payloads",
-        "position metric payloads"
-      ],
-      allowed_pages: [
-        "athlete-dashboard.html",
-        "player-profile.html",
-        "athletic-snapshot.html"
-      ],
-      explanation_required: true,
-      role_visibility: ROLE_VISIBILITY,
-      status: STATUS.ACTIVE,
-      doctrine:
-        "Athletic Score measures athletic profile and supports evaluation. It does not replace production."
+  function normalizeInput(input){
+    if(!input) return {};
+
+    if(typeof input === "string"){
+      return { snapshot_id: input };
+    }
+
+    return input;
+  }
+
+  function getScoringEngine(){
+    return window.STATScoreScoringEngine || null;
+  }
+
+  function getSynthesisEngine(){
+    return window.STATScore?.SynthesisEngine || null;
+  }
+
+  function deriveScore(snapshot){
+    const scoring = getScoringEngine();
+
+    if(scoring?.explainScore){
+      try{
+        const output = scoring.explainScore(snapshot);
+        if(output?.ok){
+          return output;
+        }
+      }catch(error){
+        console.warn("[STATS-CORE Score Authority] Scoring engine failed:", error);
+      }
+    }
+
+    return null;
+  }
+
+  function deriveSynthesis(snapshot, scoreOutput){
+    const synthesis = getSynthesisEngine();
+
+    if(!synthesis?.synthesize) return null;
+
+    try{
+      return synthesis.synthesize({
+        athlete_id: snapshot.athlete_id,
+        snapshot_id: snapshot.snapshot_id,
+        profile_state: snapshot.name || snapshot.athlete_display_name ? "ACTIVE" : "UNKNOWN",
+        verification_state: snapshot.verification_status || "UNVERIFIED",
+        readiness_state: scoreOutput?.projection_lane?.lane || "DEVELOPING",
+        eligibility_state: snapshot.ncaa_status || "PARTIAL_REVIEW",
+        pathway_state: scoreOutput?.projection_lane?.lane || "PATH_PENDING",
+        media_state: snapshot.headshot_url || snapshot.headshot_public_url ? "READY" : "PENDING",
+        competition_level: snapshot.competition_level || "UNVERIFIED"
+      });
+    }catch(error){
+      console.warn("[STATS-CORE Score Authority] Synthesis engine failed:", error);
+      return null;
+    }
+  }
+
+  function buildDashboardScoreModel(input){
+    const snapshot = normalizeInput(input);
+    const scoreOutput = deriveScore(snapshot);
+    const synthesis = deriveSynthesis(snapshot, scoreOutput);
+
+    const finalScore =
+      n(scoreOutput?.final_score) ??
+      n(snapshot.position_score) ??
+      n(snapshot.athletic_score) ??
+      null;
+
+    const verificationLabel =
+      scoreOutput?.components?.verification?.label ||
+      snapshot.verification_status ||
+      "UNVERIFIED";
+
+    const compositeAllowed = false;
+
+    return {
+      engine: ENGINE,
+      version: VERSION,
+      snapshot_id: snapshot.snapshot_id || "",
+      athlete_id: snapshot.athlete_id || "",
+
+      composite_status: "PENDING",
+      composite_display_allowed: compositeAllowed,
+      composite_value: "🔒",
+      composite_state: "COMPOSITE SCORE PENDING",
+
+      position_score: finalScore ?? "—",
+      athletic_score: finalScore ?? "—",
+      production_score: finalScore ?? "—",
+      academic_score: n(snapshot.academic_score) ?? "—",
+      character_score: "—",
+
+      score_status: verificationLabel,
+      final_score: finalScore,
+      matrix_id: scoreOutput?.matrix_id || "MATRIX_PENDING",
+
+      star_signal: scoreOutput?.star_signal || null,
+      projection_lane: scoreOutput?.projection_lane || null,
+      risk_flags: scoreOutput?.risk_flags || [],
+      why_this_signal: scoreOutput?.why_this_signal || [],
+
+      confidence_score:
+        n(synthesis?.confidence_score) ??
+        n(scoreOutput?.components?.verification?.score) ??
+        0,
+
+      completion_score:
+        n(synthesis?.completion_score) ??
+        n(scoreOutput?.components?.completion?.score) ??
+        0,
+
+      synthesis,
+      scoring_output: scoreOutput,
+
+      display_rule:
+        "Composite remains pending until final composite authority gates are complete. Domain signals may display as unverified intelligence."
+    };
+  }
+
+  window.STATSCORE_SCORE_AUTHORITY_ENGINE = {
+    engine: ENGINE,
+    version: VERSION,
+    status: "ACTIVE",
+
+    getDashboardScoreModel(input){
+      return buildDashboardScoreModel(input);
     },
 
-    PRODUCTION_SCORE: {
-      layer_key: "PRODUCTION_SCORE",
-      label: "Production Score",
-      owner_engine: "statscore-production-engine.js",
-      source_records: [
-        "public.statscore_athlete_production_records"
-      ],
-      allowed_pages: [
-        "athlete-dashboard.html",
-        "player-profile.html",
-        "athlete-production-record.html"
-      ],
-      explanation_required: true,
-      role_visibility: ROLE_VISIBILITY,
-      status: STATUS.ACTIVE,
-      doctrine:
-        "Production Score reflects competition output. Production drives ranking."
+    getProfileScoreModel(input){
+      return buildDashboardScoreModel(input);
     },
 
-    PRODUCTION_INDEX: {
-      layer_key: "PRODUCTION_INDEX",
-      label: "Production Index",
-      owner_engine: "statscore-production-matrix.js",
-      source_records: [
-        "public.statscore_athlete_production_records",
-        "sport-position production matrix"
-      ],
-      allowed_pages: [
-        "athlete-dashboard.html",
-        "player-profile.html",
-        "athlete-production-record.html"
-      ],
-      explanation_required: true,
-      role_visibility: ROLE_VISIBILITY,
-      status: STATUS.ACTIVE,
-      doctrine:
-        "Production Index normalizes sport/position production context."
-    },
-
-    ACADEMIC_SCORE: {
-      layer_key: "ACADEMIC_SCORE",
-      label: "Academic Score",
-      owner_engine: "statscore-academic-matrix.js",
-      source_records: [
-        "public.statscore_snapshots",
-        "academic payloads"
-      ],
-      allowed_pages: [
-        "athlete-dashboard.html",
-        "player-profile.html",
-        "eligibility.html"
-      ],
-      explanation_required: true,
-      role_visibility: ROLE_VISIBILITY,
-      status: STATUS.ACTIVE,
-      doctrine:
-        "Academic Score reflects academic standing and access. It must not inflate athletic or production scores."
-    },
-
-    ELIGIBILITY_SCORE: {
-      layer_key: "ELIGIBILITY_SCORE",
-      label: "Eligibility Score",
-      owner_engine: "statscore-eligibility-engine.js",
-      source_records: [
-        "public.statscore_snapshots",
-        "eligibility payloads",
-        "academic payloads"
-      ],
-      allowed_pages: [
-        "athlete-dashboard.html",
-        "player-profile.html",
-        "eligibility.html",
-        "pathway.html"
-      ],
-      explanation_required: true,
-      role_visibility: ROLE_VISIBILITY,
-      status: STATUS.ACTIVE,
-      doctrine:
-        "Eligibility Score reflects NCAA / NAIA / NJCAA pathway standing."
-    },
-
-    VERIFICATION_SCORE: {
-      layer_key: "VERIFICATION_SCORE",
-      label: "Verification Score",
-      owner_engine: "statscore-verification-authority-engine.js",
-      source_records: [
-        "public.statscore_athlete_production_records",
-        "verification payloads",
-        "evidence records"
-      ],
-      allowed_pages: [
-        "athlete-dashboard.html",
-        "player-profile.html",
-        "athlete-production-record.html",
-        "athletic-snapshot.html"
-      ],
-      explanation_required: true,
-      role_visibility: ROLE_VISIBILITY,
-      status: STATUS.ACTIVE,
-      doctrine:
-        "Verification Score measures trust strength of evidence and authority."
-    },
-
-    EXPOSURE_SIGNAL: {
-      layer_key: "EXPOSURE_SIGNAL",
-      label: "Exposure Signal",
-      owner_engine: "statscore-crystal-engine.js",
-      source_records: [
-        "public.statscore_snapshots",
-        "exposure payloads",
-        "Crystal support outputs"
-      ],
-      allowed_pages: [
-        "athlete-dashboard.html",
-        "player-profile.html"
-      ],
-      explanation_required: true,
-      role_visibility: ROLE_VISIBILITY,
-      status: STATUS.CONSUMED,
-      doctrine:
-        "Exposure Signal may be consumed in Stream 3, but Crystal/media output belongs to Stream 7."
-    },
-
-    RECRUITING_READINESS: {
-      layer_key: "RECRUITING_READINESS",
-      label: "Recruiting Readiness",
-      owner_engine: "statscore-readiness-engine.js",
-      source_records: [
-        "public.statscore_snapshots",
-        "production outputs",
-        "academic outputs",
-        "eligibility outputs",
-        "verification outputs"
-      ],
-      allowed_pages: [
-        "athlete-dashboard.html",
-        "player-profile.html",
-        "readiness.html",
-        "pathway.html"
-      ],
-      explanation_required: true,
-      role_visibility: ROLE_VISIBILITY,
-      status: STATUS.ACTIVE,
-      doctrine:
-        "Recruiting Readiness explains preparedness, risk, opportunity, and next actions."
-    },
-
-    STAR_RATING_SIGNAL: {
-      layer_key: "STAR_RATING_SIGNAL",
-      label: "Star Rating Signal",
-      owner_engine: "statscore-score-authority-engine.js",
-      source_records: [
-        "production score",
-        "sustained production",
-        "verification strength",
-        "competition context",
-        "position value",
-        "athletic support signal"
-      ],
-      allowed_pages: [
-        "athlete-dashboard.html",
-        "player-profile.html"
-      ],
-      explanation_required: true,
-      role_visibility: ROLE_VISIBILITY,
-      status: STATUS.PENDING,
-      doctrine:
-        "Star Rating Signal leans toward production, sustained production, verification strength, competition context, position value, and athletic support signal."
-    },
-
-    STATSCORE_COMPOSITE_PENDING: {
-      layer_key: "STATSCORE_COMPOSITE_PENDING",
-      label: "STATS-CORE Composite Pending",
-      owner_engine: "statscore-score-authority-engine.js",
-      source_records: [
-        "required intelligence layers not fully activated"
-      ],
-      allowed_pages: [
-        "athlete-dashboard.html",
-        "player-profile.html"
-      ],
-      explanation_required: true,
-      role_visibility: ROLE_VISIBILITY,
-      status: STATUS.PENDING,
-      doctrine:
-        "Final STATS-CORE Composite is pending until composite authority is activated."
-    },
-
-    STATSCORE_COMPOSITE_ACTIVE: {
-      layer_key: "STATSCORE_COMPOSITE_ACTIVE",
-      label: "STATS-CORE Composite Score",
-      owner_engine: "statscore-composite-engine.js",
-      source_records: [
-        "authorized composite model only"
-      ],
-      allowed_pages: [],
-      explanation_required: true,
-      role_visibility: ROLE_VISIBILITY,
-      status: STATUS.LOCKED,
-      doctrine:
-        "Do not display active final composite until composite engine and authority are complete."
+    explain(input){
+      return buildDashboardScoreModel(input);
     }
   };
 
-  function getLayer(layerKey) {
-    return LAYERS[layerKey] || null;
-  }
-
-  function getAllLayers() {
-    return Object.values(LAYERS);
-  }
-
-  function isKnownLayer(layerKey) {
-    return Boolean(LAYERS[layerKey]);
-  }
-
-  function isLayerAllowedOnPage(layerKey, pageName) {
-    const layer = getLayer(layerKey);
-    if (!layer) return false;
-    return layer.allowed_pages.includes(pageName);
-  }
-
-  function requiresExplanation(layerKey) {
-    const layer = getLayer(layerKey);
-    return Boolean(layer && layer.explanation_required);
-  }
-
-  function getAllowedLayersForPage(pageName) {
-    return getAllLayers().filter((layer) =>
-      layer.allowed_pages.includes(pageName)
-    );
-  }
-
-  function blockUnknownLayer(layerKey) {
-    if (!isKnownLayer(layerKey)) {
-      console.error("[STATS-CORE Layer Registry] Unknown score layer blocked:", layerKey);
-      return true;
-    }
-    return false;
-  }
-
-  window.STATSCORE_INTELLIGENCE_LAYER_REGISTRY = {
-    stream: STREAM,
-    layers: LAYERS,
-    getLayer,
-    getAllLayers,
-    isKnownLayer,
-    isLayerAllowedOnPage,
-    requiresExplanation,
-    getAllowedLayersForPage,
-    blockUnknownLayer
-  };
-
-  console.info("[STATS-CORE] Intelligence Layer Registry loaded.");
+  console.info("[STATS-CORE] Score Authority Engine loaded:", VERSION);
 })(); 
