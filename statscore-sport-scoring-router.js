@@ -1,5 +1,5 @@
 /* ============================================================
-   STATS-CORE™ SPORT SCORING ROUTER
+   STATS-CORE™ SPORT SCORING ROUTER 
    File: statscore-sport-scoring-router.js
    Version: STATSCORE-SPORT-SCORING-ROUTER-V1
 
@@ -37,7 +37,7 @@
       engine_key: "STATScoreBasketballScoringEngine",
       namespace_key: "BasketballScoringEngine",
       method: "scoreAthlete",
-      status: "PENDING"
+      status: "ACTIVE"
     },
 
     BASEBALL: {
@@ -45,7 +45,7 @@
       engine_key: "STATScoreBaseballScoringEngine",
       namespace_key: "BaseballScoringEngine",
       method: "scoreAthlete",
-      status: "PENDING"
+      status: "ACTIVE"
     },
 
     TRACK: {
@@ -53,7 +53,7 @@
       engine_key: "STATScoreTrackScoringEngine",
       namespace_key: "TrackScoringEngine",
       method: "scoreAthlete",
-      status: "PENDING"
+      status: "ACTIVE"
     }
   });
 
