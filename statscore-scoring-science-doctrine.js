@@ -10,16 +10,16 @@ Asset Type:
 JavaScript Doctrine / Scoring Science Authority
 
 Owner Stream:
-Stream 3 — Scoring Science & Athlete Intelligence Authority
+Stream 9 — Scoring Science & Athlete Intelligence Authority
 
 Primary Operational Authority:
-Stream 3 — Scoring Science & Athlete Intelligence Authority
+Stream 9 — Scoring Science & Athlete Intelligence Authority
 
 Layer:
 Governance / Scoring Doctrine
 
 Runtime Owner:
-Stream 3 Intelligence Runtime
+Stream 9 Intelligence Runtime
 
 Primary Consumers:
 - system.html
@@ -64,7 +64,7 @@ Last Governance Review:
     doctrine_version: "1.0.0",
     status: "CANON_LOCKED",
 
-    owner_stream: "Stream 3 — Scoring Science & Athlete Intelligence Authority",
+    owner_stream: "Stream 9 — Scoring Science & Athlete Intelligence Authority",
 
     universal_score: "STATScore™",
 
