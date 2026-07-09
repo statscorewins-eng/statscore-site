@@ -4,7 +4,7 @@ Phoenix Multi-Sport Scoring Framework™
 
 Status: CANON LOCKED
 Version: 1.0
-Authority: Stream 3 — Scoring Science & Athlete Intelligence Authority
+Authority: Stream 9 — Scoring Science & Athlete Intelligence Authority
 Last Governance Review: 2026-06-27
 
 ---
