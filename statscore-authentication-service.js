@@ -1,6 +1,7 @@
 /**
 * STATS-CORE™ — Enterprise Authentication Service
 * Article 1 / PWP-001
+* Version 1.2.0
 *
 * Production responsibilities:
 * - Authenticate credentials through Supabase Auth.
@@ -20,11 +21,20 @@
 (function initializeStatsCoreAuthenticationService(global) {
   "use strict";
 
-  const errors = global.STATSCORE_AUTH_ERRORS;
-  const contextService = global.STATSCORE_AUTH_CONTEXT;
-  const receiptService = global.STATSCORE_AUTH_RECEIPTS;
+  const errors =
+    global.STATSCORE_AUTH_ERRORS;
 
-  if (!errors || !contextService || !receiptService) {
+  const contextService =
+    global.STATSCORE_AUTH_CONTEXT;
+
+  const receiptService =
+    global.STATSCORE_AUTH_RECEIPTS;
+
+  if (
+    !errors ||
+    !contextService ||
+    !receiptService
+  ) {
     throw new Error(
       "Load authentication errors, context, and receipts before " +
         "statscore-authentication-service.js"
@@ -33,57 +43,72 @@
 
   const {
     ERROR_CODES,
-    StatsCoreAuthenticationError,
-    mapProviderError
+    StatsCoreAuthenticationError
   } = errors;
 
-  const SUPPORTED_ROLES = new Set(
-    Array.isArray(contextService.ALLOWED_ROLES)
-      ? contextService.ALLOWED_ROLES
-      : []
-  );
+  const SUPPORTED_ROLES =
+    new Set(
+      Array.isArray(
+        contextService.ALLOWED_ROLES
+      )
+        ? contextService.ALLOWED_ROLES
+        : []
+    );
 
-  const NON_ATHLETE_ROLES = new Set([
-    "parent",
-    "coach",
-    "counselor",
-    "recruiter",
-    "evaluator",
-    "program",
-    "trainer"
-  ]);
+  const ALLOWED_ENTRY_INTENTS =
+    new Set(
+      Array.isArray(
+        contextService.ALLOWED_ENTRY_INTENTS
+      )
+        ? contextService.ALLOWED_ENTRY_INTENTS
+        : []
+    );
 
-  const ALLOWED_AUTHENTICATION_SOURCES = new Set([
-    "supabase_password",
-    "supabase_magic_link",
-    "supabase_oauth",
-    "demo_isolated"
-  ]);
+  const NON_ATHLETE_ROLES =
+    new Set([
+      "parent",
+      "coach",
+      "counselor",
+      "recruiter",
+      "evaluator",
+      "program",
+      "trainer"
+    ]);
 
-  const REQUIRED_ROUTE_KEYS = Object.freeze([
-    "first_time_athlete",
-    "returning_athlete",
-    "first_time_professional",
-    "returning_professional",
-    "administrator"
-  ]);
+  const ALLOWED_AUTHENTICATION_SOURCES =
+    new Set([
+      "supabase_password",
+      "supabase_magic_link",
+      "supabase_oauth",
+      "demo_isolated"
+    ]);
 
-  const DEFAULT_ROUTES = Object.freeze({
-    first_time_athlete:
-      "snapshot-intake.html?new=1&role=athlete&from=login&next=athlete-dashboard.html",
+  const REQUIRED_ROUTE_KEYS =
+    Object.freeze([
+      "first_time_athlete",
+      "returning_athlete",
+      "first_time_professional",
+      "returning_professional",
+      "administrator"
+    ]);
 
-    returning_athlete:
-      "athlete-dashboard.html",
+  const DEFAULT_ROUTES =
+    Object.freeze({
+      first_time_athlete:
+        "snapshot-intake.html?new=1&role=athlete&from=login&next=athlete-dashboard.html",
 
-    first_time_professional:
-      "role-dashboard-intake.html?from=login&next=role-dashboard.html",
+      returning_athlete:
+        "athlete-dashboard.html",
 
-    returning_professional:
-      "role-dashboard.html",
+      first_time_professional:
+        "role-dashboard-intake.html?from=login&next=role-dashboard.html",
 
-    administrator:
-      "system.html"
-  });
+      returning_professional:
+        "role-dashboard.html",
+
+      administrator:
+        "system.html"
+    });
 
   const DEFAULT_IDENTITY_SELECT =
     "id,auth_user_id,role_id,active";
@@ -92,7 +117,8 @@
     "id,role_name";
 
   const state = {
-    client: null,
+    client:
+      null,
 
     authenticationSource:
       "supabase_password",
@@ -169,7 +195,9 @@
   }
 
   function normalizeRole(value) {
-    return contextService.normalizeRole(value);
+    return contextService.normalizeRole(
+      value
+    );
   }
 
   function createAuthenticationError(
@@ -184,7 +212,9 @@
     );
   }
 
-  function normalizeAuthenticationError(rawError) {
+  function normalizeAuthenticationError(
+    rawError
+  ) {
     if (
       rawError instanceof
       StatsCoreAuthenticationError
@@ -192,13 +222,22 @@
       return rawError;
     }
 
-    return mapProviderError(rawError);
+    return errors.normalize(
+      rawError,
+      ERROR_CODES.PROVIDER_FAILURE,
+      "The authentication provider operation failed.",
+      {
+        preserve_message:
+          true
+      }
+    );
   }
 
   function createCorrelationId() {
     if (
       global.crypto &&
-      typeof global.crypto.randomUUID === "function"
+      typeof global.crypto.randomUUID ===
+        "function"
     ) {
       return global.crypto.randomUUID();
     }
@@ -215,7 +254,8 @@
     if (
       !state.client ||
       !state.client.auth ||
-      typeof state.client.auth.signInWithPassword !==
+      typeof state.client.auth
+        .signInWithPassword !==
         "function"
     ) {
       throw createAuthenticationError(
@@ -229,7 +269,9 @@
     value
   ) {
     const source =
-      cleanString(value);
+      cleanString(
+        value
+      );
 
     if (
       !ALLOWED_AUTHENTICATION_SOURCES.has(
@@ -247,12 +289,52 @@
     return source;
   }
 
+  function assertAllowedEntryIntent(
+    value
+  ) {
+    const entryIntent =
+      cleanString(
+        value
+      );
+
+    if (!entryIntent) {
+      throw createAuthenticationError(
+        ERROR_CODES.REQUEST_VALIDATION_FAILURE,
+        "entry_intent is required."
+      );
+    }
+
+    if (
+      ALLOWED_ENTRY_INTENTS.size === 0
+    ) {
+      throw createAuthenticationError(
+        ERROR_CODES.CONFIGURATION_ERROR,
+        "The authentication context service does not expose an authorized entry-intent vocabulary."
+      );
+    }
+
+    if (
+      !ALLOWED_ENTRY_INTENTS.has(
+        entryIntent
+      )
+    ) {
+      throw createAuthenticationError(
+        ERROR_CODES.REQUEST_VALIDATION_FAILURE,
+        `Unsupported entry_intent: ${entryIntent}`
+      );
+    }
+
+    return entryIntent;
+  }
+
   function assertSafeIdentifier(
     value,
     label
   ) {
     const candidate =
-      cleanString(value);
+      cleanString(
+        value
+      );
 
     if (!candidate) {
       throw createAuthenticationError(
@@ -280,7 +362,9 @@
     label
   ) {
     const candidate =
-      cleanString(value);
+      cleanString(
+        value
+      );
 
     if (!candidate) {
       throw createAuthenticationError(
@@ -303,14 +387,20 @@
 
     return candidate
       .split(",")
-      .map(function normalizeColumn(column) {
-        return column.trim();
-      })
+      .map(
+        function normalizeColumn(
+          column
+        ) {
+          return column.trim();
+        }
+      )
       .filter(Boolean)
       .join(",");
   }
 
-  function containsUnsafeScheme(value) {
+  function containsUnsafeScheme(
+    value
+  ) {
     return /^[A-Za-z][A-Za-z0-9+.-]*:/i.test(
       value
     );
@@ -321,7 +411,9 @@
     label
   ) {
     const candidate =
-      cleanString(value);
+      cleanString(
+        value
+      );
 
     if (!candidate) {
       throw createAuthenticationError(
@@ -342,7 +434,9 @@
       })();
 
     if (
-      containsUnsafeScheme(candidate) ||
+      containsUnsafeScheme(
+        candidate
+      ) ||
       containsUnsafeScheme(
         decodedCandidate
       ) ||
@@ -356,7 +450,7 @@
       decodedCandidate.includes("..")
     ) {
       throw createAuthenticationError(
-        ERROR_CODES.ROUTING_DENIED,
+        ERROR_CODES.ROUTING_FAILURE,
         `${label} must be a safe local application route.`
       );
     }
@@ -371,7 +465,9 @@
     value
   ) {
     const candidate =
-      cleanString(value) ||
+      cleanString(
+        value
+      ) ||
       "role-aware-default";
 
     if (
@@ -394,10 +490,12 @@
         ? routes
         : {};
 
-    const validated = {};
+    const validated =
+      {};
 
     for (
-      const key of REQUIRED_ROUTE_KEYS
+      const key of
+      REQUIRED_ROUTE_KEYS
     ) {
       validated[key] =
         normalizeLocalRoute(
@@ -436,14 +534,16 @@
         );
     }
 
-    for (const key of [
-      "identityResolver",
-      "roleResolver",
-      "entryStateResolver",
-      "routeResolver",
-      "sessionIdResolver",
-      "receiptWriter"
-    ]) {
+    for (
+      const key of [
+        "identityResolver",
+        "roleResolver",
+        "entryStateResolver",
+        "routeResolver",
+        "sessionIdResolver",
+        "receiptWriter"
+      ]
+    ) {
       if (
         typeof next[key] ===
         "function"
@@ -589,10 +689,7 @@
           state.client,
 
         rpc:
-          state.receiptRpc,
-
-        strict:
-          true
+          state.receiptRpc
       });
     }
 
@@ -668,9 +765,18 @@
       !password
     ) {
       throw createAuthenticationError(
-        ERROR_CODES.INVALID_REQUEST
+        ERROR_CODES.REQUEST_VALIDATION_FAILURE,
+        "A valid email address and password are required."
       );
     }
+
+    const entryIntent =
+      assertAllowedEntryIntent(
+        cleanString(
+          source.entry_intent
+        ) ||
+        "login"
+      );
 
     return Object.freeze({
       email,
@@ -678,10 +784,7 @@
       password,
 
       entry_intent:
-        cleanString(
-          source.entry_intent
-        ) ||
-        "login",
+        entryIntent,
 
       requested_destination:
         normalizeRequestedDestination(
@@ -718,22 +821,25 @@
 
     if (!response.data) {
       throw createAuthenticationError(
-        ERROR_CODES.UNKNOWN_IDENTITY
+        ERROR_CODES.IDENTITY_FAILURE,
+        "No governed STATS-CORE identity was found for the authenticated user."
       );
     }
 
     if (
       state.activeUserColumn &&
-      Object.prototype.hasOwnProperty.call(
-        response.data,
-        state.activeUserColumn
-      ) &&
+      Object.prototype
+        .hasOwnProperty.call(
+          response.data,
+          state.activeUserColumn
+        ) &&
       response.data[
         state.activeUserColumn
       ] === false
     ) {
       throw createAuthenticationError(
-        ERROR_CODES.ACCOUNT_DISABLED
+        ERROR_CODES.AUTHORIZATION_FAILURE,
+        "The authenticated STATS-CORE identity is inactive."
       );
     }
 
@@ -744,7 +850,8 @@
     authUser,
     identity
   ) {
-    let role = "";
+    let role =
+      "";
 
     const roleId =
       identity &&
@@ -789,7 +896,9 @@
         normalizeRole(
           authUser.app_metadata &&
           authUser.app_metadata.role
-            ? authUser.app_metadata.role
+            ? authUser
+              .app_metadata
+              .role
             : (
               authUser.user_metadata &&
               authUser.user_metadata.role
@@ -799,7 +908,8 @@
 
     if (!role) {
       throw createAuthenticationError(
-        ERROR_CODES.UNKNOWN_ROLE
+        ERROR_CODES.ROLE_FAILURE,
+        "No governed STATS-CORE role was resolved for the authenticated identity."
       );
     }
 
@@ -809,7 +919,8 @@
       )
     ) {
       throw createAuthenticationError(
-        ERROR_CODES.UNSUPPORTED_ROLE
+        ERROR_CODES.ROLE_FAILURE,
+        `The resolved STATS-CORE role is unsupported: ${role}`
       );
     }
 
@@ -825,7 +936,7 @@
       typeof value !== "object"
     ) {
       throw createAuthenticationError(
-        ERROR_CODES.CONFIGURATION_ERROR,
+        ERROR_CODES.ENTRY_STATE_FAILURE,
         "Governed entry-state resolution returned no result."
       );
     }
@@ -835,7 +946,7 @@
       "boolean"
     ) {
       throw createAuthenticationError(
-        ERROR_CODES.CONFIGURATION_ERROR,
+        ERROR_CODES.ENTRY_STATE_FAILURE,
         "Governed entry-state resolution must return first_time as a boolean."
       );
     }
@@ -852,7 +963,7 @@
       !snapshotId
     ) {
       throw createAuthenticationError(
-        ERROR_CODES.ROUTING_DENIED,
+        ERROR_CODES.ENTRY_STATE_FAILURE,
         "A returning athlete requires a governed snapshot_id."
       );
     }
@@ -994,20 +1105,25 @@
         entryState.first_time
       ) {
         return appendQuery(
-          state.routes.first_time_professional,
+          state.routes
+            .first_time_professional,
           "role",
           role
         );
       }
 
       return normalizeLocalRoute(
-        state.routes.returning_professional,
+        state.routes
+          .returning_professional,
         "returning professional route"
       );
     }
 
     throw createAuthenticationError(
-      ERROR_CODES.ROUTING_DENIED
+      ERROR_CODES.ROUTING_FAILURE,
+      `No authorized authentication route exists for role: ${
+        role || "empty"
+      }`
     );
   }
 
@@ -1102,7 +1218,7 @@
     }
 
     throw createAuthenticationError(
-      ERROR_CODES.CONTEXT_FAILURE,
+      ERROR_CODES.SESSION_FAILURE,
       "Authentication provider did not expose a governed session identifier."
     );
   }
@@ -1143,26 +1259,70 @@
   }
 
   async function rollbackAuthenticatedSession() {
-    contextService.clear();
+    let contextClearError =
+      null;
 
-    if (
-      !state.client ||
-      !state.client.auth ||
-      typeof state.client.auth.signOut !==
-        "function"
-    ) {
-      return;
-    }
+    let providerSignOutError =
+      null;
 
     try {
-      await state.client.auth
-        .signOut();
-    } catch (_error) {
-      /*
-       * Rollback is best-effort here.
-       * The originating controlled error remains authoritative.
-       */
+      contextService.clear();
+    } catch (error) {
+      contextClearError =
+        error;
     }
+
+    if (
+      state.client &&
+      state.client.auth &&
+      typeof state.client.auth.signOut ===
+        "function"
+    ) {
+      try {
+        const response =
+          await state.client.auth
+            .signOut();
+
+        if (
+          response &&
+          response.error
+        ) {
+          providerSignOutError =
+            response.error;
+        }
+      } catch (error) {
+        providerSignOutError =
+          error;
+      }
+    }
+
+    if (
+      contextClearError ||
+      providerSignOutError
+    ) {
+      dispatchEventSafely(
+        "statscore:authentication-rollback-failed",
+        Object.freeze({
+          context_clear_failed:
+            Boolean(
+              contextClearError
+            ),
+
+          provider_sign_out_failed:
+            Boolean(
+              providerSignOutError
+            )
+        })
+      );
+    }
+
+    return Object.freeze({
+      context_cleared:
+        !contextClearError,
+
+      provider_signed_out:
+        !providerSignOutError
+    });
   }
 
   function dispatchEventSafely(
@@ -1192,6 +1352,10 @@
   ) {
     assertClient();
 
+    /*
+     * Request validation, including entry_intent validation,
+     * occurs before provider authentication begins.
+     */
     const normalizedRequest =
       validateRequest(
         request
@@ -1245,7 +1409,7 @@
         !authSession
       ) {
         throw createAuthenticationError(
-          ERROR_CODES.AUTHENTICATION_UNAVAILABLE,
+          ERROR_CODES.SESSION_FAILURE,
           "Authentication provider did not return a valid user and session."
         );
       }
@@ -1289,7 +1453,10 @@
         )
       ) {
         throw createAuthenticationError(
-          ERROR_CODES.UNSUPPORTED_ROLE
+          ERROR_CODES.ROLE_FAILURE,
+          `The resolved STATS-CORE role is unsupported: ${
+            role || "empty"
+          }`
         );
       }
 
@@ -1299,7 +1466,7 @@
           role
       ) {
         throw createAuthenticationError(
-          ERROR_CODES.ROUTING_DENIED,
+          ERROR_CODES.AUTHORIZATION_FAILURE,
           "Selected role does not match authenticated authority."
         );
       }
@@ -1373,7 +1540,7 @@
         !sessionId
       ) {
         throw createAuthenticationError(
-          ERROR_CODES.CONTEXT_FAILURE,
+          ERROR_CODES.SESSION_FAILURE,
           "Session resolver returned an empty session identifier."
         );
       }
@@ -1389,16 +1556,19 @@
           role,
 
           entry_intent:
-            normalizedRequest.entry_intent,
+            normalizedRequest
+              .entry_intent,
 
           authenticated_at:
-            new Date().toISOString(),
+            new Date()
+              .toISOString(),
 
           authentication_source:
             state.authenticationSource,
 
           requested_destination:
-            normalizedRequest.requested_destination
+            normalizedRequest
+              .requested_destination
         });
 
       try {
@@ -1416,13 +1586,18 @@
             authContext.role,
 
           authentication_source:
-            authContext.authentication_source,
+            authContext
+              .authentication_source,
 
           requested_destination:
-            normalizedRequest.requested_destination,
+            normalizedRequest
+              .requested_destination,
 
           resolved_destination:
             destination,
+
+          error_code:
+            null,
 
           correlation_id:
             correlationId,
@@ -1461,12 +1636,15 @@
               "success_receipt",
 
             error:
-              typeof controlledReceiptError.toJSON ===
+              typeof controlledReceiptError
+                .toJSON ===
               "function"
-                ? controlledReceiptError.toJSON()
+                ? controlledReceiptError
+                  .toJSON()
                 : {
                   code:
-                    ERROR_CODES.RECEIPT_FAILURE
+                    ERROR_CODES
+                      .RECEIPT_FAILURE
                 },
 
             correlation_id:
@@ -1501,12 +1679,15 @@
           "statscore:authentication-context-failed",
           Object.freeze({
             error:
-              typeof controlledContextError.toJSON ===
+              typeof controlledContextError
+                .toJSON ===
               "function"
-                ? controlledContextError.toJSON()
+                ? controlledContextError
+                  .toJSON()
                 : {
                   code:
-                    ERROR_CODES.CONTEXT_FAILURE
+                    ERROR_CODES
+                      .CONTEXT_FAILURE
                 },
 
             correlation_id:
@@ -1575,7 +1756,8 @@
               state.authenticationSource,
 
             requested_destination:
-              normalizedRequest.requested_destination,
+              normalizedRequest
+                .requested_destination,
 
             resolved_destination:
               destination,
@@ -1591,13 +1773,14 @@
                 "supabase",
 
               entry_intent:
-                normalizedRequest.entry_intent
+                normalizedRequest
+                  .entry_intent
             }
           });
         } catch (receiptError) {
           /*
-           * A failure-receipt infrastructure error must not replace the
-           * original authentication disposition.
+           * A failure-receipt infrastructure error must not replace
+           * the original authentication disposition.
            */
           dispatchEventSafely(
             "statscore:authentication-receipt-failed",
@@ -1616,14 +1799,16 @@
 
               receipt_error:
                 receiptError &&
-                typeof receiptError.toJSON ===
-                  "function"
+                typeof receiptError
+                  .toJSON ===
+                "function"
                   ? receiptError.toJSON()
                   : {
                     message:
                       receiptError &&
                       receiptError.message
-                        ? receiptError.message
+                        ? receiptError
+                          .message
                         : "Failure receipt could not be written."
                   },
 
@@ -1634,13 +1819,7 @@
         }
       }
 
-      if (
-        authSession
-      ) {
-        await rollbackAuthenticatedSession();
-      } else {
-        contextService.clear();
-      }
+      await rollbackAuthenticatedSession();
 
       dispatchEventSafely(
         "statscore:authentication-failed",
@@ -1693,23 +1872,53 @@
   async function signOut() {
     assertClient();
 
-    let response =
+    let providerError =
+      null;
+
+    let contextError =
       null;
 
     try {
-      response =
+      const response =
         await state.client.auth
           .signOut();
-    } finally {
-      contextService.clear();
+
+      if (
+        response &&
+        response.error
+      ) {
+        providerError =
+          response.error;
+      }
+    } catch (error) {
+      providerError =
+        error;
     }
 
-    if (
-      response &&
-      response.error
-    ) {
+    try {
+      contextService.clear();
+    } catch (error) {
+      contextError =
+        error;
+    }
+
+    if (providerError) {
       throw normalizeAuthenticationError(
-        response.error
+        providerError
+      );
+    }
+
+    if (contextError) {
+      throw createAuthenticationError(
+        ERROR_CODES.CONTEXT_FAILURE,
+        "Provider sign-out completed, but local authentication context could not be cleared.",
+        {
+          cause:
+            contextError,
+
+          retryable:
+            true
+        }
       );
     }
 
@@ -1721,7 +1930,7 @@
   global.STATSCORE_AUTH_SERVICE =
     Object.freeze({
       version:
-        "1.1.0",
+        "1.2.0",
 
       configure,
 
