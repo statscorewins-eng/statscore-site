@@ -1,116 +1,192 @@
-/**
-* STATS-CORE™ — Authentication Service
-* PWP-001 — Authentication Constitutional Boundary
-* PWP-002 — Controlled Demo Provider Integration
-* Version 1.3.0
-*
-* Authority:
-* - Article 1 remains the exclusive authentication orchestration authority.
-* - Production authentication continues through Supabase when no custom
-*   authentication provider is configured.
-* - Controlled demonstration authentication may run through one optional
-*   governed provider.
-*
-* Article 1 remains responsible for:
-* - Request validation.
-* - Provider authentication orchestration.
-* - Identity resolution.
-* - Role resolution and role-hint enforcement.
-* - Entry-state resolution through a governed resolver or governed RPC.
-* - Authorized destination resolution.
-* - Initial Authentication Context publication.
-* - Authentication receipt generation.
-* - Error normalization.
-* - Rollback.
-* - Sign-out orchestration.
-* - Authentication lifecycle events.
-*
-* Constitutional boundaries:
-* - Identity queries use explicit governed column selections.
-* - Role queries use explicit governed column selections.
-* - Wildcard database selection is prohibited.
-* - Identity does not manufacture Entry State.
-* - Entry State must come from a configured resolver or governed RPC.
-*
-* Required load order:
-* 1. statscore-authentication-errors.js
-* 2. statscore-authentication-context.js
-* 3. statscore-authentication-receipts.js
-* 4. Optional: statscore-demo-authentication-provider.js
-* 5. statscore-authentication-service.js
+/*
+==========================================================
+STATS-CORE™ OWNERSHIP HEADER
+==========================================================
+
+File:
+statscore-authentication-service.js
+
+Asset Type:
+JavaScript Orchestration Authority / Enterprise Authentication Service
+
+Owner Stream:
+Stream 1 — Public Access, Authentication & Entry Authority
+
+Primary Operational Authority:
+Stream 1 — Enterprise Authentication Authority
+
+System Layer:
+Authentication Orchestration / Constitutional Entry
+
+Primary Consumers:
+- login.html
+- statscore-authentication-bootstrap.js
+- authorized diagnostics
+- Stream 8 Runtime Entry Coordination
+- Master Integration Stream
+
+Supporting Authorities:
+- statscore-authentication-errors.js
+- statscore-authentication-context.js
+- statscore-authentication-receipts.js
+- statscore-data.js
+
+Purpose:
+Coordinates the complete governed authentication lifecycle
+for existing enterprise credentials.
+
+The service:
+
+- validates the authentication request
+- authenticates credentials through Supabase
+- resolves the governed enterprise identity
+- resolves the governed enterprise role
+- enforces the submitted role hint
+- requests first-time or returning entry state
+- resolves the authorized constitutional destination
+- manufactures the authentication session reference
+- creates the seven-field Initial Authentication Context
+- persists an immutable Authentication Receipt
+- publishes the Initial Authentication Context
+- returns the authorized destination to Login Authority
+- performs controlled rollback after authentication failure
+
+Constitutional Authentication Context:
+- session_id
+- user_id
+- role
+- entry_intent
+- authenticated_at
+- authentication_source
+- requested_destination
+
+Approved Routing:
+First-time athlete:
+snapshot-intake.html?new=1&role=athlete&from=login&next=athlete-dashboard.html
+
+Returning athlete:
+athlete-dashboard.html?snapshot_id={snapshot_id}
+
+First-time professional:
+role-dashboard-intake.html?role={authenticated_role}&from=login&next=role-dashboard.html
+
+Returning professional:
+role-dashboard.html
+
+Administrator:
+system.html
+
+Constitutional Boundary:
+Stream 1 authenticates, resolves entry identity, publishes the
+Initial Authentication Context, and authorizes the initial route.
+
+Stream 1 does not manufacture Enterprise Runtime Context.
+
+Stream 8 consumes the published Initial Authentication Context
+during Runtime Entry Coordination.
+
+Does NOT:
+- register new accounts
+- create auth.users records
+- initialize athlete source records
+- create athlete_id
+- create snapshot_id
+- create professional intake context
+- create professional workspaces
+- manufacture Runtime Context
+- restore professional workspaces
+- calculate intelligence
+- manufacture dashboard contents
+- directly execute downstream stream responsibilities
+- store passwords
+- store provider access tokens
+- use Supabase service-role credentials
+- trust role metadata as constitutional role authority
+- determine first-time status inside this service
+- write directly to receipt tables
+
+Required Load Order:
+1. Supabase browser library
+2. statscore-data.js
+3. statscore-authentication-errors.js
+4. statscore-authentication-context.js
+5. statscore-authentication-receipts.js
+6. statscore-authentication-service.js
+7. statscore-authentication-bootstrap.js
+8. login.html presentation controller
+
+Status:
+CONTROLLED REPLACEMENT — STREAM 1 CONSTITUTIONAL FLOW READINESS
+
+Version:
+STATSCORE-AUTHENTICATION-SERVICE-V2.0.0
+
+==========================================================
 */
+
 (function initializeStatsCoreAuthenticationService(global) {
   "use strict";
 
-  const errors =
-    global.STATSCORE_AUTH_ERRORS;
-
-  const contextService =
-    global.STATSCORE_AUTH_CONTEXT;
-
-  const receiptService =
-    global.STATSCORE_AUTH_RECEIPTS;
-
-  if (
-    !errors ||
-    !errors.ERROR_CODES
-  ) {
-    throw new Error(
-      "Load statscore-authentication-errors.js before " +
-        "statscore-authentication-service.js."
-    );
-  }
-
-  if (
-    !contextService ||
-    typeof contextService.create !== "function" ||
-    typeof contextService.publish !== "function" ||
-    typeof contextService.clear !== "function"
-  ) {
-    throw new Error(
-      "Load statscore-authentication-context.js before " +
-        "statscore-authentication-service.js."
-    );
-  }
-
-  if (
-    !receiptService ||
-    typeof receiptService.configure !== "function" ||
-    typeof receiptService.write !== "function"
-  ) {
-    throw new Error(
-      "Load statscore-authentication-receipts.js before " +
-        "statscore-authentication-service.js."
-    );
-  }
-
-  const {
-    ERROR_CODES
-  } = errors;
+  const SERVICE_ID =
+    "statscore-authentication-service";
 
   const VERSION =
-    "1.3.0";
+    "STATSCORE-AUTHENTICATION-SERVICE-V2.0.0";
+
+  const AUTHENTICATION_CONTRACT_VERSION =
+    "STATSCORE-AUTHENTICATION-CONTRACT-V2.0.0";
+
+  const INITIAL_AUTHENTICATION_CONTEXT_VERSION =
+    "STATSCORE-INITIAL-AUTHENTICATION-CONTEXT-V1.0.0";
 
   const DEFAULT_AUTHENTICATION_SOURCE =
     "supabase_password";
 
-  const DEFAULT_PROVIDER_ID =
-    "supabase";
+  const DEFAULT_ENTRY_INTENT =
+    "login";
 
   const DEFAULT_REQUESTED_DESTINATION =
     "role-aware-default";
 
-  const DEFAULT_ENTRY_INTENT =
-    "login";
-
-  const DEFAULT_IDENTITY_SELECT =
-    "id,auth_user_id,role_id,active";
-
-  const DEFAULT_ROLE_SELECT =
-    "id,role_name";
-
   const DEFAULT_ENTRY_STATE_RPC =
     "resolve_authentication_entry_state";
+
+  const DEFAULT_USER_TABLE =
+    "sc_users";
+
+  const DEFAULT_USER_SELECT =
+    [
+      "sc_user_id",
+      "auth_user_id",
+      "sc_athlete_id",
+      "role",
+      "email",
+      "created_at"
+    ].join(",");
+
+  const PROFESSIONAL_ROLES =
+    new Set([
+      "parent",
+      "coach",
+      "counselor",
+      "recruiter",
+      "evaluator",
+      "program",
+      "trainer"
+    ]);
+
+  const ALLOWED_ROLES =
+    new Set([
+      "athlete",
+      "parent",
+      "coach",
+      "counselor",
+      "recruiter",
+      "evaluator",
+      "program",
+      "trainer",
+      "administrator"
+    ]);
 
   const DEFAULT_ROUTES =
     Object.freeze({
@@ -136,422 +212,137 @@
         "system.html"
     });
 
-  const PROFESSIONAL_ROLES =
-    new Set([
-      "parent",
-      "coach",
-      "counselor",
-      "recruiter",
-      "evaluator",
-      "program",
-      "trainer"
-    ]);
+  const STATE = {
+    configured:
+      false,
 
-  const ALLOWED_ROLES =
-    new Set(
-      Array.isArray(
-        contextService.ALLOWED_ROLES
-      )
-        ? contextService.ALLOWED_ROLES
-        : [
-            "athlete",
-            "parent",
-            "coach",
-            "counselor",
-            "recruiter",
-            "evaluator",
-            "program",
-            "trainer",
-            "administrator"
-          ]
-    );
+    configurationLocked:
+      false,
 
-  const ALLOWED_ENTRY_INTENTS =
-    new Set(
-      Array.isArray(
-        contextService.ALLOWED_ENTRY_INTENTS
-      )
-        ? contextService.ALLOWED_ENTRY_INTENTS
-        : [
-            "login"
-          ]
-    );
-
-  const state = {
     client:
       null,
-
-    authenticationProvider:
-      null,
-
-    authenticationSource:
-      DEFAULT_AUTHENTICATION_SOURCE,
-
-    identityResolver:
-      null,
-
-    roleResolver:
-      null,
-
-    entryStateResolver:
-      null,
-
-    routeResolver:
-      null,
-
-    sessionIdResolver:
-      null,
-
-    userTable:
-      "sc_users",
-
-    roleTable:
-      "sc_roles",
-
-    userAuthColumn:
-      "auth_user_id",
-
-    userRoleColumn:
-      "role_id",
-
-    roleIdColumn:
-      "id",
-
-    roleNameColumn:
-      "role_name",
-
-    activeUserColumn:
-      "active",
-
-    identitySelect:
-      DEFAULT_IDENTITY_SELECT,
-
-    roleSelect:
-      DEFAULT_ROLE_SELECT,
 
     entryStateRpc:
       DEFAULT_ENTRY_STATE_RPC,
 
-    allowMetadataRoleFallback:
-      false,
+    userTable:
+      DEFAULT_USER_TABLE,
+
+    userSelect:
+      DEFAULT_USER_SELECT,
+
+    authenticationSource:
+      DEFAULT_AUTHENTICATION_SOURCE,
 
     routes:
       {
         ...DEFAULT_ROUTES
-      }
+      },
+
+    authenticationInProgress:
+      false,
+
+    activeCorrelationId:
+      null,
+
+    lastResult:
+      null,
+
+    lastError:
+      null,
+
+    configuredAt:
+      null
   };
 
-  function cleanString(
-    value
-  ) {
-    return typeof value ===
-      "string"
+  /*
+  ==========================================================
+  BASIC UTILITIES
+  ==========================================================
+  */
+
+  function nowISO() {
+    return new Date().toISOString();
+  }
+
+  function cleanString(value) {
+    return typeof value === "string"
       ? value.trim()
       : "";
   }
 
-  function normalizeRole(
-    value
-  ) {
-    if (
-      typeof contextService.normalizeRole ===
-      "function"
-    ) {
-      return contextService.normalizeRole(
-        value
-      );
-    }
-
+  function normalizeRole(value) {
     const role =
-      cleanString(
-        value
-      ).toLowerCase();
+      cleanString(value)
+        .toLowerCase();
 
-    return role ===
-      "admin"
+    return role === "admin"
       ? "administrator"
       : role;
   }
 
-  function createAuthenticationError(
-    code,
-    message,
-    options
-  ) {
+  function clone(value) {
     if (
-      typeof errors.create ===
-      "function"
+      value === null ||
+      value === undefined
     ) {
-      return errors.create(
-        code,
-        message,
-        options
-      );
+      return value;
     }
 
-    if (
-      typeof errors.StatsCoreAuthenticationError ===
-      "function"
-    ) {
-      return new errors.StatsCoreAuthenticationError(
-        code,
-        message,
-        options
+    try {
+      return structuredClone(value);
+    } catch (_) {
+      return JSON.parse(
+        JSON.stringify(value)
       );
     }
-
-    const error =
-      new Error(
-        message ||
-        "Authentication operation failed."
-      );
-
-    error.code =
-      code;
-
-    if (
-      options &&
-      options.cause
-    ) {
-      error.cause =
-        options.cause;
-    }
-
-    return error;
   }
 
-  function normalizeAuthenticationError(
-    error,
-    fallbackCode
-  ) {
+  function deepFreeze(value) {
     if (
-      typeof errors.normalize ===
-      "function"
+      !value ||
+      typeof value !== "object" ||
+      Object.isFrozen(value)
     ) {
-      return errors.normalize(
-        error,
-        fallbackCode
-      );
+      return value;
     }
 
-    if (
-      typeof errors.mapProviderError ===
-      "function"
-    ) {
-      return errors.mapProviderError(
-        error
-      );
-    }
+    Object
+      .getOwnPropertyNames(value)
+      .forEach((propertyName) => {
+        deepFreeze(
+          value[propertyName]
+        );
+      });
 
-    if (
-      error &&
-      cleanString(
-        error.code
-      )
-    ) {
-      return error;
-    }
+    return Object.freeze(value);
+  }
 
-    return createAuthenticationError(
-      fallbackCode ||
-      ERROR_CODES.UNKNOWN_ERROR,
-      undefined,
-      {
-        cause:
-          error
-      }
+  function immutableClone(value) {
+    return deepFreeze(
+      clone(value)
     );
   }
 
-  function createCorrelationId() {
-    if (
+  function generateId(prefix) {
+    const generatedId =
       global.crypto &&
       typeof global.crypto.randomUUID ===
-      "function"
-    ) {
-      return global.crypto.randomUUID();
-    }
-
-    return (
-      "auth-" +
-      Date.now() +
-      "-" +
-      Math.random()
-        .toString(16)
-        .slice(2)
-    );
-  }
-
-  function validateSelectList(
-    value,
-    configurationName
-  ) {
-    const selection =
-      cleanString(
-        value
-      );
-
-    if (
-      !selection
-    ) {
-      throw createAuthenticationError(
-        ERROR_CODES.CONFIGURATION_ERROR,
-        configurationName +
-          " must be a non-empty explicit column selection."
-      );
-    }
-
-    if (
-      selection.includes("*")
-    ) {
-      throw createAuthenticationError(
-        ERROR_CODES.CONFIGURATION_ERROR,
-        configurationName +
-          " must not contain wildcard selection."
-      );
-    }
-
-    const columns =
-      selection
-        .split(",")
-        .map(
-          function normalizeColumn(
-            column
-          ) {
-            return cleanString(
-              column
-            );
-          }
+        "function"
+        ? global.crypto.randomUUID()
+        : (
+          Date.now().toString(36) +
+          "-" +
+          Math.random()
+            .toString(36)
+            .slice(2, 12)
         );
 
-    if (
-      columns.length ===
-        0 ||
-      columns.some(
-        function hasInvalidColumn(
-          column
-        ) {
-          return (
-            !column ||
-            !/^[A-Za-z_][A-Za-z0-9_]*$/.test(
-              column
-            )
-          );
-        }
-      )
-    ) {
-      throw createAuthenticationError(
-        ERROR_CODES.CONFIGURATION_ERROR,
-        configurationName +
-          " must contain only comma-separated database column names."
-      );
-    }
-
-    if (
-      new Set(
-        columns
-      ).size !==
-      columns.length
-    ) {
-      throw createAuthenticationError(
-        ERROR_CODES.CONFIGURATION_ERROR,
-        configurationName +
-          " must not contain duplicate columns."
-      );
-    }
-
-    return columns.join(
-      ","
+    return (
+      prefix +
+      "-" +
+      generatedId
     );
-  }
-
-  function assertSelectIncludes(
-    selection,
-    requiredColumns,
-    configurationName
-  ) {
-    const selectedColumns =
-      new Set(
-        selection
-          .split(",")
-          .map(
-            function cleanColumn(
-              column
-            ) {
-              return cleanString(
-                column
-              );
-            }
-          )
-      );
-
-    const missingColumns =
-      requiredColumns.filter(
-        function findMissingColumn(
-          column
-        ) {
-          return !selectedColumns.has(
-            column
-          );
-        }
-      );
-
-    if (
-      missingColumns.length >
-      0
-    ) {
-      throw createAuthenticationError(
-        ERROR_CODES.CONFIGURATION_ERROR,
-        configurationName +
-          " is missing required governed columns: " +
-          missingColumns.join(", ") +
-          "."
-      );
-    }
-  }
-
-  function validateIdentitySelect(
-    value
-  ) {
-    const selection =
-      validateSelectList(
-        value,
-        "identitySelect"
-      );
-
-    assertSelectIncludes(
-      selection,
-      [
-        "id",
-        state.userAuthColumn,
-        state.userRoleColumn,
-        state.activeUserColumn
-      ],
-      "identitySelect"
-    );
-
-    return selection;
-  }
-
-  function validateRoleSelect(
-    value
-  ) {
-    const selection =
-      validateSelectList(
-        value,
-        "roleSelect"
-      );
-
-    assertSelectIncludes(
-      selection,
-      [
-        state.roleIdColumn,
-        state.roleNameColumn
-      ],
-      "roleSelect"
-    );
-
-    return selection;
   }
 
   function appendQueryParameter(
@@ -567,1008 +358,1141 @@
       return url;
     }
 
-    const delimiter =
+    const separator =
       url.includes("?")
         ? "&"
         : "?";
 
     return (
       url +
-      delimiter +
-      encodeURIComponent(
-        name
-      ) +
+      separator +
+      encodeURIComponent(name) +
       "=" +
-      encodeURIComponent(
-        value
-      )
+      encodeURIComponent(value)
     );
   }
 
-  function validateAuthenticationProvider(
-    provider
-  ) {
-    if (
-      provider ===
+  /*
+  ==========================================================
+  SUPPORTING AUTHORITIES
+  ==========================================================
+  */
+
+  function getErrorAuthority() {
+    return (
+      global.STATSCORE_AUTH_ERRORS ||
       null
-    ) {
-      return null;
-    }
-
-    if (
-      typeof provider !==
-        "object" ||
-      typeof provider.authenticate !==
-        "function" ||
-      typeof provider.signOut !==
-        "function" ||
-      typeof provider.getEnvironment !==
-        "function"
-    ) {
-      throw createAuthenticationError(
-        ERROR_CODES.CONFIGURATION_ERROR,
-        "authenticationProvider must implement " +
-          "authenticate, signOut, and getEnvironment."
-      );
-    }
-
-    return provider;
+    );
   }
 
-  function getActiveProviderEnvironment() {
+  function getContextAuthority() {
+    return (
+      global.STATSCORE_AUTH_CONTEXT ||
+      null
+    );
+  }
+
+  function getReceiptAuthority() {
+    return (
+      global.STATSCORE_AUTH_RECEIPTS ||
+      null
+    );
+  }
+
+  function getErrorCodes() {
+    return (
+      getErrorAuthority()
+        ?.ERROR_CODES ||
+      {}
+    );
+  }
+
+  /*
+  ==========================================================
+  ERROR CONTROL
+  ==========================================================
+  */
+
+  function createAuthenticationError(
+    code,
+    internalMessage,
+    options = {}
+  ) {
+    const errorAuthority =
+      getErrorAuthority();
+
+    const controlledCode =
+      cleanString(code) ||
+      getErrorCodes()
+        .UNKNOWN_ERROR ||
+      "AUTHENTICATION_UNKNOWN_ERROR";
+
     if (
-      !state.authenticationProvider
+      errorAuthority &&
+      typeof errorAuthority.create ===
+        "function"
     ) {
-      return null;
-    }
-
-    let environment;
-
-    try {
-      environment =
-        state.authenticationProvider.getEnvironment();
-    } catch (
-      error
-    ) {
-      throw createAuthenticationError(
-        ERROR_CODES.CONFIGURATION_ERROR,
-        "The configured authentication provider " +
-          "could not report its environment.",
+      return errorAuthority.create(
+        controlledCode,
+        internalMessage,
         {
           cause:
-            error
+            options.cause ||
+            null,
+
+          details:
+            immutableClone(
+              options.details ||
+              {}
+            )
         }
       );
     }
 
     if (
-      !environment ||
-      typeof environment !==
-        "object" ||
-      Array.isArray(
-        environment
-      )
-    ) {
-      throw createAuthenticationError(
-        ERROR_CODES.CONFIGURATION_ERROR,
-        "The configured authentication provider " +
-          "returned an invalid environment."
-      );
-    }
-
-    return environment;
-  }
-
-  function getActiveProviderId() {
-    if (
-      !state.authenticationProvider
-    ) {
-      return DEFAULT_PROVIDER_ID;
-    }
-
-    const environment =
-      getActiveProviderEnvironment();
-
-    return (
-      cleanString(
-        environment.provider_id
-      ) ||
-      "custom"
-    );
-  }
-
-  function resolveActiveAuthenticationSource() {
-    if (
-      state.authenticationProvider
-    ) {
-      const environment =
-        getActiveProviderEnvironment();
-
-      const source =
-        cleanString(
-          environment.authentication_source
-        );
-
-      if (
-        !source
-      ) {
-        throw createAuthenticationError(
-          ERROR_CODES.CONFIGURATION_ERROR,
-          "The configured authentication provider " +
-            "did not report authentication_source."
-        );
-      }
-
-      return source;
-    }
-
-    const source =
-      cleanString(
-        state.authenticationSource
-      );
-
-    if (
-      !source
-    ) {
-      throw createAuthenticationError(
-        ERROR_CODES.CONFIGURATION_ERROR,
-        "authenticationSource has not been configured."
-      );
-    }
-
-    return source;
-  }
-
-  function assertAuthenticationRuntime() {
-    if (
-      state.authenticationProvider
-    ) {
-      validateAuthenticationProvider(
-        state.authenticationProvider
-      );
-
-      resolveActiveAuthenticationSource();
-    } else if (
-      !state.client ||
-      !state.client.auth ||
-      typeof state.client.auth.signInWithPassword !==
-        "function" ||
-      typeof state.client.auth.signOut !==
+      errorAuthority &&
+      typeof errorAuthority
+        .StatsCoreAuthenticationError ===
         "function"
     ) {
-      throw createAuthenticationError(
-        ERROR_CODES.CONFIGURATION_ERROR,
-        "Supabase authentication client " +
-          "has not been configured."
-      );
-    }
+      return new errorAuthority
+        .StatsCoreAuthenticationError(
+          controlledCode,
+          internalMessage,
+          {
+            cause:
+              options.cause ||
+              null,
 
-    if (
-      !state.identityResolver ||
-      !state.roleResolver ||
-      !state.entryStateResolver
-    ) {
-      if (
-        !state.client
-      ) {
-        throw createAuthenticationError(
-          ERROR_CODES.CONFIGURATION_ERROR,
-          "A configured Supabase data client is required " +
-            "for default identity, role, or entry-state resolution."
-        );
-      }
-    }
-
-    validateIdentitySelect(
-      state.identitySelect
-    );
-
-    validateRoleSelect(
-      state.roleSelect
-    );
-
-    if (
-      !state.entryStateResolver &&
-      !cleanString(
-        state.entryStateRpc
-      )
-    ) {
-      throw createAuthenticationError(
-        ERROR_CODES.CONFIGURATION_ERROR,
-        "Entry State requires a governed entryStateResolver " +
-          "or governed entryStateRpc."
-      );
-    }
-  }
-
-  async function authenticateWithActiveProvider(
-    credentials
-  ) {
-    if (
-      state.authenticationProvider
-    ) {
-      return state.authenticationProvider.authenticate(
-        credentials
-      );
-    }
-
-    return state.client.auth.signInWithPassword(
-      credentials
-    );
-  }
-
-  async function signOutActiveProvider() {
-    if (
-      state.authenticationProvider
-    ) {
-      return state.authenticationProvider.signOut();
-    }
-
-    return state.client.auth.signOut();
-  }
-
-  async function rollbackAuthenticatedSession() {
-    const failures = {
-      context_clear_error:
-        null,
-
-      provider_sign_out_error:
-        null
-    };
-
-    try {
-      contextService.clear();
-    } catch (
-      error
-    ) {
-      failures.context_clear_error =
-        error;
-    }
-
-    try {
-      const response =
-        await signOutActiveProvider();
-
-      if (
-        response &&
-        response.error
-      ) {
-        throw response.error;
-      }
-    } catch (
-      error
-    ) {
-      failures.provider_sign_out_error =
-        error;
-    }
-
-    return Object.freeze(
-      failures
-    );
-  }
-
-  function configure(
-    options
-  ) {
-    const next =
-      options &&
-      typeof options ===
-        "object"
-        ? options
-        : {};
-
-    if (
-      next.client !==
-      undefined
-    ) {
-      state.client =
-        next.client;
-    }
-
-    if (
-      next.authenticationProvider !==
-      undefined
-    ) {
-      state.authenticationProvider =
-        validateAuthenticationProvider(
-          next.authenticationProvider
+            details:
+              immutableClone(
+                options.details ||
+                {}
+              )
+          }
         );
     }
 
+    const error =
+      new Error(
+        internalMessage ||
+        "Authentication operation failed."
+      );
+
+    error.name =
+      "STATScoreAuthenticationServiceError";
+
+    error.code =
+      controlledCode;
+
+    error.user_message =
+      options.user_message ||
+      "Authentication could not be completed.";
+
+    error.details =
+      immutableClone(
+        options.details ||
+        {}
+      );
+
+    if (options.cause) {
+      error.cause =
+        options.cause;
+    }
+
+    return error;
+  }
+
+  function normalizeAuthenticationError(
+    rawError,
+    options = {}
+  ) {
+    const errorAuthority =
+      getErrorAuthority();
+
     if (
-      next.authenticationSource !==
-      undefined
+      errorAuthority &&
+      typeof errorAuthority.normalize ===
+        "function"
     ) {
-      const source =
+      return errorAuthority.normalize(
+        rawError,
         cleanString(
-          next.authenticationSource
-        );
-
-      if (
-        !source
-      ) {
-        throw createAuthenticationError(
-          ERROR_CODES.CONFIGURATION_ERROR,
-          "authenticationSource must be a non-empty string."
-        );
-      }
-
-      state.authenticationSource =
-        source;
-    }
-
-    const resolverKeys = [
-      "identityResolver",
-      "roleResolver",
-      "entryStateResolver",
-      "routeResolver",
-      "sessionIdResolver"
-    ];
-
-    for (
-      const key of
-      resolverKeys
-    ) {
-      if (
-        next[key] !==
-        undefined
-      ) {
-        if (
-          next[key] !==
-            null &&
-          typeof next[key] !==
-            "function"
-        ) {
-          throw createAuthenticationError(
-            ERROR_CODES.CONFIGURATION_ERROR,
-            key +
-              " must be a function or null."
-          );
-        }
-
-        state[key] =
-          next[key];
-      }
-    }
-
-    const stringConfigurationKeys = [
-      "userTable",
-      "roleTable",
-      "userAuthColumn",
-      "userRoleColumn",
-      "roleIdColumn",
-      "roleNameColumn",
-      "activeUserColumn"
-    ];
-
-    for (
-      const key of
-      stringConfigurationKeys
-    ) {
-      if (
-        next[key] !==
-        undefined
-      ) {
-        const configuredValue =
-          cleanString(
-            next[key]
-          );
-
-        if (
-          !configuredValue
-        ) {
-          throw createAuthenticationError(
-            ERROR_CODES.CONFIGURATION_ERROR,
-            key +
-              " must be a non-empty string."
-          );
-        }
-
-        state[key] =
-          configuredValue;
-      }
-    }
-
-    if (
-      next.identitySelect !==
-      undefined
-    ) {
-      state.identitySelect =
-        validateIdentitySelect(
-          next.identitySelect
-        );
-    } else {
-      state.identitySelect =
-        validateIdentitySelect(
-          state.identitySelect
-        );
-    }
-
-    if (
-      next.roleSelect !==
-      undefined
-    ) {
-      state.roleSelect =
-        validateRoleSelect(
-          next.roleSelect
-        );
-    } else {
-      state.roleSelect =
-        validateRoleSelect(
-          state.roleSelect
-        );
-    }
-
-    if (
-      next.entryStateRpc !==
-      undefined
-    ) {
-      if (
-        next.entryStateRpc ===
-        null
-      ) {
-        state.entryStateRpc =
-          null;
-      } else {
-        const entryStateRpc =
-          cleanString(
-            next.entryStateRpc
-          );
-
-        if (
-          !entryStateRpc
-        ) {
-          throw createAuthenticationError(
-            ERROR_CODES.CONFIGURATION_ERROR,
-            "entryStateRpc must be a non-empty string or null."
-          );
-        }
-
-        state.entryStateRpc =
-          entryStateRpc;
-      }
-    }
-
-    if (
-      !state.entryStateResolver &&
-      !cleanString(
-        state.entryStateRpc
-      )
-    ) {
-      throw createAuthenticationError(
-        ERROR_CODES.CONFIGURATION_ERROR,
-        "Entry State requires a governed entryStateResolver " +
-          "or governed entryStateRpc."
+          options.code
+        ) ||
+        getErrorCodes()
+          .AUTHENTICATION_UNAVAILABLE ||
+        "AUTHENTICATION_UNAVAILABLE"
       );
     }
 
     if (
-      next.allowMetadataRoleFallback !==
-      undefined
+      errorAuthority &&
+      typeof errorAuthority
+        .mapProviderError ===
+        "function"
     ) {
-      if (
-        typeof next.allowMetadataRoleFallback !==
-        "boolean"
-      ) {
-        throw createAuthenticationError(
-          ERROR_CODES.CONFIGURATION_ERROR,
-          "allowMetadataRoleFallback must be boolean."
+      return errorAuthority
+        .mapProviderError(
+          rawError
         );
-      }
-
-      state.allowMetadataRoleFallback =
-        next.allowMetadataRoleFallback;
     }
 
     if (
-      next.routes !==
-      undefined
+      rawError &&
+      cleanString(
+        rawError.code
+      )
     ) {
-      if (
-        !next.routes ||
-        typeof next.routes !==
-          "object" ||
-        Array.isArray(
-          next.routes
-        )
-      ) {
-        throw createAuthenticationError(
-          ERROR_CODES.CONFIGURATION_ERROR,
-          "routes must be an object."
+      return rawError;
+    }
+
+    return createAuthenticationError(
+      cleanString(
+        options.code
+      ) ||
+      getErrorCodes()
+        .AUTHENTICATION_UNAVAILABLE ||
+      "AUTHENTICATION_UNAVAILABLE",
+      cleanString(
+        options.internalMessage
+      ) ||
+      cleanString(
+        rawError?.message
+      ) ||
+      "Authentication operation failed.",
+      {
+        cause:
+          rawError,
+
+        details:
+          options.details,
+
+        user_message:
+          options.user_message
+      }
+    );
+  }
+
+  function assertCondition(
+    condition,
+    code,
+    internalMessage,
+    options = {}
+  ) {
+    if (condition) {
+      return true;
+    }
+
+    throw createAuthenticationError(
+      code,
+      internalMessage,
+      options
+    );
+  }
+
+  /*
+  ==========================================================
+  METADATA CONTROL
+  ==========================================================
+  */
+
+  function sanitizeMetadata(value) {
+    if (
+      !value ||
+      typeof value !== "object" ||
+      Array.isArray(value)
+    ) {
+      return {};
+    }
+
+    const blockedKeys =
+      new Set([
+        "password",
+        "confirm_password",
+        "encrypted_password",
+        "access_token",
+        "refresh_token",
+        "provider_token",
+        "provider_refresh_token",
+        "authorization",
+        "credential",
+        "credentials",
+        "secret",
+        "session",
+        "session_token"
+      ]);
+
+    const output = {};
+
+    Object.entries(value)
+      .forEach(
+        ([key, item]) => {
+          const normalizedKey =
+            cleanString(key)
+              .toLowerCase();
+
+          if (
+            !normalizedKey ||
+            blockedKeys.has(
+              normalizedKey
+            )
+          ) {
+            return;
+          }
+
+          if (
+            typeof item === "string" ||
+            typeof item === "number" ||
+            typeof item === "boolean" ||
+            item === null
+          ) {
+            output[key] =
+              item;
+
+            return;
+          }
+
+          if (
+            Array.isArray(item)
+          ) {
+            output[key] =
+              item
+                .slice(0, 25)
+                .map((entry) => {
+                  if (
+                    typeof entry ===
+                      "string" ||
+                    typeof entry ===
+                      "number" ||
+                    typeof entry ===
+                      "boolean" ||
+                    entry === null
+                  ) {
+                    return entry;
+                  }
+
+                  return null;
+                });
+
+            return;
+          }
+
+          if (
+            typeof item === "object"
+          ) {
+            output[key] =
+              sanitizeMetadata(
+                item
+              );
+          }
+        }
+      );
+
+    return output;
+  }
+
+  /*
+  ==========================================================
+  CONFIGURATION VALIDATION
+  ==========================================================
+  */
+
+  function validateSupabaseClient(client) {
+    assertCondition(
+      client &&
+      typeof client === "object",
+      getErrorCodes()
+        .CONFIGURATION_ERROR ||
+      "AUTHENTICATION_CONFIGURATION_ERROR",
+      "Authentication Service requires an approved Supabase client."
+    );
+
+    assertCondition(
+      client.auth &&
+      typeof client.auth
+        .signInWithPassword ===
+        "function",
+      getErrorCodes()
+        .CONFIGURATION_ERROR ||
+      "AUTHENTICATION_CONFIGURATION_ERROR",
+      "The approved Supabase client does not provide auth.signInWithPassword()."
+    );
+
+    assertCondition(
+      client.auth &&
+      typeof client.auth.signOut ===
+        "function",
+      getErrorCodes()
+        .CONFIGURATION_ERROR ||
+      "AUTHENTICATION_CONFIGURATION_ERROR",
+      "The approved Supabase client does not provide auth.signOut()."
+    );
+
+    assertCondition(
+      typeof client.from ===
+        "function",
+      getErrorCodes()
+        .CONFIGURATION_ERROR ||
+      "AUTHENTICATION_CONFIGURATION_ERROR",
+      "The approved Supabase client does not provide from()."
+    );
+
+    assertCondition(
+      typeof client.rpc ===
+        "function",
+      getErrorCodes()
+        .CONFIGURATION_ERROR ||
+      "AUTHENTICATION_CONFIGURATION_ERROR",
+      "The approved Supabase client does not provide rpc()."
+    );
+
+    return true;
+  }
+
+  function validateSelectList(value) {
+    const selection =
+      cleanString(value);
+
+    assertCondition(
+      Boolean(selection),
+      getErrorCodes()
+        .CONFIGURATION_ERROR ||
+      "AUTHENTICATION_CONFIGURATION_ERROR",
+      "Authentication identity selection must be configured."
+    );
+
+    assertCondition(
+      !selection.includes("*"),
+      getErrorCodes()
+        .CONFIGURATION_ERROR ||
+      "AUTHENTICATION_CONFIGURATION_ERROR",
+      "Wildcard identity selection is prohibited."
+    );
+
+    const columns =
+      selection
+        .split(",")
+        .map((column) => {
+          return cleanString(column);
+        });
+
+    assertCondition(
+      columns.length > 0 &&
+      columns.every((column) => {
+        return (
+          Boolean(column) &&
+          /^[A-Za-z_][A-Za-z0-9_]*$/
+            .test(column)
+        );
+      }),
+      getErrorCodes()
+        .CONFIGURATION_ERROR ||
+      "AUTHENTICATION_CONFIGURATION_ERROR",
+      "Authentication identity selection contains an invalid column."
+    );
+
+    const requiredColumns =
+      [
+        "sc_user_id",
+        "auth_user_id",
+        "role"
+      ];
+
+    requiredColumns.forEach(
+      (requiredColumn) => {
+        assertCondition(
+          columns.includes(
+            requiredColumn
+          ),
+          getErrorCodes()
+            .CONFIGURATION_ERROR ||
+          "AUTHENTICATION_CONFIGURATION_ERROR",
+          (
+            "Authentication identity selection is missing " +
+            requiredColumn +
+            "."
+          )
         );
       }
+    );
 
-      state.routes = {
-        ...state.routes,
-        ...next.routes
+    return columns.join(",");
+  }
+
+  function assertSupportingAuthorities() {
+    const contextAuthority =
+      getContextAuthority();
+
+    const receiptAuthority =
+      getReceiptAuthority();
+
+    assertCondition(
+      contextAuthority &&
+      typeof contextAuthority.create ===
+        "function" &&
+      typeof contextAuthority.publish ===
+        "function" &&
+      typeof contextAuthority.clear ===
+        "function",
+      getErrorCodes()
+        .CONFIGURATION_ERROR ||
+      "AUTHENTICATION_CONFIGURATION_ERROR",
+      "Authentication Context Authority has not been loaded."
+    );
+
+    assertCondition(
+      receiptAuthority &&
+      typeof receiptAuthority.write ===
+        "function",
+      getErrorCodes()
+        .CONFIGURATION_ERROR ||
+      "AUTHENTICATION_CONFIGURATION_ERROR",
+      "Authentication Receipt Authority has not been loaded."
+    );
+
+    return true;
+  }
+
+  /*
+  ==========================================================
+  CONFIGURATION
+  ==========================================================
+  */
+
+  function configure(options = {}) {
+    assertCondition(
+      options &&
+      typeof options === "object" &&
+      !Array.isArray(options),
+      getErrorCodes()
+        .CONFIGURATION_ERROR ||
+      "AUTHENTICATION_CONFIGURATION_ERROR",
+      "Authentication Service configuration must be an object."
+    );
+
+    if (
+      STATE.configurationLocked &&
+      options.force_reload !== true
+    ) {
+      throw createAuthenticationError(
+        getErrorCodes()
+          .CONFIGURATION_ERROR ||
+        "AUTHENTICATION_CONFIGURATION_ERROR",
+        "Authentication Service configuration is locked for the active runtime."
+      );
+    }
+
+    if (
+      options.client !==
+      undefined
+    ) {
+      validateSupabaseClient(
+        options.client
+      );
+
+      STATE.client =
+        options.client;
+    }
+
+    if (
+      options.entryStateRpc !==
+      undefined
+    ) {
+      const entryStateRpc =
+        cleanString(
+          options.entryStateRpc
+        );
+
+      assertCondition(
+        Boolean(entryStateRpc),
+        getErrorCodes()
+          .CONFIGURATION_ERROR ||
+        "AUTHENTICATION_CONFIGURATION_ERROR",
+        "entryStateRpc must be a non-empty string."
+      );
+
+      STATE.entryStateRpc =
+        entryStateRpc;
+    }
+
+    if (
+      options.userTable !==
+      undefined
+    ) {
+      const userTable =
+        cleanString(
+          options.userTable
+        );
+
+      assertCondition(
+        Boolean(userTable),
+        getErrorCodes()
+          .CONFIGURATION_ERROR ||
+        "AUTHENTICATION_CONFIGURATION_ERROR",
+        "userTable must be a non-empty string."
+      );
+
+      STATE.userTable =
+        userTable;
+    }
+
+    if (
+      options.userSelect !==
+      undefined
+    ) {
+      STATE.userSelect =
+        validateSelectList(
+          options.userSelect
+        );
+    }
+
+    if (
+      options.authenticationSource !==
+      undefined
+    ) {
+      const authenticationSource =
+        cleanString(
+          options.authenticationSource
+        );
+
+      assertCondition(
+        Boolean(authenticationSource),
+        getErrorCodes()
+          .CONFIGURATION_ERROR ||
+        "AUTHENTICATION_CONFIGURATION_ERROR",
+        "authenticationSource must be a non-empty string."
+      );
+
+      STATE.authenticationSource =
+        authenticationSource;
+    }
+
+    if (
+      options.routes !==
+      undefined
+    ) {
+      assertCondition(
+        options.routes &&
+        typeof options.routes ===
+          "object" &&
+        !Array.isArray(
+          options.routes
+        ),
+        getErrorCodes()
+          .CONFIGURATION_ERROR ||
+        "AUTHENTICATION_CONFIGURATION_ERROR",
+        "Authentication routes must be an object."
+      );
+
+      STATE.routes = {
+        ...STATE.routes,
+        ...options.routes
       };
     }
 
-    receiptService.configure({
-      client:
-        state.client,
+    validateSupabaseClient(
+      STATE.client
+    );
 
-      table:
-        cleanString(
-          next.receiptTable
-        ) ||
-        undefined,
+    STATE.userSelect =
+      validateSelectList(
+        STATE.userSelect
+      );
 
-      rpc:
+    assertCondition(
+      Boolean(
         cleanString(
-          next.receiptRpc
-        ) ||
-        undefined
-    });
+          STATE.entryStateRpc
+        )
+      ),
+      getErrorCodes()
+        .CONFIGURATION_ERROR ||
+      "AUTHENTICATION_CONFIGURATION_ERROR",
+      "Entry-State Authority RPC has not been configured."
+    );
+
+    assertSupportingAuthorities();
+
+    STATE.configured =
+      true;
+
+    STATE.configuredAt =
+      nowISO();
 
     if (
-      state.authenticationProvider
+      options.lock !== false
     ) {
-      resolveActiveAuthenticationSource();
+      STATE.configurationLocked =
+        true;
     }
 
-    return getConfiguration();
+    const configuration =
+      getConfiguration();
+
+    emit(
+      "configured",
+      {
+        configured:
+          true,
+
+        user_table:
+          STATE.userTable,
+
+        entry_state_rpc:
+          STATE.entryStateRpc
+      }
+    );
+
+    global.dispatchEvent(
+      new CustomEvent(
+        "statscore:authentication-service-configured",
+        {
+          detail:
+            configuration
+        }
+      )
+    );
+
+    return configuration;
   }
 
   function getConfiguration() {
-    const environment =
-      state.authenticationProvider
-        ? getActiveProviderEnvironment()
-        : null;
+    return immutableClone({
+      service_id:
+        SERVICE_ID,
 
-    return Object.freeze({
+      version:
+        VERSION,
+
+      authentication_contract_version:
+        AUTHENTICATION_CONTRACT_VERSION,
+
+      initial_authentication_context_version:
+        INITIAL_AUTHENTICATION_CONTEXT_VERSION,
+
       configured:
-        Boolean(
-          state.authenticationProvider ||
-          state.client
-        ),
+        STATE.configured,
+
+      configuration_locked:
+        STATE.configurationLocked,
+
+      configured_at:
+        STATE.configuredAt,
 
       authentication_source:
-        resolveActiveAuthenticationSource(),
-
-      authentication_provider:
-        getActiveProviderId(),
-
-      environment:
-        environment
-          ? Object.freeze({
-              ...environment
-            })
-          : null,
+        STATE.authenticationSource,
 
       user_table:
-        state.userTable,
+        STATE.userTable,
 
-      role_table:
-        state.roleTable,
-
-      identity_select:
-        state.identitySelect,
-
-      role_select:
-        state.roleSelect,
-
-      entry_state_authority:
-        state.entryStateResolver
-          ? "custom_resolver"
-          : cleanString(
-              state.entryStateRpc
-            )
-            ? "governed_rpc"
-            : "unconfigured",
+      user_select:
+        STATE.userSelect,
 
       entry_state_rpc:
-        state.entryStateResolver
-          ? null
-          : cleanString(
-              state.entryStateRpc
-            ) ||
-            null,
-
-      allow_metadata_role_fallback:
-        state.allowMetadataRoleFallback,
+        STATE.entryStateRpc,
 
       routes:
-        Object.freeze({
-          ...state.routes
-        })
+        clone(
+          STATE.routes
+        ),
+
+      initial_authentication_context_fields:
+        [
+          "session_id",
+          "user_id",
+          "role",
+          "entry_intent",
+          "authenticated_at",
+          "authentication_source",
+          "requested_destination"
+        ]
     });
   }
 
-  function validateRequest(
-    request
-  ) {
-    if (
-      !request ||
-      typeof request !==
-        "object" ||
-      Array.isArray(
-        request
-      )
-    ) {
-      throw createAuthenticationError(
-        ERROR_CODES.INVALID_REQUEST,
-        "Authentication request must be an object."
-      );
-    }
+  /*
+  ==========================================================
+  REQUEST VALIDATION
+  ==========================================================
+  */
+
+  function validateRequest(rawRequest) {
+    assertCondition(
+      rawRequest &&
+      typeof rawRequest === "object" &&
+      !Array.isArray(rawRequest),
+      getErrorCodes()
+        .INVALID_REQUEST ||
+      "AUTHENTICATION_INVALID_REQUEST",
+      "Authentication request must be an object."
+    );
 
     const email =
       cleanString(
-        request.email
+        rawRequest.email
       ).toLowerCase();
 
     const password =
-      typeof request.password ===
+      typeof rawRequest.password ===
         "string"
-        ? request.password
+        ? rawRequest.password
         : "";
+
+    const roleHint =
+      normalizeRole(
+        rawRequest.role_hint
+      );
 
     const entryIntent =
       cleanString(
-        request.entry_intent
+        rawRequest.entry_intent
       ) ||
       DEFAULT_ENTRY_INTENT;
 
     const requestedDestination =
       cleanString(
-        request.requested_destination
+        rawRequest.requested_destination
       ) ||
       DEFAULT_REQUESTED_DESTINATION;
 
-    const roleHint =
-      normalizeRole(
-        request.role_hint
-      );
+    assertCondition(
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        .test(email),
+      getErrorCodes()
+        .INVALID_REQUEST ||
+      "AUTHENTICATION_INVALID_REQUEST",
+      "Authentication request contains an invalid email address.",
+      {
+        user_message:
+          "Enter a valid authorized email."
+      }
+    );
 
-    if (
-      !email ||
-      !email.includes("@") ||
-      !password
-    ) {
-      throw createAuthenticationError(
-        ERROR_CODES.INVALID_REQUEST,
-        "Email and password are required."
-      );
-    }
+    assertCondition(
+      Boolean(password),
+      getErrorCodes()
+        .INVALID_REQUEST ||
+      "AUTHENTICATION_INVALID_REQUEST",
+      "Authentication request requires a password.",
+      {
+        user_message:
+          "Enter your access password."
+      }
+    );
 
-    if (
-      !ALLOWED_ENTRY_INTENTS.has(
-        entryIntent
-      )
-    ) {
-      throw createAuthenticationError(
-        ERROR_CODES.INVALID_REQUEST,
-        "Unsupported authentication entry_intent."
-      );
-    }
-
-    if (
-      roleHint &&
-      !ALLOWED_ROLES.has(
+    assertCondition(
+      !roleHint ||
+      ALLOWED_ROLES.has(
         roleHint
-      )
-    ) {
-      throw createAuthenticationError(
-        ERROR_CODES.UNSUPPORTED_ROLE,
-        "The selected role is not supported."
-      );
-    }
+      ),
+      getErrorCodes()
+        .UNSUPPORTED_ROLE ||
+      "AUTHENTICATION_UNSUPPORTED_ROLE",
+      "The submitted role hint is unsupported.",
+      {
+        user_message:
+          "Select a supported access role."
+      }
+    );
+
+    assertCondition(
+      entryIntent ===
+        DEFAULT_ENTRY_INTENT,
+      getErrorCodes()
+        .INVALID_REQUEST ||
+      "AUTHENTICATION_INVALID_REQUEST",
+      "Unsupported authentication entry intent."
+    );
 
     return Object.freeze({
       email,
 
       password,
 
+      role_hint:
+        roleHint,
+
       entry_intent:
         entryIntent,
 
       requested_destination:
-        requestedDestination,
-
-      role_hint:
-        roleHint,
-
-      remember_me:
-        Boolean(
-          request.remember_me
-        )
+        requestedDestination
     });
   }
 
-  async function defaultIdentityResolver(
-    authUser
+  /*
+  ==========================================================
+  PROVIDER AUTHENTICATION
+  ==========================================================
+  */
+
+  async function authenticateCredentials(
+    request
   ) {
+    const response =
+      await STATE.client.auth
+        .signInWithPassword({
+          email:
+            request.email,
+
+          password:
+            request.password
+        });
+
     if (
-      !state.client ||
-      typeof state.client.from !==
-        "function"
+      response &&
+      response.error
     ) {
-      throw createAuthenticationError(
-        ERROR_CODES.CONFIGURATION_ERROR,
-        "Default identity resolution requires " +
-          "a configured Supabase data client."
+      throw normalizeAuthenticationError(
+        response.error,
+        {
+          code:
+            getErrorCodes()
+              .AUTHENTICATION_UNAVAILABLE ||
+            "AUTHENTICATION_UNAVAILABLE",
+
+          internalMessage:
+            "Supabase credential authentication failed."
+        }
       );
     }
 
-    const identitySelect =
-      validateIdentitySelect(
-        state.identitySelect
-      );
+    const authUser =
+      response
+        ?.data
+        ?.user ||
+      null;
 
+    const authSession =
+      response
+        ?.data
+        ?.session ||
+      null;
+
+    assertCondition(
+      authUser &&
+      Boolean(
+        cleanString(
+          authUser.id
+        )
+      ),
+      getErrorCodes()
+        .AUTHENTICATION_UNAVAILABLE ||
+      "AUTHENTICATION_UNAVAILABLE",
+      "Authentication provider did not return a valid user."
+    );
+
+    assertCondition(
+      authSession &&
+      typeof authSession ===
+        "object",
+      getErrorCodes()
+        .AUTHENTICATION_UNAVAILABLE ||
+      "AUTHENTICATION_UNAVAILABLE",
+      "Authentication provider did not return a valid session."
+    );
+
+    return Object.freeze({
+      authUser,
+
+      authSession
+    });
+  }
+
+  /*
+  ==========================================================
+  GOVERNED IDENTITY RESOLUTION
+  ==========================================================
+  */
+
+  async function resolveEnterpriseIdentity(
+    authUser
+  ) {
     const response =
-      await state.client
+      await STATE.client
         .from(
-          state.userTable
+          STATE.userTable
         )
         .select(
-          identitySelect
+          STATE.userSelect
         )
         .eq(
-          state.userAuthColumn,
+          "auth_user_id",
           authUser.id
         )
         .maybeSingle();
 
     if (
+      response &&
       response.error
     ) {
-      throw response.error;
-    }
+      throw normalizeAuthenticationError(
+        response.error,
+        {
+          code:
+            getErrorCodes()
+              .UNKNOWN_IDENTITY ||
+            "AUTHENTICATION_UNKNOWN_IDENTITY",
 
-    if (
-      !response.data
-    ) {
-      throw createAuthenticationError(
-        ERROR_CODES.UNKNOWN_IDENTITY,
-        "No governed identity was found for the authenticated user."
+          internalMessage:
+            "Governed enterprise identity lookup failed."
+        }
       );
     }
 
-    if (
-      state.activeUserColumn &&
-      Object.prototype.hasOwnProperty.call(
-        response.data,
-        state.activeUserColumn
-      ) &&
-      response.data[
-        state.activeUserColumn
-      ] ===
-        false
-    ) {
-      throw createAuthenticationError(
-        ERROR_CODES.ACCOUNT_DISABLED,
-        "The authenticated identity is inactive."
-      );
-    }
+    assertCondition(
+      response &&
+      response.data,
+      getErrorCodes()
+        .UNKNOWN_IDENTITY ||
+      "AUTHENTICATION_UNKNOWN_IDENTITY",
+      "No governed enterprise identity was found for the authenticated account.",
+      {
+        user_message:
+          "No active STATS-CORE enterprise identity is associated with this account."
+      }
+    );
 
-    return response.data;
+    const identity =
+      response.data;
+
+    assertCondition(
+      cleanString(
+        identity.auth_user_id
+      ) ===
+      cleanString(
+        authUser.id
+      ),
+      getErrorCodes()
+        .UNKNOWN_IDENTITY ||
+      "AUTHENTICATION_UNKNOWN_IDENTITY",
+      "Enterprise identity authentication reference does not match the authenticated account."
+    );
+
+    const role =
+      normalizeRole(
+        identity.role
+      );
+
+    assertCondition(
+      ALLOWED_ROLES.has(role),
+      getErrorCodes()
+        .UNKNOWN_ROLE ||
+      "AUTHENTICATION_UNKNOWN_ROLE",
+      "The governed enterprise identity does not contain a supported role."
+    );
+
+    return Object.freeze({
+      ...clone(identity),
+
+      role
+    });
   }
 
-  async function defaultRoleResolver(
-    authUser,
-    identity
+  /*
+  ==========================================================
+  ROLE-HINT ENFORCEMENT
+  ==========================================================
+  */
+
+  function enforceRoleHint(
+    roleHint,
+    governedRole
   ) {
-    let resolvedRole =
-      "";
+    if (!roleHint) {
+      return true;
+    }
 
-    const roleId =
-      identity &&
-      identity[
-        state.userRoleColumn
-      ];
-
-    if (
-      roleId
-    ) {
-      if (
-        !state.client ||
-        typeof state.client.from !==
-          "function"
-      ) {
-        throw createAuthenticationError(
-          ERROR_CODES.CONFIGURATION_ERROR,
-          "Default role resolution requires " +
-            "a configured Supabase data client."
-        );
+    assertCondition(
+      roleHint ===
+        governedRole,
+      getErrorCodes()
+        .ROUTING_DENIED ||
+      "AUTHENTICATION_ROUTING_DENIED",
+      "The submitted role does not match the governed enterprise role.",
+      {
+        user_message:
+          "The selected access role does not match this account."
       }
+    );
 
-      const roleSelect =
-        validateRoleSelect(
-          state.roleSelect
-        );
-
-      const response =
-        await state.client
-          .from(
-            state.roleTable
-          )
-          .select(
-            roleSelect
-          )
-          .eq(
-            state.roleIdColumn,
-            roleId
-          )
-          .maybeSingle();
-
-      if (
-        response.error
-      ) {
-        throw response.error;
-      }
-
-      if (
-        response.data
-      ) {
-        resolvedRole =
-          normalizeRole(
-            response.data[
-              state.roleNameColumn
-            ]
-          );
-      }
-    }
-
-    if (
-      !resolvedRole &&
-      state.allowMetadataRoleFallback
-    ) {
-      resolvedRole =
-        normalizeRole(
-          (
-            authUser.app_metadata &&
-            authUser.app_metadata.role
-          ) ||
-          (
-            authUser.user_metadata &&
-            authUser.user_metadata.role
-          )
-        );
-    }
-
-    if (
-      !resolvedRole
-    ) {
-      throw createAuthenticationError(
-        ERROR_CODES.UNKNOWN_ROLE,
-        "No governed role was found for the authenticated identity."
-      );
-    }
-
-    if (
-      !ALLOWED_ROLES.has(
-        resolvedRole
-      )
-    ) {
-      throw createAuthenticationError(
-        ERROR_CODES.UNSUPPORTED_ROLE,
-        "The authenticated role is not supported."
-      );
-    }
-
-    return resolvedRole;
+    return true;
   }
+
+  /*
+  ==========================================================
+  ENTRY-STATE RESOLUTION
+  ==========================================================
+  */
 
   function normalizeEntryStateResult(
-    value
+    rawResult
   ) {
-    let source =
-      value;
+    let result =
+      rawResult;
 
     if (
-      Array.isArray(
-        source
-      )
+      Array.isArray(result)
     ) {
-      if (
-        source.length !==
-        1
-      ) {
-        throw createAuthenticationError(
-          ERROR_CODES.CONFIGURATION_ERROR,
-          "The governed Entry-State authority returned " +
-            "an invalid record count."
-        );
-      }
-
-      source =
-        source[0];
-    }
-
-    if (
-      !source ||
-      typeof source !==
-        "object" ||
-      Array.isArray(
-        source
-      )
-    ) {
-      throw createAuthenticationError(
-        ERROR_CODES.CONFIGURATION_ERROR,
-        "The governed Entry-State authority returned " +
-          "an invalid response."
+      assertCondition(
+        result.length === 1,
+        getErrorCodes()
+          .CONFIGURATION_ERROR ||
+        "AUTHENTICATION_CONFIGURATION_ERROR",
+        "Entry-State Authority returned an invalid record count."
       );
+
+      result =
+        result[0];
     }
 
-    const firstTime =
-      typeof source.first_time ===
-        "boolean"
-        ? source.first_time
-        : typeof source.is_first_time ===
-            "boolean"
-          ? source.is_first_time
-          : null;
+    assertCondition(
+      result &&
+      typeof result === "object" &&
+      !Array.isArray(result),
+      getErrorCodes()
+        .CONFIGURATION_ERROR ||
+      "AUTHENTICATION_CONFIGURATION_ERROR",
+      "Entry-State Authority returned an invalid response."
+    );
 
-    if (
-      firstTime ===
-      null
-    ) {
-      throw createAuthenticationError(
-        ERROR_CODES.CONFIGURATION_ERROR,
-        "The governed Entry-State authority must return " +
-          "a boolean first_time value."
-      );
-    }
+    assertCondition(
+      typeof result.first_time ===
+        "boolean",
+      getErrorCodes()
+        .CONFIGURATION_ERROR ||
+      "AUTHENTICATION_CONFIGURATION_ERROR",
+      "Entry-State Authority must return boolean first_time."
+    );
 
     return Object.freeze({
       first_time:
-        firstTime,
+        result.first_time,
 
       snapshot_id:
         cleanString(
-          source.snapshot_id
+          result.snapshot_id
         ) ||
         null
     });
   }
 
-  async function defaultEntryStateResolver(
+  async function resolveEntryState(
     authUser,
-    identity,
-    role
+    identity
   ) {
-    if (
-      !state.client ||
-      typeof state.client.rpc !==
-        "function"
-    ) {
-      throw createAuthenticationError(
-        ERROR_CODES.CONFIGURATION_ERROR,
-        "Default Entry-State resolution requires " +
-          "a configured Supabase RPC client."
-      );
-    }
-
-    const entryStateRpc =
-      cleanString(
-        state.entryStateRpc
-      );
-
-    if (
-      !entryStateRpc
-    ) {
-      throw createAuthenticationError(
-        ERROR_CODES.CONFIGURATION_ERROR,
-        "Entry State requires a governed entryStateRpc " +
-          "when no custom entryStateResolver is configured."
-      );
-    }
-
     const response =
-      await state.client.rpc(
-        entryStateRpc,
+      await STATE.client.rpc(
+        STATE.entryStateRpc,
         {
           p_auth_user_id:
             authUser.id,
 
-          p_identity_id:
-            identity &&
-            identity.id
-              ? identity.id
-              : null,
+          p_sc_user_id:
+            identity.sc_user_id,
 
           p_role:
-            role
+            identity.role
         }
       );
 
@@ -1576,7 +1500,18 @@
       response &&
       response.error
     ) {
-      throw response.error;
+      throw normalizeAuthenticationError(
+        response.error,
+        {
+          code:
+            getErrorCodes()
+              .ROUTING_DENIED ||
+            "AUTHENTICATION_ROUTING_DENIED",
+
+          internalMessage:
+            "Governed Entry-State resolution failed."
+        }
+      );
     }
 
     return normalizeEntryStateResult(
@@ -1586,19 +1521,22 @@
     );
   }
 
-  async function defaultRouteResolver(
-    routingInput
-  ) {
-    const {
-      role,
-      entryState
-    } = routingInput;
+  /*
+  ==========================================================
+  AUTHORIZED DESTINATION RESOLUTION
+  ==========================================================
+  */
 
+  function resolveDestination(
+    role,
+    entryState
+  ) {
     if (
       role ===
       "administrator"
     ) {
-      return state.routes.administrator;
+      return STATE.routes
+        .administrator;
     }
 
     if (
@@ -1608,22 +1546,25 @@
       if (
         entryState.first_time
       ) {
-        return state.routes.first_time_athlete;
+        return STATE.routes
+          .first_time_athlete;
       }
 
-      if (
-        !cleanString(
-          entryState.snapshot_id
-        )
-      ) {
-        throw createAuthenticationError(
-          ERROR_CODES.ROUTING_DENIED,
-          "A returning athlete requires snapshot_id."
-        );
-      }
+      assertCondition(
+        Boolean(
+          cleanString(
+            entryState.snapshot_id
+          )
+        ),
+        getErrorCodes()
+          .ROUTING_DENIED ||
+        "AUTHENTICATION_ROUTING_DENIED",
+        "Returning athlete routing requires snapshot_id."
+      );
 
       return appendQueryParameter(
-        state.routes.returning_athlete,
+        STATE.routes
+          .returning_athlete,
         "snapshot_id",
         entryState.snapshot_id
       );
@@ -1638,64 +1579,292 @@
         entryState.first_time
       ) {
         return appendQueryParameter(
-          state.routes.first_time_professional,
+          STATE.routes
+            .first_time_professional,
           "role",
           role
         );
       }
 
-      return state.routes.returning_professional;
+      return STATE.routes
+        .returning_professional;
     }
 
     throw createAuthenticationError(
-      ERROR_CODES.ROUTING_DENIED,
-      "No authorized authentication destination exists for this role."
+      getErrorCodes()
+        .ROUTING_DENIED ||
+      "AUTHENTICATION_ROUTING_DENIED",
+      "No authorized destination exists for the governed enterprise role."
     );
   }
 
-  function defaultSessionIdResolver(
+  /*
+  ==========================================================
+  AUTHENTICATION SESSION REFERENCE
+  ==========================================================
+  */
+
+  function manufactureSessionReference(
     authSession
   ) {
-    const sessionId =
-      cleanString(
-        authSession &&
-        (
-          authSession.session_id ||
-          authSession.id
-        )
-      );
+    assertCondition(
+      authSession &&
+      typeof authSession ===
+        "object",
+      getErrorCodes()
+        .CONTEXT_FAILURE ||
+      "AUTHENTICATION_CONTEXT_FAILURE",
+      "Authentication session reference cannot be manufactured without a provider session."
+    );
 
-    if (
-      !sessionId
-    ) {
-      throw createAuthenticationError(
-        ERROR_CODES.CONTEXT_FAILURE,
-        "The authentication provider did not expose " +
-          "a valid session identifier."
-      );
-    }
+    /*
+    Supabase browser sessions do not guarantee a constitutional
+    session_id property. Stream 1 therefore manufactures an
+    authentication-session reference after provider authentication
+    succeeds.
 
-    return sessionId;
+    The provider access token is never copied, exposed, or stored
+    inside the Initial Authentication Context.
+    */
+
+    return generateId(
+      "authentication-session"
+    );
   }
 
-  async function authenticate(
-    request
-  ) {
-    assertAuthenticationRuntime();
+  /*
+  ==========================================================
+  INITIAL AUTHENTICATION CONTEXT
+  ==========================================================
+  */
 
-    const normalizedRequest =
+  function createInitialAuthenticationContext(
+    input
+  ) {
+    const contextAuthority =
+      getContextAuthority();
+
+    const context =
+      contextAuthority.create({
+        session_id:
+          input.session_id,
+
+        user_id:
+          input.user_id,
+
+        role:
+          input.role,
+
+        entry_intent:
+          input.entry_intent,
+
+        authenticated_at:
+          input.authenticated_at,
+
+        authentication_source:
+          input.authentication_source,
+
+        requested_destination:
+          input.requested_destination
+      });
+
+    const requiredFields =
+      [
+        "session_id",
+        "user_id",
+        "role",
+        "entry_intent",
+        "authenticated_at",
+        "authentication_source",
+        "requested_destination"
+      ];
+
+    requiredFields.forEach(
+      (fieldName) => {
+        assertCondition(
+          Boolean(
+            cleanString(
+              context[fieldName]
+            )
+          ),
+          getErrorCodes()
+            .CONTEXT_FAILURE ||
+          "AUTHENTICATION_CONTEXT_FAILURE",
+          (
+            "Initial Authentication Context is missing " +
+            fieldName +
+            "."
+          )
+        );
+      }
+    );
+
+    return context;
+  }
+
+  /*
+  ==========================================================
+  RECEIPT GENERATION
+  ==========================================================
+  */
+
+  async function writeAuthenticationReceipt(
+    input
+  ) {
+    return getReceiptAuthority()
+      .write({
+        outcome:
+          input.outcome,
+
+        session_id:
+          input.session_id,
+
+        user_id:
+          input.user_id,
+
+        role:
+          input.role,
+
+        authentication_source:
+          input.authentication_source,
+
+        requested_destination:
+          input.requested_destination,
+
+        resolved_destination:
+          input.resolved_destination,
+
+        error_code:
+          input.error_code,
+
+        correlation_id:
+          input.correlation_id,
+
+        metadata:
+          sanitizeMetadata(
+            input.metadata ||
+            {}
+          )
+      });
+  }
+
+  /*
+  ==========================================================
+  CONTROLLED ROLLBACK
+  ==========================================================
+  */
+
+  async function rollbackAuthentication() {
+    const failures = [];
+
+    try {
+      getContextAuthority()
+        ?.clear?.();
+    } catch (error) {
+      failures.push({
+        operation:
+          "authentication_context_clear",
+
+        error:
+          cleanString(
+            error?.message
+          ) ||
+          "Authentication Context clear failed."
+      });
+    }
+
+    if (
+      STATE.client &&
+      STATE.client.auth &&
+      typeof STATE.client.auth.signOut ===
+        "function"
+    ) {
+      try {
+        const response =
+          await STATE.client
+            .auth
+            .signOut();
+
+        if (
+          response &&
+          response.error
+        ) {
+          throw response.error;
+        }
+      } catch (error) {
+        failures.push({
+          operation:
+            "provider_sign_out",
+
+          error:
+            cleanString(
+              error?.message
+            ) ||
+            "Provider sign-out failed."
+        });
+      }
+    }
+
+    return immutableClone({
+      attempted:
+        true,
+
+      complete:
+        failures.length === 0,
+
+      failures
+    });
+  }
+
+  /*
+  ==========================================================
+  AUTHENTICATION EXECUTION
+  ==========================================================
+  */
+
+  async function authenticate(rawRequest) {
+    assertCondition(
+      STATE.configured === true,
+      getErrorCodes()
+        .CONFIGURATION_ERROR ||
+      "AUTHENTICATION_CONFIGURATION_ERROR",
+      "The governed authentication runtime has not been configured.",
+      {
+        user_message:
+          "The governed authentication runtime is unavailable."
+      }
+    );
+
+    assertCondition(
+      STATE.authenticationInProgress ===
+        false,
+      getErrorCodes()
+        .REQUEST_CONFLICT ||
+      "AUTHENTICATION_REQUEST_CONFLICT",
+      "An authentication request is already in progress."
+    );
+
+    const request =
       validateRequest(
-        request
+        rawRequest
       );
 
     const correlationId =
-      createCorrelationId();
+      generateId(
+        "authentication-correlation"
+      );
 
-    const authenticationSource =
-      resolveActiveAuthenticationSource();
+    STATE.authenticationInProgress =
+      true;
 
-    const providerId =
-      getActiveProviderId();
+    STATE.activeCorrelationId =
+      correlationId;
+
+    STATE.lastResult =
+      null;
+
+    STATE.lastError =
+      null;
 
     let authUser =
       null;
@@ -1703,191 +1872,112 @@
     let authSession =
       null;
 
+    let identity =
+      null;
+
     let resolvedRole =
+      null;
+
+    let entryState =
       null;
 
     let resolvedDestination =
       null;
 
-    try {
-      const providerResponse =
-        await authenticateWithActiveProvider({
-          email:
-            normalizedRequest.email,
+    let authenticationSessionId =
+      null;
 
-          password:
-            normalizedRequest.password
-        });
+    emit(
+      "started",
+      {
+        correlation_id:
+          correlationId,
 
-      if (
-        providerResponse &&
-        providerResponse.error
-      ) {
-        throw providerResponse.error;
+        role_hint:
+          request.role_hint,
+
+        entry_intent:
+          request.entry_intent
       }
+    );
+
+    try {
+      const providerResult =
+        await authenticateCredentials(
+          request
+        );
 
       authUser =
-        providerResponse &&
-        providerResponse.data &&
-        providerResponse.data.user;
+        providerResult.authUser;
 
       authSession =
-        providerResponse &&
-        providerResponse.data &&
-        providerResponse.data.session;
+        providerResult.authSession;
 
-      if (
-        !authUser ||
-        !cleanString(
-          authUser.id
-        ) ||
-        !authSession
-      ) {
-        throw createAuthenticationError(
-          ERROR_CODES.AUTHENTICATION_UNAVAILABLE,
-          "The active authentication provider did not " +
-            "return a valid user and session."
-        );
-      }
+      emit(
+        "provider-authenticated",
+        {
+          correlation_id:
+            correlationId,
 
-      const identity =
-        await (
-          state.identityResolver ||
-          defaultIdentityResolver
-        )(
-          authUser,
-          {
-            client:
-              state.client,
+          user_id:
+            authUser.id
+        }
+      );
 
-            request:
-              normalizedRequest
-          }
+      identity =
+        await resolveEnterpriseIdentity(
+          authUser
         );
 
       resolvedRole =
-        normalizeRole(
-          await (
-            state.roleResolver ||
-            defaultRoleResolver
-          )(
-            authUser,
-            identity,
-            {
-              client:
-                state.client,
+        identity.role;
 
-              request:
-                normalizedRequest
-            }
-          )
-        );
+      enforceRoleHint(
+        request.role_hint,
+        resolvedRole
+      );
 
-      if (
-        !ALLOWED_ROLES.has(
-          resolvedRole
-        )
-      ) {
-        throw createAuthenticationError(
-          ERROR_CODES.UNSUPPORTED_ROLE,
-          "The resolved role is not supported."
-        );
-      }
+      emit(
+        "identity-resolved",
+        {
+          correlation_id:
+            correlationId,
 
-      if (
-        normalizedRequest.role_hint &&
-        normalizedRequest.role_hint !==
-          resolvedRole
-      ) {
-        throw createAuthenticationError(
-          ERROR_CODES.ROUTING_DENIED,
-          "The selected login role does not match " +
-            "the authenticated role authority."
-        );
-      }
+          user_id:
+            authUser.id,
 
-      const entryState =
-        normalizeEntryStateResult(
-          await (
-            state.entryStateResolver ||
-            defaultEntryStateResolver
-          )(
-            authUser,
-            identity,
-            resolvedRole,
-            {
-              client:
-                state.client,
-
-              request:
-                normalizedRequest
-            }
-          )
-        );
-
-      resolvedDestination =
-        await (
-          state.routeResolver ||
-          defaultRouteResolver
-        )({
-          authUser,
-
-          identity,
+          enterprise_identity_id:
+            identity.sc_user_id,
 
           role:
-            resolvedRole,
+            resolvedRole
+        }
+      );
 
-          entryState,
-
-          request:
-            normalizedRequest
-        });
+      entryState =
+        await resolveEntryState(
+          authUser,
+          identity
+        );
 
       resolvedDestination =
-        cleanString(
-          resolvedDestination
+        resolveDestination(
+          resolvedRole,
+          entryState
         );
 
-      if (
-        !resolvedDestination
-      ) {
-        throw createAuthenticationError(
-          ERROR_CODES.ROUTING_DENIED,
-          "The route resolver did not return an authorized destination."
-        );
-      }
-
-      const sessionId =
-        cleanString(
-          await (
-            state.sessionIdResolver ||
-            defaultSessionIdResolver
-          )(
-            authSession,
-            authUser,
-            {
-              client:
-                state.client,
-
-              request:
-                normalizedRequest
-            }
-          )
+      authenticationSessionId =
+        manufactureSessionReference(
+          authSession
         );
 
-      if (
-        !sessionId
-      ) {
-        throw createAuthenticationError(
-          ERROR_CODES.CONTEXT_FAILURE,
-          "The session resolver did not return a valid session_id."
-        );
-      }
+      const authenticatedAt =
+        nowISO();
 
       const authenticationContext =
-        contextService.create({
+        createInitialAuthenticationContext({
           session_id:
-            sessionId,
+            authenticationSessionId,
 
           user_id:
             authUser.id,
@@ -1896,64 +1986,94 @@
             resolvedRole,
 
           entry_intent:
-            normalizedRequest.entry_intent,
+            request.entry_intent,
 
           authenticated_at:
-            new Date().toISOString(),
+            authenticatedAt,
 
           authentication_source:
-            authenticationSource,
+            STATE.authenticationSource,
 
           requested_destination:
             resolvedDestination
         });
 
-      await receiptService.write({
-        outcome:
-          "SUCCESS",
+      const authenticationReceipt =
+        await writeAuthenticationReceipt({
+          outcome:
+            "SUCCESS",
 
-        session_id:
-          authenticationContext.session_id,
+          session_id:
+            authenticationContext
+              .session_id,
 
-        user_id:
-          authenticationContext.user_id,
+          user_id:
+            authenticationContext
+              .user_id,
 
-        role:
-          authenticationContext.role,
+          role:
+            authenticationContext
+              .role,
 
-        authentication_source:
-          authenticationContext.authentication_source,
+          authentication_source:
+            authenticationContext
+              .authentication_source,
 
-        requested_destination:
-          normalizedRequest.requested_destination,
+          requested_destination:
+            request.requested_destination,
 
-        resolved_destination:
-          resolvedDestination,
+          resolved_destination:
+            resolvedDestination,
 
-        error_code:
-          null,
+          error_code:
+            null,
 
-        correlation_id:
-          correlationId,
+          correlation_id:
+            correlationId,
 
-        metadata:
-          Object.freeze({
-            provider:
-              providerId,
+          metadata: {
+            service_id:
+              SERVICE_ID,
+
+            service_version:
+              VERSION,
+
+            authentication_contract_version:
+              AUTHENTICATION_CONTRACT_VERSION,
+
+            initial_authentication_context_version:
+              INITIAL_AUTHENTICATION_CONTEXT_VERSION,
+
+            enterprise_identity_id:
+              identity.sc_user_id,
+
+            sc_athlete_id:
+              identity.sc_athlete_id ||
+              null,
+
+            first_time:
+              entryState.first_time,
+
+            snapshot_id:
+              entryState.snapshot_id,
 
             entry_intent:
-              authenticationContext.entry_intent
-          })
-      });
+              request.entry_intent
+          }
+        });
 
-      contextService.publish(
-        authenticationContext
-      );
+      getContextAuthority()
+        .publish(
+          authenticationContext
+        );
 
       const result =
-        Object.freeze({
+        immutableClone({
           authenticated:
             true,
+
+          correlation_id:
+            correlationId,
 
           context:
             authenticationContext,
@@ -1961,9 +2081,46 @@
           destination:
             resolvedDestination,
 
-          correlation_id:
-            correlationId
+          authentication_receipt_id:
+            authenticationReceipt
+              .authentication_receipt_id,
+
+          entry_state:
+            {
+              first_time:
+                entryState.first_time,
+
+              snapshot_id:
+                entryState.snapshot_id
+            },
+
+          completed_at:
+            nowISO()
         });
+
+      STATE.lastResult =
+        result;
+
+      emit(
+        "succeeded",
+        {
+          correlation_id:
+            correlationId,
+
+          user_id:
+            authUser.id,
+
+          role:
+            resolvedRole,
+
+          destination:
+            resolvedDestination,
+
+          authentication_receipt_id:
+            result
+              .authentication_receipt_id
+        }
+      );
 
       global.dispatchEvent(
         new CustomEvent(
@@ -1976,25 +2133,31 @@
       );
 
       return result;
-    } catch (
-      rawError
-    ) {
-      const normalizedError =
+    } catch (rawError) {
+      const error =
         normalizeAuthenticationError(
           rawError,
-          ERROR_CODES.AUTHENTICATION_UNAVAILABLE
+          {
+            code:
+              getErrorCodes()
+                .AUTHENTICATION_UNAVAILABLE ||
+              "AUTHENTICATION_UNAVAILABLE",
+
+            internalMessage:
+              "Governed authentication failed."
+          }
         );
 
       let receiptFailure =
         null;
 
       try {
-        await receiptService.write({
+        await writeAuthenticationReceipt({
           outcome:
             "FAILURE",
 
           session_id:
-            null,
+            authenticationSessionId,
 
           user_id:
             authUser
@@ -2005,106 +2168,121 @@
             resolvedRole,
 
           authentication_source:
-            authenticationSource,
+            STATE.authenticationSource,
 
           requested_destination:
-            normalizedRequest.requested_destination,
+            request.requested_destination,
 
           resolved_destination:
             resolvedDestination,
 
           error_code:
-            normalizedError.code,
+            cleanString(
+              error.code
+            ) ||
+            "AUTHENTICATION_FAILED",
 
           correlation_id:
             correlationId,
 
-          metadata:
-            Object.freeze({
-              provider:
-                providerId,
+          metadata: {
+            service_id:
+              SERVICE_ID,
 
-              entry_intent:
-                normalizedRequest.entry_intent
-            })
-        });
-      } catch (
-        error
-      ) {
-        receiptFailure =
-          error;
-      }
+            service_version:
+              VERSION,
 
-      const rollbackFailures =
-        authSession
-          ? await rollbackAuthenticatedSession()
-          : Object.freeze({
-              context_clear_error:
-                null,
+            entry_intent:
+              request.entry_intent,
 
-              provider_sign_out_error:
-                null
-            });
+            provider_authenticated:
+              Boolean(authSession),
 
-      if (
-        !authSession
-      ) {
-        try {
-          contextService.clear();
-        } catch (
-          contextClearError
-        ) {
-          void contextClearError;
-        }
-      }
+            identity_resolved:
+              Boolean(identity),
 
-      if (
-        receiptFailure
-      ) {
-        throw createAuthenticationError(
-          ERROR_CODES.RECEIPT_FAILURE,
-          "Authentication failed and the required " +
-            "authentication receipt could not be written.",
-          {
-            cause:
-              receiptFailure,
-
-            details:
-              Object.freeze({
-                original_error_code:
-                  normalizedError.code,
-
-                context_clear_failed:
-                  Boolean(
-                    rollbackFailures.context_clear_error
-                  ),
-
-                provider_sign_out_failed:
-                  Boolean(
-                    rollbackFailures.provider_sign_out_error
-                  )
-              })
+            entry_state_resolved:
+              Boolean(entryState)
           }
-        );
+        });
+      } catch (receiptError) {
+        receiptFailure =
+          receiptError;
       }
+
+      const rollback =
+        await rollbackAuthentication();
+
+      STATE.lastError =
+        immutableClone({
+          code:
+            cleanString(
+              error.code
+            ) ||
+            "AUTHENTICATION_FAILED",
+
+          user_message:
+            cleanString(
+              error.user_message
+            ) ||
+            cleanString(
+              error.message
+            ) ||
+            "Authentication could not be completed.",
+
+          correlation_id:
+            correlationId,
+
+          receipt_failure:
+            receiptFailure
+              ? {
+                  code:
+                    cleanString(
+                      receiptFailure.code
+                    ) ||
+                    "AUTHENTICATION_RECEIPT_FAILURE",
+
+                  message:
+                    cleanString(
+                      receiptFailure.message
+                    ) ||
+                    "Authentication failure receipt could not be persisted."
+                }
+              : null,
+
+          rollback,
+
+          occurred_at:
+            nowISO()
+        });
+
+      emit(
+        "failed",
+        {
+          correlation_id:
+            correlationId,
+
+          error_code:
+            STATE.lastError.code,
+
+          rollback_complete:
+            rollback.complete,
+
+          receipt_failure:
+            Boolean(
+              receiptFailure
+            )
+        }
+      );
 
       global.dispatchEvent(
         new CustomEvent(
           "statscore:authentication-failed",
           {
             detail:
-              Object.freeze({
+              immutableClone({
                 error:
-                  typeof normalizedError.toJSON ===
-                    "function"
-                    ? normalizedError.toJSON()
-                    : {
-                        code:
-                          normalizedError.code,
-
-                        message:
-                          normalizedError.message
-                      },
+                  STATE.lastError,
 
                 correlation_id:
                   correlationId
@@ -2113,12 +2291,57 @@
         )
       );
 
-      throw normalizedError;
+      if (receiptFailure) {
+        throw createAuthenticationError(
+          getErrorCodes()
+            .RECEIPT_FAILURE ||
+          "AUTHENTICATION_RECEIPT_FAILURE",
+          "Authentication failed and the required failure receipt could not be persisted.",
+          {
+            cause:
+              receiptFailure,
+
+            details: {
+              original_error_code:
+                STATE.lastError.code,
+
+              correlation_id:
+                correlationId,
+
+              rollback_complete:
+                rollback.complete
+            },
+
+            user_message:
+              "Authentication could not be completed and the required evidence could not be recorded."
+          }
+        );
+      }
+
+      throw error;
+    } finally {
+      STATE.authenticationInProgress =
+        false;
+
+      STATE.activeCorrelationId =
+        null;
     }
   }
 
+  /*
+  ==========================================================
+  SIGN OUT
+  ==========================================================
+  */
+
   async function signOut() {
-    assertAuthenticationRuntime();
+    assertCondition(
+      STATE.configured === true,
+      getErrorCodes()
+        .CONFIGURATION_ERROR ||
+      "AUTHENTICATION_CONFIGURATION_ERROR",
+      "The governed authentication runtime has not been configured."
+    );
 
     let providerFailure =
       null;
@@ -2127,53 +2350,61 @@
       null;
 
     try {
-      const providerResponse =
-        await signOutActiveProvider();
+      const response =
+        await STATE.client
+          .auth
+          .signOut();
 
       if (
-        providerResponse &&
-        providerResponse.error
+        response &&
+        response.error
       ) {
-        throw providerResponse.error;
+        throw response.error;
       }
-    } catch (
-      error
-    ) {
+    } catch (error) {
       providerFailure =
         error;
     }
 
     try {
-      contextService.clear();
-    } catch (
-      error
-    ) {
+      getContextAuthority()
+        .clear();
+    } catch (error) {
       contextFailure =
         error;
     }
 
-    if (
-      providerFailure
-    ) {
+    if (providerFailure) {
       throw normalizeAuthenticationError(
         providerFailure,
-        ERROR_CODES.AUTHENTICATION_UNAVAILABLE
+        {
+          code:
+            getErrorCodes()
+              .AUTHENTICATION_UNAVAILABLE ||
+            "AUTHENTICATION_UNAVAILABLE",
+
+          internalMessage:
+            "Provider sign-out failed."
+        }
       );
     }
 
-    if (
-      contextFailure
-    ) {
+    if (contextFailure) {
       throw createAuthenticationError(
-        ERROR_CODES.CONTEXT_FAILURE,
-        "The provider session ended, but the Initial " +
-          "Authentication Context could not be cleared.",
+        getErrorCodes()
+          .CONTEXT_FAILURE ||
+        "AUTHENTICATION_CONTEXT_FAILURE",
+        "Provider sign-out succeeded, but Initial Authentication Context cleanup failed.",
         {
           cause:
             contextFailure
         }
       );
     }
+
+    emit(
+      "signed-out"
+    );
 
     global.dispatchEvent(
       new CustomEvent(
@@ -2183,14 +2414,203 @@
 
     return Object.freeze({
       signed_out:
-        true
+        true,
+
+      signed_out_at:
+        nowISO()
     });
   }
 
-  global.STATSCORE_AUTH_SERVICE =
-    Object.freeze({
+  /*
+  ==========================================================
+  EVENTS
+  ==========================================================
+  */
+
+  function emit(
+    eventName,
+    payload = {}
+  ) {
+    const detail =
+      immutableClone({
+        service_id:
+          SERVICE_ID,
+
+        version:
+          VERSION,
+
+        timestamp:
+          nowISO(),
+
+        ...sanitizeMetadata(
+          payload
+        )
+      });
+
+    global.dispatchEvent(
+      new CustomEvent(
+        `statscore:authentication-service-${eventName}`,
+        {
+          detail
+        }
+      )
+    );
+
+    if (
+      global.STATScore
+        ?.EngineBus?.emit
+    ) {
+      global.STATScore
+        .EngineBus
+        .emit(
+          `authentication_service_${eventName}`,
+          detail
+        );
+    }
+
+    return detail;
+  }
+
+  /*
+  ==========================================================
+  DIAGNOSTICS
+  ==========================================================
+  */
+
+  function getLastResult() {
+    return immutableClone(
+      STATE.lastResult
+    );
+  }
+
+  function getLastError() {
+    return immutableClone(
+      STATE.lastError
+    );
+  }
+
+  function runHealthCheck() {
+    const findings = [];
+
+    if (!STATE.client) {
+      findings.push(
+        "SUPABASE_CLIENT_UNAVAILABLE"
+      );
+    }
+
+    if (
+      STATE.client &&
+      (
+        !STATE.client.auth ||
+        typeof STATE.client.auth
+          .signInWithPassword !==
+          "function"
+      )
+    ) {
+      findings.push(
+        "SUPABASE_AUTHENTICATION_UNAVAILABLE"
+      );
+    }
+
+    if (
+      STATE.client &&
+      typeof STATE.client.from !==
+        "function"
+    ) {
+      findings.push(
+        "SUPABASE_DATA_CLIENT_UNAVAILABLE"
+      );
+    }
+
+    if (
+      STATE.client &&
+      typeof STATE.client.rpc !==
+        "function"
+    ) {
+      findings.push(
+        "SUPABASE_RPC_UNAVAILABLE"
+      );
+    }
+
+    if (!getContextAuthority()) {
+      findings.push(
+        "AUTHENTICATION_CONTEXT_UNAVAILABLE"
+      );
+    }
+
+    if (!getReceiptAuthority()) {
+      findings.push(
+        "AUTHENTICATION_RECEIPTS_UNAVAILABLE"
+      );
+    }
+
+    if (
+      !cleanString(
+        STATE.entryStateRpc
+      )
+    ) {
+      findings.push(
+        "ENTRY_STATE_AUTHORITY_UNAVAILABLE"
+      );
+    }
+
+    if (!STATE.configured) {
+      findings.push(
+        "AUTHENTICATION_SERVICE_NOT_CONFIGURED"
+      );
+    }
+
+    return immutableClone({
+      ok:
+        findings.length === 0,
+
+      service_id:
+        SERVICE_ID,
+
       version:
         VERSION,
+
+      configured:
+        STATE.configured,
+
+      configuration_locked:
+        STATE.configurationLocked,
+
+      authentication_in_progress:
+        STATE.authenticationInProgress,
+
+      user_table:
+        STATE.userTable,
+
+      entry_state_rpc:
+        STATE.entryStateRpc,
+
+      findings,
+
+      checked_at:
+        nowISO()
+    });
+  }
+
+  /*
+  ==========================================================
+  PUBLIC SERVICE
+  ==========================================================
+  */
+
+  const api =
+    Object.freeze({
+      service_id:
+        SERVICE_ID,
+
+      version:
+        VERSION,
+
+      authentication_contract_version:
+        AUTHENTICATION_CONTRACT_VERSION,
+
+      initial_authentication_context_version:
+        INITIAL_AUTHENTICATION_CONTEXT_VERSION,
 
       configure,
 
@@ -2198,6 +2618,50 @@
 
       authenticate,
 
-      signOut
+      signOut,
+
+      getLastResult,
+
+      getLastError,
+
+      runHealthCheck
     });
+
+  global.STATSCORE_AUTH_SERVICE =
+    api;
+
+  global.STATScore =
+    global.STATScore ||
+    {};
+
+  global.STATScore
+    .AuthenticationService =
+    api;
+
+  global.dispatchEvent(
+    new CustomEvent(
+      "statscore:authentication-service-loaded",
+      {
+        detail:
+          immutableClone({
+            service_id:
+              SERVICE_ID,
+
+            version:
+              VERSION,
+
+            loaded:
+              true,
+
+            configured:
+              false
+          })
+      }
+    )
+  );
+
+  console.info(
+    "[STATS-CORE Authentication Service] Loaded:",
+    VERSION
+  );
 })(window); 
