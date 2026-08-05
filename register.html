@@ -1,4 +1,4 @@
-<!-- 
+<!--
 ==========================================================
 STATS-CORE™ OWNERSHIP HEADER
 ==========================================================
@@ -21,6 +21,12 @@ Public Entry / Enterprise Identity Registration
 Primary Runtime:
 statscore-registration-service.js
 
+Runtime Bootstrap:
+statscore-registration-bootstrap.js
+
+Shared Data Authority:
+statscore-data.js
+
 Supporting Authorities:
 statscore-registration-context.js
 statscore-registration-receipts.js
@@ -36,24 +42,27 @@ Next Route:
 login.html
 
 Consumes:
+- requested enterprise role
 - email address
 - password
 - password confirmation
-- requested enterprise role
 - terms acceptance
 - privacy acceptance
 
 Provides:
 - governed registration request
+- authentication credential creation request
+- enterprise identity initialization request
 - registration status presentation
 - email-verification instructions
-- return path to Login Authority
+- controlled return path to Login Authority
 
 Primary IDs:
 - authentication_user_id
 - enterprise_identity_id
 - requested_role
 - registration_receipt_id
+- correlation_id
 
 Cross-Stream Dependencies:
 None during registration.
@@ -64,19 +73,22 @@ Registration does not create:
 - professional workspaces
 - Runtime Context
 - dashboards
-- intelligence
+- enterprise intelligence
 - downstream operational authority
 
 Does NOT:
 - authenticate existing credentials
 - publish Initial Authentication Context
-- create browser authentication authority
+- create enterprise runtime sessions
 - manufacture athlete_id or snapshot_id
-- manufacture role_id
-- initialize Stream 8 runtime
+- manufacture professional role context
+- initialize Stream 8 Runtime Authority
 - route directly to dashboards
-- bypass email verification
-- write receipts directly from the page
+- bypass email-verification policy
+- write directly to registration tables
+- store passwords
+- store access tokens
+- expose Supabase service-role credentials
 
 Status:
 ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
@@ -410,8 +422,7 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
 
     .agreement a {
       color: #fff;
-      text-decoration:
-        underline;
+      text-decoration: underline;
       text-underline-offset: 3px;
     }
 
@@ -450,6 +461,13 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
 
     button:hover:not(:disabled) {
       filter: brightness(1.08);
+    }
+
+    button:focus-visible {
+      outline:
+        2px solid
+        rgba(255, 255, 255, 0.9);
+      outline-offset: 3px;
     }
 
     button:disabled {
@@ -559,9 +577,16 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
       font-weight: 900;
       letter-spacing: 0.15em;
       text-transform: uppercase;
-      text-decoration:
-        underline;
+      text-decoration: underline;
       text-underline-offset: 4px;
+    }
+
+    .receipt-reference {
+      margin-top: 14px;
+      color: #9fb0bd;
+      font-size: 0.7rem;
+      line-height: 1.5;
+      word-break: break-word;
     }
 
     .footer-note {
@@ -574,9 +599,7 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
       text-transform: uppercase;
     }
 
-    @media (
-      max-width: 940px
-    ) {
+    @media (max-width: 940px) {
       body {
         padding: 14px;
         align-items: flex-start;
@@ -610,9 +633,7 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
       }
     }
 
-    @media (
-      max-width: 640px
-    ) {
+    @media (max-width: 640px) {
       body {
         padding: 10px;
         background: #05070b;
@@ -721,8 +742,9 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
 
       <div class="registration-doctrine">
         Registration creates your authentication
-        credentials only. Athlete records, professional
-        workspaces, dashboards, and runtime authority are
+        credentials and initializes your governed enterprise
+        identity only. Athlete records, professional
+        workspaces, dashboards, and Runtime Authority are
         established later through their constitutionally
         governed processes.
       </div>
@@ -748,6 +770,7 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
       <form
         id="registrationForm"
         novalidate
+        aria-busy="false"
       >
 
         <div class="field">
@@ -856,8 +879,8 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
 
         <div class="password-guidance">
           Use at least 12 characters. A strong password
-          should contain uppercase and lowercase letters,
-          numbers, and a symbol.
+          must contain uppercase and lowercase letters,
+          a number, and a symbol.
         </div>
 
         <div class="agreement-list">
@@ -899,8 +922,9 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
         <button
           id="submitButton"
           type="submit"
+          disabled
         >
-          Create Enterprise Account
+          Preparing Registration Runtime
         </button>
 
       </form>
@@ -922,6 +946,8 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
       <div
         id="runtimeStatus"
         class="runtime-status"
+        role="status"
+        aria-live="polite"
       >
         Checking governed registration runtime.
       </div>
@@ -936,10 +962,14 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
         </h3>
 
         <p id="successMessage">
-          A verification email has been sent. Verify your
-          email before returning to the controlled login
-          system.
+          Your enterprise account has been created.
         </p>
+
+        <div
+          id="receiptReference"
+          class="receipt-reference"
+          hidden
+        ></div>
 
         <a href="login.html">
           Return to Login
@@ -955,23 +985,32 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
   </section>
 
   <!--
-  Load order:
+  ==========================================================
+  GOVERNED ENTERPRISE REGISTRATION LOAD ORDER
+  ==========================================================
 
-  1. Registration Errors
-  2. Registration Context
-  3. Registration Receipts
-  4. Registration Service
-  5. Runtime Bootstrap / Configuration
-  6. This presentation controller
-
-  These script files must exist before production use.
+  1. Supabase Browser Library
+  2. Shared STATS-CORE Data Bridge
+  3. Registration Error Authority
+  4. Registration Context Authority
+  5. Registration Receipt Authority
+  6. Registration Service
+  7. Registration Bootstrap
+  8. Registration Page Controller
+  ==========================================================
   -->
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+  ></script>
+
+  <script src="statscore-data.js"></script>
 
   <script src="statscore-registration-errors.js"></script>
   <script src="statscore-registration-context.js"></script>
   <script src="statscore-registration-receipts.js"></script>
   <script src="statscore-registration-service.js"></script>
-  <script src="statscore-registration-bootstrap.js"></script> 
+  <script src="statscore-registration-bootstrap.js"></script>
 
   <script>
     (function initializeRegistrationPage(global) {
@@ -1037,7 +1076,15 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
           "successMessage"
         );
 
+      const receiptReference =
+        document.getElementById(
+          "receiptReference"
+        );
+
       let submissionInProgress =
+        false;
+
+      let runtimeReady =
         false;
 
       function cleanString(value) {
@@ -1049,6 +1096,17 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
       function getRegistrationService() {
         return (
           global.STATSCORE_REGISTRATION_SERVICE ||
+          global.STATScore
+            ?.RegistrationService ||
+          null
+        );
+      }
+
+      function getRegistrationBootstrap() {
+        return (
+          global.STATSCORE_REGISTRATION_BOOTSTRAP ||
+          global.STATScore
+            ?.RegistrationBootstrap ||
           null
         );
       }
@@ -1078,59 +1136,180 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
         }
       }
 
-      function setControlsDisabled(
-        disabled
+      function setFormBusy(
+        busy
       ) {
+        const isBusy =
+          Boolean(busy);
+
+        form.setAttribute(
+          "aria-busy",
+          String(isBusy)
+        );
+
         roleInput.disabled =
-          disabled;
+          isBusy;
 
         emailInput.disabled =
-          disabled;
+          isBusy;
 
         passwordInput.disabled =
-          disabled;
+          isBusy;
 
         confirmPasswordInput.disabled =
-          disabled;
+          isBusy;
 
         acceptTermsInput.disabled =
-          disabled;
+          isBusy;
 
         acceptPrivacyInput.disabled =
-          disabled;
+          isBusy;
 
         submitButton.disabled =
-          disabled;
+          isBusy ||
+          !runtimeReady;
+
+        submitButton.textContent =
+          isBusy
+            ? "Creating Enterprise Account"
+            : runtimeReady
+              ? "Create Enterprise Account"
+              : "Registration Runtime Unavailable";
       }
 
-      function showSuccess(result) {
-        form.hidden = true;
+      function getBootstrapState() {
+        const bootstrap =
+          getRegistrationBootstrap();
 
-        successPanel.classList.add(
-          "visible"
+        if (
+          bootstrap &&
+          typeof bootstrap.getState ===
+            "function"
+        ) {
+          try {
+            return bootstrap.getState();
+          } catch (_) {
+            return null;
+          }
+        }
+
+        return (
+          global
+            .STATSCORE_REGISTRATION_BOOTSTRAP_STATE ||
+          null
         );
+      }
 
-        const verificationRequired =
-          result &&
-          result.verification_required !==
-            false;
+      function getServiceConfiguration() {
+        const service =
+          getRegistrationService();
 
-        successMessage.textContent =
-          verificationRequired
-            ? (
-              "A verification email has been sent. " +
-              "Verify your email before returning to the " +
-              "controlled login system."
-            )
-            : (
-              "Your enterprise account has been created. " +
-              "Return to Login to enter the controlled system."
+        if (
+          !service ||
+          typeof service.getConfiguration !==
+            "function"
+        ) {
+          return null;
+        }
+
+        try {
+          return service.getConfiguration();
+        } catch (_) {
+          return null;
+        }
+      }
+
+      function inspectRuntime() {
+        const service =
+          getRegistrationService();
+
+        const bootstrapState =
+          getBootstrapState();
+
+        const serviceConfiguration =
+          getServiceConfiguration();
+
+        const serviceAvailable =
+          Boolean(
+            service &&
+            typeof service.register ===
+              "function"
+          );
+
+        runtimeReady =
+          Boolean(
+            serviceAvailable &&
+            serviceConfiguration &&
+            serviceConfiguration.configured ===
+              true &&
+            bootstrapState &&
+            bootstrapState.initialized ===
+              true &&
+            bootstrapState.configured ===
+              true &&
+            bootstrapState.client_available ===
+              true
+          );
+
+        runtimeStatusElement
+          .classList
+          .remove(
+            "ready",
+            "unavailable"
+          );
+
+        if (runtimeReady) {
+          runtimeStatusElement.textContent =
+            "Governed registration runtime available.";
+
+          runtimeStatusElement
+            .classList
+            .add(
+              "ready"
             );
 
-        setStatus(
-          "Registration complete",
-          "success"
-        );
+          if (!submissionInProgress) {
+            setFormBusy(false);
+          }
+
+          return true;
+        }
+
+        runtimeStatusElement.textContent =
+          "The governed registration runtime has not been configured.";
+
+        runtimeStatusElement
+          .classList
+          .add(
+            "unavailable"
+          );
+
+        submitButton.disabled =
+          true;
+
+        submitButton.textContent =
+          "Registration Runtime Unavailable";
+
+        return false;
+      }
+
+      function buildVerificationReturnUrl() {
+        try {
+          const url =
+            new URL(
+              "login.html",
+              global.location.href
+            );
+
+          url.searchParams.set(
+            "registration",
+            "verified"
+          );
+
+          return url.href;
+        } catch (_) {
+          return null;
+        }
       }
 
       function validatePasswordStrength(
@@ -1193,6 +1372,8 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
           confirmPasswordInput.value;
 
         if (!role) {
+          roleInput.focus();
+
           throw new Error(
             "Select your requested enterprise role."
           );
@@ -1200,8 +1381,10 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
 
         if (
           !email ||
-          !email.includes("@")
+          !emailInput.checkValidity()
         ) {
+          emailInput.focus();
+
           throw new Error(
             "Enter a valid email address."
           );
@@ -1213,6 +1396,8 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
           );
 
         if (passwordErrors.length) {
+          passwordInput.focus();
+
           throw new Error(
             passwordErrors[0]
           );
@@ -1222,18 +1407,24 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
           password !==
           confirmPassword
         ) {
+          confirmPasswordInput.focus();
+
           throw new Error(
             "Password confirmation does not match."
           );
         }
 
         if (!acceptTermsInput.checked) {
+          acceptTermsInput.focus();
+
           throw new Error(
             "Accept the Terms of Service to continue."
           );
         }
 
         if (!acceptPrivacyInput.checked) {
+          acceptPrivacyInput.focus();
+
           throw new Error(
             "Acknowledge the Privacy Policy to continue."
           );
@@ -1253,6 +1444,9 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
           requested_destination:
             "login.html",
 
+          email_redirect_to:
+            buildVerificationReturnUrl(),
+
           agreements:
             Object.freeze({
               terms_accepted:
@@ -1263,7 +1457,25 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
 
               accepted_at:
                 new Date()
-                  .toISOString()
+                  .toISOString(),
+
+              terms_version:
+                "CURRENT",
+
+              privacy_version:
+                "CURRENT"
+            }),
+
+          entry_metadata:
+            Object.freeze({
+              page:
+                "register.html",
+
+              registration_channel:
+                "public_web",
+
+              requested_role:
+                role
             })
         });
       }
@@ -1274,17 +1486,27 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
         if (
           rawError &&
           typeof rawError.user_message ===
-            "string"
+            "string" &&
+          cleanString(
+            rawError.user_message
+          )
         ) {
-          return rawError.user_message;
+          return cleanString(
+            rawError.user_message
+          );
         }
 
         if (
           rawError &&
           typeof rawError.message ===
-            "string"
+            "string" &&
+          cleanString(
+            rawError.message
+          )
         ) {
-          return rawError.message;
+          return cleanString(
+            rawError.message
+          );
         }
 
         return (
@@ -1292,41 +1514,72 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
         );
       }
 
-      function inspectRuntime() {
-        const service =
-          getRegistrationService();
+      function showSuccess(
+        result
+      ) {
+        form.hidden =
+          true;
 
-        const valid =
-          Boolean(
-            service &&
-            typeof service.register ===
-              "function"
+        successPanel
+          .classList
+          .add(
+            "visible"
           );
 
-        runtimeStatusElement.classList.remove(
-          "ready",
-          "unavailable"
-        );
+        const verificationRequired =
+          result &&
+          result.verification_required !==
+            false;
 
-        if (valid) {
-          runtimeStatusElement.textContent =
-            "Governed registration runtime available.";
-
-          runtimeStatusElement.classList.add(
-            "ready"
-          );
-
-          return true;
+        if (verificationRequired) {
+          successMessage.textContent =
+            "Your enterprise account has been created. " +
+            "A verification email has been sent to the " +
+            "registered email address. Verify the email " +
+            "before returning to the controlled login system.";
+        } else {
+          successMessage.textContent =
+            "Your enterprise account has been created and " +
+            "is ready for controlled login. You will be " +
+            "transferred to the Login Authority.";
         }
 
-        runtimeStatusElement.textContent =
-          "The governed registration runtime has not been configured.";
+        const receiptId =
+          cleanString(
+            result &&
+            result.registration_receipt_id
+          );
 
-        runtimeStatusElement.classList.add(
-          "unavailable"
+        if (receiptId) {
+          receiptReference.hidden =
+            false;
+
+          receiptReference.textContent =
+            "Registration Receipt: " +
+            receiptId;
+        } else {
+          receiptReference.hidden =
+            true;
+
+          receiptReference.textContent =
+            "";
+        }
+
+        setStatus(
+          "Registration complete",
+          "success"
         );
 
-        return false;
+        if (!verificationRequired) {
+          global.setTimeout(
+            function transferToLogin() {
+              global.location.assign(
+                "login.html?registration=complete"
+              );
+            },
+            2200
+          );
+        }
       }
 
       async function handleSubmission(
@@ -1334,15 +1587,33 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
       ) {
         event.preventDefault();
 
-        if (submissionInProgress) {
+        if (
+          submissionInProgress ||
+          !runtimeReady
+        ) {
+          if (!runtimeReady) {
+            setStatus(
+              "The governed registration runtime is unavailable.",
+              "error"
+            );
+          }
+
           return;
         }
 
         setStatus("");
 
-        successPanel.classList.remove(
-          "visible"
-        );
+        successPanel
+          .classList
+          .remove(
+            "visible"
+          );
+
+        receiptReference.hidden =
+          true;
+
+        receiptReference.textContent =
+          "";
 
         try {
           const service =
@@ -1364,7 +1635,7 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
           submissionInProgress =
             true;
 
-          setControlsDisabled(
+          setFormBusy(
             true
           );
 
@@ -1410,6 +1681,10 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
 
                     correlation_id:
                       result.correlation_id ||
+                      null,
+
+                    registration_receipt_id:
+                      result.registration_receipt_id ||
                       null
                   })
               }
@@ -1442,7 +1717,9 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
             false;
 
           if (!form.hidden) {
-            setControlsDisabled(
+            inspectRuntime();
+
+            setFormBusy(
               false
             );
           }
@@ -1459,7 +1736,37 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
         inspectRuntime
       );
 
+      global.addEventListener(
+        "statscore:registration-runtime-failed",
+        inspectRuntime
+      );
+
+      global.addEventListener(
+        "statscore:registration-bootstrap-ready",
+        inspectRuntime
+      );
+
+      global.addEventListener(
+        "statscore:registration-bootstrap-failed",
+        inspectRuntime
+      );
+
+      global.addEventListener(
+        "statscore:registration-service-configured",
+        inspectRuntime
+      );
+
       inspectRuntime();
+
+      global.setTimeout(
+        inspectRuntime,
+        250
+      );
+
+      global.setTimeout(
+        inspectRuntime,
+        1000
+      );
     })(window);
   </script>
 
