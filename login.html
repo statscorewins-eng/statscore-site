@@ -7,30 +7,34 @@ File:
 login.html
 
 Asset Type:
-HTML Presentation Page
+HTML Presentation Page / Authentication Entry Interface
 
 Owner Stream:
-Stream 1 — Public Access / Login
+Stream 1 — Public Access, Authentication & Entry Authority
 
 Primary Operational Authority:
-Stream 1 — Public Access / Login
+Stream 1 — Login and Initial Authentication Authority
 
 System Layer:
-Authentication Presentation / Credential Submission
+Authentication Presentation / Credential Submission /
+Governed Entry Routing
 
 Primary Runtime:
 statscore-authentication-service.js
 
-Supporting Runtime Articles:
+Runtime Bootstrap:
+statscore-authentication-bootstrap.js
+
+Supporting Runtime Authorities:
+statscore-data.js
 statscore-authentication-errors.js
 statscore-authentication-context.js
 statscore-authentication-receipts.js
 
-Primary Intelligence Engine(s):
-None
-
-Previous Route:
+Previous Route(s):
 index.html
+register.html
+Supabase email-verification redirect
 
 Current Route:
 login.html
@@ -43,62 +47,98 @@ role-dashboard.html
 system.html
 
 Consumes:
-User credentials
-Optional role hint
-Requested entry intent
-Requested destination
+- user credentials
+- selected role hint
+- requested entry intent
+- requested destination
+- governed authentication-runtime readiness
+- verified registration redirect state
 
 Provides:
-Credential submission to the governed authentication service
-Authentication status presentation
-Authorized post-authentication navigation
+- credential submission to the Authentication Service
+- authentication-runtime readiness presentation
+- role-aware entry-path presentation
+- safe authentication-error presentation
+- authorized post-authentication navigation
 
-Primary Authentication Context:
-session_id
-user_id
-role
-entry_intent
-authenticated_at
-authentication_source
-requested_destination
+Initial Authentication Context:
+1. session_id
+2. user_id
+3. role
+4. entry_intent
+5. authenticated_at
+6. authentication_source
+7. requested_destination
 
 Primary Database Authorities:
-Supabase auth.users
-Governed STATS-CORE identity authority
-Governed STATS-CORE role authority
-Governed entry-state authority
-Governed authentication receipt authority
+- Supabase auth.users
+- governed STATS-CORE identity authority
+- governed STATS-CORE role authority
+- governed Entry-State authority
+- governed Authentication Receipt authority
 
 Cross-Stream Dependencies:
-Routes first-time athletes to Stream 2.
-Routes returning athletes to the Athlete Dashboard.
-Routes first-time professional roles to Stream 4.
-Routes returning professional roles to the Role Dashboard.
-Routes administrators to System Operations.
+- First-time athletes route to Stream 2 Snapshot Intake.
+- Returning athletes route to the Stream 3 Athlete Dashboard.
+- First-time professional roles route to Stream 4 Role Intake.
+- Returning professional roles route to the Stream 5 Role Dashboard.
+- Administrators route to System Operations.
+- Stream 8 may consume the Initial Authentication Context after entry.
+
+Constitutional Routing:
+- First-time athlete:
+  snapshot-intake.html?new=1&role=athlete&from=login
+  &next=athlete-dashboard.html
+
+- Returning athlete:
+  athlete-dashboard.html?snapshot_id={snapshot_id}
+
+- First-time professional:
+  role-dashboard-intake.html?role={authenticated_role}
+  &from=login&next=role-dashboard.html
+
+- Returning professional:
+  role-dashboard.html
+
+- Administrator:
+  system.html
 
 Does NOT:
-- Authenticate credentials independently
-- Manufacture user identity
-- Manufacture role authority
-- Manufacture session identifiers
-- Manufacture athlete snapshot authority
-- Manufacture professional onboarding state
-- Manufacture runtime workspace context
-- Store credentials
-- Store unofficial login context
-- Determine first-time or returning status
-- Write directly to authentication receipt tables
-- Calculate athlete intelligence
-- Create athlete scores
-- Modify production records
-- Generate Crystal Reports
-- Execute Multi-Box communication
+- authenticate credentials independently
+- manufacture user identity
+- manufacture role authority
+- manufacture session identifiers
+- determine first-time or returning status independently
+- manufacture athlete_id
+- manufacture snapshot_id
+- manufacture professional workspace authority
+- initialize Initial Runtime Context
+- restore professional workspaces
+- store passwords
+- store provider access tokens
+- write directly to Authentication Receipt tables
+- calculate athlete intelligence
+- create athlete scores
+- modify production records
+- generate Crystal Reports
+- execute Multi-Box communication
+
+Runtime Policy:
+- The page remains fail-closed until the governed
+  Authentication Bootstrap confirms runtime readiness.
+- The Login Presentation Controller does not configure
+  Authentication Service authorities directly.
+- Runtime configuration belongs exclusively to
+  statscore-authentication-bootstrap.js.
 
 Status:
-PWP-001 PRODUCTION INTEGRATION
+CONTROLLED REPLACEMENT — STREAM 1 AUTHENTICATION FLOW READINESS
+
+Version:
+STATSCORE-LOGIN-PRESENTATION-V2.0.0
 
 Last Governance Review:
-2026-07-24
+2026-08-05
 
 ==========================================================
 -->
@@ -124,7 +164,7 @@ Last Governance Review:
 
   <meta
     name="description"
-    content="STATS-CORE™ governed authentication and role-authorized system access."
+    content="Sign in to the STATS-CORE™ Athlete Lifecycle System through its governed, role-aware authentication service."
   />
 
   <link
@@ -141,12 +181,16 @@ Last Governance Review:
   <style>
     :root {
       --red: #f02a22;
+      --red-bright: #ff3b30;
+      --red-deep: #c41212;
       --green: #37e66b;
+      --amber: #ffca45;
       --bg: #050505;
       --panel: rgba(8, 10, 14, 0.88);
       --line: rgba(240, 42, 34, 0.42);
       --text: #f4f4f1;
       --muted: #9aa4ad;
+      --input: rgba(255, 255, 255, 0.05);
     }
 
     * {
@@ -161,7 +205,10 @@ Last Governance Review:
       min-height: 100%;
       background: #000;
       color: var(--text);
-      font-family: Arial, Helvetica, sans-serif;
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
     }
 
     body {
@@ -185,6 +232,13 @@ Last Governance Review:
         #020202;
     }
 
+    button,
+    input,
+    select,
+    a {
+      font: inherit;
+    }
+
     .login-shell {
       width: min(1120px, 100%);
       min-height: 620px;
@@ -199,7 +253,8 @@ Last Governance Review:
       display: grid;
       grid-template-columns: 1.15fr 0.85fr;
       box-shadow:
-        0 0 80px rgba(240, 42, 34, 0.10);
+        0 0 80px
+        rgba(240, 42, 34, 0.10);
       position: relative;
       overflow: hidden;
     }
@@ -326,7 +381,61 @@ Last Governance Review:
       color: #b9c7d3;
       line-height: 1.55;
       font-weight: 700;
-      margin-bottom: 36px;
+      margin-bottom: 24px;
+    }
+
+    .runtime-banner {
+      margin-bottom: 28px;
+      min-height: 48px;
+      padding: 13px 15px;
+      border:
+        1px solid
+        rgba(255, 202, 69, 0.42);
+      background:
+        rgba(255, 202, 69, 0.055);
+      color: var(--amber);
+      font-size: 0.7rem;
+      font-weight: 900;
+      letter-spacing: 0.15em;
+      line-height: 1.45;
+      text-transform: uppercase;
+    }
+
+    .runtime-banner.ready {
+      color: var(--green);
+      border-color:
+        rgba(55, 230, 107, 0.42);
+      background:
+        rgba(55, 230, 107, 0.055);
+    }
+
+    .runtime-banner.error {
+      color: var(--red);
+      border-color:
+        rgba(240, 42, 34, 0.48);
+      background:
+        rgba(240, 42, 34, 0.06);
+    }
+
+    .verification-banner {
+      display: none;
+      margin-bottom: 24px;
+      padding: 14px 15px;
+      border:
+        1px solid
+        rgba(55, 230, 107, 0.42);
+      background:
+        rgba(55, 230, 107, 0.055);
+      color: var(--green);
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      line-height: 1.5;
+      text-transform: uppercase;
+    }
+
+    .verification-banner.visible {
+      display: block;
     }
 
     .field {
@@ -347,8 +456,7 @@ Last Governance Review:
     select {
       width: 100%;
       height: 58px;
-      background:
-        rgba(255, 255, 255, 0.05);
+      background: var(--input);
       border:
         1px solid
         rgba(255, 255, 255, 0.34);
@@ -369,7 +477,7 @@ Last Governance Review:
     input:disabled,
     select:disabled {
       cursor: not-allowed;
-      opacity: 0.68;
+      opacity: 0.62;
     }
 
     select option {
@@ -377,7 +485,7 @@ Last Governance Review:
       color: #fff;
     }
 
-    button {
+    .login-button {
       width: 100%;
       height: 66px;
       border:
@@ -386,8 +494,8 @@ Last Governance Review:
       background:
         linear-gradient(
           180deg,
-          #ff3b30 0%,
-          #c41212 100%
+          var(--red-bright) 0%,
+          var(--red-deep) 100%
         );
       box-shadow:
         0 0 34px
@@ -402,21 +510,44 @@ Last Governance Review:
       margin-top: 6px;
     }
 
-    button:hover {
+    .login-button:hover:not(:disabled) {
       filter: brightness(1.06);
     }
 
-    button:focus-visible {
+    .login-button:focus-visible,
+    .secondary-link:focus-visible {
       outline:
         2px solid
         rgba(255, 255, 255, 0.85);
       outline-offset: 3px;
     }
 
-    button:disabled {
-      cursor: wait;
-      opacity: 0.68;
-      filter: grayscale(0.25);
+    .login-button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+      filter: grayscale(0.3);
+    }
+
+    .secondary-actions {
+      margin-top: 18px;
+      display: flex;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .secondary-link {
+      color: #dce5ec;
+      font-size: 0.7rem;
+      font-weight: 900;
+      letter-spacing: 0.16em;
+      line-height: 1.4;
+      text-decoration: underline;
+      text-underline-offset: 5px;
+      text-transform: uppercase;
+    }
+
+    .secondary-link:hover {
+      color: #fff;
     }
 
     .status {
@@ -560,7 +691,6 @@ Last Governance Review:
       .login-copy {
         font-size: 1rem;
         line-height: 1.55;
-        margin-bottom: 26px;
       }
 
       input,
@@ -569,7 +699,7 @@ Last Governance Review:
         padding: 0 18px;
       }
 
-      button {
+      .login-button {
         min-height: 68px;
         margin-top: 28px;
         font-size: 0.84rem;
@@ -585,14 +715,14 @@ Last Governance Review:
 
 <body>
 
-  <section class="login-shell">
+  <main class="login-shell">
 
-    <div class="left">
+    <section class="left">
 
       <img
         class="logo"
         src="sc_blk_logo_i.png"
-        alt="STATS-CORE"
+        alt="STATS-CORE Athlete Lifecycle System"
       />
 
       <div class="kicker">
@@ -600,7 +730,8 @@ Last Governance Review:
       </div>
 
       <h1>
-        Access<br />
+        Access
+        <br />
         <span>Authorization</span>
       </h1>
 
@@ -630,9 +761,9 @@ Last Governance Review:
 
       </div>
 
-    </div>
+    </section>
 
-    <div class="right">
+    <section class="right">
 
       <h2 class="login-title">
         System <span>Login</span>
@@ -645,9 +776,29 @@ Last Governance Review:
         STATS-CORE authentication service.
       </p>
 
+      <div
+        id="verificationBanner"
+        class="verification-banner"
+        role="status"
+        aria-live="polite"
+      >
+        Email verification completed. Sign in with your
+        registered credentials to enter STATS-CORE.
+      </div>
+
+      <div
+        id="runtimeBanner"
+        class="runtime-banner"
+        role="status"
+        aria-live="polite"
+      >
+        Initializing governed authentication runtime.
+      </div>
+
       <form
         id="statscoreLoginForm"
         novalidate
+        aria-busy="false"
       >
 
         <div class="field">
@@ -661,6 +812,7 @@ Last Governance Review:
             name="role"
             autocomplete="off"
             required
+            disabled
           >
             <option value="">
               Select authorized role
@@ -720,6 +872,7 @@ Last Governance Review:
             placeholder="Enter authorized email"
             maxlength="320"
             required
+            disabled
           />
 
         </div>
@@ -737,15 +890,18 @@ Last Governance Review:
             autocomplete="current-password"
             placeholder="Enter secure password"
             required
+            disabled
           />
 
         </div>
 
         <button
           id="loginButton"
+          class="login-button"
           type="submit"
+          disabled
         >
-          Enter Controlled System
+          Initializing System
         </button>
 
       </form>
@@ -765,30 +921,62 @@ Last Governance Review:
         Select a role to review its governed entry path.
       </div>
 
-    </div>
+      <div class="secondary-actions">
+        <a
+          class="secondary-link"
+          href="register.html"
+        >
+          First-time user? Create an account
+        </a>
+      </div>
+
+    </section>
 
     <div class="footer-note">
       STATS-CORE Systems · Controlled Access Infrastructure
     </div>
 
-  </section>
+  </main>
 
   <!--
-    PWP-001 governed load order.
+  ==========================================================
+  STREAM 1 — GOVERNED AUTHENTICATION RUNTIME LOAD ORDER
+  ==========================================================
 
-    The Supabase client and the approved authentication-service
-    configuration must be initialized by the production runtime
-    before a user submits this form.
+  1. Supabase browser library
+  2. Approved shared Supabase client authority
+  3. Authentication Error Authority
+  4. Initial Authentication Context Authority
+  5. Authentication Receipt Authority
+  6. Authentication Service
+  7. Authentication Bootstrap
+  8. Login Presentation Controller
   -->
 
+  <!-- 1. Supabase browser library -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+  ></script>
+
+  <!-- 2. Approved shared Supabase client authority -->
+  <script src="statscore-data.js"></script>
+
+  <!-- 3–6. Authentication authorities -->
   <script src="statscore-authentication-errors.js"></script>
   <script src="statscore-authentication-context.js"></script>
   <script src="statscore-authentication-receipts.js"></script>
   <script src="statscore-authentication-service.js"></script>
 
+  <!-- 7. Authentication runtime configuration -->
+  <script src="statscore-authentication-bootstrap.js"></script>
+
+  <!-- 8. Login Presentation Controller -->
   <script>
     (function initializeStatsCoreLoginPage(global) {
       "use strict";
+
+      const PAGE_VERSION =
+        "STATSCORE-LOGIN-PRESENTATION-V2.0.0";
 
       const loginForm =
         document.getElementById(
@@ -824,6 +1012,21 @@ Last Governance Review:
         document.getElementById(
           "routePreview"
         );
+
+      const runtimeBanner =
+        document.getElementById(
+          "runtimeBanner"
+        );
+
+      const verificationBanner =
+        document.getElementById(
+          "verificationBanner"
+        );
+
+      const pageState = {
+        runtimeReady: false,
+        submitting: false
+      };
 
       const ROLE_PATH_DESCRIPTIONS =
         Object.freeze({
@@ -882,35 +1085,71 @@ Last Governance Review:
           !controlledMessage;
       }
 
-      function setSubmitting(
-        submitting
+      function setRuntimeBanner(
+        message,
+        disposition
       ) {
-        const isSubmitting =
-          Boolean(
-            submitting
+        runtimeBanner.textContent =
+          cleanString(message);
+
+        runtimeBanner.classList.remove(
+          "ready",
+          "error"
+        );
+
+        if (
+          disposition === "ready" ||
+          disposition === "error"
+        ) {
+          runtimeBanner.classList.add(
+            disposition
           );
+        }
+      }
+
+      function updateControlState() {
+        const controlsAvailable =
+          pageState.runtimeReady &&
+          !pageState.submitting;
 
         roleInput.disabled =
-          isSubmitting;
+          !controlsAvailable;
 
         emailInput.disabled =
-          isSubmitting;
+          !controlsAvailable;
 
         passwordInput.disabled =
-          isSubmitting;
+          !controlsAvailable;
 
         loginButton.disabled =
-          isSubmitting;
-
-        loginButton.textContent =
-          isSubmitting
-            ? "Authenticating"
-            : "Enter Controlled System";
+          !controlsAvailable;
 
         loginForm.setAttribute(
           "aria-busy",
-          String(isSubmitting)
+          String(
+            pageState.submitting
+          )
         );
+
+        if (pageState.submitting) {
+          loginButton.textContent =
+            "Authenticating";
+        } else if (pageState.runtimeReady) {
+          loginButton.textContent =
+            "Enter Controlled System";
+        } else {
+          loginButton.textContent =
+            "Initializing System";
+        }
+      }
+
+      function setSubmitting(
+        submitting
+      ) {
+        pageState.submitting =
+          Boolean(submitting);
+
+        updateControlState();
       }
 
       function getAuthenticationService() {
@@ -930,6 +1169,15 @@ Last Governance Review:
         }
 
         return service;
+      }
+
+      function getAuthenticationBootstrap() {
+        return (
+          global.STATSCORE_AUTHENTICATION_BOOTSTRAP ||
+          global.STATScore
+            ?.AuthenticationBootstrap ||
+          null
+        );
       }
 
       function assertServiceConfigured(
@@ -975,6 +1223,15 @@ Last Governance Review:
         if (
           error &&
           cleanString(
+            error.user_message
+          )
+        ) {
+          return error.user_message;
+        }
+
+        if (
+          error &&
+          cleanString(
             error.message
           )
         ) {
@@ -1011,14 +1268,286 @@ Last Governance Review:
           ROLE_PATH_DESCRIPTIONS[role];
       }
 
+      function applyIncomingEntryContext() {
+        const query =
+          new URLSearchParams(
+            global.location.search
+          );
+
+        const registrationState =
+          cleanString(
+            query.get(
+              "registration"
+            )
+          ).toLowerCase();
+
+        const roleHint =
+          cleanString(
+            query.get(
+              "role"
+            )
+          ).toLowerCase();
+
+        const emailHint =
+          cleanString(
+            query.get(
+              "email"
+            )
+          ).toLowerCase();
+
+        if (
+          registrationState ===
+            "verified" ||
+          registrationState ===
+            "complete" ||
+          registrationState ===
+            "confirmed"
+        ) {
+          verificationBanner.classList.add(
+            "visible"
+          );
+        }
+
+        if (
+          roleHint &&
+          Object.prototype
+            .hasOwnProperty.call(
+              ROLE_PATH_DESCRIPTIONS,
+              roleHint
+            )
+        ) {
+          roleInput.value =
+            roleHint;
+        }
+
+        if (
+          emailHint &&
+          emailHint.includes("@")
+        ) {
+          emailInput.value =
+            emailHint;
+        }
+
+        updateRoutePreview();
+      }
+
+      function removeSensitiveUrlMaterial() {
+        /*
+        Supabase may return email-verification information in
+        the URL fragment. The Supabase client is loaded before
+        this controller and receives the opportunity to process
+        that state first.
+
+        This controller then removes the visible fragment from
+        browser history so tokens are not left in the address bar.
+        */
+
+        if (
+          !global.location.hash
+        ) {
+          return;
+        }
+
+        try {
+          const sanitizedUrl =
+            global.location.pathname +
+            global.location.search;
+
+          global.history.replaceState(
+            null,
+            document.title,
+            sanitizedUrl
+          );
+        } catch (_) {
+          /*
+          URL sanitation is best-effort presentation hygiene.
+          Authentication authority remains with Supabase and
+          the governed Authentication Service.
+          */
+        }
+      }
+
+      function markRuntimeReady(
+        configuration
+      ) {
+        pageState.runtimeReady =
+          true;
+
+        setRuntimeBanner(
+          "Governed authentication runtime available.",
+          "ready"
+        );
+
+        setStatus(
+          "",
+          false
+        );
+
+        updateControlState();
+
+        global.dispatchEvent(
+          new CustomEvent(
+            "statscore:login-presentation-ready",
+            {
+              detail:
+                Object.freeze({
+                  version:
+                    PAGE_VERSION,
+
+                  ready:
+                    true,
+
+                  authentication_source:
+                    cleanString(
+                      configuration
+                        ?.authentication_source
+                    ) ||
+                    null
+                })
+            }
+          )
+        );
+      }
+
+      function markRuntimeFailed(
+        error
+      ) {
+        pageState.runtimeReady =
+          false;
+
+        setRuntimeBanner(
+          "Governed authentication runtime unavailable.",
+          "error"
+        );
+
+        setStatus(
+          resolveSafeErrorMessage(
+            error
+          ),
+          true
+        );
+
+        updateControlState();
+      }
+
+      function inspectRuntimeReadiness() {
+        try {
+          const service =
+            getAuthenticationService();
+
+          const configuration =
+            assertServiceConfigured(
+              service
+            );
+
+          markRuntimeReady(
+            configuration
+          );
+
+          return true;
+        } catch (_) {
+          return false;
+        }
+      }
+
+      async function initializeAuthenticationRuntime() {
+        setRuntimeBanner(
+          "Initializing governed authentication runtime.",
+          "pending"
+        );
+
+        updateControlState();
+
+        if (
+          inspectRuntimeReadiness()
+        ) {
+          return;
+        }
+
+        const bootstrap =
+          getAuthenticationBootstrap();
+
+        if (
+          bootstrap &&
+          typeof bootstrap.initialize ===
+            "function"
+        ) {
+          try {
+            await bootstrap.initialize();
+          } catch (error) {
+            markRuntimeFailed(
+              error
+            );
+
+            return;
+          }
+
+          if (
+            inspectRuntimeReadiness()
+          ) {
+            return;
+          }
+        }
+
+        /*
+        Some bootstrap implementations initialize automatically
+        after DOMContentLoaded and publish readiness by event.
+        Allow a bounded interval for that initialization.
+        */
+
+        const maximumAttempts =
+          40;
+
+        const delayMilliseconds =
+          125;
+
+        for (
+          let attempt = 0;
+          attempt < maximumAttempts;
+          attempt += 1
+        ) {
+          await new Promise(
+            function wait(resolve) {
+              global.setTimeout(
+                resolve,
+                delayMilliseconds
+              );
+            }
+          );
+
+          if (
+            inspectRuntimeReadiness()
+          ) {
+            return;
+          }
+        }
+
+        markRuntimeFailed(
+          new Error(
+            "The governed authentication runtime has not been configured."
+          )
+        );
+      }
+
       async function handleLoginSubmission(
         event
       ) {
         event.preventDefault();
 
         if (
-          loginButton.disabled
+          pageState.submitting
         ) {
+          return;
+        }
+
+        if (
+          !pageState.runtimeReady
+        ) {
+          setStatus(
+            "The authentication system is not ready.",
+            true
+          );
+
           return;
         }
 
@@ -1097,6 +1626,7 @@ Last Governance Review:
             await authenticationService
               .authenticate({
                 email,
+
                 password,
 
                 role_hint:
@@ -1127,6 +1657,12 @@ Last Governance Review:
             false
           );
 
+          /*
+          location.assign preserves the authenticated browser
+          session while transferring control to the authorized
+          destination returned by Authentication Service.
+          */
+
           global.location.assign(
             result.destination
           );
@@ -1149,6 +1685,29 @@ Last Governance Review:
         }
       }
 
+      function handleRuntimeReadyEvent() {
+        inspectRuntimeReadiness();
+      }
+
+      function handleRuntimeFailureEvent(
+        event
+      ) {
+        const message =
+          cleanString(
+            event?.detail?.user_message
+          ) ||
+          cleanString(
+            event?.detail?.message
+          ) ||
+          "The governed authentication runtime could not be initialized.";
+
+        markRuntimeFailed(
+          new Error(
+            message
+          )
+        );
+      }
+
       roleInput.addEventListener(
         "change",
         updateRoutePreview
@@ -1159,7 +1718,46 @@ Last Governance Review:
         handleLoginSubmission
       );
 
-      updateRoutePreview();
+      global.addEventListener(
+        "statscore:authentication-runtime-ready",
+        handleRuntimeReadyEvent
+      );
+
+      global.addEventListener(
+        "statscore:authentication-bootstrap-ready",
+        handleRuntimeReadyEvent
+      );
+
+      global.addEventListener(
+        "statscore:authentication-service-configured",
+        handleRuntimeReadyEvent
+      );
+
+      global.addEventListener(
+        "statscore:authentication-runtime-failed",
+        handleRuntimeFailureEvent
+      );
+
+      global.addEventListener(
+        "statscore:authentication-bootstrap-failed",
+        handleRuntimeFailureEvent
+      );
+
+      applyIncomingEntryContext();
+
+      updateControlState();
+
+      /*
+      Allow Supabase's URL-session processing to begin before
+      removing sensitive verification material from the address bar.
+      */
+
+      global.setTimeout(
+        removeSensitiveUrlMaterial,
+        750
+      );
+
+      initializeAuthenticationRuntime();
     })(window);
   </script>
 
