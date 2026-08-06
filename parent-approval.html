@@ -9,7 +9,7 @@ parent-approval.html
 Asset Type:
 HTML Presentation Page
 
-Owner Stream:
+Constitutional Owner:
 Stream 2 — Athlete Source Record Authority
 
 Primary Operational Authority:
@@ -25,21 +25,21 @@ Current Route:
 parent-approval.html?snapshot_id={authorized_snapshot_id}
 
 Consumes:
-snapshot_id
-athlete identity context
-active parent approval request
-requester identity
-requested permission scopes
-approval status
-approval history
+Authorized snapshot_id
+Athlete identity context
+Active parent approval request
+Requester identity
+Requested permission scope
+Approval status
+Approval activity history
 
 Provides:
-parent approval decision
-approved permission scopes
-denial decision
-modified permission decision
-revocation decision
-approval activity history
+Parent or guardian decision
+Approved permission selections
+Denied request status
+Modified permission status
+Revoked permission status
+Approval activity record
 
 Primary IDs:
 snapshot_id
@@ -52,33 +52,51 @@ Primary Database Tables:
 public.sc_parent_approval_requests
 public.sc_parent_approval_audit_events
 
+Cross-Stream Dependencies:
+Stream 1 — Authentication and authorized entry
+Stream 6 — Communication permissions
+Stream 7 — Media and visibility permissions
+Stream 8 — Runtime context
+Stream 10 — Professional credential authority
+
 Does NOT:
-- Create athlete identities
+- Create athlete identity
 - Create athlete snapshots
-- Verify recruiters
+- Verify recruiters or professionals
 - Publish athlete information
-- Publish media
-- Issue professional credentials
+- Publish athlete media
+- Issue credentials
 - Calculate athlete intelligence
-- Calculate eligibility
+- Determine eligibility
 - Transfer constitutional ownership
 
+Public Presentation Standard:
+Constitutional Presentation Principle
+Public Presentation Readiness Review
+
 Status:
-CONTROLLED REVISION — PUBLIC PRESENTATION + HEADER BASELINE
+CONTROLLED REVISION — PPRR IMPLEMENTATION
 
 ==========================================================
 -->
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
 <meta charset="UTF-8" />
+
 <meta
   name="viewport"
   content="width=device-width, initial-scale=1.0"
 />
 
-<title>STATS-CORE™ — Parent Permissions</title>
+<meta
+  name="description"
+  content="Review an access request involving an athlete and choose exactly what information and activities a parent or guardian allows."
+/>
+
+<title>STATS-CORE™ — Review Athlete Access Request</title>
 
 <link
   rel="icon"
@@ -89,22 +107,22 @@ CONTROLLED REVISION — PUBLIC PRESENTATION + HEADER BASELINE
 <style>
 :root{
   --red:#ff2b1f;
-  --red2:#b90710;
+  --red-dark:#b90710;
   --gold:#f4c542;
   --green:#25d366;
   --yellow:#ffb100;
   --danger:#ff4d4d;
+  --blue:#7ed8ff;
 
   --black:#020202;
-  --panel:rgba(6,10,18,.58);
-  --panel2:rgba(7,10,16,.64);
+  --panel:rgba(6,10,18,.62);
+  --panel-strong:rgba(5,8,14,.86);
 
   --line:rgba(255,255,255,.18);
-  --line2:rgba(255,255,255,.32);
+  --line-strong:rgba(255,255,255,.32);
 
   --text:#f4f4f1;
   --muted:#b8c3cc;
-  --blue:#7ed8ff;
 
   --max:1536px;
 }
@@ -120,6 +138,7 @@ CONTROLLED REVISION — PUBLIC PRESENTATION + HEADER BASELINE
 html,
 body{
   margin:0;
+  min-height:100%;
   background:#000;
   color:var(--text);
   font-family:Arial,Helvetica,sans-serif;
@@ -134,8 +153,13 @@ a{
   text-decoration:none;
 }
 
-button{
+button,
+input{
   font:inherit;
+}
+
+button{
+  appearance:none;
 }
 
 .page{
@@ -146,18 +170,18 @@ button{
   background:
     linear-gradient(
       90deg,
-      rgba(0,0,0,.88),
-      rgba(0,0,0,.68),
-      rgba(0,0,0,.78)
+      rgba(0,0,0,.90),
+      rgba(0,0,0,.69),
+      rgba(0,0,0,.80)
     ),
     radial-gradient(
-      circle at 45% 20%,
-      rgba(255,43,31,.13),
+      circle at 45% 18%,
+      rgba(255,43,31,.14),
       transparent 34%
     ),
     radial-gradient(
-      circle at 80% 70%,
-      rgba(126,216,255,.11),
+      circle at 82% 72%,
+      rgba(126,216,255,.10),
       transparent 34%
     ),
     repeating-linear-gradient(
@@ -183,7 +207,7 @@ button{
 }
 
 /* ==========================================================
-   APPROVED TABBED-LOGO HEADER BASELINE
+   APPROVED TABBED-LOGO HEADER
 ========================================================== */
 
 .header{
@@ -202,14 +226,16 @@ button{
   grid-template-columns:380px 1fr 620px;
   align-items:center;
 
-  overflow:visible;
-
   position:relative;
   z-index:50;
+
+  overflow:visible;
 }
 
 .logo-tab{
   height:96px;
+
+  padding-left:28px;
 
   background:
     linear-gradient(
@@ -230,12 +256,10 @@ button{
   display:flex;
   align-items:center;
 
-  padding-left:28px;
-
   position:relative;
 }
 
-.logo-tab:before{
+.logo-tab::before{
   content:"";
 
   position:absolute;
@@ -256,13 +280,13 @@ button{
     );
 }
 
-.logo-tab:after{
+.logo-tab::after{
   content:"";
 
   position:absolute;
+  right:42px;
   bottom:0;
   left:0;
-  right:42px;
 
   height:3px;
 
@@ -293,8 +317,6 @@ button{
 }
 
 .header-tools{
-  position:relative;
-
   padding:10px 20px 10px 0;
 
   display:flex;
@@ -315,29 +337,30 @@ button{
   height:30px;
   min-width:80px;
 
+  padding:0 9px;
+
   border:1px solid rgba(0,0,0,.22);
 
+  background:rgba(255,255,255,.55);
   color:#111;
-
-  background:
-    rgba(255,255,255,.55);
 
   display:flex;
   align-items:center;
   justify-content:center;
-
-  gap:6px;
-
-  padding:0 9px;
 
   font-size:.56rem;
   font-weight:900;
 
   letter-spacing:.06em;
 
+  text-align:center;
   text-transform:uppercase;
 
   white-space:nowrap;
+}
+
+.top-nav a:hover{
+  background:rgba(0,0,0,.06);
 }
 
 .top-nav a.active{
@@ -345,8 +368,7 @@ button{
 
   border-color:var(--red);
 
-  background:
-    rgba(255,43,31,.08);
+  background:rgba(255,43,31,.08);
 }
 
 /* ==========================================================
@@ -376,14 +398,14 @@ button{
       rgba(255,255,255,.045),
       rgba(255,255,255,.008)
     ),
-    rgba(5,5,5,.86);
+    var(--panel-strong);
 
   box-shadow:
     inset 0 0 0 1px rgba(255,255,255,.03),
     0 20px 44px rgba(0,0,0,.70);
 }
 
-.hero:before{
+.hero::before{
   content:"";
 
   position:absolute;
@@ -396,7 +418,7 @@ button{
   background:var(--red);
 }
 
-.label{
+.hero-label{
   color:var(--red);
 
   font-size:.72rem;
@@ -408,9 +430,9 @@ button{
 }
 
 .hero h1{
-  max-width:880px;
+  max-width:980px;
 
-  margin:14px 0 16px;
+  margin:12px 0 14px;
 
   color:#f7f7f1;
 
@@ -431,8 +453,8 @@ button{
   text-transform:uppercase;
 }
 
-.hero p{
-  max-width:880px;
+.hero-copy{
+  max-width:930px;
 
   margin:0;
 
@@ -444,11 +466,35 @@ button{
   line-height:1.58;
 }
 
+.hero-direction{
+  max-width:930px;
+
+  margin:16px 0 0;
+
+  padding:13px 15px;
+
+  border-left:4px solid var(--blue);
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(126,216,255,.11),
+      rgba(255,255,255,.02)
+    );
+
+  color:#eef9ff;
+
+  font-size:.84rem;
+  font-weight:800;
+
+  line-height:1.5;
+}
+
 /* ==========================================================
    REQUEST SUMMARY STRIP
 ========================================================== */
 
-.runtime-strip{
+.request-strip{
   margin-top:20px;
 
   display:grid;
@@ -457,18 +503,17 @@ button{
   gap:12px;
 }
 
-.runtime-box{
-  min-height:74px;
+.request-box{
+  min-height:78px;
 
   padding:14px;
 
   border:1px solid rgba(255,255,255,.14);
 
-  background:
-    rgba(255,255,255,.025);
+  background:rgba(255,255,255,.025);
 }
 
-.runtime-box b{
+.request-box b{
   display:block;
 
   margin-bottom:7px;
@@ -483,7 +528,7 @@ button{
   text-transform:uppercase;
 }
 
-.runtime-box span{
+.request-box span{
   display:block;
 
   color:#fff;
@@ -491,11 +536,49 @@ button{
   font-size:.8rem;
   font-weight:900;
 
-  letter-spacing:.06em;
+  letter-spacing:.04em;
+  line-height:1.35;
 
   text-transform:uppercase;
 
   overflow-wrap:anywhere;
+}
+
+/* ==========================================================
+   LOADING / EMPTY / ERROR GUIDANCE
+========================================================== */
+
+.page-guidance{
+  margin-top:14px;
+
+  padding:14px 16px;
+
+  border:1px solid rgba(255,255,255,.14);
+
+  background:rgba(0,0,0,.28);
+
+  color:#dceaf0;
+
+  font-size:.8rem;
+  font-weight:800;
+
+  line-height:1.5;
+}
+
+.page-guidance strong{
+  color:#fff;
+}
+
+body[data-parent-approval-status="loading"] .page-guidance{
+  border-color:rgba(126,216,255,.36);
+}
+
+body[data-parent-approval-error="true"] .page-guidance{
+  border-color:rgba(255,77,77,.48);
+
+  background:rgba(255,77,77,.08);
+
+  color:#ffcece;
 }
 
 /* ==========================================================
@@ -506,7 +589,7 @@ button{
   margin-top:18px;
 
   display:grid;
-  grid-template-columns:1.15fr .85fr;
+  grid-template-columns:minmax(0,1.2fr) minmax(320px,.8fr);
 
   gap:18px;
 }
@@ -560,17 +643,18 @@ button{
 
   letter-spacing:.12em;
 
+  text-align:right;
   text-transform:uppercase;
 }
 
 /* ==========================================================
-   REQUEST CARD
+   REQUEST SUMMARY CARD
 ========================================================== */
 
-.approval-card{
-  min-height:98px;
+.request-card{
+  min-height:110px;
 
-  padding:14px;
+  padding:16px;
 
   border:1px solid rgba(255,255,255,.12);
 
@@ -583,7 +667,7 @@ button{
     #060606;
 
   display:grid;
-  grid-template-columns:72px 1fr auto;
+  grid-template-columns:72px minmax(0,1fr) auto;
   align-items:center;
 
   gap:16px;
@@ -593,9 +677,8 @@ button{
   width:72px;
   height:72px;
 
-  border-radius:4px;
-
   border:1px solid rgba(255,255,255,.14);
+  border-radius:4px;
 
   background:
     linear-gradient(
@@ -604,22 +687,22 @@ button{
       rgba(255,255,255,.01)
     );
 
+  color:#fff;
+
   display:flex;
   align-items:center;
   justify-content:center;
-
-  color:#fff;
 
   font-size:1.8rem;
   font-weight:900;
 }
 
-.approval-info b{
+.request-story b{
   display:block;
 
   color:#fff;
 
-  font-size:.9rem;
+  font-size:.92rem;
   font-weight:900;
 
   letter-spacing:.08em;
@@ -627,25 +710,23 @@ button{
   text-transform:uppercase;
 }
 
-.approval-info span{
-  display:block;
-
-  margin-top:6px;
+.request-story p{
+  margin:7px 0 0;
 
   color:var(--muted);
 
-  font-size:.76rem;
+  font-size:.78rem;
 
-  line-height:1.48;
+  line-height:1.52;
 }
 
-.approval-info strong{
+.request-story strong{
   color:#fff;
 }
 
 .status{
-  min-width:126px;
-  min-height:38px;
+  min-width:128px;
+  min-height:40px;
 
   padding:0 12px;
 
@@ -658,7 +739,7 @@ button{
   font-size:.66rem;
   font-weight:900;
 
-  letter-spacing:.14em;
+  letter-spacing:.12em;
 
   text-align:center;
   text-transform:uppercase;
@@ -667,21 +748,17 @@ button{
 .status.approved{
   color:var(--green);
 
-  border-color:
-    rgba(43,220,101,.50);
+  border-color:rgba(43,220,101,.50);
 
-  background:
-    rgba(43,220,101,.08);
+  background:rgba(43,220,101,.08);
 }
 
 .status.pending{
   color:var(--yellow);
 
-  border-color:
-    rgba(255,177,0,.50);
+  border-color:rgba(255,177,0,.50);
 
-  background:
-    rgba(255,177,0,.08);
+  background:rgba(255,177,0,.08);
 }
 
 .status.denied,
@@ -689,40 +766,44 @@ button{
 .status.expired{
   color:var(--danger);
 
-  border-color:
-    rgba(255,77,77,.50);
+  border-color:rgba(255,77,77,.50);
 
-  background:
-    rgba(255,77,77,.08);
+  background:rgba(255,77,77,.08);
 }
 
 .status.modified{
   color:var(--gold);
 
-  border-color:
-    rgba(244,197,66,.50);
+  border-color:rgba(244,197,66,.50);
 
-  background:
-    rgba(244,197,66,.08);
+  background:rgba(244,197,66,.08);
 }
 
 /* ==========================================================
-   PERMISSION CARDS
+   PERMISSIONS
 ========================================================== */
 
-.scope-grid{
-  margin-top:18px;
+.permission-intro{
+  margin:-5px 0 16px;
 
+  color:var(--muted);
+
+  font-size:.77rem;
+
+  line-height:1.5;
+}
+
+.scope-grid{
   display:grid;
-  grid-template-columns:repeat(2,1fr);
+  grid-template-columns:repeat(2,minmax(0,1fr));
 
   gap:12px;
 }
 
 .scope-card{
-  position:relative;
+  min-height:132px;
 
-  padding:15px;
+  padding:16px;
 
   border:1px solid rgba(255,255,255,.11);
 
@@ -733,14 +814,27 @@ button{
       rgba(255,255,255,.01)
     ),
     #060606;
+
+  transition:
+    border-color .18s ease,
+    background .18s ease;
 }
 
 .scope-card:hover{
-  border-color:
-    rgba(126,216,255,.30);
+  border-color:rgba(126,216,255,.34);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(126,216,255,.045),
+      rgba(255,255,255,.01)
+    ),
+    #060606;
 }
 
 .scope-card label{
+  height:100%;
+
   display:flex;
   align-items:flex-start;
 
@@ -750,7 +844,12 @@ button{
 }
 
 .scope-card input{
-  margin-top:3px;
+  width:18px;
+  height:18px;
+
+  margin:2px 0 0;
+
+  flex:0 0 auto;
 
   accent-color:var(--red);
 }
@@ -758,14 +857,14 @@ button{
 .scope-card b{
   display:block;
 
-  margin-bottom:6px;
+  margin-bottom:7px;
 
   color:#fff;
 
   font-size:.78rem;
   font-weight:900;
 
-  letter-spacing:.1em;
+  letter-spacing:.08em;
 
   text-transform:uppercase;
 }
@@ -775,35 +874,56 @@ button{
 
   color:var(--muted);
 
-  font-size:.72rem;
+  font-size:.73rem;
 
-  line-height:1.46;
+  line-height:1.5;
 }
 
 /* ==========================================================
    ACTIONS
 ========================================================== */
 
-.action-bar{
-  margin-top:18px;
+.action-heading{
+  margin:24px 0 8px;
 
-  display:flex;
+  color:#fff;
+
+  font-size:.82rem;
+  font-weight:900;
+
+  letter-spacing:.12em;
+
+  text-transform:uppercase;
+}
+
+.action-explanation{
+  margin:0;
+
+  color:var(--muted);
+
+  font-size:.75rem;
+
+  line-height:1.5;
+}
+
+.action-bar{
+  margin-top:16px;
+
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
 
   gap:12px;
-
-  flex-wrap:wrap;
 }
 
 .btn{
-  min-height:44px;
+  width:100%;
+  min-height:48px;
 
-  padding:0 20px;
+  padding:0 16px;
 
   border:1px solid var(--red);
 
-  background:
-    rgba(255,43,31,.06);
-
+  background:rgba(255,43,31,.06);
   color:var(--red);
 
   display:flex;
@@ -813,51 +933,72 @@ button{
   font-size:.7rem;
   font-weight:900;
 
-  letter-spacing:.13em;
+  letter-spacing:.11em;
 
+  text-align:center;
   text-transform:uppercase;
 
   cursor:pointer;
 
-  transition:.18s ease;
-
-  user-select:none;
+  transition:
+    background .18s ease,
+    transform .18s ease;
 }
 
 .btn:hover{
-  background:
-    rgba(255,43,31,.12);
+  background:rgba(255,43,31,.13);
 
   transform:translateY(-1px);
 }
 
-.btn.gold{
-  border-color:
-    rgba(244,197,66,.58);
+.btn.green{
+  border-color:rgba(43,220,101,.62);
 
-  color:var(--gold);
-
-  background:
-    rgba(244,197,66,.08);
+  background:rgba(43,220,101,.08);
+  color:var(--green);
 }
 
-.btn.green{
-  border-color:
-    rgba(43,220,101,.58);
+.btn.gold{
+  border-color:rgba(244,197,66,.62);
 
-  color:var(--green);
-
-  background:
-    rgba(43,220,101,.08);
+  background:rgba(244,197,66,.08);
+  color:var(--gold);
 }
 
 .btn:disabled,
 .btn.disabled{
-  opacity:.45;
+  opacity:.44;
 
+  cursor:not-allowed;
   pointer-events:none;
 
   transform:none;
+}
+
+/* ==========================================================
+   ERROR
+========================================================== */
+
+.error-box{
+  display:none;
+
+  margin-top:14px;
+
+  padding:14px;
+
+  border:1px solid rgba(255,77,77,.48);
+
+  background:rgba(255,77,77,.08);
+
+  color:#ffcece;
+
+  font-size:.76rem;
+
+  line-height:1.5;
+}
+
+body[data-parent-approval-error="true"] .error-box{
+  display:block;
 }
 
 /* ==========================================================
@@ -898,7 +1039,7 @@ button{
 
   font-size:.7rem;
 
-  line-height:1.4;
+  line-height:1.45;
 }
 
 .audit-log{
@@ -912,8 +1053,7 @@ button{
 
   border-left:3px solid var(--red);
 
-  background:
-    rgba(255,255,255,.025);
+  background:rgba(255,255,255,.025);
 
   color:#d8d8d8;
 
@@ -951,7 +1091,7 @@ button{
 }
 
 /* ==========================================================
-   IMPORTANT INFORMATION
+   BEFORE YOU DECIDE
 ========================================================== */
 
 .rules{
@@ -984,7 +1124,7 @@ button{
   font-size:.8rem;
   font-weight:900;
 
-  letter-spacing:.1em;
+  letter-spacing:.09em;
 
   text-transform:uppercase;
 }
@@ -994,35 +1134,41 @@ button{
 
   font-size:.76rem;
 
-  line-height:1.52;
+  line-height:1.53;
 }
 
-/* ==========================================================
-   ERROR MESSAGE
-========================================================== */
-
-.error-box{
-  display:none;
-
+.reference-card{
   margin-top:14px;
 
-  padding:12px;
+  padding:15px;
 
-  border:
-    1px solid rgba(255,77,77,.48);
+  border:1px solid rgba(255,255,255,.10);
 
-  background:
-    rgba(255,77,77,.08);
-
-  color:#ffb3b3;
-
-  font-size:.75rem;
-
-  line-height:1.45;
+  background:rgba(0,0,0,.26);
 }
 
-body[data-parent-approval-error="true"] .error-box{
+.reference-card b{
   display:block;
+
+  margin-bottom:7px;
+
+  color:var(--blue);
+
+  font-size:.64rem;
+  font-weight:900;
+
+  letter-spacing:.14em;
+
+  text-transform:uppercase;
+}
+
+.reference-card span{
+  color:#fff;
+
+  font-size:.74rem;
+  font-weight:800;
+
+  overflow-wrap:anywhere;
 }
 
 /* ==========================================================
@@ -1030,14 +1176,14 @@ body[data-parent-approval-error="true"] .error-box{
 ========================================================== */
 
 .footer{
-  min-height:64px;
+  min-height:68px;
 
   margin-top:18px;
 
   border-top:1px solid var(--line);
 
   display:grid;
-  grid-template-columns:220px 1fr 300px 260px;
+  grid-template-columns:220px 1fr 320px 260px;
   align-items:center;
 
   color:#cdd7df;
@@ -1054,6 +1200,20 @@ body[data-parent-approval-error="true"] .error-box{
   max-height:54px;
 
   object-fit:contain;
+}
+
+.footer-message span{
+  display:block;
+
+  margin-top:4px;
+
+  color:var(--muted);
+
+  font-size:.62rem;
+
+  letter-spacing:.04em;
+
+  text-transform:none;
 }
 
 .footer .secure{
@@ -1085,20 +1245,22 @@ body[data-parent-approval-error="true"] .error-box{
 
     padding:12px 18px 16px;
   }
-}
-
-@media(max-width:980px){
 
   .grid{
     grid-template-columns:1fr;
   }
+}
+
+@media(max-width:900px){
+
+  .request-strip,
+  .scope-grid,
+  .footer{
+    grid-template-columns:1fr 1fr;
+  }
 
   .hero h1{
     font-size:2.7rem;
-  }
-
-  .runtime-strip{
-    grid-template-columns:repeat(2,1fr);
   }
 }
 
@@ -1134,25 +1296,18 @@ body[data-parent-approval-error="true"] .error-box{
     font-size:2.2rem;
   }
 
-  .runtime-strip,
+  .request-strip,
   .scope-grid,
+  .action-bar,
   .footer{
     grid-template-columns:1fr;
   }
 
-  .approval-card{
+  .request-card{
     grid-template-columns:1fr;
   }
 
   .status{
-    width:100%;
-  }
-
-  .action-bar{
-    flex-direction:column;
-  }
-
-  .btn{
     width:100%;
   }
 
@@ -1170,7 +1325,7 @@ body[data-parent-approval-error="true"] .error-box{
 <div class="page">
 
   <!-- ===================================================== -->
-  <!-- APPROVED TABBED-LOGO HEADER -->
+  <!-- STANDARDIZED STREAM 2 HEADER -->
   <!-- ===================================================== -->
 
   <header class="header">
@@ -1178,6 +1333,7 @@ body[data-parent-approval-error="true"] .error-box{
     <a
       class="logo-tab"
       href="index.html"
+      aria-label="Return to STATS-CORE entry"
     >
       <img
         src="sc_logo_i.png"
@@ -1195,7 +1351,7 @@ body[data-parent-approval-error="true"] .error-box{
 
       <nav
         class="top-nav"
-        aria-label="Parent permission navigation"
+        aria-label="Parent approval navigation"
       >
         <a href="index.html">
           Entry
@@ -1251,8 +1407,9 @@ body[data-parent-approval-error="true"] .error-box{
 
   </header>
 
-  <!-- Snapshot identifier remains available to the runtime
-       without exposing an internal system identifier to parents. -->
+  <!-- Internal snapshot reference remains available to the
+       existing parent-approval engine without being presented
+       as a primary public-facing field. -->
 
   <span
     class="visually-hidden"
@@ -1268,132 +1425,152 @@ body[data-parent-approval-error="true"] .error-box{
   <main class="main">
 
     <!-- =================================================== -->
-    <!-- HERO -->
+    <!-- FIRST-GLANCE PAGE PURPOSE -->
     <!-- =================================================== -->
 
     <section class="hero">
 
-      <div class="label">
-        Parent Permission Center
+      <div class="hero-label">
+        Parent Approval Center
       </div>
 
       <h1>
-        Parent Permissions
+        Review an Athlete Access Request
       </h1>
 
-      <p>
-        Review how your athlete’s information may be used within
-        STATS-CORE. You can decide who may view the athlete
-        profile, send approved messages, request recruiting
-        access, assist with academic information, or use athlete
-        photos and media.
+      <p class="hero-copy">
+        Someone has requested permission to view, contact, use,
+        or share information connected to your athlete. Review
+        who made the request and choose exactly what you want
+        to allow.
       </p>
 
-      <div class="runtime-strip">
+      <div class="hero-direction">
+        <strong>Your next step:</strong>
+        Review the permission choices below, select only the
+        activities you approve, and save your decision.
+      </div>
 
-        <div class="runtime-box">
+      <!-- =============================================== -->
+      <!-- REQUEST SUMMARY -->
+      <!-- =============================================== -->
+
+      <div class="request-strip">
+
+        <div class="request-box">
 
           <b>
             Athlete
           </b>
 
           <span data-athlete-name>
-            Loading
+            Loading your request…
           </span>
 
         </div>
 
-        <div class="runtime-box">
+        <div class="request-box">
 
           <b>
             Requested By
           </b>
 
           <span data-requester-name>
-            Loading
+            Loading your request…
           </span>
 
         </div>
 
-        <div class="runtime-box">
+        <div class="request-box">
 
           <b>
-            Request Type
+            Request Purpose
           </b>
 
           <span data-request-type>
-            Loading
+            Loading your request…
           </span>
 
         </div>
 
-        <div class="runtime-box">
+        <div class="request-box">
 
           <b>
             Current Status
           </b>
 
           <span data-parent-approval-status>
-            Loading
+            Loading your request…
           </span>
 
         </div>
 
       </div>
 
+      <div
+        class="page-guidance"
+        id="parentApprovalPageGuidance"
+        role="status"
+        aria-live="polite"
+      >
+        <strong>Loading your approval request…</strong>
+        The athlete and requester information will appear here
+        when the request is available.
+      </div>
+
     </section>
 
     <!-- =================================================== -->
-    <!-- CONTENT GRID -->
+    <!-- CONTENT -->
     <!-- =================================================== -->
 
     <section class="grid">
 
       <!-- ================================================= -->
-      <!-- PERMISSION REQUEST -->
+      <!-- REQUEST AND PERMISSIONS -->
       <!-- ================================================= -->
 
-      <div class="panel section">
+      <article class="panel section">
 
         <div class="section-title">
 
           <b>
-            Current Permission Request
+            Request Summary
           </b>
 
           <span>
-            Review and Respond
+            Who is asking and what you control
           </span>
 
         </div>
 
-        <div class="approval-card">
+        <div class="request-card">
 
           <div
             class="avatar"
             data-athlete-initials
+            aria-hidden="true"
           >
             SC
           </div>
 
-          <div class="approval-info">
+          <div class="request-story">
 
             <b data-requester-role>
-              Requested By
+              Loading requester information
             </b>
 
-            <span>
+            <p>
               <strong data-requester-name>
-                Loading
+                The requester
               </strong>
-              has requested permission to manage or use information
-              for
+              has asked for permission involving
               <strong data-athlete-name>
-                Loading
+                this athlete
               </strong>.
-              Review the options below and choose what you would
-              like to allow.
-            </span>
+              Review each choice below. You may approve all,
+              some, or none of the requested activities.
+            </p>
 
           </div>
 
@@ -1401,29 +1578,35 @@ body[data-parent-approval-error="true"] .error-box{
             class="status pending"
             data-status-pill
           >
-            Pending
+            Loading
           </div>
 
         </div>
 
         <!-- =============================================== -->
-        <!-- PERMISSION OPTIONS -->
+        <!-- CHOOSE WHAT YOU ALLOW -->
         <!-- =============================================== -->
 
         <div
           class="section-title"
-          style="margin-top:24px;"
+          style="margin-top:26px;"
         >
 
           <b>
-            Choose What You Want to Allow
+            Choose What You Allow
           </b>
 
           <span>
-            Select Each Permission
+            Each choice is separate
           </span>
 
         </div>
+
+        <p class="permission-intro">
+          Check only the permissions you want to approve.
+          Leaving a box unchecked means that activity is not
+          approved.
+        </p>
 
         <div class="scope-grid">
 
@@ -1443,9 +1626,8 @@ body[data-parent-approval-error="true"] .error-box{
                 </b>
 
                 <span>
-                  Allow the athlete to have an active STATS-CORE
-                  profile and participate in the athlete lifecycle
-                  system.
+                  Allow the athlete’s STATS-CORE profile to remain
+                  active and available inside the system.
                 </span>
 
               </span>
@@ -1466,12 +1648,12 @@ body[data-parent-approval-error="true"] .error-box{
               <span>
 
                 <b>
-                  Public Athlete Profile
+                  Public Profile Visibility
                 </b>
 
                 <span>
-                  Allow approved information to be viewed outside
-                  the private athlete and family account.
+                  Allow approved athlete information to appear
+                  outside your family’s private account.
                 </span>
 
               </span>
@@ -1497,7 +1679,7 @@ body[data-parent-approval-error="true"] .error-box{
 
                 <span>
                   Allow verified college recruiters to request
-                  approved access to the athlete’s information.
+                  access to approved athlete information.
                 </span>
 
               </span>
@@ -1518,12 +1700,13 @@ body[data-parent-approval-error="true"] .error-box{
               <span>
 
                 <b>
-                  Messages from Coaches and Recruiters
+                  Messages
                 </b>
 
                 <span>
                   Allow approved coaches and verified recruiters
-                  to communicate through STATS-CORE messaging.
+                  to contact the athlete or family through
+                  STATS-CORE.
                 </span>
 
               </span>
@@ -1544,13 +1727,12 @@ body[data-parent-approval-error="true"] .error-box{
               <span>
 
                 <b>
-                  PHNX Sports Features
+                  Photos and Highlights
                 </b>
 
                 <span>
-                  Allow the athlete to appear in approved player
-                  cards, highlights, videos, and PHNX Sports media
-                  features.
+                  Allow approved photos, highlights, player
+                  cards, videos, and PHNX Sports media features.
                 </span>
 
               </span>
@@ -1571,12 +1753,13 @@ body[data-parent-approval-error="true"] .error-box{
               <span>
 
                 <b>
-                  Counselor Access
+                  School Counselor
                 </b>
 
                 <span>
-                  Allow a school counselor to assist with academic,
-                  eligibility, transcript, and coordination needs.
+                  Allow an approved counselor to assist with
+                  academic, transcript, and eligibility
+                  information.
                 </span>
 
               </span>
@@ -1588,8 +1771,18 @@ body[data-parent-approval-error="true"] .error-box{
         </div>
 
         <!-- =============================================== -->
-        <!-- ACTIONS -->
+        <!-- DECISION -->
         <!-- =============================================== -->
+
+        <div class="action-heading">
+          Save Your Decision
+        </div>
+
+        <p class="action-explanation">
+          Approve the selected choices, save changes to an
+          existing decision, deny the request, or remove access
+          that was previously approved.
+        </p>
 
         <div class="action-bar">
 
@@ -1598,7 +1791,7 @@ body[data-parent-approval-error="true"] .error-box{
             type="button"
             data-parent-action="approve"
           >
-            Approve Permissions
+            Approve Selected Permissions
           </button>
 
           <button
@@ -1606,7 +1799,7 @@ body[data-parent-approval-error="true"] .error-box{
             type="button"
             data-parent-action="modify"
           >
-            Save Permission Changes
+            Save Changes
           </button>
 
           <button
@@ -1614,7 +1807,7 @@ body[data-parent-approval-error="true"] .error-box{
             type="button"
             data-parent-action="deny"
           >
-            Deny Request
+            Deny This Request
           </button>
 
           <button
@@ -1622,7 +1815,7 @@ body[data-parent-approval-error="true"] .error-box{
             type="button"
             data-parent-action="revoke"
           >
-            Remove Permissions
+            Remove Previously Approved Access
           </button>
 
         </div>
@@ -1633,8 +1826,9 @@ body[data-parent-approval-error="true"] .error-box{
           role="alert"
           aria-live="assertive"
         >
-          We could not complete this action. Please review the
-          information and try again.
+          We could not load or update this approval request.
+          Please return to your Parent Dashboard and try again.
+          If the problem continues, contact STATS-CORE Support.
         </div>
 
         <!-- =============================================== -->
@@ -1648,8 +1842,8 @@ body[data-parent-approval-error="true"] .error-box{
           </span>
 
           <span class="audit-subtitle">
-            Important actions related to this permission request
-            will appear here.
+            Important decisions and changes involving this
+            request will appear here.
           </span>
 
           <div
@@ -1659,35 +1853,33 @@ body[data-parent-approval-error="true"] .error-box{
           >
 
             <div class="audit-item">
-
-              No permission activity has been recorded yet.
+              Loading the activity history for this request.
 
               <span>
-                Waiting for request information
+                Please wait
               </span>
-
             </div>
 
           </div>
 
         </div>
 
-      </div>
+      </article>
 
       <!-- ================================================= -->
-      <!-- IMPORTANT INFORMATION -->
+      <!-- BEFORE YOU DECIDE -->
       <!-- ================================================= -->
 
-      <div class="panel section">
+      <aside class="panel section">
 
         <div class="section-title">
 
           <b>
-            Important Information
+            Before You Decide
           </b>
 
           <span>
-            Parent Guidance
+            Important parent information
           </span>
 
         </div>
@@ -1697,56 +1889,13 @@ body[data-parent-approval-error="true"] .error-box{
           <div class="rule">
 
             <b>
-              Parent Permission
-            </b>
-
-            <span>
-              A minor athlete may need parent or guardian
-              permission before public profile visibility,
-              recruiting access, messaging, or media use can
-              begin.
-            </span>
-
-          </div>
-
-          <div class="rule">
-
-            <b>
-              Verified Recruiters Only
-            </b>
-
-            <span>
-              Parent approval does not automatically approve a
-              recruiter. Recruiters must still meet STATS-CORE
-              identity and access requirements.
-            </span>
-
-          </div>
-
-          <div class="rule">
-
-            <b>
-              Profile Visibility
-            </b>
-
-            <span>
-              You may allow the athlete profile to participate
-              in STATS-CORE while keeping public visibility,
-              recruiting access, or media use turned off.
-            </span>
-
-          </div>
-
-          <div class="rule">
-
-            <b>
               You Stay in Control
             </b>
 
             <span>
-              Permissions may be approved separately. You can
-              allow some activities and decline others based on
-              what is appropriate for your athlete.
+              You may approve all, some, or none of the choices.
+              Approving one activity does not automatically
+              approve the others.
             </span>
 
           </div>
@@ -1754,20 +1903,76 @@ body[data-parent-approval-error="true"] .error-box{
           <div class="rule">
 
             <b>
-              Activity History
+              Only Approved People Receive Access
             </b>
 
             <span>
-              Important permission decisions and changes are
-              recorded so the family can see what happened and
-              when it occurred.
+              Your approval does not automatically confirm a
+              coach, recruiter, counselor, or other requester.
+              STATS-CORE must also confirm that the person is
+              authorized.
+            </span>
+
+          </div>
+
+          <div class="rule">
+
+            <b>
+              You Can Change Your Mind
+            </b>
+
+            <span>
+              Approved permissions may be updated or removed
+              later. Removing access does not erase the secure
+              history of earlier decisions.
+            </span>
+
+          </div>
+
+          <div class="rule">
+
+            <b>
+              Public Use Requires Permission
+            </b>
+
+            <span>
+              Public profile visibility, recruiting access,
+              messaging, and athlete media remain restricted
+              unless the appropriate permission has been
+              approved.
+            </span>
+
+          </div>
+
+          <div class="rule">
+
+            <b>
+              Your Decision Is Recorded
+            </b>
+
+            <span>
+              STATS-CORE keeps a secure history of approvals,
+              denials, changes, and removed permissions to help
+              protect athletes and families.
             </span>
 
           </div>
 
         </div>
 
-      </div>
+        <div class="reference-card">
+
+          <b>
+            Request Reference
+          </b>
+
+          <span data-snapshot-id>
+            Loading request reference…
+          </span>
+
+        </div>
+
+      </aside>
 
     </section>
 
@@ -1781,13 +1986,17 @@ body[data-parent-approval-error="true"] .error-box{
 
         <img
           src="sc_logo_i.png"
-          alt="STATS-CORE™ Athlete Lifecycle System"
+          alt="STATS-CORE Athlete Lifecycle System"
         >
 
       </div>
 
-      <div>
-        Official Parent Permission Center
+      <div class="footer-message">
+        Parent Approval Center
+
+        <span>
+          Helping families stay in control of athlete information.
+        </span>
       </div>
 
       <div class="secure">
@@ -1812,34 +2021,142 @@ body[data-parent-approval-error="true"] .error-box{
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<script src="statscore-data.js"></script>
+
+<script src="statscore-routing.js"></script>
+
 <script>
 (function () {
   "use strict";
 
-  const STAT_SCORE_SUPABASE_URL =
-    "https://oyjmpbuxvfxusmbouldi.supabase.co";
+  function applySnapshotLinks() {
+    const params = new URLSearchParams(window.location.search);
+    const snapshotId = params.get("snapshot_id");
 
-  const STAT_SCORE_SUPABASE_ANON_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJveWptcGJ1eHZmeHVzbWJvdWxkaSIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzY5NDQ5MTU3LCJleHAiOjIwODUwMjUxNTd9.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk";
+    if (!snapshotId) {
+      return;
+    }
 
-  if (!window.STATScoreSupabase) {
-    window.STATScoreSupabase =
-      window.supabase.createClient(
-        STAT_SCORE_SUPABASE_URL,
-        STAT_SCORE_SUPABASE_ANON_KEY
-      );
+    document
+      .querySelectorAll("[data-snapshot-link]")
+      .forEach(function (link) {
+        const href = link.getAttribute("href");
+
+        if (!href) {
+          return;
+        }
+
+        const url = new URL(href, window.location.href);
+        url.searchParams.set("snapshot_id", snapshotId);
+
+        link.setAttribute(
+          "href",
+          url.pathname.split("/").pop() +
+          url.search +
+          url.hash
+        );
+      });
   }
 
-  window.STATScoreSupabaseClient =
-    window.STATScoreSupabase;
+  function updatePublicGuidance() {
+    const body = document.body;
+    const guidance =
+      document.getElementById("parentApprovalPageGuidance");
 
-  window.supabaseClient =
-    window.STATScoreSupabase;
+    if (!guidance) {
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const snapshotId = params.get("snapshot_id");
+
+    if (!snapshotId) {
+      body.dataset.parentApprovalError = "true";
+
+      guidance.innerHTML = `
+        <strong>No approval request was identified.</strong>
+        Please open this page from your Parent Dashboard or from
+        the approval notification you received.
+      `;
+
+      return;
+    }
+
+    const observer = new MutationObserver(function () {
+      const status =
+        String(body.dataset.parentApprovalStatus || "")
+          .toLowerCase();
+
+      if (status === "loading") {
+        guidance.innerHTML = `
+          <strong>Loading your approval request…</strong>
+          The athlete and requester information will appear here
+          when the request is available.
+        `;
+        return;
+      }
+
+      if (
+        status === "approved" ||
+        status === "modified"
+      ) {
+        guidance.innerHTML = `
+          <strong>Your permission decision is active.</strong>
+          Review the selected choices below. You may save changes
+          or remove previously approved access when necessary.
+        `;
+        return;
+      }
+
+      if (status === "denied") {
+        guidance.innerHTML = `
+          <strong>This request was denied.</strong>
+          No requested access is currently approved.
+        `;
+        return;
+      }
+
+      if (
+        status === "revoked" ||
+        status === "expired"
+      ) {
+        guidance.innerHTML = `
+          <strong>Previously approved access is no longer active.</strong>
+          Review the activity history below for more information.
+        `;
+        return;
+      }
+
+      guidance.innerHTML = `
+        <strong>This request is waiting for your decision.</strong>
+        Review each permission, choose what you allow, and save
+        your response.
+      `;
+    });
+
+    observer.observe(body, {
+      attributes:true,
+      attributeFilter:[
+        "data-parent-approval-status",
+        "data-parent-approval-error"
+      ]
+    });
+  }
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+      applySnapshotLinks();
+      updatePublicGuidance();
+    }
+  );
 })();
 </script>
 
-<script src="statscore-routing.js"></script>
-<script src="statscore-parent-approval-engine.js?v=1.2.0" defer></script>
+<script
+  src="statscore-parent-approval-engine.js?v=1.2.0"
+  defer
+></script>
 
 </body>
 </html> 
