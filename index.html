@@ -7,286 +7,613 @@ File:
 index.html
 
 Asset Type:
-HTML Presentation Page
+HTML Presentation Page / Public Entry Gateway
 
 Owner Stream:
-Stream 1 — Public Access / Login
+Stream 1 — Public Access, Authentication & Entry Authority
 
 Primary Operational Authority:
-Stream 1 — Public Access
+Stream 1 — Public Access Authority
 
 System Layer:
-Public Entry Presentation
+Public Entry Presentation / Entry-Path Selection
 
 Primary Runtime:
-None 
+None
 
 Primary Intelligence Engine(s):
 None
 
 Previous Route:
-Public entry
+Public web entry
 
 Current Route:
 index.html
 
-Next Route(s):
+Authorized Next Route(s):
 login.html
+register.html
 
 Consumes:
-Public navigation context
+- public navigation context
+- first-time or returning-user entry intent
 
 Provides:
-Public entry into STATS-CORE
+- public entry into STATS-CORE
+- returning-user route to Login Authority
+- first-time-user route to Registration Authority
 
 Primary IDs:
 None
 
-Primary Database Tables:
+Primary Database Authorities:
 None
 
 Cross-Stream Dependencies:
-Routes users toward Stream 1 login and access control.
+None before registration or authentication.
+
+Constitutional Routing:
+- Returning users route to login.html.
+- First-time users route to register.html.
+- Registration returns users to login.html after account creation
+  and required email verification.
+- index.html does not determine role, identity, authentication
+  state, first-time operational state, or authorized destination.
 
 Does NOT:
-- Calculate intelligence
-- Create snapshots
-- Render athlete dashboards
-- Execute role workflows
-- Modify data
+- register accounts
+- authenticate credentials
+- determine user roles
+- publish Initial Authentication Context
+- initialize Runtime Context
+- create athlete records
+- create athlete snapshots
+- create professional workspaces
+- calculate intelligence
+- render dashboards
+- write receipts
+- access database tables
+- execute downstream workflows
 
 Status:
-CANON LOCKED
+CONTROLLED REPLACEMENT — STREAM 1 PUBLIC ENTRY FLOW
 
 Last Governance Review:
-2026-06-27
+2026-08-05
 
 ==========================================================
---> 
+-->
 
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8" />
 
-<title>STATS-CORE™ | Athlete Lifecycle System</title>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
 
-<meta name="title" content="STATS-CORE™ | Athlete Lifecycle System" />
+  <title>
+    STATS-CORE™ | Athlete Lifecycle System
+  </title>
 
-<meta
-  name="description"
-  content="STATS-CORE™ Athlete Lifecycle System — verified athlete infrastructure for performance tracking, readiness intelligence, eligibility awareness, recruiting visibility, and controlled communication."
-/>
+  <meta
+    name="title"
+    content="STATS-CORE™ | Athlete Lifecycle System"
+  />
 
-<link rel="icon" type="image/png" href="sc_emblem.png" />
-<link rel="apple-touch-icon" href="sc_emblem.png" />
+  <meta
+    name="description"
+    content="Enter the STATS-CORE™ Athlete Lifecycle System. Returning users may sign in, while first-time users may establish a new account."
+  />
 
-<style>
-:root{
-  --logo-white:#ecebe6;
-  --black:#05070a;
-  --dark:#0b1018;
-  --text:#ffffff;
-  --muted:#9ea7b5;
-  --red:#e02020;
-  --red-bright:#ff3434;
-  --red-deep:#991414;
-}
+  <link
+    rel="icon"
+    type="image/png"
+    href="sc_emblem.png"
+  />
 
-*{margin:0;padding:0;box-sizing:border-box}
+  <link
+    rel="apple-touch-icon"
+    href="sc_emblem.png"
+  />
 
-html,body{
-  width:100%;
-  height:100%;
-  overflow:hidden;
-  font-family:Arial,Helvetica,sans-serif;
-  background:var(--logo-white);
-}
+  <style>
+    :root {
+      --logo-white: #ecebe6;
+      --black: #05070a;
+      --dark: #0b1018;
+      --text: #ffffff;
+      --muted: #9ea7b5;
+      --red: #e02020;
+      --red-bright: #ff3434;
+      --red-deep: #991414;
+      --line: rgba(255, 255, 255, 0.26);
+    }
 
-.page{
-  width:100vw;
-  height:100vh;
-  display:flex;
-  flex-direction:column;
-  background:var(--logo-white);
-}
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-.hero{
-  flex:0 0 72vh;
-  width:100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
-  background:var(--logo-white);
-}
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+      background:
+        var(--logo-white);
+    }
 
-.hero img{
-  width:100%;
-  height:100%;
-  display:block;
-  object-fit:cover;
-  object-position:center center;
-}
+    button,
+    a {
+      font: inherit;
+    }
 
-.access{
-  flex:1;
-  position:relative;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
-  background:linear-gradient(180deg,#151c28 0%,#0d1420 45%,#06090d 100%);
-  border-top:1px solid rgba(224,32,32,.45);
-}
+    .page {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background:
+        var(--logo-white);
+    }
 
-.access::after{
-  content:"";
-  position:absolute;
-  top:0;
-  left:0;
-  right:0;
-  height:1px;
-  background:rgba(255,52,52,.9);
-}
+    .hero {
+      flex: 0 0 72vh;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background:
+        var(--logo-white);
+    }
 
-.access-inner{
-  position:relative;
-  z-index:2;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:18px;
-  padding:20px;
-  text-align:center;
-}
+    .hero img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      object-position:
+        center center;
+    }
 
-.headline{
-  font-size:clamp(1.05rem,1.6vw,1.55rem);
-  font-weight:800;
-  letter-spacing:-0.03em;
-  line-height:1;
-  color:#fff;
-  white-space:nowrap;
-}
+    .access {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background:
+        linear-gradient(
+          180deg,
+          #151c28 0%,
+          #0d1420 45%,
+          #06090d 100%
+        );
+      border-top:
+        1px solid
+        rgba(224, 32, 32, 0.45);
+    }
 
-.enter{
-  min-width:190px;
-  padding:15px 34px;
-  font-size:.74rem;
-  font-weight:900;
-  letter-spacing:.24em;
-  text-transform:uppercase;
-  color:#fff;
-  background:linear-gradient(180deg,#ff3a3a 0%,#e02020 48%,#b01515 100%);
-  border:1px solid #7a0d0d;
-  border-radius:2px;
-  cursor:pointer;
-  box-shadow:0 0 0 1px rgba(0,0,0,.35),0 12px 30px rgba(224,32,32,.18);
-}
+    .access::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(
+          circle at 50% 0%,
+          rgba(255, 52, 52, 0.1),
+          transparent 48%
+        );
+    }
 
-.sub{
-  font-size:.92rem;
-  font-weight:600;
-  color:var(--muted);
-}
+    .access::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background:
+        rgba(255, 52, 52, 0.9);
+    }
 
-.sub strong{
-  color:#fff;
-  font-weight:900;
-}
+    .access-inner {
+      position: relative;
+      z-index: 2;
+      width:
+        min(
+          760px,
+          calc(100% - 40px)
+        );
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      padding: 20px;
+      text-align: center;
+    }
 
-/* =========================================================
-   MOBILE VIEW ONLY — SAFE TARGETED INDEX FIX
-========================================================= */
-@media(max-width:768px){
-  html,body{
-    height:100%;
-    overflow:hidden;
-  }
+    .headline {
+      font-size:
+        clamp(
+          1.05rem,
+          1.6vw,
+          1.55rem
+        );
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      color: #ffffff;
+      white-space: nowrap;
+    }
 
-  .page{
-    height:100dvh;
-    min-height:100dvh;
-  }
+    .entry-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      width: 100%;
+    }
 
-  .hero{
-    flex:0 0 42dvh;
-    height:42dvh;
-    padding:28px 20px;
-    background:
-      radial-gradient(circle at center,rgba(224,32,32,.16),transparent 62%),
-      var(--logo-white);
-  }
+    .entry-action {
+      min-width: 210px;
+      min-height: 52px;
+      padding: 15px 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 2px;
+      cursor: pointer;
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 0.2em;
+      line-height: 1.2;
+      text-align: center;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition:
+        transform 0.18s ease,
+        filter 0.18s ease,
+        border-color 0.18s ease,
+        background 0.18s ease;
+    }
 
-  .hero img{
-    width:100%;
-    height:100%;
-    object-fit:contain;
-    object-position:center center;
-  }
+    .entry-action:hover {
+      transform:
+        translateY(-1px);
+    }
 
-  .access{
-    flex:1;
-    min-height:58dvh;
-    align-items:flex-start;
-    padding:52px 22px 30px;
-    background:
-      linear-gradient(180deg,#111926 0%,#080d15 56%,#030508 100%);
-  }
+    .entry-action:focus-visible {
+      outline:
+        2px solid
+        rgba(255, 255, 255, 0.95);
+      outline-offset: 4px;
+    }
 
-  .access-inner{
-    width:100%;
-    max-width:390px;
-    gap:24px;
-    padding:0;
-  }
+    .login-action {
+      color: #ffffff;
+      background:
+        linear-gradient(
+          180deg,
+          #ff3a3a 0%,
+          #e02020 48%,
+          #b01515 100%
+        );
+      border:
+        1px solid
+        #7a0d0d;
+      box-shadow:
+        0 0 0 1px
+          rgba(0, 0, 0, 0.35),
+        0 12px 30px
+          rgba(224, 32, 32, 0.18);
+    }
 
-  .headline{
-    font-size:clamp(2.25rem,10vw,3.25rem);
-    line-height:1.05;
-    max-width:360px;
-  }
+    .login-action:hover {
+      filter:
+        brightness(1.08);
+    }
 
-  .enter{
-    width:100%;
-    min-height:68px;
-    padding:0 26px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:.86rem;
-    letter-spacing:.26em;
-  }
+    .register-action {
+      color: #ffffff;
+      background:
+        rgba(255, 255, 255, 0.035);
+      border:
+        1px solid
+        var(--line);
+      box-shadow:
+        inset 0 1px 0
+          rgba(255, 255, 255, 0.04);
+    }
 
-  .sub{
-    font-size:1.05rem;
-    line-height:1.4;
-  }
-}
-</style>
+    .register-action:hover {
+      border-color:
+        rgba(255, 52, 52, 0.85);
+      background:
+        rgba(224, 32, 32, 0.1);
+    }
+
+    .entry-guidance {
+      color:
+        var(--muted);
+      font-size: 0.76rem;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+
+    .entry-guidance strong {
+      color: #ffffff;
+      font-weight: 900;
+    }
+
+    .sub {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color:
+        var(--muted);
+    }
+
+    .sub strong {
+      color: #ffffff;
+      font-weight: 900;
+    }
+
+    /*
+    ==========================================================
+    TABLET
+    ==========================================================
+    */
+
+    @media (
+      max-width: 900px
+    ) {
+      .entry-actions {
+        gap: 12px;
+      }
+
+      .entry-action {
+        min-width: 190px;
+      }
+    }
+
+    /*
+    ==========================================================
+    MOBILE VIEW
+    ==========================================================
+    */
+
+    @media (
+      max-width: 768px
+    ) {
+      html,
+      body {
+        height: 100%;
+        overflow: hidden;
+      }
+
+      .page {
+        height: 100dvh;
+        min-height: 100dvh;
+      }
+
+      .hero {
+        flex: 0 0 38dvh;
+        height: 38dvh;
+        padding: 24px 18px;
+        background:
+          radial-gradient(
+            circle at center,
+            rgba(224, 32, 32, 0.16),
+            transparent 62%
+          ),
+          var(--logo-white);
+      }
+
+      .hero img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        object-position:
+          center center;
+      }
+
+      .access {
+        flex: 1;
+        min-height: 62dvh;
+        align-items: flex-start;
+        padding: 34px 22px 24px;
+        background:
+          linear-gradient(
+            180deg,
+            #111926 0%,
+            #080d15 56%,
+            #030508 100%
+          );
+      }
+
+      .access-inner {
+        width: 100%;
+        max-width: 410px;
+        gap: 18px;
+        padding: 0;
+      }
+
+      .headline {
+        font-size:
+          clamp(
+            2.05rem,
+            9vw,
+            3.05rem
+          );
+        line-height: 1.04;
+        max-width: 360px;
+        white-space: normal;
+      }
+
+      .entry-actions {
+        flex-direction: column;
+        gap: 13px;
+      }
+
+      .entry-action {
+        width: 100%;
+        min-width: 0;
+        min-height: 64px;
+        padding:
+          0 22px;
+        font-size: 0.8rem;
+        letter-spacing: 0.2em;
+      }
+
+      .entry-guidance {
+        max-width: 360px;
+        font-size: 0.78rem;
+      }
+
+      .sub {
+        font-size: 1rem;
+        line-height: 1.35;
+      }
+    }
+
+    /*
+    ==========================================================
+    SMALL MOBILE
+    ==========================================================
+    */
+
+    @media (
+      max-width: 420px
+    ) {
+      .hero {
+        flex-basis: 35dvh;
+        height: 35dvh;
+        padding:
+          20px 14px;
+      }
+
+      .access {
+        min-height: 65dvh;
+        padding:
+          30px 18px 22px;
+      }
+
+      .headline {
+        font-size:
+          clamp(
+            1.9rem,
+            9vw,
+            2.7rem
+          );
+      }
+
+      .entry-action {
+        min-height: 60px;
+        font-size: 0.74rem;
+        letter-spacing: 0.18em;
+      }
+    }
+
+    /*
+    ==========================================================
+    REDUCED MOTION
+    ==========================================================
+    */
+
+    @media (
+      prefers-reduced-motion:
+      reduce
+    ) {
+      .entry-action {
+        transition: none;
+      }
+
+      .entry-action:hover {
+        transform: none;
+      }
+    }
+  </style>
 </head>
 
 <body>
-<div class="page">
 
-  <section class="hero">
-    <img src="sc_logo_e.png" alt="STATS-CORE Athlete Lifecycle System">
-  </section>
+  <main class="page">
 
-  <section class="access">
-    <div class="access-inner">
-      <h1 class="headline">Athlete Performance<br>Starts Here</h1>
+    <section
+      class="hero"
+      aria-label="STATS-CORE Athlete Lifecycle System"
+    >
+      <img
+        src="sc_logo_e.png"
+        alt="STATS-CORE Athlete Lifecycle System"
+      />
+    </section>
 
-      <button class="enter" onclick="window.location.href='login.html'">
-        Enter
-      </button>
+    <section
+      class="access"
+      aria-labelledby="entryHeadline"
+    >
 
-      <div class="sub">Track it. Score it. <strong>Prove it.</strong></div>
-    </div>
-  </section>
+      <div class="access-inner">
 
-</div>
+        <h1
+          id="entryHeadline"
+          class="headline"
+        >
+          Athlete Performance
+          <br />
+          Starts Here
+        </h1>
+
+        <div
+          class="entry-actions"
+          aria-label="Choose your STATS-CORE entry path"
+        >
+
+          <a
+            class="entry-action login-action"
+            href="login.html"
+          >
+            Returning User Login
+          </a>
+
+          <a
+            class="entry-action register-action"
+            href="register.html"
+          >
+            Create Account
+          </a>
+
+        </div>
+
+        <p class="entry-guidance">
+          <strong>Returning users</strong>
+          sign in with established credentials.
+          <strong>First-time users</strong>
+          must create and verify an account before login.
+        </p>
+
+        <div class="sub">
+          Track it. Score it.
+          <strong>Prove it.</strong>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
 </body>
 </html> 
