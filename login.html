@@ -131,14 +131,22 @@ Runtime Policy:
 - Runtime configuration belongs exclusively to
   statscore-authentication-bootstrap.js.
 
+Public Language Policy:
+- Internal engineering terminology remains inside ownership
+  headers, diagnostics, source code, receipts, and logs.
+- Public-facing language describes the user action, account
+  status, sports workspace, and destination in clear terms.
+- Technical runtime, context, authority, and routing language
+  must not be exposed to ordinary users.
+
 Status:
-CONTROLLED REPLACEMENT — STREAM 1 AUTHENTICATION FLOW READINESS
+CONTROLLED REPLACEMENT — PUBLIC LANGUAGE ALIGNMENT
 
 Version:
-STATSCORE-LOGIN-PRESENTATION-V2.0.0
+STATSCORE-LOGIN-PRESENTATION-V2.1.0
 
 Last Governance Review:
-2026-08-05
+2026-08-06
 
 ==========================================================
 -->
@@ -154,17 +162,17 @@ Last Governance Review:
   />
 
   <title>
-    STATS-CORE™ | Access Authorization
+    STATS-CORE™ | System Login
   </title>
 
   <meta
     name="title"
-    content="STATS-CORE™ | Access Authorization"
+    content="STATS-CORE™ | System Login"
   />
 
   <meta
     name="description"
-    content="Sign in to the STATS-CORE™ Athlete Lifecycle System through its governed, role-aware authentication service."
+    content="Sign in to STATS-CORE™ to access your athlete record, performance information, recruiting activity, eligibility progress, communication, and authorized sports workspace."
   />
 
   <link
@@ -351,6 +359,7 @@ Last Governance Review:
 
     .access-card span {
       font-weight: 900;
+      line-height: 1.35;
     }
 
     .right {
@@ -580,9 +589,9 @@ Last Governance Review:
       color: #b9c7d3;
       font-size: 0.72rem;
       font-weight: 900;
-      letter-spacing: 0.14em;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      line-height: 1.45;
+      line-height: 1.5;
     }
 
     .footer-note {
@@ -726,37 +735,36 @@ Last Governance Review:
       />
 
       <div class="kicker">
-        Verified Athlete System
+        Athlete Lifecycle System
       </div>
 
       <h1>
-        Access
+        Your Sports
         <br />
-        <span>Authorization</span>
+        <span>System</span>
       </h1>
 
       <p class="copy">
-        Authorized visibility, recruiting access, eligibility
-        tracking, athlete intelligence routing, and controlled
-        communication permissions are governed through the
-        STATS-CORE national access infrastructure.
+        Access your athlete record, performance information,
+        recruiting activity, eligibility progress,
+        communication, and role-specific STATS-CORE tools.
       </p>
 
       <div class="access-strip">
 
         <div class="access-card">
-          <b>Access Type</b>
-          <span>Role-Based</span>
+          <b>Your Role</b>
+          <span>Personalized Access</span>
         </div>
 
         <div class="access-card">
-          <b>Visibility</b>
-          <span>Controlled</span>
+          <b>Your Information</b>
+          <span>Protected</span>
         </div>
 
         <div class="access-card">
-          <b>Authentication</b>
-          <span>Receipt-Governed</span>
+          <b>Your Activity</b>
+          <span>Securely Recorded</span>
         </div>
 
       </div>
@@ -770,10 +778,9 @@ Last Governance Review:
       </h2>
 
       <p class="login-copy">
-        Submit your authorized credentials. Identity, role,
-        entry state, routing, authentication context, and
-        evidence generation are resolved through the governed
-        STATS-CORE authentication service.
+        Select your role and enter the email and password
+        connected to your STATS-CORE account. You will be
+        taken to the correct athlete or professional workspace.
       </p>
 
       <div
@@ -782,8 +789,8 @@ Last Governance Review:
         role="status"
         aria-live="polite"
       >
-        Email verification completed. Sign in with your
-        registered credentials to enter STATS-CORE.
+        Your email has been verified. Sign in with your
+        registered account information to enter STATS-CORE.
       </div>
 
       <div
@@ -792,7 +799,7 @@ Last Governance Review:
         role="status"
         aria-live="polite"
       >
-        Initializing governed authentication runtime.
+        Preparing secure login.
       </div>
 
       <form
@@ -804,7 +811,7 @@ Last Governance Review:
         <div class="field">
 
           <label for="role">
-            Access Role
+            Your Role
           </label>
 
           <select
@@ -815,7 +822,7 @@ Last Governance Review:
             disabled
           >
             <option value="">
-              Select authorized role
+              Select your role
             </option>
 
             <option value="athlete">
@@ -843,7 +850,7 @@ Last Governance Review:
             </option>
 
             <option value="program">
-              Program
+              Program Representative
             </option>
 
             <option value="trainer">
@@ -860,7 +867,7 @@ Last Governance Review:
         <div class="field">
 
           <label for="email">
-            Authorized Email
+            Account Email
           </label>
 
           <input
@@ -869,7 +876,7 @@ Last Governance Review:
             type="email"
             inputmode="email"
             autocomplete="username"
-            placeholder="Enter authorized email"
+            placeholder="Enter your account email"
             maxlength="320"
             required
             disabled
@@ -880,7 +887,7 @@ Last Governance Review:
         <div class="field">
 
           <label for="password">
-            Access Password
+            Password
           </label>
 
           <input
@@ -888,7 +895,7 @@ Last Governance Review:
             name="password"
             type="password"
             autocomplete="current-password"
-            placeholder="Enter secure password"
+            placeholder="Enter your password"
             required
             disabled
           />
@@ -901,7 +908,7 @@ Last Governance Review:
           type="submit"
           disabled
         >
-          Initializing System
+          Preparing Login
         </button>
 
       </form>
@@ -918,7 +925,7 @@ Last Governance Review:
         id="routePreview"
         class="route-preview"
       >
-        Select a role to review its governed entry path.
+        Select your role to see where STATS-CORE will take you.
       </div>
 
       <div class="secondary-actions">
@@ -933,7 +940,7 @@ Last Governance Review:
     </section>
 
     <div class="footer-note">
-      STATS-CORE Systems · Controlled Access Infrastructure
+      STATS-CORE™ · Athlete Lifecycle System
     </div>
 
   </main>
@@ -976,7 +983,7 @@ Last Governance Review:
       "use strict";
 
       const PAGE_VERSION =
-        "STATSCORE-LOGIN-PRESENTATION-V2.0.0";
+        "STATSCORE-LOGIN-PRESENTATION-V2.1.0";
 
       const loginForm =
         document.getElementById(
@@ -1024,38 +1031,41 @@ Last Governance Review:
         );
 
       const pageState = {
-        runtimeReady: false,
-        submitting: false
+        runtimeReady:
+          false,
+
+        submitting:
+          false
       };
 
       const ROLE_PATH_DESCRIPTIONS =
         Object.freeze({
           athlete:
-            "Athlete authority → first-time Snapshot Intake or returning Athlete Dashboard",
+            "New athletes begin their athlete record. Returning athletes continue to their Athlete Dashboard.",
 
           parent:
-            "Parent authority → first-time Professional Intake or returning Role Dashboard",
+            "Parents and guardians continue to their family access workspace.",
 
           coach:
-            "Coach authority → first-time Professional Intake or returning Role Dashboard",
+            "Coaches continue to their team and athlete management workspace.",
 
           counselor:
-            "Counselor authority → first-time Professional Intake or returning Role Dashboard",
+            "Counselors continue to their academic and eligibility workspace.",
 
           recruiter:
-            "Recruiter authority → first-time Professional Intake or returning Role Dashboard",
+            "Recruiters continue to their athlete evaluation workspace.",
 
           evaluator:
-            "Evaluator authority → first-time Professional Intake or returning Role Dashboard",
+            "Evaluators continue to their performance assessment workspace.",
 
           program:
-            "Program authority → first-time Professional Intake or returning Role Dashboard",
+            "Program representatives continue to their organization workspace.",
 
           trainer:
-            "Trainer authority → first-time Professional Intake or returning Role Dashboard",
+            "Trainers continue to their athlete development workspace.",
 
           administrator:
-            "Administrator authority → System Operations"
+            "Administrators continue to STATS-CORE system operations."
         });
 
       function cleanString(value) {
@@ -1078,7 +1088,9 @@ Last Governance Review:
 
         statusElement.classList.toggle(
           "error",
-          Boolean(isError)
+          Boolean(
+            isError
+          )
         );
 
         statusElement.hidden =
@@ -1090,7 +1102,9 @@ Last Governance Review:
         disposition
       ) {
         runtimeBanner.textContent =
-          cleanString(message);
+          cleanString(
+            message
+          );
 
         runtimeBanner.classList.remove(
           "ready",
@@ -1131,15 +1145,19 @@ Last Governance Review:
           )
         );
 
-        if (pageState.submitting) {
+        if (
+          pageState.submitting
+        ) {
           loginButton.textContent =
-            "Authenticating";
-        } else if (pageState.runtimeReady) {
+            "Signing In";
+        } else if (
+          pageState.runtimeReady
+        ) {
           loginButton.textContent =
-            "Enter Controlled System";
+            "Enter STATS-CORE";
         } else {
           loginButton.textContent =
-            "Initializing System";
+            "Preparing Login";
         }
       }
 
@@ -1147,14 +1165,19 @@ Last Governance Review:
         submitting
       ) {
         pageState.submitting =
-          Boolean(submitting);
+          Boolean(
+            submitting
+          );
 
         updateControlState();
       }
 
       function getAuthenticationService() {
         const service =
-          global.STATSCORE_AUTH_SERVICE;
+          global.STATSCORE_AUTH_SERVICE ||
+          global.STATScore
+            ?.AuthenticationService ||
+          null;
 
         if (
           !service ||
@@ -1164,7 +1187,7 @@ Last Governance Review:
             "function"
         ) {
           throw new Error(
-            "The governed STATS-CORE authentication service is unavailable."
+            "System Login is temporarily unavailable."
           );
         }
 
@@ -1173,7 +1196,8 @@ Last Governance Review:
 
       function getAuthenticationBootstrap() {
         return (
-          global.STATSCORE_AUTHENTICATION_BOOTSTRAP ||
+          global
+            .STATSCORE_AUTHENTICATION_BOOTSTRAP ||
           global.STATScore
             ?.AuthenticationBootstrap ||
           null
@@ -1192,7 +1216,7 @@ Last Governance Review:
             true
         ) {
           throw new Error(
-            "The governed authentication runtime has not been configured."
+            "System Login is not ready. Please try again shortly."
           );
         }
 
@@ -1213,10 +1237,23 @@ Last Governance Review:
           if (
             serialized &&
             cleanString(
+              serialized.user_message
+            )
+          ) {
+            return cleanString(
+              serialized.user_message
+            );
+          }
+
+          if (
+            serialized &&
+            cleanString(
               serialized.message
             )
           ) {
-            return serialized.message;
+            return cleanString(
+              serialized.message
+            );
           }
         }
 
@@ -1226,7 +1263,9 @@ Last Governance Review:
             error.user_message
           )
         ) {
-          return error.user_message;
+          return cleanString(
+            error.user_message
+          );
         }
 
         if (
@@ -1235,11 +1274,40 @@ Last Governance Review:
             error.message
           )
         ) {
-          return error.message;
+          const message =
+            cleanString(
+              error.message
+            );
+
+          const lowerMessage =
+            message.toLowerCase();
+
+          if (
+            lowerMessage.includes(
+              "runtime"
+            ) ||
+            lowerMessage.includes(
+              "bootstrap"
+            ) ||
+            lowerMessage.includes(
+              "configured"
+            ) ||
+            lowerMessage.includes(
+              "authentication service"
+            )
+          ) {
+            return (
+              "System Login is temporarily unavailable. " +
+              "Please try again in a few moments."
+            );
+          }
+
+          return message;
         }
 
         return (
-          "Authentication could not be completed."
+          "We could not sign you in. " +
+          "Check your information and try again."
         );
       }
 
@@ -1258,14 +1326,15 @@ Last Governance Review:
             )
         ) {
           routePreview.textContent =
-            "Select a role to review its governed entry path.";
+            "Select your role to see where STATS-CORE will take you.";
 
           return;
         }
 
         routePreview.textContent =
-          "Governed Path: " +
-          ROLE_PATH_DESCRIPTIONS[role];
+          ROLE_PATH_DESCRIPTIONS[
+            role
+          ];
       }
 
       function applyIncomingEntryContext() {
@@ -1303,9 +1372,11 @@ Last Governance Review:
           registrationState ===
             "confirmed"
         ) {
-          verificationBanner.classList.add(
-            "visible"
-          );
+          verificationBanner
+            .classList
+            .add(
+              "visible"
+            );
         }
 
         if (
@@ -1322,7 +1393,9 @@ Last Governance Review:
 
         if (
           emailHint &&
-          emailHint.includes("@")
+          emailHint.includes(
+            "@"
+          )
         ) {
           emailInput.value =
             emailHint;
@@ -1374,7 +1447,7 @@ Last Governance Review:
           true;
 
         setRuntimeBanner(
-          "Governed authentication runtime available.",
+          "Secure login is ready.",
           "ready"
         );
 
@@ -1416,7 +1489,7 @@ Last Governance Review:
           false;
 
         setRuntimeBanner(
-          "Governed authentication runtime unavailable.",
+          "System Login is temporarily unavailable.",
           "error"
         );
 
@@ -1452,7 +1525,7 @@ Last Governance Review:
 
       async function initializeAuthenticationRuntime() {
         setRuntimeBanner(
-          "Initializing governed authentication runtime.",
+          "Preparing secure login.",
           "pending"
         );
 
@@ -1524,7 +1597,7 @@ Last Governance Review:
 
         markRuntimeFailed(
           new Error(
-            "The governed authentication runtime has not been configured."
+            "System Login is not ready. Please try again shortly."
           )
         );
       }
@@ -1544,7 +1617,7 @@ Last Governance Review:
           !pageState.runtimeReady
         ) {
           setStatus(
-            "The authentication system is not ready.",
+            "System Login is still preparing. Please try again shortly.",
             true
           );
 
@@ -1572,13 +1645,16 @@ Last Governance Review:
             ? passwordInput.value
             : "";
 
-        if (!role) {
+        if (
+          !role
+        ) {
           setStatus(
-            "Select an authorized role.",
+            "Select your role.",
             true
           );
 
           roleInput.focus();
+
           return;
         }
 
@@ -1587,21 +1663,25 @@ Last Governance Review:
           !emailInput.checkValidity()
         ) {
           setStatus(
-            "Enter a valid authorized email.",
+            "Enter a valid account email.",
             true
           );
 
           emailInput.focus();
+
           return;
         }
 
-        if (!password) {
+        if (
+          !password
+        ) {
           setStatus(
-            "Enter your access password.",
+            "Enter your password.",
             true
           );
 
           passwordInput.focus();
+
           return;
         }
 
@@ -1610,7 +1690,7 @@ Last Governance Review:
         );
 
         setStatus(
-          "Authenticating authorized credentials.",
+          "Signing you in.",
           false
         );
 
@@ -1648,12 +1728,12 @@ Last Governance Review:
             )
           ) {
             throw new Error(
-              "Authentication completed without an authorized destination."
+              "We signed you in but could not open your STATS-CORE workspace."
             );
           }
 
           setStatus(
-            "Access granted. Entering the authorized system route.",
+            "Sign-in successful. Opening your STATS-CORE workspace.",
             false
           );
 
@@ -1692,14 +1772,29 @@ Last Governance Review:
       function handleRuntimeFailureEvent(
         event
       ) {
+        const sourceMessage =
+          cleanString(
+            event
+              ?.detail
+              ?.user_message
+          ) ||
+          cleanString(
+            event
+              ?.detail
+              ?.message
+          );
+
         const message =
-          cleanString(
-            event?.detail?.user_message
-          ) ||
-          cleanString(
-            event?.detail?.message
-          ) ||
-          "The governed authentication runtime could not be initialized.";
+          sourceMessage
+            ? resolveSafeErrorMessage(
+                new Error(
+                  sourceMessage
+                )
+              )
+            : (
+                "System Login is temporarily unavailable. " +
+                "Please try again in a few moments."
+              );
 
         markRuntimeFailed(
           new Error(
