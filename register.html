@@ -107,17 +107,17 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
   />
 
   <title>
-    STATS-CORE™ | Create Enterprise Account
+    STATS-CORE™ | Create Your Account
   </title>
 
   <meta
     name="title"
-    content="STATS-CORE™ | Create Enterprise Account"
+    content="STATS-CORE™ | Create Your Account"
   />
 
   <meta
     name="description"
-    content="Create a governed STATS-CORE enterprise account for authorized athlete, parent, coach, counselor, evaluator, trainer, recruiter, or program participation."
+    content="Create your STATS-CORE account as an athlete, parent, coach, counselor, evaluator, trainer, recruiter, or program representative."
   />
 
   <link
@@ -706,7 +706,7 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
       />
 
       <div class="kicker">
-        First-Time Enterprise Entry
+        New to STATS-CORE?
       </div>
 
       <h1>
@@ -715,38 +715,35 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
       </h1>
 
       <p class="copy">
-        Establish your governed STATS-CORE enterprise
-        credentials. Registration creates the account
-        required to authenticate through the controlled
-        login system.
+        Create your STATS-CORE account to access athlete
+        records, performance information, team resources,
+        and role-based sports services.
       </p>
 
       <div class="authority-strip">
 
         <div class="authority-card">
-          <b>Phase One</b>
-          <span>Identity Registration</span>
+          <b>Step One</b>
+          <span>Create Your Account</span>
         </div>
 
         <div class="authority-card">
-          <b>Phase Two</b>
-          <span>Email Verification</span>
+          <b>Step Two</b>
+          <span>Verify Your Email</span>
         </div>
 
         <div class="authority-card">
-          <b>Phase Three</b>
-          <span>Controlled Login</span>
+          <b>Step Three</b>
+          <span>Sign In to STATS-CORE</span>
         </div>
 
       </div>
 
       <div class="registration-doctrine">
-        Registration creates your authentication
-        credentials and initializes your governed enterprise
-        identity only. Athlete records, professional
-        workspaces, dashboards, and Runtime Authority are
-        established later through their constitutionally
-        governed processes.
+        Creating an account establishes your secure STATS-CORE
+        sign-in. After you verify your email and sign in,
+        STATS-CORE will guide you to the appropriate athlete
+        intake, professional setup, or returning-user workspace.
       </div>
 
     </div>
@@ -757,14 +754,14 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
         id="registrationTitle"
         class="registration-title"
       >
-        Enterprise
-        <span>Registration</span>
+        Create Your
+        <span>Account</span>
       </h2>
 
       <p class="registration-copy">
-        Create your account, verify your email, and then
-        return to the Login Authority to enter the
-        controlled system.
+        Choose your role, create your secure account, and
+        verify your email. Then return to System Login to
+        continue into STATS-CORE.
       </p>
 
       <form
@@ -775,7 +772,7 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
 
         <div class="field">
           <label for="role">
-            Requested Enterprise Role
+            Your STATS-CORE Role
           </label>
 
           <select
@@ -785,7 +782,7 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
             autocomplete="off"
           >
             <option value="">
-              Select requested role
+              Select your role
             </option>
 
             <option value="athlete">
@@ -824,7 +821,7 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
 
         <div class="field">
           <label for="email">
-            Authorized Email
+            Email Address
           </label>
 
           <input
@@ -850,7 +847,7 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
               id="password"
               name="password"
               type="password"
-              placeholder="Create secure password"
+              placeholder="Create a secure password"
               autocomplete="new-password"
               minlength="12"
               maxlength="128"
@@ -867,7 +864,7 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
               id="confirmPassword"
               name="confirmPassword"
               type="password"
-              placeholder="Confirm secure password"
+              placeholder="Re-enter your password"
               autocomplete="new-password"
               minlength="12"
               maxlength="128"
@@ -924,7 +921,7 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
           type="submit"
           disabled
         >
-          Preparing Registration Runtime
+          Preparing Account Setup
         </button>
 
       </form>
@@ -933,7 +930,7 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
         class="secondary-action"
         href="login.html"
       >
-        Return to Login
+        Return to System Login
       </a>
 
       <div
@@ -949,7 +946,7 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
         role="status"
         aria-live="polite"
       >
-        Checking governed registration runtime.
+        Checking account setup availability.
       </div>
 
       <div
@@ -958,11 +955,11 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
         aria-live="polite"
       >
         <h3>
-          Enterprise Account Created
+          STATS-CORE Account Created
         </h3>
 
         <p id="successMessage">
-          Your enterprise account has been created.
+          Your STATS-CORE account has been created.
         </p>
 
         <div
@@ -972,14 +969,14 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
         ></div>
 
         <a href="login.html">
-          Return to Login
+          Return to System Login
         </a>
       </div>
 
     </div>
 
     <div class="footer-note">
-      STATS-CORE Systems · Governed Enterprise Registration
+      STATS-CORE Systems · Secure Account Registration
     </div>
 
   </section>
@@ -1171,10 +1168,10 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
 
         submitButton.textContent =
           isBusy
-            ? "Creating Enterprise Account"
+            ? "Creating Your STATS-CORE Account"
             : runtimeReady
-              ? "Create Enterprise Account"
-              : "Registration Runtime Unavailable";
+              ? "Create STATS-CORE Account"
+              : "Account Registration Unavailable";
       }
 
       function getBootstrapState() {
@@ -1260,7 +1257,7 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
 
         if (runtimeReady) {
           runtimeStatusElement.textContent =
-            "Governed registration runtime available.";
+            "Account registration ready.";
 
           runtimeStatusElement
             .classList
@@ -1276,7 +1273,7 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
         }
 
         runtimeStatusElement.textContent =
-          "The governed registration runtime has not been configured.";
+          "Account registration is temporarily unavailable.";
 
         runtimeStatusElement
           .classList
@@ -1288,7 +1285,7 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
           true;
 
         submitButton.textContent =
-          "Registration Runtime Unavailable";
+          "Account Registration Unavailable";
 
         return false;
       }
@@ -1375,7 +1372,7 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
           roleInput.focus();
 
           throw new Error(
-            "Select your requested enterprise role."
+            "Select your STATS-CORE role."
           );
         }
 
@@ -1510,7 +1507,7 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
         }
 
         return (
-          "Enterprise registration could not be completed."
+          "Your STATS-CORE account could not be created."
         );
       }
 
@@ -1533,15 +1530,13 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
 
         if (verificationRequired) {
           successMessage.textContent =
-            "Your enterprise account has been created. " +
-            "A verification email has been sent to the " +
-            "registered email address. Verify the email " +
-            "before returning to the controlled login system.";
+            "Your STATS-CORE account has been created. " +
+            "A verification email has been sent to your email address. " +
+            "Verify your email, then return to System Login to continue.";
         } else {
           successMessage.textContent =
-            "Your enterprise account has been created and " +
-            "is ready for controlled login. You will be " +
-            "transferred to the Login Authority.";
+            "Your STATS-CORE account is ready. " +
+            "You will now be transferred to System Login.";
         }
 
         const receiptId =
@@ -1555,7 +1550,7 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
             false;
 
           receiptReference.textContent =
-            "Registration Receipt: " +
+            "Account Confirmation Reference: " +
             receiptId;
         } else {
           receiptReference.hidden =
@@ -1566,7 +1561,7 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
         }
 
         setStatus(
-          "Registration complete",
+          "Account registration complete",
           "success"
         );
 
@@ -1593,7 +1588,7 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
         ) {
           if (!runtimeReady) {
             setStatus(
-              "The governed registration runtime is unavailable.",
+              "Account registration is temporarily unavailable.",
               "error"
             );
           }
@@ -1625,7 +1620,7 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
               "function"
           ) {
             throw new Error(
-              "The governed registration runtime has not been configured."
+              "Account registration is temporarily unavailable."
             );
           }
 
@@ -1640,7 +1635,7 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
           );
 
           setStatus(
-            "Creating enterprise account",
+            "Creating your STATS-CORE account",
             "warning"
           );
 
@@ -1655,7 +1650,7 @@ ENGINEERING CHANGE CONTROL — ENTERPRISE REGISTRATION BUILD
               true
           ) {
             throw new Error(
-              "The registration service did not confirm account creation."
+              "STATS-CORE could not confirm that your account was created."
             );
           }
 
