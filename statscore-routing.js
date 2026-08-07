@@ -10,24 +10,20 @@ Asset Type:
 JavaScript Infrastructure / Governed Routing Authority
 
 Owner Stream:
-Stream 1 — Public Access / Login
+Stream 1 — Public Access, Authentication & Entry Authority
 
 Primary Operational Authority:
-Stream 1 — Public Access / Login
+Stream 1 — Governed Routing Authority
 
 Layer:
 Enterprise Infrastructure / Governed Routing
 
-Runtime Consumer Boundary:
-Consumes Initial Authentication Context from Stream 1.
-Consumes Initial Runtime Context from Stream 8.
-Consumes access determinations from the governed Access Authority.
-Consumes page registration from Page Map and System Map authorities.
-
 Primary Consumers:
 - index.html
+- register.html
 - login.html
 - snapshot-intake.html
+- parent-approval.html
 - athlete-dashboard.html
 - player-profile.html
 - role-dashboard-intake.html
@@ -36,343 +32,612 @@ Primary Consumers:
 - all governed route-aware pages
 
 Purpose:
-Executes governed navigation only after authentication, entry-state,
-access, page-registration, and runtime authorities have produced
-their approved context or decisions.
-
-Consumes:
-- Initial Authentication Context
-- Initial Runtime Context
-- active Runtime State
-- Authentication Service requested_destination
-- governed access decisions
-- governed Page Map
-- governed System Map
-- active snapshot_id
-- active role reference
-- active role_id reference
+Executes governed navigation and protected-page admission after
+authentication, route registration, Page Context, Runtime Context,
+and Access Authority have produced the required approved context
+or decisions.
 
 Provides:
 - Authentication Service destination execution
-- registered-route validation
-- governed access enforcement
-- safe query-parameter preservation
+- mandatory registered-route validation
+- governed outbound navigation
+- governed current-page admission
+- protected-anchor interception
+- alternate-browser-context doctrine
+- Access Authority enforcement
+- explicit current/destination snapshot evaluation
+- Page Context establishment
+- Runtime Context continuity validation
 - snapshot-aware navigation
-- page-navigation helpers
-- active-navigation marking
-- room-context publication
-- routing health diagnostics
+- Parent Approval navigation
+- routing diagnostics
+- current-page admission evidence
 
-Primary IDs:
-- session_id
-- user_id
-- snapshot_id
-- athlete_id
-- role
-- role_id
-- page_id
-- runtime_id
-- active_workspace_id
+==========================================================
+CONSTITUTIONAL ROUTING PRINCIPLES
+==========================================================
 
-Cross-Stream Dependencies:
-- Stream 1 publishes Initial Authentication Context and the
-  Authentication Service authorized requested_destination.
-- Stream 8 publishes Initial Runtime Context and Runtime State.
-- Role Access Authority publishes governed access decisions.
-- Page Map and System Map publish registered-page authorities.
-- This file executes approved navigation but does not replace
-  those authorities.
+1. REGISTERED ROUTE PRINCIPLE
+
+Every governed STATS-CORE destination must be registered.
+
+Registered-route validation is constitutional behavior.
+
+It cannot be disabled by:
+- configure()
+- init()
+- page callers
+- navigation options
+- downstream streams
+
+Page Map and System Map remain the preferred authoritative
+enterprise registration authorities.
+
+CORE_REGISTERED_ROUTES is only a controlled load-order fallback.
+
+Registration does not itself grant access.
+
+----------------------------------------------------------
+
+2. RUNTIME CONTEXT CONTINUITY PRINCIPLE
+
+Authorized URL
+        ↓
+Page Context
+        ↓
+Validation
+        ↓
+Runtime Context
+        ↓
+Enterprise Operational Authority
+
+An authorized route parameter may initiate Page Context.
+
+Page Context may nominate context for:
+- access evaluation
+- navigation continuity
+- Runtime Context initialization
+
+Page Context does NOT become Runtime Authority merely because a
+value appeared in the URL.
+
+----------------------------------------------------------
+
+3. CURRENT PAGE ADMISSION PRINCIPLE
+
+Authenticated Request
+        ↓
+Registered Current Destination
+        ↓
+Page Context
+        ↓
+Governed Access Decision
+        ↓
+Current Page Admission
+        ↓
+Business Runtime May Execute
+
+A protected page is not admitted merely because:
+- the page exists
+- the filename is registered
+- snapshot_id is syntactically valid
+- Page Context was successfully parsed
+
+Access Authority must affirmatively admit the current destination.
+
+----------------------------------------------------------
+
+4. DESTINATION SNAPSHOT PRINCIPLE
+
+Access Authority receives current and destination snapshots as
+separate fields.
+
+current_snapshot_id:
+The governed snapshot presently associated with the active page
+or Runtime Context.
+
+destination_snapshot_id:
+The snapshot explicitly encoded in the normalized destination
+being evaluated.
+
+Routing shall never substitute current_snapshot_id for
+destination_snapshot_id.
+
+----------------------------------------------------------
+
+5. PROTECTED LINK ACTIVATION PRINCIPLE
+
+There are two constitutionally recognized browser activation modes.
+
+A. PRIMARY SAME-CONTEXT ACTIVATION
+
+Examples:
+- normal left-click
+- normal tap
+
+Governed sequence:
+
+Protected Anchor
+        ↓
+Routing.navigate()
+        ↓
+Registered Destination Validation
+        ↓
+Access Authority
+        ↓
+Navigation
+        ↓
+Current Page Admission
+        ↓
+Business Runtime
+
+This receives BOTH outbound authorization and arrival admission.
+
+B. ALTERNATE BROWSER-CONTEXT ACTIVATION
+
+Examples:
+- Ctrl+click
+- Command+click
+- middle-click
+- Shift+click
+- target="_blank"
+- browser-created alternate tab/window behavior
+
+STATS-CORE does not replace or emulate browser-native
+tab/window behavior after asynchronous authorization because doing
+so can break browser gesture semantics and popup controls.
+
+Therefore the constitutional enforcement path is:
+
+Protected Anchor
+        ↓
+Native Alternate Browser Context
+        ↓
+Protected Destination Loads
+        ↓
+Mandatory Registered Route Validation
+        ↓
+Mandatory Current Page Admission
+        ↓
+Access Authority
+        ↓
+Business Runtime Allowed or Blocked
+
+Alternate browser-context navigation therefore relies on the
+mandatory ARRIVAL ADMISSION gate.
+
+No protected business runtime may execute before admission.
+
+----------------------------------------------------------
+
+6. SNAPSHOT INTAKE INTENT INVARIANT
+
+First-time athlete:
+
+snapshot-intake.html?new=1
+
+Existing record:
+
+snapshot-intake.html?snapshot_id={id}
+
+These are constitutionally distinct entry intents.
+
+Routing shall never:
+- collapse them
+- infer one from the other
+- manufacture new=1 for maintenance navigation
+- combine new=1 with snapshot_id
+
+----------------------------------------------------------
+
+7. PARENT APPROVAL CONTRACT
+
+Approved route:
+
+parent-approval.html?snapshot_id={authorized_snapshot_id}
+
+Stream 1:
+- validates route
+- preserves snapshot reference
+- requests governed Access Authority evaluation
+- executes governed navigation
+- governs arrival admission
+
+Stream 2:
+- owns Parent Approval business runtime
+- owns Parent Approval persistence
+- owns Parent Approval transaction behavior
+
+----------------------------------------------------------
 
 Does NOT:
 - authenticate users
 - manufacture session_id
 - manufacture user_id
 - manufacture role or role_id
-- persist authenticated identity
+- manufacture snapshot_id
+- manufacture athlete_id
+- determine first-time or returning entry state
 - resolve role from URL parameters
 - resolve role from browser storage
-- determine first-time or returning entry state
-- override requested_destination
-- accept caller-manufactured authentication authorization
-- accept caller-manufactured access decisions
-- allow protected-route access checks to be disabled
-- expose role_id through general navigation URLs
+- create Runtime Context
+- convert URL parameters directly into Runtime Authority
 - create access policy
+- accept caller-manufactured access decisions
+- allow registered-route enforcement to be disabled
+- allow protected-page admission to be disabled
+- allow primary protected-anchor enforcement to be disabled
+- expose role_id through ordinary navigation URLs
+- create Parent Approval records
+- execute Parent Approval persistence
+- execute Parent Approval business rules
 - calculate intelligence
-- render dashboards
-- create source records
-- modify scores
-- generate Crystal Reports
-- execute communications
-- execute intelligence engines
+- modify athlete records
 - manufacture governance decisions
 
 Status:
-CONTROLLED V3.1 ACCESS-ENFORCEMENT REVISION
+CONTROLLED V3.5 — CONSOLIDATED ROUTING HARDENING
+
+Version:
+STATSCORE-ROUTING-V3.5
 
 ==========================================================
 */
 
-/*
-============================================================
-STATS-CORE™ Governed Routing Authority
-File: statscore-routing.js
-Version: STATSCORE-ROUTING-V3.1
-Purpose:
-Authorized Destination Consumption
-→ Registered Route Validation
-→ Governed Access Enforcement
-→ Context Preservation
-→ Navigation Execution
-
-Certified Authentication Entry Routes:
-
-First-time athlete:
-snapshot-intake.html
-  ?new=1
-  &role=athlete
-  &from=login
-  &next=athlete-dashboard.html
-
-Returning athlete:
-athlete-dashboard.html?snapshot_id={snapshot_id}
-
-First-time professional:
-role-dashboard-intake.html
-  ?role={authenticated_role}
-  &from=login
-  &next=role-dashboard.html
-
-Returning professional:
-role-dashboard.html
-
-Administrator:
-system.html
-
-Important:
-The Authentication Service determines which entry route applies
-and publishes that complete route as requested_destination.
-
-This engine validates and executes that destination. It does not
-reconstruct entry state from role, URL parameters, or storage.
-============================================================
-*/
-
-(function () {
+(function initializeStatsCoreRoutingAuthority() {
   "use strict";
 
-  const ENGINE_ID = "statscore-routing";
-  const VERSION = "STATSCORE-ROUTING-V3.1";
-  const OWNER_STREAM = "Stream 1 — Public Access / Login";
+  const ENGINE_ID =
+    "statscore-routing";
 
-  const PROFESSIONAL_ROLES = Object.freeze([
-    "parent",
-    "coach",
-    "counselor",
-    "recruiter",
-    "evaluator",
-    "program",
-    "trainer"
-  ]);
+  const VERSION =
+    "STATSCORE-ROUTING-V3.5";
 
-  const ALL_ROLES = Object.freeze([
-    "athlete",
-    ...PROFESSIONAL_ROLES,
-    "admin"
-  ]);
+  const OWNER_STREAM =
+    "Stream 1 — Public Access, Authentication & Entry Authority";
 
-  const PUBLIC_ROUTES = Object.freeze([
-    "index.html",
-    "login.html",
-    "privacy.html",
-    "terms.html"
-  ]);
+  const PROFESSIONAL_ROLES =
+    Object.freeze([
+      "parent",
+      "coach",
+      "counselor",
+      "recruiter",
+      "evaluator",
+      "program",
+      "trainer"
+    ]);
 
-  const ROLE_DASHBOARDS = Object.freeze({
-    athlete: "athlete-dashboard.html",
-    parent: "role-dashboard.html",
-    coach: "role-dashboard.html",
-    counselor: "role-dashboard.html",
-    recruiter: "role-dashboard.html",
-    evaluator: "role-dashboard.html",
-    program: "role-dashboard.html",
-    trainer: "role-dashboard.html",
-    admin: "system.html"
-  });
+  const ALL_ROLES =
+    Object.freeze([
+      "athlete",
+      ...PROFESSIONAL_ROLES,
+      "admin"
+    ]);
+
+  const PUBLIC_ROUTES =
+    Object.freeze([
+      "index.html",
+      "register.html",
+      "login.html",
+      "privacy.html",
+      "terms.html"
+    ]);
+
+  const ROLE_DASHBOARDS =
+    Object.freeze({
+      athlete:
+        "athlete-dashboard.html",
+
+      parent:
+        "role-dashboard.html",
+
+      coach:
+        "role-dashboard.html",
+
+      counselor:
+        "role-dashboard.html",
+
+      recruiter:
+        "role-dashboard.html",
+
+      evaluator:
+        "role-dashboard.html",
+
+      program:
+        "role-dashboard.html",
+
+      trainer:
+        "role-dashboard.html",
+
+      admin:
+        "system.html"
+    });
 
   /*
   ========================================================
   CONTROLLED ROUTE FALLBACK
   ========================================================
 
-  Page Map and System Map remain the preferred enterprise
-  page-registration authorities.
+  Page Map and System Map remain authoritative.
 
-  This local list provides only a controlled load-order fallback.
-  It is not an access-policy registry.
+  This list exists only as a controlled load-order fallback.
   ========================================================
   */
 
-  const CORE_REGISTERED_ROUTES = Object.freeze([
-    "index.html",
-    "login.html",
-    "privacy.html",
-    "terms.html",
+  const CORE_REGISTERED_ROUTES =
+    Object.freeze([
+      "index.html",
+      "register.html",
+      "login.html",
+      "privacy.html",
+      "terms.html",
 
-    "snapshot-intake.html",
-    "athlete-dashboard.html",
-    "player-profile.html",
+      "snapshot-intake.html",
+      "parent-approval.html",
+      "athlete-dashboard.html",
+      "player-profile.html",
 
-    "role-dashboard-intake.html",
-    "role-dashboard.html",
+      "role-dashboard-intake.html",
+      "role-dashboard.html",
 
-    "parent.html",
-    "coach.html",
-    "counselor.html",
-    "recruiter-access.html",
-    "evaluator.html",
-    "program.html",
-    "trainer.html",
+      "parent.html",
+      "coach.html",
+      "counselor.html",
+      "recruiter-access.html",
+      "evaluator.html",
+      "program.html",
+      "trainer.html",
 
-    "multi-box.html",
-    "system.html",
+      "multi-box.html",
+      "system.html",
 
-    "verification-request.html",
-    "verification-review.html",
+      "verification-request.html",
+      "verification-review.html",
 
-    "verification.html",
-    "eligibility.html",
-    "readiness.html",
-    "college-pathway.html",
-    "crystal-registry.html",
-    "crystal-report.html"
-  ]);
+      "verification.html",
+      "eligibility.html",
+      "readiness.html",
+      "college-pathway.html",
+      "crystal-registry.html",
+      "crystal-report.html"
+    ]);
 
-  const ROUTE_FIELDS = Object.freeze([
-    "page",
-    "page_id",
-    "filename",
-    "file",
-    "route",
-    "path",
-    "url",
-    "destination",
-    "href"
-  ]);
+  const ROUTE_FIELDS =
+    Object.freeze([
+      "page",
+      "page_id",
+      "filename",
+      "file",
+      "route",
+      "path",
+      "url",
+      "destination",
+      "href"
+    ]);
 
-  const ROUTE_CONTAINER_FIELDS = Object.freeze([
-    "pages",
-    "routes",
-    "entries",
-    "items",
-    "children",
-    "registry",
-    "page_map",
-    "system_map"
-  ]);
+  const ROUTE_CONTAINER_FIELDS =
+    Object.freeze([
+      "pages",
+      "routes",
+      "entries",
+      "items",
+      "children",
+      "registry",
+      "page_map",
+      "system_map"
+    ]);
 
-  const REQUIRED_AUTHENTICATION_FIELDS = Object.freeze([
-    "session_id",
-    "user_id",
-    "role",
-    "entry_intent",
-    "authenticated_at",
-    "authentication_source",
-    "requested_destination"
-  ]);
+  const REQUIRED_AUTHENTICATION_FIELDS =
+    Object.freeze([
+      "session_id",
+      "user_id",
+      "role",
+      "entry_intent",
+      "authenticated_at",
+      "authentication_source",
+      "requested_destination"
+    ]);
 
-  const REQUIRED_ACCESS_DECISION_FIELDS = Object.freeze([
-    "allowed",
-    "authority_id",
-    "authority_type",
-    "destination",
-    "user_id",
-    "session_id",
-    "decided_at"
-  ]);
+  const REQUIRED_ACCESS_DECISION_FIELDS =
+    Object.freeze([
+      "allowed",
+      "authority_id",
+      "authority_type",
+      "destination",
+      "user_id",
+      "session_id",
+      "decided_at"
+    ]);
+
+  const UUID_PATTERN =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+  /*
+  ========================================================
+  CONFIGURATION
+  ========================================================
+
+  Constitutional controls do not live here as mutable caller
+  switches.
+
+  These are always enforced:
+  - registered-route requirement
+  - protected-page admission
+  - protected-anchor primary activation binding
+  ========================================================
+  */
 
   const CONFIGURATION = {
-    authenticationContextResolver: null,
-    runtimeContextResolver: null,
-    accessDecisionResolver: null,
-    pageRegistryResolver: null,
-    systemRegistryResolver: null,
+    authenticationContextResolver:
+      null,
 
-    requireRegisteredDestination: true,
-    bindNavigationElements: true,
-    hydrateSnapshotLinks: true,
-    markActiveNavigation: true
+    runtimeContextResolver:
+      null,
+
+    accessDecisionResolver:
+      null,
+
+    pageRegistryResolver:
+      null,
+
+    systemRegistryResolver:
+      null,
+
+    bindNavigationElements:
+      true,
+
+    hydrateSnapshotLinks:
+      true,
+
+    markActiveNavigation:
+      true
   };
 
-  let STATE = createDefaultState();
-  let NAVIGATION_ELEMENTS_BOUND = false;
+  let STATE =
+    createDefaultState();
+
+  let NAVIGATION_ELEMENTS_BOUND =
+    false;
+
+  let PROTECTED_ANCHORS_BOUND =
+    false;
+
+  /*
+  ========================================================
+  STATE
+  ========================================================
+  */
 
   function createDefaultState() {
     return {
-      initialized: false,
-      initialization_status: "LOADED",
+      initialized:
+        false,
 
-      engine_id: ENGINE_ID,
-      version: VERSION,
-      owner_stream: OWNER_STREAM,
+      initialization_status:
+        "LOADED",
 
-      initialized_at: null,
-      updated_at: null,
+      engine_id:
+        ENGINE_ID,
 
-      authentication_context: null,
-      runtime_context: null,
-      room_context: null,
+      version:
+        VERSION,
 
-      registered_routes: [],
+      owner_stream:
+        OWNER_STREAM,
 
-      last_validation: null,
-      last_access_decision: null,
-      last_navigation: null,
+      initialized_at:
+        null,
 
-      navigation_events: [],
-      errors: [],
-      warnings: []
+      updated_at:
+        null,
+
+      authentication_context:
+        null,
+
+      page_context:
+        null,
+
+      runtime_context:
+        null,
+
+      current_page_admission:
+        null,
+
+      room_context:
+        null,
+
+      registered_routes:
+        [],
+
+      last_validation:
+        null,
+
+      last_access_decision:
+        null,
+
+      last_navigation:
+        null,
+
+      navigation_events:
+        [],
+
+      errors:
+        [],
+
+      warnings:
+        []
     };
   }
 
+  /*
+  ========================================================
+  BASIC UTILITIES
+  ========================================================
+  */
+
   function nowISO() {
-    return new Date().toISOString();
+    return new Date()
+      .toISOString();
+  }
+
+  function clean(value) {
+    return String(
+      value ?? ""
+    ).trim();
   }
 
   function clone(value) {
-    if (value === undefined) {
+    if (
+      value === undefined
+    ) {
       return undefined;
     }
 
     try {
-      return structuredClone(value);
+      return structuredClone(
+        value
+      );
     } catch (_) {
-      return JSON.parse(JSON.stringify(value));
+      return JSON.parse(
+        JSON.stringify(
+          value
+        )
+      );
     }
   }
 
-  function clean(value) {
-    return String(value ?? "").trim();
-  }
-
   function normalizeRole(value) {
-    const role = clean(value).toLowerCase();
+    const role =
+      clean(value)
+        .toLowerCase();
 
-    if (role === "administrator") {
+    if (
+      role ===
+      "administrator"
+    ) {
       return "admin";
     }
 
     return role;
   }
 
+  function isUuid(value) {
+    return UUID_PATTERN.test(
+      clean(value)
+    );
+  }
+
   function getCurrentPage() {
-    const pathname = window.location.pathname || "";
+    const pathname =
+      window.location.pathname ||
+      "";
 
     return (
       pathname
         .split("/")
         .filter(Boolean)
-        .pop() || "index.html"
+        .pop() ||
+      "index.html"
     );
   }
 
@@ -388,28 +653,45 @@ reconstruct entry state from role, URL parameters, or storage.
     return (
       new URLSearchParams(
         window.location.search
-      ).get(key) || ""
+      ).get(key) ||
+      ""
     );
   }
 
-  function isPublicRoute(page = getCurrentPage()) {
-    return PUBLIC_ROUTES.includes(clean(page));
+  function isPublicRoute(
+    page =
+      getCurrentPage()
+  ) {
+    return PUBLIC_ROUTES.includes(
+      clean(page)
+    );
   }
 
   function isValidRole(role) {
-    return ALL_ROLES.includes(normalizeRole(role));
+    return ALL_ROLES.includes(
+      normalizeRole(
+        role
+      )
+    );
   }
 
   function isProfessionalRole(role) {
     return PROFESSIONAL_ROLES.includes(
-      normalizeRole(role)
+      normalizeRole(
+        role
+      )
     );
   }
 
-  function log(message, payload) {
+  function log(
+    message,
+    payload
+  ) {
     console.info(
       `[STATS-CORE Routing] ${message}`,
-      payload === undefined ? "" : payload
+      payload === undefined
+        ? ""
+        : payload
     );
   }
 
@@ -417,138 +699,262 @@ reconstruct entry state from role, URL parameters, or storage.
   ========================================================
   STATE PUBLICATION
   ========================================================
-
-  The internal STATE object is never published by reference.
-  External consumers receive a clone only.
-  ========================================================
   */
 
   function publishState() {
-    const publicState = clone(STATE);
+    const publicState =
+      clone(
+        STATE
+      );
 
-    window.STATScoreRoutingState = publicState;
+    window.STATScoreRoutingState =
+      publicState;
 
     window.STATScore =
-      window.STATScore || {};
+      window.STATScore ||
+      {};
 
     window.STATScore.RoutingState =
-      clone(publicState);
+      clone(
+        publicState
+      );
 
     return publicState;
   }
 
   function getState() {
-    return clone(STATE);
+    return clone(
+      STATE
+    );
   }
 
-  function emit(eventName, payload = {}) {
+  function emit(
+    eventName,
+    payload = {}
+  ) {
     const detail = {
-      engine_id: ENGINE_ID,
-      version: VERSION,
-      emitted_at: nowISO(),
-      ...clone(payload)
+      engine_id:
+        ENGINE_ID,
+
+      version:
+        VERSION,
+
+      emitted_at:
+        nowISO(),
+
+      ...clone(
+        payload
+      )
     };
 
     window.dispatchEvent(
       new CustomEvent(
         `statscore:routing:${eventName}`,
-        { detail }
+        {
+          detail
+        }
       )
     );
 
-    if (window.STATScoreEngineBus?.emit) {
-      window.STATScoreEngineBus.emit(
-        `routing_${eventName}`,
-        detail
-      );
+    if (
+      window
+        .STATScoreEngineBus
+        ?.emit
+    ) {
+      window
+        .STATScoreEngineBus
+        .emit(
+          `routing_${eventName}`,
+          detail
+        );
     }
   }
 
-  function recordNavigationEvent(type, payload = {}) {
+  function recordNavigationEvent(
+    type,
+    payload = {}
+  ) {
     const event = {
       navigation_event_id:
         "sc_route_event_" +
-        Date.now().toString(36) +
+        Date.now()
+          .toString(36) +
         "_" +
         Math.random()
           .toString(36)
           .slice(2, 10),
 
       event_type:
-        clean(type) || "ROUTING_EVENT",
+        clean(type) ||
+        "ROUTING_EVENT",
 
-      engine_id: ENGINE_ID,
-      version: VERSION,
+      engine_id:
+        ENGINE_ID,
 
-      payload: clone(payload),
-      created_at: nowISO()
+      version:
+        VERSION,
+
+      payload:
+        clone(
+          payload
+        ),
+
+      created_at:
+        nowISO()
     };
 
-    STATE.navigation_events.push(event);
-    STATE.updated_at = nowISO();
+    STATE
+      .navigation_events
+      .push(
+        event
+      );
+
+    STATE.updated_at =
+      nowISO();
 
     publishState();
 
-    emit("event_recorded", {
-      navigation_event: clone(event)
-    });
+    emit(
+      "event_recorded",
+      {
+        navigation_event:
+          clone(
+            event
+          )
+      }
+    );
 
-    return clone(event);
+    return clone(
+      event
+    );
   }
 
-  function recordWarning(code, message, payload = null) {
+  function recordWarning(
+    code,
+    message,
+    payload = null
+  ) {
     const warning = {
       code:
-        clean(code) || "ROUTING_WARNING",
+        clean(code) ||
+        "ROUTING_WARNING",
 
       message:
-        clean(message) || "Routing warning.",
+        clean(message) ||
+        "Routing warning.",
 
-      payload: clone(payload),
-      created_at: nowISO()
+      payload:
+        clone(
+          payload
+        ),
+
+      created_at:
+        nowISO()
     };
 
-    STATE.warnings.push(warning);
-    STATE.updated_at = nowISO();
+    STATE
+      .warnings
+      .push(
+        warning
+      );
+
+    STATE.updated_at =
+      nowISO();
 
     console.warn(
       `[STATS-CORE Routing] ${warning.code}: ${warning.message}`,
-      payload || ""
+      payload ||
+      ""
     );
 
     publishState();
-    emit("warning", { warning: clone(warning) });
 
-    return clone(warning);
+    emit(
+      "warning",
+      {
+        warning:
+          clone(
+            warning
+          )
+      }
+    );
+
+    return clone(
+      warning
+    );
   }
 
-  function recordError(code, message, payload = null) {
+  function recordError(
+    code,
+    message,
+    payload = null
+  ) {
     const errorRecord = {
       code:
-        clean(code) || "ROUTING_ERROR",
+        clean(code) ||
+        "ROUTING_ERROR",
 
       message:
-        clean(message) || "Routing error.",
+        clean(message) ||
+        "Routing error.",
 
-      payload: clone(payload),
-      created_at: nowISO()
+      payload:
+        clone(
+          payload
+        ),
+
+      created_at:
+        nowISO()
     };
 
-    STATE.errors.push(errorRecord);
-    STATE.updated_at = nowISO();
+    STATE
+      .errors
+      .push(
+        errorRecord
+      );
+
+    STATE.updated_at =
+      nowISO();
 
     console.error(
       `[STATS-CORE Routing] ${errorRecord.code}: ${errorRecord.message}`,
-      payload || ""
+      payload ||
+      ""
     );
 
     publishState();
-    emit("error", { error: clone(errorRecord) });
 
-    return clone(errorRecord);
+    emit(
+      "error",
+      {
+        error:
+          clone(
+            errorRecord
+          )
+      }
+    );
+
+    return clone(
+      errorRecord
+    );
   }
 
-  function configure(options = {}) {
+  /*
+  ========================================================
+  CALLER CONFIGURATION
+  ========================================================
+
+  Only non-constitutional behavior may be changed here.
+
+  Registered-route enforcement, protected admission, and
+  protected-anchor primary activation enforcement cannot be
+  changed by callers.
+  ========================================================
+  */
+
+  function configure(
+    options = {}
+  ) {
     const resolverNames = [
       "authenticationContextResolver",
       "runtimeContextResolver",
@@ -557,53 +963,98 @@ reconstruct entry state from role, URL parameters, or storage.
       "systemRegistryResolver"
     ];
 
-    resolverNames.forEach(name => {
-      if (
-        !Object.prototype.hasOwnProperty.call(
-          options,
+    resolverNames.forEach(
+      name => {
+        if (
+          !Object.prototype
+            .hasOwnProperty.call(
+              options,
+              name
+            )
+        ) {
+          return;
+        }
+
+        const resolver =
+          options[
+            name
+          ];
+
+        if (
+          resolver !== null &&
+          typeof resolver !==
+            "function"
+        ) {
+          throw new TypeError(
+            `${name} must be a function or null.`
+          );
+        }
+
+        CONFIGURATION[
           name
-        )
-      ) {
-        return;
+        ] =
+          resolver;
       }
-
-      const resolver = options[name];
-
-      if (
-        resolver !== null &&
-        typeof resolver !== "function"
-      ) {
-        throw new TypeError(
-          `${name} must be a function or null.`
-        );
-      }
-
-      CONFIGURATION[name] = resolver;
-    });
+    );
 
     const booleanOptions = [
-      "requireRegisteredDestination",
       "bindNavigationElements",
       "hydrateSnapshotLinks",
       "markActiveNavigation"
     ];
 
-    booleanOptions.forEach(name => {
-      if (
-        Object.prototype.hasOwnProperty.call(
-          options,
-          name
-        )
-      ) {
-        CONFIGURATION[name] =
-          options[name] !== false;
+    booleanOptions.forEach(
+      name => {
+        if (
+          Object.prototype
+            .hasOwnProperty.call(
+              options,
+              name
+            )
+        ) {
+          CONFIGURATION[
+            name
+          ] =
+            options[
+              name
+            ] !==
+            false;
+        }
       }
-    });
+    );
+
+    const prohibitedOverrides = [
+      "requireRegisteredDestination",
+      "requireProtectedPageAdmission",
+      "bindProtectedAnchors"
+    ];
+
+    prohibitedOverrides.forEach(
+      name => {
+        if (
+          Object.prototype
+            .hasOwnProperty.call(
+              options,
+              name
+            )
+        ) {
+          recordWarning(
+            "CONSTITUTIONAL_ROUTING_OVERRIDE_IGNORED",
+            `${name} is constitutional routing behavior and cannot be changed by caller configuration.`,
+            {
+              option:
+                name
+            }
+          );
+        }
+      }
+    );
 
     recordNavigationEvent(
       "ROUTING_CONFIGURATION_UPDATED",
       {
-        configuration: getConfiguration()
+        configuration:
+          getConfiguration()
       }
     );
 
@@ -619,68 +1070,125 @@ reconstruct entry state from role, URL parameters, or storage.
 
       has_runtime_context_resolver:
         typeof CONFIGURATION
-          .runtimeContextResolver === "function",
+          .runtimeContextResolver ===
+        "function",
 
       has_access_decision_resolver:
         typeof CONFIGURATION
-          .accessDecisionResolver === "function",
+          .accessDecisionResolver ===
+        "function",
 
       has_page_registry_resolver:
         typeof CONFIGURATION
-          .pageRegistryResolver === "function",
+          .pageRegistryResolver ===
+        "function",
 
       has_system_registry_resolver:
         typeof CONFIGURATION
-          .systemRegistryResolver === "function",
+          .systemRegistryResolver ===
+        "function",
 
       require_registered_destination:
-        CONFIGURATION.requireRegisteredDestination,
+        true,
+
+      registered_destination_disableable:
+        false,
+
+      require_protected_page_admission:
+        true,
+
+      protected_page_admission_disableable:
+        false,
+
+      bind_protected_anchors:
+        true,
+
+      protected_anchor_enforcement_disableable:
+        false,
 
       bind_navigation_elements:
-        CONFIGURATION.bindNavigationElements,
+        CONFIGURATION
+          .bindNavigationElements,
 
       hydrate_snapshot_links:
-        CONFIGURATION.hydrateSnapshotLinks,
+        CONFIGURATION
+          .hydrateSnapshotLinks,
 
       mark_active_navigation:
-        CONFIGURATION.markActiveNavigation
+        CONFIGURATION
+          .markActiveNavigation
     };
   }
 
+  /*
+  ========================================================
+  AUTHENTICATION / RUNTIME CONTEXT RESOLUTION
+  ========================================================
+  */
+
   function getAuthenticationContextFromWindow() {
     return (
-      window.STATScoreInitialAuthenticationContext ||
-      window.STATScoreAuthenticationContext ||
-      window.STATScore
+      window
+        .STATSCORE_INITIAL_AUTHENTICATION_CONTEXT ||
+
+      window
+        .STATScoreInitialAuthenticationContext ||
+
+      window
+        .STATScoreAuthenticationContext ||
+
+      window
+        .STATScore
         ?.InitialAuthenticationContext ||
-      window.STATScore?.AuthenticationContext ||
+
+      window
+        .STATScore
+        ?.AuthenticationContext ||
+
       null
     );
   }
 
   function getRuntimeContextFromWindow() {
     const runtimeEngine =
-      window.STATScoreRuntimeStateEngine ||
-      window.STATScore?.RuntimeStateEngine ||
+      window
+        .STATScoreRuntimeStateEngine ||
+      window
+        .STATScore
+        ?.RuntimeStateEngine ||
       null;
 
     return (
       runtimeEngine
-        ?.getInitialRuntimeContext?.() ||
+        ?.getInitialRuntimeContext
+        ?.() ||
+
       runtimeEngine
-        ?.getState?.()
+        ?.getState
+        ?.()
         ?.initial_runtime_context ||
-      window.STATScoreInitialRuntimeContext ||
-      window.STATScore?.InitialRuntimeContext ||
+
+      window
+        .STATScoreInitialRuntimeContext ||
+
+      window
+        .STATScore
+        ?.InitialRuntimeContext ||
+
       null
     );
   }
 
   async function resolveAuthenticationContext(
-    suppliedContext = null
+    suppliedContext =
+      null
   ) {
-    if (suppliedContext) {
-      return clone(suppliedContext);
+    if (
+      suppliedContext
+    ) {
+      return clone(
+        suppliedContext
+      );
     }
 
     if (
@@ -700,15 +1208,21 @@ reconstruct entry state from role, URL parameters, or storage.
   }
 
   async function resolveRuntimeContext(
-    suppliedContext = null
+    suppliedContext =
+      null
   ) {
-    if (suppliedContext) {
-      return clone(suppliedContext);
+    if (
+      suppliedContext
+    ) {
+      return clone(
+        suppliedContext
+      );
     }
 
     if (
       typeof CONFIGURATION
-        .runtimeContextResolver === "function"
+        .runtimeContextResolver ===
+      "function"
     ) {
       return clone(
         await CONFIGURATION
@@ -721,35 +1235,53 @@ reconstruct entry state from role, URL parameters, or storage.
     );
   }
 
-  function validateAuthenticationContext(context) {
-    const errors = [];
+  function validateAuthenticationContext(
+    context
+  ) {
+    const errors =
+      [];
 
     if (
       !context ||
-      typeof context !== "object" ||
-      Array.isArray(context)
+      typeof context !==
+        "object" ||
+      Array.isArray(
+        context
+      )
     ) {
       return {
-        valid: false,
+        valid:
+          false,
+
         errors: [
           "Initial Authentication Context is unavailable."
         ]
       };
     }
 
-    REQUIRED_AUTHENTICATION_FIELDS.forEach(
-      field => {
-        if (clean(context[field]) === "") {
-          errors.push(
-            `Initial Authentication Context is missing required field: ${field}`
-          );
+    REQUIRED_AUTHENTICATION_FIELDS
+      .forEach(
+        field => {
+          if (
+            clean(
+              context[
+                field
+              ]
+            ) ===
+            ""
+          ) {
+            errors.push(
+              `Initial Authentication Context is missing required field: ${field}`
+            );
+          }
         }
-      }
-    );
+      );
 
     if (
       context.role &&
-      !isValidRole(context.role)
+      !isValidRole(
+        context.role
+      )
     ) {
       errors.push(
         `Initial Authentication Context contains unsupported role: ${context.role}`
@@ -757,9 +1289,13 @@ reconstruct entry state from role, URL parameters, or storage.
     }
 
     if (
-      context.authenticated_at &&
+      context
+        .authenticated_at &&
       Number.isNaN(
-        Date.parse(context.authenticated_at)
+        Date.parse(
+          context
+            .authenticated_at
+        )
       )
     ) {
       errors.push(
@@ -768,121 +1304,509 @@ reconstruct entry state from role, URL parameters, or storage.
     }
 
     return {
-      valid: errors.length === 0,
+      valid:
+        errors.length ===
+        0,
+
       errors
     };
   }
 
-  function normalizeAuthenticationContext(context) {
+  function normalizeAuthenticationContext(
+    context
+  ) {
     return {
-      session_id: clean(context.session_id),
-      user_id: clean(context.user_id),
-      role: normalizeRole(context.role),
+      session_id:
+        clean(
+          context
+            .session_id
+        ),
+
+      user_id:
+        clean(
+          context
+            .user_id
+        ),
+
+      role:
+        normalizeRole(
+          context.role
+        ),
 
       entry_intent:
-        clean(context.entry_intent),
+        clean(
+          context
+            .entry_intent
+        ),
 
       authenticated_at:
-        clean(context.authenticated_at),
+        clean(
+          context
+            .authenticated_at
+        ),
 
       authentication_source:
-        clean(context.authentication_source),
+        clean(
+          context
+            .authentication_source
+        ),
 
       requested_destination:
-        clean(context.requested_destination)
+        clean(
+          context
+            .requested_destination
+        )
     };
   }
 
-  function normalizeRuntimeContext(context) {
+  function normalizeRuntimeContext(
+    context
+  ) {
     if (
       !context ||
-      typeof context !== "object" ||
-      Array.isArray(context)
+      typeof context !==
+        "object" ||
+      Array.isArray(
+        context
+      )
     ) {
       return null;
     }
 
     return {
       runtime_id:
-        clean(context.runtime_id) || null,
+        clean(
+          context
+            .runtime_id
+        ) ||
+        null,
 
       session_id:
-        clean(context.session_id) || null,
+        clean(
+          context
+            .session_id
+        ) ||
+        null,
 
       user_id:
-        clean(context.user_id) || null,
+        clean(
+          context
+            .user_id
+        ) ||
+        null,
 
       role:
-        normalizeRole(context.role) || null,
+        normalizeRole(
+          context.role
+        ) ||
+        null,
 
       role_id:
-        clean(context.role_id) || null,
+        clean(
+          context
+            .role_id
+        ) ||
+        null,
 
       entry_intent:
-        clean(context.entry_intent) || null,
+        clean(
+          context
+            .entry_intent
+        ) ||
+        null,
 
       authenticated_at:
-        clean(context.authenticated_at) || null,
+        clean(
+          context
+            .authenticated_at
+        ) ||
+        null,
 
       authentication_source:
-        clean(context.authentication_source) ||
+        clean(
+          context
+            .authentication_source
+        ) ||
         null,
 
       requested_destination:
-        clean(context.requested_destination) ||
+        clean(
+          context
+            .requested_destination
+        ) ||
         null,
 
       page_id:
-        clean(context.page_id) || null,
+        clean(
+          context
+            .page_id
+        ) ||
+        null,
 
       page_context:
-        clone(context.page_context || null),
+        clone(
+          context
+            .page_context ||
+          null
+        ),
 
       active_snapshot_id:
-        clean(context.active_snapshot_id) ||
         clean(
-          context.page_context?.snapshot_id
+          context
+            .active_snapshot_id
+        ) ||
+        clean(
+          context
+            .page_context
+            ?.snapshot_id
         ) ||
         null,
 
       active_athlete_id:
-        clean(context.active_athlete_id) ||
+        clean(
+          context
+            .active_athlete_id
+        ) ||
         null,
 
       active_workspace_id:
-        clean(context.active_workspace_id) ||
+        clean(
+          context
+            .active_workspace_id
+        ) ||
         null,
 
       system_state:
-        clean(context.system_state) || null
+        clean(
+          context
+            .system_state
+        ) ||
+        null
     };
   }
+
+  /*
+  ========================================================
+  PAGE CONTEXT
+  ========================================================
+  */
+
+  function validateNewIntentValue(
+    value
+  ) {
+    const normalized =
+      clean(
+        value
+      ).toLowerCase();
+
+    if (
+      normalized ===
+      ""
+    ) {
+      return {
+        valid:
+          true,
+
+        active:
+          false,
+
+        normalized:
+          null
+      };
+    }
+
+    if (
+      normalized ===
+        "1" ||
+      normalized ===
+        "true"
+    ) {
+      return {
+        valid:
+          true,
+
+        active:
+          true,
+
+        normalized:
+          "1"
+      };
+    }
+
+    return {
+      valid:
+        false,
+
+      active:
+        false,
+
+      normalized
+    };
+  }
+
+  function derivePageContextFromCurrentRoute() {
+    const page =
+      getCurrentPage();
+
+    const route =
+      getCurrentRoute();
+
+    const query =
+      new URLSearchParams(
+        window.location.search
+      );
+
+    const snapshotValues =
+      query.getAll(
+        "snapshot_id"
+      );
+
+    const newValues =
+      query.getAll(
+        "new"
+      );
+
+    const errors =
+      [];
+
+    if (
+      snapshotValues.length >
+      1
+    ) {
+      errors.push(
+        "Route contains multiple snapshot_id parameters."
+      );
+    }
+
+    if (
+      newValues.length >
+      1
+    ) {
+      errors.push(
+        "Route contains multiple new parameters."
+      );
+    }
+
+    const rawSnapshotId =
+      clean(
+        snapshotValues[
+          0
+        ]
+      );
+
+    const newIntent =
+      validateNewIntentValue(
+        newValues[
+          0
+        ]
+      );
+
+    if (
+      !newIntent.valid
+    ) {
+      errors.push(
+        "Route parameter new contains an unsupported value."
+      );
+    }
+
+    if (
+      rawSnapshotId &&
+      !isUuid(
+        rawSnapshotId
+      )
+    ) {
+      errors.push(
+        "Route snapshot_id is not a valid UUID."
+      );
+    }
+
+    if (
+      rawSnapshotId &&
+      newIntent.active
+    ) {
+      errors.push(
+        "Route cannot simultaneously request new=1 and an existing snapshot_id."
+      );
+    }
+
+    if (
+      newIntent.active &&
+      page !==
+        "snapshot-intake.html"
+    ) {
+      errors.push(
+        "new=1 is authorized only for snapshot-intake.html."
+      );
+    }
+
+    const context = {
+      page_id:
+        page,
+
+      route,
+
+      snapshot_id:
+        rawSnapshotId ||
+        null,
+
+      new_record:
+        newIntent.active,
+
+      source:
+        rawSnapshotId ||
+        newIntent.active
+          ? "ROUTE_PARAMETER"
+          : "CURRENT_ROUTE",
+
+      validation_status:
+        errors.length ===
+          0
+          ? (
+              rawSnapshotId
+                ? "PAGE_CONTEXT_VALID_PENDING_ADMISSION"
+                : newIntent.active
+                  ? "NEW_ENTRY_INTENT_VALID_PENDING_ADMISSION"
+                  : "PAGE_CONTEXT_VALID"
+            )
+          : "PAGE_CONTEXT_INVALID",
+
+      established_at:
+        nowISO()
+    };
+
+    return {
+      valid:
+        errors.length ===
+        0,
+
+      errors,
+
+      context
+    };
+  }
+
+  function validatePageContextAgainstRuntime(
+    pageContext,
+    runtimeContext
+  ) {
+    const errors =
+      [];
+
+    if (
+      !pageContext
+    ) {
+      return {
+        valid:
+          true,
+
+        errors
+      };
+    }
+
+    const pageSnapshotId =
+      clean(
+        pageContext
+          .snapshot_id
+      );
+
+    const runtimeSnapshotId =
+      clean(
+        runtimeContext
+          ?.active_snapshot_id
+      ) ||
+      clean(
+        runtimeContext
+          ?.page_context
+          ?.snapshot_id
+      );
+
+    if (
+      pageContext
+        .new_record ===
+        true &&
+      runtimeSnapshotId
+    ) {
+      errors.push(
+        "new=1 conflicts with an existing Runtime Context snapshot_id."
+      );
+    }
+
+    if (
+      pageSnapshotId &&
+      runtimeSnapshotId &&
+      pageSnapshotId !==
+        runtimeSnapshotId
+    ) {
+      errors.push(
+        "Page Context snapshot_id does not match Runtime Context snapshot_id."
+      );
+    }
+
+    return {
+      valid:
+        errors.length ===
+        0,
+
+      errors,
+
+      page_snapshot_id:
+        pageSnapshotId ||
+        null,
+
+      runtime_snapshot_id:
+        runtimeSnapshotId ||
+        null
+    };
+  }
+
+  function getPageContext() {
+    return clone(
+      STATE
+        .page_context
+    );
+  }
+
+  /*
+  ========================================================
+  CONTEXT ACCESSORS
+  ========================================================
+  */
 
   function getRole() {
     return (
       normalizeRole(
-        STATE.runtime_context?.role ||
-        STATE.authentication_context?.role
-      ) || ""
+        STATE
+          .runtime_context
+          ?.role ||
+        STATE
+          .authentication_context
+          ?.role
+      ) ||
+      ""
     );
   }
 
   function getRoleId() {
     return (
       clean(
-        STATE.runtime_context?.role_id
-      ) || ""
+        STATE
+          .runtime_context
+          ?.role_id
+      ) ||
+      ""
     );
   }
 
-  function getSnapshotId() {
+  function getRuntimeSnapshotId() {
     return (
       clean(
-        STATE.runtime_context
+        STATE
+          .runtime_context
           ?.active_snapshot_id
       ) ||
       clean(
-        STATE.runtime_context
+        STATE
+          .runtime_context
           ?.page_context
           ?.snapshot_id
       ) ||
@@ -890,30 +1814,124 @@ reconstruct entry state from role, URL parameters, or storage.
     );
   }
 
+  function getPageSnapshotId() {
+    return (
+      clean(
+        STATE
+          .page_context
+          ?.snapshot_id
+      ) ||
+      ""
+    );
+  }
+
+  function getSnapshotId() {
+    return (
+      getRuntimeSnapshotId() ||
+      getPageSnapshotId() ||
+      ""
+    );
+  }
+
+  function getSnapshotContext() {
+    const runtimeSnapshotId =
+      getRuntimeSnapshotId();
+
+    if (
+      runtimeSnapshotId
+    ) {
+      return {
+        snapshot_id:
+          runtimeSnapshotId,
+
+        source:
+          "RUNTIME_CONTEXT",
+
+        operational_authority:
+          true,
+
+        admitted:
+          STATE
+            .current_page_admission
+            ?.allowed ===
+          true
+      };
+    }
+
+    const pageSnapshotId =
+      getPageSnapshotId();
+
+    if (
+      pageSnapshotId
+    ) {
+      return {
+        snapshot_id:
+          pageSnapshotId,
+
+        source:
+          "PAGE_CONTEXT",
+
+        operational_authority:
+          false,
+
+        admitted:
+          STATE
+            .current_page_admission
+            ?.allowed ===
+          true
+      };
+    }
+
+    return {
+      snapshot_id:
+        null,
+
+      source:
+        null,
+
+      operational_authority:
+        false,
+
+      admitted:
+        STATE
+          .current_page_admission
+          ?.allowed ===
+        true
+    };
+  }
+
   function getAthleteId() {
     return (
       clean(
-        STATE.runtime_context
+        STATE
+          .runtime_context
           ?.active_athlete_id
-      ) || ""
+      ) ||
+      ""
     );
   }
 
   function getRuntimeId() {
     return (
       clean(
-        STATE.runtime_context?.runtime_id
-      ) || ""
+        STATE
+          .runtime_context
+          ?.runtime_id
+      ) ||
+      ""
     );
   }
 
   function getSessionId() {
     return (
       clean(
-        STATE.runtime_context?.session_id
+        STATE
+          .runtime_context
+          ?.session_id
       ) ||
       clean(
-        STATE.authentication_context
+        STATE
+          .authentication_context
           ?.session_id
       ) ||
       ""
@@ -923,26 +1941,41 @@ reconstruct entry state from role, URL parameters, or storage.
   function getUserId() {
     return (
       clean(
-        STATE.runtime_context?.user_id
+        STATE
+          .runtime_context
+          ?.user_id
       ) ||
       clean(
-        STATE.authentication_context
+        STATE
+          .authentication_context
           ?.user_id
       ) ||
       ""
     );
   }
 
-  function dashboardForRole(role = getRole()) {
+  function dashboardForRole(
+    role =
+      getRole()
+  ) {
     const normalized =
-      normalizeRole(role);
+      normalizeRole(
+        role
+      );
 
-    if (!isValidRole(normalized)) {
+    if (
+      !isValidRole(
+        normalized
+      )
+    ) {
       return "";
     }
 
     return (
-      ROLE_DASHBOARDS[normalized] || ""
+      ROLE_DASHBOARDS[
+        normalized
+      ] ||
+      ""
     );
   }
 
@@ -952,25 +1985,44 @@ reconstruct entry state from role, URL parameters, or storage.
   ========================================================
   */
 
-  function parseDestination(destination) {
-    const raw = clean(destination);
+  function parseDestination(
+    destination
+  ) {
+    const raw =
+      clean(
+        destination
+      );
 
-    if (!raw) {
+    if (
+      !raw
+    ) {
       return {
-        valid: false,
-        error: "Destination is empty."
+        valid:
+          false,
+
+        error:
+          "Destination is empty."
       };
     }
 
-    const lowered = raw.toLowerCase();
+    const lowered =
+      raw.toLowerCase();
 
     if (
-      lowered.startsWith("javascript:") ||
-      lowered.startsWith("data:") ||
-      lowered.startsWith("vbscript:")
+      lowered.startsWith(
+        "javascript:"
+      ) ||
+      lowered.startsWith(
+        "data:"
+      ) ||
+      lowered.startsWith(
+        "vbscript:"
+      )
     ) {
       return {
-        valid: false,
+        valid:
+          false,
+
         error:
           "Executable destination schemes are prohibited."
       };
@@ -979,13 +2031,16 @@ reconstruct entry state from role, URL parameters, or storage.
     let url;
 
     try {
-      url = new URL(
-        raw,
-        window.location.href
-      );
+      url =
+        new URL(
+          raw,
+          window.location.href
+        );
     } catch (_) {
       return {
-        valid: false,
+        valid:
+          false,
+
         error:
           "Destination is not a valid URL."
       };
@@ -996,7 +2051,9 @@ reconstruct entry state from role, URL parameters, or storage.
       window.location.origin
     ) {
       return {
-        valid: false,
+        valid:
+          false,
+
         error:
           "Cross-origin routing is prohibited."
       };
@@ -1006,173 +2063,303 @@ reconstruct entry state from role, URL parameters, or storage.
       url.pathname
         .split("/")
         .filter(Boolean)
-        .pop() || "index.html";
+        .pop() ||
+      "index.html";
 
     return {
-      valid: true,
+      valid:
+        true,
+
       raw,
+
       url,
+
       page
     };
   }
 
-  function normalizeDestination(destination) {
+  function normalizeDestination(
+    destination
+  ) {
     const parsed =
-      parseDestination(destination);
+      parseDestination(
+        destination
+      );
 
-    if (!parsed.valid) {
+    if (
+      !parsed.valid
+    ) {
       return {
-        valid: false,
-        error: parsed.error,
-        normalized: null,
-        page: null
+        valid:
+          false,
+
+        error:
+          parsed.error,
+
+        normalized:
+          null,
+
+        page:
+          null,
+
+        url:
+          null
       };
     }
 
     const orderedEntries = [
-      ...parsed.url.searchParams.entries()
-    ].sort(([leftKey, leftValue], [
-      rightKey,
-      rightValue
-    ]) => {
-      const keyComparison =
-        leftKey.localeCompare(rightKey);
+      ...parsed
+        .url
+        .searchParams
+        .entries()
+    ].sort(
+      (
+        [leftKey, leftValue],
+        [rightKey, rightValue]
+      ) => {
+        const keyComparison =
+          leftKey.localeCompare(
+            rightKey
+          );
 
-      if (keyComparison !== 0) {
-        return keyComparison;
+        if (
+          keyComparison !==
+          0
+        ) {
+          return keyComparison;
+        }
+
+        return leftValue
+          .localeCompare(
+            rightValue
+          );
       }
-
-      return leftValue.localeCompare(
-        rightValue
-      );
-    });
+    );
 
     const normalizedParams =
       new URLSearchParams();
 
     orderedEntries.forEach(
       ([key, value]) => {
-        normalizedParams.append(key, value);
-      }
-    );
-
-    const query =
-      normalizedParams.toString();
-
-    const normalized =
-      parsed.page +
-      (query ? `?${query}` : "") +
-      parsed.url.hash;
-
-    return {
-      valid: true,
-      normalized,
-      page: parsed.page,
-      url: parsed.url
-    };
-  }
-
-  function appendParams(destination, params = {}) {
-    const parsed =
-      parseDestination(destination);
-
-    if (!parsed.valid) {
-      throw new Error(parsed.error);
-    }
-
-    Object.entries(params).forEach(
-      ([key, value]) => {
-        if (
-          value === undefined ||
-          value === null ||
-          clean(value) === ""
-        ) {
-          return;
-        }
-
-        parsed.url.searchParams.set(
+        normalizedParams.append(
           key,
-          String(value)
+          value
         );
       }
     );
 
+    const query =
+      normalizedParams
+        .toString();
+
+    const normalized =
+      parsed.page +
+      (
+        query
+          ? `?${query}`
+          : ""
+      ) +
+      parsed.url.hash;
+
+    return {
+      valid:
+        true,
+
+      normalized,
+
+      page:
+        parsed.page,
+
+      url:
+        new URL(
+          normalized,
+          window.location.href
+        )
+    };
+  }
+
+  function appendParams(
+    destination,
+    params = {}
+  ) {
+    const parsed =
+      parseDestination(
+        destination
+      );
+
+    if (
+      !parsed.valid
+    ) {
+      throw new Error(
+        parsed.error
+      );
+    }
+
+    Object
+      .entries(
+        params
+      )
+      .forEach(
+        ([key, value]) => {
+          if (
+            value ===
+              undefined ||
+            value ===
+              null ||
+            clean(
+              value
+            ) ===
+              ""
+          ) {
+            return;
+          }
+
+          parsed
+            .url
+            .searchParams
+            .set(
+              key,
+              String(
+                value
+              )
+            );
+        }
+      );
+
     return normalizeDestination(
-      parsed.url.href
+      parsed
+        .url
+        .href
     ).normalized;
   }
 
-  function removeParams(destination, keys = []) {
+  function removeParams(
+    destination,
+    keys = []
+  ) {
     const parsed =
-      parseDestination(destination);
+      parseDestination(
+        destination
+      );
 
-    if (!parsed.valid) {
-      throw new Error(parsed.error);
+    if (
+      !parsed.valid
+    ) {
+      throw new Error(
+        parsed.error
+      );
     }
 
-    keys.forEach(key => {
-      parsed.url.searchParams.delete(key);
-    });
+    keys.forEach(
+      key => {
+        parsed
+          .url
+          .searchParams
+          .delete(
+            key
+          );
+      }
+    );
 
     return normalizeDestination(
-      parsed.url.href
+      parsed
+        .url
+        .href
     ).normalized;
   }
 
   function withSnapshot(
     destination,
-    snapshotId = getSnapshotId()
+    snapshotId =
+      getSnapshotId()
   ) {
     const normalizedSnapshotId =
-      clean(snapshotId);
+      clean(
+        snapshotId
+      );
 
-    if (!normalizedSnapshotId) {
+    if (
+      !normalizedSnapshotId
+    ) {
       return destination;
     }
 
-    return appendParams(destination, {
-      snapshot_id: normalizedSnapshotId
-    });
+    if (
+      !isUuid(
+        normalizedSnapshotId
+      )
+    ) {
+      throw new Error(
+        "snapshot_id must be a valid UUID."
+      );
+    }
+
+    return appendParams(
+      destination,
+      {
+        snapshot_id:
+          normalizedSnapshotId
+      }
+    );
   }
-
-  /*
-  General runtime-context propagation is intentionally limited.
-
-  role_id is never published through URLs.
-
-  role is not propagated during ordinary navigation. The only
-  approved role-bearing entry route is the complete destination
-  produced by Authentication Service for first-time professional
-  intake.
-  */
 
   function withRuntimeContext(
     destination,
     options = {}
   ) {
-    const params = {};
+    const params =
+      {};
 
     if (
-      options.include_snapshot !== false
+      options
+        .include_snapshot !==
+      false
     ) {
       const snapshotId =
-        clean(options.snapshot_id) ||
+        clean(
+          options
+            .snapshot_id
+        ) ||
         getSnapshotId();
 
-      if (snapshotId) {
+      if (
+        snapshotId
+      ) {
+        if (
+          !isUuid(
+            snapshotId
+          )
+        ) {
+          throw new Error(
+            "snapshot_id must be a valid UUID."
+          );
+        }
+
         params.snapshot_id =
           snapshotId;
       }
     }
 
-    if (clean(options.from)) {
+    if (
+      clean(
+        options.from
+      )
+    ) {
       params.from =
-        clean(options.from);
+        clean(
+          options.from
+        );
     }
 
-    if (clean(options.next)) {
+    if (
+      clean(
+        options.next
+      )
+    ) {
       params.next =
-        clean(options.next);
+        clean(
+          options.next
+        );
     }
 
     return appendParams(
@@ -1183,111 +2370,286 @@ reconstruct entry state from role, URL parameters, or storage.
 
   /*
   ========================================================
-  REGISTERED ROUTE EXTRACTION
-  ========================================================
-
-  Only recognized route-bearing properties are parsed.
-
-  Ordinary metadata strings are never recursively interpreted
-  as route names.
+  DESTINATION SNAPSHOT EXTRACTION
   ========================================================
   */
 
-  function extractRoutesFromRegistry(registry) {
-    const routes = new Set();
-    const visited = new WeakSet();
+  function extractDestinationSnapshot(
+    normalizedDestination
+  ) {
+    if (
+      !normalizedDestination ||
+      normalizedDestination.valid !==
+        true ||
+      !normalizedDestination.url
+    ) {
+      return {
+        valid:
+          false,
 
-    function addRoute(value) {
-      if (typeof value !== "string") {
-        return;
-      }
+        snapshot_id:
+          null,
 
-      const normalized =
-        normalizeDestination(value);
+        present:
+          false,
 
-      if (normalized.valid) {
-        routes.add(normalized.page);
-      }
+        error:
+          "Normalized destination is unavailable."
+      };
     }
 
-    function walkRouteRecord(value, depth = 0) {
+    const values =
+      normalizedDestination
+        .url
+        .searchParams
+        .getAll(
+          "snapshot_id"
+        );
+
+    if (
+      values.length >
+      1
+    ) {
+      return {
+        valid:
+          false,
+
+        snapshot_id:
+          null,
+
+        present:
+          true,
+
+        error:
+          "Destination contains multiple snapshot_id parameters."
+      };
+    }
+
+    const rawSnapshotId =
+      clean(
+        values[
+          0
+        ]
+      );
+
+    if (
+      !rawSnapshotId
+    ) {
+      return {
+        valid:
+          true,
+
+        snapshot_id:
+          null,
+
+        present:
+          false,
+
+        error:
+          null
+      };
+    }
+
+    if (
+      !isUuid(
+        rawSnapshotId
+      )
+    ) {
+      return {
+        valid:
+          false,
+
+        snapshot_id:
+          rawSnapshotId,
+
+        present:
+          true,
+
+        error:
+          "Destination snapshot_id is not a valid UUID."
+      };
+    }
+
+    return {
+      valid:
+        true,
+
+      snapshot_id:
+        rawSnapshotId,
+
+      present:
+        true,
+
+      error:
+        null
+    };
+  }
+
+  /*
+  ========================================================
+  REGISTERED ROUTE EXTRACTION
+  ========================================================
+  */
+
+  function extractRoutesFromRegistry(
+    registry
+  ) {
+    const routes =
+      new Set();
+
+    const visited =
+      new WeakSet();
+
+    function addRoute(value) {
       if (
-        value === null ||
-        value === undefined ||
-        depth > 6
+        typeof value !==
+        "string"
       ) {
         return;
       }
 
-      if (typeof value === "string") {
-        addRoute(value);
+      const normalized =
+        normalizeDestination(
+          value
+        );
+
+      if (
+        normalized.valid
+      ) {
+        routes.add(
+          normalized.page
+        );
+      }
+    }
+
+    function walkRouteRecord(
+      value,
+      depth = 0
+    ) {
+      if (
+        value ===
+          null ||
+        value ===
+          undefined ||
+        depth >
+          6
+      ) {
         return;
       }
 
-      if (Array.isArray(value)) {
-        value.forEach(item => {
-          walkRouteRecord(
-            item,
-            depth + 1
-          );
-        });
+      if (
+        typeof value ===
+        "string"
+      ) {
+        addRoute(
+          value
+        );
 
         return;
       }
 
-      if (typeof value !== "object") {
-        return;
-      }
-
-      if (visited.has(value)) {
-        return;
-      }
-
-      visited.add(value);
-
-      ROUTE_FIELDS.forEach(field => {
-        if (
-          typeof value[field] ===
-          "string"
-        ) {
-          addRoute(value[field]);
-        }
-      });
-
-      ROUTE_CONTAINER_FIELDS.forEach(
-        field => {
-          const container = value[field];
-
-          if (
-            container &&
-            (
-              Array.isArray(container) ||
-              typeof container === "object"
-            )
-          ) {
+      if (
+        Array.isArray(
+          value
+        )
+      ) {
+        value.forEach(
+          item => {
             walkRouteRecord(
-              container,
+              item,
               depth + 1
+            );
+          }
+        );
+
+        return;
+      }
+
+      if (
+        typeof value !==
+        "object"
+      ) {
+        return;
+      }
+
+      if (
+        visited.has(
+          value
+        )
+      ) {
+        return;
+      }
+
+      visited.add(
+        value
+      );
+
+      ROUTE_FIELDS.forEach(
+        field => {
+          if (
+            typeof value[
+              field
+            ] ===
+            "string"
+          ) {
+            addRoute(
+              value[
+                field
+              ]
             );
           }
         }
       );
+
+      ROUTE_CONTAINER_FIELDS
+        .forEach(
+          field => {
+            const container =
+              value[
+                field
+              ];
+
+            if (
+              container &&
+              (
+                Array.isArray(
+                  container
+                ) ||
+                typeof container ===
+                  "object"
+              )
+            ) {
+              walkRouteRecord(
+                container,
+                depth + 1
+              );
+            }
+          }
+        );
     }
 
-    walkRouteRecord(registry);
+    walkRouteRecord(
+      registry
+    );
 
-    return [...routes];
+    return [
+      ...routes
+    ];
   }
 
   async function resolveRegisteredRoutes() {
     const routes =
-      new Set(CORE_REGISTERED_ROUTES);
+      new Set(
+        CORE_REGISTERED_ROUTES
+      );
 
-    const registries = [];
+    const registries =
+      [];
 
     if (
       typeof CONFIGURATION
-        .pageRegistryResolver === "function"
+        .pageRegistryResolver ===
+      "function"
     ) {
       try {
         registries.push(
@@ -1303,8 +2665,11 @@ reconstruct entry state from role, URL parameters, or storage.
       }
     } else {
       registries.push(
-        window.STATScorePageMap ||
-        window.STATScore?.PageMap ||
+        window
+          .STATScorePageMap ||
+        window
+          .STATScore
+          ?.PageMap ||
         null
       );
     }
@@ -1328,55 +2693,69 @@ reconstruct entry state from role, URL parameters, or storage.
       }
     } else {
       registries.push(
-        window.STATScoreSystemMap ||
-        window.STATScore?.SystemMap ||
+        window
+          .STATScoreSystemMap ||
+        window
+          .STATScore
+          ?.SystemMap ||
         null
       );
     }
 
-    registries.forEach(registry => {
-      extractRoutesFromRegistry(
-        registry
-      ).forEach(route => {
-        routes.add(route);
-      });
-    });
+    registries.forEach(
+      registry => {
+        extractRoutesFromRegistry(
+          registry
+        ).forEach(
+          route => {
+            routes.add(
+              route
+            );
+          }
+        );
+      }
+    );
 
     STATE.registered_routes =
-      [...routes].sort();
+      [
+        ...routes
+      ].sort();
 
-    STATE.updated_at = nowISO();
+    STATE.updated_at =
+      nowISO();
 
     publishState();
 
     return clone(
-      STATE.registered_routes
+      STATE
+        .registered_routes
     );
   }
 
-  function isRegisteredRoute(destination) {
+  function isRegisteredRoute(
+    destination
+  ) {
     const normalized =
-      normalizeDestination(destination);
+      normalizeDestination(
+        destination
+      );
 
-    if (!normalized.valid) {
+    if (
+      !normalized.valid
+    ) {
       return false;
     }
 
-    return STATE.registered_routes.includes(
-      normalized.page
-    );
+    return STATE
+      .registered_routes
+      .includes(
+        normalized.page
+      );
   }
 
   /*
   ========================================================
   AUTHENTICATION DESTINATION VALIDATION
-  ========================================================
-
-  No public boolean or caller-supplied option can declare that a
-  destination was authorized by Authentication Service.
-
-  The destination must exactly match requested_destination after
-  safe normalization.
   ========================================================
   */
 
@@ -1384,32 +2763,47 @@ reconstruct entry state from role, URL parameters, or storage.
     destination
   ) {
     const requestedDestination =
-      STATE.authentication_context
+      STATE
+        .authentication_context
         ?.requested_destination;
 
     const supplied =
-      normalizeDestination(destination);
+      normalizeDestination(
+        destination
+      );
 
     const authorized =
       normalizeDestination(
         requestedDestination
       );
 
-    if (!supplied.valid) {
+    if (
+      !supplied.valid
+    ) {
       return {
-        valid: false,
+        valid:
+          false,
+
         status:
           "AUTHENTICATION_DESTINATION_INVALID",
-        error: supplied.error
+
+        error:
+          supplied.error
       };
     }
 
-    if (!authorized.valid) {
+    if (
+      !authorized.valid
+    ) {
       return {
-        valid: false,
+        valid:
+          false,
+
         status:
           "AUTHORIZED_DESTINATION_INVALID",
-        error: authorized.error
+
+        error:
+          authorized.error
       };
     }
 
@@ -1418,27 +2812,58 @@ reconstruct entry state from role, URL parameters, or storage.
       authorized.normalized
     ) {
       return {
-        valid: false,
+        valid:
+          false,
+
         status:
           "AUTHENTICATION_DESTINATION_MISMATCH",
 
         supplied_destination:
-          supplied.normalized,
+          supplied
+            .normalized,
 
         authorized_destination:
-          authorized.normalized
+          authorized
+            .normalized
+      };
+    }
+
+    if (
+      !STATE
+        .registered_routes
+        .includes(
+          authorized.page
+        )
+    ) {
+      return {
+        valid:
+          false,
+
+        status:
+          "AUTHORIZED_DESTINATION_NOT_REGISTERED",
+
+        authorized_destination:
+          authorized
+            .normalized,
+
+        page:
+          authorized.page
       };
     }
 
     return {
-      valid: true,
+      valid:
+        true,
+
       status:
         "AUTHENTICATION_DESTINATION_CONFIRMED",
 
       destination:
-        authorized.normalized,
+        authorized
+          .normalized,
 
-      page: authorized.page,
+      page:
+        authorized.page,
 
       authority_id:
         "STREAM_1_AUTHENTICATION_SERVICE"
@@ -1447,7 +2872,7 @@ reconstruct entry state from role, URL parameters, or storage.
 
   /*
   ========================================================
-  GOVERNED ACCESS DECISION CONTRACT
+  ACCESS DECISION CONTRACT
   ========================================================
   */
 
@@ -1455,87 +2880,115 @@ reconstruct entry state from role, URL parameters, or storage.
     decision,
     destination
   ) {
-    const errors = [];
+    const errors =
+      [];
 
     if (
       !decision ||
-      typeof decision !== "object" ||
-      Array.isArray(decision)
+      typeof decision !==
+        "object" ||
+      Array.isArray(
+        decision
+      )
     ) {
       return {
-        valid: false,
-        allowed: false,
+        valid:
+          false,
+
+        allowed:
+          false,
+
         errors: [
           "Governed Access Authority returned no valid decision object."
         ]
       };
     }
 
-    REQUIRED_ACCESS_DECISION_FIELDS.forEach(
-      field => {
-        if (
-          field === "allowed"
-        ) {
+    REQUIRED_ACCESS_DECISION_FIELDS
+      .forEach(
+        field => {
           if (
-            typeof decision.allowed !==
-            "boolean"
+            field ===
+            "allowed"
           ) {
-            errors.push(
-              "Access decision allowed must be boolean."
-            );
+            if (
+              typeof decision
+                .allowed !==
+              "boolean"
+            ) {
+              errors.push(
+                "Access decision allowed must be boolean."
+              );
+            }
+
+            return;
           }
 
-          return;
+          if (
+            clean(
+              decision[
+                field
+              ]
+            ) ===
+            ""
+          ) {
+            errors.push(
+              `Access decision is missing required field: ${field}`
+            );
+          }
         }
-
-        if (
-          clean(decision[field]) === ""
-        ) {
-          errors.push(
-            `Access decision is missing required field: ${field}`
-          );
-        }
-      }
-    );
+      );
 
     const requestedDestination =
-      normalizeDestination(destination);
+      normalizeDestination(
+        destination
+      );
 
     const decidedDestination =
       normalizeDestination(
-        decision.destination
+        decision
+          .destination
       );
 
-    if (!requestedDestination.valid) {
+    if (
+      !requestedDestination
+        .valid
+    ) {
       errors.push(
         "Requested destination is invalid."
       );
     }
 
-    if (!decidedDestination.valid) {
+    if (
+      !decidedDestination
+        .valid
+    ) {
       errors.push(
         "Access decision destination is invalid."
       );
     }
 
     if (
-      requestedDestination.valid &&
-      decidedDestination.valid &&
-      requestedDestination.normalized !==
-        decidedDestination.normalized
+      requestedDestination
+        .valid &&
+      decidedDestination
+        .valid &&
+      requestedDestination
+        .normalized !==
+        decidedDestination
+          .normalized
     ) {
       errors.push(
         "Access decision destination does not match the requested destination."
       );
     }
 
-    const activeUserId = getUserId();
-    const activeSessionId =
-      getSessionId();
-
     if (
-      clean(decision.user_id) !==
-      activeUserId
+      clean(
+        decision
+          .user_id
+      ) !==
+      getUserId()
     ) {
       errors.push(
         "Access decision user_id does not match the active authenticated user."
@@ -1543,8 +2996,11 @@ reconstruct entry state from role, URL parameters, or storage.
     }
 
     if (
-      clean(decision.session_id) !==
-      activeSessionId
+      clean(
+        decision
+          .session_id
+      ) !==
+      getSessionId()
     ) {
       errors.push(
         "Access decision session_id does not match the active authenticated session."
@@ -1552,9 +3008,13 @@ reconstruct entry state from role, URL parameters, or storage.
     }
 
     if (
-      decision.decided_at &&
+      decision
+        .decided_at &&
       Number.isNaN(
-        Date.parse(decision.decided_at)
+        Date.parse(
+          decision
+            .decided_at
+        )
       )
     ) {
       errors.push(
@@ -1563,53 +3023,91 @@ reconstruct entry state from role, URL parameters, or storage.
     }
 
     return {
-      valid: errors.length === 0,
+      valid:
+        errors.length ===
+        0,
+
       allowed:
-        errors.length === 0 &&
-        decision.allowed === true,
+        errors.length ===
+          0 &&
+        decision.allowed ===
+          true,
 
       errors,
 
-      decision: errors.length
-        ? null
-        : {
-            allowed:
-              decision.allowed === true,
+      decision:
+        errors.length
+          ? null
+          : {
+              allowed:
+                decision
+                  .allowed ===
+                true,
 
-            authority_id:
-              clean(decision.authority_id),
+              authority_id:
+                clean(
+                  decision
+                    .authority_id
+                ),
 
-            authority_type:
-              clean(decision.authority_type),
+              authority_type:
+                clean(
+                  decision
+                    .authority_type
+                ),
 
-            destination:
-              decidedDestination.normalized,
+              destination:
+                decidedDestination
+                  .normalized,
 
-            user_id:
-              clean(decision.user_id),
+              user_id:
+                clean(
+                  decision
+                    .user_id
+                ),
 
-            session_id:
-              clean(decision.session_id),
+              session_id:
+                clean(
+                  decision
+                    .session_id
+                ),
 
-            decided_at:
-              clean(decision.decided_at),
+              decided_at:
+                clean(
+                  decision
+                    .decided_at
+                ),
 
-            status:
-              clean(decision.status) ||
-              (
-                decision.allowed
-                  ? "ACCESS_ALLOWED"
-                  : "ACCESS_DENIED"
-              ),
+              status:
+                clean(
+                  decision
+                    .status
+                ) ||
+                (
+                  decision.allowed
+                    ? "ACCESS_ALLOWED"
+                    : "ACCESS_DENIED"
+                ),
 
-            metadata:
-              clone(decision.metadata || {})
-          }
+              metadata:
+                clone(
+                  decision
+                    .metadata ||
+                  {}
+                )
+            }
     };
   }
 
+  /*
+  ========================================================
+  GOVERNED ACCESS EVALUATION
+  ========================================================
+  */
+
   async function resolveGovernedAccessDecision(
-    destination
+    destination,
+    options = {}
   ) {
     if (
       typeof CONFIGURATION
@@ -1617,15 +3115,139 @@ reconstruct entry state from role, URL parameters, or storage.
       "function"
     ) {
       return {
-        valid: false,
-        allowed: false,
+        valid:
+          false,
+
+        allowed:
+          false,
+
         status:
           "ACCESS_AUTHORITY_UNAVAILABLE",
+
         errors: [
           "No governed Access Authority resolver is configured."
         ]
       };
     }
+
+    const normalized =
+      normalizeDestination(
+        destination
+      );
+
+    if (
+      !normalized.valid
+    ) {
+      return {
+        valid:
+          false,
+
+        allowed:
+          false,
+
+        status:
+          "ACCESS_DESTINATION_INVALID",
+
+        errors: [
+          normalized.error
+        ]
+      };
+    }
+
+    /*
+    Registered-route validation is unconditional.
+    */
+
+    if (
+      !STATE
+        .registered_routes
+        .includes(
+          normalized.page
+        )
+    ) {
+      return {
+        valid:
+          false,
+
+        allowed:
+          false,
+
+        status:
+          "DESTINATION_NOT_REGISTERED",
+
+        errors: [
+          "Destination is not registered."
+        ],
+
+        destination:
+          normalized
+            .normalized,
+
+        page:
+          normalized.page
+      };
+    }
+
+    const destinationSnapshot =
+      extractDestinationSnapshot(
+        normalized
+      );
+
+    if (
+      !destinationSnapshot.valid
+    ) {
+      return {
+        valid:
+          false,
+
+        allowed:
+          false,
+
+        status:
+          "DESTINATION_SNAPSHOT_INVALID",
+
+        errors: [
+          destinationSnapshot
+            .error
+        ],
+
+        destination:
+          normalized
+            .normalized
+      };
+    }
+
+    const currentSnapshotContext =
+      getSnapshotContext();
+
+    const currentSnapshotId =
+      clean(
+        currentSnapshotContext
+          .snapshot_id
+      ) ||
+      null;
+
+    const destinationSnapshotId =
+      destinationSnapshot
+        .snapshot_id ||
+      null;
+
+    const snapshotTransition =
+      currentSnapshotId &&
+      destinationSnapshotId
+        ? (
+            currentSnapshotId ===
+              destinationSnapshotId
+              ? "SAME_SNAPSHOT"
+              : "CROSS_SNAPSHOT_REQUEST"
+          )
+        : (
+            destinationSnapshotId
+              ? "DESTINATION_SNAPSHOT_REQUEST"
+              : currentSnapshotId
+                ? "CURRENT_SNAPSHOT_ONLY"
+                : "NO_SNAPSHOT_CONTEXT"
+          );
 
     let rawDecision;
 
@@ -1633,38 +3255,88 @@ reconstruct entry state from role, URL parameters, or storage.
       rawDecision =
         await CONFIGURATION
           .accessDecisionResolver({
+            operation:
+              clean(
+                options.operation
+              ) ||
+              "NAVIGATION",
+
             destination:
-              normalizeDestination(
-                destination
-              ).normalized,
+              normalized
+                .normalized,
 
             page:
-              normalizeDestination(
-                destination
-              ).page,
+              normalized.page,
+
+            current_page:
+              getCurrentPage(),
 
             authentication_context:
               clone(
-                STATE.authentication_context
+                STATE
+                  .authentication_context
+              ),
+
+            page_context:
+              clone(
+                STATE
+                  .page_context
               ),
 
             runtime_context:
               clone(
-                STATE.runtime_context
+                STATE
+                  .runtime_context
               ),
 
-            current_page:
-              getCurrentPage()
+            current_snapshot_id:
+              currentSnapshotId,
+
+            current_snapshot_context_source:
+              currentSnapshotContext
+                .source,
+
+            current_snapshot_runtime_authoritative:
+              currentSnapshotContext
+                .operational_authority ===
+              true,
+
+            destination_snapshot_id:
+              destinationSnapshotId,
+
+            destination_snapshot_present:
+              destinationSnapshot
+                .present ===
+              true,
+
+            /*
+            Temporary compatibility alias.
+
+            snapshot_id means DESTINATION snapshot in Access
+            Authority evaluation.
+            */
+
+            snapshot_id:
+              destinationSnapshotId,
+
+            snapshot_transition:
+              snapshotTransition
           });
     } catch (error) {
       return {
-        valid: false,
-        allowed: false,
+        valid:
+          false,
+
+        allowed:
+          false,
+
         status:
           "ACCESS_AUTHORITY_EXCEPTION",
+
         errors: [
           "The governed Access Authority resolver raised an exception."
         ],
+
         error
       };
     }
@@ -1672,49 +3344,84 @@ reconstruct entry state from role, URL parameters, or storage.
     const validation =
       validateAccessDecision(
         rawDecision,
-        destination
+        normalized
+          .normalized
       );
 
-    if (!validation.valid) {
+    if (
+      !validation.valid
+    ) {
       return {
-        valid: false,
-        allowed: false,
+        valid:
+          false,
+
+        allowed:
+          false,
+
         status:
           "ACCESS_DECISION_INVALID",
+
         errors:
-          clone(validation.errors)
+          clone(
+            validation
+              .errors
+          )
       };
     }
 
     STATE.last_access_decision =
-      clone(validation.decision);
+      clone({
+        ...validation
+          .decision,
 
-    STATE.updated_at = nowISO();
+        current_snapshot_id:
+          currentSnapshotId,
+
+        destination_snapshot_id:
+          destinationSnapshotId,
+
+        snapshot_transition:
+          snapshotTransition
+      });
+
+    STATE.updated_at =
+      nowISO();
 
     publishState();
 
     return {
-      valid: true,
+      valid:
+        true,
+
       allowed:
-        validation.allowed,
+        validation
+          .allowed,
 
       status:
-        validation.decision.status,
+        validation
+          .decision
+          .status,
+
+      current_snapshot_id:
+        currentSnapshotId,
+
+      destination_snapshot_id:
+        destinationSnapshotId,
+
+      snapshot_transition:
+        snapshotTransition,
 
       decision:
-        clone(validation.decision)
+        clone(
+          STATE
+            .last_access_decision
+        )
     };
   }
 
   /*
   ========================================================
-  DESTINATION VALIDATION
-  ========================================================
-
-  Public pages may be navigated without Access Authority review.
-
-  Every non-public route requires a governed Access Authority
-  decision. No caller option can disable that requirement.
+  GENERAL DESTINATION VALIDATION
   ========================================================
   */
 
@@ -1722,19 +3429,107 @@ reconstruct entry state from role, URL parameters, or storage.
     destination
   ) {
     const normalized =
-      normalizeDestination(destination);
+      normalizeDestination(
+        destination
+      );
 
-    if (!normalized.valid) {
+    if (
+      !normalized.valid
+    ) {
       const result = {
-        valid: false,
-        status: "INVALID_DESTINATION",
+        valid:
+          false,
+
+        status:
+          "INVALID_DESTINATION",
+
         destination:
-          clean(destination),
-        error: normalized.error
+          clean(
+            destination
+          ),
+
+        error:
+          normalized.error
       };
 
       STATE.last_validation =
-        clone(result);
+        clone(
+          result
+        );
+
+      publishState();
+
+      return result;
+    }
+
+    /*
+    Constitutional registered-route gate.
+    No caller switch exists.
+    */
+
+    if (
+      !STATE
+        .registered_routes
+        .includes(
+          normalized.page
+        )
+    ) {
+      const result = {
+        valid:
+          false,
+
+        status:
+          "DESTINATION_NOT_REGISTERED",
+
+        destination:
+          normalized
+            .normalized,
+
+        page:
+          normalized.page
+      };
+
+      STATE.last_validation =
+        clone(
+          result
+        );
+
+      publishState();
+
+      return result;
+    }
+
+    const destinationSnapshot =
+      extractDestinationSnapshot(
+        normalized
+      );
+
+    if (
+      !destinationSnapshot.valid
+    ) {
+      const result = {
+        valid:
+          false,
+
+        status:
+          "DESTINATION_SNAPSHOT_INVALID",
+
+        destination:
+          normalized
+            .normalized,
+
+        page:
+          normalized.page,
+
+        error:
+          destinationSnapshot
+            .error
+      };
+
+      STATE.last_validation =
+        clone(
+          result
+        );
 
       publishState();
 
@@ -1742,53 +3537,40 @@ reconstruct entry state from role, URL parameters, or storage.
     }
 
     if (
-      CONFIGURATION
-        .requireRegisteredDestination &&
-      !STATE.registered_routes.includes(
+      isPublicRoute(
         normalized.page
       )
     ) {
       const result = {
-        valid: false,
-        status:
-          "DESTINATION_NOT_REGISTERED",
+        valid:
+          true,
 
-        destination:
-          normalized.normalized,
-
-        page: normalized.page
-      };
-
-      STATE.last_validation =
-        clone(result);
-
-      publishState();
-
-      return result;
-    }
-
-    if (isPublicRoute(normalized.page)) {
-      const result = {
-        valid: true,
         status:
           "PUBLIC_DESTINATION_VALIDATED",
 
         destination:
-          normalized.normalized,
+          normalized
+            .normalized,
 
-        page: normalized.page,
+        page:
+          normalized.page,
 
         access_decision: {
-          allowed: true,
+          allowed:
+            true,
+
           status:
             "PUBLIC_ROUTE_ACCESS"
         }
       };
 
       STATE.last_validation =
-        clone(result);
+        clone(
+          result
+        );
 
-      STATE.updated_at = nowISO();
+      STATE.updated_at =
+        nowISO();
 
       publishState();
 
@@ -1797,7 +3579,12 @@ reconstruct entry state from role, URL parameters, or storage.
 
     const accessResult =
       await resolveGovernedAccessDecision(
-        normalized.normalized
+        normalized
+          .normalized,
+        {
+          operation:
+            "OUTBOUND_NAVIGATION"
+        }
       );
 
     if (
@@ -1805,22 +3592,41 @@ reconstruct entry state from role, URL parameters, or storage.
       !accessResult.allowed
     ) {
       const result = {
-        valid: false,
+        valid:
+          false,
+
         status:
-          accessResult.status ||
+          accessResult
+            .status ||
           "ACCESS_DENIED",
 
         destination:
-          normalized.normalized,
+          normalized
+            .normalized,
 
-        page: normalized.page,
+        page:
+          normalized.page,
+
+        current_snapshot_id:
+          accessResult
+            .current_snapshot_id ||
+          null,
+
+        destination_snapshot_id:
+          accessResult
+            .destination_snapshot_id ||
+          null,
 
         access_decision:
-          clone(accessResult)
+          clone(
+            accessResult
+          )
       };
 
       STATE.last_validation =
-        clone(result);
+        clone(
+          result
+        );
 
       publishState();
 
@@ -1828,25 +3634,437 @@ reconstruct entry state from role, URL parameters, or storage.
     }
 
     const result = {
-      valid: true,
+      valid:
+        true,
+
       status:
         "PROTECTED_DESTINATION_VALIDATED",
 
       destination:
-        normalized.normalized,
+        normalized
+          .normalized,
 
-      page: normalized.page,
+      page:
+        normalized.page,
+
+      current_snapshot_id:
+        accessResult
+          .current_snapshot_id ||
+        null,
+
+      destination_snapshot_id:
+        accessResult
+          .destination_snapshot_id ||
+        null,
 
       access_decision:
-        clone(accessResult.decision)
+        clone(
+          accessResult
+            .decision
+        )
     };
 
     STATE.last_validation =
-      clone(result);
+      clone(
+        result
+      );
 
-    STATE.updated_at = nowISO();
+    STATE.updated_at =
+      nowISO();
 
     publishState();
+
+    return result;
+  }
+
+  /*
+  ========================================================
+  CURRENT PAGE ADMISSION
+  ========================================================
+  */
+
+  function getCurrentPageAdmission() {
+    return clone(
+      STATE
+        .current_page_admission
+    );
+  }
+
+  function hasCurrentPageAdmission() {
+    return (
+      STATE
+        .current_page_admission
+        ?.allowed ===
+      true
+    );
+  }
+
+  async function admitCurrentPage() {
+    const currentRoute =
+      normalizeDestination(
+        getCurrentRoute()
+      );
+
+    if (
+      !currentRoute.valid
+    ) {
+      const result = {
+        allowed:
+          false,
+
+        admitted:
+          false,
+
+        status:
+          "CURRENT_PAGE_DESTINATION_INVALID",
+
+        destination:
+          getCurrentRoute(),
+
+        admitted_at:
+          null
+      };
+
+      STATE.current_page_admission =
+        clone(
+          result
+        );
+
+      publishState();
+
+      return result;
+    }
+
+    /*
+    Registered route is mandatory.
+    */
+
+    if (
+      !STATE
+        .registered_routes
+        .includes(
+          currentRoute.page
+        )
+    ) {
+      const result = {
+        allowed:
+          false,
+
+        admitted:
+          false,
+
+        status:
+          "CURRENT_PAGE_NOT_REGISTERED",
+
+        destination:
+          currentRoute
+            .normalized,
+
+        page:
+          currentRoute.page,
+
+        admitted_at:
+          null
+      };
+
+      STATE.current_page_admission =
+        clone(
+          result
+        );
+
+      publishState();
+
+      return result;
+    }
+
+    const destinationSnapshot =
+      extractDestinationSnapshot(
+        currentRoute
+      );
+
+    if (
+      !destinationSnapshot.valid
+    ) {
+      const result = {
+        allowed:
+          false,
+
+        admitted:
+          false,
+
+        status:
+          "CURRENT_PAGE_SNAPSHOT_INVALID",
+
+        destination:
+          currentRoute
+            .normalized,
+
+        page:
+          currentRoute.page,
+
+        admitted_at:
+          null
+      };
+
+      STATE.current_page_admission =
+        clone(
+          result
+        );
+
+      publishState();
+
+      return result;
+    }
+
+    if (
+      isPublicRoute(
+        currentRoute.page
+      )
+    ) {
+      const result = {
+        allowed:
+          true,
+
+        admitted:
+          true,
+
+        protected:
+          false,
+
+        status:
+          "PUBLIC_PAGE_ADMITTED",
+
+        destination:
+          currentRoute
+            .normalized,
+
+        page:
+          currentRoute.page,
+
+        authority_id:
+          "STREAM_1_PUBLIC_ROUTE_AUTHORITY",
+
+        admitted_at:
+          nowISO()
+      };
+
+      STATE.current_page_admission =
+        clone(
+          result
+        );
+
+      STATE.updated_at =
+        nowISO();
+
+      publishState();
+
+      emit(
+        "current_page_admitted",
+        {
+          admission:
+            clone(
+              result
+            )
+        }
+      );
+
+      return result;
+    }
+
+    const accessResult =
+      await resolveGovernedAccessDecision(
+        currentRoute
+          .normalized,
+        {
+          operation:
+            "CURRENT_PAGE_ADMISSION"
+        }
+      );
+
+    if (
+      !accessResult.valid ||
+      !accessResult.allowed
+    ) {
+      const result = {
+        allowed:
+          false,
+
+        admitted:
+          false,
+
+        protected:
+          true,
+
+        status:
+          accessResult
+            .status ||
+          "CURRENT_PAGE_ACCESS_DENIED",
+
+        destination:
+          currentRoute
+            .normalized,
+
+        page:
+          currentRoute.page,
+
+        current_snapshot_id:
+          accessResult
+            .current_snapshot_id ||
+          null,
+
+        destination_snapshot_id:
+          accessResult
+            .destination_snapshot_id ||
+          null,
+
+        access_decision:
+          clone(
+            accessResult
+          ),
+
+        admitted_at:
+          null
+      };
+
+      STATE.current_page_admission =
+        clone(
+          result
+        );
+
+      STATE.updated_at =
+        nowISO();
+
+      publishState();
+
+      try {
+        document
+          .documentElement
+          .setAttribute(
+            "data-statscore-page-admission",
+            "denied"
+          );
+      } catch (_) {}
+
+      recordError(
+        "CURRENT_PAGE_ADMISSION_DENIED",
+        "The protected current page was not admitted by the governed Access Authority.",
+        result
+      );
+
+      emit(
+        "current_page_admission_denied",
+        {
+          admission:
+            clone(
+              result
+            )
+        }
+      );
+
+      return result;
+    }
+
+    const result = {
+      allowed:
+        true,
+
+      admitted:
+        true,
+
+      protected:
+        true,
+
+      status:
+        "PROTECTED_PAGE_ADMITTED",
+
+      destination:
+        currentRoute
+          .normalized,
+
+      page:
+        currentRoute.page,
+
+      current_snapshot_id:
+        accessResult
+          .current_snapshot_id ||
+        null,
+
+      destination_snapshot_id:
+        accessResult
+          .destination_snapshot_id ||
+        null,
+
+      snapshot_transition:
+        accessResult
+          .snapshot_transition ||
+        null,
+
+      page_context:
+        clone(
+          STATE
+            .page_context
+        ),
+
+      access_decision:
+        clone(
+          accessResult
+            .decision
+        ),
+
+      authority_id:
+        clean(
+          accessResult
+            .decision
+            ?.authority_id
+        ) ||
+        null,
+
+      admitted_at:
+        nowISO()
+    };
+
+    STATE.current_page_admission =
+      clone(
+        result
+      );
+
+    if (
+      STATE.page_context
+    ) {
+      STATE
+        .page_context
+        .validation_status =
+        "PAGE_CONTEXT_ADMITTED";
+    }
+
+    STATE.updated_at =
+      nowISO();
+
+    publishState();
+
+    try {
+      document
+        .documentElement
+        .setAttribute(
+          "data-statscore-page-admission",
+          "admitted"
+        );
+    } catch (_) {}
+
+    recordNavigationEvent(
+      "CURRENT_PAGE_ADMITTED",
+      result
+    );
+
+    emit(
+      "current_page_admitted",
+      {
+        admission:
+          clone(
+            result
+          )
+      }
+    );
 
     return result;
   }
@@ -1861,70 +4079,124 @@ reconstruct entry state from role, URL parameters, or storage.
     destination,
     options = {}
   ) {
+    const normalized =
+      normalizeDestination(
+        destination
+      );
+
+    if (
+      !normalized.valid
+    ) {
+      return {
+        ok:
+          false,
+
+        status:
+          "NAVIGATION_DESTINATION_INVALID"
+      };
+    }
+
+    if (
+      !STATE
+        .registered_routes
+        .includes(
+          normalized.page
+        )
+    ) {
+      return {
+        ok:
+          false,
+
+        status:
+          "NAVIGATION_DESTINATION_NOT_REGISTERED"
+      };
+    }
+
+    const destinationSnapshot =
+      extractDestinationSnapshot(
+        normalized
+      );
+
     STATE.last_navigation = {
-      destination,
+      destination:
+        normalized
+          .normalized,
+
       page:
-        normalizeDestination(
-          destination
-        ).page,
+        normalized.page,
 
       source_page:
         getCurrentPage(),
+
+      current_snapshot_context:
+        getSnapshotContext(),
+
+      destination_snapshot_id:
+        destinationSnapshot.valid
+          ? destinationSnapshot
+              .snapshot_id
+          : null,
 
       initiated_at:
         nowISO(),
 
       replace:
-        options.replace === true
+        options
+          .replace ===
+        true
     };
 
-    STATE.updated_at = nowISO();
+    STATE.updated_at =
+      nowISO();
 
     publishState();
 
     recordNavigationEvent(
       "NAVIGATION_APPROVED",
-      {
-        destination,
-        page:
-          STATE.last_navigation.page,
+      STATE
+        .last_navigation
+    );
 
-        source_page:
-          STATE.last_navigation
-            .source_page
+    emit(
+      "navigation_approved",
+      {
+        destination:
+          normalized
+            .normalized,
+
+        page:
+          normalized.page
       }
     );
 
-    emit("navigation_approved", {
-      destination,
-      page:
-        STATE.last_navigation.page
-    });
-
-    if (options.replace === true) {
+    if (
+      options
+        .replace ===
+      true
+    ) {
       window.location.replace(
-        destination
+        normalized
+          .normalized
       );
     } else {
       window.location.assign(
-        destination
+        normalized
+          .normalized
       );
     }
 
     return {
-      ok: true,
+      ok:
+        true,
+
       status:
         "NAVIGATION_APPROVED",
-      destination
+
+      destination:
+        normalized
+          .normalized
     };
   }
-
-  /*
-  Public method:
-  No authentication override.
-  No caller access decision.
-  No access-disable switch.
-  */
 
   async function navigate(
     destination,
@@ -1935,240 +4207,289 @@ reconstruct entry state from role, URL parameters, or storage.
         destination
       );
 
-    if (!validation.valid) {
+    if (
+      !validation.valid
+    ) {
       recordError(
         "NAVIGATION_BLOCKED",
         "The requested navigation was blocked.",
         validation
       );
 
-      emit("navigation_blocked", {
-        validation:
-          clone(validation)
-      });
+      emit(
+        "navigation_blocked",
+        {
+          validation:
+            clone(
+              validation
+            )
+        }
+      );
 
       return {
-        ok: false,
+        ok:
+          false,
+
         status:
           "NAVIGATION_BLOCKED",
+
         validation:
-          clone(validation)
+          clone(
+            validation
+          )
       };
     }
 
     return executeNavigation(
-      validation.destination,
+      validation
+        .destination,
       {
         replace:
-          options.replace === true
+          options
+            .replace ===
+          true
       }
     );
   }
 
   /*
-  Authentication completion method:
-  Destination cannot be supplied by the caller.
-
-  The method reads requested_destination directly from the
-  accepted Initial Authentication Context and verifies it against
-  itself through normalized destination validation.
+  ========================================================
+  AUTHENTICATION DESTINATION EXECUTION
+  ========================================================
   */
 
   async function navigateAuthorizedDestination(
     options = {}
   ) {
     const destination =
-      STATE.authentication_context
+      STATE
+        .authentication_context
         ?.requested_destination;
 
-    if (!clean(destination)) {
-      const result = {
-        ok: false,
+    if (
+      !clean(
+        destination
+      )
+    ) {
+      return {
+        ok:
+          false,
+
         status:
           "AUTHORIZED_DESTINATION_UNAVAILABLE"
       };
-
-      recordError(
-        result.status,
-        "Initial Authentication Context does not contain requested_destination."
-      );
-
-      return result;
     }
 
-    const authenticationValidation =
+    const validation =
       validateAuthenticationDestination(
         destination
       );
 
     if (
-      !authenticationValidation.valid
+      !validation.valid
     ) {
       recordError(
-        authenticationValidation.status,
-        "Authentication-authorized navigation validation failed.",
-        authenticationValidation
+        validation.status,
+        "Authentication-authorized destination failed validation.",
+        validation
       );
 
       return {
-        ok: false,
+        ok:
+          false,
+
         status:
-          authenticationValidation.status,
+          validation.status,
+
         validation:
-          clone(authenticationValidation)
+          clone(
+            validation
+          )
       };
-    }
-
-    if (
-      CONFIGURATION
-        .requireRegisteredDestination &&
-      !STATE.registered_routes.includes(
-        authenticationValidation.page
-      )
-    ) {
-      const result = {
-        ok: false,
-        status:
-          "AUTHORIZED_DESTINATION_NOT_REGISTERED",
-
-        destination:
-          authenticationValidation
-            .destination,
-
-        page:
-          authenticationValidation.page
-      };
-
-      recordError(
-        result.status,
-        "Authentication Service requested_destination is not registered.",
-        result
-      );
-
-      return result;
     }
 
     recordNavigationEvent(
       "AUTHENTICATION_DESTINATION_CONFIRMED",
       {
         destination:
-          authenticationValidation
+          validation
             .destination,
 
         authority_id:
-          authenticationValidation
+          validation
             .authority_id
       }
     );
 
     return executeNavigation(
-      authenticationValidation.destination,
+      validation
+        .destination,
       {
         replace:
-          options.replace === true
+          options
+            .replace ===
+          true
       }
     );
   }
 
-  async function navigateToDashboard(
-    options = {}
-  ) {
-    const role = getRole();
-    const destination =
-      dashboardForRole(role);
-
-    if (!destination) {
-      const result = {
-        ok: false,
-        status:
-          "DASHBOARD_DESTINATION_UNAVAILABLE",
-        role
-      };
-
-      recordError(
-        result.status,
-        "No governed dashboard destination exists for the active authenticated role.",
-        result
-      );
-
-      return result;
-    }
-
-    if (role === "athlete") {
-      const snapshotId =
-        clean(options.snapshot_id) ||
-        getSnapshotId();
-
-      if (!snapshotId) {
-        const result = {
-          ok: false,
-          status:
-            "ATHLETE_DASHBOARD_SNAPSHOT_REQUIRED",
-          role
-        };
-
-        recordError(
-          result.status,
-          "Athlete Dashboard navigation requires a governed snapshot_id."
-        );
-
-        return result;
-      }
-
-      return navigate(
-        withSnapshot(
-          destination,
-          snapshotId
-        ),
-        {
-          replace:
-            options.replace === true
-        }
-      );
-    }
-
-    return navigate(destination, {
-      replace:
-        options.replace === true
-    });
-  }
+  /*
+  ========================================================
+  SNAPSHOT REQUIREMENT
+  ========================================================
+  */
 
   function requireSnapshotContext(
     operationName,
     snapshotId
   ) {
     const normalizedSnapshotId =
-      clean(snapshotId) ||
+      clean(
+        snapshotId
+      ) ||
       getSnapshotId();
 
-    if (!normalizedSnapshotId) {
-      const result = {
-        ok: false,
+    if (
+      !normalizedSnapshotId
+    ) {
+      return {
+        ok:
+          false,
+
         status:
           "GOVERNED_SNAPSHOT_CONTEXT_REQUIRED",
 
         operation:
           operationName
       };
-
-      recordError(
-        result.status,
-        `${operationName} requires a governed snapshot_id.`,
-        result
-      );
-
-      return result;
     }
 
-    return {
-      ok: true,
-      snapshot_id:
+    if (
+      !isUuid(
         normalizedSnapshotId
+      )
+    ) {
+      return {
+        ok:
+          false,
+
+        status:
+          "SNAPSHOT_CONTEXT_INVALID",
+
+        operation:
+          operationName
+      };
+    }
+
+    const activeContext =
+      getSnapshotContext();
+
+    return {
+      ok:
+        true,
+
+      snapshot_id:
+        normalizedSnapshotId,
+
+      source:
+        activeContext
+          .snapshot_id ===
+        normalizedSnapshotId
+          ? activeContext
+              .source
+          : "EXPLICIT_CALLER_NOMINATION",
+
+      operational_authority:
+        activeContext
+          .snapshot_id ===
+        normalizedSnapshotId
+          ? activeContext
+              .operational_authority
+          : false,
+
+      requires_access_evaluation:
+        true
     };
   }
 
+  /*
+  ========================================================
+  PAGE NAVIGATION HELPERS
+  ========================================================
+  */
+
+  async function navigateToDashboard(
+    options = {}
+  ) {
+    const role =
+      getRole();
+
+    const destination =
+      dashboardForRole(
+        role
+      );
+
+    if (
+      !destination
+    ) {
+      return {
+        ok:
+          false,
+
+        status:
+          "DASHBOARD_DESTINATION_UNAVAILABLE"
+      };
+    }
+
+    if (
+      role ===
+      "athlete"
+    ) {
+      const context =
+        requireSnapshotContext(
+          "Athlete Dashboard navigation",
+          clean(
+            options
+              .snapshot_id
+          ) ||
+          getSnapshotId()
+        );
+
+      if (
+        !context.ok
+      ) {
+        return context;
+      }
+
+      return navigate(
+        withSnapshot(
+          destination,
+          context
+            .snapshot_id
+        ),
+        {
+          replace:
+            options
+              .replace ===
+            true
+        }
+      );
+    }
+
+    return navigate(
+      destination,
+      {
+        replace:
+          options
+            .replace ===
+          true
+      }
+    );
+  }
+
   async function goToProfile(
-    snapshotId = getSnapshotId(),
+    snapshotId =
+      getSnapshotId(),
     options = {}
   ) {
     const context =
@@ -2177,143 +4498,197 @@ reconstruct entry state from role, URL parameters, or storage.
         snapshotId
       );
 
-    if (!context.ok) {
+    if (
+      !context.ok
+    ) {
       return context;
     }
 
     return navigate(
       withSnapshot(
         "player-profile.html",
-        context.snapshot_id
+        context
+          .snapshot_id
       ),
-      {
-        replace:
-          options.replace === true
-      }
+      options
     );
   }
 
   async function goToSnapshotIntake(
     options = {}
   ) {
-    const role = getRole();
+    if (
+      getRole() !==
+      "athlete"
+    ) {
+      return {
+        ok:
+          false,
 
-    if (role !== "athlete") {
-      const result = {
-        ok: false,
         status:
-          "SNAPSHOT_INTAKE_ATHLETE_CONTEXT_REQUIRED",
-        role
+          "SNAPSHOT_INTAKE_ATHLETE_CONTEXT_REQUIRED"
       };
-
-      recordError(
-        result.status,
-        "Snapshot Intake navigation requires authenticated athlete context.",
-        result
-      );
-
-      return result;
     }
-
-    /*
-    This helper is for governed returning-athlete maintenance
-    navigation. It does not set new=1.
-
-    First-time athlete routing must use the complete destination
-    published by Authentication Service.
-    */
 
     let destination =
       appendParams(
         "snapshot-intake.html",
         {
           from:
-            clean(options.from) ||
+            clean(
+              options
+                .from
+            ) ||
             getCurrentPage(),
 
           next:
-            clean(options.next) ||
+            clean(
+              options
+                .next
+            ) ||
             "athlete-dashboard.html"
         }
       );
 
     const snapshotId =
-      clean(options.snapshot_id) ||
+      clean(
+        options
+          .snapshot_id
+      ) ||
       getSnapshotId();
 
-    if (snapshotId) {
-      destination = withSnapshot(
-        destination,
-        snapshotId
-      );
+    if (
+      snapshotId
+    ) {
+      const context =
+        requireSnapshotContext(
+          "Snapshot Intake maintenance navigation",
+          snapshotId
+        );
+
+      if (
+        !context.ok
+      ) {
+        return context;
+      }
+
+      destination =
+        withSnapshot(
+          destination,
+          context
+            .snapshot_id
+        );
     }
 
-    return navigate(destination, {
-      replace:
-        options.replace === true
-    });
+    destination =
+      removeParams(
+        destination,
+        [
+          "new"
+        ]
+      );
+
+    return navigate(
+      destination,
+      options
+    );
+  }
+
+  async function goToParentApproval(
+    snapshotId =
+      getSnapshotId(),
+    options = {}
+  ) {
+    const context =
+      requireSnapshotContext(
+        "Parent Approval navigation",
+        snapshotId
+      );
+
+    if (
+      !context.ok
+    ) {
+      return context;
+    }
+
+    const destination =
+      withSnapshot(
+        "parent-approval.html",
+        context
+          .snapshot_id
+      );
+
+    recordNavigationEvent(
+      "PARENT_APPROVAL_ROUTE_REQUESTED",
+      {
+        current_snapshot_id:
+          getSnapshotId() ||
+          null,
+
+        destination_snapshot_id:
+          context
+            .snapshot_id,
+
+        nomination_source:
+          context
+            .source
+      }
+    );
+
+    return navigate(
+      destination,
+      options
+    );
   }
 
   async function goToRoleDashboard(
     options = {}
   ) {
-    const role = getRole();
+    if (
+      !isProfessionalRole(
+        getRole()
+      )
+    ) {
+      return {
+        ok:
+          false,
 
-    if (!isProfessionalRole(role)) {
-      const result = {
-        ok: false,
         status:
-          "PROFESSIONAL_CONTEXT_REQUIRED",
-        role
+          "PROFESSIONAL_CONTEXT_REQUIRED"
       };
-
-      recordError(
-        result.status,
-        "Role Dashboard navigation requires an authenticated professional role.",
-        result
-      );
-
-      return result;
     }
 
     return navigate(
       "role-dashboard.html",
-      {
-        replace:
-          options.replace === true
-      }
+      options
     );
   }
 
   async function goToSystem(
     options = {}
   ) {
-    if (getRole() !== "admin") {
-      const result = {
-        ok: false,
+    if (
+      getRole() !==
+      "admin"
+    ) {
+      return {
+        ok:
+          false,
+
         status:
           "ADMINISTRATOR_CONTEXT_REQUIRED"
       };
-
-      recordError(
-        result.status,
-        "System navigation requires authenticated administrator context."
-      );
-
-      return result;
     }
 
     return navigate(
       "system.html",
-      {
-        replace:
-          options.replace === true
-      }
+      options
     );
   }
 
   async function goToVerification(
-    snapshotId = getSnapshotId(),
+    snapshotId =
+      getSnapshotId(),
     options = {}
   ) {
     const context =
@@ -2322,24 +4697,25 @@ reconstruct entry state from role, URL parameters, or storage.
         snapshotId
       );
 
-    if (!context.ok) {
+    if (
+      !context.ok
+    ) {
       return context;
     }
 
     return navigate(
       withSnapshot(
         "verification.html",
-        context.snapshot_id
+        context
+          .snapshot_id
       ),
-      {
-        replace:
-          options.replace === true
-      }
+      options
     );
   }
 
   async function goToEligibility(
-    snapshotId = getSnapshotId(),
+    snapshotId =
+      getSnapshotId(),
     options = {}
   ) {
     const context =
@@ -2348,24 +4724,25 @@ reconstruct entry state from role, URL parameters, or storage.
         snapshotId
       );
 
-    if (!context.ok) {
+    if (
+      !context.ok
+    ) {
       return context;
     }
 
     return navigate(
       withSnapshot(
         "eligibility.html",
-        context.snapshot_id
+        context
+          .snapshot_id
       ),
-      {
-        replace:
-          options.replace === true
-      }
+      options
     );
   }
 
   async function goToReadiness(
-    snapshotId = getSnapshotId(),
+    snapshotId =
+      getSnapshotId(),
     options = {}
   ) {
     const context =
@@ -2374,24 +4751,25 @@ reconstruct entry state from role, URL parameters, or storage.
         snapshotId
       );
 
-    if (!context.ok) {
+    if (
+      !context.ok
+    ) {
       return context;
     }
 
     return navigate(
       withSnapshot(
         "readiness.html",
-        context.snapshot_id
+        context
+          .snapshot_id
       ),
-      {
-        replace:
-          options.replace === true
-      }
+      options
     );
   }
 
   async function goToMultiBox(
-    snapshotId = getSnapshotId(),
+    snapshotId =
+      getSnapshotId(),
     options = {}
   ) {
     const context =
@@ -2400,24 +4778,25 @@ reconstruct entry state from role, URL parameters, or storage.
         snapshotId
       );
 
-    if (!context.ok) {
+    if (
+      !context.ok
+    ) {
       return context;
     }
 
     return navigate(
       withSnapshot(
         "multi-box.html",
-        context.snapshot_id
+        context
+          .snapshot_id
       ),
-      {
-        replace:
-          options.replace === true
-      }
+      options
     );
   }
 
   async function goToCrystal(
-    snapshotId = getSnapshotId(),
+    snapshotId =
+      getSnapshotId(),
     options = {}
   ) {
     const context =
@@ -2426,242 +4805,975 @@ reconstruct entry state from role, URL parameters, or storage.
         snapshotId
       );
 
-    if (!context.ok) {
+    if (
+      !context.ok
+    ) {
       return context;
     }
 
     return navigate(
       withSnapshot(
         "crystal-registry.html",
-        context.snapshot_id
+        context
+          .snapshot_id
       ),
-      {
-        replace:
-          options.replace === true
-      }
+      options
     );
   }
 
-  function hydrateSnapshotLinks() {
-    const snapshotId =
-      getSnapshotId();
+  /*
+  ========================================================
+  SNAPSHOT LINK HYDRATION
+  ========================================================
+  */
 
-    if (!snapshotId) {
+  function hydrateSnapshotLinks() {
+    const snapshotContext =
+      getSnapshotContext();
+
+    const snapshotId =
+      clean(
+        snapshotContext
+          .snapshot_id
+      );
+
+    if (
+      !snapshotId
+    ) {
       return 0;
     }
 
-    let count = 0;
+    let count =
+      0;
 
     document
       .querySelectorAll(
         "[data-snapshot-link]"
       )
-      .forEach(element => {
-        const destination =
-          element.getAttribute("href") ||
-          element.dataset.snapshotLink ||
-          "";
+      .forEach(
+        element => {
+          const destination =
+            element
+              .getAttribute(
+                "href"
+              ) ||
+            element
+              .dataset
+              .snapshotLink ||
+            "";
 
-        const normalized =
-          normalizeDestination(
-            destination
+          const normalized =
+            normalizeDestination(
+              destination
+            );
+
+          if (
+            !normalized.valid
+          ) {
+            return;
+          }
+
+          element.setAttribute(
+            "href",
+            withSnapshot(
+              normalized
+                .normalized,
+              snapshotId
+            )
           );
 
-        if (!normalized.valid) {
-          return;
+          count +=
+            1;
         }
-
-        element.setAttribute(
-          "href",
-          withSnapshot(
-            normalized.normalized,
-            snapshotId
-          )
-        );
-
-        count += 1;
-      });
+      );
 
     return count;
   }
-
-  /*
-  Compatibility function retained intentionally.
-
-  It no longer appends role or role_id into URLs.
-  Role context must be consumed from Authentication Context or
-  Runtime Context by downstream pages.
-  */
 
   function hydrateRoleLinks() {
     return 0;
   }
 
+  /*
+  ========================================================
+  ACTIVE NAVIGATION
+  ========================================================
+  */
+
   function markActiveNav() {
     const currentPage =
       getCurrentPage();
 
-    let count = 0;
+    let count =
+      0;
 
     document
-      .querySelectorAll("a")
-      .forEach(link => {
-        const href =
-          link.getAttribute("href") || "";
+      .querySelectorAll(
+        "a[href]"
+      )
+      .forEach(
+        link => {
+          const normalized =
+            normalizeDestination(
+              link
+                .getAttribute(
+                  "href"
+                ) ||
+              ""
+            );
 
-        if (!clean(href)) {
-          return;
+          if (
+            !normalized.valid
+          ) {
+            return;
+          }
+
+          if (
+            normalized.page ===
+            currentPage
+          ) {
+            link
+              .classList
+              .add(
+                "active"
+              );
+
+            link
+              .setAttribute(
+                "aria-current",
+                "page"
+              );
+
+            count +=
+              1;
+          }
         }
-
-        const normalized =
-          normalizeDestination(href);
-
-        if (!normalized.valid) {
-          return;
-        }
-
-        if (
-          normalized.page ===
-          currentPage
-        ) {
-          link.classList.add("active");
-
-          link.setAttribute(
-            "aria-current",
-            "page"
-          );
-
-          count += 1;
-        }
-      });
+      );
 
     return count;
   }
+
+  /*
+  ========================================================
+  EXPLICIT ROUTING ELEMENTS
+  ========================================================
+  */
 
   function bindNavigationElements(
     selector =
       "[data-route-destination]"
   ) {
-    if (NAVIGATION_ELEMENTS_BOUND) {
+    if (
+      NAVIGATION_ELEMENTS_BOUND
+    ) {
       return 0;
     }
 
-    NAVIGATION_ELEMENTS_BOUND = true;
+    NAVIGATION_ELEMENTS_BOUND =
+      true;
 
-    let count = 0;
+    let count =
+      0;
 
     document
-      .querySelectorAll(selector)
-      .forEach(element => {
-        if (
-          element.dataset
-            .routingBound === "true"
-        ) {
-          return;
-        }
-
-        element.dataset.routingBound =
-          "true";
-
-        element.addEventListener(
-          "click",
-          async event => {
-            event.preventDefault();
-
-            const destination =
-              element.getAttribute(
-                "data-route-destination"
-              ) ||
-              element.dataset
-                .routeDestination ||
-              element.getAttribute("href") ||
-              "";
-
-            if (!clean(destination)) {
-              recordWarning(
-                "NAVIGATION_ELEMENT_DESTINATION_MISSING",
-                "A governed navigation element has no destination."
-              );
-
-              return;
-            }
-
-            await navigate(destination);
+      .querySelectorAll(
+        selector
+      )
+      .forEach(
+        element => {
+          if (
+            element
+              .dataset
+              .routingBound ===
+            "true"
+          ) {
+            return;
           }
-        );
 
-        count += 1;
-      });
+          element
+            .dataset
+            .routingBound =
+            "true";
+
+          element.addEventListener(
+            "click",
+            async event => {
+              if (
+                event.defaultPrevented
+              ) {
+                return;
+              }
+
+              event.preventDefault();
+
+              const destination =
+                element
+                  .getAttribute(
+                    "data-route-destination"
+                  ) ||
+                element
+                  .dataset
+                  .routeDestination ||
+                element
+                  .getAttribute(
+                    "href"
+                  ) ||
+                "";
+
+              if (
+                !clean(
+                  destination
+                )
+              ) {
+                return;
+              }
+
+              await navigate(
+                destination
+              );
+            }
+          );
+
+          count +=
+            1;
+        }
+      );
 
     return count;
   }
 
-  function getRoomContext() {
-    const role = getRole();
-    const page = getCurrentPage();
+  /*
+  ========================================================
+  PROTECTED ANCHOR ACTIVATION CLASSIFICATION
+  ========================================================
+  */
+
+  function classifyAnchorActivation(
+    event,
+    anchor
+  ) {
+    const target =
+      clean(
+        anchor
+          .getAttribute(
+            "target"
+          )
+      ).toLowerCase();
+
+    if (
+      target &&
+      target !==
+        "_self"
+    ) {
+      return {
+        mode:
+          "ALTERNATE_BROWSER_CONTEXT",
+
+        reason:
+          "TARGET_CONTEXT"
+      };
+    }
+
+    if (
+      event.button ===
+      1
+    ) {
+      return {
+        mode:
+          "ALTERNATE_BROWSER_CONTEXT",
+
+        reason:
+          "MIDDLE_CLICK"
+      };
+    }
+
+    if (
+      event.metaKey
+    ) {
+      return {
+        mode:
+          "ALTERNATE_BROWSER_CONTEXT",
+
+        reason:
+          "META_MODIFIER"
+      };
+    }
+
+    if (
+      event.ctrlKey
+    ) {
+      return {
+        mode:
+          "ALTERNATE_BROWSER_CONTEXT",
+
+        reason:
+          "CTRL_MODIFIER"
+      };
+    }
+
+    if (
+      event.shiftKey
+    ) {
+      return {
+        mode:
+          "ALTERNATE_BROWSER_CONTEXT",
+
+        reason:
+          "SHIFT_MODIFIER"
+      };
+    }
+
+    if (
+      event.altKey
+    ) {
+      return {
+        mode:
+          "ALTERNATE_BROWSER_CONTEXT",
+
+        reason:
+          "ALT_MODIFIER"
+      };
+    }
+
+    if (
+      event.button ===
+      0
+    ) {
+      return {
+        mode:
+          "PRIMARY_SAME_CONTEXT",
+
+        reason:
+          "PRIMARY_ACTIVATION"
+      };
+    }
 
     return {
-      engine_id: ENGINE_ID,
-      version: VERSION,
+      mode:
+        "UNSUPPORTED_ACTIVATION",
+
+      reason:
+        "UNSUPPORTED_POINTER_BUTTON"
+    };
+  }
+
+  /*
+  ========================================================
+  MANDATORY PROTECTED ANCHOR ENFORCEMENT
+  ========================================================
+  */
+
+  function bindProtectedAnchors(
+    selector =
+      "a[href]"
+  ) {
+    PROTECTED_ANCHORS_BOUND =
+      true;
+
+    let count =
+      0;
+
+    document
+      .querySelectorAll(
+        selector
+      )
+      .forEach(
+        anchor => {
+          if (
+            anchor
+              .dataset
+              .routingBound ===
+            "true"
+          ) {
+            return;
+          }
+
+          if (
+            anchor
+              .dataset
+              .protectedRoutingBound ===
+            "true"
+          ) {
+            return;
+          }
+
+          const href =
+            anchor
+              .getAttribute(
+                "href"
+              ) ||
+            "";
+
+          if (
+            !clean(
+              href
+            ) ||
+            clean(
+              href
+            ).startsWith(
+              "#"
+            )
+          ) {
+            return;
+          }
+
+          const parsed =
+            parseDestination(
+              href
+            );
+
+          if (
+            !parsed.valid
+          ) {
+            return;
+          }
+
+          /*
+          Only registered non-public routes are protected
+          STATS-CORE anchor surfaces.
+          */
+
+          if (
+            !STATE
+              .registered_routes
+              .includes(
+                parsed.page
+              )
+          ) {
+            return;
+          }
+
+          if (
+            isPublicRoute(
+              parsed.page
+            )
+          ) {
+            return;
+          }
+
+          anchor
+            .dataset
+            .protectedRoutingBound =
+            "true";
+
+          anchor.addEventListener(
+            "click",
+            async event => {
+              if (
+                event.defaultPrevented
+              ) {
+                return;
+              }
+
+              if (
+                anchor
+                  .hasAttribute(
+                    "download"
+                  )
+              ) {
+                return;
+              }
+
+              const activation =
+                classifyAnchorActivation(
+                  event,
+                  anchor
+                );
+
+              const currentHref =
+                anchor
+                  .getAttribute(
+                    "href"
+                  ) ||
+                "";
+
+              const normalized =
+                normalizeDestination(
+                  currentHref
+                );
+
+              if (
+                !normalized.valid
+              ) {
+                event.preventDefault();
+
+                recordError(
+                  "PROTECTED_ANCHOR_DESTINATION_INVALID",
+                  "Protected anchor destination is invalid.",
+                  {
+                    destination:
+                      currentHref
+                  }
+                );
+
+                return;
+              }
+
+              /*
+              Defense in depth:
+              protected anchors are bound only to registered routes,
+              but re-check at activation time.
+              */
+
+              if (
+                !STATE
+                  .registered_routes
+                  .includes(
+                    normalized.page
+                  )
+              ) {
+                event.preventDefault();
+
+                recordError(
+                  "PROTECTED_ANCHOR_DESTINATION_NOT_REGISTERED",
+                  "Protected anchor destination is not registered.",
+                  {
+                    destination:
+                      normalized
+                        .normalized
+                  }
+                );
+
+                return;
+              }
+
+              const destinationSnapshot =
+                extractDestinationSnapshot(
+                  normalized
+                );
+
+              if (
+                !destinationSnapshot.valid
+              ) {
+                event.preventDefault();
+
+                recordError(
+                  "PROTECTED_ANCHOR_SNAPSHOT_INVALID",
+                  destinationSnapshot
+                    .error,
+                  {
+                    destination:
+                      normalized
+                        .normalized
+                  }
+                );
+
+                return;
+              }
+
+              /*
+              PRIMARY SAME-CONTEXT:
+              outbound governed authorization is mandatory.
+              */
+
+              if (
+                activation.mode ===
+                "PRIMARY_SAME_CONTEXT"
+              ) {
+                event.preventDefault();
+
+                recordNavigationEvent(
+                  "PROTECTED_ANCHOR_PRIMARY_ACTIVATION",
+                  {
+                    destination:
+                      normalized
+                        .normalized,
+
+                    activation_mode:
+                      activation
+                        .mode
+                  }
+                );
+
+                await navigate(
+                  normalized
+                    .normalized
+                );
+
+                return;
+              }
+
+              /*
+              ALTERNATE BROWSER CONTEXT:
+
+              Preserve native browser tab/window semantics.
+
+              The destination remains governed because protected
+              arrival admission is mandatory on the newly created
+              browsing context before protected business runtime
+              may execute.
+              */
+
+              if (
+                activation.mode ===
+                "ALTERNATE_BROWSER_CONTEXT"
+              ) {
+                recordNavigationEvent(
+                  "PROTECTED_ANCHOR_ALTERNATE_CONTEXT_ACTIVATION",
+                  {
+                    destination:
+                      normalized
+                        .normalized,
+
+                    activation_mode:
+                      activation
+                        .mode,
+
+                    reason:
+                      activation
+                        .reason,
+
+                    enforcement_path:
+                      "MANDATORY_ARRIVAL_ADMISSION"
+                  }
+                );
+
+                /*
+                DO NOT preventDefault().
+                Browser creates its requested alternate context.
+                */
+
+                return;
+              }
+
+              /*
+              Unknown activation is blocked.
+              */
+
+              event.preventDefault();
+
+              recordWarning(
+                "PROTECTED_ANCHOR_ACTIVATION_UNSUPPORTED",
+                "Protected anchor activation mode is unsupported.",
+                activation
+              );
+            }
+          );
+
+          count +=
+            1;
+        }
+      );
+
+    return count;
+  }
+
+  /*
+  ========================================================
+  RUNTIME REFRESH
+  ========================================================
+  */
+
+  function validateRuntimeBinding(
+    runtimeContext
+  ) {
+    const errors =
+      [];
+
+    if (
+      !runtimeContext
+    ) {
+      return {
+        valid:
+          true,
+
+        errors
+      };
+    }
+
+    if (
+      runtimeContext
+        .session_id &&
+      runtimeContext
+        .session_id !==
+      STATE
+        .authentication_context
+        ?.session_id
+    ) {
+      errors.push(
+        "Runtime Context session_id does not match Initial Authentication Context session_id."
+      );
+    }
+
+    if (
+      runtimeContext
+        .user_id &&
+      runtimeContext
+        .user_id !==
+      STATE
+        .authentication_context
+        ?.user_id
+    ) {
+      errors.push(
+        "Runtime Context user_id does not match Initial Authentication Context user_id."
+      );
+    }
+
+    if (
+      runtimeContext
+        .role &&
+      normalizeRole(
+        runtimeContext
+          .role
+      ) !==
+      normalizeRole(
+        STATE
+          .authentication_context
+          ?.role
+      )
+    ) {
+      errors.push(
+        "Runtime Context role does not match Initial Authentication Context role."
+      );
+    }
+
+    const pageValidation =
+      validatePageContextAgainstRuntime(
+        STATE
+          .page_context,
+        runtimeContext
+      );
+
+    errors.push(
+      ...pageValidation
+        .errors
+    );
+
+    return {
+      valid:
+        errors.length ===
+        0,
+
+      errors
+    };
+  }
+
+  async function refreshRuntimeContext(
+    suppliedContext =
+      null
+  ) {
+    if (
+      !STATE
+        .authentication_context
+    ) {
+      return {
+        ok:
+          false,
+
+        status:
+          "AUTHENTICATION_CONTEXT_REQUIRED"
+      };
+    }
+
+    const rawContext =
+      await resolveRuntimeContext(
+        suppliedContext
+      );
+
+    const normalized =
+      normalizeRuntimeContext(
+        rawContext
+      );
+
+    const validation =
+      validateRuntimeBinding(
+        normalized
+      );
+
+    if (
+      !validation.valid
+    ) {
+      return {
+        ok:
+          false,
+
+        status:
+          "RUNTIME_CONTEXT_REFRESH_REJECTED",
+
+        errors:
+          clone(
+            validation
+              .errors
+          )
+      };
+    }
+
+    STATE.runtime_context =
+      normalized;
+
+    STATE.updated_at =
+      nowISO();
+
+    publishState();
+
+    if (
+      STATE.initialized &&
+      !isPublicRoute(
+        getCurrentPage()
+      )
+    ) {
+      const admission =
+        await admitCurrentPage();
+
+      if (
+        !admission.allowed
+      ) {
+        return {
+          ok:
+            false,
+
+          status:
+            "RUNTIME_CONTEXT_ADMISSION_REJECTED",
+
+          admission:
+            clone(
+              admission
+            )
+        };
+      }
+    }
+
+    if (
+      CONFIGURATION
+        .hydrateSnapshotLinks
+    ) {
+      hydrateSnapshotLinks();
+    }
+
+    bindProtectedAnchors(
+      "a[href]"
+    );
+
+    exposeRoomContext();
+
+    return {
+      ok:
+        true,
+
+      status:
+        "RUNTIME_CONTEXT_REFRESHED",
+
+      runtime_context:
+        clone(
+          STATE
+            .runtime_context
+        ),
+
+      current_page_admission:
+        getCurrentPageAdmission()
+    };
+  }
+
+  /*
+  ========================================================
+  ROOM CONTEXT
+  ========================================================
+  */
+
+  function getRoomContext() {
+    const role =
+      getRole();
+
+    const page =
+      getCurrentPage();
+
+    const snapshotContext =
+      getSnapshotContext();
+
+    return {
+      engine_id:
+        ENGINE_ID,
+
+      version:
+        VERSION,
 
       runtime_id:
-        getRuntimeId() || null,
+        getRuntimeId() ||
+        null,
 
       session_id:
-        getSessionId() || null,
+        getSessionId() ||
+        null,
 
       user_id:
-        getUserId() || null,
+        getUserId() ||
+        null,
 
       role:
-        role || null,
+        role ||
+        null,
 
       role_id:
-        getRoleId() || null,
+        getRoleId() ||
+        null,
 
-      page_id: page,
-      route: getCurrentRoute(),
+      page_id:
+        page,
+
+      route:
+        getCurrentRoute(),
+
+      page_context:
+        clone(
+          STATE
+            .page_context
+        ),
+
+      current_page_admission:
+        getCurrentPageAdmission(),
+
+      page_admitted:
+        hasCurrentPageAdmission(),
 
       snapshot_id:
-        getSnapshotId() || null,
+        snapshotContext
+          .snapshot_id,
+
+      snapshot_context_source:
+        snapshotContext
+          .source,
+
+      snapshot_runtime_authoritative:
+        snapshotContext
+          .operational_authority,
+
+      runtime_snapshot_id:
+        getRuntimeSnapshotId() ||
+        null,
+
+      page_snapshot_id:
+        getPageSnapshotId() ||
+        null,
 
       athlete_id:
-        getAthleteId() || null,
-
-      active_workspace_id:
-        clean(
-          STATE.runtime_context
-            ?.active_workspace_id
-        ) || null,
-
-      entry_intent:
-        clean(
-          STATE.runtime_context
-            ?.entry_intent ||
-          STATE.authentication_context
-            ?.entry_intent
-        ) || null,
+        getAthleteId() ||
+        null,
 
       requested_destination:
         clean(
-          STATE.authentication_context
+          STATE
+            .authentication_context
             ?.requested_destination
-        ) || null,
-
-      dashboard:
-        dashboardForRole(role) ||
+        ) ||
         null,
 
-      is_professional:
-        isProfessionalRole(role),
+      dashboard:
+        dashboardForRole(
+          role
+        ) ||
+        null,
 
       is_public_route:
-        isPublicRoute(page),
-
-      registered_route:
-        STATE.registered_routes.includes(
+        isPublicRoute(
           page
         ),
+
+      registered_route:
+        STATE
+          .registered_routes
+          .includes(
+            page
+          ),
 
       established_at:
         nowISO()
@@ -2672,144 +5784,274 @@ reconstruct entry state from role, URL parameters, or storage.
     STATE.room_context =
       getRoomContext();
 
-    STATE.updated_at = nowISO();
-
     const publicContext =
-      clone(STATE.room_context);
+      clone(
+        STATE
+          .room_context
+      );
 
     window.STATScoreRoomContext =
       publicContext;
 
     window.STATScore =
-      window.STATScore || {};
+      window.STATScore ||
+      {};
 
     window.STATScore.RoomContext =
-      clone(publicContext);
+      clone(
+        publicContext
+      );
 
     publishState();
-
-    emit(
-      "room_context_published",
-      {
-        room_context:
-          clone(publicContext)
-      }
-    );
 
     return publicContext;
   }
 
+  /*
+  ========================================================
+  HEALTH CHECK
+  ========================================================
+  */
+
   function runHealthCheck() {
     const authenticationValidation =
       validateAuthenticationContext(
-        STATE.authentication_context
+        STATE
+          .authentication_context
       );
 
     const currentPage =
       getCurrentPage();
 
+    const currentPageRegistered =
+      STATE
+        .registered_routes
+        .includes(
+          currentPage
+        );
+
+    const currentPageProtected =
+      !isPublicRoute(
+        currentPage
+      );
+
+    const admissionValid =
+      !currentPageProtected ||
+      hasCurrentPageAdmission();
+
     return {
       ok:
-        STATE.initialized === true &&
-        authenticationValidation.valid &&
-        STATE.registered_routes.includes(
-          currentPage
-        ),
+        STATE.initialized ===
+          true &&
+        authenticationValidation
+          .valid &&
+        currentPageRegistered &&
+        admissionValid &&
+        PROTECTED_ANCHORS_BOUND ===
+          true,
 
-      engine_id: ENGINE_ID,
-      version: VERSION,
-      owner_stream: OWNER_STREAM,
+      engine_id:
+        ENGINE_ID,
+
+      version:
+        VERSION,
+
+      owner_stream:
+        OWNER_STREAM,
 
       initialization_status:
-        STATE.initialization_status,
+        STATE
+          .initialization_status,
 
       authentication_context_valid:
-        authenticationValidation.valid,
+        authenticationValidation
+          .valid,
 
       runtime_context_available:
-        !!STATE.runtime_context,
-
-      active_role:
-        getRole() || null,
-
-      active_role_id:
-        getRoleId() || null,
+        !!STATE
+          .runtime_context,
 
       current_page:
         currentPage,
 
       current_page_registered:
-        STATE.registered_routes.includes(
-          currentPage
-        ),
+        currentPageRegistered,
 
-      registered_route_count:
-        STATE.registered_routes.length,
+      registered_route_requirement:
+        "MANDATORY",
+
+      registered_route_requirement_disableable:
+        false,
+
+      current_page_protected:
+        currentPageProtected,
+
+      current_page_admitted:
+        hasCurrentPageAdmission(),
+
+      current_page_admission:
+        getCurrentPageAdmission(),
+
+      current_page_admission_requirement:
+        "MANDATORY_FOR_PROTECTED_ROUTES",
+
+      current_page_admission_disableable:
+        false,
+
+      parent_approval_registered:
+        STATE
+          .registered_routes
+          .includes(
+            "parent-approval.html"
+          ),
 
       access_authority_available:
         typeof CONFIGURATION
           .accessDecisionResolver ===
         "function",
 
+      protected_anchor_primary_enforcement:
+        "MANDATORY",
+
+      protected_anchor_primary_enforcement_disableable:
+        false,
+
+      alternate_browser_context_policy:
+        "MANDATORY_ARRIVAL_ADMISSION",
+
+      protected_anchors_bound:
+        PROTECTED_ANCHORS_BOUND,
+
       last_validation:
-        clone(STATE.last_validation),
+        clone(
+          STATE
+            .last_validation
+        ),
 
       last_access_decision:
         clone(
-          STATE.last_access_decision
+          STATE
+            .last_access_decision
         ),
 
       last_navigation:
-        clone(STATE.last_navigation),
+        clone(
+          STATE
+            .last_navigation
+        ),
 
       error_count:
-        STATE.errors.length,
+        STATE
+          .errors
+          .length,
 
       warning_count:
-        STATE.warnings.length,
+        STATE
+          .warnings
+          .length,
 
       checked_at:
         nowISO()
     };
   }
 
-  async function init(options = {}) {
+  /*
+  ========================================================
+  INITIALIZATION
+  ========================================================
+  */
+
+  async function init(
+    options = {}
+  ) {
     if (
       STATE.initialized &&
-      options.force_reload !== true
+      options
+        .force_reload !==
+      true
     ) {
       return {
-        ok: true,
+        ok:
+          true,
+
         status:
           "ROUTING_ALREADY_INITIALIZED",
-        state: getState()
+
+        current_page_admission:
+          getCurrentPageAdmission(),
+
+        state:
+          getState()
       };
     }
 
     if (
-      options.force_reload === true
+      options
+        .force_reload ===
+      true
     ) {
       STATE =
         createDefaultState();
+
+      NAVIGATION_ELEMENTS_BOUND =
+        false;
+
+      PROTECTED_ANCHORS_BOUND =
+        false;
     }
 
-    if (options.configuration) {
+    if (
+      options
+        .configuration
+    ) {
       configure(
-        options.configuration
+        options
+          .configuration
       );
     }
+
+    const prohibitedInitOptions = [
+      "bind_protected_anchors",
+      "require_registered_destination",
+      "require_protected_page_admission"
+    ];
+
+    prohibitedInitOptions.forEach(
+      name => {
+        if (
+          Object.prototype
+            .hasOwnProperty.call(
+              options,
+              name
+            )
+        ) {
+          recordWarning(
+            "CONSTITUTIONAL_INITIALIZATION_OVERRIDE_IGNORED",
+            `${name} cannot change constitutional routing enforcement.`,
+            {
+              option:
+                name
+            }
+          );
+        }
+      }
+    );
 
     STATE.initialization_status =
       "CONTEXT_RESOLUTION_PENDING";
 
-    STATE.updated_at = nowISO();
-
     publishState();
+
+    /*
+    PHASE 1 — AUTHENTICATION
+    */
 
     const authenticationContext =
       await resolveAuthenticationContext(
-        options.authentication_context ||
-        options.authenticationContext ||
+        options
+          .authentication_context ||
+        options
+          .authenticationContext ||
         null
       );
 
@@ -2821,37 +6063,13 @@ reconstruct entry state from role, URL parameters, or storage.
     if (
       !authenticationValidation.valid
     ) {
-      STATE.initialized = false;
-
       STATE.initialization_status =
         "AUTHENTICATION_CONTEXT_REJECTED";
 
-      STATE.updated_at = nowISO();
-
-      publishState();
-
-      authenticationValidation.errors.forEach(
-        message => {
-          recordError(
-            "ROUTING_AUTHENTICATION_CONTEXT_INVALID",
-            message
-          );
-        }
-      );
-
-      emit(
-        "initialization_blocked",
-        {
-          validation_errors:
-            clone(
-              authenticationValidation
-                .errors
-            )
-        }
-      );
-
       return {
-        ok: false,
+        ok:
+          false,
+
         status:
           "ROUTING_INITIALIZATION_BLOCKED",
 
@@ -2859,9 +6077,7 @@ reconstruct entry state from role, URL parameters, or storage.
           clone(
             authenticationValidation
               .errors
-          ),
-
-        state: getState()
+          )
       };
     }
 
@@ -2870,141 +6086,171 @@ reconstruct entry state from role, URL parameters, or storage.
         authenticationContext
       );
 
-    const runtimeContext =
-      await resolveRuntimeContext(
-        options.runtime_context ||
-        options.runtimeContext ||
-        null
+    /*
+    PHASE 2 — ROUTE REGISTRY
+    */
+
+    await resolveRegisteredRoutes();
+
+    if (
+      !STATE
+        .registered_routes
+        .includes(
+          getCurrentPage()
+        )
+    ) {
+      STATE.initialization_status =
+        "CURRENT_PAGE_NOT_REGISTERED";
+
+      return {
+        ok:
+          false,
+
+        status:
+          "CURRENT_PAGE_NOT_REGISTERED"
+      };
+    }
+
+    /*
+    PHASE 3 — PAGE CONTEXT
+    */
+
+    const pageContextResult =
+      derivePageContextFromCurrentRoute();
+
+    if (
+      !pageContextResult.valid
+    ) {
+      STATE.initialization_status =
+        "PAGE_CONTEXT_REJECTED";
+
+      return {
+        ok:
+          false,
+
+        status:
+          "ROUTING_PAGE_CONTEXT_REJECTED",
+
+        errors:
+          clone(
+            pageContextResult
+              .errors
+          )
+      };
+    }
+
+    STATE.page_context =
+      clone(
+        pageContextResult
+          .context
       );
 
-    STATE.runtime_context =
+    /*
+    PHASE 4 — RUNTIME CONTEXT
+    */
+
+    const runtimeContext =
       normalizeRuntimeContext(
+        await resolveRuntimeContext(
+          options
+            .runtime_context ||
+          options
+            .runtimeContext ||
+          null
+        )
+      );
+
+    const runtimeValidation =
+      validateRuntimeBinding(
         runtimeContext
       );
 
     if (
-      STATE.runtime_context
-        ?.session_id &&
-      STATE.runtime_context
-        .session_id !==
-        STATE.authentication_context
-          .session_id
+      !runtimeValidation.valid
     ) {
-      STATE.initialized = false;
-
       STATE.initialization_status =
         "CONTEXT_MISMATCH_BLOCKED";
 
-      recordError(
-        "ROUTING_SESSION_CONTEXT_MISMATCH",
-        "Runtime Context session_id does not match Initial Authentication Context session_id.",
-        {
-          authentication_session_id:
-            STATE.authentication_context
-              .session_id,
-
-          runtime_session_id:
-            STATE.runtime_context
-              .session_id
-        }
-      );
-
       return {
-        ok: false,
+        ok:
+          false,
+
         status:
           "ROUTING_CONTEXT_MISMATCH_BLOCKED",
-        state: getState()
+
+        errors:
+          clone(
+            runtimeValidation
+              .errors
+          )
       };
     }
+
+    STATE.runtime_context =
+      runtimeContext;
+
+    /*
+    PHASE 5 — CURRENT PAGE ADMISSION
+    */
+
+    STATE.initialization_status =
+      "CURRENT_PAGE_ADMISSION_PENDING";
+
+    publishState();
+
+    const admission =
+      await admitCurrentPage();
 
     if (
-      STATE.runtime_context?.user_id &&
-      STATE.runtime_context.user_id !==
-        STATE.authentication_context
-          .user_id
+      !admission.allowed
     ) {
-      STATE.initialized = false;
-
       STATE.initialization_status =
-        "CONTEXT_MISMATCH_BLOCKED";
-
-      recordError(
-        "ROUTING_USER_CONTEXT_MISMATCH",
-        "Runtime Context user_id does not match Initial Authentication Context user_id.",
-        {
-          authentication_user_id:
-            STATE.authentication_context
-              .user_id,
-
-          runtime_user_id:
-            STATE.runtime_context
-              .user_id
-        }
-      );
+        "CURRENT_PAGE_ADMISSION_BLOCKED";
 
       return {
-        ok: false,
+        ok:
+          false,
+
         status:
-          "ROUTING_CONTEXT_MISMATCH_BLOCKED",
-        state: getState()
+          "CURRENT_PAGE_ADMISSION_BLOCKED",
+
+        admission:
+          clone(
+            admission
+          )
       };
     }
 
-    if (
-      STATE.runtime_context?.role &&
-      normalizeRole(
-        STATE.runtime_context.role
-      ) !==
-        normalizeRole(
-          STATE.authentication_context
-            .role
-        )
-    ) {
-      STATE.initialized = false;
+    /*
+    PHASE 6 — ONLINE
+    */
 
-      STATE.initialization_status =
-        "CONTEXT_MISMATCH_BLOCKED";
-
-      recordError(
-        "ROUTING_ROLE_CONTEXT_MISMATCH",
-        "Runtime Context role does not match Initial Authentication Context role.",
-        {
-          authentication_role:
-            STATE.authentication_context
-              .role,
-
-          runtime_role:
-            STATE.runtime_context.role
-        }
-      );
-
-      return {
-        ok: false,
-        status:
-          "ROUTING_CONTEXT_MISMATCH_BLOCKED",
-        state: getState()
-      };
-    }
-
-    await resolveRegisteredRoutes();
-
-    STATE.initialized = true;
+    STATE.initialized =
+      true;
 
     STATE.initialization_status =
       "INITIALIZED";
 
     STATE.initialized_at =
-      STATE.initialized_at ||
+      STATE
+        .initialized_at ||
       nowISO();
 
-    STATE.updated_at = nowISO();
+    STATE.updated_at =
+      nowISO();
 
     publishState();
+
+    /*
+    PHASE 7 — PRESENTATION ROUTING BINDING
+    */
 
     if (
       CONFIGURATION
         .hydrateSnapshotLinks &&
-      options.hydrate_links !== false
+      options
+        .hydrate_links !==
+      false
     ) {
       hydrateSnapshotLinks();
     }
@@ -3012,8 +6258,9 @@ reconstruct entry state from role, URL parameters, or storage.
     if (
       CONFIGURATION
         .markActiveNavigation &&
-      options.mark_active_nav !==
-        false
+      options
+        .mark_active_nav !==
+      false
     ) {
       markActiveNav();
     }
@@ -3023,65 +6270,74 @@ reconstruct entry state from role, URL parameters, or storage.
         .bindNavigationElements &&
       options
         .bind_navigation_elements !==
-        false
+      false
     ) {
       bindNavigationElements(
-        options.navigation_selector ||
+        options
+          .navigation_selector ||
         "[data-route-destination]"
       );
     }
+
+    /*
+    Constitutional protected-anchor binding.
+    No disable option exists.
+    */
+
+    bindProtectedAnchors(
+      "a[href]"
+    );
 
     exposeRoomContext();
 
     recordNavigationEvent(
       "ROUTING_ENGINE_INITIALIZED",
       {
-        session_id:
-          STATE.authentication_context
-            .session_id,
-
-        user_id:
-          STATE.authentication_context
-            .user_id,
-
-        role:
-          STATE.authentication_context
-            .role,
-
-        current_page:
-          getCurrentPage(),
-
-        requested_destination:
-          STATE.authentication_context
-            .requested_destination,
-
-        registered_route_count:
-          STATE.registered_routes
-            .length
-      }
-    );
-
-    emit("engine_online", {
-      status: "ONLINE",
-      current_page:
-        getCurrentPage()
-    });
-
-    log(
-      "Governed routing authority initialized.",
-      {
-        engine_id: ENGINE_ID,
-        version: VERSION,
-
         current_page:
           getCurrentPage(),
 
         role:
           getRole(),
 
-        requested_destination:
-          STATE.authentication_context
-            .requested_destination
+        current_page_admission:
+          getCurrentPageAdmission(),
+
+        registered_route_requirement:
+          "MANDATORY",
+
+        protected_anchor_primary_enforcement:
+          "MANDATORY",
+
+        alternate_browser_context_policy:
+          "MANDATORY_ARRIVAL_ADMISSION"
+      }
+    );
+
+    emit(
+      "engine_online",
+      {
+        status:
+          "ONLINE",
+
+        current_page:
+          getCurrentPage()
+      }
+    );
+
+    log(
+      "Governed routing authority initialized.",
+      {
+        version:
+          VERSION,
+
+        current_page:
+          getCurrentPage(),
+
+        registered:
+          true,
+
+        admitted:
+          hasCurrentPageAdmission()
       }
     );
 
@@ -3099,22 +6355,42 @@ reconstruct entry state from role, URL parameters, or storage.
     }
 
     return {
-      ok: true,
+      ok:
+        true,
+
       status:
         "ROUTING_INITIALIZED",
 
-      room_context:
-        clone(STATE.room_context),
+      current_page_admission:
+        getCurrentPageAdmission(),
 
-      state: getState()
+      room_context:
+        clone(
+          STATE
+            .room_context
+        ),
+
+      state:
+        getState()
     };
   }
 
+  /*
+  ========================================================
+  PUBLIC API
+  ========================================================
+  */
+
   function expose() {
     const api = {
-      engine_id: ENGINE_ID,
-      version: VERSION,
-      owner_stream: OWNER_STREAM,
+      engine_id:
+        ENGINE_ID,
+
+      version:
+        VERSION,
+
+      owner_stream:
+        OWNER_STREAM,
 
       PROFESSIONAL_ROLES,
       ALL_ROLES,
@@ -3126,6 +6402,7 @@ reconstruct entry state from role, URL parameters, or storage.
       getConfiguration,
 
       init,
+      refreshRuntimeContext,
 
       getCurrentPage,
       getCurrentRoute,
@@ -3138,11 +6415,22 @@ reconstruct entry state from role, URL parameters, or storage.
 
       getRole,
       getRoleId,
+
+      getPageContext,
+
+      getSnapshotContext,
+      getRuntimeSnapshotId,
+      getPageSnapshotId,
       getSnapshotId,
+
       getAthleteId,
       getRuntimeId,
       getSessionId,
       getUserId,
+
+      getCurrentPageAdmission,
+      hasCurrentPageAdmission,
+      admitCurrentPage,
 
       dashboardForRole,
 
@@ -3153,13 +6441,11 @@ reconstruct entry state from role, URL parameters, or storage.
       withSnapshot,
       withRuntimeContext,
 
+      extractDestinationSnapshot,
+
       resolveRegisteredRoutes,
       isRegisteredRoute,
 
-      /*
-      Public destination validation always applies governed access
-      enforcement for non-public pages.
-      */
       validateDestination:
         validateGeneralDestination,
 
@@ -3169,6 +6455,7 @@ reconstruct entry state from role, URL parameters, or storage.
 
       goToProfile,
       goToSnapshotIntake,
+      goToParentApproval,
       goToRoleDashboard,
       goToSystem,
       goToVerification,
@@ -3180,7 +6467,10 @@ reconstruct entry state from role, URL parameters, or storage.
       hydrateSnapshotLinks,
       hydrateRoleLinks,
       markActiveNav,
+
       bindNavigationElements,
+      bindProtectedAnchors,
+      classifyAnchorActivation,
 
       getRoomContext,
       exposeRoomContext,
@@ -3189,25 +6479,34 @@ reconstruct entry state from role, URL parameters, or storage.
       getState
     };
 
-    window.STATScoreRouting = api;
+    window.STATScoreRouting =
+      api;
 
     window.STATScore =
-      window.STATScore || {};
+      window.STATScore ||
+      {};
 
-    window.STATScore.Routing = api;
+    window.STATScore.Routing =
+      api;
 
     publishState();
 
-    emit("engine_loaded", {
-      status:
-        "WAITING_FOR_CONTEXT"
-    });
+    emit(
+      "engine_loaded",
+      {
+        status:
+          "WAITING_FOR_CONTEXT"
+      }
+    );
 
     log(
-      "Routing engine loaded and waiting for governed initialization.",
+      "Routing engine loaded.",
       {
-        engine_id: ENGINE_ID,
-        version: VERSION
+        engine_id:
+          ENGINE_ID,
+
+        version:
+          VERSION
       }
     );
 
@@ -3218,74 +6517,40 @@ reconstruct entry state from role, URL parameters, or storage.
 
   /*
   ========================================================
-  INITIALIZATION DOCTRINE
+  DOWNSTREAM BUSINESS RUNTIME REQUIREMENT
   ========================================================
 
-  This file deliberately does not:
+  Protected destination engines MUST fail closed until Routing
+  confirms admission.
 
-  - infer role from URL parameters
-  - infer role from sessionStorage
-  - infer role from localStorage
-  - establish role from button attributes
-  - accept caller-manufactured access decisions
-  - allow callers to bypass protected-route access evaluation
-  - expose role_id through navigation URLs
-  - automatically redirect on DOMContentLoaded
+  Example:
 
-  It must be initialized after Initial Authentication Context is
-  available and, where applicable, after Stream 8 has published
-  Initial Runtime Context.
+  const admission =
+    window.STATScoreRouting
+      ?.getCurrentPageAdmission?.();
 
-  Standard initialization:
+  if (
+    !admission ||
+    admission.allowed !== true
+  ) {
+    return;
+  }
 
-  await window.STATScoreRouting.init({
-    authentication_context: approvedAuthenticationContext,
-    runtime_context: approvedRuntimeContext,
-    configuration: {
-      accessDecisionResolver:
-        governedAccessDecisionResolver
-    }
-  });
+  This requirement applies equally to:
 
-  Login completion:
+  - same-tab governed navigation
+  - direct URL entry
+  - browser refresh
+  - bookmarked protected destinations
+  - Ctrl/Command-click
+  - middle-click
+  - Shift-click
+  - target="_blank"
+  - any alternate browsing context
 
-  await window.STATScoreRouting.init({
-    authentication_context: approvedAuthenticationContext,
-    runtime_context: approvedRuntimeContext,
-    configuration: {
-      accessDecisionResolver:
-        governedAccessDecisionResolver
-    }
-  });
+  Therefore alternate-context browser navigation does not create
+  a protected business-authority bypass.
 
-  await window.STATScoreRouting
-    .navigateAuthorizedDestination();
-
-  Or:
-
-  await window.STATScoreRouting.init({
-    authentication_context: approvedAuthenticationContext,
-    runtime_context: approvedRuntimeContext,
-    configuration: {
-      accessDecisionResolver:
-        governedAccessDecisionResolver
-    },
-    navigate_authorized_destination: true
-  });
-
-  Authentication Service must determine whether the user is:
-
-  - a first-time athlete
-  - a returning athlete
-  - a first-time professional
-  - a returning professional
-  - an administrator
-
-  and must publish the complete resulting destination as
-  requested_destination.
-
-  Routing validates and executes that decision. It does not
-  recreate it.
   ========================================================
   */
 })(); 
