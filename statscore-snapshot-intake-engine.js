@@ -1,4 +1,4 @@
-/*
+/* 
 ==========================================================
 STATS-CORE™ SNAPSHOT / ATHLETE RECORD INTAKE ENGINE
 Version: 2.0
@@ -37,7 +37,7 @@ STREAM 2 DOES NOT:
 
   const ATHLETE_TABLE = "statscore_athletes";
   const SNAPSHOT_TABLE = "statscore_snapshots";
-  const AUDIT_TABLE = "sc_snapshot_audit_receipts";
+  const AUDIT_TABLE = "statscore_snapshot_receipts";
   const PARENT_APPROVAL_TABLE = "sc_parent_approval_requests";
   const PHNX_HANDOFF_TABLE = "phnx_media_handoff_packets";
 
@@ -5324,58 +5324,471 @@ STREAM 2 DOES NOT:
      AUDIT RECEIPTS
   ====================================================== */
 
-  async function writeSnapshotAuditReceipt({
-    action,
-    snapshot_id,
-    athlete_id,
-    before_record,
-    after_record
-  }) {
-    if (!snapshot_id && !athlete_id) {
-      return null;
-    }
+ /* ======================================================
+   STREAM 2 SNAPSHOT RECEIPT AUTHORITY
+======================================================
 
-    const db = getDb();
+Canonical Physical Authority:
+public.statscore_snapshot_receipts
 
-    const payload = {
-      receipt_type:
-        action ||
-        "STREAM_2_EVENT",
+The intake engine publishes all governed Stream 2 source-record
+events through this single receipt adapter.
+
+Callers continue using:
+
+writeSnapshotAuditReceipt({
+  action,
+  snapshot_id,
+  athlete_id,
+  before_record,
+  after_record
+});
+
+This adapter converts that internal event contract into the
+physical statscore_snapshot_receipts schema.
+
+Downstream consumers should depend upon the governed receipt
+contract carried by this table and payload, not manufacture
+alternate Stream 2 receipt tables.
+
+====================================================== */
+
+const SNAPSHOT_RECEIPT_CONTRACT_VERSION =
+  "STATSCORE-SNAPSHOT-RECEIPT-V1";
+
+async function writeSnapshotAuditReceipt({
+  action,
+  snapshot_id,
+  athlete_id,
+  before_record,
+  after_record
+}) {
+  const snapshotId =
+    clean(snapshot_id) ||
+    null;
+
+  const athleteId =
+    clean(athlete_id) ||
+    null;
+
+  /*
+  A receipt must belong to at least one governed record
+  reference.
+
+  Some athlete-identity events can occur before snapshot
+  persistence, while snapshot events normally contain both.
+  */
+
+  if (
+    !snapshotId &&
+    !athleteId
+  ) {
+    return null;
+  }
+
+  const db =
+    getDb();
+
+  const eventType =
+    clean(action) ||
+    "STREAM_2_EVENT";
+
+  const eventStatus =
+    deriveSnapshotReceiptStatus(
+      eventType
+    );
+
+  const recordedAt =
+    nowISO();
+
+  /*
+  Physical table contract:
+
+  receipt_id
+    Database-generated where configured.
+
+  snapshot_id
+  athlete_id
+  event_type
+  event_status
+  event_message
+  payload
+  created_at
+
+  before_record and after_record remain preserved as immutable
+  event evidence inside payload rather than being treated as
+  physical table columns.
+  */
+
+  const receiptPayload = {
+    snapshot_id:
+      snapshotId,
+
+    athlete_id:
+      athleteId,
+
+    event_type:
+      eventType,
+
+    event_status:
+      eventStatus,
+
+    event_message:
+      buildSnapshotReceiptMessage(
+        eventType
+      ),
+
+    payload: {
+      schema_version:
+        SNAPSHOT_RECEIPT_CONTRACT_VERSION,
+
+      source_system:
+        "STATS_CORE",
+
+      source_stream:
+        "STREAM_2",
+
+      engine:
+        "statscore-snapshot-intake-engine",
+
+      engine_version:
+        "2.0",
+
+      action:
+        eventType,
 
       snapshot_id:
-        snapshot_id ||
-        null,
+        snapshotId,
 
       athlete_id:
-        athlete_id ||
-        null,
+        athleteId,
 
       before_record:
-        before_record ||
+        before_record ??
         null,
 
       after_record:
-        after_record ||
+        after_record ??
         null,
 
-      created_at:
-        nowISO()
-    };
+      recorded_at:
+        recordedAt
+    },
 
-    const result =
+    created_at:
+      recordedAt
+  };
+
+  let result;
+
+  try {
+    result =
       await db
-        .from(AUDIT_TABLE)
-        .insert(payload)
+        .from(
+          AUDIT_TABLE
+        )
+        .insert(
+          receiptPayload
+        )
         .select("*")
         .maybeSingle();
+  } catch (error) {
+    const receiptError =
+      new Error(
+        `Stream 2 snapshot receipt persistence failed for ${eventType}: ${
+          error?.message ||
+          String(error)
+        }`
+      );
 
-    if (result.error) {
-      throw result.error;
-    }
+    receiptError.code =
+      "STREAM_2_SNAPSHOT_RECEIPT_PERSISTENCE_FAILED";
 
-    return result.data ||
-      payload;
+    receiptError.event_type =
+      eventType;
+
+    receiptError.snapshot_id =
+      snapshotId;
+
+    receiptError.athlete_id =
+      athleteId;
+
+    receiptError.original_error =
+      error;
+
+    throw receiptError;
   }
+
+  if (
+    result?.error
+  ) {
+    const receiptError =
+      new Error(
+        `Stream 2 snapshot receipt persistence failed for ${eventType}: ${
+          result.error.message ||
+          "Database receipt insert failed."
+        }`
+      );
+
+    receiptError.code =
+      "STREAM_2_SNAPSHOT_RECEIPT_PERSISTENCE_FAILED";
+
+    receiptError.event_type =
+      eventType;
+
+    receiptError.snapshot_id =
+      snapshotId;
+
+    receiptError.athlete_id =
+      athleteId;
+
+    receiptError.original_error =
+      result.error;
+
+    throw receiptError;
+  }
+
+  /*
+  Receipt persistence is not considered complete merely because
+  Supabase returned no error.
+
+  The insert must return the persisted receipt record.
+  */
+
+  if (
+    !result?.data
+  ) {
+    const receiptError =
+      new Error(
+        `Stream 2 snapshot receipt read-back returned no persisted record for ${eventType}.`
+      );
+
+    receiptError.code =
+      "STREAM_2_SNAPSHOT_RECEIPT_READBACK_FAILED";
+
+    receiptError.event_type =
+      eventType;
+
+    receiptError.snapshot_id =
+      snapshotId;
+
+    receiptError.athlete_id =
+      athleteId;
+
+    throw receiptError;
+  }
+
+  const persistedReceipt =
+    result.data;
+
+  /*
+  Minimum read-back verification.
+  */
+
+  if (
+    clean(
+      persistedReceipt.event_type
+    ) !==
+    eventType
+  ) {
+    const receiptError =
+      new Error(
+        `Stream 2 snapshot receipt event_type read-back mismatch for ${eventType}.`
+      );
+
+    receiptError.code =
+      "STREAM_2_SNAPSHOT_RECEIPT_VERIFICATION_FAILED";
+
+    receiptError.expected_event_type =
+      eventType;
+
+    receiptError.persisted_event_type =
+      persistedReceipt.event_type;
+
+    receiptError.snapshot_id =
+      snapshotId;
+
+    receiptError.athlete_id =
+      athleteId;
+
+    throw receiptError;
+  }
+
+  if (
+    snapshotId &&
+    clean(
+      persistedReceipt.snapshot_id
+    ) !==
+    snapshotId
+  ) {
+    const receiptError =
+      new Error(
+        `Stream 2 snapshot receipt snapshot_id read-back mismatch for ${eventType}.`
+      );
+
+    receiptError.code =
+      "STREAM_2_SNAPSHOT_RECEIPT_VERIFICATION_FAILED";
+
+    receiptError.expected_snapshot_id =
+      snapshotId;
+
+    receiptError.persisted_snapshot_id =
+      persistedReceipt.snapshot_id;
+
+    receiptError.athlete_id =
+      athleteId;
+
+    throw receiptError;
+  }
+
+  if (
+    athleteId &&
+    clean(
+      persistedReceipt.athlete_id
+    ) !==
+    athleteId
+  ) {
+    const receiptError =
+      new Error(
+        `Stream 2 snapshot receipt athlete_id read-back mismatch for ${eventType}.`
+      );
+
+    receiptError.code =
+      "STREAM_2_SNAPSHOT_RECEIPT_VERIFICATION_FAILED";
+
+    receiptError.expected_athlete_id =
+      athleteId;
+
+    receiptError.persisted_athlete_id =
+      persistedReceipt.athlete_id;
+
+    receiptError.snapshot_id =
+      snapshotId;
+
+    throw receiptError;
+  }
+
+  return persistedReceipt;
+}
+
+/* ======================================================
+   SNAPSHOT RECEIPT STATUS NORMALIZATION
+====================================================== */
+
+function deriveSnapshotReceiptStatus(
+  eventType
+) {
+  const normalized =
+    clean(eventType)
+      .toUpperCase();
+
+  if (
+    normalized.includes(
+      "FAILED"
+    ) ||
+    normalized.includes(
+      "FAILURE"
+    ) ||
+    normalized.includes(
+      "REJECTED"
+    ) ||
+    normalized.includes(
+      "BLOCKED"
+    ) ||
+    normalized.includes(
+      "ERROR"
+    )
+  ) {
+    return "failed";
+  }
+
+  if (
+    normalized.includes(
+      "STARTED"
+    ) ||
+    normalized.includes(
+      "PENDING"
+    ) ||
+    normalized.includes(
+      "REQUESTED"
+    ) ||
+    normalized.includes(
+      "QUEUED"
+    )
+  ) {
+    return "pending";
+  }
+
+  return "completed";
+}
+
+/* ======================================================
+   SNAPSHOT RECEIPT PUBLIC/OPERATIONAL MESSAGE
+====================================================== */
+
+function buildSnapshotReceiptMessage(
+  eventType
+) {
+  const messages = {
+    ATHLETE_IDENTITY_CREATED:
+      "Athlete identity record created.",
+
+    ATHLETE_IDENTITY_UPDATED:
+      "Athlete identity record updated.",
+
+    SNAPSHOT_SOURCE_CREATED:
+      "Athlete snapshot source record created.",
+
+    SNAPSHOT_SOURCE_UPDATED:
+      "Athlete snapshot source record updated.",
+
+    SNAPSHOT_DRAFT_SAVED:
+      "Athlete snapshot draft saved.",
+
+    SNAPSHOT_SUBMITTED:
+      "Athlete snapshot submitted.",
+
+    HEADSHOT_UPLOAD_STARTED:
+      "Athlete headshot upload started.",
+
+    HEADSHOT_UPLOAD_VERIFIED:
+      "Athlete headshot upload verified.",
+
+    HEADSHOT_UPLOAD_FAILED:
+      "Athlete headshot upload failed.",
+
+    PARENT_APPROVAL_REQUEST_CREATED:
+      "Parent or guardian approval request created.",
+
+    PARENT_APPROVAL_REQUEST_REUSED:
+      "Existing parent or guardian approval request reused.",
+
+    PHNX_MEDIA_HANDOFF_CREATED:
+      "PHNX Sports Media handoff created.",
+
+    PHNX_MEDIA_HANDOFF_UPDATED:
+      "PHNX Sports Media handoff updated.",
+
+    PHNX_MEDIA_HANDOFF_READY:
+      "PHNX Sports Media handoff is ready.",
+
+    PHNX_MEDIA_HANDOFF_QUEUED:
+      "PHNX Sports Media handoff queued.",
+
+    PHNX_MEDIA_HANDOFF_QUEUE_FAILED:
+      "PHNX Sports Media handoff queue attempt failed.",
+
+    VERIFICATION_REQUESTED:
+      "Athlete snapshot verification requested."
+  };
+
+  return (
+    messages[
+      eventType
+    ] ||
+    "Stream 2 athlete source-record event recorded."
+  );
+} 
 
   /* ======================================================
      LOAD EXISTING SNAPSHOT
