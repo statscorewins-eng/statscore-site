@@ -1,60 +1,162 @@
 /*
 ==========================================================
 STATS-CORE™ SNAPSHOT / ATHLETE RECORD INTAKE ENGINE
-Version: 2.1
+==========================================================
+
+File:
+statscore-snapshot-intake-engine.js
+
+Asset Type:
+JavaScript Transaction Authority /
+Athlete Source Record Manufacturing Engine
+
 Owner Stream:
 Stream 2 — Athlete Source Record / Evidence Provenance
 
-CANONICAL RESPONSIBILITY:
-- Initialize permanent athlete identity.
+Primary Operational Authority:
+Stream 2 — Governed Athlete Source Record Manufacturing
+
+System Layer:
+Athlete Identity /
+Snapshot Manufacturing /
+Evidence Provenance /
+Headshot Ingest /
+Parent Approval Handoff /
+PHNX Sports Media Handoff /
+Runtime Continuity
+
+Version:
+STATSCORE-SNAPSHOT-INTAKE-ENGINE-V2.2-PRODUCTION-HARDENED
+
+Status:
+CONTROLLED FULL REPLACEMENT —
+PHYSICAL EXECUTION HARDENING
+
+==========================================================
+
+CANONICAL RESPONSIBILITY
+
+- Initialize and maintain permanent athlete identity.
 - Create and update governed athlete snapshots.
-- Capture source claims and provenance.
+- Capture source claims and evidence provenance.
+- Generate and preserve athlete_id / snapshot_id.
 - Upload and verify the canonical athlete headshot.
 - Persist canonical headshot metadata.
 - Create or reuse Parent Approval requests.
 - Build and persist the canonical PHNX Sports Media handoff.
-- Attempt PHNX Media queue handoff using governed packet only.
-- Preserve receipts, idempotency, and runtime continuity.
-- Release downstream Athlete Workspace only after the
-  governed source transaction is materially established.
+- Attempt PHNX Media queue handoff using the governed packet.
+- Persist governed snapshot receipts.
+- Preserve idempotency and transaction continuity.
+- Establish athlete/snapshot runtime continuity after completion.
+- Release downstream Athlete Workspace only when governed
+  source-record manufacturing has succeeded.
 
-CANONICAL DATA AUTHORITIES:
-- public.statscore_athletes
-- public.statscore_snapshots
-- public.statscore_snapshot_receipts
-- public.sc_parent_approval_requests
-- public.phnx_media_handoff_packets
+==========================================================
 
-CRITICAL TRANSACTION LAW:
-A statscore_snapshot_receipts row MUST NOT reference a
-snapshot_id until the corresponding statscore_snapshots row
-physically exists.
+CANONICAL DATA AUTHORITIES
 
-Therefore:
+public.statscore_athletes
 
-PROPOSE IDS
-   ↓
+Permanent athlete identity authority.
+
+public.statscore_snapshots
+
+Governed athlete snapshot / source-record authority.
+
+public.statscore_snapshot_receipts
+
+Governed Stream 2 snapshot receipt authority.
+
+Physical receipt contract:
+
+- receipt_id
+- snapshot_id
+- athlete_id
+- event_type
+- event_status
+- event_message
+- payload
+- created_at
+
+public.sc_parent_approval_requests
+
+Parent / Guardian approval request authority.
+
+public.phnx_media_handoff_packets
+
+Governed Stream 2 → PHNX Sports Media handoff authority.
+
+==========================================================
+
+CRITICAL MANUFACTURING LAW
+
+A receipt carrying snapshot_id MUST NOT be written before the
+corresponding row physically exists in public.statscore_snapshots.
+
+Required sequence:
+
+PROPOSE athlete_id + snapshot_id
+        ↓
 PERSIST ATHLETE
-   ↓
+        ↓
 PERSIST SNAPSHOT
-   ↓
+        ↓
 READ BACK SNAPSHOT
-   ↓
-WRITE ATHLETE/SNAPSHOT RECEIPTS
-   ↓
-HEADSHOT
-   ↓
+        ↓
+VERIFY athlete_id ↔ snapshot_id
+        ↓
+WRITE LIFECYCLE RECEIPTS
+        ↓
+HEADSHOT UPLOAD
+        ↓
+STORAGE VERIFICATION
+        ↓
+HEADSHOT METADATA PERSISTENCE
+        ↓
+DATABASE READ-BACK
+        ↓
 PARENT APPROVAL
-   ↓
-PHNX HANDOFF
-   ↓
+        ↓
+PHNX MEDIA HANDOFF
+        ↓
 FINAL READ-BACK
-   ↓
-RUNTIME CONTEXT
-   ↓
+        ↓
+COMPLETION RECEIPT
+        ↓
+RUNTIME CONTINUITY
+        ↓
 ATHLETE WORKSPACE RELEASE
 
-STREAM 2 DOES NOT:
+==========================================================
+
+HEADSHOT RELIABILITY LAW
+
+Once a user selects a valid headshot, the interface MUST show
+one of these states:
+
+1. Local image preview.
+2. Explicit processing state.
+3. Verified persisted image.
+4. Explicit recoverable failure state.
+
+A selected file may NEVER silently disappear.
+
+Local preview does NOT depend on:
+
+- athlete_id
+- snapshot_id
+- Supabase database
+- Supabase Storage
+- RLS
+- receipt persistence
+- Parent Approval
+- PHNX Media
+- Athlete Dashboard
+
+==========================================================
+
+STREAM 2 DOES NOT
+
 - Score athletes.
 - Generate Athlete Intelligence.
 - Edit media.
@@ -63,6 +165,8 @@ STREAM 2 DOES NOT:
 - Publish YouTube content.
 - Execute Spider distribution.
 - Send Multi-Box publication notifications.
+- Manufacture Stream 3 Athlete Intelligence.
+- Bypass Parent Approval authority.
 
 ==========================================================
 */
@@ -74,10 +178,14 @@ STREAM 2 DOES NOT:
      ENGINE IDENTITY
   ====================================================== */
 
-  const ENGINE_NAME =
-    "STATSCORE_SNAPSHOT_ATHLETE_RECORD_INTAKE_ENGINE";
+  const ENGINE_ID =
+    "statscore-snapshot-intake-engine";
 
-  const ENGINE_VERSION = "2.1";
+  const ENGINE_VERSION =
+    "STATSCORE-SNAPSHOT-INTAKE-ENGINE-V2.2-PRODUCTION-HARDENED";
+
+  const RECEIPT_VERSION =
+    "2.2";
 
   /* ======================================================
      DATABASE TABLES
@@ -127,13 +235,18 @@ STREAM 2 DOES NOT:
       "heif"
     ]);
 
-  const HEADSHOT_UPLOAD_ATTEMPTS = 3;
+  const HEADSHOT_UPLOAD_ATTEMPTS =
+    3;
 
-  const HEADSHOT_RETRY_DELAYS = [
-    750,
-    1500,
-    3000
-  ];
+  const HEADSHOT_RETRY_DELAYS =
+    Object.freeze([
+      750,
+      1500,
+      3000
+    ]);
+
+  const HEADSHOT_PREVIEW_TIMEOUT_MS =
+    5000;
 
   /* ======================================================
      PHNX MEDIA CONTRACT
@@ -155,7 +268,7 @@ STREAM 2 DOES NOT:
     "PHNX_SPORTS_MEDIA";
 
   /* ======================================================
-     MEDIA STATES
+     MEDIA STATUS
   ====================================================== */
 
   const MEDIA_STATUS =
@@ -219,77 +332,92 @@ STREAM 2 DOES NOT:
   const ACTIVE_ATHLETE_KEY =
     "STATSCORE_ACTIVE_ATHLETE_ID";
 
-  const LEGACY_SNAPSHOT_KEY =
-    "statscore_snapshot_id";
-
-  const LEGACY_ATHLETE_KEY =
-    "statscore_athlete_id";
-
   const SECONDARY_SNAPSHOT_KEY =
     "statscore_active_snapshot_id";
 
   const SECONDARY_ATHLETE_KEY =
     "statscore_active_athlete_id";
 
+  const LEGACY_SNAPSHOT_KEY =
+    "statscore_snapshot_id";
+
+  const LEGACY_ATHLETE_KEY =
+    "statscore_athlete_id";
+
   /* ======================================================
      HTML CONTRACT
   ====================================================== */
 
-  const REQUIRED_HTML_IDS = [
-    "snapshotForm",
+  const REQUIRED_HTML_IDS =
+    Object.freeze([
+      "snapshotForm",
 
-    "athleteId",
-    "snapshotId",
-    "sportMetricPayload",
-    "sourceClaimsPayload",
+      "athleteId",
+      "snapshotId",
+      "sportMetricPayload",
+      "sourceClaimsPayload",
 
-    "athleteHeadshotUpload",
-    "headshotUrl",
-    "headshotPath",
-    "headshotFileName",
+      "athleteHeadshotUpload",
 
-    "headshotPreview",
-    "headshotUploadBox",
-    "headshotUploadText",
-    "headshotUploadHint",
+      "headshotUrl",
+      "headshotPath",
+      "headshotFileName",
 
-    "addHeadshotBtn",
-    "removeHeadshotBtn",
+      "headshotPreview",
+      "headshotUploadBox",
+      "headshotUploadText",
+      "headshotUploadHint",
 
-    "submitSnapshotBtn",
-    "saveDraftBtn",
-    "requestVerificationBtn",
-    "viewProfileBtn",
+      "addHeadshotBtn",
+      "removeHeadshotBtn",
 
-    "recordBadge",
+      "submitSnapshotBtn",
+      "saveDraftBtn",
+      "requestVerificationBtn",
+      "viewProfileBtn",
 
-    "statusProfile",
-    "statusSource",
-    "statusTrust",
-    "statusMetrics",
-    "statusVerification",
-    "statusPhnxMedia",
+      "recordBadge",
 
-    "mediaQueueBadge",
-    "mediaStatusHeadshot",
-    "mediaStatusCard",
-    "mediaStatusFilm",
-    "mediaStatusRouting",
+      "statusProfile",
+      "statusSource",
+      "statusTrust",
+      "statusMetrics",
+      "statusVerification",
+      "statusPhnxMedia",
 
-    "systemMessage"
-  ];
+      "mediaQueueBadge",
+      "mediaStatusHeadshot",
+      "mediaStatusCard",
+      "mediaStatusFilm",
+      "mediaStatusRouting",
+
+      "systemMessage"
+    ]);
 
   /* ======================================================
      RUNTIME STATE
   ====================================================== */
 
-  let selectedHeadshotFile = null;
+  let selectedHeadshotFile =
+    null;
 
-  let selectedHeadshotPreviewUrl = "";
+  let selectedHeadshotPreviewUrl =
+    "";
 
-  let activeTransactionPromise = null;
+  let selectedHeadshotPreviewMode =
+    null;
 
-  let bootCompleted = false;
+  let activeTransactionPromise =
+    null;
+
+  let bootCompleted =
+    false;
+
+  let runtimePreflightComplete =
+    false;
+
+  let runtimePreflightResult =
+    null;
 
   let currentIntakeMode = {
     mode:
@@ -303,12 +431,321 @@ STREAM 2 DOES NOT:
   };
 
   /* ======================================================
+     GENERAL UTILITIES
+  ====================================================== */
+
+  function nowISO() {
+    return new Date()
+      .toISOString();
+  }
+
+  function clean(value) {
+    if (
+      value === null ||
+      value === undefined
+    ) {
+      return "";
+    }
+
+    return String(value)
+      .trim();
+  }
+
+  function safeObject(value) {
+    if (!value) {
+      return {};
+    }
+
+    if (
+      typeof value ===
+      "object"
+    ) {
+      return value;
+    }
+
+    try {
+      const parsed =
+        JSON.parse(value);
+
+      return (
+        parsed &&
+        typeof parsed ===
+          "object"
+      )
+        ? parsed
+        : {};
+    } catch (_error) {
+      return {};
+    }
+  }
+
+  function serializeError(error) {
+    if (!error) {
+      return null;
+    }
+
+    return {
+      name:
+        error.name ||
+        "Error",
+
+      message:
+        error.message ||
+        String(error),
+
+      code:
+        error.code ||
+        null,
+
+      status:
+        error.status ||
+        error.statusCode ||
+        null,
+
+      details:
+        error.details ||
+        null,
+
+      hint:
+        error.hint ||
+        null
+    };
+  }
+
+  function readableStatus(value) {
+    const text =
+      clean(value);
+
+    if (!text) {
+      return "Pending";
+    }
+
+    return text
+      .replace(
+        /[_-]+/g,
+        " "
+      )
+      .replace(
+        /\b\w/g,
+        letter =>
+          letter.toUpperCase()
+      );
+  }
+
+  function sleep(milliseconds) {
+    return new Promise(
+      resolve => {
+        window.setTimeout(
+          resolve,
+          milliseconds
+        );
+      }
+    );
+  }
+
+  function formatBytes(bytes) {
+    const value =
+      Number(bytes);
+
+    if (
+      !Number.isFinite(value) ||
+      value <= 0
+    ) {
+      return "0 B";
+    }
+
+    const units = [
+      "B",
+      "KB",
+      "MB",
+      "GB"
+    ];
+
+    const index =
+      Math.min(
+        Math.floor(
+          Math.log(value) /
+          Math.log(1024)
+        ),
+        units.length - 1
+      );
+
+    const amount =
+      value /
+      Math.pow(
+        1024,
+        index
+      );
+
+    return (
+      amount.toFixed(
+        index === 0
+          ? 0
+          : 1
+      ) +
+      " " +
+      units[index]
+    );
+  }
+
+  function generateUuid() {
+    if (
+      window.crypto &&
+      typeof window.crypto
+        .randomUUID ===
+        "function"
+    ) {
+      return window.crypto
+        .randomUUID();
+    }
+
+    return (
+      "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx"
+    ).replace(
+      /[xy]/g,
+      character => {
+        const random =
+          Math.random() *
+          16 |
+          0;
+
+        const value =
+          character === "x"
+            ? random
+            : (
+                random &
+                0x3
+              ) |
+              0x8;
+
+        return value
+          .toString(16);
+      }
+    );
+  }
+
+  function generateAthleteId() {
+    return generateUuid();
+  }
+
+  function generateSnapshotId() {
+    return generateUuid();
+  }
+
+  /* ======================================================
+     DOM UTILITIES
+  ====================================================== */
+
+  function val(id) {
+    const element =
+      document.getElementById(id);
+
+    if (!element) {
+      return "";
+    }
+
+    return clean(
+      element.value
+    );
+  }
+
+  function setVal(
+    id,
+    value
+  ) {
+    const element =
+      document.getElementById(id);
+
+    if (!element) {
+      return;
+    }
+
+    element.value =
+      value ??
+      "";
+  }
+
+  function setText(
+    id,
+    value
+  ) {
+    const element =
+      document.getElementById(id);
+
+    if (!element) {
+      return;
+    }
+
+    element.textContent =
+      value ??
+      "";
+  }
+
+  function setFormControlValue(
+    nameOrId,
+    value
+  ) {
+    const byId =
+      document.getElementById(
+        nameOrId
+      );
+
+    const byName =
+      document.querySelector(
+        `[name="${nameOrId}"]`
+      );
+
+    const element =
+      byId ||
+      byName;
+
+    if (!element) {
+      return;
+    }
+
+    if (
+      element.type ===
+      "checkbox"
+    ) {
+      element.checked =
+        Boolean(value);
+
+      return;
+    }
+
+    if (
+      element.type ===
+      "radio"
+    ) {
+      const radios =
+        document.querySelectorAll(
+          `[name="${nameOrId}"]`
+        );
+
+      radios.forEach(
+        radio => {
+          radio.checked =
+            String(radio.value) ===
+            String(value);
+        }
+      );
+
+      return;
+    }
+
+    element.value =
+      value ??
+      "";
+  }
+
+  /* ======================================================
      DATABASE RESOLUTION
   ====================================================== */
 
   function getDb() {
     const db =
-      window.STATScoreData?.getClient?.() ||
+      window.STATScoreData
+        ?.getClient?.() ||
       window.supabaseClient ||
       window.STATSCORE_SUPABASE ||
       window.STATScoreSupabase ||
@@ -316,7 +753,8 @@ STREAM 2 DOES NOT:
 
     if (
       !db ||
-      typeof db.from !== "function"
+      typeof db.from !==
+        "function"
     ) {
       throw new Error(
         "Supabase database client is not loaded. Snapshot Intake cannot execute."
@@ -325,10 +763,11 @@ STREAM 2 DOES NOT:
 
     if (
       !db.storage ||
-      typeof db.storage.from !== "function"
+      typeof db.storage.from !==
+        "function"
     ) {
       throw new Error(
-        "Supabase Storage is not loaded. Native headshot upload cannot execute."
+        "Supabase Storage is not available. Headshot ingest cannot execute."
       );
     }
 
@@ -336,22 +775,226 @@ STREAM 2 DOES NOT:
   }
 
   async function awaitDbReady() {
-    if (window.STATSCORE_DB_READY) {
+    if (
+      window.STATSCORE_DB_READY
+    ) {
       try {
         await Promise.resolve(
           window.STATSCORE_DB_READY
         );
       } catch (error) {
         throw new Error(
-          `STATS-CORE database initialization failed: ${
+          "STATS-CORE database initialization failed: " +
+          (
             error?.message ||
             String(error)
-          }`
+          )
         );
       }
     }
 
     return getDb();
+  }
+
+  /* ======================================================
+     HTML CONTRACT VALIDATION
+  ====================================================== */
+
+  function validateHtmlContract() {
+    const missingIds =
+      REQUIRED_HTML_IDS
+        .filter(
+          id =>
+            !document
+              .getElementById(id)
+        );
+
+    if (
+      missingIds.length
+    ) {
+      throw new Error(
+        "Snapshot Intake HTML contract is incomplete. Missing IDs: " +
+        missingIds.join(", ")
+      );
+    }
+
+    [
+      "submitSnapshotBtn",
+      "saveDraftBtn",
+      "requestVerificationBtn",
+      "addHeadshotBtn",
+      "removeHeadshotBtn"
+    ].forEach(
+      id => {
+        const button =
+          document.getElementById(
+            id
+          );
+
+        if (
+          button &&
+          button.tagName ===
+            "BUTTON"
+        ) {
+          button.type =
+            "button";
+        }
+      }
+    );
+
+    const fileInput =
+      document.getElementById(
+        "athleteHeadshotUpload"
+      );
+
+    fileInput.accept =
+      ".jpg,.jpeg,.png,.webp,.heic,.heif,image/jpeg,image/png,image/webp,image/heic,image/heif";
+
+    return true;
+  }
+
+  /* ======================================================
+     RUNTIME PREFLIGHT
+
+     This is intentionally non-destructive.
+
+     It verifies browser/runtime authority before enabling
+     user transactions.
+  ====================================================== */
+
+  async function runRuntimePreflight() {
+    const findings = [];
+
+    let db =
+      null;
+
+    try {
+      db =
+        getDb();
+    } catch (error) {
+      findings.push({
+        authority:
+          "DATABASE_CLIENT",
+
+        ok:
+          false,
+
+        message:
+          error.message
+      });
+    }
+
+    if (db) {
+      if (
+        !db.auth ||
+        typeof db.auth
+          .getSession !==
+          "function"
+      ) {
+        findings.push({
+          authority:
+            "AUTHENTICATION_SESSION",
+
+          ok:
+            false,
+
+          message:
+            "Supabase authentication session authority is unavailable."
+        });
+      } else {
+        try {
+          const sessionResult =
+            await db.auth
+              .getSession();
+
+          if (
+            sessionResult.error
+          ) {
+            findings.push({
+              authority:
+                "AUTHENTICATION_SESSION",
+
+              ok:
+                false,
+
+              message:
+                sessionResult
+                  .error
+                  .message ||
+                "Authentication session inspection failed."
+            });
+          } else if (
+            !sessionResult
+              ?.data
+              ?.session
+              ?.user
+          ) {
+            findings.push({
+              authority:
+                "AUTHENTICATION_SESSION",
+
+              ok:
+                false,
+
+              message:
+                "No authenticated STATS-CORE session is available."
+            });
+          } else {
+            findings.push({
+              authority:
+                "AUTHENTICATION_SESSION",
+
+              ok:
+                true,
+
+              message:
+                "Authenticated session available.",
+
+              user_id:
+                sessionResult
+                  .data
+                  .session
+                  .user
+                  .id ||
+                null
+            });
+          }
+        } catch (error) {
+          findings.push({
+            authority:
+              "AUTHENTICATION_SESSION",
+
+            ok:
+              false,
+
+            message:
+              error?.message ||
+              "Authentication session inspection failed."
+          });
+        }
+      }
+    }
+
+    const ok =
+      findings.every(
+        finding =>
+          finding.ok !==
+          false
+      );
+
+    runtimePreflightResult = {
+      ok,
+
+      findings,
+
+      checked_at:
+        nowISO()
+    };
+
+    runtimePreflightComplete =
+      true;
+
+    return runtimePreflightResult;
   }
 
   /* ======================================================
@@ -376,7 +1019,8 @@ STREAM 2 DOES NOT:
           "edit"
         ) {
           await loadExistingSnapshot(
-            currentIntakeMode.snapshot_id
+            currentIntakeMode
+              .snapshot_id
           );
         } else {
           resetCreateMode();
@@ -390,11 +1034,35 @@ STREAM 2 DOES NOT:
 
         exposeDebugGlobals();
 
-        bootCompleted = true;
+        const preflight =
+          await runRuntimePreflight();
+
+        if (
+          !preflight.ok
+        ) {
+          throw new Error(
+            "Snapshot Intake runtime preflight did not pass. Governed submission remains unavailable."
+          );
+        }
+
+        bootCompleted =
+          true;
+
+        setTransactionButtonsDisabled(
+          false
+        );
 
         console.info(
-          `[Stream 2] Snapshot Intake Engine v${ENGINE_VERSION} initialized.`,
-          currentIntakeMode
+          "[Stream 2] Snapshot Intake Engine initialized.",
+          {
+            version:
+              ENGINE_VERSION,
+
+            mode:
+              currentIntakeMode,
+
+            preflight
+          }
         );
       } catch (error) {
         console.error(
@@ -404,7 +1072,7 @@ STREAM 2 DOES NOT:
 
         setSystemMessage(
           error?.message ||
-            "Snapshot Intake failed to initialize.",
+          "Snapshot Intake failed to initialize.",
           "error"
         );
 
@@ -414,54 +1082,6 @@ STREAM 2 DOES NOT:
       }
     }
   );
-
-  /* ======================================================
-     HTML CONTRACT VALIDATION
-  ====================================================== */
-
-  function validateHtmlContract() {
-    const missingIds =
-      REQUIRED_HTML_IDS.filter(
-        id =>
-          !document.getElementById(id)
-      );
-
-    if (missingIds.length) {
-      throw new Error(
-        `Snapshot Intake HTML contract is incomplete. Missing IDs: ${missingIds.join(
-          ", "
-        )}`
-      );
-    }
-
-    [
-      "submitSnapshotBtn",
-      "saveDraftBtn",
-      "requestVerificationBtn",
-      "addHeadshotBtn",
-      "removeHeadshotBtn"
-    ].forEach(id => {
-      const button =
-        document.getElementById(id);
-
-      if (
-        button &&
-        button.tagName === "BUTTON"
-      ) {
-        button.type = "button";
-      }
-    });
-
-    const fileInput =
-      document.getElementById(
-        "athleteHeadshotUpload"
-      );
-
-    if (fileInput) {
-      fileInput.accept =
-        ".jpg,.jpeg,.png,.webp,.heic,.heif,image/jpeg,image/png,image/webp,image/heic,image/heif";
-    }
-  }
 
   /* ======================================================
      MODE RESOLUTION
@@ -474,11 +1094,14 @@ STREAM 2 DOES NOT:
       );
 
     const forcedNew =
-      params.get("new") === "1";
+      params.get("new") ===
+      "1";
 
     const urlSnapshotId =
       clean(
-        params.get("snapshot_id")
+        params.get(
+          "snapshot_id"
+        )
       );
 
     if (forcedNew) {
@@ -531,19 +1154,23 @@ STREAM 2 DOES NOT:
     [
       ACTIVE_SNAPSHOT_KEY,
       ACTIVE_ATHLETE_KEY,
-      LEGACY_SNAPSHOT_KEY,
-      LEGACY_ATHLETE_KEY,
       SECONDARY_SNAPSHOT_KEY,
-      SECONDARY_ATHLETE_KEY
-    ].forEach(key => {
-      try {
-        localStorage.removeItem(key);
-      } catch (_error) {}
+      SECONDARY_ATHLETE_KEY,
+      LEGACY_SNAPSHOT_KEY,
+      LEGACY_ATHLETE_KEY
+    ].forEach(
+      key => {
+        try {
+          localStorage
+            .removeItem(key);
+        } catch (_error) {}
 
-      try {
-        sessionStorage.removeItem(key);
-      } catch (_error) {}
-    });
+        try {
+          sessionStorage
+            .removeItem(key);
+        } catch (_error) {}
+      }
+    );
   }
 
   /* ======================================================
@@ -560,10 +1187,12 @@ STREAM 2 DOES NOT:
       form.reset();
     }
 
-    releaseSelectedPreviewUrl();
-
     selectedHeadshotFile =
       null;
+
+    releaseSelectedPreviewUrl();
+
+    clearHeadshotPreviewElement();
 
     setVal(
       "athleteId",
@@ -606,34 +1235,9 @@ STREAM 2 DOES NOT:
       );
 
     if (fileInput) {
-      fileInput.value = "";
+      fileInput.value =
+        "";
     }
-
-    const preview =
-      document.getElementById(
-        "headshotPreview"
-      );
-
-    if (preview) {
-      preview.removeAttribute(
-        "src"
-      );
-
-      preview.style.display =
-        "none";
-    }
-
-    const uploadBox =
-      document.getElementById(
-        "headshotUploadBox"
-      );
-
-    uploadBox?.classList.remove(
-      "ready",
-      "error",
-      "uploading",
-      "verified"
-    );
 
     const removeButton =
       document.getElementById(
@@ -712,53 +1316,69 @@ STREAM 2 DOES NOT:
       "trustClassification",
       "phnxCertificationStatus",
       "phnxCertifiedId"
-    ].forEach(id => {
-      const element =
-        document.getElementById(id);
+    ].forEach(
+      id => {
+        const element =
+          document.getElementById(
+            id
+          );
 
-      if (!element) return;
+        if (!element) {
+          return;
+        }
 
-      element.addEventListener(
-        "change",
-        updateSourceTrustFromInputs
-      );
+        element.addEventListener(
+          "change",
+          updateSourceTrustFromInputs
+        );
 
-      element.addEventListener(
-        "input",
-        updateSourceTrustFromInputs
-      );
-    });
+        element.addEventListener(
+          "input",
+          updateSourceTrustFromInputs
+        );
+      }
+    );
 
     [
       "highlightUrl",
       "gameFilmUrl",
       "socialProfileUrl",
       "recruitingProfileUrl"
-    ].forEach(name => {
-      const element =
-        document.querySelector(
-          `[name="${name}"]`
+    ].forEach(
+      name => {
+        const element =
+          document.querySelector(
+            `[name="${name}"]`
+          );
+
+        if (!element) {
+          return;
+        }
+
+        element.addEventListener(
+          "input",
+          updateMediaStatus
         );
 
-      if (!element) return;
-
-      element.addEventListener(
-        "input",
-        updateMediaStatus
-      );
-
-      element.addEventListener(
-        "change",
-        updateMediaStatus
-      );
-    });
+        element.addEventListener(
+          "change",
+          updateMediaStatus
+        );
+      }
+    );
 
     const fileInput =
       document.getElementById(
         "athleteHeadshotUpload"
       );
 
-    fileInput?.addEventListener(
+    if (!fileInput) {
+      throw new Error(
+        "Snapshot Intake cannot bind headshot selection because #athleteHeadshotUpload is missing."
+      );
+    }
+
+    fileInput.addEventListener(
       "change",
       handleHeadshotSelection
     );
@@ -769,12 +1389,19 @@ STREAM 2 DOES NOT:
       )
       ?.addEventListener(
         "click",
-        () => {
-          document
-            .getElementById(
-              "athleteHeadshotUpload"
-            )
-            ?.click();
+        event => {
+          event.preventDefault();
+
+          /*
+          Allows re-selecting the same filename and still
+          receiving a change event.
+          */
+
+          try {
+            fileInput.value = "";
+          } catch (_error) {}
+
+          fileInput.click();
         }
       );
 
@@ -784,7 +1411,11 @@ STREAM 2 DOES NOT:
       )
       ?.addEventListener(
         "click",
-        removeSelectedHeadshot
+        event => {
+          event.preventDefault();
+
+          removeSelectedHeadshot();
+        }
       );
 
     document
@@ -823,7 +1454,9 @@ STREAM 2 DOES NOT:
         event => {
           const snapshotId =
             clean(
-              val("snapshotId")
+              val(
+                "snapshotId"
+              )
             ) ||
             getActiveSnapshotId();
 
@@ -841,15 +1474,24 @@ STREAM 2 DOES NOT:
           event.preventDefault();
 
           window.location.href =
-            `athlete-dashboard.html?snapshot_id=${encodeURIComponent(
-              snapshotId
-            )}&from=athlete-record-intake`;
+            (
+              "athlete-dashboard.html" +
+              "?snapshot_id=" +
+              encodeURIComponent(
+                snapshotId
+              ) +
+              "&from=athlete-record-intake"
+            );
         }
       );
+
+    console.info(
+      "[Stream 2][Headshot] File-input listener bound."
+    );
   }
 
   /* ======================================================
-     BUTTON CONTROL
+     TRANSACTION BUTTON CONTROL
   ====================================================== */
 
   function setTransactionButtonsDisabled(
@@ -858,18 +1500,44 @@ STREAM 2 DOES NOT:
     [
       "submitSnapshotBtn",
       "saveDraftBtn",
-      "requestVerificationBtn",
-      "addHeadshotBtn",
-      "removeHeadshotBtn"
-    ].forEach(id => {
-      const element =
-        document.getElementById(id);
+      "requestVerificationBtn"
+    ].forEach(
+      id => {
+        const element =
+          document.getElementById(
+            id
+          );
 
-      if (element) {
-        element.disabled =
-          Boolean(disabled);
+        if (element) {
+          element.disabled =
+            Boolean(disabled);
+        }
       }
-    });
+    );
+
+    /*
+    Headshot selection/removal remains available while
+    ordinary form editing is available, except during the
+    active manufacturing transaction.
+    */
+
+    [
+      "addHeadshotBtn",
+      "removeHeadshotBtn",
+      "athleteHeadshotUpload"
+    ].forEach(
+      id => {
+        const element =
+          document.getElementById(
+            id
+          );
+
+        if (element) {
+          element.disabled =
+            Boolean(disabled);
+        }
+      }
+    );
   }
 
   /* ======================================================
@@ -885,10 +1553,13 @@ STREAM 2 DOES NOT:
         "systemMessage"
       );
 
-    if (!element) return;
+    if (!element) {
+      return;
+    }
 
     element.textContent =
-      message || "";
+      message ||
+      "";
 
     element.dataset.state =
       state;
@@ -964,7 +1635,7 @@ STREAM 2 DOES NOT:
         setText(
           "headshotUploadHint",
           detail ||
-            "Ready for verified upload"
+          "Ready for secure upload"
         );
         break;
 
@@ -991,7 +1662,7 @@ STREAM 2 DOES NOT:
         setText(
           "headshotUploadHint",
           detail ||
-            "Checking file contract"
+          "Checking image file"
         );
         break;
 
@@ -1018,7 +1689,7 @@ STREAM 2 DOES NOT:
         setText(
           "headshotUploadHint",
           detail ||
-            "Uploading to canonical storage"
+          "Uploading secure athlete image"
         );
         break;
 
@@ -1039,13 +1710,13 @@ STREAM 2 DOES NOT:
 
         setText(
           "headshotUploadText",
-          "Verifying Upload"
+          "Verifying Headshot"
         );
 
         setText(
           "headshotUploadHint",
           detail ||
-            "Confirming storage object"
+          "Confirming uploaded image"
         );
         break;
 
@@ -1056,7 +1727,7 @@ STREAM 2 DOES NOT:
 
         setText(
           "mediaStatusHeadshot",
-          "Persisting"
+          "Saving"
         );
 
         setText(
@@ -1066,13 +1737,13 @@ STREAM 2 DOES NOT:
 
         setText(
           "headshotUploadText",
-          "Saving Canonical Image"
+          "Saving Headshot"
         );
 
         setText(
           "headshotUploadHint",
           detail ||
-            "Updating athlete source record"
+          "Saving verified athlete image"
         );
         break;
 
@@ -1100,7 +1771,7 @@ STREAM 2 DOES NOT:
         setText(
           "headshotUploadHint",
           detail ||
-            "Canonical image persisted"
+          "Athlete image saved"
         );
         break;
 
@@ -1111,7 +1782,7 @@ STREAM 2 DOES NOT:
 
         setText(
           "mediaStatusHeadshot",
-          "Failed"
+          "Needs Attention"
         );
 
         setText(
@@ -1121,13 +1792,13 @@ STREAM 2 DOES NOT:
 
         setText(
           "headshotUploadText",
-          "Headshot Upload Failed"
+          "Headshot Needs Attention"
         );
 
         setText(
           "headshotUploadHint",
           detail ||
-            "Retry is required"
+          "Choose another image or retry"
         );
         break;
 
@@ -1145,12 +1816,12 @@ STREAM 2 DOES NOT:
 
         setText(
           "headshotUploadText",
-          "PHNX SPORTS MEDIA INGEST"
+          "ADD ATHLETE HEADSHOT"
         );
 
         setText(
           "headshotUploadHint",
-          "Click to upload JPG, PNG, WEBP, HEIC, or HEIF"
+          "Choose JPG, PNG, WEBP, HEIC, or HEIF"
         );
         break;
     }
@@ -1179,7 +1850,7 @@ STREAM 2 DOES NOT:
         setText(
           "mediaStatusRouting",
           detail ||
-            "Waiting for verified headshot"
+          "Headshot selected"
         );
         break;
 
@@ -1192,7 +1863,7 @@ STREAM 2 DOES NOT:
         setText(
           "mediaStatusRouting",
           detail ||
-            "Handoff not yet ready"
+          "Secure upload in progress"
         );
         break;
 
@@ -1205,7 +1876,7 @@ STREAM 2 DOES NOT:
         setText(
           "mediaStatusRouting",
           detail ||
-            "Building media handoff"
+          "Media package preparation available"
         );
         break;
 
@@ -1218,7 +1889,7 @@ STREAM 2 DOES NOT:
         setText(
           "mediaStatusRouting",
           detail ||
-            "Packet persisted"
+          "Media packet ready"
         );
         break;
 
@@ -1231,7 +1902,7 @@ STREAM 2 DOES NOT:
         setText(
           "mediaStatusRouting",
           detail ||
-            "Assets captured"
+          "Media packet queued"
         );
         break;
 
@@ -1244,7 +1915,7 @@ STREAM 2 DOES NOT:
         setText(
           "mediaStatusRouting",
           detail ||
-            "Queue failed — packet preserved"
+          "Media packet preserved for retry"
         );
         break;
 
@@ -1263,10 +1934,916 @@ STREAM 2 DOES NOT:
         setText(
           "mediaStatusRouting",
           detail ||
-            "Waiting for required media"
+          "Headshot required"
         );
         break;
     }
+  }
+
+  /* ======================================================
+     HEADSHOT SELECTION
+     CRITICAL USER-TRUST PATH
+  ====================================================== */
+
+  async function handleHeadshotSelection(
+    event
+  ) {
+    const input =
+      event?.currentTarget ||
+      event?.target ||
+      document.getElementById(
+        "athleteHeadshotUpload"
+      );
+
+    const file =
+      input?.files?.[0] ||
+      null;
+
+    if (!file) {
+      console.warn(
+        "[Stream 2][Headshot] File chooser returned no file."
+      );
+
+      return {
+        valid:
+          false,
+
+        reason:
+          "NO_FILE"
+      };
+    }
+
+    /*
+    Preserve immediately.
+
+    A valid user selection must never disappear because a
+    later preview operation fails.
+    */
+
+    selectedHeadshotFile =
+      file;
+
+    console.info(
+      "[Stream 2][Headshot] File captured.",
+      {
+        name:
+          file.name,
+
+        type:
+          file.type,
+
+        size:
+          file.size
+      }
+    );
+
+    try {
+      setHeadshotUiState(
+        HEADSHOT_UI_STATE.VALIDATING,
+        `Checking ${file.name}`
+      );
+
+      const validation =
+        validateHeadshotFile(
+          file
+        );
+
+      setVal(
+        "headshotFileName",
+        file.name
+      );
+
+      const removeButton =
+        document.getElementById(
+          "removeHeadshotBtn"
+        );
+
+      if (removeButton) {
+        removeButton.style.display =
+          "flex";
+      }
+
+      const previewResult =
+        await renderSelectedHeadshotPreview(
+          file
+        );
+
+      if (
+        previewResult.rendered
+      ) {
+        setHeadshotUiState(
+          HEADSHOT_UI_STATE.SELECTED,
+          (
+            file.name +
+            " · " +
+            formatBytes(
+              file.size
+            )
+          )
+        );
+
+        setSystemMessage(
+          "Athlete headshot selected and ready for secure upload.",
+          "success"
+        );
+      } else {
+        /*
+        Browser decode limitation is not file loss.
+        */
+
+        setHeadshotUiState(
+          HEADSHOT_UI_STATE.SELECTED,
+          (
+            file.name +
+            " · " +
+            formatBytes(
+              file.size
+            ) +
+            " · File retained"
+          )
+        );
+
+        setSystemMessage(
+          "Headshot selected. This browser could not display the local preview, but the image has been retained for secure upload.",
+          "warning"
+        );
+      }
+
+      setPhnxUiState(
+        MEDIA_STATUS.HEADSHOT_PENDING,
+        previewResult.rendered
+          ? "Headshot selected — secure upload pending"
+          : "Headshot retained — secure upload pending"
+      );
+
+      updateMediaStatus();
+
+      console.info(
+        "[Stream 2][Headshot] Selection accepted.",
+        {
+          filename:
+            file.name,
+
+          extension:
+            validation.extension,
+
+          mime_type:
+            validation.mime_type,
+
+          size_bytes:
+            validation.size_bytes,
+
+          preview_rendered:
+            previewResult.rendered,
+
+          preview_method:
+            previewResult.method,
+
+          file_retained:
+            selectedHeadshotFile ===
+            file
+        }
+      );
+
+      return {
+        valid:
+          true,
+
+        file,
+
+        validation,
+
+        preview:
+          previewResult
+      };
+    } catch (error) {
+      /*
+      Actual validation failure means the file itself does
+      not satisfy the governed image contract.
+      */
+
+      console.error(
+        "[Stream 2][Headshot] Selection rejected:",
+        error
+      );
+
+      selectedHeadshotFile =
+        null;
+
+      releaseSelectedPreviewUrl();
+
+      clearHeadshotPreviewElement();
+
+      setVal(
+        "headshotFileName",
+        ""
+      );
+
+      if (input) {
+        try {
+          input.value = "";
+        } catch (_error) {}
+      }
+
+      const removeButton =
+        document.getElementById(
+          "removeHeadshotBtn"
+        );
+
+      if (removeButton) {
+        removeButton.style.display =
+          "none";
+      }
+
+      setHeadshotUiState(
+        HEADSHOT_UI_STATE.FAILED,
+        (
+          error?.message ||
+          "Selected image could not be accepted."
+        )
+      );
+
+      setPhnxUiState(
+        MEDIA_STATUS.NOT_READY,
+        "Choose another headshot"
+      );
+
+      setSystemMessage(
+        (
+          error?.message ||
+          "Headshot selection failed."
+        ) +
+        " Choose another image to retry.",
+        "error"
+      );
+
+      return {
+        valid:
+          false,
+
+        error
+      };
+    }
+  }
+
+  /* ======================================================
+     LOCAL HEADSHOT PREVIEW
+  ====================================================== */
+
+  async function renderSelectedHeadshotPreview(
+    file
+  ) {
+    const preview =
+      document.getElementById(
+        "headshotPreview"
+      );
+
+    if (!preview) {
+      throw new Error(
+        "Critical headshot preview element #headshotPreview was not found."
+      );
+    }
+
+    /*
+    Clear only visual preview state.
+    Do NOT clear selectedHeadshotFile.
+    */
+
+    releaseSelectedPreviewUrl();
+
+    clearHeadshotPreviewElement();
+
+    /*
+    Method 1:
+    Local blob URL.
+    */
+
+    try {
+      const objectUrl =
+        URL.createObjectURL(
+          file
+        );
+
+      selectedHeadshotPreviewUrl =
+        objectUrl;
+
+      selectedHeadshotPreviewMode =
+        "OBJECT_URL";
+
+      const rendered =
+        await loadPreviewImage(
+          preview,
+          objectUrl,
+          HEADSHOT_PREVIEW_TIMEOUT_MS
+        );
+
+      if (rendered) {
+        showHeadshotPreview(
+          preview
+        );
+
+        return {
+          rendered:
+            true,
+
+          method:
+            "OBJECT_URL"
+        };
+      }
+
+      releaseSelectedPreviewUrl();
+    } catch (error) {
+      console.warn(
+        "[Stream 2][Headshot] Object URL preview failed:",
+        error
+      );
+
+      releaseSelectedPreviewUrl();
+    }
+
+    /*
+    Method 2:
+    FileReader Data URL fallback.
+    */
+
+    try {
+      const dataUrl =
+        await readFileAsDataUrl(
+          file
+        );
+
+      if (dataUrl) {
+        selectedHeadshotPreviewMode =
+          "DATA_URL";
+
+        const rendered =
+          await loadPreviewImage(
+            preview,
+            dataUrl,
+            HEADSHOT_PREVIEW_TIMEOUT_MS
+          );
+
+        if (rendered) {
+          showHeadshotPreview(
+            preview
+          );
+
+          return {
+            rendered:
+              true,
+
+            method:
+              "DATA_URL"
+          };
+        }
+      }
+    } catch (error) {
+      console.warn(
+        "[Stream 2][Headshot] FileReader preview fallback failed:",
+        error
+      );
+    }
+
+    /*
+    Browser could not decode the image.
+
+    The selected File remains retained.
+    */
+
+    clearHeadshotPreviewElement();
+
+    selectedHeadshotPreviewMode =
+      "BROWSER_DECODE_UNAVAILABLE";
+
+    return {
+      rendered:
+        false,
+
+      method:
+        "BROWSER_DECODE_UNAVAILABLE"
+    };
+  }
+
+  function loadPreviewImage(
+    preview,
+    source,
+    timeoutMs
+  ) {
+    return new Promise(
+      resolve => {
+        if (
+          !preview ||
+          !source
+        ) {
+          resolve(false);
+
+          return;
+        }
+
+        let settled =
+          false;
+
+        let timer =
+          null;
+
+        const finish =
+          success => {
+            if (settled) {
+              return;
+            }
+
+            settled =
+              true;
+
+            if (timer) {
+              window.clearTimeout(
+                timer
+              );
+            }
+
+            preview.onload =
+              null;
+
+            preview.onerror =
+              null;
+
+            resolve(
+              Boolean(success)
+            );
+          };
+
+        preview.onload =
+          () => {
+            finish(true);
+          };
+
+        preview.onerror =
+          () => {
+            finish(false);
+          };
+
+        timer =
+          window.setTimeout(
+            () => {
+              console.warn(
+                "[Stream 2][Headshot] Local preview timed out."
+              );
+
+              finish(false);
+            },
+            timeoutMs
+          );
+
+        preview.src =
+          source;
+
+        if (
+          preview.complete &&
+          Number(
+            preview.naturalWidth ||
+            0
+          ) > 0
+        ) {
+          finish(true);
+        }
+      }
+    );
+  }
+
+  function readFileAsDataUrl(
+    file
+  ) {
+    return new Promise(
+      (
+        resolve,
+        reject
+      ) => {
+        const reader =
+          new FileReader();
+
+        reader.onload =
+          () => {
+            resolve(
+              typeof reader.result ===
+                "string"
+                ? reader.result
+                : ""
+            );
+          };
+
+        reader.onerror =
+          () => {
+            reject(
+              reader.error ||
+              new Error(
+                "Browser FileReader could not read the selected headshot."
+              )
+            );
+          };
+
+        reader.onabort =
+          () => {
+            reject(
+              new Error(
+                "Headshot preview reading was interrupted."
+              )
+            );
+          };
+
+        reader.readAsDataURL(
+          file
+        );
+      }
+    );
+  }
+
+  function showHeadshotPreview(
+    preview
+  ) {
+    if (!preview) {
+      return;
+    }
+
+    preview.hidden =
+      false;
+
+    preview.removeAttribute(
+      "hidden"
+    );
+
+    preview.style.display =
+      "block";
+
+    preview.style.visibility =
+      "visible";
+
+    preview.style.opacity =
+      "1";
+
+    preview.style.maxWidth =
+      "100%";
+
+    preview.style.width =
+      "100%";
+
+    preview.style.height =
+      "100%";
+
+    preview.style.objectFit =
+      "cover";
+
+    preview.style.objectPosition =
+      "center top";
+  }
+
+  function clearHeadshotPreviewElement() {
+    const preview =
+      document.getElementById(
+        "headshotPreview"
+      );
+
+    if (!preview) {
+      return;
+    }
+
+    preview.onload =
+      null;
+
+    preview.onerror =
+      null;
+
+    preview.removeAttribute(
+      "src"
+    );
+
+    preview.style.display =
+      "none";
+  }
+
+  function releaseSelectedPreviewUrl() {
+    if (
+      selectedHeadshotPreviewUrl &&
+      selectedHeadshotPreviewUrl
+        .startsWith("blob:")
+    ) {
+      try {
+        URL.revokeObjectURL(
+          selectedHeadshotPreviewUrl
+        );
+      } catch (error) {
+        console.warn(
+          "[Stream 2][Headshot] Preview URL release warning:",
+          error
+        );
+      }
+    }
+
+    selectedHeadshotPreviewUrl =
+      "";
+
+    selectedHeadshotPreviewMode =
+      null;
+  }
+
+  function removeSelectedHeadshot() {
+    selectedHeadshotFile =
+      null;
+
+    releaseSelectedPreviewUrl();
+
+    clearHeadshotPreviewElement();
+
+    const fileInput =
+      document.getElementById(
+        "athleteHeadshotUpload"
+      );
+
+    if (fileInput) {
+      try {
+        fileInput.value =
+          "";
+      } catch (_error) {}
+    }
+
+    /*
+    Important:
+    In edit mode, removal of an already-persisted canonical
+    headshot is a separate governed operation.
+
+    Therefore this ordinary selection control only clears
+    local uncommitted replacement state unless the page is
+    still in create mode.
+    */
+
+    if (
+      currentIntakeMode.mode ===
+      "create"
+    ) {
+      setVal(
+        "headshotUrl",
+        ""
+      );
+
+      setVal(
+        "headshotPath",
+        ""
+      );
+
+      setVal(
+        "headshotFileName",
+        ""
+      );
+    }
+
+    const removeButton =
+      document.getElementById(
+        "removeHeadshotBtn"
+      );
+
+    if (removeButton) {
+      removeButton.style.display =
+        "none";
+    }
+
+    if (
+      currentIntakeMode.mode ===
+      "edit" &&
+      clean(
+        val("headshotUrl")
+      )
+    ) {
+      setHeadshotUiState(
+        HEADSHOT_UI_STATE.VERIFIED,
+        clean(
+          val(
+            "headshotFileName"
+          )
+        ) ||
+        "Saved athlete headshot"
+      );
+
+      setPhnxUiState(
+        MEDIA_STATUS.HEADSHOT_VERIFIED,
+        "Saved athlete headshot retained"
+      );
+
+      setSystemMessage(
+        "Selected replacement removed. The saved athlete headshot was not changed.",
+        "neutral"
+      );
+    } else {
+      setHeadshotUiState(
+        HEADSHOT_UI_STATE.MISSING
+      );
+
+      setPhnxUiState(
+        MEDIA_STATUS.NOT_READY
+      );
+
+      setSystemMessage(
+        "Headshot removed. Choose an athlete headshot to continue.",
+        "neutral"
+      );
+    }
+
+    updateMediaStatus();
+  }
+
+  /* ======================================================
+     HEADSHOT FILE VALIDATION
+  ====================================================== */
+
+  function validateHeadshotFile(
+    file
+  ) {
+    if (
+      !(file instanceof File)
+    ) {
+      throw new Error(
+        "A valid athlete image file is required."
+      );
+    }
+
+    if (
+      !file.size ||
+      file.size <= 0
+    ) {
+      throw new Error(
+        "The selected headshot is empty."
+      );
+    }
+
+    if (
+      file.size >
+      HEADSHOT_MAX_BYTES
+    ) {
+      throw new Error(
+        "Headshot exceeds the " +
+        formatBytes(
+          HEADSHOT_MAX_BYTES
+        ) +
+        " maximum."
+      );
+    }
+
+    const extension =
+      getFileExtension(
+        file.name
+      );
+
+    if (
+      !HEADSHOT_ALLOWED_EXTENSIONS
+        .has(extension)
+    ) {
+      throw new Error(
+        "Unsupported headshot extension: ." +
+        (
+          extension ||
+          "unknown"
+        )
+      );
+    }
+
+    const mimeType =
+      normalizeMimeType(
+        file.type,
+        extension
+      );
+
+    if (
+      !HEADSHOT_ALLOWED_MIME_TYPES
+        .has(mimeType)
+    ) {
+      throw new Error(
+        "Unsupported headshot MIME type: " +
+        (
+          mimeType ||
+          "unknown"
+        )
+      );
+    }
+
+    return {
+      valid:
+        true,
+
+      extension,
+
+      mime_type:
+        mimeType,
+
+      size_bytes:
+        file.size,
+
+      original_filename:
+        file.name
+    };
+  }
+
+  function normalizeMimeType(
+    type,
+    extension
+  ) {
+    const normalized =
+      clean(type)
+        .toLowerCase();
+
+    if (normalized) {
+      return normalized;
+    }
+
+    const fallback = {
+      jpg:
+        "image/jpeg",
+
+      jpeg:
+        "image/jpeg",
+
+      png:
+        "image/png",
+
+      webp:
+        "image/webp",
+
+      heic:
+        "image/heic",
+
+      heif:
+        "image/heif"
+    };
+
+    return (
+      fallback[
+        extension
+      ] ||
+      ""
+    );
+  }
+
+  function getFileExtension(
+    filename
+  ) {
+    const value =
+      clean(filename)
+        .toLowerCase();
+
+    const parts =
+      value.split(".");
+
+    if (
+      parts.length <
+      2
+    ) {
+      return "";
+    }
+
+    return (
+      parts.pop() ||
+      ""
+    );
+  }
+
+  function sanitizeFilename(
+    filename
+  ) {
+    return clean(filename)
+      .replace(
+        /[^a-zA-Z0-9._-]/g,
+        "_"
+      )
+      .replace(
+        /_+/g,
+        "_"
+      )
+      .slice(
+        0,
+        180
+      );
+  }
+
+  function buildCanonicalHeadshotPath({
+    athleteId,
+    snapshotId,
+    extension
+  }) {
+    if (
+      !athleteId ||
+      !snapshotId ||
+      !extension
+    ) {
+      throw new Error(
+        "athlete_id, snapshot_id, and extension are required for headshot storage."
+      );
+    }
+
+    return (
+      "athletes/" +
+      athleteId +
+      "/snapshots/" +
+      snapshotId +
+      "/headshots/current." +
+      extension
+    );
   }
 
   /* ======================================================
@@ -1302,12 +2879,16 @@ STREAM 2 DOES NOT:
 
     const firstName =
       clean(
-        formData.get("firstName")
+        formData.get(
+          "firstName"
+        )
       );
 
     const lastName =
       clean(
-        formData.get("lastName")
+        formData.get(
+          "lastName"
+        )
       );
 
     if (
@@ -1334,12 +2915,16 @@ STREAM 2 DOES NOT:
 
     let athleteId =
       clean(
-        val("athleteId")
+        val(
+          "athleteId"
+        )
       );
 
     let snapshotId =
       clean(
-        val("snapshotId")
+        val(
+          "snapshotId"
+        )
       );
 
     if (
@@ -1352,19 +2937,14 @@ STREAM 2 DOES NOT:
 
       snapshotId =
         snapshotId ||
-        currentIntakeMode.snapshot_id ||
+        currentIntakeMode
+          .snapshot_id ||
         getActiveSnapshotId();
     } else {
       /*
-      ------------------------------------------------------
-      IMPORTANT:
-      Generate exactly once for this browser transaction.
+      Generate once per active create-mode page transaction.
 
-      After generation the IDs are immediately written to
-      hidden form state below. Subsequent clicks during the
-      same intake reuse them rather than manufacturing new
-      IDs.
-      ------------------------------------------------------
+      Hidden form state retains these values across a retry.
       */
 
       athleteId =
@@ -1388,10 +2968,6 @@ STREAM 2 DOES NOT:
       );
     }
 
-    /*
-    Preserve IDs immediately in page state before any write.
-    */
-
     setVal(
       "athleteId",
       athleteId
@@ -1408,10 +2984,18 @@ STREAM 2 DOES NOT:
         : nowISO();
 
     const mediaStatus =
-      selectedHeadshotFile ||
-      val("headshotUrl")
-        ? MEDIA_STATUS.HEADSHOT_PENDING
-        : MEDIA_STATUS.NOT_READY;
+      (
+        selectedHeadshotFile ||
+        clean(
+          val(
+            "headshotUrl"
+          )
+        )
+      )
+        ? MEDIA_STATUS
+            .HEADSHOT_PENDING
+        : MEDIA_STATUS
+            .NOT_READY;
 
     const row = {
       snapshot_id:
@@ -1443,7 +3027,11 @@ STREAM 2 DOES NOT:
         lastName,
 
       athlete_display_name:
-        `${firstName} ${lastName}`.trim(),
+        (
+          firstName +
+          " " +
+          lastName
+        ).trim(),
 
       graduation_class:
         clean(
@@ -1471,12 +3059,16 @@ STREAM 2 DOES NOT:
 
       height:
         clean(
-          formData.get("height")
+          formData.get(
+            "height"
+          )
         ),
 
       weight:
         clean(
-          formData.get("weight")
+          formData.get(
+            "weight"
+          )
         ),
 
       primary_position:
@@ -1613,40 +3205,52 @@ STREAM 2 DOES NOT:
         ),
 
       source_origin:
-        sourceClaims.source_origin,
+        sourceClaims
+          .source_origin,
 
       submitted_by_role:
-        sourceClaims.submitted_by_role,
+        sourceClaims
+          .submitted_by_role,
 
       submitted_by_name:
-        sourceClaims.submitted_by_name,
+        sourceClaims
+          .submitted_by_name,
 
       submitted_by_email:
-        sourceClaims.submitted_by_email,
+        sourceClaims
+          .submitted_by_email,
 
       submitted_by_user_id:
-        sourceClaims.submitted_by_user_id,
+        sourceClaims
+          .submitted_by_user_id,
 
       submitted_by_professional_id:
-        sourceClaims.submitted_by_professional_id,
+        sourceClaims
+          .submitted_by_professional_id,
 
       phnx_certified_id:
-        sourceClaims.phnx_certified_id,
+        sourceClaims
+          .phnx_certified_id,
 
       phnx_certification_status:
-        sourceClaims.phnx_certification_status,
+        sourceClaims
+          .phnx_certification_status,
 
       trust_classification:
-        sourceClaims.trust_classification,
+        sourceClaims
+          .trust_classification,
 
       source_organization:
-        sourceClaims.source_organization,
+        sourceClaims
+          .source_organization,
 
       submission_source:
-        sourceClaims.submission_source,
+        sourceClaims
+          .submission_source,
 
       submission_timestamp:
-        sourceClaims.captured_at,
+        sourceClaims
+          .captured_at,
 
       sport_metric_payload:
         sportMetrics,
@@ -1656,29 +3260,38 @@ STREAM 2 DOES NOT:
 
       headshot_url:
         clean(
-          val("headshotUrl")
+          val(
+            "headshotUrl"
+          )
         ),
 
       headshot_public_url:
         clean(
-          val("headshotUrl")
+          val(
+            "headshotUrl"
+          )
         ),
 
       headshot_path:
         clean(
-          val("headshotPath")
+          val(
+            "headshotPath"
+          )
         ),
 
       headshot_filename:
         clean(
-          val("headshotFileName")
+          val(
+            "headshotFileName"
+          )
         ),
 
       media_status:
         mediaStatus,
 
       phnx_media_handoff_status:
-        MEDIA_STATUS.NOT_READY,
+        MEDIA_STATUS
+          .NOT_READY,
 
       raw_payload: {
         ...Object.fromEntries(
@@ -1695,7 +3308,8 @@ STREAM 2 DOES NOT:
           ENGINE_VERSION,
 
         intake_mode:
-          currentIntakeMode.mode,
+          currentIntakeMode
+            .mode,
 
         captured_at:
           nowISO()
@@ -1771,11 +3385,6 @@ STREAM 2 DOES NOT:
             "submittedByEmail"
           )
         ),
-
-      /*
-      This remains null unless an authenticated-identity
-      integration explicitly supplies it.
-      */
 
       submitted_by_user_id:
         null,
@@ -1882,7 +3491,10 @@ STREAM 2 DOES NOT:
         )
     };
 
-    if (sport === "football") {
+    if (
+      sport ===
+      "football"
+    ) {
       return {
         ...universal,
 
@@ -1995,7 +3607,10 @@ STREAM 2 DOES NOT:
       };
     }
 
-    if (sport === "baseball") {
+    if (
+      sport ===
+      "baseball"
+    ) {
       return {
         ...universal,
 
@@ -2050,7 +3665,10 @@ STREAM 2 DOES NOT:
       };
     }
 
-    if (sport === "track") {
+    if (
+      sport ===
+      "track"
+    ) {
       return {
         ...universal,
 
@@ -2109,455 +3727,6 @@ STREAM 2 DOES NOT:
   }
 
   /* ======================================================
-     ATHLETE IDENTITY PERSISTENCE
-
-     IMPORTANT:
-     THIS FUNCTION DOES NOT WRITE A SNAPSHOT RECEIPT.
-
-     The snapshot may not exist yet.
-
-     Receipt creation is deferred to
-     persistLifecycleReceiptsAfterSnapshot().
-  ====================================================== */
-
-  async function ensureAthleteExists(
-    snapshotRow
-  ) {
-    const db =
-      getDb();
-
-    if (
-      !snapshotRow?.athlete_id
-    ) {
-      throw new Error(
-        "athlete_id is required before athlete identity persistence."
-      );
-    }
-
-    const athletePayload =
-      filterAthleteSchema({
-        athlete_id:
-          snapshotRow.athlete_id,
-
-        first_name:
-          snapshotRow.first_name,
-
-        last_name:
-          snapshotRow.last_name,
-
-        athlete_display_name:
-          snapshotRow.athlete_display_name,
-
-        graduation_class:
-          snapshotRow.graduation_class,
-
-        city_state:
-          snapshotRow.city_state,
-
-        school_program:
-          snapshotRow.school_program,
-
-        primary_sport:
-          snapshotRow.primary_sport,
-
-        updated_at:
-          nowISO()
-      });
-
-    const existingResult =
-      await db
-        .from(
-          ATHLETE_TABLE
-        )
-        .select("*")
-        .eq(
-          "athlete_id",
-          snapshotRow.athlete_id
-        )
-        .maybeSingle();
-
-    if (
-      existingResult.error
-    ) {
-      throw existingResult.error;
-    }
-
-    if (
-      existingResult.data
-    ) {
-      const beforeRecord =
-        existingResult.data;
-
-      const updatePayload = {
-        ...athletePayload,
-
-        athlete_id:
-          beforeRecord.athlete_id,
-
-        updated_at:
-          nowISO()
-      };
-
-      const updatedResult =
-        await db
-          .from(
-            ATHLETE_TABLE
-          )
-          .update(
-            updatePayload
-          )
-          .eq(
-            "athlete_id",
-            beforeRecord.athlete_id
-          )
-          .select("*")
-          .single();
-
-      if (
-        updatedResult.error
-      ) {
-        throw updatedResult.error;
-      }
-
-      return {
-        action:
-          "updated",
-
-        receipt_action:
-          "ATHLETE_IDENTITY_UPDATED",
-
-        athlete:
-          updatedResult.data,
-
-        before_record:
-          beforeRecord,
-
-        after_record:
-          updatedResult.data
-      };
-    }
-
-    const createPayload = {
-      ...athletePayload,
-
-      created_at:
-        nowISO(),
-
-      updated_at:
-        nowISO()
-    };
-
-    const createdResult =
-      await db
-        .from(
-          ATHLETE_TABLE
-        )
-        .insert(
-          createPayload
-        )
-        .select("*")
-        .single();
-
-    if (
-      createdResult.error
-    ) {
-      throw createdResult.error;
-    }
-
-    return {
-      action:
-        "created",
-
-      receipt_action:
-        "ATHLETE_IDENTITY_CREATED",
-
-      athlete:
-        createdResult.data,
-
-      before_record:
-        null,
-
-      after_record:
-        createdResult.data
-    };
-  }
-
-  /* ======================================================
-     SNAPSHOT INSERT / UPDATE
-
-     IMPORTANT:
-     THIS FUNCTION ALSO DOES NOT WRITE ITS RECEIPT.
-
-     It first establishes the governed snapshot.
-  ====================================================== */
-
-  async function insertOrUpdateSnapshot(
-    snapshotRow
-  ) {
-    const db =
-      getDb();
-
-    const cleanRow =
-      filterSnapshotSchema(
-        snapshotRow || {}
-      );
-
-    if (
-      !cleanRow.snapshot_id
-    ) {
-      throw new Error(
-        "snapshot_id is required before snapshot persistence."
-      );
-    }
-
-    if (
-      !cleanRow.athlete_id
-    ) {
-      throw new Error(
-        "athlete_id is required before snapshot persistence."
-      );
-    }
-
-    const existingResult =
-      await db
-        .from(
-          SNAPSHOT_TABLE
-        )
-        .select("*")
-        .eq(
-          "snapshot_id",
-          cleanRow.snapshot_id
-        )
-        .maybeSingle();
-
-    if (
-      existingResult.error
-    ) {
-      throw existingResult.error;
-    }
-
-    if (
-      existingResult.data
-    ) {
-      const beforeRecord =
-        existingResult.data;
-
-      const updatePayload = {
-        ...cleanRow,
-
-        snapshot_id:
-          beforeRecord.snapshot_id,
-
-        athlete_id:
-          beforeRecord.athlete_id ||
-          cleanRow.athlete_id,
-
-        created_at:
-          beforeRecord.created_at ||
-          cleanRow.created_at ||
-          nowISO(),
-
-        updated_at:
-          nowISO(),
-
-        last_source_update_at:
-          nowISO()
-      };
-
-      const updatedResult =
-        await db
-          .from(
-            SNAPSHOT_TABLE
-          )
-          .update(
-            updatePayload
-          )
-          .eq(
-            "snapshot_id",
-            beforeRecord.snapshot_id
-          )
-          .select("*")
-          .single();
-
-      if (
-        updatedResult.error
-      ) {
-        throw updatedResult.error;
-      }
-
-      return {
-        action:
-          "updated",
-
-        receipt_action:
-          "SNAPSHOT_SOURCE_UPDATED",
-
-        snapshot:
-          updatedResult.data,
-
-        before_record:
-          beforeRecord,
-
-        after_record:
-          updatedResult.data
-      };
-    }
-
-    const createPayload = {
-      ...cleanRow,
-
-      created_at:
-        cleanRow.created_at ||
-        nowISO(),
-
-      updated_at:
-        nowISO(),
-
-      last_source_update_at:
-        nowISO()
-    };
-
-    const createdResult =
-      await db
-        .from(
-          SNAPSHOT_TABLE
-        )
-        .insert(
-          createPayload
-        )
-        .select("*")
-        .single();
-
-    if (
-      createdResult.error
-    ) {
-      throw createdResult.error;
-    }
-
-    return {
-      action:
-        "created",
-
-      receipt_action:
-        "SNAPSHOT_SOURCE_CREATED",
-
-      snapshot:
-        createdResult.data,
-
-      before_record:
-        null,
-
-      after_record:
-        createdResult.data
-    };
-  }
-
-  /* ======================================================
-     POST-SNAPSHOT LIFECYCLE RECEIPTS
-
-     Both athlete and snapshot receipts are written ONLY
-     AFTER snapshot read-back confirms the FK target exists.
-  ====================================================== */
-
-  async function persistLifecycleReceiptsAfterSnapshot({
-    athleteResult,
-    snapshotResult,
-    verifiedSnapshot
-  }) {
-    if (
-      !verifiedSnapshot?.snapshot_id
-    ) {
-      throw new Error(
-        "Snapshot receipt persistence blocked: governed snapshot does not exist."
-      );
-    }
-
-    if (
-      !verifiedSnapshot?.athlete_id
-    ) {
-      throw new Error(
-        "Snapshot receipt persistence blocked: athlete_id is missing."
-      );
-    }
-
-    const athleteReceipt =
-      await writeSnapshotAuditReceipt({
-        action:
-          athleteResult
-            ?.receipt_action ||
-          "ATHLETE_IDENTITY_CONFIRMED",
-
-        snapshot_id:
-          verifiedSnapshot.snapshot_id,
-
-        athlete_id:
-          verifiedSnapshot.athlete_id,
-
-        before_record:
-          athleteResult
-            ?.before_record ||
-          null,
-
-        after_record:
-          athleteResult
-            ?.after_record ||
-          athleteResult
-            ?.athlete ||
-          null,
-
-        event_status:
-          "success",
-
-        event_message:
-          athleteResult?.action ===
-          "created"
-            ? "Athlete identity created and linked to governed snapshot."
-            : "Athlete identity confirmed or updated and linked to governed snapshot."
-      });
-
-    const snapshotReceipt =
-      await writeSnapshotAuditReceipt({
-        action:
-          snapshotResult
-            ?.receipt_action ||
-          "SNAPSHOT_SOURCE_CONFIRMED",
-
-        snapshot_id:
-          verifiedSnapshot.snapshot_id,
-
-        athlete_id:
-          verifiedSnapshot.athlete_id,
-
-        before_record:
-          snapshotResult
-            ?.before_record ||
-          null,
-
-        after_record:
-          snapshotResult
-            ?.after_record ||
-          verifiedSnapshot,
-
-        event_status:
-          "success",
-
-        event_message:
-          snapshotResult?.action ===
-          "created"
-            ? "Governed athlete snapshot created and verified by read-back."
-            : "Governed athlete snapshot updated and verified by read-back."
-      });
-
-    return {
-      athlete_receipt:
-        athleteReceipt,
-
-      snapshot_receipt:
-        snapshotReceipt
-    };
-  }
-
-  /* ======================================================
      ATHLETE SCHEMA FILTER
   ====================================================== */
 
@@ -2578,12 +3747,19 @@ STREAM 2 DOES NOT:
         "updated_at"
       ]);
 
-    const filtered = {};
+    const filtered =
+      {};
 
     Object.entries(
-      row || {}
+      row ||
+      {}
     ).forEach(
-      ([key, value]) => {
+      (
+        [
+          key,
+          value
+        ]
+      ) => {
         if (
           allowed.has(key)
         ) {
@@ -2690,12 +3866,19 @@ STREAM 2 DOES NOT:
         "last_source_update_at"
       ]);
 
-    const filtered = {};
+    const filtered =
+      {};
 
     Object.entries(
-      row || {}
+      row ||
+      {}
     ).forEach(
-      ([key, value]) => {
+      (
+        [
+          key,
+          value
+        ]
+      ) => {
         if (
           allowed.has(key)
         ) {
@@ -2709,1658 +3892,116 @@ STREAM 2 DOES NOT:
   }
 
   /* ======================================================
-     HEADSHOT SELECTION
+     ATHLETE IDENTITY PERSISTENCE
+
+     CRITICAL:
+     NO snapshot receipt is written here.
+
+     The snapshot FK target may not yet exist.
   ====================================================== */
 
-  async function handleHeadshotSelection(
-    event
+  async function ensureAthleteExists(
+    snapshotRow
   ) {
-    const file =
-      event?.target
-        ?.files?.[0] ||
-      null;
+    const db =
+      getDb();
 
-    if (!file) {
-      return;
-    }
-
-    try {
-      setHeadshotUiState(
-        HEADSHOT_UI_STATE.VALIDATING,
-        file.name
-      );
-
-      const validation =
-        validateHeadshotFile(
-          file
-        );
-
-      selectedHeadshotFile =
-        file;
-
-      releaseSelectedPreviewUrl();
-
-      selectedHeadshotPreviewUrl =
-        URL.createObjectURL(
-          file
-        );
-
-      const preview =
-        document.getElementById(
-          "headshotPreview"
-        );
-
-      if (preview) {
-        preview.src =
-          selectedHeadshotPreviewUrl;
-
-        preview.style.display =
-          "block";
-      }
-
-      setVal(
-        "headshotFileName",
-        file.name
-      );
-
-      const removeButton =
-        document.getElementById(
-          "removeHeadshotBtn"
-        );
-
-      if (removeButton) {
-        removeButton.style.display =
-          "flex";
-      }
-
-      setHeadshotUiState(
-        HEADSHOT_UI_STATE.SELECTED,
-        `${file.name} · ${formatBytes(
-          file.size
-        )}`
-      );
-
-      setPhnxUiState(
-        MEDIA_STATUS.HEADSHOT_PENDING,
-        "Selected — upload required"
-      );
-
-      updateMediaStatus();
-
-      return validation;
-    } catch (error) {
-      selectedHeadshotFile =
-        null;
-
-      const fileInput =
-        document.getElementById(
-          "athleteHeadshotUpload"
-        );
-
-      if (fileInput) {
-        fileInput.value = "";
-      }
-
-      setHeadshotUiState(
-        HEADSHOT_UI_STATE.FAILED,
-        error?.message ||
-          "Invalid headshot"
-      );
-
-      setPhnxUiState(
-        MEDIA_STATUS.NOT_READY,
-        "Valid headshot required"
-      );
-
-      setSystemMessage(
-        error?.message ||
-          "Headshot validation failed.",
-        "error"
-      );
-
-      throw error;
-    }
-  }
-
-  function removeSelectedHeadshot() {
-    selectedHeadshotFile =
-      null;
-
-    releaseSelectedPreviewUrl();
-
-    const fileInput =
-      document.getElementById(
-        "athleteHeadshotUpload"
-      );
-
-    if (fileInput) {
-      fileInput.value = "";
-    }
-
-    setVal(
-      "headshotUrl",
-      ""
-    );
-
-    setVal(
-      "headshotPath",
-      ""
-    );
-
-    setVal(
-      "headshotFileName",
-      ""
-    );
-
-    const preview =
-      document.getElementById(
-        "headshotPreview"
-      );
-
-    if (preview) {
-      preview.removeAttribute(
-        "src"
-      );
-
-      preview.style.display =
-        "none";
-    }
-
-    const removeButton =
-      document.getElementById(
-        "removeHeadshotBtn"
-      );
-
-    if (removeButton) {
-      removeButton.style.display =
-        "none";
-    }
-
-    setHeadshotUiState(
-      HEADSHOT_UI_STATE.MISSING
-    );
-
-    setPhnxUiState(
-      MEDIA_STATUS.NOT_READY
-    );
-
-    updateMediaStatus();
-  }
-
-  function releaseSelectedPreviewUrl() {
     if (
-      selectedHeadshotPreviewUrl
-    ) {
-      try {
-        URL.revokeObjectURL(
-          selectedHeadshotPreviewUrl
-        );
-      } catch (_error) {}
-    }
-
-    selectedHeadshotPreviewUrl =
-      "";
-  }
-
-  /* ======================================================
-     HEADSHOT VALIDATION
-  ====================================================== */
-
-  function validateHeadshotFile(
-    file
-  ) {
-    if (
-      !(file instanceof File)
+      !snapshotRow
+        ?.athlete_id
     ) {
       throw new Error(
-        "A valid athlete image file is required."
+        "athlete_id is required before athlete identity persistence."
       );
     }
 
-    if (
-      !file.size ||
-      file.size <= 0
-    ) {
-      throw new Error(
-        "The selected headshot is empty."
-      );
-    }
-
-    if (
-      file.size >
-      HEADSHOT_MAX_BYTES
-    ) {
-      throw new Error(
-        `Headshot exceeds the ${formatBytes(
-          HEADSHOT_MAX_BYTES
-        )} maximum.`
-      );
-    }
-
-    const extension =
-      getFileExtension(
-        file.name
-      );
-
-    if (
-      !HEADSHOT_ALLOWED_EXTENSIONS.has(
-        extension
-      )
-    ) {
-      throw new Error(
-        `Unsupported headshot extension: .${
-          extension ||
-          "unknown"
-        }.`
-      );
-    }
-
-    const normalizedMimeType =
-      normalizeMimeType(
-        file.type,
-        extension
-      );
-
-    if (
-      !HEADSHOT_ALLOWED_MIME_TYPES.has(
-        normalizedMimeType
-      )
-    ) {
-      throw new Error(
-        `Unsupported headshot MIME type: ${
-          normalizedMimeType ||
-          "unknown"
-        }.`
-      );
-    }
-
-    return {
-      valid:
-        true,
-
-      extension,
-
-      mime_type:
-        normalizedMimeType,
-
-      size_bytes:
-        file.size,
-
-      original_filename:
-        file.name
-    };
-  }
-
-  function normalizeMimeType(
-    type,
-    extension
-  ) {
-    const cleanType =
-      clean(type)
-        .toLowerCase();
-
-    if (cleanType) {
-      return cleanType;
-    }
-
-    const map = {
-      jpg:
-        "image/jpeg",
-
-      jpeg:
-        "image/jpeg",
-
-      png:
-        "image/png",
-
-      webp:
-        "image/webp",
-
-      heic:
-        "image/heic",
-
-      heif:
-        "image/heif"
-    };
-
-    return (
-      map[extension] ||
-      ""
-    );
-  }
-
-  function getFileExtension(
-    filename
-  ) {
-    const value =
-      clean(filename)
-        .toLowerCase();
-
-    const parts =
-      value.split(".");
-
-    if (
-      parts.length < 2
-    ) {
-      return "";
-    }
-
-    return (
-      parts.pop() ||
-      ""
-    );
-  }
-
-  function sanitizeFilename(
-    filename
-  ) {
-    return clean(filename)
-      .replace(
-        /[^a-zA-Z0-9._-]/g,
-        "_"
-      )
-      .replace(
-        /_+/g,
-        "_"
-      )
-      .slice(
-        0,
-        180
-      );
-  }
-
-  function buildCanonicalHeadshotPath({
-    athleteId,
-    snapshotId,
-    extension
-  }) {
-    if (
-      !athleteId ||
-      !snapshotId ||
-      !extension
-    ) {
-      throw new Error(
-        "athlete_id, snapshot_id, and extension are required for headshot storage."
-      );
-    }
-
-    return (
-      `athletes/${athleteId}` +
-      `/snapshots/${snapshotId}` +
-      `/headshots/current.${extension}`
-    );
-  }
-
-  /* ======================================================
-     HEADSHOT UPLOAD + READ-BACK
-  ====================================================== */
-
-  async function uploadAndVerifyHeadshot({
-    snapshot,
-    required
-  }) {
-    /*
-    At this stage snapshot MUST already physically exist.
-    */
-
-    await assertSnapshotExists(
-      snapshot?.snapshot_id,
-      snapshot?.athlete_id
-    );
-
-    const existingVerification =
-      verifyCanonicalHeadshotContract(
-        snapshot,
-        {
-          throwOnFailure:
-            false
-        }
-      );
-
-    if (
-      !selectedHeadshotFile
-    ) {
-      if (
-        existingVerification.ok
-      ) {
-        setHeadshotUiState(
-          HEADSHOT_UI_STATE.VERIFIED,
-          snapshot.headshot_filename ||
-            "Existing canonical headshot"
-        );
-
-        setPhnxUiState(
-          MEDIA_STATUS.HEADSHOT_VERIFIED,
-          "Existing headshot verified"
-        );
-
-        return {
-          ok:
-            true,
-
-          reused:
-            true,
-
-          uploaded:
-            false,
-
-          verified_snapshot:
-            snapshot,
-
-          verification:
-            existingVerification
-        };
-      }
-
-      if (required) {
-        const error =
-          new Error(
-            "A verified athlete headshot is required before final submission."
-          );
-
-        error.code =
-          "INTAKE_INCOMPLETE_HEADSHOT_REQUIRED";
-
-        setHeadshotUiState(
-          HEADSHOT_UI_STATE.FAILED,
-          error.message
-        );
-
-        setPhnxUiState(
-          MEDIA_STATUS.NOT_READY,
-          "Required headshot missing"
-        );
-
-        throw error;
-      }
-
-      return {
-        ok:
-          true,
-
-        reused:
-          false,
-
-        uploaded:
-          false,
-
-        verified_snapshot:
-          snapshot,
-
-        verification: {
-          ok:
-            false,
-
-          reason:
-            "HEADSHOT_NOT_REQUIRED_FOR_DRAFT"
-        }
-      };
-    }
-
-    const validation =
-      validateHeadshotFile(
-        selectedHeadshotFile
-      );
-
-    const athleteId =
-      clean(
-        snapshot?.athlete_id
-      );
-
-    const snapshotId =
-      clean(
-        snapshot?.snapshot_id
-      );
-
-    if (
-      !athleteId ||
-      !snapshotId
-    ) {
-      throw new Error(
-        "Canonical athlete_id and snapshot_id are required before upload."
-      );
-    }
-
-    const storagePath =
-      buildCanonicalHeadshotPath({
-        athleteId,
-        snapshotId,
-
-        extension:
-          validation.extension
-      });
-
-    const uploadStartedAt =
-      nowISO();
-
-    await writeSnapshotAuditReceipt({
-      action:
-        "HEADSHOT_UPLOAD_STARTED",
-
-      snapshot_id:
-        snapshotId,
-
-      athlete_id:
-        athleteId,
-
-      before_record: {
-        headshot_path:
-          snapshot.headshot_path ||
-          null,
-
-        headshot_public_url:
-          snapshot.headshot_public_url ||
-          snapshot.headshot_url ||
-          null
-      },
-
-      after_record: {
-        bucket:
-          HEADSHOT_BUCKET,
-
-        path:
-          storagePath,
-
-        filename:
-          selectedHeadshotFile.name,
-
-        mime_type:
-          validation.mime_type,
-
-        size_bytes:
-          validation.size_bytes,
-
-        started_at:
-          uploadStartedAt
-      },
-
-      event_status:
-        "started",
-
-      event_message:
-        "Canonical athlete headshot upload started."
-    });
-
-    setHeadshotUiState(
-      HEADSHOT_UI_STATE.UPLOADING,
-      "Attempting canonical upload"
-    );
-
-    setPhnxUiState(
-      MEDIA_STATUS.HEADSHOT_UPLOADING,
-      "Uploading canonical athlete image"
-    );
-
-    try {
-      const uploadResult =
-        await uploadHeadshotWithRetry({
-          file:
-            selectedHeadshotFile,
-
-          storagePath,
-
-          contentType:
-            validation.mime_type
-        });
-
-      setHeadshotUiState(
-        HEADSHOT_UI_STATE.VERIFYING,
-        "Confirming Storage object"
-      );
-
-      const objectVerification =
-        await verifyStorageObject({
-          storagePath
-        });
-
-      if (
-        !objectVerification.ok
-      ) {
-        throw new Error(
-          "Headshot object could not be verified in Supabase Storage."
-        );
-      }
-
-      const publicUrl =
-        getPublicHeadshotUrl(
-          storagePath
-        );
-
-      if (!publicUrl) {
-        throw new Error(
-          "Supabase did not return a canonical public headshot URL."
-        );
-      }
-
-      const dimensions =
-        await readImageDimensions(
-          selectedHeadshotFile
-        );
-
-      const uploadedAt =
-        nowISO();
-
-      const uploadedBy =
-        clean(
-          snapshot.submitted_by_name
-        ) ||
-        clean(
-          snapshot.submitted_by_email
-        ) ||
-        clean(
-          snapshot.submitted_by_role
-        ) ||
-        "STREAM_2";
-
-      const headshotReceipt = {
-        receipt_type:
-          "HEADSHOT_UPLOAD_VERIFIED",
-
-        receipt_version:
-          "1.0",
-
-        bucket:
-          HEADSHOT_BUCKET,
-
-        path:
-          storagePath,
-
-        public_url:
-          publicUrl,
-
-        original_filename:
-          selectedHeadshotFile.name,
-
-        sanitized_filename:
-          sanitizeFilename(
-            selectedHeadshotFile.name
-          ),
-
-        mime_type:
-          validation.mime_type,
-
-        extension:
-          validation.extension,
-
-        size_bytes:
-          validation.size_bytes,
-
-        width:
-          dimensions.width,
-
-        height:
-          dimensions.height,
-
-        upload_attempt_count:
-          uploadResult.attempt_count,
-
-        upload_response:
-          uploadResult.data ||
-          null,
-
-        storage_verification:
-          objectVerification,
-
-        uploaded_at:
-          uploadedAt,
-
-        verified_at:
-          nowISO(),
-
-        verified:
-          true
-      };
-
-      setHeadshotUiState(
-        HEADSHOT_UI_STATE.PERSISTING,
-        "Saving canonical metadata"
-      );
-
-      await persistHeadshotMetadata({
-        snapshotId,
-        publicUrl,
-        storagePath,
-
-        filename:
-          selectedHeadshotFile.name,
-
-        bucket:
-          HEADSHOT_BUCKET,
-
-        uploadedAt,
-        uploadedBy,
-
-        receipt:
-          headshotReceipt
-      });
-
-      const verifiedSnapshot =
-        await readBackSnapshot(
-          snapshotId
-        );
-
-      const databaseVerification =
-        verifyCanonicalHeadshotContract(
-          verifiedSnapshot,
-          {
-            expected: {
-              public_url:
-                publicUrl,
-
-              bucket:
-                HEADSHOT_BUCKET,
-
-              path:
-                storagePath,
-
-              filename:
-                selectedHeadshotFile.name
-            },
-
-            throwOnFailure:
-              true
-          }
-        );
-
-      setVal(
-        "headshotUrl",
-        verifiedSnapshot
-          .headshot_public_url ||
-        verifiedSnapshot
-          .headshot_url
-      );
-
-      setVal(
-        "headshotPath",
-        verifiedSnapshot
-          .headshot_path
-      );
-
-      setVal(
-        "headshotFileName",
-        verifiedSnapshot
-          .headshot_filename
-      );
-
-      setHeadshotUiState(
-        HEADSHOT_UI_STATE.VERIFIED,
-        verifiedSnapshot
-          .headshot_filename
-      );
-
-      setPhnxUiState(
-        MEDIA_STATUS.HEADSHOT_VERIFIED,
-        "Canonical headshot verified"
-      );
-
-      await writeSnapshotAuditReceipt({
-        action:
-          "HEADSHOT_UPLOAD_VERIFIED",
-
-        snapshot_id:
-          snapshotId,
-
+    const athletePayload =
+      filterAthleteSchema({
         athlete_id:
-          athleteId,
+          snapshotRow
+            .athlete_id,
 
-        before_record:
-          snapshot,
+        first_name:
+          snapshotRow
+            .first_name,
 
-        after_record: {
-          headshot_url:
-            verifiedSnapshot.headshot_url,
+        last_name:
+          snapshotRow
+            .last_name,
 
-          headshot_public_url:
-            verifiedSnapshot.headshot_public_url,
+        athlete_display_name:
+          snapshotRow
+            .athlete_display_name,
 
-          headshot_path:
-            verifiedSnapshot.headshot_path,
+        graduation_class:
+          snapshotRow
+            .graduation_class,
 
-          headshot_filename:
-            verifiedSnapshot.headshot_filename,
+        city_state:
+          snapshotRow
+            .city_state,
 
-          headshot_bucket:
-            verifiedSnapshot.headshot_bucket,
+        school_program:
+          snapshotRow
+            .school_program,
 
-          headshot_uploaded_at:
-            verifiedSnapshot.headshot_uploaded_at,
+        primary_sport:
+          snapshotRow
+            .primary_sport,
 
-          headshot_uploaded_by:
-            verifiedSnapshot.headshot_uploaded_by,
-
-          headshot_receipt:
-            verifiedSnapshot.headshot_receipt,
-
-          media_status:
-            verifiedSnapshot.media_status
-        },
-
-        event_status:
-          "success",
-
-        event_message:
-          "Canonical athlete headshot uploaded, persisted, and verified."
+        updated_at:
+          nowISO()
       });
-
-      return {
-        ok:
-          true,
-
-        reused:
-          false,
-
-        uploaded:
-          true,
-
-        upload_result:
-          uploadResult,
-
-        verified_snapshot:
-          verifiedSnapshot,
-
-        verification:
-          databaseVerification
-      };
-    } catch (error) {
-      setHeadshotUiState(
-        HEADSHOT_UI_STATE.FAILED,
-        error?.message ||
-          "Headshot upload failed"
-      );
-
-      setPhnxUiState(
-        MEDIA_STATUS.NOT_READY,
-        "Headshot retry required"
-      );
-
-      /*
-      Snapshot already exists here, so failure receipt
-      is FK-safe.
-      */
-
-      try {
-        await writeSnapshotAuditReceipt({
-          action:
-            "HEADSHOT_UPLOAD_FAILED",
-
-          snapshot_id:
-            snapshotId,
-
-          athlete_id:
-            athleteId,
-
-          before_record:
-            snapshot,
-
-          after_record: {
-            error:
-              serializeError(
-                error
-              ),
-
-            failed_at:
-              nowISO()
-          },
-
-          event_status:
-            "failed",
-
-          event_message:
-            error?.message ||
-            "Canonical athlete headshot upload failed."
-        });
-      } catch (
-        receiptError
-      ) {
-        console.error(
-          "[Stream 2] Could not persist headshot failure receipt:",
-          receiptError
-        );
-      }
-
-      error.code =
-        error.code ||
-        "INTAKE_INCOMPLETE_HEADSHOT_FAILED";
-
-      throw error;
-    }
-  }
-
-  async function uploadHeadshotWithRetry({
-    file,
-    storagePath,
-    contentType
-  }) {
-    const db =
-      getDb();
-
-    let lastError =
-      null;
-
-    for (
-      let attempt = 1;
-      attempt <=
-      HEADSHOT_UPLOAD_ATTEMPTS;
-      attempt += 1
-    ) {
-      const uploadResult =
-        await db.storage
-          .from(
-            HEADSHOT_BUCKET
-          )
-          .upload(
-            storagePath,
-            file,
-            {
-              upsert:
-                true,
-
-              contentType,
-
-              cacheControl:
-                "3600"
-            }
-          );
-
-      if (
-        !uploadResult.error
-      ) {
-        return {
-          ok:
-            true,
-
-          data:
-            uploadResult.data,
-
-          attempt_count:
-            attempt
-        };
-      }
-
-      lastError =
-        uploadResult.error;
-
-      if (
-        attempt >=
-          HEADSHOT_UPLOAD_ATTEMPTS ||
-        !isTransientStorageError(
-          lastError
-        )
-      ) {
-        break;
-      }
-
-      await sleep(
-        HEADSHOT_RETRY_DELAYS[
-          attempt - 1
-        ] ||
-          3000
-      );
-    }
-
-    const error =
-      new Error(
-        lastError?.message ||
-          "Headshot upload failed."
-      );
-
-    error.original_error =
-      lastError;
-
-    throw error;
-  }
-
-  function isTransientStorageError(
-    error
-  ) {
-    const status =
-      Number(
-        error?.status ||
-        error?.statusCode ||
-        0
-      );
-
-    const message =
-      String(
-        error?.message ||
-        ""
-      ).toLowerCase();
-
-    if (
-      status === 408 ||
-      status === 409 ||
-      status === 425 ||
-      status === 429 ||
-      status >= 500
-    ) {
-      return true;
-    }
-
-    return [
-      "timeout",
-      "timed out",
-      "network",
-      "temporarily",
-      "connection",
-      "fetch failed",
-      "service unavailable",
-      "gateway"
-    ].some(
-      fragment =>
-        message.includes(
-          fragment
-        )
-    );
-  }
-
-  async function verifyStorageObject({
-    storagePath
-  }) {
-    const db =
-      getDb();
-
-    const pathParts =
-      storagePath.split("/");
-
-    const filename =
-      pathParts.pop();
-
-    const folder =
-      pathParts.join("/");
-
-    const listResult =
-      await db.storage
-        .from(
-          HEADSHOT_BUCKET
-        )
-        .list(
-          folder,
-          {
-            limit:
-              100,
-
-            search:
-              filename
-          }
-        );
-
-    if (
-      listResult.error
-    ) {
-      throw listResult.error;
-    }
-
-    const match =
-      Array.isArray(
-        listResult.data
-      )
-        ? listResult.data.find(
-            item =>
-              item?.name ===
-              filename
-          )
-        : null;
-
-    return {
-      ok:
-        Boolean(match),
-
-      filename,
-      folder,
-
-      object:
-        match ||
-        null,
-
-      verified_at:
-        nowISO()
-    };
-  }
-
-  function getPublicHeadshotUrl(
-    storagePath
-  ) {
-    const db =
-      getDb();
-
-    const result =
-      db.storage
-        .from(
-          HEADSHOT_BUCKET
-        )
-        .getPublicUrl(
-          storagePath
-        );
-
-    return clean(
-      result?.data
-        ?.publicUrl ||
-      result?.publicURL ||
-      ""
-    );
-  }
-
-  async function persistHeadshotMetadata({
-    snapshotId,
-    publicUrl,
-    storagePath,
-    filename,
-    bucket,
-    uploadedAt,
-    uploadedBy,
-    receipt
-  }) {
-    const db =
-      getDb();
-
-    const updatePayload = {
-      headshot_url:
-        publicUrl,
-
-      headshot_public_url:
-        publicUrl,
-
-      headshot_path:
-        storagePath,
-
-      headshot_filename:
-        filename,
-
-      headshot_bucket:
-        bucket,
-
-      headshot_uploaded_at:
-        uploadedAt,
-
-      headshot_uploaded_by:
-        uploadedBy,
-
-      headshot_receipt:
-        receipt,
-
-      media_status:
-        MEDIA_STATUS
-          .HEADSHOT_VERIFIED,
-
-      phnx_media_handoff_status:
-        MEDIA_STATUS
-          .NOT_READY,
-
-      updated_at:
-        nowISO(),
-
-      last_source_update_at:
-        nowISO()
-    };
-
-    const updateResult =
-      await db
-        .from(
-          SNAPSHOT_TABLE
-        )
-        .update(
-          updatePayload
-        )
-        .eq(
-          "snapshot_id",
-          snapshotId
-        )
-        .select("*")
-        .single();
-
-    if (
-      updateResult.error
-    ) {
-      throw updateResult.error;
-    }
-
-    return updateResult.data;
-  }
-
-  /* ======================================================
-     SNAPSHOT READ-BACK / EXISTENCE
-  ====================================================== */
-
-  async function readBackSnapshot(
-    snapshotId
-  ) {
-    const db =
-      getDb();
-
-    const result =
-      await db
-        .from(
-          SNAPSHOT_TABLE
-        )
-        .select("*")
-        .eq(
-          "snapshot_id",
-          snapshotId
-        )
-        .single();
-
-    if (
-      result.error
-    ) {
-      throw result.error;
-    }
-
-    if (
-      !result.data
-    ) {
-      throw new Error(
-        "Snapshot read-back returned no record."
-      );
-    }
-
-    return result.data;
-  }
-
-  async function assertSnapshotExists(
-    snapshotId,
-    athleteId = null
-  ) {
-    const snapshot =
-      await readBackSnapshot(
-        snapshotId
-      );
-
-    if (
-      athleteId &&
-      clean(
-        snapshot.athlete_id
-      ) !==
-        clean(athleteId)
-    ) {
-      throw new Error(
-        "Snapshot read-back athlete_id does not match active athlete identity."
-      );
-    }
-
-    return snapshot;
-  }
-
-  /* ======================================================
-     HEADSHOT CONTRACT VERIFICATION
-  ====================================================== */
-
-  function verifyCanonicalHeadshotContract(
-    snapshot,
-    {
-      expected = null,
-      throwOnFailure = false
-    } = {}
-  ) {
-    const failures = [];
-
-    const publicUrl =
-      clean(
-        snapshot?.headshot_public_url ||
-        snapshot?.headshot_url
-      );
-
-    const bucket =
-      clean(
-        snapshot?.headshot_bucket
-      );
-
-    const path =
-      clean(
-        snapshot?.headshot_path
-      );
-
-    const filename =
-      clean(
-        snapshot?.headshot_filename
-      );
-
-    const receipt =
-      safeObject(
-        snapshot?.headshot_receipt
-      );
-
-    if (!publicUrl) {
-      failures.push(
-        "headshot_public_url"
-      );
-    }
-
-    if (!bucket) {
-      failures.push(
-        "headshot_bucket"
-      );
-    }
-
-    if (!path) {
-      failures.push(
-        "headshot_path"
-      );
-    }
-
-    if (!filename) {
-      failures.push(
-        "headshot_filename"
-      );
-    }
-
-    if (
-      !snapshot
-        ?.headshot_uploaded_at
-    ) {
-      failures.push(
-        "headshot_uploaded_at"
-      );
-    }
-
-    if (
-      !receipt ||
-      Object.keys(receipt)
-        .length === 0
-    ) {
-      failures.push(
-        "headshot_receipt"
-      );
-    }
-
-    if (
-      receipt?.verified !==
-      true
-    ) {
-      failures.push(
-        "headshot_receipt.verified"
-      );
-    }
-
-    if (
-      snapshot?.media_status !==
-        MEDIA_STATUS
-          .HEADSHOT_VERIFIED &&
-      snapshot?.media_status !==
-        MEDIA_STATUS
-          .HANDOFF_READY &&
-      snapshot?.media_status !==
-        MEDIA_STATUS
-          .HANDOFF_QUEUED &&
-      snapshot?.media_status !==
-        MEDIA_STATUS
-          .HANDOFF_QUEUE_FAILED
-    ) {
-      failures.push(
-        "media_status"
-      );
-    }
-
-    if (expected) {
-      if (
-        expected.public_url &&
-        publicUrl !==
-          expected.public_url
-      ) {
-        failures.push(
-          "headshot_public_url_mismatch"
-        );
-      }
-
-      if (
-        expected.bucket &&
-        bucket !==
-          expected.bucket
-      ) {
-        failures.push(
-          "headshot_bucket_mismatch"
-        );
-      }
-
-      if (
-        expected.path &&
-        path !==
-          expected.path
-      ) {
-        failures.push(
-          "headshot_path_mismatch"
-        );
-      }
-
-      if (
-        expected.filename &&
-        filename !==
-          expected.filename
-      ) {
-        failures.push(
-          "headshot_filename_mismatch"
-        );
-      }
-    }
-
-    const result = {
-      ok:
-        failures.length === 0,
-
-      failures,
-
-      public_url:
-        publicUrl,
-
-      bucket,
-      path,
-      filename,
-      receipt,
-
-      verified_at:
-        nowISO()
-    };
-
-    if (
-      !result.ok &&
-      throwOnFailure
-    ) {
-      const error =
-        new Error(
-          `Canonical headshot verification failed: ${failures.join(
-            ", "
-          )}`
-        );
-
-      error.code =
-        "HEADSHOT_DATABASE_VERIFICATION_FAILED";
-
-      error.verification =
-        result;
-
-      throw error;
-    }
-
-    return result;
-  }
-
-  async function readImageDimensions(
-    file
-  ) {
-    try {
-      if (
-        typeof createImageBitmap ===
-        "function"
-      ) {
-        const bitmap =
-          await createImageBitmap(
-            file
-          );
-
-        const dimensions = {
-          width:
-            bitmap.width ||
-            null,
-
-          height:
-            bitmap.height ||
-            null
-        };
-
-        bitmap.close?.();
-
-        return dimensions;
-      }
-    } catch (_error) {}
-
-    return {
-      width:
-        null,
-
-      height:
-        null
-    };
-  }
-
-  /* ======================================================
-     PARENT APPROVAL — IDEMPOTENT
-  ====================================================== */
-
-  async function ensureParentApprovalRequest(
-    verifiedSnapshot
-  ) {
-    const guardianEmail =
-      clean(
-        verifiedSnapshot
-          ?.guardian_email
-      );
-
-    if (
-      !guardianEmail
-    ) {
-      return {
-        required:
-          false,
-
-        action:
-          "not_required",
-
-        approval:
-          null,
-
-        status:
-          "not_requested"
-      };
-    }
-
-    const db =
-      getDb();
 
     const existingResult =
       await db
         .from(
-          PARENT_APPROVAL_TABLE
+          ATHLETE_TABLE
         )
         .select("*")
         .eq(
-          "snapshot_id",
-          verifiedSnapshot
-            .snapshot_id
+          "athlete_id",
+          snapshotRow
+            .athlete_id
         )
-        .eq(
-          "request_type",
-          "parent_permission_scope"
-        )
-        .eq(
-          "guardian_email",
-          guardianEmail
-        )
-        .order(
-          "created_at",
-          {
-            ascending:
-              false
-          }
-        )
-        .limit(1)
         .maybeSingle();
 
     if (
       existingResult.error
     ) {
-      throw existingResult.error;
+      throw existingResult
+        .error;
     }
-
-    const basePayload = {
-      snapshot_id:
-        verifiedSnapshot
-          .snapshot_id,
-
-      athlete_id:
-        verifiedSnapshot
-          .athlete_id,
-
-      athlete_name:
-        verifiedSnapshot
-          .athlete_display_name ||
-        `${verifiedSnapshot.first_name || ""} ${
-          verifiedSnapshot.last_name || ""
-        }`.trim(),
-
-      guardian_name:
-        clean(
-          verifiedSnapshot
-            .guardian_name
-        ) ||
-        "Parent / Guardian",
-
-      guardian_email:
-        guardianEmail,
-
-      requester_name:
-        "STATS-CORE System",
-
-      requester_role:
-        "system",
-
-      request_type:
-        "parent_permission_scope",
-
-      profile_participation:
-        true,
-
-      public_visibility:
-        false,
-
-      recruiter_access:
-        false,
-
-      messaging_access:
-        false,
-
-      media_exposure:
-        false,
-
-      counselor_access:
-        false,
-
-      status:
-        existingResult.data
-          ?.status ||
-        "pending",
-
-      requested_at:
-        existingResult.data
-          ?.requested_at ||
-        nowISO(),
-
-      updated_at:
-        nowISO()
-    };
 
     if (
       existingResult.data
     ) {
+      const beforeRecord =
+        existingResult.data;
+
+      const updatePayload = {
+        ...athletePayload,
+
+        athlete_id:
+          beforeRecord
+            .athlete_id,
+
+        updated_at:
+          nowISO()
+      };
+
       const updatedResult =
         await db
           .from(
-            PARENT_APPROVAL_TABLE
+            ATHLETE_TABLE
           )
           .update(
-            basePayload
+            updatePayload
           )
           .eq(
-            "id",
-            existingResult.data.id
+            "athlete_id",
+            beforeRecord
+              .athlete_id
           )
           .select("*")
           .single();
@@ -4368,62 +4009,42 @@ STREAM 2 DOES NOT:
       if (
         updatedResult.error
       ) {
-        throw updatedResult.error;
+        throw updatedResult
+          .error;
       }
 
-      await writeSnapshotAuditReceipt({
+      return {
         action:
-          "PARENT_APPROVAL_REQUEST_REUSED",
+          "updated",
 
-        snapshot_id:
-          verifiedSnapshot
-            .snapshot_id,
+        receipt_action:
+          "ATHLETE_IDENTITY_UPDATED",
 
-        athlete_id:
-          verifiedSnapshot
-            .athlete_id,
+        athlete:
+          updatedResult.data,
 
         before_record:
-          existingResult.data,
+          beforeRecord,
 
         after_record:
-          updatedResult.data,
-
-        event_status:
-          "success",
-
-        event_message:
-          "Existing Parent Approval request reused for governed athlete snapshot."
-      });
-
-      return {
-        required:
-          true,
-
-        action:
-          "reused",
-
-        approval:
-          updatedResult.data,
-
-        status:
-          normalizeApprovalStatus(
-            updatedResult.data
-          )
+          updatedResult.data
       };
     }
 
     const createPayload = {
-      ...basePayload,
+      ...athletePayload,
 
       created_at:
+        nowISO(),
+
+      updated_at:
         nowISO()
     };
 
     const createdResult =
       await db
         .from(
-          PARENT_APPROVAL_TABLE
+          ATHLETE_TABLE
         )
         .insert(
           createPayload
@@ -4434,14 +4055,597 @@ STREAM 2 DOES NOT:
     if (
       createdResult.error
     ) {
-      throw createdResult.error;
+      throw createdResult
+        .error;
     }
 
-    await writeSnapshotAuditReceipt({
+    return {
       action:
-        "PARENT_APPROVAL_REQUEST_CREATED",
+        "created",
+
+      receipt_action:
+        "ATHLETE_IDENTITY_CREATED",
+
+      athlete:
+        createdResult.data,
+
+      before_record:
+        null,
+
+      after_record:
+        createdResult.data
+    };
+  }
+
+  /* ======================================================
+     SNAPSHOT INSERT / UPDATE
+
+     CRITICAL:
+     Establish governed snapshot first.
+     Receipt occurs only after physical read-back.
+  ====================================================== */
+
+  async function insertOrUpdateSnapshot(
+    snapshotRow
+  ) {
+    const db =
+      getDb();
+
+    const cleanRow =
+      filterSnapshotSchema(
+        snapshotRow ||
+        {}
+      );
+
+    if (
+      !cleanRow
+        .snapshot_id
+    ) {
+      throw new Error(
+        "snapshot_id is required before snapshot persistence."
+      );
+    }
+
+    if (
+      !cleanRow
+        .athlete_id
+    ) {
+      throw new Error(
+        "athlete_id is required before snapshot persistence."
+      );
+    }
+
+    const existingResult =
+      await db
+        .from(
+          SNAPSHOT_TABLE
+        )
+        .select("*")
+        .eq(
+          "snapshot_id",
+          cleanRow
+            .snapshot_id
+        )
+        .maybeSingle();
+
+    if (
+      existingResult.error
+    ) {
+      throw existingResult
+        .error;
+    }
+
+    if (
+      existingResult.data
+    ) {
+      const beforeRecord =
+        existingResult.data;
+
+      const updatePayload = {
+        ...cleanRow,
+
+        snapshot_id:
+          beforeRecord
+            .snapshot_id,
+
+        athlete_id:
+          beforeRecord
+            .athlete_id ||
+          cleanRow
+            .athlete_id,
+
+        created_at:
+          beforeRecord
+            .created_at ||
+          cleanRow
+            .created_at ||
+          nowISO(),
+
+        updated_at:
+          nowISO(),
+
+        last_source_update_at:
+          nowISO()
+      };
+
+      const updatedResult =
+        await db
+          .from(
+            SNAPSHOT_TABLE
+          )
+          .update(
+            updatePayload
+          )
+          .eq(
+            "snapshot_id",
+            beforeRecord
+              .snapshot_id
+          )
+          .select("*")
+          .single();
+
+      if (
+        updatedResult.error
+      ) {
+        throw updatedResult
+          .error;
+      }
+
+      return {
+        action:
+          "updated",
+
+        receipt_action:
+          "SNAPSHOT_SOURCE_UPDATED",
+
+        snapshot:
+          updatedResult.data,
+
+        before_record:
+          beforeRecord,
+
+        after_record:
+          updatedResult.data
+      };
+    }
+
+    const createPayload = {
+      ...cleanRow,
+
+      created_at:
+        cleanRow
+          .created_at ||
+        nowISO(),
+
+      updated_at:
+        nowISO(),
+
+      last_source_update_at:
+        nowISO()
+    };
+
+    const createdResult =
+      await db
+        .from(
+          SNAPSHOT_TABLE
+        )
+        .insert(
+          createPayload
+        )
+        .select("*")
+        .single();
+
+    if (
+      createdResult.error
+    ) {
+      throw createdResult
+        .error;
+    }
+
+    return {
+      action:
+        "created",
+
+      receipt_action:
+        "SNAPSHOT_SOURCE_CREATED",
+
+      snapshot:
+        createdResult.data,
+
+      before_record:
+        null,
+
+      after_record:
+        createdResult.data
+    };
+  }
+
+   /* ======================================================
+     SNAPSHOT READ-BACK
+  ====================================================== */
+
+  async function readBackSnapshot(
+    snapshotId
+  ) {
+    const id =
+      clean(
+        snapshotId
+      );
+
+    if (!id) {
+      throw new Error(
+        "Snapshot read-back requires snapshot_id."
+      );
+    }
+
+    const db =
+      getDb();
+
+    const result =
+      await db
+        .from(SNAPSHOT_TABLE)
+        .select("*")
+        .eq(
+          "snapshot_id",
+          id
+        )
+        .maybeSingle();
+
+    if (result.error) {
+      throw new Error(
+        `Snapshot read-back failed for ${id}: ${
+          result.error.message ||
+          String(result.error)
+        }`
+      );
+    }
+
+    if (!result.data) {
+      throw new Error(
+        `Snapshot read-back returned no record for snapshot_id ${id}.`
+      );
+    }
+
+    if (
+      clean(
+        result.data.snapshot_id
+      ) !== id
+    ) {
+      throw new Error(
+        `Snapshot read-back identity mismatch. Expected ${id}, received ${
+          result.data.snapshot_id ||
+          "NULL"
+        }.`
+      );
+    }
+
+    return result.data;
+  }
+
+
+  /* ======================================================
+     SNAPSHOT / ATHLETE RELATIONSHIP VERIFICATION
+  ====================================================== */
+
+  function verifySnapshotIdentity({
+    snapshot,
+    expectedSnapshotId,
+    expectedAthleteId
+  }) {
+    if (!snapshot) {
+      throw new Error(
+        "Snapshot identity verification requires a snapshot record."
+      );
+    }
+
+    const actualSnapshotId =
+      clean(
+        snapshot.snapshot_id
+      );
+
+    const actualAthleteId =
+      clean(
+        snapshot.athlete_id
+      );
+
+    const expectedSnapshot =
+      clean(
+        expectedSnapshotId
+      );
+
+    const expectedAthlete =
+      clean(
+        expectedAthleteId
+      );
+
+    if (
+      expectedSnapshot &&
+      actualSnapshotId !== expectedSnapshot
+    ) {
+      throw new Error(
+        `Snapshot identity verification failed. Expected snapshot_id ${expectedSnapshot}, received ${
+          actualSnapshotId ||
+          "NULL"
+        }.`
+      );
+    }
+
+    if (
+      expectedAthlete &&
+      actualAthleteId !== expectedAthlete
+    ) {
+      throw new Error(
+        `Athlete identity verification failed. Expected athlete_id ${expectedAthlete}, received ${
+          actualAthleteId ||
+          "NULL"
+        }.`
+      );
+    }
+
+    if (
+      !actualSnapshotId ||
+      !actualAthleteId
+    ) {
+      throw new Error(
+        "Snapshot read-back is incomplete. Both snapshot_id and athlete_id are required."
+      );
+    }
+
+    return {
+      ok:
+        true,
 
       snapshot_id:
-...
+        actualSnapshotId,
 
-[Message clipped]  View entire message
+      athlete_id:
+        actualAthleteId,
+
+      verified_at:
+        nowISO()
+    };
+  }
+
+
+  /* ======================================================
+     ACTIVE RUNTIME CONTEXT
+  ====================================================== */
+
+  function setActiveSnapshotId(
+    snapshotId
+  ) {
+    const id =
+      clean(
+        snapshotId
+      );
+
+    if (!id) {
+      return;
+    }
+
+    localStorage.setItem(
+      ACTIVE_SNAPSHOT_KEY,
+      id
+    );
+
+    sessionStorage.setItem(
+      ACTIVE_SNAPSHOT_KEY,
+      id
+    );
+
+    localStorage.setItem(
+      LEGACY_SNAPSHOT_KEY,
+      id
+    );
+
+    sessionStorage.setItem(
+      LEGACY_SNAPSHOT_KEY,
+      id
+    );
+
+    localStorage.setItem(
+      SECONDARY_SNAPSHOT_KEY,
+      id
+    );
+
+    sessionStorage.setItem(
+      SECONDARY_SNAPSHOT_KEY,
+      id
+    );
+  }
+
+
+  function setActiveAthleteId(
+    athleteId
+  ) {
+    const id =
+      clean(
+        athleteId
+      );
+
+    if (!id) {
+      return;
+    }
+
+    localStorage.setItem(
+      ACTIVE_ATHLETE_KEY,
+      id
+    );
+
+    sessionStorage.setItem(
+      ACTIVE_ATHLETE_KEY,
+      id
+    );
+
+    localStorage.setItem(
+      LEGACY_ATHLETE_KEY,
+      id
+    );
+
+    sessionStorage.setItem(
+      LEGACY_ATHLETE_KEY,
+      id
+    );
+
+    localStorage.setItem(
+      SECONDARY_ATHLETE_KEY,
+      id
+    );
+
+    sessionStorage.setItem(
+      SECONDARY_ATHLETE_KEY,
+      id
+    );
+  }
+
+
+  function getActiveSnapshotId() {
+    return clean(
+      sessionStorage.getItem(
+        ACTIVE_SNAPSHOT_KEY
+      ) ||
+      localStorage.getItem(
+        ACTIVE_SNAPSHOT_KEY
+      ) ||
+      sessionStorage.getItem(
+        SECONDARY_SNAPSHOT_KEY
+      ) ||
+      localStorage.getItem(
+        SECONDARY_SNAPSHOT_KEY
+      ) ||
+      sessionStorage.getItem(
+        LEGACY_SNAPSHOT_KEY
+      ) ||
+      localStorage.getItem(
+        LEGACY_SNAPSHOT_KEY
+      )
+    );
+  }
+
+
+  function getActiveAthleteId() {
+    return clean(
+      sessionStorage.getItem(
+        ACTIVE_ATHLETE_KEY
+      ) ||
+      localStorage.getItem(
+        ACTIVE_ATHLETE_KEY
+      ) ||
+      sessionStorage.getItem(
+        SECONDARY_ATHLETE_KEY
+      ) ||
+      localStorage.getItem(
+        SECONDARY_ATHLETE_KEY
+      ) ||
+      sessionStorage.getItem(
+        LEGACY_ATHLETE_KEY
+      ) ||
+      localStorage.getItem(
+        LEGACY_ATHLETE_KEY
+      )
+    );
+  }
+
+
+  function commitRuntimeContext({
+    athleteId,
+    snapshotId
+  }) {
+    const athlete =
+      clean(
+        athleteId
+      );
+
+    const snapshot =
+      clean(
+        snapshotId
+      );
+
+    if (
+      !athlete ||
+      !snapshot
+    ) {
+      throw new Error(
+        "Runtime context cannot be committed without athlete_id and snapshot_id."
+      );
+    }
+
+    setActiveAthleteId(
+      athlete
+    );
+
+    setActiveSnapshotId(
+      snapshot
+    );
+
+    setVal(
+      "athleteId",
+      athlete
+    );
+
+    setVal(
+      "snapshotId",
+      snapshot
+    );
+
+    return {
+      athlete_id:
+        athlete,
+
+      snapshot_id:
+        snapshot
+    };
+  }
+
+
+  /* ======================================================
+     DASHBOARD CONTINUATION ROUTE
+  ====================================================== */
+
+  function updateContinueRoute(
+    snapshotId
+  ) {
+    const button =
+      document.getElementById(
+        "viewProfileBtn"
+      );
+
+    if (!button) {
+      return;
+    }
+
+    const id =
+      clean(
+        snapshotId
+      );
+
+    if (!id) {
+      button.removeAttribute(
+        "href"
+      );
+
+      button.setAttribute(
+        "aria-disabled",
+        "true"
+      );
+
+      button.classList.add(
+        "disabled"
+      );
+
+      return;
+    }
+
+    button.href =
+      `athlete-dashboard.html?snapshot_id=${encodeURIComponent(
+        id
+      )}&from=athlete-record-intake`;
+
+    button.removeAttribute(
+      "aria-disabled"
+    );
+
+    button.classList.remove(
+      "disabled"
+    );
+  } 
