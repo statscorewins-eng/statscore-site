@@ -1,626 +1,2945 @@
-/* ============================================================
-   STATS-CORE™ TRACK SCORING ENGINE
-   File: statscore-track-scoring-engine.js
-   Version: STATSCORE-TRACK-SCORING-ENGINE-V1
+/*!
+* =============================================================================
+* STATS-CORE™
+* Stream 9 — Enterprise Intelligence Authority
+* -----------------------------------------------------------------------------
+* File:
+*     statscore-track-scoring-engine.js
+*
+* Classification:
+*     SUPPORTING TRACK SPORT INTELLIGENCE AUTHORITY
+*
+* Owner:
+*     Stream 9 — Enterprise Intelligence Authority
+*
+* Version:
+*     STATSCORE-TRACK-SPORT-INTELLIGENCE-V2
+*
+* Contract Version:
+*     STATSCORE-TRACK-SPORT-INTELLIGENCE-CONTRACT-V1
+*
+* Status:
+*     RECONSTRUCTED — GOVERNED SUPPORTING AUTHORITY
+*
+* Purpose:
+*     Interpret governed Track & Field evidence into structured Track-specific
+*     trait intelligence for downstream Stream 9 domain matrices.
+*
+* Constitutional Chain:
+*
+*     Governed Track Evidence
+*              ↓
+*     Track Event / Position Matrix Authority
+*              ↓
+*     Track Trait Interpretation
+*              ↓
+*     Registered Stream 9 Domain Matrices
+*              ↓
+*     Score Authority
+*              ↓
+*     Composite Authority
+*
+* This authority DOES:
+*     - consume the canonical Track Event / Position Matrix Authority;
+*     - interpret governed Track times, marks, splits, and trait evidence;
+*     - preserve raw event measurements;
+*     - expose trait-level evidence used;
+*     - expose missing evidence;
+*     - preserve verification independently from measured performance;
+*     - optionally expose explicitly PROJECTED benchmark signals;
+*     - explain Track-specific interpretation;
+*     - fail closed when evidence or event authority is unavailable.
+*
+* This authority DOES NOT:
+*     - manufacture baseline Track performance;
+*     - manufacture missing trait values;
+*     - default an unknown event to SPRINT;
+*     - alter measured performance because it is verified;
+*     - average traits into an official Track score;
+*     - publish Athletic Score;
+*     - publish Production Score;
+*     - publish Competition Score;
+*     - publish Verification Score;
+*     - publish Academic Score;
+*     - publish Position Score;
+*     - publish official stars;
+*     - publish STATScore™;
+*     - publish Composite Intelligence;
+*     - render UI;
+*     - manipulate the DOM;
+*     - auto-execute when loaded.
+*
+* Governing Doctrine:
+*     Evidence ≠ Intelligence
+*     Intelligence ≠ Presentation
+*     Score ≠ Confidence
+*     Verification ≠ Performance
+*     Confidence ≠ Certification
+*     PROJECTED ≠ OFFICIAL
+*     Missing ≠ Zero
+*     Missing Authority ≠ Permission to Reconstruct Authority
+*     One Domain — One Source Authority
+* =============================================================================
+*/
 
-   Owner:
-   Stream 9 — Intelligence Matrix & Composite Scoring Authority
+(function (global) {
+    "use strict";
 
-   Purpose:
-   Track Athlete Snapshot → Event Trait Scores → Explainable Track Signal
-============================================================ */
+    const ENGINE_ID =
+        "statscore-track-scoring-engine";
 
-(function(){
-  "use strict";
+    const AUTHORITY_KEY =
+        "TRACK_SPORT_INTELLIGENCE";
 
-  const ENGINE_ID = "statscore-track-scoring-engine";
-  const VERSION = "STATSCORE-TRACK-SCORING-ENGINE-V1";
+    const VERSION =
+        "STATSCORE-TRACK-SPORT-INTELLIGENCE-V2";
 
-  const TRAIT_DEFAULT_STATUS = "PROJECTED";
-  const VERIFIED_STATUS = "VERIFIED";
-  const PENDING_STATUS = "PENDING_VERIFICATION";
+    const CONTRACT_VERSION =
+        "STATSCORE-TRACK-SPORT-INTELLIGENCE-CONTRACT-V1";
 
-  const EVENT_BASELINES = {
-    SPRINT: 65,
-    DISTANCE: 64,
-    RELAY: 64,
-    JUMPS: 65,
-    THROWS: 64,
-    GENERAL: 63
-  };
+    const BENCHMARK_VERSION =
+        "STATSCORE-TRACK-BENCHMARK-SCIENCE-V1";
 
-  const TRACK_TRAIT_BASELINES = {
-    SPRINT: {
-      ACCELERATION: 67,
-      TOP_END_SPEED: 68,
-      STRIDE_FREQUENCY: 65,
-      STRIDE_LENGTH: 65,
-      START_REACTION: 64,
-      POWER_OUTPUT: 66,
-      SPEED_ENDURANCE: 65,
-      COMPETITIVE_FINISH: 65,
-      BLOCK_TECHNIQUE: 64,
-      RUNNING_MECHANICS: 65,
-      EFFICIENCY: 64,
-      TRANSITION_PHASE: 64,
-      RACE_DISCIPLINE: 64,
-      FINISH_MECHANICS: 64
-    },
+    const STREAM_OWNER =
+        "STATSCORE_STREAM_9";
 
-    DISTANCE: {
-      AEROBIC_CAPACITY: 66,
-      RUNNING_ECONOMY: 65,
-      RACE_STRATEGY: 64,
-      MENTAL_TOUGHNESS: 65,
-      CONSISTENCY: 65,
-      CLOSING_SPEED: 64,
-      PACING: 66,
-      COMPETITIVE_FINISH: 64,
-      RACE_IQ: 64,
-      PACK_AWARENESS: 63,
-      KICK_FINISH: 64,
-      ENDURANCE: 66,
-      POSITIONING: 63,
-      ADAPTABILITY: 63
-    },
+    const SPORT =
+        "TRACK";
 
-    RELAY: {
-      EXCHANGE_TECHNIQUE: 66,
-      ACCELERATION: 66,
-      TOP_END_SPEED: 67,
-      COMMUNICATION: 64,
-      TIMING: 65,
-      RACE_AWARENESS: 64,
-      FINISH: 65,
-      TEAM_RELIABILITY: 65
-    },
+    const STATUS = Object.freeze({
+        AVAILABLE:
+            "AVAILABLE",
 
-    JUMPS: {
-      EXPLOSIVENESS: 67,
-      APPROACH_SPEED: 66,
-      TAKEOFF_TECHNIQUE: 65,
-      BODY_CONTROL: 65,
-      FLIGHT_MECHANICS: 64,
-      LANDING: 64,
-      CONSISTENCY: 64,
-      COMPETITIVE_EXECUTION: 65
-    },
+        PARTIAL:
+            "PARTIAL",
 
-    THROWS: {
-      POWER: 67,
-      EXPLOSIVENESS: 66,
-      TECHNIQUE: 65,
-      BALANCE: 64,
-      RELEASE_MECHANICS: 65,
-      FOOTWORK: 64,
-      CONSISTENCY: 64,
-      COMPETITIVE_EXECUTION: 65
-    }
-  };
+        PROJECTED:
+            "PROJECTED",
 
-  function log(message, payload){
-    console.log(`[STATS-CORE Track Scoring] ${message}`, payload || "");
-  }
+        INSUFFICIENT_EVIDENCE:
+            "INSUFFICIENT_EVIDENCE",
 
-  function warn(message, payload){
-    console.warn(`[STATS-CORE Track Scoring] ${message}`, payload || "");
-  }
+        INVALID_INPUT:
+            "INVALID_INPUT",
 
-  function normalize(value){
-    return String(value || "").trim();
-  }
+        UNSUPPORTED_SPORT:
+            "UNSUPPORTED_SPORT",
 
-  function upper(value){
-    return normalize(value).toUpperCase().replace(/\s+/g, "_").replace(/-/g, "_");
-  }
+        EVENT_AUTHORITY_UNAVAILABLE:
+            "EVENT_AUTHORITY_UNAVAILABLE",
 
-  function clamp(value, min = 0, max = 100){
-    const num = Number(value);
-    if(Number.isNaN(num)) return null;
-    return Math.max(min, Math.min(max, Math.round(num)));
-  }
+        EVENT_AUTHORITY_INVALID:
+            "EVENT_AUTHORITY_INVALID",
 
-  function n(value){
-    const num = Number(String(value ?? "").replace(/[^\d.-]/g, ""));
-    return Number.isFinite(num) ? num : null;
-  }
+        AUTHORITY_UNAVAILABLE:
+            "AUTHORITY_UNAVAILABLE",
 
-  function evidenceStatus(athlete){
-    const hasEvidence = Boolean(
-      athlete?.highlight_url ||
-      athlete?.game_film_url ||
-      athlete?.recruiting_profile_url ||
-      athlete?.verified_event_source ||
-      athlete?.official_time ||
-      athlete?.official_mark
-    );
+        AUTHORITY_UNAUTHORIZED:
+            "AUTHORITY_UNAUTHORIZED",
 
-    const verified = upper(athlete?.verification_status).includes("VERIFIED");
-
-    if(verified && hasEvidence) return VERIFIED_STATUS;
-    if(hasEvidence) return TRAIT_DEFAULT_STATUS;
-
-    return PENDING_STATUS;
-  }
-
-  function traitEvidence(athlete){
-    const evidence = [];
-
-    if(athlete?.verified_event_source){
-      evidence.push({
-        type: "EVENT",
-        label: athlete.verified_event_source
-      });
-    }
-
-    if(athlete?.official_time){
-      evidence.push({
-        type: "OFFICIAL_TIME",
-        label: "Official Time",
-        value: athlete.official_time
-      });
-    }
-
-    if(athlete?.official_mark){
-      evidence.push({
-        type: "OFFICIAL_MARK",
-        label: "Official Mark",
-        value: athlete.official_mark
-      });
-    }
-
-    if(athlete?.highlight_url){
-      evidence.push({
-        type: "HIGHLIGHT",
-        label: "Highlight Film",
-        url: athlete.highlight_url
-      });
-    }
-
-    return evidence;
-  }
-
-  function normalizeEvent(value){
-    const e = upper(value);
-
-    const aliases = {
-      "100M": "SPRINT",
-      "200M": "SPRINT",
-      "400M": "SPRINT",
-      "SPRINTS": "SPRINT",
-
-      "800M": "DISTANCE",
-      "1600M": "DISTANCE",
-      "3200M": "DISTANCE",
-      "CROSS_COUNTRY": "DISTANCE",
-
-      "4X100": "RELAY",
-      "4X200": "RELAY",
-      "4X400": "RELAY",
-
-      "LONG_JUMP": "JUMPS",
-      "HIGH_JUMP": "JUMPS",
-      "TRIPLE_JUMP": "JUMPS",
-      "POLE_VAULT": "JUMPS",
-
-      "SHOT_PUT": "THROWS",
-      "DISCUS": "THROWS",
-      "JAVELIN": "THROWS"
-    };
-
-    return aliases[e] || e || "GENERAL";
-  }
-
-  function getEventGroup(athlete, matrix){
-    return normalizeEvent(
-      matrix?.position ||
-      athlete?.primary_event ||
-      athlete?.event ||
-      athlete?.track_event ||
-      athlete?.position ||
-      athlete?.raw_payload?.primaryEvent ||
-      athlete?.raw_payload?.event ||
-      "GENERAL"
-    );
-  }
-
-  function getTrackMetricScore(athlete, traitName, matrix){
-    const trait = upper(traitName);
-    const raw = athlete.raw_payload || {};
-    const eventGroup = getEventGroup(athlete, matrix);
-
-    const officialTime =
-      n(athlete.official_time) ??
-      n(raw.officialTime) ??
-      n(raw.official_time) ??
-      n(raw.trackTime);
-
-    const officialMark =
-      n(athlete.official_mark) ??
-      n(raw.officialMark) ??
-      n(raw.official_mark) ??
-      n(raw.trackMark);
-
-    const vertical =
-      n(athlete.vertical_jump) ??
-      n(raw.verticalJump) ??
-      n(raw.vertical);
-
-    const broad =
-      n(athlete.broad_jump) ??
-      n(raw.broadJump) ??
-      n(raw.broad_jump);
-
-    if(eventGroup === "SPRINT" && officialTime !== null){
-      if(trait.includes("TOP_END") || trait.includes("ACCELERATION") || trait.includes("SPEED")){
-        return clamp(100 - ((officialTime - 10.8) * 18));
-      }
-      if(trait.includes("SPEED_ENDURANCE") || trait.includes("FINISH")){
-        return clamp(100 - ((officialTime - 11.2) * 16));
-      }
-    }
-
-    if(eventGroup === "DISTANCE" && officialTime !== null){
-      if(trait.includes("ENDURANCE") || trait.includes("AEROBIC") || trait.includes("PACING")){
-        return clamp(100 - ((officialTime - 120) * 0.16));
-      }
-    }
-
-    if(eventGroup === "JUMPS"){
-      if(officialMark !== null){
-        return clamp(45 + officialMark * 2.2);
-      }
-      if(vertical !== null){
-        return clamp(45 + vertical * 1.15);
-      }
-      if(broad !== null){
-        return clamp(40 + broad * 0.38);
-      }
-    }
-
-    if(eventGroup === "THROWS" && officialMark !== null){
-      if(trait.includes("POWER") || trait.includes("EXPLOSIVENESS") || trait.includes("RELEASE")){
-        return clamp(45 + officialMark * 1.1);
-      }
-    }
-
-    return null;
-  }
-
-  function keywordSignal(athlete, keywords){
-    const text = [
-      athlete?.position_notes,
-      athlete?.academic_notes,
-      athlete?.verified_event_source,
-      athlete?.raw_payload?.notes,
-      athlete?.raw_payload?.style,
-      athlete?.raw_payload?.strengths,
-      athlete?.raw_payload?.weaknesses
-    ].filter(Boolean).join(" ").toLowerCase();
-
-    if(!text) return null;
-
-    let hits = 0;
-
-    keywords.forEach(word => {
-      if(text.includes(String(word).toLowerCase())) hits += 1;
+        ERROR:
+            "ERROR"
     });
 
-    if(!hits) return null;
+    const TRAIT_STATUS = Object.freeze({
+        EVIDENCE_AVAILABLE:
+            "EVIDENCE_AVAILABLE",
 
-    return clamp(62 + hits * 8);
-  }
+        PROJECTED:
+            "PROJECTED",
 
-  function getTraitScoreFromPayload(traitName, athlete){
-    const key = upper(traitName);
+        INSUFFICIENT_EVIDENCE:
+            "INSUFFICIENT_EVIDENCE"
+    });
 
-    const sources = [
-      athlete?.trait_scores,
-      athlete?.raw_payload?.trait_scores,
-      athlete?.raw_payload?.track_trait_scores,
-      athlete?.raw_payload?.event_trait_scores
-    ];
+    const VERIFICATION_STATUS = Object.freeze({
+        VERIFIED:
+            "VERIFIED",
 
-    for(const source of sources){
-      if(!source || typeof source !== "object") continue;
+        PARTIAL:
+            "PARTIAL",
 
-      if(source[traitName] !== undefined) return source[traitName];
-      if(source[key] !== undefined) return source[key];
+        SELF_REPORTED:
+            "SELF_REPORTED",
 
-      const matchKey = Object.keys(source).find(k => upper(k) === key);
-      if(matchKey) return source[matchKey];
+        UNVERIFIED:
+            "UNVERIFIED",
+
+        PENDING_VERIFICATION:
+            "PENDING_VERIFICATION",
+
+        UNKNOWN:
+            "UNKNOWN"
+    });
+
+    /*
+     * =========================================================================
+     * TRACK BENCHMARK SCIENCE
+     * -------------------------------------------------------------------------
+     *
+     * These transforms may support PROJECTED intelligence only.
+     *
+     * They are NOT official domain scoring formulas.
+     *
+     * No projected signal may silently become:
+     *     - Athletic Score
+     *     - Production Score
+     *     - Competition Score
+     *     - STATScore™
+     *     - Composite Intelligence
+     * =========================================================================
+     */
+
+    const TRACK_BENCHMARKS = Object.freeze({
+
+        SPRINT_TIME_SIGNAL: Object.freeze({
+            benchmark_key:
+                "TRACK_SPRINT_TIME_SIGNAL",
+
+            benchmark_version:
+                BENCHMARK_VERSION,
+
+            type:
+                "PROJECTED",
+
+            official:
+                false
+        }),
+
+        DISTANCE_TIME_SIGNAL: Object.freeze({
+            benchmark_key:
+                "TRACK_DISTANCE_TIME_SIGNAL",
+
+            benchmark_version:
+                BENCHMARK_VERSION,
+
+            type:
+                "PROJECTED",
+
+            official:
+                false
+        }),
+
+        JUMP_MARK_SIGNAL: Object.freeze({
+            benchmark_key:
+                "TRACK_JUMP_MARK_SIGNAL",
+
+            benchmark_version:
+                BENCHMARK_VERSION,
+
+            type:
+                "PROJECTED",
+
+            official:
+                false
+        }),
+
+        THROW_MARK_SIGNAL: Object.freeze({
+            benchmark_key:
+                "TRACK_THROW_MARK_SIGNAL",
+
+            benchmark_version:
+                BENCHMARK_VERSION,
+
+            type:
+                "PROJECTED",
+
+            official:
+                false
+        })
+
+    });
+
+    let lastResult = null;
+    let lastError = null;
+
+    function nowISO() {
+        return new Date().toISOString();
     }
 
-    return null;
-  }
-
-  function keywordTraitScore(traitName, athlete){
-    const trait = upper(traitName);
-
-    const keywords = {
-      ACCELERATION: ["acceleration", "drive phase", "explosive start"],
-      TOP_END_SPEED: ["top speed", "speed", "fast"],
-      STRIDE_FREQUENCY: ["cadence", "turnover", "frequency"],
-      STRIDE_LENGTH: ["stride length", "length"],
-      START_REACTION: ["start", "blocks", "reaction"],
-      POWER_OUTPUT: ["power", "explosive"],
-      SPEED_ENDURANCE: ["speed endurance", "finish"],
-      COMPETITIVE_FINISH: ["finish", "kick", "close"],
-      RUNNING_MECHANICS: ["mechanics", "form", "technique"],
-      AEROBIC_CAPACITY: ["endurance", "aerobic"],
-      RUNNING_ECONOMY: ["economy", "efficient"],
-      RACE_STRATEGY: ["strategy", "tactical"],
-      MENTAL_TOUGHNESS: ["mental", "tough", "grit"],
-      PACING: ["pace", "pacing"],
-      EXCHANGE_TECHNIQUE: ["exchange", "handoff"],
-      COMMUNICATION: ["communication", "relay"],
-      EXPLOSIVENESS: ["explosive", "bounce"],
-      APPROACH_SPEED: ["approach", "speed"],
-      TAKEOFF_TECHNIQUE: ["takeoff", "jump technique"],
-      POWER: ["power", "strength"],
-      RELEASE_MECHANICS: ["release", "throwing mechanics"],
-      FOOTWORK: ["footwork", "feet"],
-      CONSISTENCY: ["consistent", "repeatable"]
-    };
-
-    return keywordSignal(athlete, keywords[trait] || []);
-  }
-
-  function resolveMatrix(athlete){
-    if(window.STATScoreTrackPositionMatrixEngine?.getMatrix){
-      return window.STATScoreTrackPositionMatrixEngine.getMatrix(athlete);
+    function normalize(value) {
+        return String(
+            value == null
+                ? ""
+                : value
+        ).trim();
     }
 
-    if(window.STATScore?.TrackPositionMatrixEngine?.getMatrix){
-      return window.STATScore.TrackPositionMatrixEngine.getMatrix(athlete);
+    function upper(value) {
+        return normalize(value)
+            .toUpperCase()
+            .replace(/\s+/g, "_")
+            .replace(/-/g, "_")
+            .replace(/&/g, "AND");
     }
 
-    return null;
-  }
+    function numberOrNull(value) {
+        if (
+            value === undefined ||
+            value === null ||
+            value === ""
+        ) {
+            return null;
+        }
 
-  function resolveTraitBaseline(traitName, athlete, matrix){
-    const group = getEventGroup(athlete, matrix);
-    const trait = upper(traitName);
+        const cleaned =
+            String(value)
+                .trim()
+                .replace(/,/g, "")
+                .replace(/[^\d.-]/g, "");
 
-    const map = TRACK_TRAIT_BASELINES[group] || {};
-    if(map[trait] !== undefined) return map[trait];
+        if (!cleaned) {
+            return null;
+        }
 
-    const base = EVENT_BASELINES[group] ?? EVENT_BASELINES.GENERAL ?? 63;
+        const numeric =
+            Number(cleaned);
 
-    const adjustments = {
-      ATHLETICISM: 2,
-      TECHNIQUE: 1,
-      CONSISTENCY: 1,
-      COMPETITIVE_PERFORMANCE: 1,
-      COACHABILITY: 1,
-      DEVELOPMENT: 0,
-      POWER: 2,
-      SPEED: 2,
-      ENDURANCE: 2,
-      BALANCE: 1,
-      MECHANICS: 1,
-      EXECUTION: 1
-    };
-
-    return clamp(base + (adjustments[trait] || 0));
-  }
-
-  function scoreTrait(trait, athlete, matrix){
-    const direct =
-      trait.value ??
-      trait.score ??
-      trait.rating ??
-      getTraitScoreFromPayload(trait.name, athlete) ??
-      null;
-
-    let value = direct !== null && direct !== undefined && direct !== ""
-      ? clamp(direct)
-      : null;
-
-    let source = "DIRECT";
-
-    if(value === null){
-      value = getTrackMetricScore(athlete, trait.name, matrix);
-      source = value === null ? "KEYWORD_OR_BASELINE" : "METRIC_INFERRED";
+        return Number.isFinite(numeric)
+            ? numeric
+            : null;
     }
 
-    if(value === null){
-      value = keywordTraitScore(trait.name, athlete);
-      source = value === null ? "TRAIT_SPECIFIC_PROJECTION" : "EVIDENCE_INFERRED";
+    function clamp(value, min = 0, max = 100) {
+        const numeric =
+            Number(value);
+
+        if (!Number.isFinite(numeric)) {
+            return null;
+        }
+
+        return Number(
+            Math.max(
+                min,
+                Math.min(max, numeric)
+            ).toFixed(2)
+        );
     }
 
-    if(value === null){
-      value = resolveTraitBaseline(trait.name, athlete, matrix);
-      source = "TRAIT_SPECIFIC_PROJECTION";
+    function normalizeSport(value) {
+        const sport =
+            upper(value);
+
+        const aliases =
+            Object.freeze({
+                TRACK:
+                    "TRACK",
+
+                TRACK_FIELD:
+                    "TRACK",
+
+                TRACK_AND_FIELD:
+                    "TRACK",
+
+                TRACKANDFIELD:
+                    "TRACK"
+            });
+
+        return (
+            aliases[sport] ||
+            sport ||
+            "UNKNOWN"
+        );
     }
 
-    return {
-      ...trait,
-      value,
-      score: value,
-      status: evidenceStatus(athlete),
-      evidence: traitEvidence(athlete),
-      scoring_source: source
-    };
-  }
+    function normalizeVerificationStatus(
+        value
+    ) {
+        const status =
+            upper(value);
 
-  function average(values){
-    const valid = values.filter(value => typeof value === "number" && !Number.isNaN(value));
-    if(!valid.length) return null;
-    return Math.round(valid.reduce((a, b) => a + b, 0) / valid.length);
-  }
+        if (!status) {
+            return VERIFICATION_STATUS.UNKNOWN;
+        }
 
-  function calculateBand(score){
-    if(score === null) return "UNSCORED";
-    if(score >= 90) return "ELITE";
-    if(score >= 82) return "HIGH_MAJOR";
-    if(score >= 74) return "COLLEGE_READY";
-    if(score >= 66) return "DEVELOPING";
-    if(score >= 58) return "WATCHLIST";
-    return "FOUNDATIONAL";
-  }
+        if (status === "VERIFIED") {
+            return VERIFICATION_STATUS.VERIFIED;
+        }
 
-  function calculateStarProjection(score){
-    if(score === null) return "UNRATED";
-    if(score >= 92) return "★★★★★";
-    if(score >= 84) return "★★★★";
-    if(score >= 74) return "★★★";
-    if(score >= 64) return "★★";
-    return "★";
-  }
+        if (
+            status === "PARTIAL" ||
+            status === "PARTIALLY_VERIFIED"
+        ) {
+            return VERIFICATION_STATUS.PARTIAL;
+        }
 
-  function generateExplanation(athlete, matrix, score, band){
-    const name =
-      athlete?.athlete_display_name ||
-      [athlete?.first_name, athlete?.last_name].filter(Boolean).join(" ") ||
-      "This athlete";
+        if (
+            status === "SELF_REPORTED" ||
+            status === "SELF_REPORTED_ONLY"
+        ) {
+            return VERIFICATION_STATUS.SELF_REPORTED;
+        }
 
-    return {
-      summary:
-        `${name} is evaluated under ${matrix.matrix_code} as ${matrix.archetype}. Current track signal is ${band} based on available profile, event traits, official marks/times, competition context, and verification data.`,
-      factors: [
-        "Sport-specific track matrix applied",
-        "Event group and archetype context applied",
-        "Trait stack scored through available verified, inferred, or projected evidence",
-        "Official score remains subject to verification, event result validation, and competition context"
-      ],
-      limitations: [
-        "Projected trait values are provisional until verified event evidence is attached",
-        "Full official STATScore requires verified times/marks and competition context",
-        "Academic and eligibility scores remain separate from athletic track score"
-      ]
-    };
-  }
+        if (
+            status === "PENDING" ||
+            status === "PENDING_VERIFICATION" ||
+            status === "IN_REVIEW"
+        ) {
+            return VERIFICATION_STATUS.PENDING_VERIFICATION;
+        }
 
-  function scoreAthlete(athlete){
-    if(!athlete){
-      return {
-        ok: false,
-        status: "NO_ATHLETE",
-        message: "No athlete supplied to track scoring engine."
-      };
+        if (status === "UNVERIFIED") {
+            return VERIFICATION_STATUS.UNVERIFIED;
+        }
+
+        return status;
     }
 
-    const sport = upper(
-      athlete.primary_sport ||
-      athlete.sport ||
-      athlete.raw_payload?.primarySport ||
-      athlete.raw_payload?.sport
+    function validateStream9Authority() {
+        const authority =
+            global.STATScoreStream9Authority;
+
+        if (!authority) {
+            return {
+                valid:
+                    false,
+
+                status:
+                    STATUS.AUTHORITY_UNAVAILABLE
+            };
+        }
+
+        const valid =
+            authority.stream_number === 9 &&
+            authority.operational_state ===
+                "ACTIVE";
+
+        return {
+            valid,
+
+            status:
+                valid
+                    ? "AUTHORIZED"
+                    : STATUS.AUTHORITY_UNAUTHORIZED
+        };
+    }
+
+    function getTrackPositionAuthority() {
+        return (
+            global.STATScoreTrackPositionMatrix ||
+            global.STATScore
+                ?.TrackPositionMatrix ||
+            null
+        );
+    }
+
+    function getInputSport(athlete) {
+        return normalizeSport(
+            athlete?.primary_sport ||
+            athlete?.sport ||
+            athlete
+                ?.raw_payload
+                ?.primarySport ||
+            athlete
+                ?.raw_payload
+                ?.primary_sport ||
+            athlete
+                ?.raw_payload
+                ?.sport
+        );
+    }
+
+    function getOfficialTime(
+        athlete
+    ) {
+        return (
+            numberOrNull(
+                athlete
+                    ?.official_time
+            ) ??
+            numberOrNull(
+                athlete
+                    ?.verified_time
+            ) ??
+            numberOrNull(
+                athlete
+                    ?.event_time
+            ) ??
+            numberOrNull(
+                athlete
+                    ?.raw_payload
+                    ?.officialTime
+            ) ??
+            numberOrNull(
+                athlete
+                    ?.raw_payload
+                    ?.official_time
+            ) ??
+            numberOrNull(
+                athlete
+                    ?.raw_payload
+                    ?.verifiedTime
+            ) ??
+            numberOrNull(
+                athlete
+                    ?.raw_payload
+                    ?.verified_time
+            ) ??
+            numberOrNull(
+                athlete
+                    ?.raw_payload
+                    ?.eventTime
+            ) ??
+            numberOrNull(
+                athlete
+                    ?.raw_payload
+                    ?.event_time
+            )
+        );
+    }
+
+    function getOfficialMark(
+        athlete
+    ) {
+        return (
+            numberOrNull(
+                athlete
+                    ?.official_mark
+            ) ??
+            numberOrNull(
+                athlete
+                    ?.verified_mark
+            ) ??
+            numberOrNull(
+                athlete
+                    ?.event_mark
+            ) ??
+            numberOrNull(
+                athlete
+                    ?.raw_payload
+                    ?.officialMark
+            ) ??
+            numberOrNull(
+                athlete
+                    ?.raw_payload
+                    ?.official_mark
+            ) ??
+            numberOrNull(
+                athlete
+                    ?.raw_payload
+                    ?.verifiedMark
+            ) ??
+            numberOrNull(
+                athlete
+                    ?.raw_payload
+                    ?.verified_mark
+            ) ??
+            numberOrNull(
+                athlete
+                    ?.raw_payload
+                    ?.eventMark
+            ) ??
+            numberOrNull(
+                athlete
+                    ?.raw_payload
+                    ?.event_mark
+            )
+        );
+    }
+
+    function getSplitData(
+        athlete
+    ) {
+        return (
+            athlete?.split_data ||
+            athlete?.splits ||
+            athlete
+                ?.raw_payload
+                ?.splitData ||
+            athlete
+                ?.raw_payload
+                ?.split_data ||
+            athlete
+                ?.raw_payload
+                ?.splits ||
+            null
+        );
+    }
+
+    function getDirectTraitSources(
+        athlete
+    ) {
+        return [
+            {
+                source_name:
+                    "trait_scores",
+
+                source:
+                    athlete
+                        ?.trait_scores
+            },
+            {
+                source_name:
+                    "raw_payload.trait_scores",
+
+                source:
+                    athlete
+                        ?.raw_payload
+                        ?.trait_scores
+            },
+            {
+                source_name:
+                    "raw_payload.track_trait_scores",
+
+                source:
+                    athlete
+                        ?.raw_payload
+                        ?.track_trait_scores
+            },
+            {
+                source_name:
+                    "raw_payload.event_trait_scores",
+
+                source:
+                    athlete
+                        ?.raw_payload
+                        ?.event_trait_scores
+            }
+        ];
+    }
+
+    function findDirectTraitEvidence(
+        traitKey,
+        athlete
+    ) {
+        const sources =
+            getDirectTraitSources(
+                athlete
+            );
+
+        for (
+            const sourceEntry
+            of sources
+        ) {
+            const source =
+                sourceEntry.source;
+
+            if (
+                !source ||
+                typeof source !==
+                    "object"
+            ) {
+                continue;
+            }
+
+            const matchingKey =
+                Object.keys(
+                    source
+                ).find(
+                    function (key) {
+                        return (
+                            upper(key) ===
+                            traitKey
+                        );
+                    }
+                );
+
+            if (!matchingKey) {
+                continue;
+            }
+
+            const raw =
+                source[
+                    matchingKey
+                ];
+
+            if (
+                raw &&
+                typeof raw ===
+                    "object" &&
+                !Array.isArray(raw)
+            ) {
+                const value =
+                    numberOrNull(
+                        raw.value ??
+                        raw.score ??
+                        raw.rating
+                    );
+
+                if (value === null) {
+                    continue;
+                }
+
+                return {
+                    value:
+                        clamp(value),
+
+                    confidence:
+                        clamp(
+                            raw.confidence
+                        ),
+
+                    official:
+                        raw.official ===
+                            true,
+
+                    verification_status:
+                        normalizeVerificationStatus(
+                            raw.verification_status
+                        ),
+
+                    status:
+                        upper(
+                            raw.status
+                        ) ||
+                        TRAIT_STATUS
+                            .EVIDENCE_AVAILABLE,
+
+                    evidence:
+                        Array.isArray(
+                            raw.evidence
+                        )
+                            ? raw.evidence
+                            : [],
+
+                    source:
+                        sourceEntry
+                            .source_name
+                };
+            }
+
+            const numeric =
+                numberOrNull(raw);
+
+            if (numeric !== null) {
+                return {
+                    value:
+                        clamp(numeric),
+
+                    confidence:
+                        null,
+
+                    official:
+                        false,
+
+                    verification_status:
+                        VERIFICATION_STATUS
+                            .UNKNOWN,
+
+                    status:
+                        TRAIT_STATUS
+                            .EVIDENCE_AVAILABLE,
+
+                    evidence:
+                        [],
+
+                    source:
+                        sourceEntry
+                            .source_name
+                };
+            }
+        }
+
+        return null;
+    }
+
+    function getTraitVerificationContext(
+        traitKey,
+        athlete,
+        options
+    ) {
+        const contexts = [
+            options
+                ?.verification_by_trait,
+
+            athlete
+                ?.verification_by_trait,
+
+            athlete
+                ?.raw_payload
+                ?.verification_by_trait
+        ];
+
+        for (
+            const context
+            of contexts
+        ) {
+            if (
+                !context ||
+                typeof context !==
+                    "object"
+            ) {
+                continue;
+            }
+
+            const matchingKey =
+                Object.keys(
+                    context
+                ).find(
+                    function (key) {
+                        return (
+                            upper(key) ===
+                            traitKey
+                        );
+                    }
+                );
+
+            if (!matchingKey) {
+                continue;
+            }
+
+            const record =
+                context[
+                    matchingKey
+                ];
+
+            if (
+                record &&
+                typeof record ===
+                    "object"
+            ) {
+                return {
+                    verification_status:
+                        normalizeVerificationStatus(
+                            record
+                                .verification_status ||
+                            record
+                                .status
+                        ),
+
+                    confidence:
+                        clamp(
+                            record
+                                .confidence
+                        ),
+
+                    evidence_id:
+                        record
+                            .evidence_id ||
+                        null,
+
+                    source_record_id:
+                        record
+                            .source_record_id ||
+                        null,
+
+                    receipt_id:
+                        record
+                            .receipt_id ||
+                        null,
+
+                    professional_id:
+                        record
+                            .professional_id ||
+                        null,
+
+                    certification_id:
+                        record
+                            .certification_id ||
+                        null
+                };
+            }
+        }
+
+        return {
+            verification_status:
+                normalizeVerificationStatus(
+                    options
+                        ?.verification_status ||
+                    athlete
+                        ?.verification_status
+                ),
+
+            confidence:
+                clamp(
+                    options
+                        ?.confidence
+                ),
+
+            evidence_id:
+                null,
+
+            source_record_id:
+                null,
+
+            receipt_id:
+                null,
+
+            professional_id:
+                null,
+
+            certification_id:
+                null
+        };
+    }
+
+    function buildSearchableText(
+        athlete
+    ) {
+        return [
+            athlete
+                ?.position_notes,
+            athlete
+                ?.verified_event_source,
+            athlete
+                ?.raw_payload
+                ?.notes,
+            athlete
+                ?.raw_payload
+                ?.style,
+            athlete
+                ?.raw_payload
+                ?.strengths,
+            athlete
+                ?.raw_payload
+                ?.weaknesses
+        ]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase();
+    }
+
+    const KEYWORD_MAP =
+        Object.freeze({
+
+            START: Object.freeze([
+                "start",
+                "blocks",
+                "reaction"
+            ]),
+
+            ACCELERATION: Object.freeze([
+                "acceleration",
+                "drive phase",
+                "explosive start"
+            ]),
+
+            MAX_VELOCITY: Object.freeze([
+                "top speed",
+                "max velocity",
+                "speed"
+            ]),
+
+            SPEED_ENDURANCE: Object.freeze([
+                "speed endurance",
+                "holds speed",
+                "finish"
+            ]),
+
+            SPRINT_MECHANICS: Object.freeze([
+                "mechanics",
+                "sprint form",
+                "running form"
+            ]),
+
+            AEROBIC_CAPACITY: Object.freeze([
+                "aerobic",
+                "endurance",
+                "engine"
+            ]),
+
+            PACE_CONTROL: Object.freeze([
+                "pace",
+                "pacing",
+                "tempo"
+            ]),
+
+            ENDURANCE: Object.freeze([
+                "endurance",
+                "stamina"
+            ]),
+
+            RACE_STRATEGY: Object.freeze([
+                "strategy",
+                "race iq",
+                "tactical"
+            ]),
+
+            FINISHING_STRENGTH: Object.freeze([
+                "finish",
+                "kick",
+                "closing"
+            ]),
+
+            SPLIT_PERFORMANCE: Object.freeze([
+                "split",
+                "relay split"
+            ]),
+
+            EXCHANGE_EXECUTION: Object.freeze([
+                "exchange",
+                "handoff",
+                "baton"
+            ]),
+
+            TEAM_EXECUTION: Object.freeze([
+                "relay team",
+                "communication",
+                "team execution"
+            ]),
+
+            APPROACH: Object.freeze([
+                "approach",
+                "runway"
+            ]),
+
+            EXPLOSIVENESS: Object.freeze([
+                "explosive",
+                "bounce",
+                "power"
+            ]),
+
+            TAKEOFF: Object.freeze([
+                "takeoff",
+                "plant"
+            ]),
+
+            TECHNIQUE: Object.freeze([
+                "technique",
+                "technical"
+            ]),
+
+            BODY_CONTROL: Object.freeze([
+                "body control",
+                "air control"
+            ]),
+
+            POWER: Object.freeze([
+                "power",
+                "strength",
+                "explosive"
+            ]),
+
+            RELEASE_EXECUTION: Object.freeze([
+                "release",
+                "release mechanics"
+            ]),
+
+            IMPLEMENT_CONTROL: Object.freeze([
+                "implement control",
+                "control"
+            ]),
+
+            CONSISTENCY: Object.freeze([
+                "consistent",
+                "repeatable"
+            ]),
+
+            COMPETITION_EXECUTION: Object.freeze([
+                "competitive",
+                "championship",
+                "competition"
+            ])
+
+        });
+
+    function collectKeywordEvidence(
+        traitKey,
+        athlete
+    ) {
+        const terms =
+            KEYWORD_MAP[
+                traitKey
+            ] || [];
+
+        if (!terms.length) {
+            return [];
+        }
+
+        const text =
+            buildSearchableText(
+                athlete
+            );
+
+        if (!text) {
+            return [];
+        }
+
+        return terms
+            .filter(
+                function (term) {
+                    return text.includes(
+                        String(term)
+                            .toLowerCase()
+                    );
+                }
+            )
+            .map(
+                function (term) {
+                    return {
+                        evidence_type:
+                            "TEXT_SIGNAL",
+
+                        trait_key:
+                            traitKey,
+
+                        matched_term:
+                            term,
+
+                        source:
+                            "ATHLETE_NOTES_OR_RAW_PAYLOAD"
+                    };
+                }
+            );
+    }
+
+    /*
+     * =========================================================================
+     * PROJECTED BENCHMARK SIGNALS
+     * -------------------------------------------------------------------------
+     *
+     * These are deliberately isolated.
+     *
+     * No fallback is ever automatic.
+     * include_projected_benchmarks must be explicitly true.
+     * =========================================================================
+     */
+
+    function projectSprintSignal(
+        officialTime
+    ) {
+        if (officialTime === null) {
+            return null;
+        }
+
+        /*
+         * This retains the previous mathematical interpretation only as
+         * non-official projection science.
+         */
+
+        const projected =
+            100 -
+            (
+                (
+                    officialTime -
+                    10.8
+                ) *
+                18
+            );
+
+        return clamp(
+            projected
+        );
+    }
+
+    function projectDistanceSignal(
+        officialTime
+    ) {
+        if (officialTime === null) {
+            return null;
+        }
+
+        const projected =
+            100 -
+            (
+                (
+                    officialTime -
+                    120
+                ) *
+                0.16
+            );
+
+        return clamp(
+            projected
+        );
+    }
+
+    function projectJumpSignal(
+        officialMark
+    ) {
+        if (officialMark === null) {
+            return null;
+        }
+
+        return clamp(
+            45 +
+            (
+                officialMark *
+                2.2
+            )
+        );
+    }
+
+    function projectThrowSignal(
+        officialMark
+    ) {
+        if (officialMark === null) {
+            return null;
+        }
+
+        return clamp(
+            45 +
+            (
+                officialMark *
+                1.1
+            )
+        );
+    }
+
+    function buildProjectedTraitSignal(
+        traitKey,
+        eventGroup,
+        athlete
+    ) {
+        const officialTime =
+            getOfficialTime(
+                athlete
+            );
+
+        const officialMark =
+            getOfficialMark(
+                athlete
+            );
+
+        if (
+            eventGroup ===
+            "SPRINT"
+        ) {
+            const eligibleTraits = [
+                "ACCELERATION",
+                "MAX_VELOCITY",
+                "SPEED_ENDURANCE",
+                "COMPETITION_EXECUTION"
+            ];
+
+            if (
+                eligibleTraits
+                    .includes(
+                        traitKey
+                    )
+            ) {
+                const value =
+                    projectSprintSignal(
+                        officialTime
+                    );
+
+                if (value !== null) {
+                    return {
+                        value,
+
+                        benchmark:
+                            TRACK_BENCHMARKS
+                                .SPRINT_TIME_SIGNAL,
+
+                        evidence: [
+                            {
+                                evidence_type:
+                                    "OFFICIAL_TIME",
+
+                                raw_value:
+                                    officialTime,
+
+                                source:
+                                    "ATHLETE_EVIDENCE"
+                            }
+                        ]
+                    };
+                }
+            }
+        }
+
+        if (
+            eventGroup ===
+            "DISTANCE"
+        ) {
+            const eligibleTraits = [
+                "AEROBIC_CAPACITY",
+                "PACE_CONTROL",
+                "ENDURANCE",
+                "FINISHING_STRENGTH",
+                "COMPETITION_EXECUTION"
+            ];
+
+            if (
+                eligibleTraits
+                    .includes(
+                        traitKey
+                    )
+            ) {
+                const value =
+                    projectDistanceSignal(
+                        officialTime
+                    );
+
+                if (value !== null) {
+                    return {
+                        value,
+
+                        benchmark:
+                            TRACK_BENCHMARKS
+                                .DISTANCE_TIME_SIGNAL,
+
+                        evidence: [
+                            {
+                                evidence_type:
+                                    "OFFICIAL_TIME",
+
+                                raw_value:
+                                    officialTime,
+
+                                source:
+                                    "ATHLETE_EVIDENCE"
+                            }
+                        ]
+                    };
+                }
+            }
+        }
+
+        if (
+            eventGroup ===
+            "JUMPS"
+        ) {
+            const eligibleTraits = [
+                "EXPLOSIVENESS",
+                "COMPETITION_EXECUTION"
+            ];
+
+            if (
+                eligibleTraits
+                    .includes(
+                        traitKey
+                    )
+            ) {
+                const value =
+                    projectJumpSignal(
+                        officialMark
+                    );
+
+                if (value !== null) {
+                    return {
+                        value,
+
+                        benchmark:
+                            TRACK_BENCHMARKS
+                                .JUMP_MARK_SIGNAL,
+
+                        evidence: [
+                            {
+                                evidence_type:
+                                    "OFFICIAL_MARK",
+
+                                raw_value:
+                                    officialMark,
+
+                                source:
+                                    "ATHLETE_EVIDENCE"
+                            }
+                        ]
+                    };
+                }
+            }
+        }
+
+        if (
+            eventGroup ===
+            "THROWS"
+        ) {
+            const eligibleTraits = [
+                "POWER",
+                "RELEASE_EXECUTION",
+                "COMPETITION_EXECUTION"
+            ];
+
+            if (
+                eligibleTraits
+                    .includes(
+                        traitKey
+                    )
+            ) {
+                const value =
+                    projectThrowSignal(
+                        officialMark
+                    );
+
+                if (value !== null) {
+                    return {
+                        value,
+
+                        benchmark:
+                            TRACK_BENCHMARKS
+                                .THROW_MARK_SIGNAL,
+
+                        evidence: [
+                            {
+                                evidence_type:
+                                    "OFFICIAL_MARK",
+
+                                raw_value:
+                                    officialMark,
+
+                                source:
+                                    "ATHLETE_EVIDENCE"
+                            }
+                        ]
+                    };
+                }
+            }
+        }
+
+        return null;
+    }
+
+    function buildTraitIntelligence(
+        traitKey,
+        eventGroup,
+        athlete,
+        options
+    ) {
+        const direct =
+            findDirectTraitEvidence(
+                traitKey,
+                athlete
+            );
+
+        const verification =
+            getTraitVerificationContext(
+                traitKey,
+                athlete,
+                options
+            );
+
+        const keywordEvidence =
+            collectKeywordEvidence(
+                traitKey,
+                athlete
+            );
+
+        if (direct) {
+            return {
+                trait_key:
+                    traitKey,
+
+                value:
+                    direct.value,
+
+                confidence:
+                    direct.confidence ??
+                    verification.confidence ??
+                    null,
+
+                verification_status:
+                    direct.verification_status !==
+                        VERIFICATION_STATUS.UNKNOWN
+                        ? direct.verification_status
+                        : verification
+                            .verification_status,
+
+                status:
+                    direct.status ||
+                    TRAIT_STATUS
+                        .EVIDENCE_AVAILABLE,
+
+                official:
+                    direct.official ===
+                    true,
+
+                evidence_used: [
+                    ...direct.evidence,
+                    ...keywordEvidence
+                ],
+
+                missing_evidence:
+                    [],
+
+                flags: [
+                    direct.confidence ===
+                        null &&
+                    verification.confidence ===
+                        null
+                        ? "CONFIDENCE_UNAVAILABLE"
+                        : null
+                ].filter(Boolean),
+
+                interpretation_source:
+                    "DIRECT_GOVERNED_TRACK_TRAIT_EVIDENCE",
+
+                projection:
+                    null
+            };
+        }
+
+        if (
+            options
+                ?.include_projected_benchmarks ===
+            true
+        ) {
+            const projection =
+                buildProjectedTraitSignal(
+                    traitKey,
+                    eventGroup,
+                    athlete
+                );
+
+            if (
+                projection &&
+                projection.value !==
+                    null
+            ) {
+                return {
+                    trait_key:
+                        traitKey,
+
+                    value:
+                        projection.value,
+
+                    confidence:
+                        verification
+                            .confidence,
+
+                    verification_status:
+                        verification
+                            .verification_status,
+
+                    status:
+                        TRAIT_STATUS
+                            .PROJECTED,
+
+                    official:
+                        false,
+
+                    evidence_used: [
+                        ...projection
+                            .evidence,
+                        ...keywordEvidence
+                    ],
+
+                    missing_evidence:
+                        [],
+
+                    flags: [
+                        "PROJECTED_TRACK_BENCHMARK_SIGNAL",
+                        "PROJECTED_NOT_OFFICIAL",
+                        verification
+                            .confidence ===
+                            null
+                            ? "CONFIDENCE_UNAVAILABLE"
+                            : null
+                    ].filter(Boolean),
+
+                    interpretation_source:
+                        "PROJECTED_TRACK_BENCHMARK",
+
+                    projection: {
+                        benchmark_key:
+                            projection
+                                .benchmark
+                                .benchmark_key,
+
+                        benchmark_version:
+                            projection
+                                .benchmark
+                                .benchmark_version,
+
+                        official:
+                            false,
+
+                        downstream_rule:
+                            "Projected Track benchmark intelligence may not become official domain intelligence unless a governed receiving Stream 9 authority explicitly authorizes projected evidence."
+                    }
+                };
+            }
+        }
+
+        return {
+            trait_key:
+                traitKey,
+
+            value:
+                null,
+
+            confidence:
+                verification
+                    .confidence,
+
+            verification_status:
+                verification
+                    .verification_status,
+
+            status:
+                TRAIT_STATUS
+                    .INSUFFICIENT_EVIDENCE,
+
+            official:
+                false,
+
+            evidence_used:
+                keywordEvidence,
+
+            missing_evidence: [
+                "TRAIT_EVIDENCE"
+            ],
+
+            flags: [
+                "INSUFFICIENT_TRAIT_EVIDENCE"
+            ],
+
+            interpretation_source:
+                null,
+
+            projection:
+                null
+        };
+    }
+
+    function resolveEventModel(
+        athlete
+    ) {
+        const authority =
+            getTrackPositionAuthority();
+
+        if (
+            !authority ||
+            typeof authority
+                .interpretAthlete !==
+                "function"
+        ) {
+            return {
+                ok:
+                    false,
+
+                status:
+                    STATUS
+                        .EVENT_AUTHORITY_UNAVAILABLE
+            };
+        }
+
+        const result =
+            authority
+                .interpretAthlete(
+                    athlete
+                );
+
+        if (
+            !result ||
+            (
+                result.status ===
+                    "UNSUPPORTED_EVENT" ||
+                result.status ===
+                    "EVENT_REQUIRED" ||
+                result.status ===
+                    "INVALID_INPUT"
+            )
+        ) {
+            return {
+                ok:
+                    false,
+
+                status:
+                    result
+                        ?.status ||
+                    STATUS
+                        .EVENT_AUTHORITY_INVALID,
+
+                source_result:
+                    result ||
+                    null
+            };
+        }
+
+        if (
+            !result.event ||
+            !result.event_group ||
+            !result.traits
+        ) {
+            return {
+                ok:
+                    false,
+
+                status:
+                    STATUS
+                        .EVENT_AUTHORITY_INVALID,
+
+                source_result:
+                    result
+            };
+        }
+
+        return {
+            ok:
+                true,
+
+            status:
+                "EVENT_AUTHORITY_READY",
+
+            source_result:
+                result
+        };
+    }
+
+    function determineOverallStatus(
+        traits
+    ) {
+        const values =
+            Object.values(
+                traits
+            );
+
+        const directCount =
+            values.filter(
+                function (
+                    trait
+                ) {
+                    return (
+                        trait.status ===
+                        TRAIT_STATUS
+                            .EVIDENCE_AVAILABLE
+                    );
+                }
+            ).length;
+
+        const projectedCount =
+            values.filter(
+                function (
+                    trait
+                ) {
+                    return (
+                        trait.status ===
+                        TRAIT_STATUS
+                            .PROJECTED
+                    );
+                }
+            ).length;
+
+        const missingCount =
+            values.filter(
+                function (
+                    trait
+                ) {
+                    return (
+                        trait.status ===
+                        TRAIT_STATUS
+                            .INSUFFICIENT_EVIDENCE
+                    );
+                }
+            ).length;
+
+        if (
+            directCount === 0 &&
+            projectedCount === 0
+        ) {
+            return STATUS.INSUFFICIENT_EVIDENCE;
+        }
+
+        if (
+            directCount === 0 &&
+            projectedCount > 0 &&
+            missingCount === 0
+        ) {
+            return STATUS.PROJECTED;
+        }
+
+        if (
+            missingCount > 0 ||
+            projectedCount > 0
+        ) {
+            return STATUS.PARTIAL;
+        }
+
+        return STATUS.AVAILABLE;
+    }
+
+    function collectEvidenceUsed(
+        traits
+    ) {
+        const evidence = [];
+
+        Object.values(
+            traits
+        ).forEach(
+            function (
+                trait
+            ) {
+                trait
+                    .evidence_used
+                    .forEach(
+                        function (
+                            item
+                        ) {
+                            evidence.push({
+                                trait_key:
+                                    trait.trait_key,
+
+                                ...item
+                            });
+                        }
+                    );
+            }
+        );
+
+        return evidence;
+    }
+
+    function collectMissingEvidence(
+        traits
+    ) {
+        return Object.values(
+            traits
+        )
+            .filter(
+                function (
+                    trait
+                ) {
+                    return (
+                        trait.status ===
+                        TRAIT_STATUS
+                            .INSUFFICIENT_EVIDENCE
+                    );
+                }
+            )
+            .map(
+                function (
+                    trait
+                ) {
+                    return {
+                        trait_key:
+                            trait.trait_key,
+
+                        missing:
+                            Array.from(
+                                trait
+                                    .missing_evidence
+                            )
+                    };
+                }
+            );
+    }
+
+    function collectFlags(
+        traits
+    ) {
+        const flags = [];
+
+        Object.values(
+            traits
+        ).forEach(
+            function (
+                trait
+            ) {
+                trait.flags
+                    .forEach(
+                        function (
+                            flag
+                        ) {
+                            if (
+                                !flags
+                                    .includes(flag)
+                            ) {
+                                flags
+                                    .push(flag);
+                            }
+                        }
+                    );
+            }
+        );
+
+        return flags;
+    }
+
+    function buildExplanation(
+        athlete,
+        eventModel,
+        traits,
+        status,
+        options
+    ) {
+        const athleteName =
+            athlete
+                ?.athlete_display_name ||
+            [
+                athlete
+                    ?.first_name,
+                athlete
+                    ?.last_name
+            ]
+                .filter(Boolean)
+                .join(" ") ||
+            "Athlete";
+
+        const availableTraits =
+            Object.values(
+                traits
+            )
+                .filter(
+                    function (
+                        trait
+                    ) {
+                        return (
+                            trait.status ===
+                            TRAIT_STATUS
+                                .EVIDENCE_AVAILABLE
+                        );
+                    }
+                )
+                .map(
+                    function (
+                        trait
+                    ) {
+                        return trait
+                            .trait_key;
+                    }
+                );
+
+        const projectedTraits =
+            Object.values(
+                traits
+            )
+                .filter(
+                    function (
+                        trait
+                    ) {
+                        return (
+                            trait.status ===
+                            TRAIT_STATUS
+                                .PROJECTED
+                        );
+                    }
+                )
+                .map(
+                    function (
+                        trait
+                    ) {
+                        return trait
+                            .trait_key;
+                    }
+                );
+
+        const missingTraits =
+            Object.values(
+                traits
+            )
+                .filter(
+                    function (
+                        trait
+                    ) {
+                        return (
+                            trait.status ===
+                            TRAIT_STATUS
+                                .INSUFFICIENT_EVIDENCE
+                        );
+                    }
+                )
+                .map(
+                    function (
+                        trait
+                    ) {
+                        return trait
+                            .trait_key;
+                    }
+                );
+
+        return {
+            summary:
+                `${athleteName} was interpreted through the Track Sport Intelligence Authority for ${eventModel.event.label} / ${eventModel.event_group.label}. This is supporting Track trait intelligence only and is not an official Athletic Score, Production Score, Competition Score, STATScore™, or Composite score.`,
+
+            status,
+
+            factors: [
+                "Canonical Track Event / Position Matrix Authority consumed.",
+                "Track event and event-group context preserved.",
+                "Direct governed Track trait evidence interpreted where available.",
+                "Raw Track time/mark evidence preserved independently from verification standing.",
+                options
+                    ?.include_projected_benchmarks ===
+                    true
+                    ? "Projected benchmark mode was explicitly enabled; projected traits remain non-official."
+                    : "Projected benchmark mode was not enabled; missing trait evidence remained null."
+            ],
+
+            available_traits:
+                availableTraits,
+
+            projected_traits:
+                projectedTraits,
+
+            missing_traits:
+                missingTraits,
+
+            limitations: [
+                "No baseline Track performance values are manufactured.",
+                "Unknown events do not default to SPRINT.",
+                "No arithmetic average of Track traits is published as an official score.",
+                "Verification does not alter the underlying Track time, mark, split, or trait value.",
+                "Projected benchmark signals are not official intelligence.",
+                "Official Athletic domain scoring belongs to ATHLETIC_MATRIX.",
+                "Official Production domain scoring belongs to PRODUCTION_MATRIX.",
+                "Official Competition domain scoring belongs to COMPETITION_MATRIX.",
+                "Official Verification domain scoring belongs to VERIFICATION_MATRIX.",
+                "Official Composite Intelligence belongs to Composite Authority."
+            ],
+
+            downstream_authorities: {
+                athletic:
+                    "ATHLETIC_MATRIX",
+
+                production:
+                    "PRODUCTION_MATRIX",
+
+                competition:
+                    "COMPETITION_MATRIX",
+
+                verification:
+                    "VERIFICATION_MATRIX",
+
+                score_publisher:
+                    "SCORE_AUTHORITY",
+
+                composite:
+                    "COMPOSITE_AUTHORITY"
+            }
+        };
+    }
+
+    function interpretAthlete(
+        athlete,
+        options = {}
+    ) {
+        lastError = null;
+
+        try {
+            if (
+                !athlete ||
+                typeof athlete !==
+                    "object" ||
+                Array.isArray(athlete)
+            ) {
+                const result = {
+                    ok:
+                        false,
+
+                    authority:
+                        ENGINE_ID,
+
+                    authority_key:
+                        AUTHORITY_KEY,
+
+                    authority_version:
+                        VERSION,
+
+                    contract_version:
+                        CONTRACT_VERSION,
+
+                    status:
+                        STATUS.INVALID_INPUT,
+
+                    official:
+                        false,
+
+                    athlete_id:
+                        null,
+
+                    snapshot_id:
+                        null,
+
+                    sport:
+                        SPORT,
+
+                    flags: [
+                        "ATHLETE_INPUT_REQUIRED"
+                    ],
+
+                    generated_at:
+                        nowISO()
+                };
+
+                lastResult =
+                    result;
+
+                return result;
+            }
+
+            const authorityValidation =
+                validateStream9Authority();
+
+            if (
+                !authorityValidation
+                    .valid
+            ) {
+                const result = {
+                    ok:
+                        false,
+
+                    authority:
+                        ENGINE_ID,
+
+                    authority_key:
+                        AUTHORITY_KEY,
+
+                    authority_version:
+                        VERSION,
+
+                    contract_version:
+                        CONTRACT_VERSION,
+
+                    status:
+                        authorityValidation
+                            .status,
+
+                    official:
+                        false,
+
+                    athlete_id:
+                        athlete
+                            .athlete_id ||
+                        null,
+
+                    snapshot_id:
+                        athlete
+                            .snapshot_id ||
+                        null,
+
+                    sport:
+                        getInputSport(
+                            athlete
+                        ),
+
+                    flags: [
+                        authorityValidation
+                            .status
+                    ],
+
+                    generated_at:
+                        nowISO()
+                };
+
+                lastResult =
+                    result;
+
+                return result;
+            }
+
+            const sport =
+                getInputSport(
+                    athlete
+                );
+
+            if (
+                sport !==
+                SPORT
+            ) {
+                const result = {
+                    ok:
+                        false,
+
+                    authority:
+                        ENGINE_ID,
+
+                    authority_key:
+                        AUTHORITY_KEY,
+
+                    authority_version:
+                        VERSION,
+
+                    contract_version:
+                        CONTRACT_VERSION,
+
+                    status:
+                        STATUS
+                            .UNSUPPORTED_SPORT,
+
+                    official:
+                        false,
+
+                    athlete_id:
+                        athlete
+                            .athlete_id ||
+                        null,
+
+                    snapshot_id:
+                        athlete
+                            .snapshot_id ||
+                        null,
+
+                    sport,
+
+                    flags: [
+                        "TRACK_AUTHORITY_REQUIRES_TRACK_SPORT"
+                    ],
+
+                    generated_at:
+                        nowISO()
+                };
+
+                lastResult =
+                    result;
+
+                return result;
+            }
+
+            if (
+                !athlete
+                    .athlete_id ||
+                !athlete
+                    .snapshot_id
+            ) {
+                const missing =
+                    [];
+
+                if (
+                    !athlete
+                        .athlete_id
+                ) {
+                    missing.push(
+                        "athlete_id"
+                    );
+                }
+
+                if (
+                    !athlete
+                        .snapshot_id
+                ) {
+                    missing.push(
+                        "snapshot_id"
+                    );
+                }
+
+                const result = {
+                    ok:
+                        false,
+
+                    authority:
+                        ENGINE_ID,
+
+                    authority_key:
+                        AUTHORITY_KEY,
+
+                    authority_version:
+                        VERSION,
+
+                    contract_version:
+                        CONTRACT_VERSION,
+
+                    status:
+                        STATUS.INVALID_INPUT,
+
+                    official:
+                        false,
+
+                    athlete_id:
+                        athlete
+                            .athlete_id ||
+                        null,
+
+                    snapshot_id:
+                        athlete
+                            .snapshot_id ||
+                        null,
+
+                    sport,
+
+                    missing_evidence:
+                        missing,
+
+                    flags: [
+                        "REQUIRED_IDENTITY_MISSING"
+                    ],
+
+                    generated_at:
+                        nowISO()
+                };
+
+                lastResult =
+                    result;
+
+                return result;
+            }
+
+            const eventAuthority =
+                resolveEventModel(
+                    athlete
+                );
+
+            if (
+                !eventAuthority.ok
+            ) {
+                const result = {
+                    ok:
+                        false,
+
+                    authority:
+                        ENGINE_ID,
+
+                    authority_key:
+                        AUTHORITY_KEY,
+
+                    authority_version:
+                        VERSION,
+
+                    contract_version:
+                        CONTRACT_VERSION,
+
+                    status:
+                        eventAuthority
+                            .status,
+
+                    official:
+                        false,
+
+                    athlete_id:
+                        athlete
+                            .athlete_id,
+
+                    snapshot_id:
+                        athlete
+                            .snapshot_id,
+
+                    sport,
+
+                    flags: [
+                        eventAuthority
+                            .status
+                    ],
+
+                    event_authority_result:
+                        eventAuthority
+                            .source_result ||
+                        null,
+
+                    generated_at:
+                        nowISO()
+                };
+
+                lastResult =
+                    result;
+
+                return result;
+            }
+
+            const eventModel =
+                eventAuthority
+                    .source_result;
+
+            const eventGroup =
+                eventModel
+                    .event_group
+                    .code;
+
+            const traitKeys =
+                Object.keys(
+                    eventModel
+                        .traits
+                );
+
+            const traits = {};
+
+            traitKeys
+                .forEach(
+                    function (
+                        traitKey
+                    ) {
+                        traits[
+                            traitKey
+                        ] =
+                            buildTraitIntelligence(
+                                traitKey,
+                                eventGroup,
+                                athlete,
+                                options
+                            );
+                    }
+                );
+
+            const status =
+                determineOverallStatus(
+                    traits
+                );
+
+            const flags =
+                collectFlags(
+                    traits
+                );
+
+            if (
+                options
+                    .include_projected_benchmarks ===
+                true
+            ) {
+                flags.push(
+                    "PROJECTED_BENCHMARK_MODE_ENABLED"
+                );
+            }
+
+            const result = {
+                ok:
+                    true,
+
+                authority:
+                    ENGINE_ID,
+
+                authority_key:
+                    AUTHORITY_KEY,
+
+                authority_version:
+                    VERSION,
+
+                contract_version:
+                    CONTRACT_VERSION,
+
+                benchmark_version:
+                    BENCHMARK_VERSION,
+
+                stream_owner:
+                    STREAM_OWNER,
+
+                classification:
+                    "SUPPORTING_SPORT_INTELLIGENCE",
+
+                official:
+                    false,
+
+                athlete_id:
+                    athlete
+                        .athlete_id,
+
+                snapshot_id:
+                    athlete
+                        .snapshot_id,
+
+                sport:
+                    SPORT,
+
+                event: {
+                    code:
+                        eventModel
+                            .event
+                            .code,
+
+                    label:
+                        eventModel
+                            .event
+                            .label
+                },
+
+                event_group: {
+                    code:
+                        eventModel
+                            .event_group
+                            .code,
+
+                    label:
+                        eventModel
+                            .event_group
+                            .label
+                },
+
+                archetype_candidates:
+                    Array.isArray(
+                        eventModel
+                            .archetypes
+                    )
+                        ? eventModel
+                            .archetypes
+                        : [],
+
+                traits,
+
+                raw_measurements: {
+                    official_time:
+                        getOfficialTime(
+                            athlete
+                        ),
+
+                    official_mark:
+                        getOfficialMark(
+                            athlete
+                        ),
+
+                    split_data:
+                        getSplitData(
+                            athlete
+                        )
+                },
+
+                evidence_used:
+                    collectEvidenceUsed(
+                        traits
+                    ),
+
+                missing_evidence:
+                    collectMissingEvidence(
+                        traits
+                    ),
+
+                flags:
+                    Array.from(
+                        new Set(
+                            flags
+                        )
+                    ),
+
+                downstream_release: {
+                    athletic_score:
+                        "NOT_PUBLISHED",
+
+                    production_score:
+                        "NOT_PUBLISHED",
+
+                    competition_score:
+                        "NOT_PUBLISHED",
+
+                    verification_score:
+                        "NOT_PUBLISHED",
+
+                    academic_score:
+                        "NOT_PUBLISHED",
+
+                    position_score:
+                        "NOT_PUBLISHED",
+
+                    final_score:
+                        "NOT_PUBLISHED",
+
+                    star_rating:
+                        "NOT_PUBLISHED",
+
+                    statscore:
+                        "NOT_PUBLISHED",
+
+                    composite:
+                        "NOT_PUBLISHED"
+                },
+
+                explanation:
+                    buildExplanation(
+                        athlete,
+                        eventModel,
+                        traits,
+                        status,
+                        options
+                    ),
+
+                status,
+
+                generated_at:
+                    nowISO()
+            };
+
+            lastResult =
+                result;
+
+            return result;
+
+        } catch (error) {
+            lastError = {
+                message:
+                    error instanceof Error
+                        ? error.message
+                        : String(error),
+
+                generated_at:
+                    nowISO()
+            };
+
+            const result = {
+                ok:
+                    false,
+
+                authority:
+                    ENGINE_ID,
+
+                authority_key:
+                    AUTHORITY_KEY,
+
+                authority_version:
+                    VERSION,
+
+                contract_version:
+                    CONTRACT_VERSION,
+
+                status:
+                    STATUS.ERROR,
+
+                official:
+                    false,
+
+                athlete_id:
+                    athlete
+                        ?.athlete_id ||
+                    null,
+
+                snapshot_id:
+                    athlete
+                        ?.snapshot_id ||
+                    null,
+
+                sport:
+                    SPORT,
+
+                flags: [
+                    "TRACK_INTELLIGENCE_EXECUTION_ERROR"
+                ],
+
+                error:
+                    lastError
+                        .message,
+
+                generated_at:
+                    nowISO()
+            };
+
+            lastResult =
+                result;
+
+            return result;
+        }
+    }
+
+    /*
+     * =========================================================================
+     * COMPATIBILITY ALIAS
+     * -------------------------------------------------------------------------
+     *
+     * Legacy callers may invoke scoreAthlete().
+     *
+     * It now returns supporting Track intelligence only.
+     *
+     * It intentionally DOES NOT return:
+     *     final_score
+     *     score_final
+     *     score_band
+     *     star_projection
+     * =========================================================================
+     */
+
+    function scoreAthlete(
+        athlete,
+        options
+    ) {
+        return interpretAthlete(
+            athlete,
+            options
+        );
+    }
+
+    function getRawMeasurementModel(
+        athlete = {}
+    ) {
+        return {
+            official_time: {
+                value:
+                    getOfficialTime(
+                        athlete
+                    ),
+
+                meaning:
+                    "Raw Track time preserved without verification-based mutation."
+            },
+
+            official_mark: {
+                value:
+                    getOfficialMark(
+                        athlete
+                    ),
+
+                meaning:
+                    "Raw Track mark preserved without verification-based mutation."
+            },
+
+            split_data: {
+                value:
+                    getSplitData(
+                        athlete
+                    ),
+
+                meaning:
+                    "Raw split evidence preserved for downstream interpretation."
+            }
+        };
+    }
+
+    function getContract() {
+        return {
+            authority_key:
+                AUTHORITY_KEY,
+
+            authority:
+                ENGINE_ID,
+
+            authority_version:
+                VERSION,
+
+            contract_version:
+                CONTRACT_VERSION,
+
+            benchmark_version:
+                BENCHMARK_VERSION,
+
+            stream_owner:
+                STREAM_OWNER,
+
+            sport:
+                SPORT,
+
+            classification:
+                "SUPPORTING_SPORT_INTELLIGENCE",
+
+            official_score_publisher:
+                false,
+
+            dependencies: [
+                "STATScoreStream9Authority",
+                "STATScoreTrackPositionMatrix"
+            ],
+
+            required_input: [
+                "athlete_id",
+                "snapshot_id",
+                "sport",
+                "track event"
+            ],
+
+            optional_input: [
+                "trait_scores",
+                "official_time",
+                "official_mark",
+                "split_data",
+                "event film",
+                "verification_by_trait",
+                "confidence"
+            ],
+
+            output: [
+                "athlete_id",
+                "snapshot_id",
+                "sport",
+                "event",
+                "event_group",
+                "archetype_candidates",
+                "traits",
+                "raw_measurements",
+                "evidence_used",
+                "missing_evidence",
+                "flags",
+                "explanation",
+                "status",
+                "generated_at"
+            ],
+
+            prohibited_output: [
+                "official_athletic_score",
+                "official_production_score",
+                "official_competition_score",
+                "official_verification_score",
+                "official_academic_score",
+                "official_position_score",
+                "official_final_score",
+                "official_star_rating",
+                "official_statscore",
+                "official_composite"
+            ],
+
+            missing_evidence_rule:
+                "Missing Track evidence remains null with INSUFFICIENT_EVIDENCE. No baseline performance value may be manufactured.",
+
+            event_rule:
+                "Unknown or unsupported Track events fail closed and are never defaulted to SPRINT.",
+
+            verification_rule:
+                "Verification may affect confidence/provenance only. It never modifies the underlying time, mark, split, or trait performance value.",
+
+            projection_rule:
+                "Projected Track benchmark intelligence is disabled by default and always non-official.",
+
+            downstream_rule:
+                "Official Track-related domain scores must be generated by the applicable registered Stream 9 matrices.",
+
+            presentation_rule:
+                "No DOM rendering or page manipulation is permitted.",
+
+            execution_rule:
+                "Explicit invocation only. Loading this authority does not interpret an athlete."
+        };
+    }
+
+    function getConfiguration() {
+        return {
+            engine_id:
+                ENGINE_ID,
+
+            authority_key:
+                AUTHORITY_KEY,
+
+            version:
+                VERSION,
+
+            contract_version:
+                CONTRACT_VERSION,
+
+            benchmark_version:
+                BENCHMARK_VERSION,
+
+            stream_owner:
+                STREAM_OWNER,
+
+            sport:
+                SPORT,
+
+            benchmark_science:
+                TRACK_BENCHMARKS,
+
+            projected_benchmark_default:
+                false,
+
+            fabricated_baselines:
+                false,
+
+            unknown_event_fallback:
+                false,
+
+            official_score_publication:
+                false,
+
+            official_star_publication:
+                false,
+
+            dom_rendering:
+                false,
+
+            automatic_execution:
+                false
+        };
+    }
+
+    function getLastResult() {
+        return lastResult;
+    }
+
+    function getLastError() {
+        return lastError;
+    }
+
+    function runHealthCheck() {
+        const stream9 =
+            validateStream9Authority();
+
+        const eventAuthority =
+            getTrackPositionAuthority();
+
+        const eventAuthorityAvailable =
+            Boolean(
+                eventAuthority &&
+                typeof eventAuthority
+                    .interpretAthlete ===
+                    "function"
+            );
+
+        const healthy =
+            stream9.valid &&
+            eventAuthorityAvailable;
+
+        return {
+            authority:
+                ENGINE_ID,
+
+            authority_key:
+                AUTHORITY_KEY,
+
+            authority_version:
+                VERSION,
+
+            contract_version:
+                CONTRACT_VERSION,
+
+            status:
+                healthy
+                    ? "HEALTHY"
+                    : "DEGRADED",
+
+            stream_9_authority:
+                stream9,
+
+            track_event_authority_available:
+                eventAuthorityAvailable,
+
+            projected_benchmark_default:
+                false,
+
+            fabricated_baseline_scoring:
+                false,
+
+            unknown_event_defaults_to_sprint:
+                false,
+
+            verification_changes_performance:
+                false,
+
+            trait_average_published:
+                false,
+
+            official_score_publication:
+                false,
+
+            official_star_publication:
+                false,
+
+            dom_rendering:
+                false,
+
+            automatic_execution:
+                false,
+
+            generated_at:
+                nowISO()
+        };
+    }
+
+    const TrackSportIntelligenceAuthority =
+        Object.freeze({
+
+            engine_id:
+                ENGINE_ID,
+
+            authority_key:
+                AUTHORITY_KEY,
+
+            version:
+                VERSION,
+
+            contract_version:
+                CONTRACT_VERSION,
+
+            benchmark_version:
+                BENCHMARK_VERSION,
+
+            stream_owner:
+                STREAM_OWNER,
+
+            sport:
+                SPORT,
+
+            status:
+                "ACTIVE",
+
+            classification:
+                "SUPPORTING_TRACK_SPORT_INTELLIGENCE_AUTHORITY",
+
+            official_score_publisher:
+                false,
+
+            interpretAthlete,
+
+            /*
+             * Compatibility alias only.
+             * No official score is returned.
+             */
+            scoreAthlete,
+
+            getRawMeasurementModel,
+
+            getContract,
+
+            getConfiguration,
+
+            getLastResult,
+
+            getLastError,
+
+            runHealthCheck
+        });
+
+    global.STATScoreTrackScoringEngine =
+        TrackSportIntelligenceAuthority;
+
+    global.STATScore =
+        global.STATScore || {};
+
+    global.STATScore.TrackScoringEngine =
+        TrackSportIntelligenceAuthority;
+
+    console.info(
+        "[STATS-CORE] Track Sport Intelligence Authority loaded:",
+        VERSION,
+        "| explicit invocation required | baseline scoring removed | official scoring disabled"
     );
 
-    if(sport && sport !== "TRACK" && sport !== "TRACK_FIELD" && sport !== "TRACK_AND_FIELD"){
-      return {
-        ok: false,
-        status: "NON_TRACK_ATHLETE",
-        message: "Track scoring engine only handles track athletes."
-      };
-    }
-
-    const matrix = resolveMatrix(athlete);
-
-    if(!matrix || !Array.isArray(matrix.traits)){
-      return {
-        ok: false,
-        status: "MATRIX_UNAVAILABLE",
-        message: "Event matrix unavailable for track scoring."
-      };
-    }
-
-    const scoredTraits = matrix.traits.map(trait => scoreTrait(trait, athlete, matrix));
-    const scoreFinal = average(scoredTraits.map(trait => trait.value));
-    const band = calculateBand(scoreFinal);
-    const stars = calculateStarProjection(scoreFinal);
-
-    return {
-      ok: true,
-      engine_id: ENGINE_ID,
-      version: VERSION,
-      sport: "TRACK",
-      athlete_id: athlete.athlete_id || null,
-      snapshot_id: athlete.snapshot_id || null,
-      athlete_display_name:
-        athlete.athlete_display_name ||
-        [athlete.first_name, athlete.last_name].filter(Boolean).join(" "),
-      position: matrix.position,
-      archetype: matrix.archetype,
-      archetype_code: matrix.archetype_code,
-      matrix_code: matrix.matrix_code,
-      score_final: scoreFinal,
-      final_score: scoreFinal,
-      score_band: band,
-      star_projection: stars,
-      official_status:
-        upper(athlete.verification_status).includes("VERIFIED")
-          ? "VERIFIED_PROFILE_SIGNAL"
-          : "UNVERIFIED_PROFILE_SIGNAL",
-      traits: scoredTraits,
-      explanation: generateExplanation(athlete, matrix, scoreFinal, band),
-      created_at: new Date().toISOString()
-    };
-  }
-
-  function renderScoreToWindowAthlete(){
-    const athlete =
-      window.STATScoreCurrentAthlete ||
-      window.STATScoreCurrentSnapshot ||
-      window.__STATSCORE_CURRENT_ATHLETE__ ||
-      null;
-
-    if(!athlete){
-      warn("No current athlete found for track scoring.");
-      return null;
-    }
-
-    const result = scoreAthlete(athlete);
-
-    if(!result.ok){
-      warn("Track scoring did not complete.", result);
-      return result;
-    }
-
-    window.STATScoreCurrentTrackScore = result;
-
-    return result;
-  }
-
-  function init(){
-    if(window.__STATSCORE_TRACK_SCORING_ENGINE__) return;
-
-    window.__STATSCORE_TRACK_SCORING_ENGINE__ = true;
-
-    window.STATScoreTrackScoringEngine = {
-      engine_id: ENGINE_ID,
-      version: VERSION,
-      scoreAthlete,
-      renderScoreToWindowAthlete,
-      calculateBand,
-      calculateStarProjection
-    };
-
-    window.STATScore = window.STATScore || {};
-    window.STATScore.TrackScoringEngine = window.STATScoreTrackScoringEngine;
-
-    const result = renderScoreToWindowAthlete();
-
-    if(window.STATScoreEngineBus?.emit){
-      window.STATScoreEngineBus.emit("engine_online", {
-        engine: ENGINE_ID,
-        version: VERSION,
-        status: "ONLINE",
-        scored: Boolean(result && result.ok)
-      });
-    }
-
-    log("Engine online.", {
-      engine: ENGINE_ID,
-      version: VERSION,
-      scored: Boolean(result && result.ok)
-    });
-  }
-
-  if(document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded", init);
-  }else{
-    init();
-  }
-})(); 
+})(window); 
