@@ -1,577 +1,2107 @@
-/* ============================================================
-   STATS-CORE™ BASKETBALL POSITION MATRIX
-   File: statscore-basketball-position-matrix.js
-   Version: STATSCORE-BASKETBALL-POSITION-MATRIX-V1
+/*!
+* =============================================================================
+* STATS-CORE™
+* Stream 9 — Enterprise Intelligence Authority
+* -----------------------------------------------------------------------------
+* File:
+*     statscore-basketball-position-matrix.js
+*
+* Canonical Classification:
+*     SUPPORTING SPORT / POSITION INTELLIGENCE AUTHORITY
+*
+* Production Role:
+*     Basketball position and archetype interpretation authority.
+*
+* Purpose:
+*     Basketball
+*         ↓
+*     Governed Position Classification
+*         ↓
+*     Governed Archetype Classification
+*         ↓
+*     Basketball Trait Vocabulary
+*         ↓
+*     Basketball Sport Intelligence
+*         ↓
+*     Registered Stream 9 Domain Matrices
+*
+* Constitutional Boundaries:
+*     This authority DOES:
+*       - normalize basketball positions;
+*       - preserve position aliases;
+*       - resolve basketball position groups;
+*       - resolve supported basketball archetypes;
+*       - expose position/archetype trait vocabulary;
+*       - expose versioned supporting basketball matrix definitions;
+*       - identify unavailable position/archetype authority;
+*       - return structured interpretation contracts.
+*
+*     This authority DOES NOT:
+*       - calculate official Athletic Score;
+*       - calculate official Production Score;
+*       - calculate official Competition Score;
+*       - calculate official Verification Score;
+*       - calculate official Academic Score;
+*       - calculate official STATScore™;
+*       - calculate Composite Intelligence;
+*       - fabricate trait values;
+*       - fabricate baseline scores;
+*       - infer missing evidence into performance;
+*       - alter confidence;
+*       - certify evidence;
+*       - render UI;
+*       - manipulate DOM;
+*       - execute automatically on page load.
+*
+* Governing Doctrine:
+*     Evidence ≠ Intelligence
+*     Intelligence ≠ Presentation
+*     Score ≠ Confidence
+*     Verification ≠ Confidence
+*     Confidence ≠ Certification
+*     Missing ≠ Zero
+*     PROJECTED ≠ OFFICIAL
+*     Missing Authority ≠ Permission to Reconstruct Authority
+*     One Domain — One Source Authority
+*
+* Version:
+*     STATSCORE-BASKETBALL-POSITION-MATRIX-V2
+*
+* Contract Version:
+*     STATSCORE-BASKETBALL-POSITION-MATRIX-CONTRACT-V1
+*
+* Status:
+*     PRODUCTION RECONSTRUCTION
+* =============================================================================
+*/
 
-   Owner:
-   Stream 9 — Intelligence Matrix & Composite Scoring Authority
+(function (global) {
+    "use strict";
 
-   Purpose:
-   Basketball → Position → Archetype → Matrix → Performance Traits
+    const ENGINE_ID = "statscore-basketball-position-matrix";
+    const VERSION = "STATSCORE-BASKETBALL-POSITION-MATRIX-V2";
+    const CONTRACT_VERSION = "STATSCORE-BASKETBALL-POSITION-MATRIX-CONTRACT-V1";
 
-   Canon:
-   Each sport has its own scoring science.
-   Each position has its own matrix.
-============================================================ */
+    const STREAM_OWNER = "STATSCORE_STREAM_9";
+    const SPORT = "BASKETBALL";
 
-(function(){
-  "use strict";
-
-  const ENGINE_ID = "statscore-basketball-position-matrix";
-  const VERSION = "STATSCORE-BASKETBALL-POSITION-MATRIX-V1";
-
-  const BASKETBALL_MATRICES = {
-    PG: {
-      default_archetype: "FLOOR_GENERAL",
-      archetypes: {
-        FLOOR_GENERAL: {
-          label: "Floor General",
-          matrix_code: "BB_PG_FLOOR_GENERAL_MATRIX_V1",
-          traits: [
-            "Court Vision",
-            "Ball Handling",
-            "Decision Making",
-            "Pick-and-Roll IQ",
-            "Passing",
-            "Leadership",
-            "Pace Control",
-            "Defensive Pressure"
-          ]
-        },
-        SCORING_POINT_GUARD: {
-          label: "Scoring Point Guard",
-          matrix_code: "BB_PG_SCORING_MATRIX_V1",
-          traits: [
-            "Shot Creation",
-            "Ball Handling",
-            "Three-Level Scoring",
-            "Burst",
-            "Finishing",
-            "Pull-Up Shooting",
-            "Pace Change",
-            "Defensive Pressure"
-          ]
-        },
-        DEFENSIVE_POINT_GUARD: {
-          label: "Defensive Point Guard",
-          matrix_code: "BB_PG_DEFENSIVE_MATRIX_V1",
-          traits: [
-            "On-Ball Defense",
-            "Defensive Pressure",
-            "Lateral Quickness",
-            "Ball Disruption",
-            "Communication",
-            "Transition Control",
-            "Decision Making",
-            "Leadership"
-          ]
-        }
-      }
-    },
-
-    SG: {
-      default_archetype: "SHOT_CREATOR",
-      archetypes: {
-        SHOT_CREATOR: {
-          label: "Shot Creator",
-          matrix_code: "BB_SG_SHOT_CREATOR_MATRIX_V1",
-          traits: [
-            "Shot Creation",
-            "Perimeter Shooting",
-            "Off-Ball Movement",
-            "Scoring Efficiency",
-            "Ball Handling",
-            "Defensive Versatility",
-            "Transition",
-            "Clutch Scoring"
-          ]
-        },
-        THREE_AND_D: {
-          label: "Three-and-D Guard",
-          matrix_code: "BB_SG_THREE_AND_D_MATRIX_V1",
-          traits: [
-            "Perimeter Shooting",
-            "Catch-and-Shoot",
-            "Defensive Versatility",
-            "On-Ball Defense",
-            "Off-Ball Awareness",
-            "Transition",
-            "Shot Discipline",
-            "Team Fit"
-          ]
-        },
-        SLASHING_GUARD: {
-          label: "Slashing Guard",
-          matrix_code: "BB_SG_SLASHING_MATRIX_V1",
-          traits: [
-            "First Step",
-            "Finishing",
-            "Contact Balance",
-            "Transition",
-            "Rim Pressure",
-            "Ball Handling",
-            "Free Throw Pressure",
-            "Defensive Activity"
-          ]
-        }
-      }
-    },
-
-    SF: {
-      default_archetype: "TWO_WAY_WING",
-      archetypes: {
-        TWO_WAY_WING: {
-          label: "Two-Way Wing",
-          matrix_code: "BB_SF_TWO_WAY_WING_MATRIX_V1",
-          traits: [
-            "Athleticism",
-            "Two-Way Value",
-            "Finishing",
-            "Defensive Switchability",
-            "Rebounding",
-            "Shot Creation",
-            "Basketball IQ",
-            "Versatility"
-          ]
-        },
-        SCORING_WING: {
-          label: "Scoring Wing",
-          matrix_code: "BB_SF_SCORING_WING_MATRIX_V1",
-          traits: [
-            "Shot Creation",
-            "Three-Level Scoring",
-            "Perimeter Shooting",
-            "Finishing",
-            "Off-Ball Movement",
-            "Transition",
-            "Mismatch Value",
-            "Scoring Efficiency"
-          ]
-        },
-        DEFENSIVE_WING: {
-          label: "Defensive Wing",
-          matrix_code: "BB_SF_DEFENSIVE_WING_MATRIX_V1",
-          traits: [
-            "Defensive Switchability",
-            "Length Usage",
-            "On-Ball Defense",
-            "Help Defense",
-            "Rebounding",
-            "Transition Defense",
-            "Physicality",
-            "Basketball IQ"
-          ]
-        }
-      }
-    },
-
-    PF: {
-      default_archetype: "MODERN_FORWARD",
-      archetypes: {
-        MODERN_FORWARD: {
-          label: "Modern Forward",
-          matrix_code: "BB_PF_MODERN_FORWARD_MATRIX_V1",
-          traits: [
-            "Interior Scoring",
-            "Midrange",
-            "Physicality",
-            "Rebounding",
-            "Screen Setting",
-            "Defensive Presence",
-            "Motor",
-            "Post Play"
-          ]
-        },
-        STRETCH_FOUR: {
-          label: "Stretch Four",
-          matrix_code: "BB_PF_STRETCH_FOUR_MATRIX_V1",
-          traits: [
-            "Perimeter Shooting",
-            "Pick-and-Pop Value",
-            "Spacing",
-            "Rebounding",
-            "Defensive Presence",
-            "Passing",
-            "Screen Setting",
-            "Basketball IQ"
-          ]
-        },
-        ENERGY_FORWARD: {
-          label: "Energy Forward",
-          matrix_code: "BB_PF_ENERGY_FORWARD_MATRIX_V1",
-          traits: [
-            "Motor",
-            "Rebounding",
-            "Physicality",
-            "Screen Setting",
-            "Interior Defense",
-            "Transition",
-            "Finishing",
-            "Second-Chance Value"
-          ]
-        }
-      }
-    },
-
-    C: {
-      default_archetype: "RIM_PROTECTOR",
-      archetypes: {
-        RIM_PROTECTOR: {
-          label: "Rim Protector",
-          matrix_code: "BB_C_RIM_PROTECTOR_MATRIX_V1",
-          traits: [
-            "Rim Protection",
-            "Interior Defense",
-            "Rebounding",
-            "Post Scoring",
-            "Hands",
-            "Physical Presence",
-            "Pick-and-Roll Defense",
-            "Shot Blocking"
-          ]
-        },
-        POST_SCORER: {
-          label: "Post Scorer",
-          matrix_code: "BB_C_POST_SCORER_MATRIX_V1",
-          traits: [
-            "Post Scoring",
-            "Footwork",
-            "Hands",
-            "Interior Touch",
-            "Physical Presence",
-            "Rebounding",
-            "Passing",
-            "Screen Setting"
-          ]
-        },
-        MOBILE_BIG: {
-          label: "Mobile Big",
-          matrix_code: "BB_C_MOBILE_BIG_MATRIX_V1",
-          traits: [
-            "Mobility",
-            "Pick-and-Roll Defense",
-            "Rim Running",
-            "Rebounding",
-            "Finishing",
-            "Shot Blocking",
-            "Defensive Range",
-            "Motor"
-          ]
-        }
-      }
-    }
-  };
-
-  function normalize(value){
-    return String(value || "")
-      .trim()
-      .toUpperCase()
-      .replace(/\s+/g, "_")
-      .replace(/-/g, "_");
-  }
-
-  function normalizeSport(value){
-    const sport = normalize(value);
-
-    const aliases = {
-      BB: "BASKETBALL",
-      HOOPS: "BASKETBALL",
-      BASKETBALL: "BASKETBALL"
-    };
-
-    return aliases[sport] || sport || "BASKETBALL";
-  }
-
-  function normalizePosition(value){
-    const position = normalize(value);
-
-    const aliases = {
-      POINT_GUARD: "PG",
-      PG: "PG",
-
-      SHOOTING_GUARD: "SG",
-      TWO_GUARD: "SG",
-      COMBO_GUARD: "SG",
-      SG: "SG",
-
-      SMALL_FORWARD: "SF",
-      WING: "SF",
-      SF: "SF",
-
-      POWER_FORWARD: "PF",
-      FORWARD: "PF",
-      PF: "PF",
-
-      CENTER: "C",
-      BIG: "C",
-      POST: "C",
-      C: "C"
-    };
-
-    return aliases[position] || position || "PG";
-  }
-
-  function inferArchetype(position, athlete){
-    const pos = normalizePosition(position);
-
-    const raw =
-      normalize(athlete?.archetype) ||
-      normalize(athlete?.position_archetype) ||
-      normalize(athlete?.player_archetype) ||
-      normalize(athlete?.raw_payload?.archetype);
-
-    if(raw) return raw;
-
-    const notes = [
-      athlete?.position_notes,
-      athlete?.raw_payload?.notes,
-      athlete?.raw_payload?.style,
-      athlete?.raw_payload?.strengths
-    ].filter(Boolean).join(" ").toLowerCase();
-
-    if(pos === "PG"){
-      if(notes.includes("score") || notes.includes("scoring")) return "SCORING_POINT_GUARD";
-      if(notes.includes("defense") || notes.includes("defensive")) return "DEFENSIVE_POINT_GUARD";
-      return "FLOOR_GENERAL";
-    }
-
-    if(pos === "SG"){
-      if(notes.includes("3") || notes.includes("three") || notes.includes("defense")) return "THREE_AND_D";
-      if(notes.includes("slash") || notes.includes("rim")) return "SLASHING_GUARD";
-      return "SHOT_CREATOR";
-    }
-
-    if(pos === "SF"){
-      if(notes.includes("score") || notes.includes("scoring")) return "SCORING_WING";
-      if(notes.includes("defense") || notes.includes("defensive")) return "DEFENSIVE_WING";
-      return "TWO_WAY_WING";
-    }
-
-    if(pos === "PF"){
-      if(notes.includes("shoot") || notes.includes("stretch")) return "STRETCH_FOUR";
-      if(notes.includes("energy") || notes.includes("motor")) return "ENERGY_FORWARD";
-      return "MODERN_FORWARD";
-    }
-
-    if(pos === "C"){
-      if(notes.includes("post")) return "POST_SCORER";
-      if(notes.includes("mobile") || notes.includes("run")) return "MOBILE_BIG";
-      return "RIM_PROTECTOR";
-    }
-
-    return BASKETBALL_MATRICES[pos]?.default_archetype || "GENERAL";
-  }
-
-  function fallbackMatrix(sport, position, archetype){
-    return {
-      sport: sport || "BASKETBALL",
-      position: position || "ATH",
-      archetype: archetype || "General Basketball Athlete",
-      archetype_code: normalize(archetype) || "GENERAL",
-      matrix_code: `${position || "ATH"}_BASKETBALL_GENERAL_MATRIX_V1`,
-      traits: [
-        "Athleticism",
-        "Skill",
-        "Basketball IQ",
-        "Production",
-        "Defense",
-        "Readiness"
-      ].map(trait => ({
-        name: trait,
-        status: "PENDING_VERIFICATION",
-        value: null,
-        evidence: []
-      }))
-    };
-  }
-
-  function getBasketballMatrix(position, archetype, athlete){
-    const pos = normalizePosition(position);
-    const positionGroup = BASKETBALL_MATRICES[pos];
-
-    if(!positionGroup){
-      return fallbackMatrix("BASKETBALL", pos, archetype);
-    }
-
-    const inferred = normalize(archetype) || inferArchetype(pos, athlete);
-
-    const selected =
-      positionGroup.archetypes[inferred] ||
-      positionGroup.archetypes[positionGroup.default_archetype];
-
-    return {
-      sport: "BASKETBALL",
-      position: pos,
-      archetype: selected.label,
-      archetype_code: inferred,
-      matrix_code: selected.matrix_code,
-      traits: selected.traits.map(trait => ({
-        name: trait,
-        status: "PENDING_VERIFICATION",
-        value: null,
-        evidence: []
-      }))
-    };
-  }
-
-  function getMatrix(athlete = {}){
-    const sport = normalizeSport(
-      athlete.primary_sport ||
-      athlete.sport ||
-      athlete.raw_payload?.primarySport ||
-      athlete.raw_payload?.sport
-    );
-
-    const position = normalizePosition(
-      athlete.primary_position ||
-      athlete.position ||
-      athlete.verified_position ||
-      athlete.raw_payload?.primaryPosition ||
-      athlete.raw_payload?.position
-    );
-
-    const archetype =
-      athlete.archetype ||
-      athlete.position_archetype ||
-      athlete.player_archetype ||
-      athlete.raw_payload?.archetype ||
-      "";
-
-    if(sport === "BASKETBALL"){
-      return getBasketballMatrix(position, archetype, athlete);
-    }
-
-    return fallbackMatrix(sport, position, archetype);
-  }
-
-  function renderTraits(container, matrix){
-    if(!container || !matrix) return;
-
-    container.innerHTML = "";
-
-    const header = document.createElement("div");
-    header.className = "sc-basketball-matrix-header";
-    header.innerHTML = `
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:18px;">
-        <div>
-          <div style="color:#ff3434;font-weight:900;letter-spacing:.18em;text-transform:uppercase;font-size:13px;">
-            Basketball Position Breakdown
-          </div>
-          <div style="font-size:34px;font-weight:900;text-transform:uppercase;letter-spacing:.03em;color:#f4f2ef;">
-            Performance Traits
-          </div>
-          <div style="margin-top:8px;color:#9fe7ff;font-weight:800;letter-spacing:.1em;text-transform:uppercase;">
-            ${matrix.position} · ${matrix.archetype}
-          </div>
-        </div>
-
-        <div style="border:1px solid rgba(255,177,0,.55);padding:12px 18px;color:#ffb100;font-weight:900;letter-spacing:.1em;">
-          ${matrix.matrix_code}
-        </div>
-      </div>
-    `;
-
-    container.appendChild(header);
-
-    matrix.traits.forEach(trait => {
-      const value = Number(trait.value || 0);
-
-      const row = document.createElement("div");
-      row.className = "sc-performance-trait-row";
-      row.style.display = "grid";
-      row.style.gridTemplateColumns = "220px 1fr 42px";
-      row.style.alignItems = "center";
-      row.style.gap = "14px";
-      row.style.margin = "10px 0";
-
-      row.innerHTML = `
-        <div style="font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:#f4f2ef;">
-          ${trait.name}
-        </div>
-
-        <div style="height:8px;border:1px solid rgba(120,160,255,.28);background:rgba(255,255,255,.03);position:relative;">
-          <div style="height:100%;width:${value ? Math.max(0, Math.min(100, value)) : 0}%;background:rgba(255,177,0,.85);"></div>
-        </div>
-
-        <div style="color:#ffb100;font-weight:900;text-align:right;">
-          ${trait.value ?? "--"}
-        </div>
-      `;
-
-      container.appendChild(row);
+    const STATUS = Object.freeze({
+        AVAILABLE: "AVAILABLE",
+        AUTHORITY_UNAVAILABLE: "AUTHORITY_UNAVAILABLE",
+        AUTHORITY_UNAUTHORIZED: "AUTHORITY_UNAUTHORIZED",
+        INVALID_INPUT: "INVALID_INPUT",
+        UNSUPPORTED_SPORT: "UNSUPPORTED_SPORT",
+        UNSUPPORTED_POSITION: "UNSUPPORTED_POSITION",
+        UNSUPPORTED_ARCHETYPE: "UNSUPPORTED_ARCHETYPE",
+        POSITION_REQUIRED: "POSITION_REQUIRED",
+        ERROR: "ERROR"
     });
-  }
 
-  function autoRenderFromWindowAthlete(){
-    const athlete =
-      window.STATScoreCurrentAthlete ||
-      window.STATScoreCurrentSnapshot ||
-      window.__STATSCORE_CURRENT_ATHLETE__ ||
-      null;
+    /*
+    ============================================================================
+    CANONICAL BASKETBALL POSITION / ARCHETYPE SCIENCE
+    ----------------------------------------------------------------------------
+    These definitions establish basketball-specific position interpretation and
+    trait vocabulary only.
 
-    if(!athlete) return null;
+    They do NOT create official athlete scores.
+    They do NOT supply missing trait values.
+    They do NOT manufacture performance baselines.
+    ============================================================================
+    */
 
-    const sport = normalizeSport(
-      athlete.primary_sport ||
-      athlete.sport ||
-      athlete.raw_payload?.primarySport ||
-      athlete.raw_payload?.sport
-    );
+    const BASKETBALL_MATRICES = Object.freeze({
 
-    if(sport !== "BASKETBALL") return null;
+        PG: Object.freeze({
+            position_code: "PG",
+            position_label: "Point Guard",
+            default_archetype: "FLOOR_GENERAL",
 
-    const matrix = getMatrix(athlete);
+            archetypes: Object.freeze({
 
-    const container =
-      document.querySelector("[data-statscore-performance-traits]") ||
-      document.querySelector("#statscore-performance-traits") ||
-      document.querySelector("#scPerformanceTraits") ||
-      document.querySelector(".sc-performance-traits");
+                FLOOR_GENERAL: Object.freeze({
+                    label: "Floor General",
+                    matrix_code: "BK_PG_FLOOR_GENERAL_MATRIX_V2",
 
-    if(container) renderTraits(container, matrix);
+                    traits: Object.freeze([
+                        "COURT_VISION",
+                        "BALL_HANDLING",
+                        "DECISION_MAKING",
+                        "PICK_AND_ROLL_IQ",
+                        "PASSING",
+                        "LEADERSHIP",
+                        "PACE_CONTROL",
+                        "DEFENSIVE_PRESSURE"
+                    ])
+                }),
 
-    return matrix;
-  }
+                SCORING_POINT_GUARD: Object.freeze({
+                    label: "Scoring Point Guard",
+                    matrix_code: "BK_PG_SCORING_MATRIX_V2",
 
-  function init(){
-    if(window.__STATSCORE_BASKETBALL_POSITION_MATRIX__) return;
+                    traits: Object.freeze([
+                        "SHOT_CREATION",
+                        "BALL_HANDLING",
+                        "THREE_LEVEL_SCORING",
+                        "BURST",
+                        "FINISHING",
+                        "PULL_UP_SHOOTING",
+                        "PACE_CHANGE",
+                        "DEFENSIVE_PRESSURE"
+                    ])
+                }),
 
-    window.__STATSCORE_BASKETBALL_POSITION_MATRIX__ = true;
+                DEFENSIVE_POINT_GUARD: Object.freeze({
+                    label: "Defensive Point Guard",
+                    matrix_code: "BK_PG_DEFENSIVE_MATRIX_V2",
 
-    window.STATScoreBasketballPositionMatrix = {
-      engine_id: ENGINE_ID,
-      version: VERSION,
-      matrices: BASKETBALL_MATRICES,
+                    traits: Object.freeze([
+                        "ON_BALL_DEFENSE",
+                        "DEFENSIVE_PRESSURE",
+                        "LATERAL_QUICKNESS",
+                        "BALL_DISRUPTION",
+                        "COMMUNICATION",
+                        "TRANSITION_CONTROL",
+                        "DECISION_MAKING",
+                        "LEADERSHIP"
+                    ])
+                })
 
-      normalize,
-      normalizeSport,
-      normalizePosition,
-      inferArchetype,
-      getMatrix,
-      getBasketballMatrix,
-      renderTraits
-    };
+            })
+        }),
 
-    window.STATScore = window.STATScore || {};
-    window.STATScore.BasketballPositionMatrix = window.STATScoreBasketballPositionMatrix;
+        SG: Object.freeze({
+            position_code: "SG",
+            position_label: "Shooting Guard",
+            default_archetype: "SHOT_CREATOR",
 
-    const matrix = autoRenderFromWindowAthlete();
+            archetypes: Object.freeze({
 
-    if(window.STATScoreEngineBus?.emit){
-      window.STATScoreEngineBus.emit("engine_online", {
-        engine: ENGINE_ID,
-        version: VERSION,
-        status: "ONLINE",
-        matrix_loaded: Boolean(matrix)
-      });
+                SHOT_CREATOR: Object.freeze({
+                    label: "Shot Creator",
+                    matrix_code: "BK_SG_SHOT_CREATOR_MATRIX_V2",
+
+                    traits: Object.freeze([
+                        "SHOT_CREATION",
+                        "PERIMETER_SHOOTING",
+                        "OFF_BALL_MOVEMENT",
+                        "SCORING_EFFICIENCY",
+                        "BALL_HANDLING",
+                        "DEFENSIVE_VERSATILITY",
+                        "TRANSITION",
+                        "CLUTCH_SCORING"
+                    ])
+                }),
+
+                THREE_AND_D: Object.freeze({
+                    label: "Three-and-D Guard",
+                    matrix_code: "BK_SG_THREE_AND_D_MATRIX_V2",
+
+                    traits: Object.freeze([
+                        "PERIMETER_SHOOTING",
+                        "CATCH_AND_SHOOT",
+                        "DEFENSIVE_VERSATILITY",
+                        "ON_BALL_DEFENSE",
+                        "OFF_BALL_AWARENESS",
+                        "TRANSITION",
+                        "SHOT_DISCIPLINE",
+                        "TEAM_FIT"
+                    ])
+                }),
+
+                SLASHING_GUARD: Object.freeze({
+                    label: "Slashing Guard",
+                    matrix_code: "BK_SG_SLASHING_MATRIX_V2",
+
+                    traits: Object.freeze([
+                        "FIRST_STEP",
+                        "FINISHING",
+                        "CONTACT_BALANCE",
+                        "TRANSITION",
+                        "RIM_PRESSURE",
+                        "BALL_HANDLING",
+                        "FREE_THROW_PRESSURE",
+                        "DEFENSIVE_ACTIVITY"
+                    ])
+                })
+
+            })
+        }),
+
+        SF: Object.freeze({
+            position_code: "SF",
+            position_label: "Small Forward",
+            default_archetype: "TWO_WAY_WING",
+
+            archetypes: Object.freeze({
+
+                TWO_WAY_WING: Object.freeze({
+                    label: "Two-Way Wing",
+                    matrix_code: "BK_SF_TWO_WAY_WING_MATRIX_V2",
+
+                    traits: Object.freeze([
+                        "ATHLETICISM",
+                        "TWO_WAY_VALUE",
+                        "FINISHING",
+                        "DEFENSIVE_SWITCHABILITY",
+                        "REBOUNDING",
+                        "SHOT_CREATION",
+                        "BASKETBALL_IQ",
+                        "VERSATILITY"
+                    ])
+                }),
+
+                SCORING_WING: Object.freeze({
+                    label: "Scoring Wing",
+                    matrix_code: "BK_SF_SCORING_WING_MATRIX_V2",
+
+                    traits: Object.freeze([
+                        "SHOT_CREATION",
+                        "THREE_LEVEL_SCORING",
+                        "PERIMETER_SHOOTING",
+                        "FINISHING",
+                        "OFF_BALL_MOVEMENT",
+                        "TRANSITION",
+                        "MISMATCH_VALUE",
+                        "SCORING_EFFICIENCY"
+                    ])
+                }),
+
+                DEFENSIVE_WING: Object.freeze({
+                    label: "Defensive Wing",
+                    matrix_code: "BK_SF_DEFENSIVE_WING_MATRIX_V2",
+
+                    traits: Object.freeze([
+                        "DEFENSIVE_SWITCHABILITY",
+                        "LENGTH_USAGE",
+                        "ON_BALL_DEFENSE",
+                        "HELP_DEFENSE",
+                        "REBOUNDING",
+                        "TRANSITION_DEFENSE",
+                        "PHYSICALITY",
+                        "BASKETBALL_IQ"
+                    ])
+                })
+
+            })
+        }),
+
+        PF: Object.freeze({
+            position_code: "PF",
+            position_label: "Power Forward",
+            default_archetype: "MODERN_FORWARD",
+
+            archetypes: Object.freeze({
+
+                MODERN_FORWARD: Object.freeze({
+                    label: "Modern Forward",
+                    matrix_code: "BK_PF_MODERN_FORWARD_MATRIX_V2",
+
+                    traits: Object.freeze([
+                        "INTERIOR_SCORING",
+                        "MIDRANGE",
+                        "PHYSICALITY",
+                        "REBOUNDING",
+                        "SCREEN_SETTING",
+                        "DEFENSIVE_PRESENCE",
+                        "MOTOR",
+                        "POST_PLAY"
+                    ])
+                }),
+
+                STRETCH_FOUR: Object.freeze({
+                    label: "Stretch Four",
+                    matrix_code: "BK_PF_STRETCH_FOUR_MATRIX_V2",
+
+                    traits: Object.freeze([
+                        "PERIMETER_SHOOTING",
+                        "PICK_AND_POP_VALUE",
+                        "SPACING",
+                        "REBOUNDING",
+                        "DEFENSIVE_PRESENCE",
+                        "PASSING",
+                        "SCREEN_SETTING",
+                        "BASKETBALL_IQ"
+                    ])
+                }),
+
+                ENERGY_FORWARD: Object.freeze({
+                    label: "Energy Forward",
+                    matrix_code: "BK_PF_ENERGY_FORWARD_MATRIX_V2",
+
+                    traits: Object.freeze([
+                        "MOTOR",
+                        "REBOUNDING",
+                        "PHYSICALITY",
+                        "SCREEN_SETTING",
+                        "INTERIOR_DEFENSE",
+                        "TRANSITION",
+                        "FINISHING",
+                        "SECOND_CHANCE_VALUE"
+                    ])
+                })
+
+            })
+        }),
+
+        C: Object.freeze({
+            position_code: "C",
+            position_label: "Center",
+            default_archetype: "RIM_PROTECTOR",
+
+            archetypes: Object.freeze({
+
+                RIM_PROTECTOR: Object.freeze({
+                    label: "Rim Protector",
+                    matrix_code: "BK_C_RIM_PROTECTOR_MATRIX_V2",
+
+                    traits: Object.freeze([
+                        "RIM_PROTECTION",
+                        "INTERIOR_DEFENSE",
+                        "REBOUNDING",
+                        "POST_SCORING",
+                        "HANDS",
+                        "PHYSICAL_PRESENCE",
+                        "PICK_AND_ROLL_DEFENSE",
+                        "SHOT_BLOCKING"
+                    ])
+                }),
+
+                POST_SCORER: Object.freeze({
+                    label: "Post Scorer",
+                    matrix_code: "BK_C_POST_SCORER_MATRIX_V2",
+
+                    traits: Object.freeze([
+                        "POST_SCORING",
+                        "FOOTWORK",
+                        "HANDS",
+                        "INTERIOR_TOUCH",
+                        "PHYSICAL_PRESENCE",
+                        "REBOUNDING",
+                        "PASSING",
+                        "SCREEN_SETTING"
+                    ])
+                }),
+
+                MOBILE_BIG: Object.freeze({
+                    label: "Mobile Big",
+                    matrix_code: "BK_C_MOBILE_BIG_MATRIX_V2",
+
+                    traits: Object.freeze([
+                        "MOBILITY",
+                        "PICK_AND_ROLL_DEFENSE",
+                        "RIM_RUNNING",
+                        "REBOUNDING",
+                        "FINISHING",
+                        "SHOT_BLOCKING",
+                        "DEFENSIVE_RANGE",
+                        "MOTOR"
+                    ])
+                })
+
+            })
+        })
+
+    });
+
+    /*
+    ============================================================================
+    POSITION ALIASES
+    ----------------------------------------------------------------------------
+    Unknown positions DO NOT silently become Point Guard.
+    ============================================================================
+    */
+
+    const POSITION_ALIASES = Object.freeze({
+
+        POINT_GUARD: "PG",
+        PG: "PG",
+
+        SHOOTING_GUARD: "SG",
+        TWO_GUARD: "SG",
+        "2_GUARD": "SG",
+        SG: "SG",
+
+        SMALL_FORWARD: "SF",
+        WING: "SF",
+        SF: "SF",
+
+        POWER_FORWARD: "PF",
+        FOUR: "PF",
+        "4": "PF",
+        PF: "PF",
+
+        CENTER: "C",
+        FIVE: "C",
+        "5": "C",
+        POST: "C",
+        BIG: "C",
+        C: "C"
+
+    });
+
+    let lastResult = null;
+    let lastError = null;
+
+    function nowISO() {
+        return new Date().toISOString();
     }
 
-    console.info("[STATS-CORE] Basketball Position Matrix loaded:", VERSION);
-  }
+    function normalize(value) {
+        return String(
+            value == null ? "" : value
+        )
+            .trim()
+            .toUpperCase()
+            .replace(/\s+/g, "_")
+            .replace(/-/g, "_");
+    }
 
-  if(document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded", init);
-  }else{
-    init();
-  }
-})(); 
+    function normalizeSport(value) {
+        const sport = normalize(value);
+
+        const aliases = Object.freeze({
+            BASKETBALL: "BASKETBALL",
+            BASKET_BALL: "BASKETBALL",
+            BBALL: "BASKETBALL",
+            HOOPS: "BASKETBALL"
+        });
+
+        return (
+            aliases[sport] ||
+            sport ||
+            "UNKNOWN"
+        );
+    }
+
+    function normalizePosition(value) {
+        const position = normalize(value);
+
+        if (!position) {
+            return null;
+        }
+
+        return (
+            POSITION_ALIASES[position] ||
+            null
+        );
+    }
+
+    function validateStream9Authority() {
+        const authority =
+            global.STATScoreStream9Authority;
+
+        if (!authority) {
+            return {
+                valid: false,
+                status:
+                    STATUS.AUTHORITY_UNAVAILABLE
+            };
+        }
+
+        const valid =
+            authority.stream_number === 9 &&
+            authority.operational_state ===
+                "ACTIVE";
+
+        return {
+            valid,
+            status:
+                valid
+                    ? "AUTHORIZED"
+                    : STATUS.AUTHORITY_UNAUTHORIZED
+        };
+    }
+
+    function getInputSport(athlete) {
+        return normalizeSport(
+            athlete?.primary_sport ||
+            athlete?.sport ||
+            athlete?.raw_payload?.primarySport ||
+            athlete?.raw_payload?.primary_sport ||
+            athlete?.raw_payload?.sport
+        );
+    }
+
+    function getRawPosition(athlete) {
+        return (
+            athlete?.primary_position ||
+            athlete?.position ||
+            athlete?.verified_position ||
+            athlete?.raw_payload?.primaryPosition ||
+            athlete?.raw_payload?.primary_position ||
+            athlete?.raw_payload?.position ||
+            null
+        );
+    }
+
+    function getInputPosition(athlete) {
+        return normalizePosition(
+            getRawPosition(athlete)
+        );
+    }
+
+    function getExplicitArchetype(athlete) {
+        return normalize(
+            athlete?.archetype ||
+            athlete?.position_archetype ||
+            athlete?.player_archetype ||
+            athlete?.raw_payload?.archetype
+        );
+    }
+
+    function buildSearchableText(athlete) {
+        return [
+            athlete?.position_notes,
+            athlete?.raw_payload?.notes,
+            athlete?.raw_payload?.style,
+            athlete?.raw_payload?.strengths,
+            athlete?.raw_payload?.weaknesses
+        ]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase();
+    }
+
+    /*
+    ============================================================================
+    ARCHETYPE CLASSIFICATION
+    ----------------------------------------------------------------------------
+    Classification helps choose a basketball interpretation profile.
+
+    Classification itself does NOT create a score.
+    ============================================================================
+    */
+
+    function inferPointGuardArchetype(text) {
+        if (
+            text.includes("scoring point guard") ||
+            text.includes("score first") ||
+            text.includes("scoring guard") ||
+            text.includes("shot creator")
+        ) {
+            return "SCORING_POINT_GUARD";
+        }
+
+        if (
+            text.includes("defensive point guard") ||
+            text.includes("defensive guard") ||
+            text.includes("on ball defense") ||
+            text.includes("ball pressure")
+        ) {
+            return "DEFENSIVE_POINT_GUARD";
+        }
+
+        return "FLOOR_GENERAL";
+    }
+
+    function inferShootingGuardArchetype(text) {
+        if (
+            text.includes("three and d") ||
+            text.includes("3 and d") ||
+            text.includes("3-and-d") ||
+            text.includes("catch and shoot")
+        ) {
+            return "THREE_AND_D";
+        }
+
+        if (
+            text.includes("slashing guard") ||
+            text.includes("slasher") ||
+            text.includes("rim pressure") ||
+            text.includes("downhill")
+        ) {
+            return "SLASHING_GUARD";
+        }
+
+        return "SHOT_CREATOR";
+    }
+
+    function inferSmallForwardArchetype(text) {
+        if (
+            text.includes("scoring wing") ||
+            text.includes("three level scorer") ||
+            text.includes("three-level scorer")
+        ) {
+            return "SCORING_WING";
+        }
+
+        if (
+            text.includes("defensive wing") ||
+            text.includes("lockdown wing") ||
+            text.includes("defensive specialist")
+        ) {
+            return "DEFENSIVE_WING";
+        }
+
+        return "TWO_WAY_WING";
+    }
+
+    function inferPowerForwardArchetype(text) {
+        if (
+            text.includes("stretch four") ||
+            text.includes("stretch 4") ||
+            text.includes("pick and pop") ||
+            text.includes("floor spacer")
+        ) {
+            return "STRETCH_FOUR";
+        }
+
+        if (
+            text.includes("energy forward") ||
+            text.includes("energy big") ||
+            text.includes("high motor") ||
+            text.includes("second chance")
+        ) {
+            return "ENERGY_FORWARD";
+        }
+
+        return "MODERN_FORWARD";
+    }
+
+    function inferCenterArchetype(text) {
+        if (
+            text.includes("post scorer") ||
+            text.includes("low post") ||
+            text.includes("post offense")
+        ) {
+            return "POST_SCORER";
+        }
+
+        if (
+            text.includes("mobile big") ||
+            text.includes("rim runner") ||
+            text.includes("switch big") ||
+            text.includes("mobile center")
+        ) {
+            return "MOBILE_BIG";
+        }
+
+        return "RIM_PROTECTOR";
+    }
+
+    function inferArchetype(
+        position,
+        athlete
+    ) {
+        const positionProfile =
+            BASKETBALL_MATRICES[
+                position
+            ];
+
+        if (!positionProfile) {
+            return null;
+        }
+
+        const explicit =
+            getExplicitArchetype(
+                athlete
+            );
+
+        if (
+            explicit &&
+            positionProfile
+                .archetypes[
+                    explicit
+                ]
+        ) {
+            return {
+                code:
+                    explicit,
+
+                source:
+                    "EXPLICIT"
+            };
+        }
+
+        const text =
+            buildSearchableText(
+                athlete
+            );
+
+        let code =
+            positionProfile
+                .default_archetype;
+
+        if (position === "PG") {
+            code =
+                inferPointGuardArchetype(
+                    text
+                );
+        }
+
+        if (position === "SG") {
+            code =
+                inferShootingGuardArchetype(
+                    text
+                );
+        }
+
+        if (position === "SF") {
+            code =
+                inferSmallForwardArchetype(
+                    text
+                );
+        }
+
+        if (position === "PF") {
+            code =
+                inferPowerForwardArchetype(
+                    text
+                );
+        }
+
+        if (position === "C") {
+            code =
+                inferCenterArchetype(
+                    text
+                );
+        }
+
+        return {
+            code,
+
+            source:
+                text
+                    ? "TEXT_INFERRED"
+                    : "DEFAULT_ARCHETYPE_CLASSIFICATION"
+        };
+    }
+
+    function getArchetypeDefinition(
+        position,
+        archetypeCode
+    ) {
+        const profile =
+            BASKETBALL_MATRICES[
+                position
+            ];
+
+        if (!profile) {
+            return null;
+        }
+
+        return (
+            profile.archetypes[
+                archetypeCode
+            ] ||
+            null
+        );
+    }
+
+    function buildTraitContract(
+        traitName
+    ) {
+        return {
+            trait_key:
+                traitName,
+
+            value:
+                null,
+
+            confidence:
+                null,
+
+            verification_status:
+                "UNKNOWN",
+
+            status:
+                "EVIDENCE_REQUIRED",
+
+            official:
+                false,
+
+            evidence_used:
+                [],
+
+            missing_evidence: [
+                "TRAIT_EVIDENCE"
+            ],
+
+            flags:
+                []
+        };
+    }
+
+    function resolveMatrix(
+        athlete = {},
+        options = {}
+    ) {
+        lastError = null;
+
+        try {
+            if (
+                !athlete ||
+                typeof athlete !==
+                    "object"
+            ) {
+                const result = {
+                    ok:
+                        false,
+
+                    authority:
+                        ENGINE_ID,
+
+                    authority_version:
+                        VERSION,
+
+                    contract_version:
+                        CONTRACT_VERSION,
+
+                    status:
+                        STATUS.INVALID_INPUT,
+
+                    official:
+                        false,
+
+                    athlete_id:
+                        null,
+
+                    snapshot_id:
+                        null,
+
+                    sport:
+                        SPORT,
+
+                    flags: [
+                        "ATHLETE_INPUT_REQUIRED"
+                    ],
+
+                    generated_at:
+                        nowISO()
+                };
+
+                lastResult = result;
+                return result;
+            }
+
+            const authority =
+                validateStream9Authority();
+
+            if (!authority.valid) {
+                const result = {
+                    ok:
+                        false,
+
+                    authority:
+                        ENGINE_ID,
+
+                    authority_version:
+                        VERSION,
+
+                    contract_version:
+                        CONTRACT_VERSION,
+
+                    status:
+                        authority.status,
+
+                    official:
+                        false,
+
+                    athlete_id:
+                        athlete.athlete_id ||
+                        null,
+
+                    snapshot_id:
+                        athlete.snapshot_id ||
+                        null,
+
+                    sport:
+                        getInputSport(
+                            athlete
+                        ),
+
+                    flags: [
+                        authority.status
+                    ],
+
+                    generated_at:
+                        nowISO()
+                };
+
+                lastResult = result;
+                return result;
+            }
+
+            const sport =
+                getInputSport(
+                    athlete
+                );
+
+            if (
+                sport !== SPORT
+            ) {
+                const result = {
+                    ok:
+                        false,
+
+                    authority:
+                        ENGINE_ID,
+
+                    authority_version:
+                        VERSION,
+
+                    contract_version:
+                        CONTRACT_VERSION,
+
+                    status:
+                        STATUS.UNSUPPORTED_SPORT,
+
+                    official:
+                        false,
+
+                    athlete_id:
+                        athlete.athlete_id ||
+                        null,
+
+                    snapshot_id:
+                        athlete.snapshot_id ||
+                        null,
+
+                    sport,
+
+                    flags: [
+                        "BASKETBALL_POSITION_AUTHORITY_REQUIRES_BASKETBALL_SPORT"
+                    ],
+
+                    generated_at:
+                        nowISO()
+                };
+
+                lastResult = result;
+                return result;
+            }
+
+            const rawPosition =
+                getRawPosition(
+                    athlete
+                );
+
+            if (!rawPosition) {
+                const result = {
+                    ok:
+                        false,
+
+                    authority:
+                        ENGINE_ID,
+
+                    authority_version:
+                        VERSION,
+
+                    contract_version:
+                        CONTRACT_VERSION,
+
+                    status:
+                        STATUS.POSITION_REQUIRED,
+
+                    official:
+                        false,
+
+                    athlete_id:
+                        athlete.athlete_id ||
+                        null,
+
+                    snapshot_id:
+                        athlete.snapshot_id ||
+                        null,
+
+                    sport:
+                        SPORT,
+
+                    position:
+                        null,
+
+                    missing_evidence: [
+                        "position"
+                    ],
+
+                    flags: [
+                        "BASKETBALL_POSITION_REQUIRED"
+                    ],
+
+                    generated_at:
+                        nowISO()
+                };
+
+                lastResult = result;
+                return result;
+            }
+
+            const position =
+                getInputPosition(
+                    athlete
+                );
+
+            if (!position) {
+                const result = {
+                    ok:
+                        false,
+
+                    authority:
+                        ENGINE_ID,
+
+                    authority_version:
+                        VERSION,
+
+                    contract_version:
+                        CONTRACT_VERSION,
+
+                    status:
+                        STATUS.UNSUPPORTED_POSITION,
+
+                    official:
+                        false,
+
+                    athlete_id:
+                        athlete.athlete_id ||
+                        null,
+
+                    snapshot_id:
+                        athlete.snapshot_id ||
+                        null,
+
+                    sport:
+                        SPORT,
+
+                    position:
+                        normalize(
+                            rawPosition
+                        ),
+
+                    flags: [
+                        "BASKETBALL_POSITION_NOT_REGISTERED"
+                    ],
+
+                    generated_at:
+                        nowISO()
+                };
+
+                lastResult = result;
+                return result;
+            }
+
+            const positionProfile =
+                BASKETBALL_MATRICES[
+                    position
+                ];
+
+            if (!positionProfile) {
+                const result = {
+                    ok:
+                        false,
+
+                    authority:
+                        ENGINE_ID,
+
+                    authority_version:
+                        VERSION,
+
+                    contract_version:
+                        CONTRACT_VERSION,
+
+                    status:
+                        STATUS.UNSUPPORTED_POSITION,
+
+                    official:
+                        false,
+
+                    athlete_id:
+                        athlete.athlete_id ||
+                        null,
+
+                    snapshot_id:
+                        athlete.snapshot_id ||
+                        null,
+
+                    sport:
+                        SPORT,
+
+                    position,
+
+                    flags: [
+                        "BASKETBALL_POSITION_PROFILE_UNAVAILABLE"
+                    ],
+
+                    generated_at:
+                        nowISO()
+                };
+
+                lastResult = result;
+                return result;
+            }
+
+            const requestedArchetype =
+                normalize(
+                    options.archetype ||
+                    getExplicitArchetype(
+                        athlete
+                    )
+                );
+
+            let archetypeResolution;
+
+            if (requestedArchetype) {
+                if (
+                    positionProfile
+                        .archetypes[
+                            requestedArchetype
+                        ]
+                ) {
+                    archetypeResolution = {
+                        code:
+                            requestedArchetype,
+
+                        source:
+                            "EXPLICIT"
+                    };
+                } else {
+                    archetypeResolution =
+                        inferArchetype(
+                            position,
+                            athlete
+                        );
+                }
+            } else {
+                archetypeResolution =
+                    inferArchetype(
+                        position,
+                        athlete
+                    );
+            }
+
+            if (
+                !archetypeResolution ||
+                !archetypeResolution.code
+            ) {
+                const result = {
+                    ok:
+                        false,
+
+                    authority:
+                        ENGINE_ID,
+
+                    authority_version:
+                        VERSION,
+
+                    contract_version:
+                        CONTRACT_VERSION,
+
+                    status:
+                        STATUS.UNSUPPORTED_ARCHETYPE,
+
+                    official:
+                        false,
+
+                    athlete_id:
+                        athlete.athlete_id ||
+                        null,
+
+                    snapshot_id:
+                        athlete.snapshot_id ||
+                        null,
+
+                    sport:
+                        SPORT,
+
+                    position,
+
+                    flags: [
+                        "BASKETBALL_ARCHETYPE_UNAVAILABLE"
+                    ],
+
+                    generated_at:
+                        nowISO()
+                };
+
+                lastResult = result;
+                return result;
+            }
+
+            const archetype =
+                getArchetypeDefinition(
+                    position,
+                    archetypeResolution.code
+                );
+
+            if (!archetype) {
+                const result = {
+                    ok:
+                        false,
+
+                    authority:
+                        ENGINE_ID,
+
+                    authority_version:
+                        VERSION,
+
+                    contract_version:
+                        CONTRACT_VERSION,
+
+                    status:
+                        STATUS.UNSUPPORTED_ARCHETYPE,
+
+                    official:
+                        false,
+
+                    athlete_id:
+                        athlete.athlete_id ||
+                        null,
+
+                    snapshot_id:
+                        athlete.snapshot_id ||
+                        null,
+
+                    sport:
+                        SPORT,
+
+                    position,
+
+                    archetype_code:
+                        archetypeResolution.code,
+
+                    flags: [
+                        "BASKETBALL_ARCHETYPE_NOT_REGISTERED"
+                    ],
+
+                    generated_at:
+                        nowISO()
+                };
+
+                lastResult = result;
+                return result;
+            }
+
+            const traits = {};
+
+            archetype.traits
+                .forEach(
+                    function (traitName) {
+                        traits[traitName] =
+                            buildTraitContract(
+                                traitName
+                            );
+                    }
+                );
+
+            const flags = [];
+
+            if (
+                archetypeResolution.source !==
+                "EXPLICIT"
+            ) {
+                flags.push(
+                    "ARCHETYPE_CLASSIFICATION_NOT_EXPLICIT"
+                );
+            }
+
+            const result = {
+                ok:
+                    true,
+
+                authority:
+                    ENGINE_ID,
+
+                authority_key:
+                    "BASKETBALL_POSITION_MATRIX_AUTHORITY",
+
+                authority_version:
+                    VERSION,
+
+                contract_version:
+                    CONTRACT_VERSION,
+
+                stream_owner:
+                    STREAM_OWNER,
+
+                classification:
+                    "SUPPORTING_SPORT_POSITION_INTELLIGENCE",
+
+                official:
+                    false,
+
+                athlete_id:
+                    athlete.athlete_id ||
+                    null,
+
+                snapshot_id:
+                    athlete.snapshot_id ||
+                    null,
+
+                sport:
+                    SPORT,
+
+                position: {
+                    code:
+                        position,
+
+                    label:
+                        positionProfile
+                            .position_label,
+
+                    source_value:
+                        rawPosition
+                },
+
+                archetype: {
+                    code:
+                        archetypeResolution
+                            .code,
+
+                    label:
+                        archetype.label,
+
+                    source:
+                        archetypeResolution
+                            .source,
+
+                    confidence:
+                        null,
+
+                    confidence_status:
+                        "CONFIDENCE_AUTHORITY_REQUIRED"
+                },
+
+                matrix: {
+                    matrix_code:
+                        archetype.matrix_code,
+
+                    matrix_version:
+                        VERSION,
+
+                    role:
+                        "BASKETBALL_POSITION_TRAIT_VOCABULARY",
+
+                    official_domain_matrix:
+                        false
+                },
+
+                trait_keys:
+                    Array.from(
+                        archetype.traits
+                    ),
+
+                traits,
+
+                status:
+                    STATUS.AVAILABLE,
+
+                flags,
+
+                downstream_release: {
+                    athletic_score:
+                        "NOT_PUBLISHED",
+
+                    production_score:
+                        "NOT_PUBLISHED",
+
+                    competition_score:
+                        "NOT_PUBLISHED",
+
+                    verification_score:
+                        "NOT_PUBLISHED",
+
+                    academic_score:
+                        "NOT_PUBLISHED",
+
+                    position_score:
+                        "NOT_PUBLISHED",
+
+                    final_score:
+                        "NOT_PUBLISHED",
+
+                    star_rating:
+                        "NOT_PUBLISHED",
+
+                    statscore:
+                        "NOT_PUBLISHED",
+
+                    composite:
+                        "NOT_PUBLISHED"
+                },
+
+                explanation: {
+                    summary:
+                        `Basketball position authority resolved ${positionProfile.position_label} / ${archetype.label} using ${archetype.matrix_code}. This authority defines basketball position/archetype trait science only and does not publish official athlete scoring.`,
+
+                    factors: [
+                        "Basketball sport context confirmed.",
+                        "Basketball position normalized to governed position authority.",
+                        "Supported basketball archetype resolved.",
+                        "Basketball trait vocabulary exposed without manufacturing trait values."
+                    ],
+
+                    limitations: [
+                        "Trait values remain null until governed evidence is interpreted by the Basketball Sport Intelligence Authority.",
+                        "Position or archetype classification does not create Athletic Score.",
+                        "Position or archetype classification does not create Production Score.",
+                        "Position or archetype classification does not create STATScore™.",
+                        "Verification and confidence remain separate downstream authorities.",
+                        "Composite Intelligence remains subordinate to independent domain intelligence."
+                    ],
+
+                    downstream_authorities: {
+                        basketball_sport_intelligence:
+                            "BASKETBALL_SPORT_INTELLIGENCE",
+
+                        athletic:
+                            "ATHLETIC_MATRIX",
+
+                        production:
+                            "PRODUCTION_MATRIX",
+
+                        competition:
+                            "COMPETITION_MATRIX",
+
+                        verification:
+                            "VERIFICATION_MATRIX",
+
+                        score_publisher:
+                            "SCORE_AUTHORITY",
+
+                        composite:
+                            "COMPOSITE_AUTHORITY"
+                    }
+                },
+
+                generated_at:
+                    nowISO()
+            };
+
+            lastResult = result;
+            return result;
+
+        } catch (error) {
+            lastError = {
+                message:
+                    error instanceof Error
+                        ? error.message
+                        : String(error),
+
+                generated_at:
+                    nowISO()
+            };
+
+            const result = {
+                ok:
+                    false,
+
+                authority:
+                    ENGINE_ID,
+
+                authority_key:
+                    "BASKETBALL_POSITION_MATRIX_AUTHORITY",
+
+                authority_version:
+                    VERSION,
+
+                contract_version:
+                    CONTRACT_VERSION,
+
+                status:
+                    STATUS.ERROR,
+
+                official:
+                    false,
+
+                athlete_id:
+                    athlete?.athlete_id ||
+                    null,
+
+                snapshot_id:
+                    athlete?.snapshot_id ||
+                    null,
+
+                sport:
+                    SPORT,
+
+                flags: [
+                    "BASKETBALL_POSITION_MATRIX_EXECUTION_ERROR"
+                ],
+
+                error:
+                    lastError.message,
+
+                generated_at:
+                    nowISO()
+            };
+
+            lastResult = result;
+            return result;
+        }
+    }
+
+    /*
+    ============================================================================
+    COMPATIBILITY METHOD
+    ----------------------------------------------------------------------------
+    Historical consumers may still call getMatrix().
+
+    This method now returns the governed V2 structured position/archetype
+    authority result. It does not restore DOM rendering or hidden scoring.
+    ============================================================================
+    */
+
+    function getMatrix(
+        athlete = {}
+    ) {
+        return resolveMatrix(
+            athlete
+        );
+    }
+
+    function getPositionDefinition(
+        position
+    ) {
+        const normalizedPosition =
+            normalizePosition(
+                position
+            );
+
+        if (!normalizedPosition) {
+            return null;
+        }
+
+        const definition =
+            BASKETBALL_MATRICES[
+                normalizedPosition
+            ];
+
+        if (!definition) {
+            return null;
+        }
+
+        return {
+            position_code:
+                definition
+                    .position_code,
+
+            position_label:
+                definition
+                    .position_label,
+
+            default_archetype:
+                definition
+                    .default_archetype,
+
+            archetypes:
+                Object.keys(
+                    definition
+                        .archetypes
+                )
+        };
+    }
+
+    function getArchetype(
+        position,
+        archetypeCode
+    ) {
+        const normalizedPosition =
+            normalizePosition(
+                position
+            );
+
+        if (!normalizedPosition) {
+            return null;
+        }
+
+        const profile =
+            BASKETBALL_MATRICES[
+                normalizedPosition
+            ];
+
+        if (!profile) {
+            return null;
+        }
+
+        const normalizedArchetype =
+            normalize(
+                archetypeCode
+            );
+
+        const selected =
+            profile.archetypes[
+                normalizedArchetype
+            ];
+
+        if (!selected) {
+            return null;
+        }
+
+        return {
+            sport:
+                SPORT,
+
+            position:
+                normalizedPosition,
+
+            archetype_code:
+                normalizedArchetype,
+
+            archetype:
+                selected.label,
+
+            matrix_code:
+                selected.matrix_code,
+
+            matrix_version:
+                VERSION,
+
+            traits:
+                Array.from(
+                    selected.traits
+                )
+        };
+    }
+
+    function listPositions() {
+        return Object.keys(
+            BASKETBALL_MATRICES
+        )
+            .map(
+                function (position) {
+                    const definition =
+                        BASKETBALL_MATRICES[
+                            position
+                        ];
+
+                    return {
+                        position_code:
+                            position,
+
+                        position_label:
+                            definition
+                                .position_label,
+
+                        default_archetype:
+                            definition
+                                .default_archetype,
+
+                        archetypes:
+                            Object.keys(
+                                definition
+                                    .archetypes
+                            )
+                    };
+                }
+            );
+    }
+
+    function listArchetypes(
+        position
+    ) {
+        const normalizedPosition =
+            normalizePosition(
+                position
+            );
+
+        if (!normalizedPosition) {
+            return [];
+        }
+
+        const profile =
+            BASKETBALL_MATRICES[
+                normalizedPosition
+            ];
+
+        if (!profile) {
+            return [];
+        }
+
+        return Object.keys(
+            profile.archetypes
+        )
+            .map(
+                function (code) {
+                    const archetype =
+                        profile.archetypes[
+                            code
+                        ];
+
+                    return {
+                        archetype_code:
+                            code,
+
+                        label:
+                            archetype.label,
+
+                        matrix_code:
+                            archetype
+                                .matrix_code,
+
+                        traits:
+                            Array.from(
+                                archetype
+                                    .traits
+                            )
+                    };
+                }
+            );
+    }
+
+    function getContract() {
+        return {
+            authority_key:
+                "BASKETBALL_POSITION_MATRIX_AUTHORITY",
+
+            authority:
+                ENGINE_ID,
+
+            authority_version:
+                VERSION,
+
+            contract_version:
+                CONTRACT_VERSION,
+
+            stream_owner:
+                STREAM_OWNER,
+
+            sport:
+                SPORT,
+
+            classification:
+                "SUPPORTING_SPORT_POSITION_INTELLIGENCE",
+
+            official_score_publisher:
+                false,
+
+            responsibilities: [
+                "Normalize basketball position.",
+                "Resolve supported basketball position authority.",
+                "Resolve supported basketball archetype.",
+                "Expose versioned basketball trait vocabulary.",
+                "Return structured position/archetype interpretation."
+            ],
+
+            prohibited_responsibilities: [
+                "Official Athletic Score calculation.",
+                "Official Production Score calculation.",
+                "Official Competition Score calculation.",
+                "Official Verification Score calculation.",
+                "Official Academic Score calculation.",
+                "Official Position Score calculation.",
+                "Official STATScore calculation.",
+                "Composite calculation.",
+                "Trait baseline generation.",
+                "Missing evidence fabrication.",
+                "Confidence calculation.",
+                "Verification authority.",
+                "Star rating publication.",
+                "DOM rendering.",
+                "Automatic page-load execution."
+            ],
+
+            required_input: [
+                "sport",
+                "position"
+            ],
+
+            optional_input: [
+                "athlete_id",
+                "snapshot_id",
+                "archetype",
+                "position_notes",
+                "raw_payload"
+            ],
+
+            output: [
+                "sport",
+                "position",
+                "archetype",
+                "matrix",
+                "trait_keys",
+                "traits",
+                "status",
+                "flags",
+                "explanation",
+                "generated_at"
+            ],
+
+            execution_rule:
+                "Explicit invocation only. Loading this file performs no athlete interpretation.",
+
+            presentation_rule:
+                "No DOM or UI rendering is permitted inside this authority.",
+
+            missing_authority_rule:
+                "Unknown basketball positions or archetypes may not be silently replaced with a default position authority."
+        };
+    }
+
+    function getConfiguration() {
+        return {
+            engine_id:
+                ENGINE_ID,
+
+            version:
+                VERSION,
+
+            contract_version:
+                CONTRACT_VERSION,
+
+            stream_owner:
+                STREAM_OWNER,
+
+            sport:
+                SPORT,
+
+            positions:
+                listPositions(),
+
+            position_aliases:
+                POSITION_ALIASES,
+
+            automatic_execution:
+                false,
+
+            dom_rendering:
+                false,
+
+            official_score_publication:
+                false
+        };
+    }
+
+    function getLastResult() {
+        return lastResult;
+    }
+
+    function getLastError() {
+        return lastError;
+    }
+
+    function runHealthCheck() {
+        const authority =
+            validateStream9Authority();
+
+        const missingDefaultArchetypes =
+            [];
+
+        const emptyTraitMatrices =
+            [];
+
+        const duplicateMatrixCodes =
+            [];
+
+        const matrixCodes =
+            [];
+
+        Object.keys(
+            BASKETBALL_MATRICES
+        )
+            .forEach(
+                function (position) {
+                    const profile =
+                        BASKETBALL_MATRICES[
+                            position
+                        ];
+
+                    if (
+                        !profile
+                            .default_archetype ||
+                        !profile
+                            .archetypes[
+                                profile
+                                    .default_archetype
+                            ]
+                    ) {
+                        missingDefaultArchetypes
+                            .push(
+                                position
+                            );
+                    }
+
+                    Object.keys(
+                        profile.archetypes
+                    )
+                        .forEach(
+                            function (code) {
+                                const archetype =
+                                    profile
+                                        .archetypes[
+                                            code
+                                        ];
+
+                                if (
+                                    !Array.isArray(
+                                        archetype
+                                            .traits
+                                    ) ||
+                                    archetype
+                                        .traits
+                                        .length ===
+                                        0
+                                ) {
+                                    emptyTraitMatrices
+                                        .push(
+                                            `${position}:${code}`
+                                        );
+                                }
+
+                                if (
+                                    matrixCodes
+                                        .includes(
+                                            archetype
+                                                .matrix_code
+                                        )
+                                ) {
+                                    duplicateMatrixCodes
+                                        .push(
+                                            archetype
+                                                .matrix_code
+                                        );
+                                } else {
+                                    matrixCodes
+                                        .push(
+                                            archetype
+                                                .matrix_code
+                                        );
+                                }
+                            }
+                        );
+                }
+            );
+
+        const healthy =
+            authority.valid &&
+            missingDefaultArchetypes
+                .length === 0 &&
+            emptyTraitMatrices
+                .length === 0 &&
+            duplicateMatrixCodes
+                .length === 0;
+
+        return {
+            authority:
+                ENGINE_ID,
+
+            authority_version:
+                VERSION,
+
+            contract_version:
+                CONTRACT_VERSION,
+
+            status:
+                healthy
+                    ? "HEALTHY"
+                    : "DEGRADED",
+
+            stream_9_authority:
+                authority,
+
+            positions_registered:
+                Object.keys(
+                    BASKETBALL_MATRICES
+                ).length,
+
+            matrix_codes_registered:
+                matrixCodes.length,
+
+            missing_default_archetypes:
+                missingDefaultArchetypes,
+
+            empty_trait_matrices:
+                emptyTraitMatrices,
+
+            duplicate_matrix_codes:
+                duplicateMatrixCodes,
+
+            auto_execution:
+                false,
+
+            dom_rendering:
+                false,
+
+            trait_value_fabrication:
+                false,
+
+            silent_position_fallback:
+                false,
+
+            official_score_publication:
+                false,
+
+            generated_at:
+                nowISO()
+        };
+    }
+
+    const BasketballPositionMatrixAuthority =
+        Object.freeze({
+
+            engine_id:
+                ENGINE_ID,
+
+            authority_key:
+                "BASKETBALL_POSITION_MATRIX_AUTHORITY",
+
+            version:
+                VERSION,
+
+            contract_version:
+                CONTRACT_VERSION,
+
+            stream_owner:
+                STREAM_OWNER,
+
+            sport:
+                SPORT,
+
+            status:
+                "ACTIVE",
+
+            classification:
+                "SUPPORTING_SPORT_POSITION_INTELLIGENCE_AUTHORITY",
+
+            official_score_publisher:
+                false,
+
+            matrices:
+                BASKETBALL_MATRICES,
+
+            normalize,
+
+            normalizeSport,
+
+            normalizePosition,
+
+            inferArchetype,
+
+            resolveMatrix,
+
+            getMatrix,
+
+            getPositionDefinition,
+
+            getArchetype,
+
+            listPositions,
+
+            listArchetypes,
+
+            getContract,
+
+            getConfiguration,
+
+            getLastResult,
+
+            getLastError,
+
+            runHealthCheck
+        });
+
+    global.STATScoreBasketballPositionMatrix =
+        BasketballPositionMatrixAuthority;
+
+    global.STATScore =
+        global.STATScore || {};
+
+    global.STATScore.BasketballPositionMatrix =
+        BasketballPositionMatrixAuthority;
+
+    console.info(
+        "[STATS-CORE] Basketball Position Matrix Authority loaded:",
+        VERSION,
+        "| explicit invocation required | DOM rendering disabled | official scoring disabled"
+    );
+
+})(window); 
