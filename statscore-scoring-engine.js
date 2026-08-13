@@ -1,502 +1,1227 @@
-/* ============================================================
-   STATScore™ Scoring Engine Spine
-   File: statscore-scoring-engine.js
-   Version: STATSCORE-SCORING-ENGINE-V1
-   Purpose:
-   Protected sport/position scoring foundation for Football,
-   Basketball, Baseball, and Track using completion,
-   competition level, verification, readiness, evidence,
-   and explainable athlete intelligence.
-============================================================ */
+/*!
+* =============================================================================
+* STATS-CORE™
+* Stream 9 — Enterprise Intelligence Authority
+* -----------------------------------------------------------------------------
+* File:
+*     statscore-scoring-engine.js
+*
+* Classification:
+*     COMPATIBILITY ADAPTER — LEGACY GENERIC SCORER DEPRECATED
+*
+* Owner:
+*     Stream 9 — Enterprise Intelligence Authority
+*
+* Version:
+*     STATSCORE-SCORING-ENGINE-COMPAT-V2
+*
+* Status:
+*     DEPRECATED AS SCORING AUTHORITY
+*     ACTIVE ONLY AS CONTROLLED COMPATIBILITY ADAPTER
+*
+* Superseded Authority:
+*     Legacy Generic Scoring Engine
+*
+* Canonical Replacement:
+*     statscore-score-authority-engine.js
+*
+* Purpose:
+*     Preserve temporary compatibility for legacy consumers that still call
+*     STATScoreScoringEngine methods while preventing this file from operating
+*     as an independent scoring system.
+*
+* Constitutional Chain:
+*
+*     Legacy Consumer
+*          ↓
+*     statscore-scoring-engine.js
+*          ↓
+*     Score Authority
+*          ↓
+*     Registered Stream 9 Domain Authorities
+*          ↓
+*     Composite Authority
+*
+* This file DOES:
+*     - preserve selected legacy method names;
+*     - forward requests to the canonical Score Authority;
+*     - identify itself as deprecated scoring infrastructure;
+*     - expose migration and health diagnostics;
+*     - fail closed when Score Authority is unavailable.
+*
+* This file DOES NOT:
+*     - calculate a score;
+*     - define scoring weights;
+*     - calculate evidence points;
+*     - calculate verification points;
+*     - calculate readiness points;
+*     - calculate competition points;
+*     - calculate completion points;
+*     - calculate sport-context points;
+*     - average traits;
+*     - generate official stars;
+*     - create recruiting projections;
+*     - multiply performance by competition level;
+*     - convert profile completion into athlete ability;
+*     - convert guardian status into athlete ability;
+*     - convert headshot/media presence into athlete ability;
+*     - create official domain scores;
+*     - create Composite Intelligence;
+*     - render DOM;
+*     - mutate page state;
+*     - invoke sport engines directly;
+*     - use a generic fallback formula.
+*
+* Permanent Rule:
+*
+*     THIS FILE IS NOT AN OFFICIAL SCORING AUTHORITY.
+*
+* =============================================================================
+*/
 
-window.STATScoreScoringEngine = (() => {
+(function (global) {
+    "use strict";
 
-  const SCORE_VERSION = "STATSCORE-SCORING-V1";
-  const MIN_SCORE = 0;
-  const MAX_SCORE = 100;
+    const ENGINE_ID =
+        "statscore-scoring-engine";
 
-  const STAR_THRESHOLDS = [
-    { stars: 5, min: 92, label: "Elite National Signal" },
-    { stars: 4, min: 84, label: "High-Level Regional Signal" },
-    { stars: 3, min: 74, label: "Verified Development Signal" },
-    { stars: 2, min: 62, label: "Emerging Athlete Signal" },
-    { stars: 1, min: 1,  label: "Profile Building Signal" },
-    { stars: 0, min: 0,  label: "Insufficient Verified Signal" }
-  ];
+    const VERSION =
+        "STATSCORE-SCORING-ENGINE-COMPAT-V2";
 
-  const SPORT_BASELINES = {
-    football: {
-      default_matrix: "FOOTBALL_MATRIX_V1",
-      traits: ["athleticism", "position_skill", "film", "competition", "readiness", "verification"],
-      positions: {
-        QB: ["arm", "accuracy", "decision_making", "mobility", "film", "competition"],
-        RB: ["burst", "vision", "contact_balance", "ball_security", "film", "competition"],
-        WR: ["speed", "hands", "route_running", "separation", "film", "competition"],
-        DB: ["speed", "hips", "coverage", "ball_skills", "film", "competition"],
-        LB: ["pursuit", "physicality", "instincts", "coverage", "film", "competition"],
-        DL: ["explosion", "hands", "leverage", "motor", "film", "competition"],
-        OL: ["feet", "strength", "leverage", "pass_protection", "film", "competition"],
-        ATH: ["speed", "versatility", "film", "competition", "readiness", "verification"]
-      }
-    },
+    const STREAM_OWNER =
+        "STATSCORE_STREAM_9";
 
-    basketball: {
-      default_matrix: "BASKETBALL_MATRIX_V1",
-      traits: ["athleticism", "skill", "iq", "competition", "readiness", "verification"],
-      positions: {
-        PG: ["handle", "decision_making", "pace", "shooting", "defense", "competition"],
-        SG: ["shooting", "scoring", "movement", "defense", "athleticism", "competition"],
-        SF: ["versatility", "finishing", "defense", "transition", "shooting", "competition"],
-        PF: ["rebounding", "finishing", "strength", "mobility", "defense", "competition"],
-        C: ["rim_protection", "rebounding", "post_play", "mobility", "finishing", "competition"],
-        G: ["handle", "shooting", "decision_making", "defense", "athleticism", "competition"],
-        F: ["versatility", "rebounding", "finishing", "defense", "mobility", "competition"]
-      }
-    },
+    const CLASSIFICATION =
+        "CONTROLLED_COMPATIBILITY_ADAPTER";
 
-    baseball: {
-      default_matrix: "BASEBALL_MATRIX_V1",
-      traits: ["tools", "skill", "production", "competition", "readiness", "verification"],
-      positions: {
-        P: ["velocity", "command", "movement", "mechanics", "durability", "competition"],
-        C: ["arm_strength", "receiving", "blocking", "pop_time", "game_management", "competition"],
-        "1B": ["bat", "power", "fielding", "footwork", "production", "competition"],
-        "2B": ["range", "hands", "transfer", "bat", "iq", "competition"],
-        "3B": ["arm_strength", "reaction", "bat", "power", "fielding", "competition"],
-        SS: ["range", "arm_strength", "hands", "actions", "bat", "competition"],
-        OF: ["speed", "routes", "arm_strength", "bat", "range", "competition"],
-        UTIL: ["versatility", "bat", "fielding", "athleticism", "production", "competition"]
-      }
-    },
+    const AUTHORITY_STATUS =
+        "DEPRECATED_AS_SCORING_AUTHORITY";
 
-    track: {
-      default_matrix: "TRACK_MATRIX_V1",
-      traits: ["verified_time_mark", "event_quality", "competition", "progression", "readiness", "verification"],
-      positions: {
-        SPRINTS: ["verified_time", "start", "acceleration", "top_speed", "competition", "progression"],
-        DISTANCE: ["verified_time", "pace", "endurance", "race_strategy", "competition", "progression"],
-        HURDLES: ["verified_time", "rhythm", "technique", "speed", "competition", "progression"],
-        JUMPS: ["verified_mark", "approach", "explosion", "technique", "competition", "progression"],
-        THROWS: ["verified_mark", "power", "technique", "consistency", "competition", "progression"],
-        RELAYS: ["split", "exchange", "speed", "team_context", "competition", "progression"],
-        MULTI: ["event_spread", "verified_marks", "technical_balance", "competition", "progression", "readiness"]
-      }
-    }
-  };
+    const CANONICAL_REPLACEMENT =
+        "statscore-score-authority-engine.js";
 
-  function core(){ return window.STATScoreCore || null; }
-  function intel(){ return window.STATScoreIntelligence || null; }
+    const CANONICAL_API =
+        "STATScore.ScoreAuthority.getAthleteIntelligence";
 
-  function clamp(value, min = MIN_SCORE, max = MAX_SCORE){
-    const n = Number(value || 0);
-    return Math.max(min, Math.min(max, Math.round(n)));
-  }
+    let lastResult =
+        null;
 
-  function lower(value){
-    return String(value || "").trim().toLowerCase();
-  }
+    let lastError =
+        null;
 
-  function upper(value){
-    return String(value || "").trim().toUpperCase();
-  }
+    /*
+     * =========================================================================
+     * LEGACY FEATURES PERMANENTLY DISABLED
+     * =========================================================================
+     */
 
-  function normalizeSport(sport){
-    return core()?.normalizeSport?.(sport) || lower(sport);
-  }
+    const LEGACY_SCORING_FEATURES = Object.freeze({
 
-  function normalizePosition(position){
-    return upper(position);
-  }
+        generic_weighted_formula:
+            false,
 
-  function getMatrix(snapshot){
-    const sport = normalizeSport(snapshot?.sport);
-    const position = normalizePosition(snapshot?.position);
-    const sportMatrix = SPORT_BASELINES[sport];
+        evidence_weight_24:
+            false,
 
-    if (!sportMatrix) {
-      return {
-        sport,
-        position,
-        matrix_id: "UNSUPPORTED_SPORT_MATRIX",
-        traits: [],
-        supported: false
-      };
-    }
+        verification_weight_18:
+            false,
 
-    const traits =
-      sportMatrix.positions[position] ||
-      sportMatrix.traits ||
-      [];
+        readiness_weight_18:
+            false,
 
-    return {
-      sport,
-      position,
-      matrix_id: sportMatrix.default_matrix,
-      traits,
-      supported: true
-    };
-  }
+        competition_weight_18:
+            false,
 
-  function evidenceScore(snapshot){
-    let score = 0;
-    const reasons = [];
+        completion_weight_12:
+            false,
 
-    if (snapshot?.headshot_public_url) {
-      score += 10;
-      reasons.push("official athlete image present");
-    }
+        sport_context_weight_10:
+            false,
 
-    if (snapshot?.highlight_url) {
-      score += 18;
-      reasons.push("highlight reel submitted");
-    }
+        profile_completion_affects_ability:
+            false,
 
-    if (snapshot?.game_film_url) {
-      score += 22;
-      reasons.push("game film submitted");
-    }
+        headshot_affects_ability:
+            false,
 
-    if (snapshot?.dash40 || snapshot?.vertical_jump || snapshot?.shuttle || snapshot?.broad_jump) {
-      score += 18;
-      reasons.push("performance metrics present");
-    }
+        guardian_contact_affects_ability:
+            false,
 
-    if (snapshot?.coach_name || snapshot?.coach_email) {
-      score += 14;
-      reasons.push("coach contact available");
-    }
+        coach_contact_affects_ability:
+            false,
 
-    if (snapshot?.guardian_name || snapshot?.guardian_email) {
-      score += 10;
-      reasons.push("guardian lane present");
-    }
+        media_presence_affects_ability:
+            false,
 
-    if (snapshot?.current_gpa || snapshot?.ncaa_status) {
-      score += 8;
-      reasons.push("academic readiness data present");
-    }
+        verification_status_affects_performance:
+            false,
 
-    return {
-      score: clamp(score),
-      reasons
-    };
-  }
+        competition_multiplier:
+            false,
 
-  function verificationScore(snapshot){
-    const status = lower(snapshot?.verification_status);
+        local_readiness_scoring:
+            false,
 
-    if (status === "verified") {
-      return {
-        score: 100,
-        label: "Verified",
-        reasons: ["athlete record is verified"]
-      };
-    }
+        local_star_authority:
+            false,
 
-    if (status === "pending" || status === "in review") {
-      return {
-        score: 65,
-        label: "In Review",
-        reasons: ["verification is in progress"]
-      };
+        local_projection_lane_authority:
+            false,
+
+        local_final_score:
+            false,
+
+        direct_sport_engine_scoring:
+            false,
+
+        generic_fallback_scoring:
+            false,
+
+        dom_rendering:
+            false
+    });
+
+    /*
+     * =========================================================================
+     * UTILITY
+     * =========================================================================
+     */
+
+    function nowISO() {
+        return new Date()
+            .toISOString();
     }
 
-    return {
-      score: 35,
-      label: "Unverified",
-      reasons: ["verification is incomplete"]
-    };
-  }
+    function normalizeInput(
+        input
+    ) {
+        if (
+            input === undefined ||
+            input === null
+        ) {
+            return {};
+        }
 
-  function readinessScore(snapshot){
-    const state = intel()?.readinessState?.(snapshot);
+        if (
+            typeof input ===
+                "string"
+        ) {
+            return {
+                snapshot_id:
+                    input
+            };
+        }
 
-    if (!state) {
-      return {
-        score: 0,
-        label: "No Readiness State",
-        reasons: ["readiness engine unavailable"]
-      };
+        if (
+            typeof input ===
+                "object" &&
+            !Array.isArray(
+                input
+            )
+        ) {
+            return input;
+        }
+
+        return {};
     }
 
-    const map = {
-      OPERATIONAL_READY: 95,
-      REVIEW_READY: 78,
-      ACADEMIC_REVIEW_REQUIRED: 62,
-      PREPARATION_REQUIRED: 45
-    };
+    /*
+     * =========================================================================
+     * CANONICAL AUTHORITY RESOLUTION
+     * =========================================================================
+     */
 
-    return {
-      score: map[state.status] || 50,
-      label: state.label,
-      reasons: [state.explanation]
-    };
-  }
-
-  function competitionScore(snapshot){
-    const comp =
-      intel()?.competitionLevel?.(snapshot) ||
-      core()?.resolveCompetitionLevel?.(snapshot?.competition_level);
-
-    const base = 70;
-    const weighted = core()?.weightedScore?.(base, snapshot?.competition_level) || Math.round(base * (comp?.weight || 1));
-
-    return {
-      score: clamp(weighted),
-      label: comp?.label || "Standard Varsity",
-      weight: comp?.weight || 1,
-      reasons: [
-        `competition level weighted as ${comp?.label || "Standard Varsity"}`,
-        "stats are evidence, competition level determines weight"
-      ]
-    };
-  }
-
-  function completionScore(snapshot){
-    const c = core()?.profileCompletion?.(snapshot) || { percent: 0, missing: [] };
-
-    return {
-      score: clamp(c.percent),
-      label: `${c.percent}% Complete`,
-      missing: c.missing || [],
-      reasons: c.missing?.length
-        ? [`missing lanes: ${c.missing.join(", ")}`]
-        : ["profile lanes are complete"]
-    };
-  }
-
-  function sportContextScore(snapshot){
-    const matrix = getMatrix(snapshot);
-
-    if (!matrix.supported) {
-      return {
-        score: 0,
-        label: "Unsupported Sport",
-        reasons: ["sport is not currently active in STATScore V1"]
-      };
+    function getScoreAuthority() {
+        return (
+            global
+                .STATSCORE_SCORE_AUTHORITY_ENGINE ||
+            global
+                .STATScore
+                ?.ScoreAuthority ||
+            global
+                .STATScore
+                ?.ScoreAuthorityEngine ||
+            null
+        );
     }
 
-    const knownPosition =
-      intel()?.isKnownPosition?.(snapshot?.sport, snapshot?.position);
+    function getCanonicalMethod(
+        authority
+    ) {
+        if (
+            authority &&
+            typeof authority
+                .getAthleteIntelligence ===
+                "function"
+        ) {
+            return "getAthleteIntelligence";
+        }
 
-    return {
-      score: knownPosition ? 90 : 70,
-      label: knownPosition ? "Position Matrix Active" : "General Matrix Active",
-      reasons: [
-        knownPosition
-          ? `${matrix.position} position matrix active`
-          : "general sport matrix used because position is not fully mapped"
-      ]
-    };
-  }
+        /*
+         * Compatibility with transitional Score Authority builds.
+         * These are still downstream calls to the canonical authority.
+         */
 
-  function calculateRawScore(snapshot){
-    const evidence = evidenceScore(snapshot);
-    const verification = verificationScore(snapshot);
-    const readiness = readinessScore(snapshot);
-    const competition = competitionScore(snapshot);
-    const completion = completionScore(snapshot);
-    const sportContext = sportContextScore(snapshot);
+        if (
+            authority &&
+            typeof authority
+                .getDashboardScoreModel ===
+                "function"
+        ) {
+            return "getDashboardScoreModel";
+        }
 
-    const weighted =
-      evidence.score * 0.24 +
-      verification.score * 0.18 +
-      readiness.score * 0.18 +
-      competition.score * 0.18 +
-      completion.score * 0.12 +
-      sportContext.score * 0.10;
+        if (
+            authority &&
+            typeof authority
+                .getProfileScoreModel ===
+                "function"
+        ) {
+            return "getProfileScoreModel";
+        }
 
-    return {
-      score: clamp(weighted),
-      components: {
-        evidence,
-        verification,
-        readiness,
-        competition,
-        completion,
-        sport_context: sportContext
-      }
-    };
-  }
-
-  function starSignal(score){
-    const value = clamp(score);
-
-    const threshold =
-      STAR_THRESHOLDS.find(t => value >= t.min) ||
-      STAR_THRESHOLDS[STAR_THRESHOLDS.length - 1];
-
-    return {
-      stars: threshold.stars,
-      label: threshold.label,
-      display: "★".repeat(threshold.stars) + "☆".repeat(5 - threshold.stars)
-    };
-  }
-
-  function projectionLane(snapshot, score){
-    const ready = readinessScore(snapshot);
-    const comp = competitionScore(snapshot);
-    const verified = lower(snapshot?.verification_status) === "verified";
-
-    if (!verified) {
-      return {
-        lane: "VERIFY_FIRST",
-        label: "Verification First",
-        explanation: "Projection is restricted until athlete evidence is verified."
-      };
+        return null;
     }
 
-    if (score >= 90 && comp.weight >= 1.16) {
-      return {
-        lane: "NATIONAL_VISIBILITY",
-        label: "National Visibility Lane",
-        explanation: "High score with strong competition context supports broader visibility."
-      };
+    /*
+     * =========================================================================
+     * FAILURE CONTRACT
+     * =========================================================================
+     */
+
+    function buildAuthorityUnavailableResult(
+        input,
+        requestedMethod
+    ) {
+        const normalized =
+            normalizeInput(
+                input
+            );
+
+        const snapshot =
+            normalized.snapshot &&
+            typeof normalized.snapshot ===
+                "object"
+                ? normalized.snapshot
+                : normalized;
+
+        return {
+            ok:
+                false,
+
+            engine_id:
+                ENGINE_ID,
+
+            version:
+                VERSION,
+
+            stream_owner:
+                STREAM_OWNER,
+
+            classification:
+                CLASSIFICATION,
+
+            authority_status:
+                AUTHORITY_STATUS,
+
+            official_scoring_authority:
+                false,
+
+            requested_legacy_method:
+                requestedMethod ||
+                null,
+
+            canonical_replacement:
+                CANONICAL_REPLACEMENT,
+
+            canonical_api:
+                CANONICAL_API,
+
+            athlete_id:
+                normalized
+                    .athlete_id ||
+                snapshot
+                    ?.athlete_id ||
+                null,
+
+            snapshot_id:
+                normalized
+                    .snapshot_id ||
+                snapshot
+                    ?.snapshot_id ||
+                null,
+
+            score:
+                null,
+
+            final_score:
+                null,
+
+            status:
+                "AUTHORITY_UNAVAILABLE",
+
+            flags: [
+                "LEGACY_SCORER_DEPRECATED",
+                "SCORE_AUTHORITY_UNAVAILABLE",
+                "NO_GENERIC_SCORING_FALLBACK"
+            ],
+
+            explanation: {
+                summary:
+                    "The legacy generic scorer is deprecated and the canonical Score Authority is unavailable.",
+
+                rule:
+                    "Missing scoring authority does not authorize reconstruction or fallback scoring.",
+
+                next_action:
+                    "Load statscore-score-authority-engine.js before requesting governed athlete intelligence."
+            },
+
+            generated_at:
+                nowISO()
+        };
     }
 
-    if (score >= 82) {
-      return {
-        lane: "REGIONAL_RECRUITING",
-        label: "Regional Recruiting Lane",
-        explanation: "Athlete shows meaningful signal and should be evaluated for regional exposure."
-      };
+    function buildExecutionErrorResult(
+        input,
+        requestedMethod,
+        error
+    ) {
+        const normalized =
+            normalizeInput(
+                input
+            );
+
+        const snapshot =
+            normalized.snapshot &&
+            typeof normalized.snapshot ===
+                "object"
+                ? normalized.snapshot
+                : normalized;
+
+        return {
+            ok:
+                false,
+
+            engine_id:
+                ENGINE_ID,
+
+            version:
+                VERSION,
+
+            stream_owner:
+                STREAM_OWNER,
+
+            classification:
+                CLASSIFICATION,
+
+            authority_status:
+                AUTHORITY_STATUS,
+
+            official_scoring_authority:
+                false,
+
+            requested_legacy_method:
+                requestedMethod ||
+                null,
+
+            canonical_replacement:
+                CANONICAL_REPLACEMENT,
+
+            canonical_api:
+                CANONICAL_API,
+
+            athlete_id:
+                normalized
+                    .athlete_id ||
+                snapshot
+                    ?.athlete_id ||
+                null,
+
+            snapshot_id:
+                normalized
+                    .snapshot_id ||
+                snapshot
+                    ?.snapshot_id ||
+                null,
+
+            score:
+                null,
+
+            final_score:
+                null,
+
+            status:
+                "SCORE_AUTHORITY_ERROR",
+
+            flags: [
+                "LEGACY_SCORER_DEPRECATED",
+                "CANONICAL_SCORE_AUTHORITY_ERROR",
+                "NO_FALLBACK_SCORE_CREATED"
+            ],
+
+            explanation: {
+                summary:
+                    "Canonical Score Authority failed during compatibility forwarding.",
+
+                error:
+                    error instanceof Error
+                        ? error.message
+                        : String(error),
+
+                rule:
+                    "The compatibility adapter may not substitute a legacy score when canonical authority fails."
+            },
+
+            generated_at:
+                nowISO()
+        };
     }
 
-    if (ready.score >= 70) {
-      return {
-        lane: "DEVELOPMENT_PLUS_EXPOSURE",
-        label: "Development + Controlled Exposure",
-        explanation: "Athlete may receive controlled exposure while development gaps are addressed."
-      };
+    /*
+     * =========================================================================
+     * CANONICAL DELEGATION
+     * =========================================================================
+     */
+
+    function delegate(
+        input,
+        requestedLegacyMethod
+    ) {
+        lastError =
+            null;
+
+        const authority =
+            getScoreAuthority();
+
+        const canonicalMethod =
+            getCanonicalMethod(
+                authority
+            );
+
+        if (
+            !authority ||
+            !canonicalMethod
+        ) {
+            const result =
+                buildAuthorityUnavailableResult(
+                    input,
+                    requestedLegacyMethod
+                );
+
+            lastResult =
+                result;
+
+            return result;
+        }
+
+        try {
+            const normalized =
+                normalizeInput(
+                    input
+                );
+
+            const result =
+                authority[
+                    canonicalMethod
+                ](
+                    normalized
+                );
+
+            const compatibilityResult = {
+                ...result,
+
+                compatibility_adapter: {
+                    engine_id:
+                        ENGINE_ID,
+
+                    version:
+                        VERSION,
+
+                    requested_legacy_method:
+                        requestedLegacyMethod ||
+                        null,
+
+                    delegated_to:
+                        canonicalMethod,
+
+                    deprecated_scoring_authority:
+                        true,
+
+                    calculated_locally:
+                        false
+                }
+            };
+
+            lastResult =
+                compatibilityResult;
+
+            return compatibilityResult;
+
+        } catch (error) {
+            lastError = {
+                message:
+                    error instanceof Error
+                        ? error.message
+                        : String(error),
+
+                requested_method:
+                    requestedLegacyMethod ||
+                    null,
+
+                generated_at:
+                    nowISO()
+            };
+
+            const result =
+                buildExecutionErrorResult(
+                    input,
+                    requestedLegacyMethod,
+                    error
+                );
+
+            lastResult =
+                result;
+
+            return result;
+        }
     }
 
-    return {
-      lane: "DEVELOPMENT_TRACK",
-      label: "Development Track",
-      explanation: "Athlete should remain in development before major exposure escalation."
-    };
-  }
+    /*
+     * =========================================================================
+     * LEGACY PUBLIC METHODS
+     * =========================================================================
+     *
+     * These method names survive ONLY for compatibility.
+     * They calculate nothing locally.
+     */
 
-  function riskFlags(snapshot, finalScore){
-    const flags = [];
-    const completion = completionScore(snapshot);
-
-    if (lower(snapshot?.verification_status) !== "verified") {
-      flags.push("Verification incomplete.");
+    function explainScore(
+        snapshot
+    ) {
+        return delegate(
+            snapshot,
+            "explainScore"
+        );
     }
 
-    if (!snapshot?.highlight_url && !snapshot?.game_film_url) {
-      flags.push("Film evidence missing.");
+    function calculateRawScore(
+        snapshot
+    ) {
+        return delegate(
+            snapshot,
+            "calculateRawScore"
+        );
     }
 
-    if (completion.score < 70) {
-      flags.push("Profile completion below recruiting readiness threshold.");
+    function getScoreModel(
+        input
+    ) {
+        return delegate(
+            input,
+            "getScoreModel"
+        );
     }
 
-    if (!snapshot?.guardian_name && !snapshot?.guardian_email) {
-      flags.push("Guardian permission lane incomplete.");
+    function scoreAthlete(
+        input
+    ) {
+        return delegate(
+            input,
+            "scoreAthlete"
+        );
     }
 
-    if (finalScore >= 85 && lower(snapshot?.verification_status) !== "verified") {
-      flags.push("High signal cannot be fully released until verification is complete.");
+    function calculate(
+        input
+    ) {
+        return delegate(
+            input,
+            "calculate"
+        );
     }
 
-    return flags;
-  }
-
-  function explainScore(snapshot){
-    if (!snapshot) {
-      return {
-        ok: false,
-        status: "NO_SNAPSHOT",
-        message: "No athlete snapshot loaded."
-      };
+    function run(
+        input
+    ) {
+        return delegate(
+            input,
+            "run"
+        );
     }
 
-    const raw = calculateRawScore(snapshot);
-    const score = raw.score;
-    const stars = starSignal(score);
-    const projection = projectionLane(snapshot, score);
-    const flags = riskFlags(snapshot, score);
-    const matrix = getMatrix(snapshot);
+    /*
+     * =========================================================================
+     * REMOVED LEGACY SCORING METHODS
+     * =========================================================================
+     *
+     * These methods intentionally return non-scoring deprecation contracts.
+     */
 
-    const why = [
-      ...raw.components.evidence.reasons,
-      ...raw.components.verification.reasons,
-      ...raw.components.readiness.reasons,
-      ...raw.components.competition.reasons,
-      ...raw.components.completion.reasons,
-      ...raw.components.sport_context.reasons
-    ];
+    function deprecatedComponent(
+        component
+    ) {
+        return {
+            ok:
+                false,
 
-    return {
-      ok: true,
-      status: "SCORED",
-      version: SCORE_VERSION,
-      matrix_id: matrix.matrix_id,
-      sport: matrix.sport,
-      position: matrix.position,
+            engine_id:
+                ENGINE_ID,
 
-      final_score: score,
-      star_signal: stars,
-      projection_lane: projection,
-      risk_flags: flags,
+            version:
+                VERSION,
 
-      components: raw.components,
-      why_this_signal: why,
+            component,
 
-      summary:
-        `${snapshot.athlete_display_name || "Athlete"} currently carries a ${stars.label} with a ${score} STATScore signal. ${projection.explanation}`
-    };
-  }
+            official:
+                false,
 
-  function renderScoreToProfile(scoreOutput){
-    if (!scoreOutput?.ok) return;
+            score:
+                null,
 
-    const c = core();
+            status:
+                "DEPRECATED_COMPONENT",
 
-    c?.text?.("scoreValue", scoreOutput.final_score);
-    c?.text?.("scoreStatus", scoreOutput.star_signal.label);
-    c?.text?.("starDisplay", scoreOutput.star_signal.display);
-    c?.text?.("signalText", scoreOutput.star_signal.label);
-    c?.text?.("evaluationStatus", scoreOutput.projection_lane.label);
+            flags: [
+                "LEGACY_GENERIC_COMPONENT_REMOVED"
+            ],
 
-    c?.text?.("scMatrixVersion", scoreOutput.matrix_id);
-    c?.text?.("scStarSignal", scoreOutput.star_signal.label);
-    c?.text?.("scFinalScore", String(scoreOutput.final_score));
-    c?.text?.("scProjectionLane", scoreOutput.projection_lane.label);
-    c?.text?.("scConfidence", scoreOutput.components.verification.label);
+            explanation: {
+                summary:
+                    `${component} is no longer calculated by statscore-scoring-engine.js.`,
 
-    const whyList = document.getElementById("scWhyList");
+                rule:
+                    "Each intelligence domain must originate from its own governed authority."
+            },
 
-    if (whyList) {
-      whyList.innerHTML = scoreOutput.why_this_signal
-        .map(reason => `<li>${c?.escapeHTML?.(reason) || reason}</li>`)
-        .join("");
+            generated_at:
+                nowISO()
+        };
     }
-  }
 
-  return {
-    SCORE_VERSION,
-    STAR_THRESHOLDS,
-    SPORT_BASELINES,
+    function evidenceScore() {
+        return deprecatedComponent(
+            "evidenceScore"
+        );
+    }
 
-    clamp,
-    getMatrix,
+    function verificationScore() {
+        return deprecatedComponent(
+            "verificationScore"
+        );
+    }
 
-    evidenceScore,
-    verificationScore,
-    readinessScore,
-    competitionScore,
-    completionScore,
-    sportContextScore,
+    function readinessScore() {
+        return deprecatedComponent(
+            "readinessScore"
+        );
+    }
 
-    calculateRawScore,
-    starSignal,
-    projectionLane,
-    riskFlags,
-    explainScore,
-    renderScoreToProfile
-  };
+    function competitionScore() {
+        return deprecatedComponent(
+            "competitionScore"
+        );
+    }
 
-})(); 
+    function completionScore() {
+        return deprecatedComponent(
+            "completionScore"
+        );
+    }
+
+    function sportContextScore() {
+        return deprecatedComponent(
+            "sportContextScore"
+        );
+    }
+
+    function starSignal() {
+        return {
+            ok:
+                false,
+
+            engine_id:
+                ENGINE_ID,
+
+            version:
+                VERSION,
+
+            official:
+                false,
+
+            stars:
+                null,
+
+            status:
+                "DEPRECATED_PRESENTATION_SIGNAL",
+
+            flags: [
+                "UNREGISTERED_STAR_THRESHOLDS_REMOVED"
+            ],
+
+            explanation: {
+                summary:
+                    "The legacy generic star authority has been removed from official scoring."
+            },
+
+            generated_at:
+                nowISO()
+        };
+    }
+
+    function projectionLane() {
+        return {
+            ok:
+                false,
+
+            engine_id:
+                ENGINE_ID,
+
+            version:
+                VERSION,
+
+            official:
+                false,
+
+            lane:
+                null,
+
+            status:
+                "DEPRECATED_PROJECTION_AUTHORITY",
+
+            flags: [
+                "LEGACY_PROJECTION_LANE_REMOVED"
+            ],
+
+            explanation: {
+                summary:
+                    "Recruiting, pathway, readiness, and exposure recommendations must come from their governed Stream 9 authorities."
+            },
+
+            generated_at:
+                nowISO()
+        };
+    }
+
+    function riskFlags(
+        input
+    ) {
+        const model =
+            delegate(
+                input,
+                "riskFlags"
+            );
+
+        if (
+            Array.isArray(
+                model
+                    ?.flags
+            )
+        ) {
+            return model
+                .flags;
+        }
+
+        return [];
+    }
+
+    /*
+     * =========================================================================
+     * PRESENTATION REMOVAL
+     * =========================================================================
+     */
+
+    function renderScoreToProfile() {
+        return {
+            ok:
+                false,
+
+            engine_id:
+                ENGINE_ID,
+
+            version:
+                VERSION,
+
+            status:
+                "PRESENTATION_AUTHORITY_REMOVED",
+
+            rendered:
+                false,
+
+            explanation:
+                "Score rendering belongs to the owning presentation authority. Stream 9 does not manipulate profile DOM."
+        };
+    }
+
+    /*
+     * =========================================================================
+     * CONTRACT / MIGRATION
+     * =========================================================================
+     */
+
+    function getContract() {
+        return {
+            engine_id:
+                ENGINE_ID,
+
+            version:
+                VERSION,
+
+            stream_owner:
+                STREAM_OWNER,
+
+            classification:
+                CLASSIFICATION,
+
+            authority_status:
+                AUTHORITY_STATUS,
+
+            official_scoring_authority:
+                false,
+
+            canonical_replacement:
+                CANONICAL_REPLACEMENT,
+
+            canonical_api:
+                CANONICAL_API,
+
+            permitted_role:
+                "Forward legacy scoring calls to Score Authority only.",
+
+            local_score_calculation:
+                false,
+
+            local_weighting:
+                false,
+
+            local_domain_scoring:
+                false,
+
+            local_composite_scoring:
+                false,
+
+            local_star_scoring:
+                false,
+
+            local_projection_scoring:
+                false,
+
+            direct_sport_scoring:
+                false,
+
+            generic_fallback:
+                false,
+
+            rendering:
+                false,
+
+            migration_rule:
+                "New consumers must call STATScore.ScoreAuthority.getAthleteIntelligence directly."
+        };
+    }
+
+    function getConfiguration() {
+        return {
+            engine_id:
+                ENGINE_ID,
+
+            version:
+                VERSION,
+
+            status:
+                AUTHORITY_STATUS,
+
+            legacy_features:
+                {
+                    ...LEGACY_SCORING_FEATURES
+                },
+
+            score_authority_loaded:
+                Boolean(
+                    getScoreAuthority()
+                ),
+
+            canonical_method:
+                getCanonicalMethod(
+                    getScoreAuthority()
+                ),
+
+            compatibility_mode:
+                true,
+
+            official_scoring_enabled:
+                false
+        };
+    }
+
+    function getMigrationGuide() {
+        return {
+            deprecated_file:
+                "statscore-scoring-engine.js",
+
+            replacement_file:
+                CANONICAL_REPLACEMENT,
+
+            old_calls: [
+                "STATScoreScoringEngine.explainScore(snapshot)",
+                "STATScoreScoringEngine.calculateRawScore(snapshot)",
+                "STATScoreScoringEngine.scoreAthlete(snapshot)"
+            ],
+
+            canonical_call:
+                "STATScore.ScoreAuthority.getAthleteIntelligence({ athlete_id, snapshot_id, snapshot })",
+
+            migration_status:
+                "REQUIRED",
+
+            remove_when:
+                "All legacy consumers have migrated to Score Authority."
+        };
+    }
+
+    function getLastResult() {
+        return lastResult;
+    }
+
+    function getLastError() {
+        return lastError;
+    }
+
+    function runHealthCheck() {
+        const authority =
+            getScoreAuthority();
+
+        const canonicalMethod =
+            getCanonicalMethod(
+                authority
+            );
+
+        const allLegacyScoringDisabled =
+            Object.values(
+                LEGACY_SCORING_FEATURES
+            ).every(
+                function (
+                    value
+                ) {
+                    return (
+                        value ===
+                        false
+                    );
+                }
+            );
+
+        const healthy =
+            Boolean(
+                authority &&
+                canonicalMethod &&
+                allLegacyScoringDisabled
+            );
+
+        return {
+            engine_id:
+                ENGINE_ID,
+
+            version:
+                VERSION,
+
+            classification:
+                CLASSIFICATION,
+
+            authority_status:
+                AUTHORITY_STATUS,
+
+            status:
+                healthy
+                    ? "HEALTHY_COMPATIBILITY_ADAPTER"
+                    : "DEGRADED_COMPATIBILITY_ADAPTER",
+
+            official_scoring_authority:
+                false,
+
+            canonical_replacement:
+                CANONICAL_REPLACEMENT,
+
+            canonical_score_authority_loaded:
+                Boolean(
+                    authority
+                ),
+
+            canonical_method_available:
+                canonicalMethod,
+
+            all_legacy_scoring_disabled:
+                allLegacyScoringDisabled,
+
+            generic_weighted_formula_enabled:
+                false,
+
+            evidence_component_scoring_enabled:
+                false,
+
+            verification_component_scoring_enabled:
+                false,
+
+            readiness_component_scoring_enabled:
+                false,
+
+            competition_component_scoring_enabled:
+                false,
+
+            completion_component_scoring_enabled:
+                false,
+
+            sport_context_component_scoring_enabled:
+                false,
+
+            headshot_affects_score:
+                false,
+
+            guardian_affects_score:
+                false,
+
+            coach_contact_affects_score:
+                false,
+
+            verification_changes_performance:
+                false,
+
+            competition_multiplier_enabled:
+                false,
+
+            local_star_authority_enabled:
+                false,
+
+            local_projection_authority_enabled:
+                false,
+
+            direct_sport_scoring_enabled:
+                false,
+
+            generic_fallback_enabled:
+                false,
+
+            dom_rendering_enabled:
+                false,
+
+            generated_at:
+                nowISO()
+        };
+    }
+
+    /*
+     * =========================================================================
+     * PUBLIC COMPATIBILITY OBJECT
+     * =========================================================================
+     */
+
+    const CompatibilityAdapter =
+        Object.freeze({
+
+            ENGINE_ID,
+
+            VERSION,
+
+            SCORE_VERSION:
+                VERSION,
+
+            stream_owner:
+                STREAM_OWNER,
+
+            classification:
+                CLASSIFICATION,
+
+            status:
+                AUTHORITY_STATUS,
+
+            deprecated:
+                true,
+
+            official_scoring_authority:
+                false,
+
+            canonical_replacement:
+                CANONICAL_REPLACEMENT,
+
+            /*
+             * Legacy compatibility methods
+             */
+            explainScore,
+
+            calculateRawScore,
+
+            getScoreModel,
+
+            scoreAthlete,
+
+            calculate,
+
+            run,
+
+            /*
+             * Deprecated component methods
+             */
+            evidenceScore,
+
+            verificationScore,
+
+            readinessScore,
+
+            competitionScore,
+
+            completionScore,
+
+            sportContextScore,
+
+            starSignal,
+
+            projectionLane,
+
+            riskFlags,
+
+            renderScoreToProfile,
+
+            /*
+             * Diagnostics
+             */
+            getContract,
+
+            getConfiguration,
+
+            getMigrationGuide,
+
+            getLastResult,
+
+            getLastError,
+
+            runHealthCheck
+        });
+
+    /*
+     * =========================================================================
+     * LEGACY GLOBAL
+     * =========================================================================
+     */
+
+    global.STATScoreScoringEngine =
+        CompatibilityAdapter;
+
+    global.STATScore =
+        global.STATScore ||
+        {};
+
+    global.STATScore.LegacyScoringAdapter =
+        CompatibilityAdapter;
+
+    /*
+     * Do NOT register this object as ScoreAuthority.
+     * Do NOT register this object as an official matrix.
+     * Do NOT auto-execute scoring.
+     */
+
+    console.info(
+        "[STATS-CORE] Legacy Scoring Engine compatibility adapter loaded:",
+        VERSION,
+        "| official scorer deprecated | all scoring delegated to Score Authority"
+    );
+
+})(window); 
