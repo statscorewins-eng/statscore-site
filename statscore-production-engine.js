@@ -4,46 +4,71 @@ STATS-CORE™
 STREAM 9 — ENTERPRISE INTELLIGENCE AUTHORITY
 
 FILE:
-statscore-production-matrix.js
+statscore-production-engine.js
 
 AUTHORITY:
-PRODUCTION_MATRIX
-
-MATRIX DOMAIN:
-PRODUCTION
+PRODUCTION_INTERPRETATION_AUTHORITY
 
 VERSION:
-1.0.0
+STATSCORE-PRODUCTION-ENGINE-V1
 
 STREAM OWNER:
 STATSCORE_STREAM_9
 
-OUTPUT TYPE:
-DOMAIN_SCORE
+AUTHORITY TYPE:
+DOMAIN_COMPONENT_INTERPRETATION
 
-CONSTITUTIONAL PURPOSE
+PURPOSE
 ---------------------------------------------------------
-The Production Matrix evaluates demonstrated athlete
-production separately from evidence verification and
-confidence.
+Interpret governed athlete production evidence and return
+the normalized Production components required by:
 
-Production performance answers:
+statscore-production-matrix.js
+        ↓
+PRODUCTION_MATRIX
+        ↓
+Official PRODUCTION Domain Intelligence
 
-"What has the athlete actually produced?"
+THIS ENGINE DOES NOT:
+- publish the official Production domain score;
+- publish Composite STATScore™;
+- manufacture missing production;
+- convert missing production to zero;
+- use Athletic measurables as Production;
+- change production because evidence is verified;
+- apply generic competition multipliers;
+- render DOM;
+- auto-execute on page load;
+- create pathway/recruiting projections.
 
-Verification answers:
+CONSTITUTIONAL DOCTRINE
+---------------------------------------------------------
+PRODUCTION FACT
+≠
+PRODUCTION INTERPRETATION
+≠
+VERIFICATION
+≠
+COMPETITION CONTEXT
+≠
+ATHLETIC ABILITY
+≠
+PRODUCTION DOMAIN SCORE
 
-"How strongly can that production evidence be trusted?"
+Verification changes confidence in a production fact.
 
-Verification may change confidence.
+Verification does not change the production fact.
 
-Verification shall NEVER increase or decrease the
-underlying production meaning of the evidence itself.
+Competition Intelligence may contextualize Production.
 
-The Production Matrix shall fail closed when required
-production evidence is unavailable.
+Competition Intelligence shall not multiply unrelated
+athlete scores.
 
-Missing intelligence shall NEVER silently become zero.
+Missing Authority ≠ Permission to Reconstruct Authority.
+
+Missing Production ≠ Zero Production.
+
+Load Authority ≠ Execute Authority.
 =========================================================
 */
 
@@ -52,72 +77,73 @@ Missing intelligence shall NEVER silently become zero.
 
   /*
   =======================================================
-  MATRIX IDENTITY
+  AUTHORITY IDENTITY
   =======================================================
   */
 
-  const MATRIX_KEY = "PRODUCTION_MATRIX";
-  const MATRIX_DOMAIN = "PRODUCTION";
-  const MATRIX_VERSION = "1.0.0";
-  const STREAM_OWNER = "STATSCORE_STREAM_9";
-  const OUTPUT_TYPE = "DOMAIN_SCORE";
+  const ENGINE_ID =
+    "statscore-production-engine";
 
-  const SCORE_RANGE = Object.freeze({
-    min: 0,
-    max: 100
-  });
+  const VERSION =
+    "STATSCORE-PRODUCTION-ENGINE-V1";
+
+  const STREAM_OWNER =
+    "STATSCORE_STREAM_9";
+
+  const AUTHORITY_KEY =
+    "PRODUCTION_INTERPRETATION_AUTHORITY";
+
+  const AUTHORITY_TYPE =
+    "DOMAIN_COMPONENT_INTERPRETATION";
 
   /*
   =======================================================
-  LOCKED MATRIX WEIGHTS
-  =======================================================
-
-  CSE CONTROLLED WEIGHTS
-
-  production_volume       30
-  production_efficiency   25
-  season_consistency      20
-  role_context            15
-  verified_recognition    10
-                         ---
-                         100
-
-  These weights shall not be silently changed.
+  REQUIRED OUTPUT COMPONENTS
+  -------------------------------------------------------
+  These names match the canonical PRODUCTION_MATRIX.
   =======================================================
   */
 
-  const WEIGHTS = Object.freeze({
-    production_volume: 30,
-    production_efficiency: 25,
-    season_consistency: 20,
-    role_context: 15,
-    verified_recognition: 10
-  });
+  const REQUIRED_COMPONENTS =
+    Object.freeze([
+      "verified_production",
+      "sustained_production",
+      "position_output",
+      "competition_context",
+      "production_consistency"
+    ]);
 
   /*
   =======================================================
-  EVIDENCE CONTRACT
+  STATUS
   =======================================================
   */
 
-  const REQUIRED_EVIDENCE = Object.freeze([
-    "athlete_id",
-    "snapshot_id",
-    "sport",
-    "position",
-    "season_records"
-  ]);
+  const STATUS =
+    Object.freeze({
 
-  const OPTIONAL_EVIDENCE = Object.freeze([
-    "game_records",
-    "verified_statistics",
-    "stat_source_verification",
-    "coach_recognition",
-    "league_recognition",
-    "postseason_recognition",
-    "role_history",
-    "competition_context"
-  ]);
+      INTERPRETED:
+        "INTERPRETED",
+
+      PARTIAL:
+        "PARTIAL",
+
+      INSUFFICIENT_EVIDENCE:
+        "INSUFFICIENT_EVIDENCE",
+
+      SPORT_AUTHORITY_UNAVAILABLE:
+        "SPORT_AUTHORITY_UNAVAILABLE",
+
+      COMPETITION_AUTHORITY_UNAVAILABLE:
+        "COMPETITION_AUTHORITY_UNAVAILABLE",
+
+      AUTHORITY_UNAUTHORIZED:
+        "AUTHORITY_UNAUTHORIZED",
+
+      CONTRACT_INVALID:
+        "CONTRACT_INVALID"
+
+    });
 
   /*
   =======================================================
@@ -125,8 +151,11 @@ Missing intelligence shall NEVER silently become zero.
   =======================================================
   */
 
-  let lastResult = null;
-  let lastError = null;
+  let lastResult =
+    null;
+
+  let lastError =
+    null;
 
   /*
   =======================================================
@@ -135,59 +164,91 @@ Missing intelligence shall NEVER silently become zero.
   */
 
   function now() {
-    return new Date().toISOString();
+    return new Date()
+      .toISOString();
   }
 
-  function normalizeText(value) {
+  function normalizeText(
+    value
+  ) {
     return String(
-      value == null ? "" : value
+      value == null
+        ? ""
+        : value
     )
       .trim()
-      .toUpperCase();
+      .toUpperCase()
+      .replace(/\s+/g, "_")
+      .replace(/-/g, "_");
   }
 
-  function clamp(value, min = 0, max = 100) {
-    const number = Number(value);
+  function clamp(
+    value,
+    min = 0,
+    max = 100
+  ) {
+    const number =
+      Number(value);
 
-    if (!Number.isFinite(number)) {
+    if (
+      !Number.isFinite(
+        number
+      )
+    ) {
       return null;
     }
 
     return Math.max(
       min,
-      Math.min(max, number)
+      Math.min(
+        max,
+        number
+      )
     );
   }
 
-  function isFiniteNumber(value) {
+  function isFiniteNumber(
+    value
+  ) {
     return (
-      typeof value === "number" &&
-      Number.isFinite(value)
+      typeof value ===
+        "number" &&
+      Number.isFinite(
+        value
+      )
     );
   }
 
-  function toArray(value) {
-    if (Array.isArray(value)) {
+  function toArray(
+    value
+  ) {
+    if (
+      Array.isArray(
+        value
+      )
+    ) {
       return value;
     }
 
-    if (value == null) {
+    if (
+      value == null
+    ) {
       return [];
     }
 
     return [value];
   }
 
-  function weightTotal() {
-    return Object.values(WEIGHTS)
-      .reduce(
-        (sum, value) => sum + value,
-        0
-      );
-  }
-
-  function validateWeights() {
-    return weightTotal() === 100;
+  function unique(
+    values
+  ) {
+    return [
+      ...new Set(
+        values.filter(
+          Boolean
+        )
+      )
+    ];
   }
 
   /*
@@ -199,59 +260,97 @@ Missing intelligence shall NEVER silently become zero.
   function failClosed(
     input,
     status,
-    flags,
     explanation,
+    flags = [],
     missingEvidence = []
   ) {
     const result = {
+
+      ok:
+        false,
+
+      authority:
+        AUTHORITY_KEY,
+
+      authority_type:
+        AUTHORITY_TYPE,
+
+      engine_id:
+        ENGINE_ID,
+
+      engine_version:
+        VERSION,
+
+      stream_owner:
+        STREAM_OWNER,
+
       athlete_id:
-        input?.athlete_id ?? null,
-
-      snapshot_id:
-        input?.snapshot_id ?? null,
-
-      matrix_key:
-        MATRIX_KEY,
-
-      matrix_version:
-        MATRIX_VERSION,
-
-      doctrine_version:
-        input?.doctrine_version ??
+        input?.athlete_id ??
         null,
 
-      domain:
-        MATRIX_DOMAIN,
+      snapshot_id:
+        input?.snapshot_id ??
+        null,
 
-      score: null,
+      sport:
+        normalizeText(
+          input?.sport
+        ) ||
+        null,
 
-      confidence: 0,
+      position:
+        normalizeText(
+          input?.position
+        ) ||
+        null,
 
-      evidence_used: [],
+      components:
+        {},
+
+      component_scores:
+        {},
+
+      confidence:
+        0,
+
+      evidence_used:
+        [],
 
       missing_evidence:
-        missingEvidence,
+        Array.isArray(
+          missingEvidence
+        )
+          ? missingEvidence
+          : [],
 
       flags:
-        Array.isArray(flags)
+        Array.isArray(
+          flags
+        )
           ? flags
           : [],
 
       explanation,
 
-      generated_at:
-        now(),
+      status,
 
-      status
+      generated_at:
+        now()
+
     };
 
-    lastResult = result;
+    lastResult =
+      result;
 
     lastError = {
+
       status,
+
       explanation,
+
       generated_at:
         result.generated_at
+
     };
 
     return result;
@@ -259,202 +358,86 @@ Missing intelligence shall NEVER silently become zero.
 
   /*
   =======================================================
-  MATRIX REGISTRY VALIDATION
+  INPUT VALIDATION
   =======================================================
   */
 
-  function getRegistry() {
-    return (
-      root.STATScoreMatrixRegistry ||
-      root.STATSCORE_MATRIX_REGISTRY ||
-      root.STATScore?.MatrixRegistry ||
-      null
-    );
-  }
-
-  function getRegistryEntry(context = {}) {
-    if (context.registry_entry) {
-      return context.registry_entry;
-    }
-
-    const registry = getRegistry();
-
-    if (!registry) {
-      return null;
-    }
-
-    if (
-      typeof registry.getMatrix ===
-      "function"
-    ) {
-      return registry.getMatrix(
-        MATRIX_KEY
-      );
-    }
-
-    if (
-      typeof registry.get ===
-      "function"
-    ) {
-      return registry.get(
-        MATRIX_KEY
-      );
-    }
-
-    if (registry[MATRIX_KEY]) {
-      return registry[MATRIX_KEY];
-    }
-
+  function hasProductionRecords(
+    value
+  ) {
     if (
       Array.isArray(
-        registry.matrices
+        value
       )
     ) {
       return (
-        registry.matrices.find(
-          (entry) =>
-            entry?.matrix_key ===
-            MATRIX_KEY
-        ) || null
+        value.length >
+        0
       );
     }
 
-    return null;
-  }
-
-  function validateRegistry(context = {}) {
-    const entry =
-      getRegistryEntry(context);
-
-    if (!entry) {
-      return {
-        ok: false,
-        status:
-          "MATRIX_UNAVAILABLE",
-        reason:
-          "PRODUCTION_MATRIX is not available from the Matrix Registry."
-      };
-    }
-
-    const checks = [
-      ["matrix_key", MATRIX_KEY],
-      ["matrix_domain", MATRIX_DOMAIN],
-      ["matrix_version", MATRIX_VERSION],
-      ["stream_owner", STREAM_OWNER],
-      ["output_type", OUTPUT_TYPE]
-    ];
-
-    for (
-      const [
-        field,
-        expected
-      ] of checks
-    ) {
-      if (
-        entry[field] != null &&
-        String(
-          entry[field]
-        ) !==
-          String(expected)
-      ) {
-        return {
-          ok: false,
-          status:
-            "MATRIX_CONTRACT_INVALID",
-          reason:
-            `PRODUCTION_MATRIX registry mismatch for ${field}.`
-        };
-      }
-    }
-
-    if (entry.weights) {
-      for (
-        const [
-          key,
-          expectedWeight
-        ] of Object.entries(
-          WEIGHTS
-        )
-      ) {
-        if (
-          Number(
-            entry.weights[key]
-          ) !==
-          expectedWeight
-        ) {
-          return {
-            ok: false,
-            status:
-              "MATRIX_CONTRACT_INVALID",
-            reason:
-              `PRODUCTION_MATRIX registry weight mismatch for ${key}.`
-          };
-        }
-      }
-    }
-
-    return {
-      ok: true,
-      entry
-    };
-  }
-
-  /*
-  =======================================================
-  STREAM AUTHORITY VALIDATION
-  =======================================================
-  */
-
-  function validateAuthority(context = {}) {
     if (
-      context.stream_owner &&
-      context.stream_owner !==
-        STREAM_OWNER
+      value &&
+      typeof value ===
+        "object"
     ) {
-      return {
-        ok: false,
-        status:
-          "MATRIX_UNAUTHORIZED",
-        reason:
-          "PRODUCTION_MATRIX may only execute under Stream 9 authority."
-      };
+      return (
+        Object.keys(
+          value
+        ).length >
+        0
+      );
     }
 
-    return {
-      ok: true
-    };
+    return false;
   }
 
-  /*
-  =======================================================
-  REQUIRED EVIDENCE VALIDATION
-  =======================================================
-  */
+  function validateInput(
+    input
+  ) {
+    const missing =
+      [];
 
-  function validateRequiredEvidence(input) {
-    const missing = [];
-
-    for (
-      const field of REQUIRED_EVIDENCE
+    if (
+      !input?.athlete_id
     ) {
-      const value =
-        input?.[field];
+      missing.push(
+        "athlete_id"
+      );
+    }
 
-      if (
-        value == null ||
-        value === ""
-      ) {
-        missing.push(field);
-        continue;
-      }
+    if (
+      !input?.snapshot_id
+    ) {
+      missing.push(
+        "snapshot_id"
+      );
+    }
 
-      if (
-        field ===
-          "season_records" &&
-        toArray(value).length === 0
-      ) {
-        missing.push(field);
-      }
+    if (
+      !input?.sport
+    ) {
+      missing.push(
+        "sport"
+      );
+    }
+
+    if (
+      !input?.position
+    ) {
+      missing.push(
+        "position"
+      );
+    }
+
+    if (
+      !hasProductionRecords(
+        input?.production_records
+      )
+    ) {
+      missing.push(
+        "production_records"
+      );
     }
 
     return missing;
@@ -462,47 +445,340 @@ Missing intelligence shall NEVER silently become zero.
 
   /*
   =======================================================
-  PRODUCTION SCIENCE AUTHORITY
-  =======================================================
-
-  This matrix DOES NOT invent sport-specific production
-  benchmark science.
-
-  Sport / position production normalization must be
-  supplied by an approved sport/position production
-  authority.
-
-  Example future authorities may include:
-
-  Football QB production model
-  Football WR production model
-  Baseball pitcher production model
-  Basketball guard production model
-  Track event production model
-
-  This matrix consumes their governed component output.
+  AUTHORITY VALIDATION
   =======================================================
   */
 
-  function resolveProductionAuthority(context = {}) {
-    return (
-      context.production_authority ||
+  function validateAuthority(
+    context = {}
+  ) {
+    if (
+      context.stream_owner &&
+      context.stream_owner !==
+        STREAM_OWNER
+    ) {
+      return {
 
-      root.STATScoreProductionAuthority ||
+        ok:
+          false,
 
-      root.STATScore
-        ?.ProductionAuthority ||
+        status:
+          STATUS
+            .AUTHORITY_UNAUTHORIZED,
 
-      root.STATScoreSportScoringRouter ||
+        reason:
+          "Production Interpretation Authority may only execute under Stream 9 authority."
 
-      root.STATScore
-        ?.SportScoringRouter ||
+      };
+    }
 
-      null
+    return {
+      ok:
+        true
+    };
+  }
+
+  /*
+  =======================================================
+  PRODUCTION EVIDENCE COLLECTION
+  =======================================================
+  */
+
+  function collectEvidenceRecords(
+    input
+  ) {
+    return [
+
+      ...toArray(
+        input.production_records
+      ),
+
+      ...toArray(
+        input.season_records
+      ),
+
+      ...toArray(
+        input.game_records
+      ),
+
+      ...toArray(
+        input.official_stats
+      ),
+
+      ...toArray(
+        input.coach_verified_stats
+      ),
+
+      ...toArray(
+        input.league_stats
+      ),
+
+      ...toArray(
+        input.box_scores
+      ),
+
+      ...toArray(
+        input.production_history
+      )
+
+    ].filter(
+      (
+        record
+      ) =>
+        record != null
     );
   }
 
-  function executeProductionAuthority(
+  /*
+  =======================================================
+  VERIFICATION / PROVENANCE READING
+  -------------------------------------------------------
+  This engine consumes verification facts.
+
+  It does not create Verification authority.
+  =======================================================
+  */
+
+  function evidenceStanding(
+    record
+  ) {
+    if (
+      !record ||
+      typeof record !==
+        "object"
+    ) {
+      return {
+
+        verified:
+          false,
+
+        official_source:
+          false,
+
+        self_reported:
+          false,
+
+        stale:
+          false,
+
+        conflict:
+          false
+
+      };
+    }
+
+    const status =
+      normalizeText(
+        record
+          .verification_status ||
+        record.status
+      );
+
+    const sourceType =
+      normalizeText(
+        record.source_type
+      );
+
+    return {
+
+      verified:
+        record.verified ===
+          true ||
+        status ===
+          "VERIFIED",
+
+      official_source:
+        [
+          "OFFICIAL_SOURCE",
+          "LEAGUE_SOURCE",
+          "SCHOOL_SOURCE",
+          "OFFICIAL_STAT_SOURCE"
+        ].includes(
+          sourceType
+        ),
+
+      self_reported:
+        record.self_reported ===
+          true ||
+        sourceType ===
+          "SELF_REPORTED",
+
+      stale:
+        record.stale ===
+          true ||
+        status ===
+          "STALE",
+
+      conflict:
+        record.conflict ===
+          true ||
+        status ===
+          "CONFLICT" ||
+        status ===
+          "DISPUTED"
+
+    };
+  }
+
+  /*
+  =======================================================
+  GOVERNED COMPONENT PAYLOAD READING
+  -------------------------------------------------------
+  Sport-specific Production science may already have
+  produced normalized component determinations.
+
+  This coordinator may consume those values.
+
+  It shall not guess them.
+  =======================================================
+  */
+
+  function extractDeclaredComponents(
+    input
+  ) {
+    const sources = [
+
+      input.production_components,
+
+      input.component_scores,
+
+      input.normalized_production,
+
+      input.production_interpretation
+
+    ];
+
+    const output =
+      {};
+
+    for (
+      const source of sources
+    ) {
+      if (
+        !source ||
+        typeof source !==
+          "object"
+      ) {
+        continue;
+      }
+
+      for (
+        const key of REQUIRED_COMPONENTS
+      ) {
+        if (
+          output[key] != null
+        ) {
+          continue;
+        }
+
+        const value =
+          source[key];
+
+        if (
+          isFiniteNumber(
+            value
+          )
+        ) {
+          output[key] =
+            clamp(
+              value
+            );
+        }
+      }
+    }
+
+    return output;
+  }
+
+  /*
+  =======================================================
+  SPORT-SPECIFIC PRODUCTION AUTHORITY
+  -------------------------------------------------------
+  Production normalization is inherently sport/position
+  specific.
+
+  This engine coordinates governed sport Production
+  authority.
+
+  It does not make Football statistics equivalent to
+  Basketball, Baseball, or Track statistics.
+  =======================================================
+  */
+
+  function resolveSportProductionAuthority(
+    sport,
+    context = {}
+  ) {
+    const explicit =
+      context
+        ?.sport_production_authorities
+        ?.[sport];
+
+    if (explicit) {
+      return explicit;
+    }
+
+    if (
+      context
+        .sport_production_authority
+    ) {
+      return (
+        context
+          .sport_production_authority
+      );
+    }
+
+    switch (
+      sport
+    ) {
+
+      case "FOOTBALL":
+        return (
+          root
+            .STATScoreFootballProductionAuthority ||
+          root
+            .STATScore
+            ?.FootballProductionAuthority ||
+          null
+        );
+
+      case "BASKETBALL":
+        return (
+          root
+            .STATScoreBasketballProductionAuthority ||
+          root
+            .STATScore
+            ?.BasketballProductionAuthority ||
+          null
+        );
+
+      case "BASEBALL":
+        return (
+          root
+            .STATScoreBaseballProductionAuthority ||
+          root
+            .STATScore
+            ?.BaseballProductionAuthority ||
+          null
+        );
+
+      case "TRACK":
+        return (
+          root
+            .STATScoreTrackProductionAuthority ||
+          root
+            .STATScore
+            ?.TrackProductionAuthority ||
+          null
+        );
+
+      default:
+        return null;
+
+    }
+  }
+
+  function executeSportProductionAuthority(
     authority,
     payload
   ) {
@@ -511,65 +787,154 @@ Missing intelligence shall NEVER silently become zero.
     }
 
     const methods = [
-      "evaluateProduction",
+
+      "evaluateProductionComponents",
+
+      "evaluateProductionProfile",
+
+      "interpretProduction",
+
       "evaluate",
-      "scoreProduction",
-      "score"
-    ];
 
-    for (const method of methods) {
-      if (
-        typeof authority[method] ===
-        "function"
-      ) {
-        const result =
-          authority[method](
-            payload
-          );
+      "resolve"
 
-        if (
-          result &&
-          typeof result.then ===
-            "function"
-        ) {
-          throw new Error(
-            "PRODUCTION_MATRIX requires a synchronous production-authority result at this boundary."
-          );
-        }
-
-        return result;
-      }
-    }
-
-    return null;
-  }
-
-  /*
-  =======================================================
-  COMPONENT EXTRACTION
-  =======================================================
-  */
-
-  function readComponent(
-    result,
-    key
-  ) {
-    const candidates = [
-      result?.components?.[key],
-      result?.component_scores?.[
-        key
-      ],
-      result?.scores?.[key],
-      result?.[key]
     ];
 
     for (
-      const value of candidates
+      const method of methods
     ) {
       if (
-        isFiniteNumber(value)
+        typeof authority[
+          method
+        ] !==
+          "function"
       ) {
-        return clamp(value);
+        continue;
+      }
+
+      const result =
+        authority[
+          method
+        ](
+          payload
+        );
+
+      if (
+        result &&
+        typeof result.then ===
+          "function"
+      ) {
+        throw new Error(
+          "Production Interpretation Authority requires a synchronous sport-production authority result at this boundary."
+        );
+      }
+
+      return result;
+    }
+
+    return null;
+  }
+
+  /*
+  =======================================================
+  COMPETITION CONTEXT
+  -------------------------------------------------------
+  Competition context is consumed as a governed component.
+
+  This engine does not apply a generic multiplier.
+  =======================================================
+  */
+
+  function resolveCompetitionContext(
+    input,
+    context = {}
+  ) {
+    const candidates = [
+
+      input
+        ?.competition_context
+        ?.score,
+
+      input
+        ?.competition_context
+        ?.competition_score,
+
+      input
+        ?.competition_context
+        ?.component_score,
+
+      input
+        ?.competition_context_score,
+
+      context
+        ?.competition_context
+        ?.score,
+
+      context
+        ?.competition_result
+        ?.score
+
+    ];
+
+    for (
+      const candidate of candidates
+    ) {
+      const number =
+        Number(
+          candidate
+        );
+
+      if (
+        Number.isFinite(
+          number
+        )
+      ) {
+        return clamp(
+          number
+        );
+      }
+    }
+
+    const matrix =
+      root
+        .STATScoreCompetitionMatrix ||
+      root
+        .STATScore
+        ?.Matrices
+        ?.COMPETITION_MATRIX ||
+      null;
+
+    /*
+    -----------------------------------------------------
+    Do not invoke Competition Matrix recursively without
+    complete governed input. Only consume an already
+    available result if supplied.
+    -----------------------------------------------------
+    */
+
+    if (
+      matrix &&
+      typeof matrix.getLastResult ===
+        "function"
+    ) {
+      const result =
+        matrix.getLastResult();
+
+      if (
+        result &&
+        result.athlete_id ===
+          input?.athlete_id &&
+        result.snapshot_id ===
+          input?.snapshot_id &&
+        Number.isFinite(
+          Number(
+            result.score
+          )
+        )
+      ) {
+        return clamp(
+          result.score
+        );
       }
     }
 
@@ -578,229 +943,303 @@ Missing intelligence shall NEVER silently become zero.
 
   /*
   =======================================================
-  CONFIDENCE / VERIFICATION SEPARATION
-  =======================================================
-
-  IMPORTANT:
-
-  Production score describes production.
-
-  Confidence describes trust in the production evidence.
-
-  Verification status may not retroactively inflate
-  or reduce the production component values.
+  COMPONENT EXTRACTION FROM SPORT AUTHORITY
   =======================================================
   */
 
-  function flattenRecords(value) {
-    if (value == null) {
-      return [];
-    }
-
-    if (Array.isArray(value)) {
-      return value;
-    }
-
+  function extractAuthorityComponents(
+    result
+  ) {
     if (
-      typeof value ===
-      "object"
+      !result ||
+      typeof result !==
+        "object"
     ) {
-      return [value];
+      return {};
     }
 
-    return [];
-  }
+    const sources = [
 
-  function determineConfidence(input) {
-    const records = [
-      ...flattenRecords(
-        input.season_records
-      ),
+      result.components,
 
-      ...flattenRecords(
-        input.game_records
-      ),
+      result.component_scores,
 
-      ...flattenRecords(
-        input.verified_statistics
-      ),
+      result.scores,
 
-      ...flattenRecords(
-        input.stat_source_verification
-      )
+      result
+
     ];
 
-    if (!records.length) {
-      return {
-        confidence: 0,
-        flags: [
-          "UNVERIFIED"
-        ]
-      };
-    }
+    const output =
+      {};
 
-    let total = 0;
-    let count = 0;
-
-    const flags = [];
-
-    for (const record of records) {
+    for (
+      const source of sources
+    ) {
       if (
-        !record ||
-        typeof record !==
+        !source ||
+        typeof source !==
           "object"
       ) {
         continue;
       }
 
-      count += 1;
+      for (
+        const key of REQUIRED_COMPONENTS
+      ) {
+        if (
+          output[key] != null
+        ) {
+          continue;
+        }
 
-      const status =
-        normalizeText(
-          record.verification_status ||
-          record.status
+        const value =
+          source[key];
+
+        if (
+          isFiniteNumber(
+            value
+          )
+        ) {
+          output[key] =
+            clamp(
+              value
+            );
+        }
+      }
+    }
+
+    return output;
+  }
+
+  /*
+  =======================================================
+  VERIFIED PRODUCTION SUPPORT
+  -------------------------------------------------------
+  This function does NOT alter production statistics.
+
+  It may provide a normalized support component only from
+  explicit verification standing of production records.
+  =======================================================
+  */
+
+  function deriveVerificationSupport(
+    records
+  ) {
+    const structured =
+      records.filter(
+        (
+          record
+        ) =>
+          record &&
+          typeof record ===
+            "object"
+      );
+
+    if (
+      !structured.length
+    ) {
+      return null;
+    }
+
+    let supported =
+      0;
+
+    let observed =
+      0;
+
+    for (
+      const record of structured
+    ) {
+      const standing =
+        evidenceStanding(
+          record
         );
 
-      const sourceType =
-        normalizeText(
-          record.source_type
-        );
+      observed +=
+        1;
 
-      const verified =
-        record.verified ===
-          true ||
-        status ===
-          "VERIFIED";
+      /*
+      ---------------------------------------------------
+      These values describe trust quality only.
 
-      const stale =
-        record.stale === true ||
-        status === "STALE";
+      They do NOT modify any production statistic.
+      ---------------------------------------------------
+      */
 
-      const conflict =
-        record.conflict ===
-          true ||
-        status ===
-          "CONFLICT";
+      let trust =
+        70;
 
-      const selfReported =
-        record.self_reported ===
-          true ||
-        sourceType ===
-          "SELF_REPORTED";
-
-      let confidence = 70;
-
-      if (verified) {
-        confidence = 100;
+      if (
+        standing.verified ||
+        standing.official_source
+      ) {
+        trust =
+          100;
       }
 
-      if (selfReported) {
-        confidence =
+      if (
+        standing.self_reported
+      ) {
+        trust =
           Math.min(
-            confidence,
+            trust,
             55
           );
+      }
 
+      if (
+        standing.stale
+      ) {
+        trust =
+          Math.min(
+            trust,
+            45
+          );
+      }
+
+      if (
+        standing.conflict
+      ) {
+        trust =
+          Math.min(
+            trust,
+            25
+          );
+      }
+
+      supported +=
+        trust;
+    }
+
+    if (
+      !observed
+    ) {
+      return null;
+    }
+
+    return clamp(
+      supported /
+      observed
+    );
+  }
+
+  /*
+  =======================================================
+  EVIDENCE CONFIDENCE
+  =======================================================
+  */
+
+  function determineEvidenceConfidence(
+    records
+  ) {
+    const verificationSupport =
+      deriveVerificationSupport(
+        records
+      );
+
+    if (
+      verificationSupport ==
+        null
+    ) {
+      return {
+
+        confidence:
+          0,
+
+        flags: [
+          "PRODUCTION_EVIDENCE_UNVERIFIED"
+        ]
+
+      };
+    }
+
+    const flags =
+      [];
+
+    for (
+      const record of records
+    ) {
+      const standing =
+        evidenceStanding(
+          record
+        );
+
+      if (
+        standing.self_reported
+      ) {
         flags.push(
           "SELF_REPORTED_EVIDENCE"
         );
       }
 
-      if (stale) {
-        confidence =
-          Math.min(
-            confidence,
-            45
-          );
-
+      if (
+        standing.stale
+      ) {
         flags.push(
           "STALE_EVIDENCE"
         );
       }
 
-      if (conflict) {
-        confidence =
-          Math.min(
-            confidence,
-            25
-          );
-
+      if (
+        standing.conflict
+      ) {
         flags.push(
           "SOURCE_EVIDENCE_CONFLICT"
         );
       }
-
-      total += confidence;
     }
 
-    if (!count) {
-      return {
-        confidence: 50,
-        flags: [
-          "UNVERIFIED"
-        ]
-      };
-    }
-
-    const confidence =
-      Math.round(
-        clamp(total / count)
-      );
-
-    if (confidence < 60) {
+    if (
+      verificationSupport <
+      60
+    ) {
       flags.push(
         "LOW_CONFIDENCE"
       );
     }
 
-    if (!flags.length) {
+    if (
+      !flags.length
+    ) {
       flags.push(
         "CONFIDENCE_SUPPORTED"
       );
     }
 
     return {
-      confidence,
 
-      flags: [
-        ...new Set(flags)
-      ]
+      confidence:
+        Math.round(
+          verificationSupport
+        ),
+
+      flags:
+        unique(
+          flags
+        )
+
     };
   }
 
   /*
   =======================================================
-  OFFICIAL PRODUCTION EVALUATION
+  PRIMARY PRODUCTION INTERPRETATION
   =======================================================
   */
 
-  function evaluate(
-    input,
+  function evaluateProductionComponents(
+    input = {},
     context = {}
   ) {
     try {
-      lastError = null;
+
+      lastError =
+        null;
 
       /*
       ---------------------------------------------------
-      WEIGHT VALIDATION
-      ---------------------------------------------------
-      */
-
-      if (!validateWeights()) {
-        return failClosed(
-          input,
-          "MATRIX_CONTRACT_INVALID",
-          [
-            "WEIGHTS_INVALID"
-          ],
-          "PRODUCTION_MATRIX weights do not total 100."
-        );
-      }
-
-      /*
-      ---------------------------------------------------
-      STREAM AUTHORITY
+      AUTHORITY
       ---------------------------------------------------
       */
 
@@ -813,36 +1252,17 @@ Missing intelligence shall NEVER silently become zero.
         !authorityValidation.ok
       ) {
         return failClosed(
+
           input,
+
           authorityValidation.status,
+
+          authorityValidation.reason,
+
           [
-            "AUTHORITY_INVALID"
-          ],
-          authorityValidation.reason
-        );
-      }
+            "STREAM_9_AUTHORITY_REQUIRED"
+          ]
 
-      /*
-      ---------------------------------------------------
-      REGISTRY CONTRACT
-      ---------------------------------------------------
-      */
-
-      const registryValidation =
-        validateRegistry(
-          context
-        );
-
-      if (
-        !registryValidation.ok
-      ) {
-        return failClosed(
-          input,
-          registryValidation.status,
-          [
-            "REGISTRY_INVALID"
-          ],
-          registryValidation.reason
         );
       }
 
@@ -852,30 +1272,31 @@ Missing intelligence shall NEVER silently become zero.
       ---------------------------------------------------
       */
 
-      const missingRequired =
-        validateRequiredEvidence(
+      const missing =
+        validateInput(
           input
         );
 
       if (
-        missingRequired.length
+        missing.length
       ) {
         return failClosed(
+
           input,
-          "INSUFFICIENT_EVIDENCE",
+
+          STATUS
+            .INSUFFICIENT_EVIDENCE,
+
+          `Required production evidence unavailable: ${missing.join(", ")}.`,
+
           [
-            "REQUIRED_EVIDENCE_MISSING"
+            "REQUIRED_PRODUCTION_EVIDENCE_MISSING"
           ],
-          `Required production evidence unavailable: ${missingRequired.join(", ")}.`,
-          missingRequired
+
+          missing
+
         );
       }
-
-      /*
-      ---------------------------------------------------
-      SPORT / POSITION NORMALIZATION
-      ---------------------------------------------------
-      */
 
       const sport =
         normalizeText(
@@ -887,171 +1308,264 @@ Missing intelligence shall NEVER silently become zero.
           input.position
         );
 
+      const records =
+        collectEvidenceRecords(
+          input
+        );
+
       /*
       ---------------------------------------------------
-      SPORT-SPECIFIC PRODUCTION AUTHORITY
+      DECLARED GOVERNED COMPONENTS
       ---------------------------------------------------
       */
 
-      const productionAuthority =
-        resolveProductionAuthority(
+      const declaredComponents =
+        extractDeclaredComponents(
+          input
+        );
+
+      /*
+      ---------------------------------------------------
+      SPORT AUTHORITY
+      ---------------------------------------------------
+      */
+
+      const sportAuthority =
+        resolveSportProductionAuthority(
+          sport,
           context
         );
 
-      if (!productionAuthority) {
-        return failClosed(
-          input,
-          "MATRIX_UNAVAILABLE",
-          [
-            "PRODUCTION_AUTHORITY_UNAVAILABLE"
-          ],
-          "Sport/position Production Authority is unavailable. PRODUCTION_MATRIX will not invent production benchmark science."
-        );
-      }
+      let sportResult =
+        null;
 
-      const productionResult =
-        executeProductionAuthority(
-          productionAuthority,
-          {
-            athlete_id:
-              input.athlete_id,
-
-            snapshot_id:
-              input.snapshot_id,
-
-            sport,
-
-            position,
-
-            season_records:
-              input.season_records,
-
-            game_records:
-              input.game_records ??
-              null,
-
-            verified_statistics:
-              input.verified_statistics ??
-              null,
-
-            stat_source_verification:
-              input.stat_source_verification ??
-              null,
-
-            coach_recognition:
-              input.coach_recognition ??
-              null,
-
-            league_recognition:
-              input.league_recognition ??
-              null,
-
-            postseason_recognition:
-              input.postseason_recognition ??
-              null,
-
-            role_history:
-              input.role_history ??
-              null,
-
-            competition_context:
-              input.competition_context ??
-              null
-          }
-        );
+      let authorityComponents =
+        {};
 
       if (
-        !productionResult ||
-        productionResult.status ===
-          "INSUFFICIENT_EVIDENCE"
+        sportAuthority
       ) {
-        return failClosed(
-          input,
-          "INSUFFICIENT_EVIDENCE",
-          [
-            "PRODUCTION_EVIDENCE_INSUFFICIENT"
-          ],
-          "The sport/position Production Authority did not return sufficient governed production evidence."
-        );
+        sportResult =
+          executeSportProductionAuthority(
+
+            sportAuthority,
+
+            {
+
+              athlete_id:
+                input.athlete_id,
+
+              snapshot_id:
+                input.snapshot_id,
+
+              sport,
+
+              position,
+
+              production_records:
+                input.production_records,
+
+              season_records:
+                input.season_records ??
+                null,
+
+              game_records:
+                input.game_records ??
+                null,
+
+              official_stats:
+                input.official_stats ??
+                null,
+
+              coach_verified_stats:
+                input.coach_verified_stats ??
+                null,
+
+              league_stats:
+                input.league_stats ??
+                null,
+
+              box_scores:
+                input.box_scores ??
+                null,
+
+              awards:
+                input.awards ??
+                null,
+
+              film_references:
+                input.film_references ??
+                null,
+
+              production_history:
+                input.production_history ??
+                null
+
+            }
+
+          );
+
+        authorityComponents =
+          extractAuthorityComponents(
+            sportResult
+          );
       }
 
       /*
       ---------------------------------------------------
-      COMPONENT EXTRACTION
+      COMPONENT MERGE
+
+      Priority:
+
+      1. governed sport authority
+      2. explicitly supplied governed component payload
+      3. limited non-performance contextual support
+
+      No guessed athlete performance values.
       ---------------------------------------------------
       */
 
-      const components = {};
-      const missingComponents =
-        [];
+      const components = {
 
-      for (
-        const key of Object.keys(
-          WEIGHTS
-        )
+        ...declaredComponents,
+
+        ...authorityComponents
+
+      };
+
+      /*
+      ---------------------------------------------------
+      VERIFIED PRODUCTION
+
+      Verification support may populate this component
+      because the component itself represents evidence
+      standing, not underlying statistical production.
+      ---------------------------------------------------
+      */
+
+      if (
+        components
+          .verified_production ==
+        null
       ) {
-        const value =
-          readComponent(
-            productionResult,
-            key
+        const verifiedSupport =
+          deriveVerificationSupport(
+            records
           );
 
-        if (value == null) {
-          missingComponents.push(
-            key
-          );
-        } else {
-          components[key] =
-            value;
+        if (
+          verifiedSupport !=
+          null
+        ) {
+          components
+            .verified_production =
+            verifiedSupport;
         }
       }
+
+      /*
+      ---------------------------------------------------
+      COMPETITION CONTEXT
+
+      Consume governed Competition Intelligence when
+      available.
+
+      Never multiply Production.
+      ---------------------------------------------------
+      */
+
+      if (
+        components
+          .competition_context ==
+        null
+      ) {
+        const competition =
+          resolveCompetitionContext(
+            input,
+            context
+          );
+
+        if (
+          competition !=
+          null
+        ) {
+          components
+            .competition_context =
+            competition;
+        }
+      }
+
+      /*
+      ---------------------------------------------------
+      COMPONENT COMPLETENESS
+      ---------------------------------------------------
+      */
+
+      const missingComponents =
+        REQUIRED_COMPONENTS.filter(
+          (
+            key
+          ) =>
+            !isFiniteNumber(
+              components[
+                key
+              ]
+            )
+        );
 
       if (
         missingComponents.length
       ) {
+
+        const flags = [
+          "PRODUCTION_COMPONENTS_INCOMPLETE"
+        ];
+
+        if (
+          !sportAuthority
+        ) {
+          flags.push(
+            "SPORT_PRODUCTION_AUTHORITY_UNAVAILABLE"
+          );
+        }
+
         return failClosed(
+
           input,
-          "INSUFFICIENT_EVIDENCE",
-          [
-            "PRODUCTION_COMPONENTS_MISSING"
-          ],
-          `PRODUCTION_MATRIX component determinations unavailable: ${missingComponents.join(", ")}.`,
+
+          STATUS
+            .INSUFFICIENT_EVIDENCE,
+
+          `Governed Production component determinations unavailable: ${missingComponents.join(", ")}.`,
+
+          flags,
+
           missingComponents
+
         );
       }
 
       /*
       ---------------------------------------------------
-      OFFICIAL PRODUCTION SCORE
+      NORMALIZE COMPONENTS
       ---------------------------------------------------
       */
 
-      const rawScore =
-        Object.entries(
-          WEIGHTS
-        ).reduce(
-          (
-            total,
-            [key, weight]
-          ) =>
-            total +
-            (
-              components[key] *
-              (
-                weight /
-                100
-              )
-            ),
-          0
-        );
+      const normalizedComponents =
+        {};
 
-      const score =
-        Math.round(
-          (
-            rawScore +
-            Number.EPSILON
-          ) * 100
-        ) / 100;
+      for (
+        const key of REQUIRED_COMPONENTS
+      ) {
+        normalizedComponents[
+          key
+        ] =
+          clamp(
+            components[
+              key
+            ]
+          );
+      }
 
       /*
       ---------------------------------------------------
@@ -1060,57 +1574,93 @@ Missing intelligence shall NEVER silently become zero.
       */
 
       const trust =
-        determineConfidence(
-          input
+        determineEvidenceConfidence(
+          records
         );
 
-      /*
-      ---------------------------------------------------
-      EVIDENCE USED
-      ---------------------------------------------------
-      */
-
       const evidenceUsed = [
-        "sport",
-        "position",
-        "season_records",
-
-        ...OPTIONAL_EVIDENCE.filter(
-          (key) =>
-            input[key] != null
-        )
+        "production_records"
       ];
 
+      const optionalKeys = [
+
+        "season_records",
+
+        "game_records",
+
+        "official_stats",
+
+        "coach_verified_stats",
+
+        "league_stats",
+
+        "box_scores",
+
+        "competition_context",
+
+        "awards",
+
+        "film_references",
+
+        "production_history"
+
+      ];
+
+      for (
+        const key of optionalKeys
+      ) {
+        if (
+          input[
+            key
+          ] != null
+        ) {
+          evidenceUsed.push(
+            key
+          );
+        }
+      }
+
       /*
       ---------------------------------------------------
-      MATRIX RESULT
+      RESULT
       ---------------------------------------------------
       */
 
       const result = {
+
+        ok:
+          true,
+
+        authority:
+          AUTHORITY_KEY,
+
+        authority_type:
+          AUTHORITY_TYPE,
+
+        engine_id:
+          ENGINE_ID,
+
+        engine_version:
+          VERSION,
+
+        stream_owner:
+          STREAM_OWNER,
+
         athlete_id:
           input.athlete_id,
 
         snapshot_id:
           input.snapshot_id,
 
-        matrix_key:
-          MATRIX_KEY,
+        sport,
 
-        matrix_version:
-          MATRIX_VERSION,
+        position,
 
-        doctrine_version:
-          input.doctrine_version ??
-          registryValidation
-            .entry
-            ?.doctrine_version ??
-          null,
+        components:
+          normalizedComponents,
 
-        domain:
-          MATRIX_DOMAIN,
-
-        score,
+        component_scores:
+          normalizedComponents,
 
         confidence:
           trust.confidence,
@@ -1118,599 +1668,306 @@ Missing intelligence shall NEVER silently become zero.
         evidence_used:
           evidenceUsed,
 
-        missing_evidence: [],
+        missing_evidence:
+          [],
 
         flags:
           trust.flags,
 
         explanation: {
+
           summary:
-            "Production Intelligence evaluates demonstrated sport and position production. Verification and provenance affect confidence in the production evidence but do not inflate or reduce the production itself.",
+            "Production evidence was interpreted into the governed component contract required by PRODUCTION_MATRIX. This authority does not publish the official Production domain score.",
 
-          components,
+          component_contract:
+            [
+              ...REQUIRED_COMPONENTS
+            ],
 
-          weights: {
-            ...WEIGHTS
-          },
+          sport_authority_used:
+            Boolean(
+              sportAuthority
+            ),
 
-          production_confidence_separation:
-            true,
+          sport_authority:
+            sportAuthority
+              ? (
+                  sportResult
+                    ?.authority ||
+                  sportResult
+                    ?.engine_id ||
+                  `${sport}_PRODUCTION_AUTHORITY`
+                )
+              : null,
 
-          verification_changes_performance:
+          competition_context_consumed:
+            normalizedComponents
+              .competition_context !=
+            null,
+
+          verification_changes_production_facts:
+            false,
+
+          competition_multiplier_used:
+            false,
+
+          athletic_measurables_create_production:
+            false,
+
+          official_domain_score_published:
             false
+
         },
 
-        generated_at:
-          now(),
-
         status:
-          trust.confidence < 60
-            ? "UNVERIFIED"
-            : "SCORED"
+          STATUS
+            .INTERPRETED,
+
+        generated_at:
+          now()
+
       };
 
-      lastResult = result;
+      lastResult =
+        result;
 
       return result;
 
-    } catch (error) {
+    } catch (
+      error
+    ) {
       return failClosed(
+
         input,
-        "MATRIX_CONTRACT_INVALID",
-        [
-          "UNHANDLED_MATRIX_ERROR"
-        ],
+
+        STATUS
+          .CONTRACT_INVALID,
+
         String(
           error?.message ||
           error
-        )
+        ),
+
+        [
+          "PRODUCTION_INTERPRETATION_ERROR"
+        ]
+
       );
     }
   }
 
   /*
   =======================================================
-  DOWNSTREAM PRODUCTION PROJECTION SUPPORT
-  =======================================================
+  COMPATIBILITY ENTRYPOINTS
+  -------------------------------------------------------
+  The canonical method is:
 
-  This section preserves the useful recruiting /
-  pathway projection logic from the legacy file.
+  evaluateProductionComponents()
 
-  IMPORTANT:
-
-  This helper consumes an ALREADY GOVERNED production
-  score.
-
-  It is NOT the Production Matrix.
-
-  It does NOT publish an official Production score.
-
-  Missing production_score remains null.
-
-  It shall NEVER convert missing intelligence into zero.
+  Transitional names forward to the SAME authority.
   =======================================================
   */
 
-  const PRODUCTION_PROJECTION_MATRIX =
-    Object.freeze({
-
-      football: {
-
-        quarterback: {
-
-          elite: {
-            label:
-              "Power 4 / High D1",
-
-            production_score_min:
-              90,
-
-            indicators: [
-              "High verified game production",
-              "Strong TD-to-turnover ratio",
-              "Advanced decision-making",
-              "Verified arm strength",
-              "Leadership impact"
-            ]
-          },
-
-          high: {
-            label:
-              "G5 / FCS / D1",
-
-            production_score_min:
-              82,
-
-            indicators: [
-              "Consistent varsity production",
-              "Recruitable film",
-              "Strong accuracy and command",
-              "Scheme-transfer potential"
-            ]
-          },
-
-          recruitable: {
-            label:
-              "D2 / NAIA / Developmental FCS",
-
-            production_score_min:
-              72,
-
-            indicators: [
-              "Productive but still developing",
-              "Needs verified competition context",
-              "Needs more film or camp validation"
-            ]
-          },
-
-          developing: {
-            label:
-              "D3 / JUCO / Prep / Developmental",
-
-            production_score_min:
-              60,
-
-            indicators: [
-              "Needs production evidence",
-              "Needs measurable verification",
-              "Needs development route"
-            ]
-          }
-        },
-
-        wide_receiver: {
-
-          elite: {
-            label:
-              "Power 4 / High D1",
-
-            production_score_min:
-              90,
-
-            indicators: [
-              "Dominant game production",
-              "Separation against verified competition",
-              "Explosive yards after catch",
-              "Verified speed or elite play speed",
-              "High impact scoring production"
-            ]
-          },
-
-          high: {
-            label:
-              "G5 / FCS / D1",
-
-            production_score_min:
-              82,
-
-            indicators: [
-              "Strong receiving production",
-              "Reliable route running",
-              "Verified hands",
-              "Recruitable frame or speed"
-            ]
-          },
-
-          recruitable: {
-            label:
-              "D2 / NAIA / Developmental FCS",
-
-            production_score_min:
-              72,
-
-            indicators: [
-              "Solid production",
-              "Needs exposure validation",
-              "Needs verified athletic testing"
-            ]
-          },
-
-          developing: {
-            label:
-              "D3 / JUCO / Prep / Developmental",
-
-            production_score_min:
-              60,
-
-            indicators: [
-              "Needs production increase",
-              "Needs film evidence",
-              "Needs development pathway"
-            ]
-          }
-        },
-
-        running_back: {
-
-          elite: {
-            label:
-              "Power 4 / High D1",
-
-            production_score_min:
-              90,
-
-            indicators: [
-              "High rushing production",
-              "Explosive play rate",
-              "Contact balance",
-              "Verified speed",
-              "Consistent scoring impact"
-            ]
-          },
-
-          high: {
-            label:
-              "G5 / FCS / D1",
-
-            production_score_min:
-              82,
-
-            indicators: [
-              "Strong varsity production",
-              "Reliable ball security",
-              "Good burst and vision",
-              "Recruitable film"
-            ]
-          },
-
-          recruitable: {
-            label:
-              "D2 / NAIA / Developmental FCS",
-
-            production_score_min:
-              72,
-
-            indicators: [
-              "Productive but needs validation",
-              "Needs verified speed/strength",
-              "Needs more competitive context"
-            ]
-          },
-
-          developing: {
-            label:
-              "D3 / JUCO / Prep / Developmental",
-
-            production_score_min:
-              60,
-
-            indicators: [
-              "Needs stronger evidence",
-              "Needs development route",
-              "Needs production growth"
-            ]
-          }
-        },
-
-        defensive_back: {
-
-          elite: {
-            label:
-              "Power 4 / High D1",
-
-            production_score_min:
-              90,
-
-            indicators: [
-              "High-level coverage production",
-              "Turnover creation",
-              "Verified speed",
-              "Position versatility",
-              "Strong tackling evidence"
-            ]
-          },
-
-          high: {
-            label:
-              "G5 / FCS / D1",
-
-            production_score_min:
-              82,
-
-            indicators: [
-              "Good coverage evidence",
-              "Recruitable athletic profile",
-              "Strong game film",
-              "Verified competitive production"
-            ]
-          },
-
-          recruitable: {
-            label:
-              "D2 / NAIA / Developmental FCS",
-
-            production_score_min:
-              72,
-
-            indicators: [
-              "Solid defensive production",
-              "Needs exposure",
-              "Needs verified metrics"
-            ]
-          },
-
-          developing: {
-            label:
-              "D3 / JUCO / Prep / Developmental",
-
-            production_score_min:
-              60,
-
-            indicators: [
-              "Needs more film",
-              "Needs measurable verification",
-              "Needs position development"
-            ]
-          }
-        }
-      }
-    });
-
-  /*
-  =======================================================
-  PROJECTION HELPER
-  =======================================================
-  */
-
-  function getProductionProjection({
-    sport,
-    position,
-    production_score
-  } = {}) {
-
-    const cleanSport =
-      String(
-        sport || ""
-      )
-        .toLowerCase()
-        .trim()
-        .replace(
-          /\s+/g,
-          "_"
-        );
-
-    const cleanPosition =
-      String(
-        position || ""
-      )
-        .toLowerCase()
-        .trim()
-        .replace(
-          /\s+/g,
-          "_"
-        );
-
-    /*
-    -----------------------------------------------------
-    CRITICAL NULL RULE
-    -----------------------------------------------------
-
-    DO NOT:
-
-    Number(production_score || 0)
-
-    Missing production intelligence is not zero.
-    -----------------------------------------------------
-    */
-
-    if (
-      production_score == null ||
-      production_score === ""
-    ) {
-      return {
-        status:
-          "INSUFFICIENT_EVIDENCE",
-
-        tier: null,
-
-        label:
-          "Production score unavailable",
-
-        score: null,
-
-        indicators: [
-          "Official Production Intelligence is unavailable.",
-          "No recruiting or pathway projection is authorized until a governed Production score exists."
-        ]
-      };
-    }
-
-    const score =
-      Number(
-        production_score
-      );
-
-    if (
-      !Number.isFinite(score)
-    ) {
-      return {
-        status:
-          "MATRIX_CONTRACT_INVALID",
-
-        tier: null,
-
-        label:
-          "Invalid production score",
-
-        score: null,
-
-        indicators: [
-          "Production projection received a non-numeric governed score."
-        ]
-      };
-    }
-
-    const matrix =
-      PRODUCTION_PROJECTION_MATRIX
-        ?.[cleanSport]
-        ?.[cleanPosition];
-
-    if (!matrix) {
-      return {
-        status:
-          "NO_PROJECTION_MATRIX_FOUND",
-
-        tier: null,
-
-        label:
-          "Needs sport/position projection matrix",
-
-        score,
-
-        indicators: [
-          "No downstream production projection matrix exists for this sport and position.",
-          "The official Production score remains valid and unchanged."
-        ]
-      };
-    }
-
-    if (
-      score >=
-      matrix.elite
-        .production_score_min
-    ) {
-      return {
-        status:
-          "PROJECTED",
-
-        tier:
-          "ELITE",
-
-        ...matrix.elite,
-
-        score
-      };
-    }
-
-    if (
-      score >=
-      matrix.high
-        .production_score_min
-    ) {
-      return {
-        status:
-          "PROJECTED",
-
-        tier:
-          "HIGH",
-
-        ...matrix.high,
-
-        score
-      };
-    }
-
-    if (
-      score >=
-      matrix.recruitable
-        .production_score_min
-    ) {
-      return {
-        status:
-          "PROJECTED",
-
-        tier:
-          "RECRUITABLE",
-
-        ...matrix.recruitable,
-
-        score
-      };
-    }
-
-    if (
-      score >=
-      matrix.developing
-        .production_score_min
-    ) {
-      return {
-        status:
-          "PROJECTED",
-
-        tier:
-          "DEVELOPING",
-
-        ...matrix.developing,
-
-        score
-      };
-    }
-
-    return {
-      status:
-        "PROJECTED",
-
-      tier:
-        "DEVELOPMENTAL",
-
-      label:
-        "Developmental / Needs Production Growth",
-
-      score,
-
-      indicators: [
-        "Current governed production score is below the defined projection threshold.",
-        "Production development is required.",
-        "Projection does not alter the underlying official Production score."
-      ]
-    };
+  function evaluateProductionProfile(
+    input,
+    context = {}
+  ) {
+    return evaluateProductionComponents(
+      input,
+      context
+    );
+  }
+
+  function interpretProduction(
+    input,
+    context = {}
+  ) {
+    return evaluateProductionComponents(
+      input,
+      context
+    );
+  }
+
+  function evaluate(
+    input,
+    context = {}
+  ) {
+    return evaluateProductionComponents(
+      input,
+      context
+    );
   }
 
   /*
   =======================================================
-  CONTRACT / DIAGNOSTICS
+  CONTRACT
   =======================================================
   */
 
   function getContract() {
     return {
-      matrix_key:
-        MATRIX_KEY,
 
-      matrix_domain:
-        MATRIX_DOMAIN,
+      authority:
+        AUTHORITY_KEY,
 
-      matrix_version:
-        MATRIX_VERSION,
+      authority_type:
+        AUTHORITY_TYPE,
+
+      engine_id:
+        ENGINE_ID,
+
+      version:
+        VERSION,
 
       stream_owner:
         STREAM_OWNER,
 
-      output_type:
-        OUTPUT_TYPE,
+      downstream_authority:
+        "PRODUCTION_MATRIX",
 
-      score_range: {
-        ...SCORE_RANGE
-      },
+      required_components:
+        [
+          ...REQUIRED_COMPONENTS
+        ],
 
-      required_evidence: [
-        ...REQUIRED_EVIDENCE
-      ],
+      official_domain_score_authority:
+        false,
 
-      optional_evidence: [
-        ...OPTIONAL_EVIDENCE
-      ],
+      composite_authority:
+        false,
 
-      weights: {
-        ...WEIGHTS
-      },
+      athletic_authority:
+        false,
 
-      performance_confidence_separation:
-        true,
+      verification_authority:
+        false,
 
-      projection_separation:
-        true
+      pathway_authority:
+        false,
+
+      presentation_authority:
+        false,
+
+      runtime_authority:
+        false,
+
+      generic_score_multiplier:
+        false,
+
+      missing_production_becomes_zero:
+        false,
+
+      auto_execution:
+        false
+
     };
   }
 
-  function getConfiguration() {
-    return {
-      ...getContract(),
+  /*
+  =======================================================
+  HEALTH CHECK
+  =======================================================
+  */
 
-      projection_sports:
-        Object.keys(
-          PRODUCTION_PROJECTION_MATRIX
+  function runHealthCheck(
+    context = {}
+  ) {
+    const sportAuthorities = {
+
+      FOOTBALL:
+        Boolean(
+          resolveSportProductionAuthority(
+            "FOOTBALL",
+            context
+          )
+        ),
+
+      BASKETBALL:
+        Boolean(
+          resolveSportProductionAuthority(
+            "BASKETBALL",
+            context
+          )
+        ),
+
+      BASEBALL:
+        Boolean(
+          resolveSportProductionAuthority(
+            "BASEBALL",
+            context
+          )
+        ),
+
+      TRACK:
+        Boolean(
+          resolveSportProductionAuthority(
+            "TRACK",
+            context
+          )
         )
+
+    };
+
+    return {
+
+      authority_loaded:
+        true,
+
+      engine_id:
+        ENGINE_ID,
+
+      version:
+        VERSION,
+
+      stream_owner:
+        STREAM_OWNER,
+
+      required_components:
+        [
+          ...REQUIRED_COMPONENTS
+        ],
+
+      sport_authorities:
+        sportAuthorities,
+
+      production_matrix_available:
+        Boolean(
+          root
+            .STATScoreProductionMatrix ||
+          root
+            .STATScore
+            ?.Matrices
+            ?.PRODUCTION_MATRIX
+        ),
+
+      competition_matrix_available:
+        Boolean(
+          root
+            .STATScoreCompetitionMatrix ||
+          root
+            .STATScore
+            ?.Matrices
+            ?.COMPETITION_MATRIX
+        ),
+
+      publishes_domain_score:
+        false,
+
+      generic_multiplier_enabled:
+        false,
+
+      dom_rendering_enabled:
+        false,
+
+      auto_execution_enabled:
+        false,
+
+      missing_production_becomes_zero:
+        false,
+
+      healthy:
+        true
+
     };
   }
 
@@ -1722,67 +1979,6 @@ Missing intelligence shall NEVER silently become zero.
     return lastError;
   }
 
-  function runHealthCheck(context = {}) {
-    const registryValidation =
-      validateRegistry(
-        context
-      );
-
-    const productionAuthority =
-      resolveProductionAuthority(
-        context
-      );
-
-    return {
-      authority_loaded:
-        true,
-
-      matrix_key:
-        MATRIX_KEY,
-
-      matrix_version:
-        MATRIX_VERSION,
-
-      stream_owner:
-        STREAM_OWNER,
-
-      weights_total:
-        weightTotal(),
-
-      weights_valid:
-        validateWeights(),
-
-      registered:
-        registryValidation.ok,
-
-      registry_status:
-        registryValidation.ok
-          ? "OK"
-          : registryValidation.status,
-
-      production_authority_available:
-        Boolean(
-          productionAuthority
-        ),
-
-      missing_score_becomes_zero:
-        false,
-
-      production_confidence_separated:
-        true,
-
-      projection_separated_from_official_score:
-        true,
-
-      healthy:
-        validateWeights() &&
-        registryValidation.ok &&
-        Boolean(
-          productionAuthority
-        )
-    };
-  }
-
   /*
   =======================================================
   PUBLIC AUTHORITY
@@ -1791,72 +1987,85 @@ Missing intelligence shall NEVER silently become zero.
 
   const api =
     Object.freeze({
+
+      authority:
+        AUTHORITY_KEY,
+
+      authority_type:
+        AUTHORITY_TYPE,
+
+      engine_id:
+        ENGINE_ID,
+
+      version:
+        VERSION,
+
+      stream_owner:
+        STREAM_OWNER,
+
+      status:
+        "ACTIVE",
+
+      required_components:
+        REQUIRED_COMPONENTS,
+
+      evaluateProductionComponents,
+
+      evaluateProductionProfile,
+
+      interpretProduction,
+
       evaluate,
 
       getContract,
 
-      getConfiguration,
+      runHealthCheck,
 
       getLastResult,
 
-      getLastError,
+      getLastError
 
-      runHealthCheck,
-
-      getProductionProjection
     });
 
   /*
   =======================================================
-  CANONICAL NAMESPACE
+  CANONICAL GLOBALS
   =======================================================
   */
 
-  root.STATScoreProductionMatrix =
+  root.STATScoreProductionEngine =
     api;
 
   root.STATScore =
-    root.STATScore || {};
+    root.STATScore ||
+    {};
 
-  root.STATScore.Matrices =
-    root.STATScore.Matrices || {};
+  root.STATScore.ProductionEngine =
+    api;
 
-  root.STATScore.Matrices[
-    MATRIX_KEY
-  ] = api;
-
-  /*
-  =======================================================
-  CONTROLLED LEGACY COMPATIBILITY EXPORTS
-  =======================================================
-
-  These names are retained temporarily so existing
-  consumers do not break during reconstruction.
-
-  They are compatibility aliases only.
-
-  They are NOT separate scoring authorities.
-  =======================================================
-  */
-
-  root.STATSCORE_PRODUCTION_MATRIX =
-    PRODUCTION_PROJECTION_MATRIX;
-
-  root.getProductionProjection =
-    getProductionProjection;
+  root.STATScore.ProductionAuthority =
+    api;
 
   /*
   =======================================================
   LOAD RECEIPT
+  -------------------------------------------------------
+  Loading registers authority only.
+
+  No athlete is interpreted automatically.
+  No score is published.
+  No DOM is touched.
   =======================================================
   */
 
-  console.log(
-    "[STATS-CORE][STREAM 9] PRODUCTION_MATRIX v1.0.0 loaded."
+  console.info(
+    "[STATS-CORE][STREAM 9] Production Interpretation Authority loaded:",
+    VERSION
   );
 
 })(
-  typeof window !== "undefined"
+  typeof window !==
+    "undefined"
     ? window
     : globalThis
 ); 
