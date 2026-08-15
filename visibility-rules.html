@@ -1,196 +1,2151 @@
+<!--
+==========================================================
+STATS-CORE™ OWNERSHIP HEADER
+==========================================================
+
+File:
+visibility-rules.html
+
+Asset Type:
+HTML Presentation Page
+
+Owner Stream:
+Stream 7 — Crystal / Exposure / Media /
+Enterprise Publication Authority
+
+Primary Operational Authority:
+Stream 7 — Publication Visibility Enforcement
+
+Consumed Governance Authority:
+Stream 6 — Communication & Governance Authority
+
+Supporting Authorities Where Applicable:
+Stream 2 — Athlete Source / Guardian / Consent References
+Stream 4 — Professional Role Context
+Stream 5 — Active Professional Workspace Context
+Stream 9 — Intelligence Classification / Explainability
+Stream 10 — Professional Certification / Trust References
+
+System Layer:
+Publication Visibility & Disclosure Presentation
+
+Constitutional Purpose:
+Present the governed disclosure/visibility state consumed by
+Stream 7 before Crystal, ranking, event, exposure, profile,
+or PHNX Sports publication.
+
+Consumes:
+athlete_id
+snapshot_id
+program_id where applicable
+professional_id where applicable
+workspace_id where applicable
+role_context_id where applicable
+
+governance decision
+governance authority
+governance receipt
+disclosure scope
+rights state
+consent state
+guardian authorization where applicable
+professional trust/certification references where applicable
+relationship / authorization scope
+publication eligibility
+publication state
+publication receipt
+
+Provides:
+publication visibility presentation
+disclosure-state presentation
+publication eligibility presentation
+rights/consent readiness presentation
+governance receipt reference
+publication fail-closed presentation
+
+Does NOT:
+- Establish enterprise role access
+- Establish communication permission
+- Save Multi-Box permissions
+- Manufacture guardian approval
+- Manufacture professional authorization
+- Treat certification as access authority
+- Manufacture governance receipts
+- Modify Stream 6 visibility rules
+- Expose recruiting intelligence publicly by inference
+- Treat possession of data as publication authority
+- Bypass rights / consent / disclosure governance
+- Convert PRIVATE information to PUBLIC_MEDIA locally
+
+CONTROLLING DOCTRINE:
+
+Visibility Is Governed.
+
+Publication consumes visibility authority.
+Publication does not manufacture visibility authority.
+
+Certification ≠ Access.
+
+Role ≠ Relationship Scope.
+
+Possession ≠ Publication Authority.
+
+Registered ≠ Published.
+
+Published ≠ Public.
+
+Public Event ≠ Public Athlete Data.
+
+Exposure ≠ Interest ≠ Communication ≠ Offer ≠ Commitment.
+
+NO PUBLIC DISCLOSURE AUTHORITY
+    → DO NOT PUBLISH
+
+==========================================================
+-->
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>STATScore™ — Visibility Rules</title>
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+/>
+
+<title>
+  STATS-CORE™ — Publication Visibility
+</title>
+
+<meta
+  name="description"
+  content="STATS-CORE™ governed publication visibility, disclosure scope, rights, consent, governance authority, and publication eligibility."
+/>
 
 <style>
+
 :root{
-  --red:#ff1f2d; --gold:#ffb100; --green:#2bdc65; --danger:#ff4d4d; --blue:#9fe7ff;
-  --text:#f5f5f0; --muted:#9ea4ad;
+  --red:#ff1f2d;
+  --gold:#ffb100;
+  --green:#2bdc65;
+  --danger:#ff4d4d;
+  --blue:#9fe7ff;
+
+  --text:#f5f5f0;
+  --muted:#9ea4ad;
+
+  --line:rgba(255,255,255,.14);
+  --line2:rgba(255,255,255,.26);
+
+  --panel:#050505;
+  --max:1500px;
 }
-*{box-sizing:border-box}
-html,body{margin:0;background:#000;color:var(--text);font-family:Arial,Helvetica,sans-serif}
-a{text-decoration:none;color:inherit}
-.page{min-height:100vh;background:radial-gradient(circle at top right,rgba(255,255,255,.04),transparent 22%),repeating-linear-gradient(135deg,rgba(255,255,255,.012) 0,rgba(255,255,255,.012) 1px,transparent 1px,transparent 8px),linear-gradient(180deg,#000,#040404 55%,#000)}
-.header{height:84px;border-bottom:2px solid var(--red);background:linear-gradient(180deg,#fff,#ecece8);display:flex;align-items:center;justify-content:space-between;padding:0 26px}
-.logo{height:42px}.header-right{color:#111;text-transform:uppercase;font-size:.72rem;font-weight:900;letter-spacing:.12em}
-.main{padding:22px}.hero{padding:34px;border:1px solid rgba(255,255,255,.14);background:linear-gradient(145deg,rgba(255,255,255,.04),rgba(255,255,255,.008)),#050505;box-shadow:inset 0 0 0 1px rgba(255,255,255,.03),0 20px 44px rgba(0,0,0,.88)}
-.label{color:var(--red);font-size:.72rem;font-weight:900;letter-spacing:.22em;text-transform:uppercase}
-.hero h1{margin:14px 0 16px;font-size:3.5rem;line-height:.9;text-transform:uppercase;font-weight:900;letter-spacing:-.04em}
-.hero p{max-width:850px;color:#d2d2d2;line-height:1.6;font-size:1rem}
-.grid{margin-top:18px;display:grid;grid-template-columns:1.1fr .9fr;gap:18px}
-.panel{border:1px solid rgba(255,255,255,.14);background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01)),#050505;box-shadow:inset 0 0 0 1px rgba(255,255,255,.025),0 16px 34px rgba(0,0,0,.75)}
-.section{padding:22px}.section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
-.section-title b{font-size:.86rem;font-weight:900;text-transform:uppercase;letter-spacing:.12em}
-.rule-list{display:grid;gap:12px}
-.rule-card{display:grid;grid-template-columns:70px 1fr 130px;gap:16px;align-items:center;padding:15px;border:1px solid rgba(255,255,255,.1);background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01)),#060606}
-.icon{width:70px;height:70px;border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:var(--blue);background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.01))}
-.info b{display:block;font-size:.92rem;text-transform:uppercase;letter-spacing:.08em}.info span{display:block;margin-top:5px;color:var(--muted);font-size:.76rem;line-height:1.45}
-.pill{height:34px;display:flex;align-items:center;justify-content:center;border:1px solid;font-size:.62rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
-.pill.open{color:var(--green);border-color:rgba(43,220,101,.45);background:rgba(43,220,101,.08)}
-.pill.controlled{color:var(--blue);border-color:rgba(159,231,255,.45);background:rgba(159,231,255,.07)}
-.pill.restricted{color:var(--gold);border-color:rgba(255,177,0,.45);background:rgba(255,177,0,.08)}
-.pill.closed{color:var(--danger);border-color:rgba(255,77,77,.45);background:rgba(255,77,77,.08)}
-.matrix{display:grid;gap:12px}.matrix-card{padding:16px;border:1px solid rgba(255,255,255,.1);background:#060606}
-.matrix-card b{display:block;margin-bottom:8px;font-size:.8rem;text-transform:uppercase;letter-spacing:.12em}.matrix-card span{color:var(--muted);font-size:.76rem;line-height:1.5}
-.action-bar{margin-top:18px;display:flex;gap:12px;flex-wrap:wrap}.btn{height:44px;padding:0 22px;border:1px solid var(--red);background:rgba(255,31,45,.06);color:var(--red);display:flex;align-items:center;justify-content:center;text-transform:uppercase;font-size:.72rem;font-weight:900;letter-spacing:.14em;cursor:pointer}.btn.gold{border-color:rgba(255,177,0,.55);color:var(--gold);background:rgba(255,177,0,.08)}
-.audit{margin-top:18px;padding:18px;border:1px solid rgba(255,255,255,.08);background:#030303}.audit b{display:block;margin-bottom:12px;font-size:.76rem;text-transform:uppercase;letter-spacing:.16em;color:var(--red)}
-.audit-item{padding:12px;border-left:3px solid var(--red);background:rgba(255,255,255,.02);font-size:.74rem;line-height:1.45;color:#d8d8d8;margin-bottom:10px}.audit-item span{display:block;margin-top:4px;color:#8f98a5;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase}
-@media(max-width:980px){.grid{grid-template-columns:1fr}.hero h1{font-size:2.6rem}}@media(max-width:720px){.main{padding:12px}.hero{padding:22px}.hero h1{font-size:2.1rem}.rule-card{grid-template-columns:1fr}.action-bar{flex-direction:column}}
+
+*{
+  box-sizing:border-box;
+}
+
+html,
+body{
+  margin:0;
+  background:#000;
+  color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+}
+
+a{
+  text-decoration:none;
+  color:inherit;
+}
+
+button{
+  font-family:inherit;
+}
+
+.page{
+  width:min(var(--max),100%);
+  margin:0 auto;
+  min-height:100vh;
+
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(255,255,255,.04),
+      transparent 22%
+    ),
+
+    repeating-linear-gradient(
+      135deg,
+      rgba(255,255,255,.012) 0,
+      rgba(255,255,255,.012) 1px,
+      transparent 1px,
+      transparent 8px
+    ),
+
+    linear-gradient(
+      180deg,
+      #000,
+      #040404 55%,
+      #000
+    );
+}
+
+
+/* ============================================================
+   HEADER
+============================================================ */
+
+.header{
+  min-height:84px;
+
+  border-bottom:
+    2px solid var(--red);
+
+  background:
+    linear-gradient(
+      180deg,
+      #fff,
+      #ecece8
+    );
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+
+  padding:0 26px;
+}
+
+.logo{
+  height:42px;
+  max-width:260px;
+}
+
+.header-right{
+  color:#111;
+  text-transform:uppercase;
+  font-size:.7rem;
+  font-weight:900;
+  letter-spacing:.11em;
+  text-align:right;
+}
+
+
+/* ============================================================
+   MAIN
+============================================================ */
+
+.main{
+  padding:22px;
+}
+
+
+/* ============================================================
+   HERO
+============================================================ */
+
+.hero{
+  padding:34px;
+
+  border:
+    1px solid var(--line);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.04),
+      rgba(255,255,255,.008)
+    ),
+    #050505;
+
+  box-shadow:
+    inset 0 0 0 1px
+      rgba(255,255,255,.03),
+    0 20px 44px
+      rgba(0,0,0,.88);
+}
+
+.label{
+  color:var(--red);
+  font-size:.7rem;
+  font-weight:900;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+}
+
+.hero h1{
+  margin:14px 0 16px;
+
+  font-size:
+    clamp(
+      2.7rem,
+      5vw,
+      4.8rem
+    );
+
+  line-height:.9;
+
+  text-transform:uppercase;
+  font-weight:900;
+  letter-spacing:-.04em;
+}
+
+.hero p{
+  max-width:950px;
+
+  color:#d2d2d2;
+  line-height:1.6;
+  font-size:.96rem;
+}
+
+
+/* ============================================================
+   DOCTRINE
+============================================================ */
+
+.doctrine{
+  margin-top:18px;
+  padding:18px;
+
+  border-left:
+    4px solid var(--gold);
+
+  background:
+    rgba(255,177,0,.055);
+
+  color:#f4e6b5;
+
+  line-height:1.6;
+  font-size:.8rem;
+}
+
+
+/* ============================================================
+   CONTEXT STRIP
+============================================================ */
+
+.context-grid{
+  margin-top:18px;
+
+  display:grid;
+  grid-template-columns:
+    repeat(4,1fr);
+
+  gap:10px;
+}
+
+.context-card{
+  min-height:92px;
+  padding:14px;
+
+  border:
+    1px solid var(--line);
+
+  background:
+    rgba(255,255,255,.025);
+}
+
+.context-card span{
+  display:block;
+
+  color:var(--blue);
+
+  font-size:.63rem;
+  font-weight:900;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+
+  margin-bottom:7px;
+}
+
+.context-card b{
+  display:block;
+
+  font-size:.8rem;
+  line-height:1.4;
+
+  overflow-wrap:anywhere;
+}
+
+
+/* ============================================================
+   GRID
+============================================================ */
+
+.grid{
+  margin-top:18px;
+
+  display:grid;
+  grid-template-columns:
+    1.1fr .9fr;
+
+  gap:18px;
+}
+
+.panel{
+  border:
+    1px solid var(--line);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.04),
+      rgba(255,255,255,.01)
+    ),
+    #050505;
+
+  box-shadow:
+    inset 0 0 0 1px
+      rgba(255,255,255,.025),
+    0 16px 34px
+      rgba(0,0,0,.75);
+}
+
+.section{
+  padding:22px;
+}
+
+.section-title{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:14px;
+
+  margin-bottom:18px;
+}
+
+.section-title b{
+  font-size:.84rem;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.11em;
+}
+
+
+/* ============================================================
+   GOVERNED SCOPE
+============================================================ */
+
+.rule-list{
+  display:grid;
+  gap:12px;
+}
+
+.rule-card{
+  display:grid;
+
+  grid-template-columns:
+    70px
+    1fr
+    145px;
+
+  gap:16px;
+  align-items:center;
+
+  padding:15px;
+
+  border:
+    1px solid rgba(255,255,255,.1);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.03),
+      rgba(255,255,255,.01)
+    ),
+    #060606;
+}
+
+.icon{
+  width:70px;
+  height:70px;
+
+  border:
+    1px solid rgba(255,255,255,.12);
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-size:1.7rem;
+  color:var(--blue);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.08),
+      rgba(255,255,255,.01)
+    );
+}
+
+.info b{
+  display:block;
+
+  font-size:.88rem;
+  text-transform:uppercase;
+  letter-spacing:.07em;
+}
+
+.info span{
+  display:block;
+
+  margin-top:5px;
+
+  color:var(--muted);
+
+  font-size:.74rem;
+  line-height:1.5;
+}
+
+
+/* ============================================================
+   PILLS
+============================================================ */
+
+.pill{
+  min-height:34px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  padding:0 10px;
+
+  border:1px solid;
+
+  font-size:.6rem;
+  font-weight:900;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+
+  text-align:center;
+}
+
+.pill.allowed{
+  color:var(--green);
+  border-color:
+    rgba(43,220,101,.45);
+  background:
+    rgba(43,220,101,.08);
+}
+
+.pill.controlled{
+  color:var(--blue);
+  border-color:
+    rgba(159,231,255,.45);
+  background:
+    rgba(159,231,255,.07);
+}
+
+.pill.restricted{
+  color:var(--gold);
+  border-color:
+    rgba(255,177,0,.45);
+  background:
+    rgba(255,177,0,.08);
+}
+
+.pill.denied{
+  color:var(--danger);
+  border-color:
+    rgba(255,77,77,.45);
+  background:
+    rgba(255,77,77,.08);
+}
+
+.pill.unknown{
+  color:var(--muted);
+  border-color:
+    rgba(255,255,255,.22);
+  background:
+    rgba(255,255,255,.035);
+}
+
+
+/* ============================================================
+   MATRIX
+============================================================ */
+
+.matrix{
+  display:grid;
+  gap:12px;
+}
+
+.matrix-card{
+  padding:16px;
+
+  border:
+    1px solid rgba(255,255,255,.1);
+
+  background:#060606;
+}
+
+.matrix-card b{
+  display:block;
+
+  margin-bottom:8px;
+
+  font-size:.76rem;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+}
+
+.matrix-card span{
+  color:var(--muted);
+
+  font-size:.74rem;
+  line-height:1.55;
+}
+
+
+/* ============================================================
+   RECEIPT / AUTHORITY
+============================================================ */
+
+.authority{
+  margin-top:18px;
+
+  display:grid;
+  gap:9px;
+}
+
+.authority-row{
+  display:grid;
+  grid-template-columns:
+    190px 1fr;
+
+  border-bottom:
+    1px solid rgba(255,255,255,.08);
+}
+
+.authority-row span,
+.authority-row b{
+  padding:10px 12px;
+
+  font-size:.7rem;
+  line-height:1.4;
+}
+
+.authority-row span{
+  color:var(--blue);
+
+  text-transform:uppercase;
+  letter-spacing:.09em;
+  font-weight:900;
+}
+
+.authority-row b{
+  overflow-wrap:anywhere;
+}
+
+
+/* ============================================================
+   FAIL CLOSED
+============================================================ */
+
+.fail-closed{
+  margin-top:18px;
+  padding:17px;
+
+  border:
+    1px solid rgba(255,77,77,.32);
+
+  background:
+    rgba(255,77,77,.055);
+
+  color:#ffd5d5;
+
+  font-size:.76rem;
+  line-height:1.6;
+}
+
+.fail-closed strong{
+  color:var(--danger);
+}
+
+
+/* ============================================================
+   AUDIT
+============================================================ */
+
+.audit{
+  margin-top:18px;
+
+  padding:18px;
+
+  border:
+    1px solid rgba(255,255,255,.08);
+
+  background:#030303;
+}
+
+.audit > b{
+  display:block;
+
+  margin-bottom:12px;
+
+  font-size:.74rem;
+  text-transform:uppercase;
+  letter-spacing:.14em;
+  color:var(--red);
+}
+
+.audit-item{
+  padding:12px;
+
+  border-left:
+    3px solid var(--blue);
+
+  background:
+    rgba(255,255,255,.02);
+
+  font-size:.72rem;
+  line-height:1.5;
+  color:#d8d8d8;
+
+  margin-bottom:10px;
+}
+
+.audit-item:last-child{
+  margin-bottom:0;
+}
+
+.audit-item span{
+  display:block;
+
+  margin-top:5px;
+
+  color:#8f98a5;
+
+  font-size:.65rem;
+  letter-spacing:.07em;
+  text-transform:uppercase;
+}
+
+
+/* ============================================================
+   ACTIONS
+============================================================ */
+
+.action-bar{
+  margin-top:18px;
+
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.btn{
+  min-height:44px;
+  padding:0 22px;
+
+  border:
+    1px solid var(--red);
+
+  background:
+    rgba(255,31,45,.06);
+
+  color:var(--red);
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  text-transform:uppercase;
+
+  font-size:.69rem;
+  font-weight:900;
+  letter-spacing:.12em;
+
+  cursor:pointer;
+}
+
+.btn.gold{
+  border-color:
+    rgba(255,177,0,.55);
+
+  color:var(--gold);
+
+  background:
+    rgba(255,177,0,.08);
+}
+
+
+/* ============================================================
+   EMPTY
+============================================================ */
+
+.empty{
+  border:
+    1px solid var(--line);
+
+  background:
+    rgba(255,255,255,.025);
+
+  padding:22px;
+
+  color:var(--muted);
+
+  font-size:.74rem;
+  line-height:1.55;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@media(max-width:1050px){
+
+  .grid,
+  .context-grid{
+    grid-template-columns:1fr;
+  }
+
+}
+
+@media(max-width:720px){
+
+  .main{
+    padding:12px;
+  }
+
+  .hero{
+    padding:22px;
+  }
+
+  .rule-card{
+    grid-template-columns:1fr;
+  }
+
+  .icon{
+    width:54px;
+    height:54px;
+  }
+
+  .authority-row{
+    grid-template-columns:1fr;
+  }
+
+  .action-bar{
+    flex-direction:column;
+  }
+
+}
+
 </style>
+
 </head>
 
+
 <body>
+
 <div class="page">
 
+
 <header class="header">
-  <a href="system.html"><img src="sc_logo_black_v2.png" class="logo" alt="STATScore"></a>
-  <div class="header-right">Visibility Rules Corridor</div>
+
+  <a href="system.html">
+
+    <img
+      src="sc_logo_black_v2.png"
+      class="logo"
+      alt="STATS-CORE"
+    >
+
+  </a>
+
+  <div class="header-right">
+    Publication Visibility & Disclosure
+  </div>
+
 </header>
+
 
 <main class="main">
 
+
 <section class="hero">
-  <div class="label">Multi-Box™ Governance</div>
-  <h1>Visibility Rules & Access Boundaries</h1>
+
+  <div class="label">
+    Governed Publication Visibility
+  </div>
+
+  <h1>
+    Visibility & Disclosure
+  </h1>
+
   <p>
-    Control who can see athlete identity, performance signals, academic information,
-    contact paths, evidence layers, Crystal Reports, and recruiting visibility through
-    role-based access governance.
+    Stream 7 consumes governed enterprise visibility, rights,
+    consent, trust, and disclosure decisions before publishing
+    Crystal Reports, PHNX Sports media, rankings, event outputs,
+    exposure artifacts, or other authorized enterprise publications.
   </p>
+
 </section>
+
+
+<div class="doctrine">
+
+  <strong>
+    Visibility Is Governed.
+  </strong>
+
+  Stream 7 does not decide enterprise role access or communication
+  permission. It consumes the governing decision and enforces that
+  decision within publication.
+
+  Certification does not automatically establish access.
+  Possession of information does not establish publication authority.
+  PUBLIC_MEDIA disclosure fails closed unless the required authority,
+  rights, and consent references are present.
+
+</div>
+
+
+<section class="context-grid">
+
+  <div class="context-card">
+
+    <span>
+      Athlete
+    </span>
+
+    <b id="ctxAthlete">
+      Context not supplied
+    </b>
+
+  </div>
+
+
+  <div class="context-card">
+
+    <span>
+      Snapshot
+    </span>
+
+    <b id="ctxSnapshot">
+      Context not supplied
+    </b>
+
+  </div>
+
+
+  <div class="context-card">
+
+    <span>
+      Workspace
+    </span>
+
+    <b id="ctxWorkspace">
+      Context not supplied
+    </b>
+
+  </div>
+
+
+  <div class="context-card">
+
+    <span>
+      Publication
+    </span>
+
+    <b id="ctxPublication">
+      Context not supplied
+    </b>
+
+  </div>
+
+</section>
+
 
 <section class="grid">
 
+
 <div class="panel section">
-  <div class="section-title"><b>Visibility Control Matrix</b></div>
 
-  <div class="rule-list">
+  <div class="section-title">
 
-    <div class="rule-card">
-      <div class="icon">👤</div>
-      <div class="info">
-        <b>Parent / Guardian Visibility</b>
-        <span>Full athlete profile, academic readiness, approvals, reports, and communication controls.</span>
-      </div>
-      <div class="pill open">Open</div>
-    </div>
+    <b>
+      Governed Disclosure Matrix
+    </b>
 
-    <div class="rule-card">
-      <div class="icon">🏈</div>
-      <div class="info">
-        <b>Coach Visibility</b>
-        <span>Performance traits, readiness, development priorities, film/evidence, and program participation data.</span>
-      </div>
-      <div class="pill open">Open</div>
-    </div>
+    <span
+      class="pill unknown"
+      id="overallState"
+    >
+      Awaiting Authority
+    </span>
 
-    <div class="rule-card">
-      <div class="icon">🎓</div>
-      <div class="info">
-        <b>Counselor Visibility</b>
-        <span>Academic track, NCAA course alignment, transcript status, GPA risk, and correction path.</span>
-      </div>
-      <div class="pill controlled">Controlled</div>
-    </div>
+  </div>
 
-    <div class="rule-card">
-      <div class="icon">◎</div>
-      <div class="info">
-        <b>Recruiter Visibility</b>
-        <span>Verified recruiters may view approved athlete signal, pathway fit, evidence, and governed contact lanes.</span>
-      </div>
-      <div class="pill restricted">Restricted</div>
-    </div>
 
-    <div class="rule-card">
-      <div class="icon">☑</div>
-      <div class="info">
-        <b>Evaluator Visibility</b>
-        <span>Evaluator lane access to performance evidence, verification status, notes, and trait support.</span>
-      </div>
-      <div class="pill controlled">Controlled</div>
-    </div>
+  <div
+    class="rule-list"
+    id="ruleList"
+  >
 
-    <div class="rule-card">
-      <div class="icon">🚫</div>
-      <div class="info">
-        <b>Public Visibility</b>
-        <span>No private athlete, academic, guardian, or communication data is publicly visible without authorization.</span>
-      </div>
-      <div class="pill closed">Closed</div>
+    <div class="empty">
+
+      No governed visibility decision is currently loaded.
+
+      <br><br>
+
+      This page will not infer Parent, Coach, Counselor,
+      Recruiter, Evaluator, Professional, or Public access from
+      role names alone.
+
     </div>
 
   </div>
+
 
   <div class="action-bar">
-    <div class="btn">Save Visibility Rules</div>
-    <div class="btn gold">Generate Visibility Receipt</div>
-    <a class="btn" href="parent-approval.html">Parent Approval</a>
+
+    <a
+      class="btn"
+      href="crystal-registry.html"
+      id="registryLink"
+    >
+      Crystal Registry
+    </a>
+
+    <a
+      class="btn gold"
+      href="media.html"
+      id="mediaLink"
+    >
+      PHNX Media
+    </a>
+
+    <a
+      class="btn"
+      href="parent-approval.html"
+      id="parentApprovalLink"
+    >
+      Parent / Guardian Authority
+    </a>
+
   </div>
+
 
   <div class="audit">
-    <b>Visibility Audit Trail</b>
 
-    <div class="audit-item">
-      Recruiter visibility set to restricted until verified recruiter trust is confirmed.
-      <span>Logged • Visibility Governance</span>
+    <b>
+      Governance / Receipt References
+    </b>
+
+    <div
+      id="auditTrail"
+      class="empty"
+    >
+      No governed receipt references loaded.
     </div>
 
-    <div class="audit-item">
-      Counselor academic access limited to NCAA eligibility and academic readiness sections.
-      <span>Logged • Academic Lane Control</span>
-    </div>
-
-    <div class="audit-item">
-      Public visibility disabled for private athlete and guardian data.
-      <span>Logged • Privacy Enforcement</span>
-    </div>
   </div>
+
 </div>
 
+
 <div class="panel section">
-  <div class="section-title"><b>Visibility Doctrine</b></div>
+
+  <div class="section-title">
+
+    <b>
+      Publication Visibility Doctrine
+    </b>
+
+  </div>
+
 
   <div class="matrix">
 
-    <div class="matrix-card">
-      <b>Least Access Required</b>
-      <span>Every role sees only what is required to perform its approved function.</span>
-    </div>
 
     <div class="matrix-card">
-      <b>Guardian Override</b>
-      <span>Parent/guardian approval governs minor athlete visibility and recruiter communication activation.</span>
+
+      <b>
+        Least Authorized Scope
+      </b>
+
+      <span>
+        Publication and presentation remain limited to the
+        disclosure scope established by the governing authority.
+        Stream 7 does not expand scope locally.
+      </span>
+
     </div>
 
-    <div class="matrix-card">
-      <b>Academic Separation</b>
-      <span>Academic readiness is separated from athletic scoring and is exposed only to approved roles.</span>
-    </div>
 
     <div class="matrix-card">
-      <b>Verified Recruiter Filter</b>
-      <span>Recruiter visibility requires identity, school affiliation, division role, and trust validation.</span>
+
+      <b>
+        Role ≠ Access
+      </b>
+
+      <span>
+        A Coach, Recruiter, Counselor, Evaluator, Trainer, Parent,
+        or other role does not automatically receive universal
+        access. Relationship, workspace, organization, athlete,
+        purpose, and current authorization scope remain governing
+        factors.
+      </span>
+
     </div>
 
-    <div class="matrix-card">
-      <b>Crystal Report Control</b>
-      <span>Reports may be generated as athlete, academic, combined, program, or recruiter-specific outputs.</span>
-    </div>
 
     <div class="matrix-card">
-      <b>Receipts Required</b>
-      <span>Every visibility change must create a traceable governance receipt.</span>
+
+      <b>
+        Certification ≠ Access
+      </b>
+
+      <span>
+        PHNX Professional Certification establishes professional
+        identity and trust where applicable. It does not create
+        permanent athlete, team, school, league, organization,
+        record, communication, report, or amendment access.
+      </span>
+
+    </div>
+
+
+    <div class="matrix-card">
+
+      <b>
+        Guardian Authorization
+      </b>
+
+      <span>
+        Guardian authorization is consumed where applicable for
+        minor/youth athlete disclosure. It does not supersede
+        other privacy, legal, certification, relationship, or
+        enterprise governance controls.
+      </span>
+
+    </div>
+
+
+    <div class="matrix-card">
+
+      <b>
+        Recruiting Privacy
+      </b>
+
+      <span>
+        Program Match, Recruiter View, Recruiter Save, Recruiter
+        Outreach, and Program Interest remain governed by their
+        disclosure classification. Their existence does not
+        authorize public media publication.
+      </span>
+
+    </div>
+
+
+    <div class="matrix-card">
+
+      <b>
+        Public Media Fail-Closed
+      </b>
+
+      <span>
+        PUBLIC_MEDIA requires affirmative publication/disclosure
+        authority plus required rights and consent. Unknown,
+        missing, expired, revoked, or insufficient authority
+        prevents public publication.
+      </span>
+
+    </div>
+
+
+    <div class="matrix-card">
+
+      <b>
+        Governance Receipt ≠ Publication Receipt
+      </b>
+
+      <span>
+        The governance receipt proves the upstream visibility or
+        disclosure determination. A Stream 7 Publication Receipt
+        separately proves that an authorized publication operation
+        occurred.
+      </span>
+
+    </div>
+
+
+    <div class="matrix-card">
+
+      <b>
+        Historical State Is Preserved
+      </b>
+
+      <span>
+        Later permission or disclosure changes must not rewrite
+        the historical authority state under which an earlier
+        publication was produced.
+      </span>
+
+    </div>
+
+
+  </div>
+
+
+  <div class="authority">
+
+    <div class="authority-row">
+
+      <span>
+        Governance Authority
+      </span>
+
+      <b id="authorityName">
+        Not supplied
+      </b>
+
+    </div>
+
+
+    <div class="authority-row">
+
+      <span>
+        Governance Receipt
+      </span>
+
+      <b id="governanceReceipt">
+        Not supplied
+      </b>
+
+    </div>
+
+
+    <div class="authority-row">
+
+      <span>
+        Disclosure Scope
+      </span>
+
+      <b id="disclosureScope">
+        Not supplied
+      </b>
+
+    </div>
+
+
+    <div class="authority-row">
+
+      <span>
+        Rights State
+      </span>
+
+      <b id="rightsState">
+        Not supplied
+      </b>
+
+    </div>
+
+
+    <div class="authority-row">
+
+      <span>
+        Consent State
+      </span>
+
+      <b id="consentState">
+        Not supplied
+      </b>
+
+    </div>
+
+
+    <div class="authority-row">
+
+      <span>
+        Publication Eligibility
+      </span>
+
+      <b id="publicationEligibility">
+        Not established
+      </b>
+
+    </div>
+
+
+    <div class="authority-row">
+
+      <span>
+        Publication Receipt
+      </span>
+
+      <b id="publicationReceipt">
+        Not issued
+      </b>
+
     </div>
 
   </div>
+
+
+  <div
+    class="fail-closed"
+    id="failClosedNotice"
+  >
+
+    <strong>
+      FAIL CLOSED:
+    </strong>
+
+    No PUBLIC_MEDIA publication will be treated as authorized
+    unless the governed disclosure decision affirmatively permits
+    PUBLIC_MEDIA and all required rights / consent authorities are
+    satisfied.
+
+  </div>
+
 </div>
 
+
 </section>
+
+
 </main>
+
 </div>
+
+
+<script>
+(function () {
+  "use strict";
+
+
+  const PAGE_VERSION =
+    "VISIBILITY-RULES-PAGE-V2-GOVERNED-PUBLICATION";
+
+
+  const params =
+    new URLSearchParams(
+      window.location.search
+    );
+
+
+  const DISCLOSURE_SCOPES =
+    Object.freeze({
+      PRIVATE:
+        "PRIVATE",
+
+      ATHLETE_WORKSPACE:
+        "ATHLETE_WORKSPACE",
+
+      PARENT_GUARDIAN:
+        "PARENT_GUARDIAN",
+
+      PROFESSIONAL_WORKSPACE:
+        "PROFESSIONAL_WORKSPACE",
+
+      RECRUITING:
+        "RECRUITING",
+
+      PUBLIC_MEDIA:
+        "PUBLIC_MEDIA"
+    });
+
+
+  /* ==========================================================
+     HELPERS
+  ========================================================== */
+
+  function byId(id) {
+    return document.getElementById(id);
+  }
+
+
+  function clean(value) {
+    if (
+      value === null ||
+      value === undefined
+    ) {
+      return "";
+    }
+
+    return String(value).trim();
+  }
+
+
+  function upper(value) {
+    return clean(value).toUpperCase();
+  }
+
+
+  function esc(value) {
+    return String(value ?? "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+
+  function formatDate(value) {
+    if (!value) {
+      return "Not supplied";
+    }
+
+    const date =
+      new Date(value);
+
+    if (
+      Number.isNaN(
+        date.getTime()
+      )
+    ) {
+      return clean(value);
+    }
+
+    return date.toLocaleString();
+  }
+
+
+  /* ==========================================================
+     CONTEXT
+  ========================================================== */
+
+  function renderContext() {
+    byId("ctxAthlete")
+      .textContent =
+      params.get("athlete_id") ||
+      "Context not supplied";
+
+
+    byId("ctxSnapshot")
+      .textContent =
+      params.get("snapshot_id") ||
+      "Context not supplied";
+
+
+    byId("ctxWorkspace")
+      .textContent =
+      params.get("workspace_id") ||
+      "Context not supplied";
+
+
+    byId("ctxPublication")
+      .textContent =
+      params.get("publication_id") ||
+      params.get("report_id") ||
+      params.get("media_asset_id") ||
+      "Context not supplied";
+  }
+
+
+  function preserveContext() {
+    const keys = [
+      "workspace_id",
+      "role_context_id",
+      "program_id",
+      "athlete_id",
+      "snapshot_id",
+      "publication_id",
+      "report_id",
+      "media_asset_id"
+    ];
+
+
+    document
+      .querySelectorAll(
+        'a[href$=".html"]'
+      )
+      .forEach(
+        link => {
+
+          const target =
+            new URL(
+              link.getAttribute("href"),
+              window.location.href
+            );
+
+
+          keys.forEach(
+            key => {
+
+              const value =
+                params.get(key);
+
+              if (value) {
+                target.searchParams.set(
+                  key,
+                  value
+                );
+              }
+            }
+          );
+
+
+          link.href =
+            target.pathname
+              .split("/")
+              .pop() +
+            target.search;
+        }
+      );
+  }
+
+
+  /* ==========================================================
+     GOVERNED VISIBILITY INPUT
+
+     This page consumes a decision.
+
+     It does NOT manufacture one.
+  ========================================================== */
+
+  function getGovernedDecision() {
+    return (
+      window
+        .STATScoreCurrentVisibilityDecision ||
+
+      window
+        .STATScoreCurrentDisclosureDecision ||
+
+      window
+        .__STATSCORE_VISIBILITY_DECISION__ ||
+
+      null
+    );
+  }
+
+
+  /* ==========================================================
+     VALIDATION
+  ========================================================== */
+
+  function validateDecision(
+    decision = {}
+  ) {
+    const errors = [];
+
+
+    if (
+      !clean(
+        decision.governance_authority
+      )
+    ) {
+      errors.push(
+        "governance_authority is required."
+      );
+    }
+
+
+    if (
+      !clean(
+        decision.governance_receipt_id
+      )
+    ) {
+      errors.push(
+        "governance_receipt_id is required."
+      );
+    }
+
+
+    if (
+      !clean(
+        decision.disclosure_scope
+      )
+    ) {
+      errors.push(
+        "disclosure_scope is required."
+      );
+    }
+
+
+    if (
+      !Array.isArray(
+        decision.audience_decisions
+      )
+    ) {
+      errors.push(
+        "audience_decisions array is required."
+      );
+    }
+
+
+    return {
+      ok:
+        errors.length === 0,
+
+      errors
+    };
+  }
+
+
+  /* ==========================================================
+     PUBLICATION ELIGIBILITY
+
+     This does not determine enterprise visibility.
+
+     It only enforces the already-supplied visibility decision
+     within Stream 7 publication.
+  ========================================================== */
+
+  function evaluatePublicationEligibility(
+    decision
+  ) {
+    const scope =
+      upper(
+        decision.disclosure_scope
+      );
+
+
+    const visibilityAllowed =
+      decision.visibility_authorized ===
+        true;
+
+
+    if (!visibilityAllowed) {
+      return {
+        allowed:false,
+
+        state:
+          "NOT_AUTHORIZED",
+
+        reason:
+          "Governed visibility decision does not authorize publication."
+      };
+    }
+
+
+    if (
+      scope ===
+      DISCLOSURE_SCOPES.PUBLIC_MEDIA
+    ) {
+      const rightsRequired =
+        decision.rights_required !==
+        false;
+
+
+      const consentRequired =
+        decision.consent_required !==
+        false;
+
+
+      const rightsOk =
+        !rightsRequired ||
+        upper(
+          decision.rights_state
+        ) === "AUTHORIZED";
+
+
+      const consentOk =
+        !consentRequired ||
+        upper(
+          decision.consent_state
+        ) === "AUTHORIZED";
+
+
+      if (!rightsOk) {
+        return {
+          allowed:false,
+
+          state:
+            "RIGHTS_BLOCK",
+
+          reason:
+            "PUBLIC_MEDIA requires authorized rights."
+        };
+      }
+
+
+      if (!consentOk) {
+        return {
+          allowed:false,
+
+          state:
+            "CONSENT_BLOCK",
+
+          reason:
+            "PUBLIC_MEDIA requires authorized consent."
+        };
+      }
+
+
+      if (
+        !clean(
+          decision
+            .disclosure_authority_reference
+        )
+      ) {
+        return {
+          allowed:false,
+
+          state:
+            "DISCLOSURE_AUTHORITY_MISSING",
+
+          reason:
+            "PUBLIC_MEDIA disclosure authority reference is required."
+        };
+      }
+    }
+
+
+    return {
+      allowed:true,
+
+      state:
+        "PUBLICATION_SCOPE_AUTHORIZED",
+
+      reason:
+        `Governed disclosure permits ${scope} publication scope.`
+    };
+  }
+
+
+  /* ==========================================================
+     AUDIENCE PRESENTATION
+  ========================================================== */
+
+  function stateClass(
+    state
+  ) {
+    switch (
+      upper(state)
+    ) {
+      case "ALLOWED":
+      case "AUTHORIZED":
+        return "allowed";
+
+      case "CONTROLLED":
+        return "controlled";
+
+      case "RESTRICTED":
+        return "restricted";
+
+      case "DENIED":
+      case "BLOCKED":
+        return "denied";
+
+      default:
+        return "unknown";
+    }
+  }
+
+
+  function audienceIcon(
+    audience
+  ) {
+    const key =
+      upper(audience);
+
+
+    if (
+      key.includes("PARENT") ||
+      key.includes("GUARDIAN")
+    ) {
+      return "👤";
+    }
+
+
+    if (
+      key.includes("COACH")
+    ) {
+      return "🏈";
+    }
+
+
+    if (
+      key.includes("COUNSELOR")
+    ) {
+      return "🎓";
+    }
+
+
+    if (
+      key.includes("RECRUITER")
+    ) {
+      return "◎";
+    }
+
+
+    if (
+      key.includes("EVALUATOR")
+    ) {
+      return "☑";
+    }
+
+
+    if (
+      key.includes("TRAINER")
+    ) {
+      return "◆";
+    }
+
+
+    if (
+      key.includes("PUBLIC")
+    ) {
+      return "◉";
+    }
+
+
+    return "◇";
+  }
+
+
+  function renderAudienceDecisions(
+    decisions
+  ) {
+    const container =
+      byId("ruleList");
+
+
+    if (
+      !Array.isArray(decisions) ||
+      !decisions.length
+    ) {
+      container.innerHTML = `
+        <div class="empty">
+          No governed audience visibility decisions were supplied.
+        </div>
+      `;
+
+      return;
+    }
+
+
+    container.innerHTML =
+      decisions
+        .map(
+          item => `
+
+            <div class="rule-card">
+
+              <div class="icon">
+                ${esc(
+                  audienceIcon(
+                    item.audience ||
+                    item.role
+                  )
+                )}
+              </div>
+
+
+              <div class="info">
+
+                <b>
+                  ${esc(
+                    item.label ||
+                    item.audience ||
+                    item.role ||
+                    "Audience"
+                  )}
+                </b>
+
+                <span>
+                  ${esc(
+                    item.explanation ||
+                    item.reason ||
+                    "No governing explanation supplied."
+                  )}
+                </span>
+
+              </div>
+
+
+              <div
+                class="pill ${esc(
+                  stateClass(
+                    item.state ||
+                    item.status
+                  )
+                )}"
+              >
+                ${esc(
+                  item.state ||
+                  item.status ||
+                  "UNKNOWN"
+                )}
+              </div>
+
+            </div>
+          `
+        )
+        .join("");
+  }
+
+
+  /* ==========================================================
+     RECEIPT / AUDIT REFERENCES
+
+     Presentation only.
+  ========================================================== */
+
+  function renderAudit(
+    decision
+  ) {
+    const container =
+      byId("auditTrail");
+
+
+    const references =
+      Array.isArray(
+        decision.audit_references
+      )
+        ? decision.audit_references
+        : [];
+
+
+    const base = [
+      {
+        event:
+          "Governed visibility / disclosure decision",
+
+        receipt:
+          decision.governance_receipt_id,
+
+        authority:
+          decision.governance_authority,
+
+        timestamp:
+          decision.effective_at ||
+          decision.decided_at ||
+          null
+      }
+    ];
+
+
+    const all =
+      [
+        ...base,
+        ...references
+      ];
+
+
+    container.className = "";
+
+
+    container.innerHTML =
+      all
+        .map(
+          item => `
+
+            <div class="audit-item">
+
+              ${esc(
+                item.event ||
+                item.description ||
+                "Governance reference"
+              )}
+
+              <span>
+                Authority:
+                ${esc(
+                  item.authority ||
+                  decision.governance_authority ||
+                  "Not supplied"
+                )}
+
+                · Receipt:
+                ${esc(
+                  item.receipt ||
+                  item.receipt_id ||
+                  "Not supplied"
+                )}
+
+                ·
+                ${esc(
+                  formatDate(
+                    item.timestamp
+                  )
+                )}
+              </span>
+
+            </div>
+          `
+        )
+        .join("");
+  }
+
+
+  /* ==========================================================
+     RENDER GOVERNED DECISION
+  ========================================================== */
+
+  function renderDecision(
+    decision
+  ) {
+    const validation =
+      validateDecision(
+        decision
+      );
+
+
+    if (!validation.ok) {
+      byId("ruleList").innerHTML = `
+        <div class="empty">
+          GOVERNED VISIBILITY CONTRACT INVALID:
+          ${esc(
+            validation.errors.join(" ")
+          )}
+        </div>
+      `;
+
+      return;
+    }
+
+
+    const eligibility =
+      evaluatePublicationEligibility(
+        decision
+      );
+
+
+    renderAudienceDecisions(
+      decision.audience_decisions
+    );
+
+
+    renderAudit(
+      decision
+    );
+
+
+    byId("authorityName")
+      .textContent =
+      decision.governance_authority;
+
+
+    byId("governanceReceipt")
+      .textContent =
+      decision.governance_receipt_id;
+
+
+    byId("disclosureScope")
+      .textContent =
+      upper(
+        decision.disclosure_scope
+      );
+
+
+    byId("rightsState")
+      .textContent =
+      decision.rights_state ||
+      "Not required / not supplied";
+
+
+    byId("consentState")
+      .textContent =
+      decision.consent_state ||
+      "Not required / not supplied";
+
+
+    byId("publicationEligibility")
+      .textContent =
+      eligibility.state;
+
+
+    byId("publicationReceipt")
+      .textContent =
+      decision.publication_receipt_id ||
+      "Not issued";
+
+
+    const overall =
+      byId("overallState");
+
+
+    overall.textContent =
+      eligibility.allowed
+        ? "Publication Scope Authorized"
+        : eligibility.state;
+
+
+    overall.className =
+      `pill ${
+        eligibility.allowed
+          ? "allowed"
+          : "denied"
+      }`;
+
+
+    const fail =
+      byId("failClosedNotice");
+
+
+    fail.innerHTML =
+      eligibility.allowed
+        ? `
+          <strong>
+            GOVERNED SCOPE ACCEPTED:
+          </strong>
+
+          ${esc(
+            eligibility.reason
+          )}
+
+          Stream 7 may continue only within this authorized
+          publication scope. A later publication operation must
+          still produce its own Publication Receipt.
+        `
+        : `
+          <strong>
+            FAIL CLOSED:
+          </strong>
+
+          ${esc(
+            eligibility.reason
+          )}
+
+          Stream 7 SHALL NOT publish outside the authorized scope.
+        `;
+  }
+
+
+  /* ==========================================================
+     INITIALIZATION
+  ========================================================== */
+
+  function init() {
+    renderContext();
+
+    preserveContext();
+
+
+    const decision =
+      getGovernedDecision();
+
+
+    if (decision) {
+      renderDecision(
+        decision
+      );
+    }
+
+
+    console.info(
+      "[STATS-CORE] Publication Visibility Page Loaded:",
+      PAGE_VERSION
+    );
+  }
+
+
+  if (
+    document.readyState ===
+    "loading"
+  ) {
+    document.addEventListener(
+      "DOMContentLoaded",
+      init
+    );
+  } else {
+    init();
+  }
+
+})();
+</script>
+
+
 </body>
+
 </html> 
