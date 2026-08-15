@@ -1,12 +1,50 @@
 /* ============================================================
-   STATScore™ Media Intelligence Engine
+   STATS-CORE™ / PHNX SPORTS MEDIA
    File: statscore-media-intelligence-engine.js
-   Version: STATSCORE-MEDIA-INTELLIGENCE-ENGINE-V1
-   Purpose:
-   PHNX SPORTS media cognition layer for film intelligence,
-   clip priority, player-card strategy, thumbnail planning,
-   highlight sequencing, YouTube readiness, exposure timing,
-   and branded athlete presentation.
+   Version: STATSCORE-MEDIA-INTELLIGENCE-ENGINE-V2-GOVERNED
+
+   Owner:
+   Stream 7 — PHNX Sports Media / Publication Authority
+
+   Constitutional Purpose:
+   Governed PHNX Sports editorial/media-publication cognition.
+
+   This engine MAY:
+   - assess media-package completeness;
+   - assess editorial readiness;
+   - organize governed clips;
+   - prioritize clips for editorial sequencing;
+   - build Highlight Reel sequence recommendations;
+   - build Player Card / feature presentation strategy;
+   - preserve Media Candidate WHY;
+   - consume governed intelligence references;
+   - recommend publication-package treatment;
+   - produce explainable editorial recommendations.
+
+   This engine DOES NOT:
+   - calculate Athletic Score;
+   - calculate STATScore;
+   - calculate Stars;
+   - calculate rankings;
+   - calculate academic standing;
+   - determine NCAA eligibility;
+   - calculate Development Intelligence;
+   - determine College Pathway;
+   - determine Program Fit;
+   - determine Recruiting Interest;
+   - establish verification;
+   - establish media rights;
+   - establish consent;
+   - authorize publication;
+   - establish official publication state.
+
+   CONTROLLING DOCTRINES:
+   Editorial Readiness ≠ Athlete Ability
+   Media Quality ≠ Athletic Score
+   Candidate ≠ Approved
+   Verification ≠ Publication Authority
+   Recruiting Visibility ≠ Public Media
+   Exposure ≠ Interest ≠ Offer ≠ Commitment
 ============================================================ */
 
 (function () {
@@ -14,38 +52,74 @@
 
   window.STATScore = window.STATScore || {};
 
+  const ENGINE_VERSION =
+    "STATSCORE-MEDIA-INTELLIGENCE-ENGINE-V2-GOVERNED";
+
   const MediaIntelligenceEngine = {
 
-    version: "STATSCORE-MEDIA-INTELLIGENCE-ENGINE-V1",
+    version: ENGINE_VERSION,
 
-    CLIP_TYPES: {
+    CLIP_TYPES: Object.freeze({
       GAME_IMPACT: "GAME_IMPACT",
       ATHLETIC_TRAIT: "ATHLETIC_TRAIT",
       POSITION_SKILL: "POSITION_SKILL",
       PRESSURE_MOMENT: "PRESSURE_MOMENT",
       CONTEXT_PLAY: "CONTEXT_PLAY",
       DEVELOPMENT_CLIP: "DEVELOPMENT_CLIP",
-      EVALUATOR_APPROVED: "EVALUATOR_APPROVED"
-    },
+      EVALUATOR_APPROVED: "EVALUATOR_APPROVED",
+      ACADEMIC_FEATURE: "ACADEMIC_FEATURE",
+      EVENT_FEATURE: "EVENT_FEATURE",
+      PROGRAM_FEATURE: "PROGRAM_FEATURE"
+    }),
 
-    PACKAGE_TYPES: {
+    PACKAGE_TYPES: Object.freeze({
       PLAYER_CARD: "PLAYER_CARD",
       THUMBNAIL: "THUMBNAIL",
       SHORT_REEL: "SHORT_REEL",
       HIGHLIGHT_REEL: "HIGHLIGHT_REEL",
       RECRUITER_CUT: "RECRUITER_CUT",
       EVALUATOR_CUT: "EVALUATOR_CUT",
+      DEVELOPMENT_FEATURE: "DEVELOPMENT_FEATURE",
+      ACADEMIC_FEATURE: "ACADEMIC_FEATURE",
+      EVENT_FEATURE: "EVENT_FEATURE",
       PUBLIC_FEATURE: "PUBLIC_FEATURE"
-    },
+    }),
 
-    RELEASE_STATES: {
-      BLOCKED: "BLOCKED",
-      HOLD: "HOLD",
-      INTERNAL_REVIEW: "INTERNAL_REVIEW",
-      READY_FOR_APPROVAL: "READY_FOR_APPROVAL",
-      READY_TO_PUBLISH: "READY_TO_PUBLISH",
-      PUBLISHED: "PUBLISHED"
-    },
+    /*
+    ============================================================
+    EDITORIAL READINESS STATES
+
+    These are NOT official publication states.
+
+    Official publication state belongs to:
+    STATScorePHNXMediaEngine
+
+    DRAFT
+    IN_PRODUCTION
+    EDITORIAL_REVIEW
+    FACT_REVIEW
+    RIGHTS_REVIEW
+    APPROVED
+    SCHEDULED
+    PUBLISHED
+    etc.
+    ============================================================
+    */
+    EDITORIAL_STATES: Object.freeze({
+      INCOMPLETE: "INCOMPLETE",
+      SOURCE_READY: "SOURCE_READY",
+      EDITORIAL_REVIEW_READY: "EDITORIAL_REVIEW_READY",
+      FACT_REVIEW_REQUIRED: "FACT_REVIEW_REQUIRED",
+      GOVERNANCE_REVIEW_REQUIRED: "GOVERNANCE_REVIEW_REQUIRED",
+      PACKAGE_READY: "PACKAGE_READY"
+    }),
+
+    DISCLOSURE: Object.freeze({
+      PRIVATE: "PRIVATE",
+      DEVELOPMENT: "DEVELOPMENT",
+      RECRUITING: "RECRUITING",
+      PUBLIC_MEDIA: "PUBLIC_MEDIA"
+    }),
 
     nowISO() {
       return new Date().toISOString();
@@ -59,104 +133,492 @@
       return window.STATScoreMediaRouting || null;
     },
 
-    scoring() {
-      return window.STATScoreScoringEngine || null;
-    },
+    /*
+      Stream 7 may inspect publication state from the governing
+      PHNX Media Engine.
 
-    pathway() {
-      return window.STATScore?.PathwayEngine || null;
-    },
-
-    profile() {
-      return window.STATScore?.ProfileEngine || null;
-    },
-
-    recommendation() {
-      return window.STATScore?.RecommendationEngine || null;
+      It does not reproduce publication authority locally.
+    */
+    publicationEngine() {
+      return window.STATScorePHNXMediaEngine || null;
     },
 
     safe(value, fallback = "") {
-      return this.core()?.safe?.(value, fallback) ?? (value || fallback);
-    },
-
-    lower(value) {
-      return String(value || "").trim().toLowerCase();
-    },
-
-    hasFilm(snapshot) {
-      return !!(snapshot?.highlight_url || snapshot?.game_film_url);
-    },
-
-    hasIdentity(snapshot) {
-      return !!(
-        snapshot?.athlete_display_name &&
-        snapshot?.sport &&
-        snapshot?.position &&
-        snapshot?.graduation_class
+      return (
+        this.core()?.safe?.(value, fallback) ??
+        (value || fallback)
       );
     },
 
-    evaluateMediaQuality(snapshot, context = {}) {
-      let score = 0;
-      const strengths = [];
-      const gaps = [];
+    clean(value) {
+      if (value === null || value === undefined) return "";
+      return String(value).trim();
+    },
 
-      if (snapshot?.headshot_public_url) {
-        score += 18;
-        strengths.push("official athlete image available");
-      } else {
-        gaps.push("official athlete image missing");
+    upper(value) {
+      return this.clean(value).toUpperCase();
+    },
+
+    lower(value) {
+      return this.clean(value).toLowerCase();
+    },
+
+    isObject(value) {
+      return Boolean(
+        value &&
+        typeof value === "object" &&
+        !Array.isArray(value)
+      );
+    },
+
+    clone(value) {
+      try {
+        return JSON.parse(JSON.stringify(value));
+      } catch (_) {
+        return value;
       }
+    },
 
-      if (snapshot?.highlight_url) {
-        score += 22;
-        strengths.push("highlight reel available");
-      } else {
-        gaps.push("highlight reel missing");
-      }
+    /*
+    ============================================================
+    GOVERNED INPUT CONTRACT
+    ============================================================
 
-      if (snapshot?.game_film_url) {
-        score += 28;
-        strengths.push("game film available");
-      } else {
-        gaps.push("full-game film missing");
-      }
+    This engine should consume a governed media context.
 
-      if (context.evaluator_approved_clips?.length) {
-        score += 18;
-        strengths.push("evaluator-approved clips present");
-      } else {
-        gaps.push("evaluator-approved clips not yet selected");
-      }
+    Example:
 
-      if (context.clip_notes?.length) {
-        score += 8;
-        strengths.push("clip notes available");
-      }
+    {
+      athlete_id,
+      snapshot_id,
 
-      if (context.brand_assets_ready) {
-        score += 6;
-        strengths.push("PHNX brand assets ready");
-      } else {
-        gaps.push("PHNX brand asset confirmation pending");
-      }
+      athlete_context: {...},
 
-      score = Math.max(0, Math.min(100, Math.round(score)));
+      candidate: {
+        candidate_id,
+        candidate_type,
+        why,
+        source_authority,
+        intelligence_reference,
+        evidence_references
+      },
+
+      assets: [...],
+
+      clips: [...],
+
+      governance: {
+        disclosure_scope,
+        rights_state,
+        consent_state,
+        guardian_authorization_state,
+        public_disclosure_authorized
+      },
+
+      governed_intelligence: {
+        athletic: {...},
+        academic: {...},
+        development: {...},
+        pathway: {...},
+        ranking: {...},
+        eligibility: {...}
+      },
+
+      publication: {...}
+    }
+
+    Governed intelligence values are DISPLAY / EDITORIAL INPUTS.
+
+    They are never calculated here.
+    ============================================================
+    */
+
+    normalizeContext(snapshot = {}, context = {}) {
+      const candidate =
+        context.candidate ||
+        context.media_candidate ||
+        {};
+
+      const governance =
+        context.governance ||
+        {};
+
+      const governedIntelligence =
+        context.governed_intelligence ||
+        context.intelligence_refs ||
+        {};
 
       return {
-        score,
-        quality_label:
-          score >= 85 ? "Broadcast Ready" :
-          score >= 70 ? "Review Ready" :
-          score >= 50 ? "Package Building" :
-          "Media Incomplete",
-        strengths,
-        gaps
+        athlete_id:
+          snapshot.athlete_id ||
+          context.athlete_id ||
+          null,
+
+        snapshot_id:
+          snapshot.snapshot_id ||
+          context.snapshot_id ||
+          null,
+
+        athlete_display_name:
+          snapshot.athlete_display_name ||
+          context.athlete_display_name ||
+          "Athlete",
+
+        sport:
+          snapshot.sport ||
+          snapshot.primary_sport ||
+          context.sport ||
+          null,
+
+        position:
+          snapshot.position ||
+          snapshot.primary_position ||
+          context.position ||
+          null,
+
+        graduation_class:
+          snapshot.graduation_class ||
+          context.graduation_class ||
+          null,
+
+        headshot:
+          snapshot.headshot_public_url ||
+          snapshot.headshot_url ||
+          context.headshot_url ||
+          null,
+
+        highlight_url:
+          snapshot.highlight_url ||
+          context.highlight_url ||
+          null,
+
+        game_film_url:
+          snapshot.game_film_url ||
+          context.game_film_url ||
+          null,
+
+        candidate: {
+          candidate_id:
+            candidate.candidate_id || null,
+
+          candidate_type:
+            this.upper(
+              candidate.candidate_type ||
+              "ATHLETE_MEDIA"
+            ),
+
+          why:
+            candidate.why || null,
+
+          source_authority:
+            candidate.source_authority || null,
+
+          intelligence_reference:
+            candidate.intelligence_reference || null,
+
+          evidence_references:
+            Array.isArray(candidate.evidence_references)
+              ? candidate.evidence_references
+              : []
+        },
+
+        governance: {
+          disclosure_scope:
+            this.upper(
+              governance.disclosure_scope ||
+              this.DISCLOSURE.PRIVATE
+            ),
+
+          rights_state:
+            this.upper(
+              governance.rights_state ||
+              "UNKNOWN"
+            ),
+
+          consent_state:
+            this.upper(
+              governance.consent_state ||
+              "UNKNOWN"
+            ),
+
+          guardian_authorization_state:
+            this.upper(
+              governance.guardian_authorization_state ||
+              "UNKNOWN"
+            ),
+
+          minor_status:
+            this.upper(
+              governance.minor_status ||
+              "UNKNOWN"
+            ),
+
+          public_disclosure_authorized:
+            governance.public_disclosure_authorized === true
+        },
+
+        governed_intelligence:
+          this.clone(governedIntelligence),
+
+        assets:
+          Array.isArray(context.assets)
+            ? context.assets
+            : [],
+
+        clips:
+          Array.isArray(context.clips)
+            ? context.clips
+            : [],
+
+        evaluator_approved_clips:
+          Array.isArray(context.evaluator_approved_clips)
+            ? context.evaluator_approved_clips
+            : [],
+
+        clip_notes:
+          Array.isArray(context.clip_notes)
+            ? context.clip_notes
+            : [],
+
+        brand_assets_ready:
+          context.brand_assets_ready === true,
+
+        publication:
+          context.publication || null
       };
     },
 
+    hasFilm(mediaContext = {}) {
+      return Boolean(
+        mediaContext.highlight_url ||
+        mediaContext.game_film_url ||
+        mediaContext.assets.some(asset =>
+          [
+            "highlight_url",
+            "highlight_file",
+            "highlight_film",
+            "game_film_url",
+            "game_film_file",
+            "game_film"
+          ].includes(
+            this.lower(asset.asset_type)
+          )
+        )
+      );
+    },
+
+    hasIdentity(mediaContext = {}) {
+      return Boolean(
+        mediaContext.athlete_id &&
+        mediaContext.snapshot_id &&
+        mediaContext.athlete_display_name
+      );
+    },
+
+    hasCandidate(mediaContext = {}) {
+      return Boolean(
+        mediaContext.candidate?.candidate_id &&
+        mediaContext.candidate?.why &&
+        mediaContext.candidate?.source_authority
+      );
+    },
+
+    /*
+    ============================================================
+    EDITORIAL MEDIA READINESS INDEX
+    ============================================================
+
+    Internal Stream 7 production metric only.
+
+    It SHALL NOT be:
+    - published as athlete ability;
+    - interpreted as STATScore;
+    - used as ranking intelligence;
+    - used as recruiting readiness;
+    - used as pathway intelligence.
+
+    It answers only:
+    "How complete is the media package for editorial work?"
+    ============================================================
+    */
+
+    evaluateEditorialReadiness(snapshot, context = {}) {
+      const media =
+        this.normalizeContext(snapshot, context);
+
+      let index = 0;
+
+      const strengths = [];
+      const gaps = [];
+
+      if (media.headshot) {
+        index += 15;
+        strengths.push(
+          "governed athlete image available"
+        );
+      } else {
+        gaps.push(
+          "governed athlete image unavailable"
+        );
+      }
+
+      if (media.highlight_url) {
+        index += 15;
+        strengths.push(
+          "highlight source available"
+        );
+      } else {
+        gaps.push(
+          "highlight source unavailable"
+        );
+      }
+
+      if (media.game_film_url) {
+        index += 20;
+        strengths.push(
+          "game-film source available"
+        );
+      } else {
+        gaps.push(
+          "game-film source unavailable"
+        );
+      }
+
+      if (
+        media.evaluator_approved_clips.length
+      ) {
+        index += 15;
+
+        strengths.push(
+          "governed evaluator clip references available"
+        );
+      } else {
+        gaps.push(
+          "no evaluator-approved clip references supplied"
+        );
+      }
+
+      if (media.clip_notes.length) {
+        index += 10;
+
+        strengths.push(
+          "editorial clip notes available"
+        );
+      }
+
+      if (media.brand_assets_ready) {
+        index += 10;
+
+        strengths.push(
+          "PHNX brand assets ready"
+        );
+      } else {
+        gaps.push(
+          "PHNX brand assets not confirmed"
+        );
+      }
+
+      if (this.hasCandidate(media)) {
+        index += 15;
+
+        strengths.push(
+          "governed Media Candidate + WHY available"
+        );
+      } else {
+        gaps.push(
+          "governed Media Candidate contract incomplete"
+        );
+      }
+
+      index =
+        Math.max(
+          0,
+          Math.min(
+            100,
+            Math.round(index)
+          )
+        );
+
+      return {
+        editorial_readiness_index: index,
+
+        /*
+          Explicitly prevent semantic collision with
+          athlete scoring.
+        */
+        metric_class:
+          "STREAM_7_EDITORIAL_MEDIA_READINESS",
+
+        athlete_score: false,
+
+        readiness_label:
+          index >= 85
+            ? "Editorial Package Strong"
+            : index >= 70
+              ? "Editorial Review Ready"
+              : index >= 50
+                ? "Package Building"
+                : "Media Package Incomplete",
+
+        strengths,
+        gaps,
+
+        doctrine: {
+          editorial_readiness_is_not_athletic_ability: true,
+          editorial_readiness_is_not_statscore: true,
+          editorial_readiness_is_not_recruiting_readiness: true
+        }
+      };
+    },
+
+    /*
+      Backward-compatible method name.
+
+      Existing consumers may still call evaluateMediaQuality().
+
+      The returned object preserves `score` and `quality_label`
+      aliases temporarily, but explicitly classifies them as
+      editorial-only compatibility fields.
+    */
+    evaluateMediaQuality(snapshot, context = {}) {
+      const readiness =
+        this.evaluateEditorialReadiness(
+          snapshot,
+          context
+        );
+
+      return {
+        ...readiness,
+
+        score:
+          readiness.editorial_readiness_index,
+
+        quality_label:
+          readiness.readiness_label,
+
+        compatibility_notice:
+          "score is an editorial readiness compatibility alias; " +
+          "it is NOT athlete intelligence."
+      };
+    },
+
+    /*
+    ============================================================
+    CLIP PRIORITY
+    ============================================================
+
+    Editorial sequencing priority only.
+
+    priority_score SHALL NOT be treated as athlete performance
+    or evaluation scoring.
+    ============================================================
+    */
+
     prioritizeClips(snapshot, clips = []) {
-      if (!Array.isArray(clips) || !clips.length) {
+      if (
+        !Array.isArray(clips) ||
+        !clips.length
+      ) {
         return [];
       }
 
@@ -167,272 +629,1109 @@
         POSITION_SKILL: 78,
         ATHLETIC_TRAIT: 74,
         CONTEXT_PLAY: 66,
-        DEVELOPMENT_CLIP: 55
+        DEVELOPMENT_CLIP: 55,
+        ACADEMIC_FEATURE: 55,
+        EVENT_FEATURE: 55,
+        PROGRAM_FEATURE: 55
       };
 
       return clips
-        .map((clip) => {
-          const type = String(clip.clip_type || "").toUpperCase();
-          const evaluatorBoost = clip.evaluator_approved ? 18 : 0;
-          const competitionBoost = clip.verified_competition ? 10 : 0;
-          const qualityPenalty = clip.low_quality ? -15 : 0;
+        .map(clip => {
+          const type =
+            this.upper(
+              clip.clip_type
+            );
+
+          /*
+            These flags must already be governed attributes.
+            This engine does not verify them.
+          */
+          const evaluatorBoost =
+            clip.evaluator_approved === true
+              ? 18
+              : 0;
+
+          const verificationBoost =
+            clip.verified_competition === true
+              ? 10
+              : 0;
+
+          const qualityPenalty =
+            clip.low_quality === true
+              ? -15
+              : 0;
 
           return {
             ...clip,
-            priority_score:
+
+            editorial_priority_score:
               (weights[type] || 50) +
               evaluatorBoost +
-              competitionBoost +
-              qualityPenalty
+              verificationBoost +
+              qualityPenalty,
+
+            metric_class:
+              "STREAM_7_EDITORIAL_SEQUENCE_PRIORITY",
+
+            athlete_score: false
           };
         })
-        .sort((a, b) => b.priority_score - a.priority_score);
+        .sort(
+          (a, b) =>
+            b.editorial_priority_score -
+            a.editorial_priority_score
+        );
     },
 
+    /*
+    ============================================================
+    HIGHLIGHT SEQUENCE
+    ============================================================
+    */
+
     buildHighlightSequence(snapshot, clips = []) {
-      const prioritized = this.prioritizeClips(snapshot, clips);
+      const prioritized =
+        this.prioritizeClips(
+          snapshot,
+          clips
+        );
 
       if (!prioritized.length) {
         return {
           ready: false,
           sequence: [],
-          reason: "No clips supplied for sequencing."
+          reason:
+            "No governed clips supplied for editorial sequencing."
         };
       }
 
       const opener =
-        prioritized.find(c => c.clip_type === this.CLIP_TYPES.GAME_IMPACT) ||
+        prioritized.find(
+          clip =>
+            this.upper(clip.clip_type) ===
+            this.CLIP_TYPES.GAME_IMPACT
+        ) ||
         prioritized[0];
 
-      const middle = prioritized
-        .filter(c => c !== opener)
-        .slice(0, 5);
+      const candidatesForMiddle =
+        prioritized.filter(
+          clip => clip !== opener
+        );
+
+      const closerCandidate =
+        candidatesForMiddle.find(
+          clip =>
+            this.upper(clip.clip_type) ===
+            this.CLIP_TYPES.PRESSURE_MOMENT
+        );
+
+      const middle =
+        candidatesForMiddle
+          .filter(
+            clip =>
+              clip !== closerCandidate
+          )
+          .slice(0, 5);
 
       const closer =
-        prioritized.find(c => c.clip_type === this.CLIP_TYPES.PRESSURE_MOMENT) ||
+        closerCandidate ||
         middle[middle.length - 1] ||
         opener;
 
       const sequence = [
         {
-          segment: "PHNX SPORTS INTRO",
-          purpose: "Brand authority opening"
+          segment:
+            "PHNX SPORTS INTRO",
+
+          purpose:
+            "PHNX brand presentation"
         },
+
         {
-          segment: "ATHLETE IDENTITY CARD",
-          purpose: `${this.safe(snapshot?.athlete_display_name, "Athlete")} identity presentation`
+          segment:
+            "ATHLETE IDENTITY CARD",
+
+          purpose:
+            `${
+              this.safe(
+                snapshot?.athlete_display_name,
+                "Athlete"
+              )
+            } governed identity presentation`
         },
+
         {
-          segment: "OPENING IMPACT CLIP",
+          segment:
+            "OPENING EDITORIAL CLIP",
+
           clip: opener,
-          purpose: "Lead with strongest verified impact"
+
+          purpose:
+            "Lead with highest-priority governed editorial selection"
         },
-        ...middle.map((clip, index) => ({
-          segment: `SEQUENCE CLIP ${index + 1}`,
-          clip,
-          purpose: "Build trait and position evidence"
-        })),
+
+        ...middle.map(
+          (clip, index) => ({
+            segment:
+              `SEQUENCE CLIP ${index + 1}`,
+
+            clip,
+
+            purpose:
+              "Build governed editorial narrative"
+          })
+        ),
+
         {
-          segment: "CLOSING AUTHORITY CLIP",
+          segment:
+            "CLOSING EDITORIAL CLIP",
+
           clip: closer,
-          purpose: "Close with high-confidence action"
+
+          purpose:
+            "Close with strong governed editorial selection"
         },
+
         {
-          segment: "PHNX SPORTS CLOSE",
-          purpose: "Controlled athlete visibility close"
+          segment:
+            "PHNX SPORTS CLOSE",
+
+          purpose:
+            "Controlled PHNX publication close"
         }
       ];
 
       return {
         ready: true,
+
         sequence,
-        clip_count: prioritized.length,
-        primary_clip: opener
+
+        clip_count:
+          prioritized.length,
+
+        primary_clip:
+          opener,
+
+        doctrine: {
+          sequence_is_editorial_not_scoring:
+            true
+        }
       };
     },
 
-    determineReleaseState(snapshot, context = {}) {
-      const quality = this.evaluateMediaQuality(snapshot, context);
-      const routing = this.mediaRouting()?.mediaReadiness?.(snapshot);
-      const scoring = this.scoring()?.explainScore?.(snapshot);
-      const verified = this.lower(snapshot?.verification_status) === "verified";
+    /*
+    ============================================================
+    EDITORIAL STATE
 
-      if (!this.hasIdentity(snapshot)) {
+    This does NOT determine official PHNX publication state.
+    ============================================================
+    */
+
+    determineEditorialState(
+      snapshot,
+      context = {}
+    ) {
+      const media =
+        this.normalizeContext(
+          snapshot,
+          context
+        );
+
+      const readiness =
+        this.evaluateEditorialReadiness(
+          snapshot,
+          context
+        );
+
+      if (!this.hasIdentity(media)) {
         return {
-          state: this.RELEASE_STATES.BLOCKED,
-          reason: "Athlete identity incomplete."
+          state:
+            this.EDITORIAL_STATES.INCOMPLETE,
+
+          reason:
+            "Governed athlete/snapshot identity is incomplete."
         };
       }
 
-      if (!this.hasFilm(snapshot)) {
+      if (!this.hasCandidate(media)) {
         return {
-          state: this.RELEASE_STATES.HOLD,
-          reason: "Film evidence required before media release."
+          state:
+            this.EDITORIAL_STATES.INCOMPLETE,
+
+          reason:
+            "Governed Media Candidate + WHY are required before editorial manufacture."
         };
       }
 
-      if (!verified) {
+      if (!this.hasFilm(media)) {
         return {
-          state: this.RELEASE_STATES.INTERNAL_REVIEW,
-          reason: "Verification incomplete. Media can be prepared but not released."
+          state:
+            this.EDITORIAL_STATES.SOURCE_READY,
+
+          reason:
+            "Candidate exists, but no governed film source is presently available."
         };
       }
 
-      if (quality.score < 70) {
+      if (
+        readiness.editorial_readiness_index <
+        50
+      ) {
         return {
-          state: this.RELEASE_STATES.INTERNAL_REVIEW,
-          reason: "Media quality requires PHNX review before approval."
+          state:
+            this.EDITORIAL_STATES.SOURCE_READY,
+
+          reason:
+            "Media sources exist but the editorial package requires additional preparation."
         };
       }
 
-      if (routing?.youtube_ready && scoring?.ok && scoring.final_score >= 70) {
+      if (
+        media.governance.rights_state !==
+        "APPROVED" ||
+        media.governance.consent_state !==
+        "APPROVED"
+      ) {
         return {
-          state: this.RELEASE_STATES.READY_FOR_APPROVAL,
-          reason: "Media package is ready for approval and YouTube preparation."
+          state:
+            this.EDITORIAL_STATES.GOVERNANCE_REVIEW_REQUIRED,
+
+          reason:
+            "Editorial work may continue where authorized, but rights/consent authority is not established for publication."
+        };
+      }
+
+      if (
+        readiness.editorial_readiness_index <
+        70
+      ) {
+        return {
+          state:
+            this.EDITORIAL_STATES.EDITORIAL_REVIEW_READY,
+
+          reason:
+            "Media package is available for editorial review and refinement."
         };
       }
 
       return {
-        state: this.RELEASE_STATES.HOLD,
-        reason: "Media package requires additional review before release."
+        state:
+          this.EDITORIAL_STATES.PACKAGE_READY,
+
+        reason:
+          "Media package is editorially prepared for the governed PHNX publication workflow.",
+
+        /*
+          Explicit constitutional guard:
+        */
+        publication_authorized: false,
+
+        publication_state_source:
+          "STATScorePHNXMediaEngine"
       };
     },
 
-    buildPresentationStrategy(snapshot, context = {}) {
-      const score = this.scoring()?.explainScore?.(snapshot);
-      const pathway = this.pathway()?.buildPathwayReport?.(snapshot);
-      const quality = this.evaluateMediaQuality(snapshot, context);
-      const release = this.determineReleaseState(snapshot, context);
+    /*
+      Backward-compatible name.
+
+      Important:
+      This now returns EDITORIAL state, NOT official release
+      or publication authority.
+    */
+    determineReleaseState(
+      snapshot,
+      context = {}
+    ) {
+      const result =
+        this.determineEditorialState(
+          snapshot,
+          context
+        );
+
+      return {
+        ...result,
+
+        compatibility_notice:
+          "Release state is editorial readiness only. " +
+          "Official publication state belongs to " +
+          "STATScorePHNXMediaEngine."
+      };
+    },
+
+    /*
+    ============================================================
+    GOVERNED INTELLIGENCE CONSUMPTION
+    ============================================================
+
+    This engine consumes pre-resolved intelligence references.
+
+    It SHALL NOT call scoring, pathway, recommendation, ranking,
+    eligibility, or Development engines to create new intelligence.
+    ============================================================
+    */
+
+    getGovernedIntelligence(
+      context = {},
+      domain
+    ) {
+      const governed =
+        context.governed_intelligence ||
+        context.intelligence_refs ||
+        {};
+
+      return (
+        governed[domain] ||
+        null
+      );
+    },
+
+    buildGovernedEmphasis(
+      mediaContext = {}
+    ) {
+      const governed =
+        mediaContext.governed_intelligence ||
+        {};
 
       const emphasis = [];
 
-      if (score?.ok && score.final_score >= 85) {
-        emphasis.push("lead with verified athlete signal");
+      /*
+        ATHLETIC
+        Consume only already-authorized publication-safe state.
+      */
+      const athletic =
+        governed.athletic || null;
+
+      if (
+        athletic?.publication_safe === true &&
+        athletic?.summary
+      ) {
+        emphasis.push({
+          domain: "ATHLETIC",
+          statement:
+            athletic.summary,
+          authority:
+            athletic.authority ||
+            "STREAM_9",
+          intelligence_reference:
+            athletic.intelligence_reference ||
+            null
+        });
       }
 
-      if (pathway?.ok) {
-        emphasis.push(`frame around ${pathway.current_best_fit.label} pathway`);
+      /*
+        DEVELOPMENT
+      */
+      const development =
+        governed.development || null;
+
+      if (
+        development?.publication_safe === true &&
+        development?.verified_improvement === true
+      ) {
+        emphasis.push({
+          domain: "DEVELOPMENT",
+          statement:
+            development.summary ||
+            "Verified athlete development milestone.",
+
+          authority:
+            development.authority ||
+            "STREAM_9",
+
+          intelligence_reference:
+            development.intelligence_reference ||
+            null,
+
+          receipt_id:
+            development.receipt_id ||
+            null
+        });
       }
 
-      if (quality.score < 70) {
-        emphasis.push("prioritize clean visuals and evaluator-confirmed moments");
+      /*
+        ACADEMIC
+      */
+      const academic =
+        governed.academic || null;
+
+      if (
+        academic?.publication_safe === true &&
+        academic?.summary
+      ) {
+        emphasis.push({
+          domain: "ACADEMIC",
+          statement:
+            academic.summary,
+
+          authority:
+            academic.authority ||
+            "STREAM_9",
+
+          intelligence_reference:
+            academic.intelligence_reference ||
+            null
+        });
       }
+
+      /*
+        PATHWAY
+
+        Private Program Match or recruiting intelligence may NOT
+        be transformed into public media.
+
+        Only explicitly publication-safe pathway context may be
+        consumed.
+      */
+      const pathway =
+        governed.pathway || null;
+
+      if (
+        pathway?.publication_safe === true &&
+        pathway?.summary
+      ) {
+        emphasis.push({
+          domain: "PATHWAY",
+          statement:
+            pathway.summary,
+
+          authority:
+            pathway.authority ||
+            "STREAM_9",
+
+          intelligence_reference:
+            pathway.intelligence_reference ||
+            null
+        });
+      }
+
+      return emphasis;
+    },
+
+    /*
+    ============================================================
+    PACKAGE STRATEGY
+    ============================================================
+    */
+
+    determinePackageType(media = {}) {
+      const candidateType =
+        this.upper(
+          media.candidate?.candidate_type
+        );
+
+      const disclosureScope =
+        media.governance?.disclosure_scope ||
+        this.DISCLOSURE.PRIVATE;
+
+      if (
+        candidateType.includes(
+          "DEVELOPMENT"
+        )
+      ) {
+        return this.PACKAGE_TYPES
+          .DEVELOPMENT_FEATURE;
+      }
+
+      if (
+        candidateType.includes(
+          "ACADEMIC"
+        )
+      ) {
+        return this.PACKAGE_TYPES
+          .ACADEMIC_FEATURE;
+      }
+
+      if (
+        candidateType.includes(
+          "EVENT"
+        ) ||
+        candidateType.includes(
+          "CAMP"
+        ) ||
+        candidateType.includes(
+          "COMBINE"
+        )
+      ) {
+        return this.PACKAGE_TYPES
+          .EVENT_FEATURE;
+      }
+
+      if (
+        disclosureScope ===
+        this.DISCLOSURE.RECRUITING
+      ) {
+        return this.PACKAGE_TYPES
+          .RECRUITER_CUT;
+      }
+
+      if (
+        disclosureScope ===
+        this.DISCLOSURE.PUBLIC_MEDIA
+      ) {
+        return this.PACKAGE_TYPES
+          .PUBLIC_FEATURE;
+      }
+
+      return this.PACKAGE_TYPES
+        .HIGHLIGHT_REEL;
+    },
+
+    buildPresentationStrategy(
+      snapshot,
+      context = {}
+    ) {
+      const media =
+        this.normalizeContext(
+          snapshot,
+          context
+        );
+
+      const readiness =
+        this.evaluateEditorialReadiness(
+          snapshot,
+          context
+        );
+
+      const editorial =
+        this.determineEditorialState(
+          snapshot,
+          context
+        );
+
+      const emphasis =
+        this.buildGovernedEmphasis(
+          media
+        );
 
       if (!emphasis.length) {
-        emphasis.push("focus on identity, development, and controlled exposure");
+        emphasis.push({
+          domain: "EDITORIAL",
+          statement:
+            "Focus on governed athlete identity, verified media context where supplied, development, and controlled exposure.",
+
+          authority:
+            "STREAM_7_EDITORIAL",
+
+          intelligence_reference:
+            null
+        });
       }
+
+      const packageType =
+        this.determinePackageType(
+          media
+        );
 
       return {
         package_type:
-          release.state === this.RELEASE_STATES.READY_FOR_APPROVAL
-            ? this.PACKAGE_TYPES.PUBLIC_FEATURE
-            : this.PACKAGE_TYPES.RECRUITER_CUT,
+          packageType,
 
-        visual_direction: "PHNX SPORTS black/red/silver broadcast identity",
+        visual_direction:
+          "PHNX SPORTS black/red/silver broadcast identity",
 
-        opening_strategy: "Athlete identity + strongest verified moment first",
+        opening_strategy:
+          "Governed athlete identity + highest-priority approved editorial moment",
 
         emphasis,
 
-        release_state: release,
+        editorial_state:
+          editorial,
+
+        editorial_readiness:
+          readiness,
+
+        candidate: {
+          candidate_id:
+            media.candidate
+              ?.candidate_id ||
+            null,
+
+          candidate_type:
+            media.candidate
+              ?.candidate_type ||
+            null,
+
+          why:
+            media.candidate
+              ?.why ||
+            null,
+
+          source_authority:
+            media.candidate
+              ?.source_authority ||
+            null
+        },
+
+        disclosure_scope:
+          media.governance
+            ?.disclosure_scope ||
+          this.DISCLOSURE.PRIVATE,
 
         title_angle:
-          `${this.safe(snapshot?.athlete_display_name, "Athlete")} | ${this.safe(snapshot?.position, "Position")} | ${this.safe(snapshot?.sport, "Sport")} Feature`,
+          `${
+            this.safe(
+              media.athlete_display_name,
+              "Athlete"
+            )
+          } | ${
+            this.safe(
+              media.position,
+              "Position"
+            )
+          } | ${
+            this.safe(
+              media.sport,
+              "Sport"
+            )
+          } PHNX Feature`,
+
+        /*
+          Explicitly not publication approval.
+        */
+        publication_authorized:
+          false,
+
+        publication_authority:
+          "STATScorePHNXMediaEngine",
 
         notes:
-          "Presentation strategy generated by STATScore Media Intelligence Engine."
+          "Presentation strategy generated from governed PHNX media candidate and publication-safe intelligence references."
       };
     },
 
-    buildMediaIntelligenceReport(snapshot, context = {}) {
+    /*
+    ============================================================
+    MEDIA INTELLIGENCE REPORT
+
+    The term "Media Intelligence" here means:
+    editorial/media-publication cognition.
+
+    It does NOT mean athlete intelligence authority.
+    ============================================================
+    */
+
+    buildMediaIntelligenceReport(
+      snapshot,
+      context = {}
+    ) {
       if (!snapshot) {
         return {
           ok: false,
           status: "NO_SNAPSHOT",
-          message: "No athlete snapshot loaded."
+          message:
+            "No governed athlete snapshot context loaded."
         };
       }
 
-      const quality = this.evaluateMediaQuality(snapshot, context);
-      const sequence = this.buildHighlightSequence(snapshot, context.clips || []);
-      const release = this.determineReleaseState(snapshot, context);
-      const strategy = this.buildPresentationStrategy(snapshot, context);
-      const routingPackage = this.mediaRouting()?.buildMediaPackage?.(snapshot);
+      const media =
+        this.normalizeContext(
+          snapshot,
+          context
+        );
+
+      const readiness =
+        this.evaluateEditorialReadiness(
+          snapshot,
+          context
+        );
+
+      const sequence =
+        this.buildHighlightSequence(
+          snapshot,
+          media.clips
+        );
+
+      const editorial =
+        this.determineEditorialState(
+          snapshot,
+          context
+        );
+
+      const strategy =
+        this.buildPresentationStrategy(
+          snapshot,
+          context
+        );
+
+      /*
+        Routing engine may produce a routing PACKAGE or routing
+        recommendation.
+
+        It must not create publication authority.
+      */
+      const routingPackage =
+        this.mediaRouting()
+          ?.buildMediaPackage?.(
+            snapshot,
+            {
+              ...context,
+              governed_media_context:
+                media
+            }
+          ) ||
+        null;
+
+      const recommendedActions = [];
+
+      readiness.gaps.forEach(
+        gap => {
+          recommendedActions.push({
+            action_type:
+              "MEDIA_PACKAGE_GAP",
+
+            action:
+              `Resolve media gap: ${gap}`,
+
+            authority:
+              "STREAM_7_EDITORIAL",
+
+            outcome_required:
+              true
+          });
+        }
+      );
+
+      if (
+        editorial.state ===
+        this.EDITORIAL_STATES
+          .GOVERNANCE_REVIEW_REQUIRED
+      ) {
+        recommendedActions.push({
+          action_type:
+            "GOVERNANCE_REVIEW",
+
+          action:
+            "Obtain governed rights/consent/disclosure determination before publication.",
+
+          authority:
+            "GOVERNING_RIGHTS_CONSENT_AUTHORITY",
+
+          outcome_required:
+            true
+        });
+      }
+
+      if (
+        editorial.state ===
+        this.EDITORIAL_STATES
+          .PACKAGE_READY
+      ) {
+        recommendedActions.push({
+          action_type:
+            "PHNX_PUBLICATION_WORKFLOW",
+
+          action:
+            "Submit package into the governed PHNX editorial/fact/rights review lifecycle.",
+
+          authority:
+            "STREAM_7_PHNX_PUBLICATION",
+
+          outcome_required:
+            true
+        });
+      }
 
       return {
         ok: true,
-        engine_version: this.version,
 
-        athlete_id: snapshot.athlete_id || null,
-        snapshot_id: snapshot.snapshot_id || null,
-        athlete_display_name: snapshot.athlete_display_name || "Athlete",
+        engine_version:
+          this.version,
 
-        media_quality: quality,
-        highlight_sequence: sequence,
-        release_state: release,
-        presentation_strategy: strategy,
-        routing_package: routingPackage,
+        authority_class:
+          "STREAM_7_MEDIA_PUBLICATION_COGNITION",
 
-        recommended_actions: [
-          ...quality.gaps.map(gap => `Resolve media gap: ${gap}`),
-          release.state === this.RELEASE_STATES.INTERNAL_REVIEW
-            ? "Complete PHNX Sports internal media review."
-            : "",
-          release.state === this.RELEASE_STATES.READY_FOR_APPROVAL
-            ? "Submit package for final approval before publishing."
-            : ""
-        ].filter(Boolean),
+        athlete_id:
+          media.athlete_id,
 
-        generated_at: this.nowISO(),
-        locked: true
+        snapshot_id:
+          media.snapshot_id,
+
+        athlete_display_name:
+          media.athlete_display_name,
+
+        candidate:
+          media.candidate,
+
+        governance:
+          media.governance,
+
+        editorial_readiness:
+          readiness,
+
+        /*
+          Backward compatibility only.
+          Do not interpret as athlete scoring.
+        */
+        media_quality:
+          {
+            ...readiness,
+            score:
+              readiness
+                .editorial_readiness_index,
+
+            quality_label:
+              readiness
+                .readiness_label
+          },
+
+        highlight_sequence:
+          sequence,
+
+        editorial_state:
+          editorial,
+
+        /*
+          Backward compatibility alias.
+        */
+        release_state: {
+          ...editorial,
+
+          compatibility_notice:
+            "Editorial readiness only; not official publication state."
+        },
+
+        presentation_strategy:
+          strategy,
+
+        routing_package:
+          routingPackage,
+
+        governed_intelligence_refs:
+          media.governed_intelligence,
+
+        recommended_actions:
+          recommendedActions,
+
+        generated_at:
+          this.nowISO(),
+
+        /*
+          "locked" means report object should not be casually
+          mutated by presentation code.
+
+          It does NOT mean authoritative athlete intelligence.
+        */
+        locked: true,
+
+        doctrine: {
+          candidate_is_not_approved:
+            true,
+
+          editorial_readiness_is_not_athletic_ability:
+            true,
+
+          verification_is_not_publication_authority:
+            true,
+
+          recruiting_visibility_is_not_public_media:
+            true,
+
+          exposure_is_not_interest:
+            true,
+
+          engagement_is_not_recruiting_outcome:
+            true
+        }
       };
     },
 
-    renderMediaIntelligencePanel(targetId, snapshot, context = {}) {
-      const el = document.getElementById(targetId);
+    /*
+    ============================================================
+    PRESENTATION
+    ============================================================
+    */
+
+    escapeHTML(value) {
+      return String(
+        value ?? ""
+      )
+        .replaceAll(
+          "&",
+          "&amp;"
+        )
+        .replaceAll(
+          "<",
+          "&lt;"
+        )
+        .replaceAll(
+          ">",
+          "&gt;"
+        )
+        .replaceAll(
+          '"',
+          "&quot;"
+        )
+        .replaceAll(
+          "'",
+          "&#039;"
+        );
+    },
+
+    renderMediaIntelligencePanel(
+      targetId,
+      snapshot,
+      context = {}
+    ) {
+      const el =
+        document.getElementById(
+          targetId
+        );
+
       if (!el) return;
 
-      const report = this.buildMediaIntelligenceReport(snapshot, context);
+      const report =
+        this.buildMediaIntelligenceReport(
+          snapshot,
+          context
+        );
 
       if (!report.ok) {
-        el.innerHTML = `<p>${report.message}</p>`;
+        el.textContent =
+          report.message;
         return;
       }
 
-      el.innerHTML = `
-        <div class="media-intel-kicker">PHNX SPORTS Media Intelligence</div>
-        <h2>${report.release_state.state}</h2>
-        <p>${report.release_state.reason}</p>
+      const actions =
+        report.recommended_actions
+          .map(
+            item =>
+              `<li>${this.escapeHTML(item.action)}</li>`
+          )
+          .join("");
 
-        <div class="media-intel-grid">
-          <div><b>Quality</b><span>${report.media_quality.quality_label}</span></div>
-          <div><b>Score</b><span>${report.media_quality.score}</span></div>
-          <div><b>Package</b><span>${report.presentation_strategy.package_type}</span></div>
-          <div><b>Sequence</b><span>${report.highlight_sequence.ready ? "Ready" : "Pending"}</span></div>
+      el.innerHTML = `
+        <div class="media-intel-kicker">
+          PHNX SPORTS • Governed Media Publication
         </div>
 
+        <h2>
+          ${this.escapeHTML(report.editorial_state.state)}
+        </h2>
+
+        <p>
+          ${this.escapeHTML(report.editorial_state.reason)}
+        </p>
+
+        <div class="media-intel-grid">
+          <div>
+            <b>Editorial Readiness</b>
+            <span>
+              ${this.escapeHTML(
+                report.editorial_readiness.readiness_label
+              )}
+            </span>
+          </div>
+
+          <div>
+            <b>Readiness Index</b>
+            <span>
+              ${this.escapeHTML(
+                report.editorial_readiness
+                  .editorial_readiness_index
+              )}
+            </span>
+          </div>
+
+          <div>
+            <b>Package</b>
+            <span>
+              ${this.escapeHTML(
+                report.presentation_strategy.package_type
+              )}
+            </span>
+          </div>
+
+          <div>
+            <b>Sequence</b>
+            <span>
+              ${
+                report.highlight_sequence.ready
+                  ? "Ready"
+                  : "Pending"
+              }
+            </span>
+          </div>
+        </div>
+
+        <strong>Candidate WHY</strong>
+        <p>
+          ${this.escapeHTML(
+            report.candidate?.why ||
+            "No governed candidate explanation supplied."
+          )}
+        </p>
+
         <strong>Recommended Media Actions</strong>
+
         <ul>
-          ${report.recommended_actions.map(action => `<li>${action}</li>`).join("")}
+          ${actions}
         </ul>
+
+        <small>
+          Editorial Readiness is a Stream 7 media-production
+          measure. It is not Athletic Score, STATScore,
+          recruiting readiness, ranking, or athlete ability.
+        </small>
       `;
     },
 
     explain(report) {
-      if (!report?.ok) return "No media intelligence report available.";
+      if (!report?.ok) {
+        return (
+          "No governed PHNX media publication cognition report available."
+        );
+      }
 
       return [
-        `Release: ${report.release_state.state}`,
-        `Quality: ${report.media_quality.quality_label}`,
-        `Package: ${report.presentation_strategy.package_type}`,
-        `Sequence: ${report.highlight_sequence.ready ? "Ready" : "Pending"}`
+        `Editorial: ${
+          report.editorial_state.state
+        }`,
+
+        `Readiness: ${
+          report.editorial_readiness
+            .readiness_label
+        }`,
+
+        `Package: ${
+          report.presentation_strategy
+            .package_type
+        }`,
+
+        `Sequence: ${
+          report.highlight_sequence.ready
+            ? "Ready"
+            : "Pending"
+        }`,
+
+        `WHY: ${
+          report.candidate?.why ||
+          "Not supplied"
+        }`
       ].join(" | ");
     }
 
   };
 
-  window.STATScore.MediaIntelligenceEngine = MediaIntelligenceEngine;
+  /*
+  ============================================================
+  PUBLIC AUTHORITY REGISTRATION
+  ============================================================
+  */
 
-  console.info("[STATScore] Media Intelligence Engine Loaded:", MediaIntelligenceEngine.version);
+  window.STATScore.MediaIntelligenceEngine =
+    MediaIntelligenceEngine;
+
+  /*
+    Optional clearer alias for subsequent manufacturing.
+
+    Existing consumers do NOT need to change immediately.
+  */
+  window.STATScore.MediaPublicationIntelligenceEngine =
+    MediaIntelligenceEngine;
+
+  console.info(
+    "[STATScore] Governed Media Publication Intelligence Engine Loaded:",
+    MediaIntelligenceEngine.version
+  );
 
 })(); 
