@@ -1,65 +1,257 @@
 /* ============================================================
-   STATScore™ PHNX Ranking Engine
-   FULL PRODUCTION FILE
-   Version: v1.0
-   Purpose:
-   Program Intelligence → Rankings → Top 10 → PHNX Sports Boards
-   ============================================================ */
+   STATS-CORE™ / PHNX SPORTS
+   File: statscore-phnx-ranking-engine.js
+   Version: STATSCORE-PHNX-RANKING-V2-GOVERNED-PUBLICATION
+
+   Owner:
+   Stream 7 — PHNX Sports Ranking / Exposure Publication Authority
+
+   Constitutional Purpose:
+   Publish governed ranking and leaderboard intelligence supplied
+   by the lawful enterprise intelligence/ranking authority.
+
+   STREAM 7 MAY:
+   - validate ranking-publication contracts;
+   - classify leaderboard publication type;
+   - order already-ranked entries for presentation;
+   - preserve ranking criteria and authority;
+   - preserve ranking version/history;
+   - calculate DISPLAY movement from governed current/previous rank;
+   - compose PHNX board presentation;
+   - compose PHNX Sports segment presentation;
+   - prepare ranking publication handoff;
+   - preserve Publication Receipt references.
+
+   STREAM 7 SHALL NOT:
+   - calculate Athletic Score;
+   - calculate STATScore;
+   - calculate Program Health;
+   - calculate Program Intelligence;
+   - calculate Development Intelligence;
+   - calculate Academic Intelligence;
+   - calculate Pathway Fit;
+   - determine Stars;
+   - calculate official rank;
+   - choose one score as a substitute for another;
+   - manufacture verification;
+   - infer "Rising" intelligence;
+   - infer leaderboard eligibility;
+   - invent ranking criteria.
+
+   CONTROLLING DOCTRINE:
+   Intelligence Authority → Governed Ranking → Stream 7 Publication
+
+   NOT:
+   Athlete/Program Data → Stream 7 Scoring → Ranking
+============================================================ */
 
 (function () {
   "use strict";
 
-  const ENGINE_ID = "statscore-phnx-ranking-engine";
-  const VERSION = "v1.0-media-ranking-pipeline";
+  const ENGINE_ID =
+    "statscore-phnx-ranking-engine";
 
-  const BOARD_TYPES = {
+  const VERSION =
+    "STATSCORE-PHNX-RANKING-V2-GOVERNED-PUBLICATION";
+
+
+  /* ==========================================================
+     LEADERBOARD CLASSES
+
+     These identify publication classes only.
+
+     They do NOT define ranking science.
+  ========================================================== */
+
+  const LEADERBOARD_CLASSES = Object.freeze({
+    ATHLETIC: "ATHLETIC",
+    ACADEMIC: "ACADEMIC",
+    DEVELOPMENT: "DEVELOPMENT",
+    VERIFIED_PERFORMANCE: "VERIFIED_PERFORMANCE",
+    EXPOSURE_VIEWERSHIP: "EXPOSURE_VIEWERSHIP",
+    PROGRAM: "PROGRAM"
+  });
+
+
+  const BOARD_TYPES = Object.freeze({
+
     PROGRAM_TOP_10: {
+      class: LEADERBOARD_CLASSES.PROGRAM,
       label: "PHNX Sports Program Top 10",
-      description: "Top ranked programs by STATScore Program Intelligence."
+      description:
+        "Governed Program Intelligence ranking publication."
     },
 
     PROGRAM_RISING: {
+      class: LEADERBOARD_CLASSES.PROGRAM,
       label: "Rising Programs",
-      description: "Programs showing positive movement and operational improvement."
+      description:
+        "Governed publication of programs classified upstream as demonstrating positive movement."
     },
 
     PROGRAM_VERIFIED: {
+      class: LEADERBOARD_CLASSES.PROGRAM,
       label: "Verified Active Programs",
-      description: "Programs with strong participation, transparency, and verified activity."
+      description:
+        "Governed publication of programs whose verified classification is established upstream."
     },
 
     ATHLETE_WATCHLIST: {
+      class: LEADERBOARD_CLASSES.ATHLETIC,
       label: "Athlete Watchlist",
-      description: "Athletes with strong emerging signals and pathway movement."
+      description:
+        "Governed athlete ranking/watchlist publication supplied by the appropriate intelligence authority."
     },
 
     ATHLETE_RISING: {
+      class: LEADERBOARD_CLASSES.DEVELOPMENT,
       label: "Rising Athletes",
-      description: "Athletes showing developmental improvement or pathway growth."
+      description:
+        "Governed Development Intelligence ranking publication."
+    },
+
+    ATHLETIC_LEADERBOARD: {
+      class: LEADERBOARD_CLASSES.ATHLETIC,
+      label: "Athletic Leaderboard",
+      description:
+        "Governed Athletic Intelligence leaderboard."
+    },
+
+    ACADEMIC_LEADERBOARD: {
+      class: LEADERBOARD_CLASSES.ACADEMIC,
+      label: "Academic Leaderboard",
+      description:
+        "Governed Academic Intelligence leaderboard."
+    },
+
+    DEVELOPMENT_LEADERBOARD: {
+      class: LEADERBOARD_CLASSES.DEVELOPMENT,
+      label: "Development Leaderboard",
+      description:
+        "Governed longitudinal Development Intelligence leaderboard."
+    },
+
+    VERIFIED_PERFORMANCE: {
+      class: LEADERBOARD_CLASSES.VERIFIED_PERFORMANCE,
+      label: "Verified Performance Leaderboard",
+      description:
+        "Governed verified-performance leaderboard."
+    },
+
+    EXPOSURE_VIEWERSHIP: {
+      class: LEADERBOARD_CLASSES.EXPOSURE_VIEWERSHIP,
+      label: "PHNX Sports Exposure / Viewership",
+      description:
+        "Governed exposure/viewership publication. Exposure is not athletic ability."
     }
-  };
+  });
+
+
+  /* ==========================================================
+     UTILITIES
+  ========================================================== */
 
   function log(message, payload) {
-    console.log(`[STATScore PHNX Ranking] ${message}`, payload || "");
+    console.log(
+      `[STATS-CORE PHNX Ranking Publication] ${message}`,
+      payload || ""
+    );
   }
 
   function warn(message, payload) {
-    console.warn(`[STATScore PHNX Ranking] ${message}`, payload || "");
+    console.warn(
+      `[STATS-CORE PHNX Ranking Publication] ${message}`,
+      payload || ""
+    );
   }
 
-  function safeNumber(value, fallback = 0) {
-    const n = Number(value);
-    return Number.isNaN(n) ? fallback : n;
+  function clean(value) {
+    if (
+      value === null ||
+      value === undefined
+    ) {
+      return "";
+    }
+
+    return String(value).trim();
   }
 
-  function normalize(value) {
-    return String(value || "").trim();
+  function upper(value) {
+    return clean(value).toUpperCase();
   }
 
-  function rankDirection(currentRank, previousRank) {
-    if (!previousRank || !currentRank) return "NEW";
-    if (currentRank < previousRank) return "UP";
-    if (currentRank > previousRank) return "DOWN";
+  function safeNumber(value, fallback = null) {
+    if (
+      value === null ||
+      value === undefined ||
+      value === ""
+    ) {
+      return fallback;
+    }
+
+    const number = Number(value);
+
+    return Number.isFinite(number)
+      ? number
+      : fallback;
+  }
+
+  function clone(value) {
+    try {
+      return JSON.parse(
+        JSON.stringify(value)
+      );
+    } catch (_) {
+      return value;
+    }
+  }
+
+  function escapeHTML(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+
+  /* ==========================================================
+     MOVEMENT
+
+     Rank movement may be calculated for DISPLAY because the
+     official current rank and official previous rank are both
+     supplied by the governing ranking authority.
+
+     Stream 7 does NOT calculate either rank.
+  ========================================================== */
+
+  function rankDirection(
+    currentRank,
+    previousRank
+  ) {
+    const current =
+      safeNumber(currentRank);
+
+    const previous =
+      safeNumber(previousRank);
+
+    if (current === null) {
+      return "UNKNOWN";
+    }
+
+    if (previous === null) {
+      return "NEW";
+    }
+
+    if (current < previous) {
+      return "UP";
+    }
+
+    if (current > previous) {
+      return "DOWN";
+    }
+
     return "STABLE";
   }
 
@@ -67,241 +259,860 @@
     if (direction === "UP") return "▲";
     if (direction === "DOWN") return "▼";
     if (direction === "STABLE") return "▬";
-    return "★";
+    if (direction === "NEW") return "★";
+    return "—";
   }
 
   function directionLabel(direction) {
     if (direction === "UP") return "Rising";
     if (direction === "DOWN") return "Falling";
     if (direction === "STABLE") return "Stable";
-    return "New";
+    if (direction === "NEW") return "New";
+    return "Unknown";
   }
 
-  function resolveProgramEngine() {
+
+  /* ==========================================================
+     GOVERNED RANKING PUBLICATION CONTRACT
+
+     Minimum expected shape:
+
+     {
+       ranking_id,
+       board_type,
+       leaderboard_class,
+
+       ranking_authority,
+       authority_version,
+
+       criteria: {
+         population,
+         age_grade,
+         participation_level,
+         sport,
+         position_event,
+         geography,
+         intelligence_source,
+         verification_requirements,
+         time_period,
+         minimum_evidence,
+         tie_behavior
+       },
+
+       ranking_version,
+       effective_at,
+       generated_at,
+       publication_date,
+
+       explanation,
+       receipt_id,
+
+       entries: [
+         {
+           entity_type,
+           athlete_id / organization_id,
+           snapshot_id,
+           display_name,
+           rank,
+           previous_rank,
+           governed_score,
+           score_label,
+           confidence,
+           verification_state,
+           explanation,
+           intelligence_reference,
+           receipt_id,
+           publication_safe
+         }
+       ]
+     }
+  ========================================================== */
+
+  function validateRankingContract(
+    ranking = {}
+  ) {
+    const errors = [];
+
+    if (!clean(ranking.ranking_id)) {
+      errors.push(
+        "ranking_id is required."
+      );
+    }
+
+    if (!clean(ranking.board_type)) {
+      errors.push(
+        "board_type is required."
+      );
+    }
+
+    if (
+      !clean(
+        ranking.leaderboard_class
+      )
+    ) {
+      errors.push(
+        "leaderboard_class is required."
+      );
+    }
+
+    if (
+      !clean(
+        ranking.ranking_authority
+      )
+    ) {
+      errors.push(
+        "ranking_authority is required."
+      );
+    }
+
+    if (
+      !clean(
+        ranking.ranking_version
+      )
+    ) {
+      errors.push(
+        "ranking_version is required."
+      );
+    }
+
+    if (
+      !ranking.criteria ||
+      typeof ranking.criteria !== "object"
+    ) {
+      errors.push(
+        "ranking criteria are required."
+      );
+    }
+
+    if (
+      !Array.isArray(
+        ranking.entries
+      )
+    ) {
+      errors.push(
+        "entries array is required."
+      );
+    }
+
+    (ranking.entries || []).forEach(
+      (entry, index) => {
+
+        if (
+          safeNumber(entry.rank) === null
+        ) {
+          errors.push(
+            `entries[${index}].rank must be supplied by ranking authority.`
+          );
+        }
+
+        if (
+          entry.publication_safe !== true
+        ) {
+          errors.push(
+            `entries[${index}] is not authorized for publication.`
+          );
+        }
+
+        if (
+          !clean(
+            entry.intelligence_reference
+          )
+        ) {
+          errors.push(
+            `entries[${index}].intelligence_reference is required.`
+          );
+        }
+      }
+    );
+
+    return {
+      ok: errors.length === 0,
+      errors
+    };
+  }
+
+
+  /* ==========================================================
+     CRITERIA NORMALIZATION
+
+     Normalize for publication presentation only.
+
+     Missing criteria remain missing.
+
+     Stream 7 SHALL NOT invent them.
+  ========================================================== */
+
+  function normalizeCriteria(
+    criteria = {}
+  ) {
+    return {
+      population:
+        criteria.population || null,
+
+      age_grade:
+        criteria.age_grade || null,
+
+      participation_level:
+        criteria.participation_level || null,
+
+      sport:
+        criteria.sport || null,
+
+      position_event:
+        criteria.position_event || null,
+
+      geography:
+        criteria.geography || null,
+
+      intelligence_source:
+        criteria.intelligence_source || null,
+
+      verification_requirements:
+        criteria.verification_requirements || null,
+
+      time_period:
+        criteria.time_period || null,
+
+      minimum_evidence:
+        criteria.minimum_evidence || null,
+
+      tie_behavior:
+        criteria.tie_behavior || null
+    };
+  }
+
+
+  /* ==========================================================
+     ENTRY NORMALIZATION
+
+     IMPORTANT:
+     Rank and governed score are consumed.
+
+     They are NOT calculated here.
+  ========================================================== */
+
+  function normalizeEntry(entry = {}) {
+    const rank =
+      safeNumber(entry.rank);
+
+    const previousRank =
+      safeNumber(
+        entry.previous_rank
+      );
+
+    const direction =
+      rankDirection(
+        rank,
+        previousRank
+      );
+
+    return {
+      entity_type:
+        upper(
+          entry.entity_type ||
+          (
+            entry.athlete_id
+              ? "ATHLETE"
+              : "PROGRAM"
+          )
+        ),
+
+      athlete_id:
+        entry.athlete_id || null,
+
+      snapshot_id:
+        entry.snapshot_id || null,
+
+      organization_id:
+        entry.organization_id || null,
+
+      display_name:
+        entry.display_name ||
+        entry.program_name ||
+        entry.athlete_display_name ||
+        "Unnamed",
+
+      sport:
+        entry.sport || null,
+
+      position:
+        entry.position || null,
+
+      graduation_class:
+        entry.graduation_class || null,
+
+      status_label:
+        entry.status_label || null,
+
+      rank,
+
+      previous_rank:
+        previousRank,
+
+      movement:
+        entry.movement ||
+        direction,
+
+      movement_symbol:
+        entry.movement_symbol ||
+        directionSymbol(direction),
+
+      movement_label:
+        entry.movement_label ||
+        directionLabel(direction),
+
+      /*
+        Whatever number or result appears here was supplied
+        by the governing ranking contract.
+
+        It is not recalculated.
+      */
+      governed_score:
+        entry.governed_score ??
+        entry.score ??
+        entry.program_score ??
+        null,
+
+      score_label:
+        entry.score_label ||
+        null,
+
+      confidence:
+        entry.confidence ||
+        null,
+
+      verification_state:
+        entry.verification_state ||
+        null,
+
+      ranking_classification:
+        entry.ranking_classification ||
+        null,
+
+      explanation:
+        entry.explanation ||
+        null,
+
+      intelligence_reference:
+        entry.intelligence_reference ||
+        null,
+
+      receipt_id:
+        entry.receipt_id ||
+        null,
+
+      publication_safe:
+        entry.publication_safe === true,
+
+      publication_scope:
+        entry.publication_scope ||
+        null,
+
+      strengths:
+        Array.isArray(entry.strengths)
+          ? clone(entry.strengths)
+          : [],
+
+      weaknesses:
+        Array.isArray(entry.weaknesses)
+          ? clone(entry.weaknesses)
+          : []
+    };
+  }
+
+
+  /* ==========================================================
+     GOVERNED BOARD PUBLICATION
+
+     This does not rank entities.
+
+     It receives ranked entities and composes the publication.
+  ========================================================== */
+
+  function buildGovernedBoard(
+    rankingContract = {},
+    options = {}
+  ) {
+    const validation =
+      validateRankingContract(
+        rankingContract
+      );
+
+    if (!validation.ok) {
+      return {
+        ok: false,
+        status:
+          "INVALID_GOVERNED_RANKING_CONTRACT",
+        errors:
+          validation.errors
+      };
+    }
+
+    const boardType =
+      rankingContract.board_type;
+
+    const boardDefinition =
+      BOARD_TYPES[boardType] || {
+        class:
+          rankingContract.leaderboard_class,
+
+        label:
+          rankingContract.board_label ||
+          boardType,
+
+        description:
+          rankingContract.board_description ||
+          ""
+      };
+
+    const limit =
+      safeNumber(
+        options.limit,
+        null
+      );
+
+    /*
+      Sorting by an already-governed official rank is
+      presentation ordering.
+
+      Stream 7 does NOT create rank here.
+    */
+    let entries =
+      rankingContract.entries
+        .map(normalizeEntry)
+        .filter(
+          entry =>
+            entry.publication_safe === true
+        )
+        .sort(
+          (a, b) =>
+            a.rank - b.rank
+        );
+
+    if (
+      limit !== null &&
+      limit > 0
+    ) {
+      entries =
+        entries.slice(
+          0,
+          limit
+        );
+    }
+
+    const board =
+      entries.map(
+        entry => ({
+          ...entry,
+
+          shoutout_copy:
+            generateGovernedShoutout(
+              entry,
+              rankingContract
+            )
+        })
+      );
+
+    return {
+      ok: true,
+
+      engine_id:
+        ENGINE_ID,
+
+      version:
+        VERSION,
+
+      authority_class:
+        "STREAM_7_RANKING_PUBLICATION",
+
+      ranking_id:
+        rankingContract.ranking_id,
+
+      board_type:
+        boardType,
+
+      leaderboard_class:
+        upper(
+          rankingContract
+            .leaderboard_class
+        ),
+
+      board_label:
+        rankingContract.board_label ||
+        boardDefinition.label ||
+        boardType,
+
+      board_description:
+        rankingContract
+          .board_description ||
+        boardDefinition.description ||
+        "",
+
+      ranking_authority:
+        rankingContract
+          .ranking_authority,
+
+      authority_version:
+        rankingContract
+          .authority_version ||
+        null,
+
+      ranking_version:
+        rankingContract
+          .ranking_version,
+
+      criteria:
+        normalizeCriteria(
+          rankingContract.criteria
+        ),
+
+      explanation:
+        rankingContract.explanation ||
+        null,
+
+      ranking_receipt_id:
+        rankingContract.receipt_id ||
+        null,
+
+      effective_at:
+        rankingContract
+          .effective_at ||
+        null,
+
+      intelligence_generated_at:
+        rankingContract
+          .generated_at ||
+        null,
+
+      publication_date:
+        rankingContract
+          .publication_date ||
+        null,
+
+      composed_at:
+        new Date().toISOString(),
+
+      count:
+        board.length,
+
+      board,
+
+      /*
+        Official publication receipt remains separate.
+      */
+      publication: {
+        authorized:
+          rankingContract
+            .publication_authorized ===
+          true,
+
+        publication_receipt_id:
+          rankingContract
+            .publication_receipt_id ||
+          null,
+
+        state:
+          rankingContract
+            .publication_state ||
+          "NOT_PUBLISHED"
+      },
+
+      doctrine: {
+        ranking_consumed_not_calculated:
+          true,
+
+        exposure_is_not_athletic_ability:
+          true,
+
+        leaderboard_classes_are_distinct:
+          true,
+
+        publication_does_not_create_rank:
+          true
+      }
+    };
+  }
+
+
+  /* ==========================================================
+     GOVERNED SHOUTOUT COPY
+
+     Copy may summarize supplied ranking state.
+
+     It SHALL NOT invent intelligence.
+  ========================================================== */
+
+  function generateGovernedShoutout(
+    entry,
+    rankingContract
+  ) {
+    if (
+      entry.explanation
+    ) {
+      return (
+        `${entry.display_name} is published at #${entry.rank}. ` +
+        `${entry.explanation}`
+      );
+    }
+
+    const scoreText =
+      entry.governed_score !== null &&
+      entry.governed_score !== undefined
+        ? (
+            ` Governed ${
+              entry.score_label ||
+              "rating"
+            }: ${
+              entry.governed_score
+            }.`
+          )
+        : "";
+
     return (
-      window.STATScoreProgramIntelligenceEngine ||
-      window.STATScore?.ProgramIntelligenceEngine ||
-      null
+      `${entry.display_name} is published at #${entry.rank} ` +
+      `on ${rankingContract.board_label || rankingContract.board_type}.` +
+      scoreText +
+      ` Movement: ${entry.movement_label}.`
     );
   }
 
-  function calculateProgram(program) {
-    const engine = resolveProgramEngine();
 
-    if (engine?.calculateProgramIntelligence) {
-      return engine.calculateProgramIntelligence(program);
-    }
+  /* ==========================================================
+     COMPATIBILITY METHODS
 
-    return {
-      ok: true,
-      program_name: program.program_name,
-      organization_id: program.organization_id || null,
-      program_score: safeNumber(program.program_score || program.score),
-      status_label: program.status_label || "Program",
-      strengths: program.strengths || [],
-      weaknesses: program.weaknesses || [],
-      ranking_projection: program.ranking_projection || "Unclassified",
-      phnx_shoutout_eligible: safeNumber(program.program_score || program.score) >= 84
-    };
+     Existing callers may still invoke buildProgramBoard()
+     or buildAthleteBoard().
+
+     They MUST now supply a governed ranking contract.
+
+     Raw Program or Athlete lists are rejected.
+  ========================================================== */
+
+  function isGovernedRankingContract(value) {
+    return Boolean(
+      value &&
+      typeof value === "object" &&
+      !Array.isArray(value) &&
+      value.ranking_authority &&
+      value.ranking_version &&
+      Array.isArray(value.entries)
+    );
   }
 
-  function buildProgramBoard(programs = [], options = {}) {
-    const boardType = options.board_type || "PROGRAM_TOP_10";
-    const previousRanks = options.previous_ranks || {};
 
-    const calculated = programs
-      .map(calculateProgram)
-      .filter((item) => item && item.ok)
-      .sort((a, b) => safeNumber(b.program_score) - safeNumber(a.program_score));
-
-    let filtered = calculated;
-
-    if (boardType === "PROGRAM_RISING") {
-      filtered = calculated.filter((item) => {
-        const previous = previousRanks[item.organization_id || item.program_name];
-        const currentIndex = calculated.indexOf(item) + 1;
-        return rankDirection(currentIndex, previous) === "UP" || item.phnx_shoutout_eligible;
-      });
-    }
-
-    if (boardType === "PROGRAM_VERIFIED") {
-      filtered = calculated.filter((item) => {
-        return (
-          item.status_label === "Elite Program" ||
-          item.status_label === "Verified Active Program" ||
-          item.phnx_shoutout_eligible
-        );
-      });
-    }
-
-    const board = filtered.slice(0, options.limit || 10).map((program, index) => {
-      const rank = index + 1;
-      const key = program.organization_id || program.program_name;
-      const previousRank = previousRanks[key] || null;
-      const direction = rankDirection(rank, previousRank);
-
+  function buildProgramBoard(
+    input,
+    options = {}
+  ) {
+    if (
+      !isGovernedRankingContract(
+        input
+      )
+    ) {
       return {
-        rank,
-        previous_rank: previousRank,
-        movement: direction,
-        movement_symbol: directionSymbol(direction),
-        movement_label: directionLabel(direction),
+        ok: false,
 
-        organization_id: program.organization_id || null,
-        program_name: program.program_name,
-        program_score: program.program_score,
-        status_label: program.status_label,
-        ranking_projection: program.ranking_projection,
+        status:
+          "GOVERNED_PROGRAM_RANKING_REQUIRED",
 
-        strengths: program.strengths || [],
-        weaknesses: program.weaknesses || [],
-
-        phnx_shoutout_eligible: program.phnx_shoutout_eligible,
-        shoutout_copy: generateProgramShoutout(program, rank, direction)
+        message:
+          "Stream 7 does not calculate Program Intelligence or official Program rank. Supply a governed ranking contract from the lawful ranking authority."
       };
-    });
+    }
 
-    return {
-      ok: true,
-      engine_id: ENGINE_ID,
-      version: VERSION,
-
-      board_type: boardType,
-      board_label: BOARD_TYPES[boardType]?.label || boardType,
-      board_description: BOARD_TYPES[boardType]?.description || "",
-
-      generated_at: new Date().toISOString(),
-      count: board.length,
-      board
-    };
+    return buildGovernedBoard(
+      input,
+      options
+    );
   }
 
-  function generateProgramShoutout(program, rank, direction) {
-    const strengths =
-      Array.isArray(program.strengths) && program.strengths.length
-        ? program.strengths.slice(0, 3).join(", ")
-        : "program activity, athlete visibility, and operational participation";
 
-    return `${program.program_name} checks in at #${rank} with a STATScore Program Rating of ${program.program_score}. Movement: ${directionLabel(direction)}. Key strengths: ${strengths}.`;
-  }
-
-  function buildAthleteBoard(athletes = [], options = {}) {
-    const boardType = options.board_type || "ATHLETE_WATCHLIST";
-    const previousRanks = options.previous_ranks || {};
-
-    const calculated = athletes
-      .map((athlete) => {
-        const score =
-          safeNumber(athlete.score_final) ||
-          safeNumber(athlete.athletic_signal_score) ||
-          safeNumber(athlete.readiness_score) ||
-          safeNumber(athlete.pathway_fit_score);
-
-        return {
-          athlete_id: athlete.athlete_id || null,
-          snapshot_id: athlete.snapshot_id || null,
-          athlete_display_name:
-            athlete.athlete_display_name ||
-            [athlete.first_name, athlete.last_name].filter(Boolean).join(" ") ||
-            "Unnamed Athlete",
-
-          sport: athlete.primary_sport || athlete.sport || "Sport Pending",
-          position: athlete.primary_position || athlete.position || "Position Pending",
-          graduation_class: athlete.graduation_class || "Class Pending",
-
-          score,
-          readiness_score: safeNumber(athlete.readiness_score),
-          pathway_fit_score: safeNumber(athlete.pathway_fit_score),
-          verification_status: athlete.verification_status || "Pending",
-          evidence_score: safeNumber(athlete.evidence_score)
-        };
-      })
-      .sort((a, b) => safeNumber(b.score) - safeNumber(a.score));
-
-    const board = calculated.slice(0, options.limit || 10).map((athlete, index) => {
-      const rank = index + 1;
-      const key = athlete.athlete_id || athlete.snapshot_id || athlete.athlete_display_name;
-      const previousRank = previousRanks[key] || null;
-      const direction = rankDirection(rank, previousRank);
-
+  function buildAthleteBoard(
+    input,
+    options = {}
+  ) {
+    if (
+      !isGovernedRankingContract(
+        input
+      )
+    ) {
       return {
-        rank,
-        previous_rank: previousRank,
-        movement: direction,
-        movement_symbol: directionSymbol(direction),
-        movement_label: directionLabel(direction),
+        ok: false,
 
-        ...athlete,
+        status:
+          "GOVERNED_ATHLETE_RANKING_REQUIRED",
 
-        shoutout_copy: generateAthleteShoutout(athlete, rank, direction)
+        message:
+          "Stream 7 does not select athlete scoring criteria or calculate official athlete rank. Supply a governed ranking contract."
       };
-    });
+    }
+
+    return buildGovernedBoard(
+      input,
+      options
+    );
+  }
+
+
+  /* ==========================================================
+     PHNX SPORTS SEGMENT
+
+     Converts a governed ranking publication into a media
+     segment specification.
+
+     Does not create ranking intelligence.
+  ========================================================== */
+
+  function buildPHNXSportsSegment(
+    rankingResult
+  ) {
+    if (
+      !rankingResult?.ok ||
+      !Array.isArray(
+        rankingResult.board
+      )
+    ) {
+      return null;
+    }
 
     return {
       ok: true,
-      engine_id: ENGINE_ID,
-      version: VERSION,
 
-      board_type: boardType,
-      board_label: BOARD_TYPES[boardType]?.label || boardType,
-      board_description: BOARD_TYPES[boardType]?.description || "",
+      segment_type:
+        "PHNX_SPORTS_GOVERNED_RANKING",
 
-      generated_at: new Date().toISOString(),
-      count: board.length,
-      board
+      ranking_id:
+        rankingResult.ranking_id,
+
+      leaderboard_class:
+        rankingResult
+          .leaderboard_class,
+
+      ranking_authority:
+        rankingResult
+          .ranking_authority,
+
+      ranking_version:
+        rankingResult
+          .ranking_version,
+
+      ranking_receipt_id:
+        rankingResult
+          .ranking_receipt_id,
+
+      title:
+        rankingResult
+          .board_label,
+
+      generated_at:
+        new Date().toISOString(),
+
+      intro:
+        `PHNX Sports presents ${rankingResult.board_label}, ` +
+        `published from governed ${rankingResult.leaderboard_class} ranking intelligence.`,
+
+      shoutouts:
+        rankingResult.board.map(
+          item => ({
+            rank:
+              item.rank,
+
+            previous_rank:
+              item.previous_rank,
+
+            name:
+              item.display_name,
+
+            governed_score:
+              item.governed_score,
+
+            score_label:
+              item.score_label,
+
+            movement:
+              item.movement_label,
+
+            intelligence_reference:
+              item.intelligence_reference,
+
+            receipt_id:
+              item.receipt_id,
+
+            copy:
+              item.shoutout_copy
+          })
+        ),
+
+      outro:
+        "PHNX Sports publishes governed ranking intelligence. " +
+        "Publication does not create athlete ability, academic standing, development intelligence, or ranking authority.",
+
+      publication_authorized:
+        rankingResult.publication
+          ?.authorized === true
     };
   }
 
-  function generateAthleteShoutout(athlete, rank, direction) {
-    return `${athlete.athlete_display_name} enters the PHNX Sports board at #${rank}. ${athlete.sport} · ${athlete.position} · Class of ${athlete.graduation_class}. Movement: ${directionLabel(direction)}.`;
-  }
 
-  function renderRankingBoard(container, rankingResult) {
-    if (!container || !rankingResult) return false;
+  /* ==========================================================
+     RENDERING
+  ========================================================== */
 
-    container.innerHTML = `
-      <div style="
-        border:1px solid rgba(255,52,52,.45);
-        background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(0,0,0,.32));
-        color:#f4f2ef;
-        padding:22px;
-        box-shadow:0 18px 42px rgba(0,0,0,.45);
-      ">
+  function renderRankingBoard(
+    container,
+    rankingResult
+  ) {
+    if (
+      !container ||
+      !rankingResult?.ok
+    ) {
+      return false;
+    }
 
-        <div style="
-          color:#ff3434;
-          font-size:12px;
-          font-weight:1000;
-          letter-spacing:.18em;
-          text-transform:uppercase;
-        ">
-          PHNX Sports Intelligence Board
-        </div>
+    const boardRows =
+      rankingResult.board
+        .map(item => {
 
-        <div style="
-          margin-top:10px;
-          font-size:34px;
-          font-weight:1000;
-          line-height:1;
-        ">
-          ${rankingResult.board_label}
-        </div>
+          const name =
+            escapeHTML(
+              item.display_name
+            );
 
-        <div style="
-          margin-top:10px;
-          color:#9fe7ff;
-          font-size:12px;
-          line-height:1.5;
-        ">
-          ${rankingResult.board_description}
-        </div>
+          const secondary =
+            escapeHTML(
+              item.status_label ||
+              [
+                item.sport,
+                item.position,
+                item.graduation_class
+              ]
+                .filter(Boolean)
+                .join(" · ") ||
+              "Governed Ranking Entry"
+            );
 
-        <div style="
-          margin-top:22px;
-          display:grid;
-          gap:12px;
-        ">
-          ${rankingResult.board.map((item) => `
+          const copy =
+            escapeHTML(
+              item.shoutout_copy
+            );
+
+          const score =
+            item.governed_score !==
+              null &&
+            item.governed_score !==
+              undefined
+              ? escapeHTML(
+                  item.governed_score
+                )
+              : "—";
+
+          const scoreLabel =
+            escapeHTML(
+              item.score_label ||
+              "Governed Result"
+            );
+
+          return `
             <div style="
               display:grid;
               grid-template-columns:64px 1fr auto;
@@ -317,7 +1128,7 @@
                 font-weight:1000;
                 color:#ffb100;
               ">
-                #${item.rank}
+                #${escapeHTML(item.rank)}
               </div>
 
               <div>
@@ -326,7 +1137,7 @@
                   font-weight:1000;
                   text-transform:uppercase;
                 ">
-                  ${item.program_name || item.athlete_display_name}
+                  ${name}
                 </div>
 
                 <div style="
@@ -336,7 +1147,7 @@
                   letter-spacing:.1em;
                   text-transform:uppercase;
                 ">
-                  ${item.status_label || `${item.sport} · ${item.position} · ${item.graduation_class}`}
+                  ${secondary}
                 </div>
 
                 <div style="
@@ -345,19 +1156,31 @@
                   font-size:12px;
                   line-height:1.45;
                 ">
-                  ${item.shoutout_copy}
+                  ${copy}
                 </div>
               </div>
 
               <div style="
                 text-align:right;
               ">
+
                 <div style="
+                  color:#7f8a99;
+                  font-size:9px;
+                  font-weight:900;
+                  letter-spacing:.08em;
+                  text-transform:uppercase;
+                ">
+                  ${scoreLabel}
+                </div>
+
+                <div style="
+                  margin-top:4px;
                   font-size:28px;
                   font-weight:1000;
                   color:#37d67a;
                 ">
-                  ${item.program_score || item.score || "--"}
+                  ${score}
                 </div>
 
                 <div style="
@@ -368,12 +1191,143 @@
                   letter-spacing:.12em;
                   text-transform:uppercase;
                 ">
-                  ${item.movement_symbol} ${item.movement_label}
+                  ${escapeHTML(
+                    item.movement_symbol
+                  )}
+                  ${escapeHTML(
+                    item.movement_label
+                  )}
                 </div>
+
               </div>
 
             </div>
-          `).join("")}
+          `;
+        })
+        .join("");
+
+
+    const criteria =
+      rankingResult.criteria || {};
+
+    const criteriaLine =
+      [
+        criteria.population
+          ? `Population: ${criteria.population}`
+          : null,
+
+        criteria.age_grade
+          ? `Age/Grade: ${criteria.age_grade}`
+          : null,
+
+        criteria.sport
+          ? `Sport: ${criteria.sport}`
+          : null,
+
+        criteria.position_event
+          ? `Position/Event: ${criteria.position_event}`
+          : null,
+
+        criteria.geography
+          ? `Geography: ${criteria.geography}`
+          : null,
+
+        criteria.time_period
+          ? `Period: ${criteria.time_period}`
+          : null
+      ]
+        .filter(Boolean)
+        .map(escapeHTML)
+        .join(" • ");
+
+
+    container.innerHTML = `
+      <div style="
+        border:1px solid rgba(255,52,52,.45);
+        background:
+          linear-gradient(
+            135deg,
+            rgba(255,255,255,.04),
+            rgba(0,0,0,.32)
+          );
+        color:#f4f2ef;
+        padding:22px;
+        box-shadow:0 18px 42px rgba(0,0,0,.45);
+      ">
+
+        <div style="
+          color:#ff3434;
+          font-size:12px;
+          font-weight:1000;
+          letter-spacing:.18em;
+          text-transform:uppercase;
+        ">
+          PHNX Sports • Governed Ranking Publication
+        </div>
+
+        <div style="
+          margin-top:10px;
+          font-size:34px;
+          font-weight:1000;
+          line-height:1;
+        ">
+          ${escapeHTML(
+            rankingResult.board_label
+          )}
+        </div>
+
+        <div style="
+          margin-top:10px;
+          color:#9fe7ff;
+          font-size:12px;
+          line-height:1.5;
+        ">
+          ${escapeHTML(
+            rankingResult.board_description
+          )}
+        </div>
+
+        <div style="
+          margin-top:10px;
+          color:#7f8a99;
+          font-size:10px;
+          line-height:1.5;
+        ">
+          Authority:
+          ${escapeHTML(
+            rankingResult.ranking_authority
+          )}
+          • Version:
+          ${escapeHTML(
+            rankingResult.ranking_version
+          )}
+          • Class:
+          ${escapeHTML(
+            rankingResult.leaderboard_class
+          )}
+        </div>
+
+        ${
+          criteriaLine
+            ? `
+              <div style="
+                margin-top:8px;
+                color:#7f8a99;
+                font-size:10px;
+                line-height:1.5;
+              ">
+                ${criteriaLine}
+              </div>
+            `
+            : ""
+        }
+
+        <div style="
+          margin-top:22px;
+          display:grid;
+          gap:12px;
+        ">
+          ${boardRows}
         </div>
 
         <div style="
@@ -382,10 +1336,13 @@
           padding-top:14px;
           color:#7f8a99;
           font-size:11px;
-          line-height:1.45;
+          line-height:1.55;
         ">
-          Rankings are generated from STATScore intelligence signals and are not popularity-based.
-          Verified activity, participation, transparency, and performance data influence board placement.
+          Rankings shown here are governed intelligence supplied
+          by the designated ranking authority and published by
+          Stream 7. PHNX Sports does not calculate the underlying
+          score, ranking, Stars, eligibility, Development Intelligence,
+          Program Health, or Pathway determination.
         </div>
 
       </div>
@@ -394,112 +1351,213 @@
     return true;
   }
 
-  function buildPHNXSportsSegment(rankingResult) {
-    if (!rankingResult || !Array.isArray(rankingResult.board)) {
-      return null;
-    }
 
-    return {
-      ok: true,
-      segment_type: "PHNX_SPORTS_TOP_10_SHOUTOUT",
-      title: rankingResult.board_label,
-      generated_at: new Date().toISOString(),
+  /* ==========================================================
+     CURRENT BOARD
 
-      intro:
-        `PHNX Sports presents this week's ${rankingResult.board_label}, powered by STATScore intelligence.`,
+     IMPORTANT:
+     Page load may render a governed ranking already supplied
+     by the enterprise.
 
-      shoutouts: rankingResult.board.map((item) => ({
-        rank: item.rank,
-        name: item.program_name || item.athlete_display_name,
-        score: item.program_score || item.score,
-        movement: item.movement_label,
-        copy: item.shoutout_copy
-      })),
+     It SHALL NOT calculate a board from arbitrary program or
+     athlete arrays.
+  ========================================================== */
 
-      outro:
-        "These rankings are intelligence-backed, participation-aware, and designed to recognize verified ecosystem activity."
-    };
+  function resolveCurrentGovernedBoard() {
+    return (
+      window.STATScoreCurrentGovernedRanking ||
+      window.__STATSCORE_GOVERNED_RANKING__ ||
+      null
+    );
   }
 
-  function runCurrentBoard() {
-    const programs =
-      window.STATScoreCurrentPrograms ||
-      window.__STATSCORE_PROGRAM_LIST__ ||
-      [];
 
-    if (!Array.isArray(programs) || !programs.length) {
-      warn("No program list found for PHNX Ranking Board.");
+  function runCurrentBoard() {
+    const governedRanking =
+      resolveCurrentGovernedBoard();
+
+    if (!governedRanking) {
+      warn(
+        "No governed ranking publication payload available. " +
+        "No ranking has been manufactured."
+      );
+
       return null;
     }
 
     const ranking =
-      buildProgramBoard(programs, {
-        board_type: "PROGRAM_TOP_10",
-        limit: 10
-      });
+      buildGovernedBoard(
+        governedRanking,
+        {
+          limit:
+            governedRanking.limit ||
+            10
+        }
+      );
 
-    window.STATScoreCurrentPHNXRankingBoard = ranking;
-    window.STATScoreCurrentPHNXSegment = buildPHNXSportsSegment(ranking);
+    if (!ranking.ok) {
+      warn(
+        "Governed ranking contract rejected.",
+        ranking
+      );
+
+      return ranking;
+    }
+
+    window.STATScoreCurrentPHNXRankingBoard =
+      ranking;
+
+    window.STATScoreCurrentPHNXSegment =
+      buildPHNXSportsSegment(
+        ranking
+      );
 
     const panel =
-      document.querySelector("#scPHNXRankingBoard") ||
-      document.querySelector("[data-phnx-ranking-board]");
+      document.querySelector(
+        "#scPHNXRankingBoard"
+      ) ||
+      document.querySelector(
+        "[data-phnx-ranking-board]"
+      );
 
     if (panel) {
-      renderRankingBoard(panel, ranking);
+      renderRankingBoard(
+        panel,
+        ranking
+      );
     }
 
     return ranking;
   }
 
+
+  /* ==========================================================
+     INITIALIZATION
+  ========================================================== */
+
   function init() {
-    if (window.__STATSCORE_PHNX_RANKING_ENGINE__) {
-      warn("Duplicate initialization blocked.");
+    if (
+      window
+        .__STATSCORE_PHNX_RANKING_ENGINE__
+    ) {
+      warn(
+        "Duplicate initialization blocked."
+      );
       return;
     }
 
-    window.__STATSCORE_PHNX_RANKING_ENGINE__ = true;
+    window
+      .__STATSCORE_PHNX_RANKING_ENGINE__ =
+      true;
+
 
     window.STATScorePHNXRankingEngine = {
-      engine_id: ENGINE_ID,
-      version: VERSION,
+      engine_id:
+        ENGINE_ID,
 
-      board_types: BOARD_TYPES,
+      version:
+        VERSION,
 
+      leaderboard_classes:
+        LEADERBOARD_CLASSES,
+
+      board_types:
+        BOARD_TYPES,
+
+      validateRankingContract,
+      normalizeCriteria,
+      normalizeEntry,
+
+      buildGovernedBoard,
+
+      /*
+        Compatibility names.
+      */
       buildProgramBoard,
       buildAthleteBoard,
+
       renderRankingBoard,
+
       buildPHNXSportsSegment,
-      runCurrentBoard
+
+      resolveCurrentGovernedBoard,
+      runCurrentBoard,
+
+      rankDirection,
+      directionSymbol,
+      directionLabel
     };
 
-    if (!window.STATScore) {
-      window.STATScore = {};
-    }
+
+    window.STATScore =
+      window.STATScore || {};
 
     window.STATScore.PHNXRankingEngine =
       window.STATScorePHNXRankingEngine;
 
-    const result = runCurrentBoard();
 
-    if (window.STATScoreEngineBus?.emit) {
-      window.STATScoreEngineBus.emit("engine_online", {
-        engine: ENGINE_ID,
-        version: VERSION,
-        status: "ONLINE",
-        ranking_generated: !!(result && result.ok)
-      });
+    const result =
+      runCurrentBoard();
+
+
+    if (
+      window.STATScoreEngineBus?.emit
+    ) {
+      window.STATScoreEngineBus.emit(
+        "engine_online",
+        {
+          engine:
+            ENGINE_ID,
+
+          version:
+            VERSION,
+
+          status:
+            "ONLINE",
+
+          /*
+            This means an already-governed ranking was
+            successfully composed for publication.
+
+            It does NOT mean Stream 7 calculated one.
+          */
+          governed_ranking_loaded:
+            Boolean(
+              result &&
+              result.ok
+            )
+        }
+      );
     }
 
-    log("Engine online.", {
-      engine: ENGINE_ID,
-      version: VERSION,
-      ranking_generated: !!(result && result.ok)
-    });
+
+    log(
+      "Governed Ranking Publication Engine online.",
+      {
+        engine:
+          ENGINE_ID,
+
+        version:
+          VERSION,
+
+        governed_ranking_loaded:
+          Boolean(
+            result &&
+            result.ok
+          )
+      }
+    );
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
+
+  if (
+    document.readyState ===
+    "loading"
+  ) {
+    document.addEventListener(
+      "DOMContentLoaded",
+      init
+    );
   } else {
     init();
   }
