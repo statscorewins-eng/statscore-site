@@ -10,10 +10,11 @@ Asset Type:
 HTML Presentation Page
 
 Owner Stream:
-Stream 7 — Crystal / Exposure / Media
+Stream 7 — Crystal Reports / Crystal Registry /
+Enterprise Publication Authority
 
 Primary Operational Authority:
-Stream 7 — Crystal / Exposure / Media
+Stream 7 — Enterprise Publication Authority
 
 System Layer:
 Crystal Report Presentation
@@ -21,78 +22,99 @@ Crystal Report Presentation
 Primary Runtime:
 statscore-crystal-reports.js
 
-Primary Intelligence Engine(s):
+Primary Publication Composition:
 statscore-crystal-engine.js
 statscore-crystal-reports.js
-statscore-explainability-engine.js
 
-Previous Route:
-athlete-dashboard.html
-player-profile.html
-multi-box.html
-
-Current Route:
-crystal-report.html
-
-Next Route(s):
-athlete-dashboard.html
-player-profile.html
-multi-box.html
-crystal-registry.html
+Consumed Intelligence Authorities:
+Stream 9 — Enterprise Intelligence Authority
+and other lawful governed intelligence authorities referenced
+by the report contract.
 
 Consumes:
-athlete_id
-snapshot_id
-official athlete intelligence
-explainability
-crystal inputs
-permission context
+report_id
+program_id where applicable
+athlete_id where applicable
+snapshot_id where applicable
+workspace_id where applicable
+governed Crystal Report Contract
+governed intelligence authority/version/receipt lineage
+governed WHY
+confidence
+disclosure scope
+publication state
+publication receipt
 
 Provides:
-Crystal Report render
-Crystal receipt
-Institutional athlete intelligence package
-
-Primary IDs:
-athlete_id
-snapshot_id
-crystal_id
-
-Primary Database Tables:
-statscore_snapshots
-statscore_athlete_production_records
-Crystal/report tables where applicable
-
-Cross-Stream Dependencies:
-Consumes Stream 3 athlete intelligence.
-Consumes Stream 6 communication/permission context.
-May consume Stream 9 composite intelligence when available.
+Crystal Report presentation
+Crystal publication-state presentation
+intelligence lineage presentation
+WHY / explainability presentation
+publication receipt presentation
+authorized print/export presentation
 
 Does NOT:
-- Calculate primary athlete score
+- Calculate Program Health
+- Interpret Program Health thresholds
+- Calculate athlete intelligence
+- Calculate Match Intelligence
+- Calculate Pathway Intelligence
+- Manufacture recommendations
+- Manufacture confidence
+- Manufacture WHY
+- Create source records
 - Create snapshots
-- Modify production records
+- Modify intelligence
 - Own Multi-Box communication
-- Perform role intake
+- Own Professional Workspace
+- Establish public-disclosure authority
+- Establish enterprise runtime authority
+
+Constitutional Doctrine:
+
+Program Health Intelligence
+    → Stream 9
+
+Program Health Publication
+    → Stream 7
+
+Report Exists
+    ≠
+Report Published
+
+Governed Intelligence
+    ≠
+Public Disclosure Authority
 
 Status:
-CANON LOCKED
-
-Last Governance Review:
-2026-06-27
+RECONCILED TO GOVERNED CRYSTAL PUBLICATION MODEL
 
 ==========================================================
---> 
+-->
 
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>STATScore™ — Crystal Report</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> 
-  
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+/>
+
+<title>
+  STATS-CORE™ — Crystal Report
+</title>
+
+<meta
+  name="description"
+  content="STATS-CORE™ Crystal Report — governed, explainable, versioned enterprise intelligence publication."
+/>
+
 <style>
+
 :root{
   --red:#ff2b1f;
   --gold:#f4c542;
@@ -104,12 +126,16 @@ Last Governance Review:
   --panel:rgba(255,255,255,.035);
   --line:rgba(255,255,255,.16);
   --line2:rgba(255,255,255,.3);
+  --danger:#ff6b6b;
   --max:1120px;
 }
 
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+}
 
-html,body{
+html,
+body{
   margin:0;
   background:#000;
   color:var(--ink);
@@ -118,14 +144,31 @@ html,body{
 
 body{
   background:
-    radial-gradient(circle at 20% 10%,rgba(255,43,31,.12),transparent 32%),
-    radial-gradient(circle at 80% 70%,rgba(126,216,255,.10),transparent 34%),
-    linear-gradient(180deg,#020305,#050914 45%,#000);
+    radial-gradient(
+      circle at 20% 10%,
+      rgba(255,43,31,.12),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 80% 70%,
+      rgba(126,216,255,.10),
+      transparent 34%
+    ),
+    linear-gradient(
+      180deg,
+      #020305,
+      #050914 45%,
+      #000
+    );
 }
 
 a{
   color:inherit;
   text-decoration:none;
+}
+
+button{
+  font-family:inherit;
 }
 
 .report-page{
@@ -134,12 +177,24 @@ a{
   padding:34px 24px 60px;
 }
 
+
+/* ============================================================
+   ACTIONS
+============================================================ */
+
 .top-actions{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  gap:16px;
+  flex-wrap:wrap;
+  gap:12px;
   margin-bottom:18px;
+}
+
+.action-group{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
 }
 
 .top-actions a,
@@ -148,21 +203,31 @@ a{
   background:rgba(255,255,255,.035);
   color:#fff;
   padding:12px 16px;
-  font-size:.72rem;
+  font-size:.7rem;
   font-weight:900;
-  letter-spacing:.14em;
+  letter-spacing:.13em;
   text-transform:uppercase;
   cursor:pointer;
 }
 
-.top-actions button{
-  font-family:inherit;
+.top-actions a:hover,
+.top-actions button:hover{
+  border-color:var(--red);
 }
+
+
+/* ============================================================
+   REPORT
+============================================================ */
 
 .report{
   border:1px solid var(--line2);
   background:
-    linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.015)),
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.045),
+      rgba(255,255,255,.015)
+    ),
     var(--paper);
   box-shadow:
     0 0 0 1px rgba(255,255,255,.04),
@@ -176,7 +241,12 @@ a{
   align-items:center;
   padding:30px 34px;
   border-bottom:4px solid var(--red);
-  background:linear-gradient(180deg,#f4f4f1,#dcdeda);
+  background:
+    linear-gradient(
+      180deg,
+      #f4f4f1,
+      #dcdeda
+    );
   color:#111;
 }
 
@@ -196,9 +266,9 @@ a{
 }
 
 .report-kicker{
-  font-size:.72rem;
+  font-size:.7rem;
   font-weight:900;
-  letter-spacing:.24em;
+  letter-spacing:.22em;
   text-transform:uppercase;
   color:#222;
   margin-bottom:8px;
@@ -206,7 +276,12 @@ a{
 
 .report-title{
   margin:0;
-  font-family:"Arial Narrow","Helvetica Neue Condensed",Impact,Arial,sans-serif;
+  font-family:
+    "Arial Narrow",
+    "Helvetica Neue Condensed",
+    Impact,
+    Arial,
+    sans-serif;
   font-size:3rem;
   line-height:.95;
   text-transform:uppercase;
@@ -215,9 +290,9 @@ a{
 
 .report-subtitle{
   margin-top:10px;
-  font-size:.78rem;
+  font-size:.76rem;
   font-weight:900;
-  letter-spacing:.18em;
+  letter-spacing:.16em;
   text-transform:uppercase;
   color:#333;
 }
@@ -226,9 +301,59 @@ a{
   padding:34px;
 }
 
+
+/* ============================================================
+   STATE BANNER
+============================================================ */
+
+.state-banner{
+  display:flex;
+  justify-content:space-between;
+  gap:16px;
+  align-items:center;
+  padding:14px 16px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.025);
+  margin-bottom:20px;
+}
+
+.state-banner b{
+  display:block;
+  color:var(--blue);
+  font-size:.7rem;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+
+.state-banner strong{
+  display:block;
+  margin-top:5px;
+  font-size:.9rem;
+}
+
+.state-pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:30px;
+  padding:0 12px;
+  border:1px solid rgba(244,197,66,.4);
+  background:rgba(244,197,66,.07);
+  color:#ffe498;
+  font-size:.67rem;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+
+
+/* ============================================================
+   IDENTITY
+============================================================ */
+
 .identity-grid{
   display:grid;
-  grid-template-columns:1.3fr repeat(3,1fr);
+  grid-template-columns:1.4fr repeat(3,1fr);
   gap:14px;
   margin-bottom:24px;
 }
@@ -243,8 +368,8 @@ a{
 .identity-card span{
   display:block;
   color:var(--blue);
-  font-size:.68rem;
-  letter-spacing:.16em;
+  font-size:.66rem;
+  letter-spacing:.14em;
   font-weight:900;
   text-transform:uppercase;
   margin-bottom:8px;
@@ -252,10 +377,16 @@ a{
 
 .identity-card b{
   display:block;
-  font-size:1rem;
-  line-height:1.25;
+  font-size:.95rem;
+  line-height:1.35;
   color:#fff;
+  overflow-wrap:anywhere;
 }
+
+
+/* ============================================================
+   PRIMARY INTELLIGENCE
+============================================================ */
 
 .score-strip{
   display:grid;
@@ -266,22 +397,27 @@ a{
 
 .score-main{
   border:1px solid rgba(37,211,102,.45);
-  background:linear-gradient(180deg,rgba(37,211,102,.16),rgba(255,255,255,.025));
+  background:
+    linear-gradient(
+      180deg,
+      rgba(37,211,102,.16),
+      rgba(255,255,255,.025)
+    );
   padding:22px;
 }
 
 .score-main span{
   display:block;
   color:var(--green);
-  font-size:.7rem;
+  font-size:.68rem;
   font-weight:900;
-  letter-spacing:.18em;
+  letter-spacing:.16em;
   text-transform:uppercase;
 }
 
 .score-main strong{
   display:block;
-  font-size:4rem;
+  font-size:3.5rem;
   line-height:1;
   margin-top:8px;
 }
@@ -295,18 +431,23 @@ a{
 .score-card span{
   display:block;
   color:var(--blue);
-  font-size:.7rem;
+  font-size:.68rem;
   font-weight:900;
-  letter-spacing:.16em;
+  letter-spacing:.14em;
   text-transform:uppercase;
   margin-bottom:10px;
 }
 
 .score-card b{
   color:var(--gold);
-  font-size:1.15rem;
-  line-height:1.3;
+  font-size:1.05rem;
+  line-height:1.35;
 }
+
+
+/* ============================================================
+   SECTIONS
+============================================================ */
 
 .section{
   border-top:1px solid var(--line);
@@ -317,20 +458,30 @@ a{
 .section h2{
   margin:0 0 14px;
   color:var(--red);
-  font-size:.82rem;
-  letter-spacing:.22em;
+  font-size:.8rem;
+  letter-spacing:.2em;
   text-transform:uppercase;
 }
 
 .summary-box{
   border-left:4px solid var(--red);
-  background:linear-gradient(90deg,rgba(255,43,31,.13),rgba(255,255,255,.025));
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255,43,31,.13),
+      rgba(255,255,255,.025)
+    );
   padding:18px;
-  line-height:1.55;
+  line-height:1.6;
   color:#eaf7ff;
-  font-weight:800;
-  font-size:.92rem;
+  font-weight:700;
+  font-size:.9rem;
 }
+
+
+/* ============================================================
+   TABLE
+============================================================ */
 
 .table{
   border:1px solid var(--line);
@@ -350,9 +501,9 @@ a{
 .row span{
   padding:14px 16px;
   color:var(--blue);
-  font-size:.72rem;
+  font-size:.7rem;
   font-weight:900;
-  letter-spacing:.14em;
+  letter-spacing:.12em;
   text-transform:uppercase;
   border-right:1px solid rgba(255,255,255,.10);
   background:rgba(255,255,255,.025);
@@ -361,9 +512,47 @@ a{
 .row b{
   padding:14px 16px;
   color:#fff;
-  font-size:.9rem;
-  line-height:1.4;
+  font-size:.88rem;
+  line-height:1.45;
+  overflow-wrap:anywhere;
 }
+
+
+/* ============================================================
+   WHY
+============================================================ */
+
+.why-stack{
+  display:grid;
+  gap:10px;
+}
+
+.why-item{
+  border:1px solid rgba(126,216,255,.18);
+  border-left:3px solid var(--blue);
+  background:rgba(126,216,255,.035);
+  padding:14px;
+}
+
+.why-item b{
+  display:block;
+  color:var(--blue);
+  font-size:.68rem;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+
+.why-item p{
+  margin:8px 0 0;
+  color:#e8f6ff;
+  line-height:1.55;
+  font-size:.84rem;
+}
+
+
+/* ============================================================
+   RECOMMENDATIONS
+============================================================ */
 
 .recommendations{
   display:grid;
@@ -380,8 +569,8 @@ a{
 .rec-card b{
   display:block;
   color:var(--gold);
-  font-size:.78rem;
-  letter-spacing:.13em;
+  font-size:.76rem;
+  letter-spacing:.12em;
   text-transform:uppercase;
   margin-bottom:10px;
 }
@@ -389,10 +578,58 @@ a{
 .rec-card p{
   margin:0;
   color:#e8f6ff;
-  line-height:1.45;
-  font-weight:800;
-  font-size:.84rem;
+  line-height:1.5;
+  font-weight:700;
+  font-size:.82rem;
 }
+
+.rec-meta{
+  margin-top:12px;
+  color:var(--muted);
+  font-size:.66rem;
+  line-height:1.5;
+  overflow-wrap:anywhere;
+}
+
+
+/* ============================================================
+   LINEAGE
+============================================================ */
+
+.lineage-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+}
+
+.lineage-card{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.025);
+  padding:15px;
+}
+
+.lineage-card span{
+  display:block;
+  color:var(--blue);
+  font-size:.64rem;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  font-weight:900;
+}
+
+.lineage-card b{
+  display:block;
+  margin-top:7px;
+  color:#fff;
+  font-size:.8rem;
+  line-height:1.45;
+  overflow-wrap:anywhere;
+}
+
+
+/* ============================================================
+   RECEIPT
+============================================================ */
 
 .receipt{
   margin-top:30px;
@@ -400,37 +637,58 @@ a{
   background:rgba(126,216,255,.045);
   padding:18px;
   display:grid;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns:repeat(2,1fr);
   gap:14px;
 }
 
 .receipt div{
-  font-size:.78rem;
+  font-size:.76rem;
   line-height:1.5;
   color:#dff6ff;
   font-weight:800;
+  overflow-wrap:anywhere;
 }
 
 .receipt span{
   color:var(--blue);
   text-transform:uppercase;
-  letter-spacing:.13em;
-  font-size:.68rem;
+  letter-spacing:.12em;
+  font-size:.64rem;
   font-weight:900;
+}
+
+
+/* ============================================================
+   GOVERNANCE
+============================================================ */
+
+.doctrine{
+  margin-top:22px;
+  padding:17px;
+  border-left:4px solid var(--gold);
+  background:rgba(244,197,66,.055);
+  color:#f5e8ae;
+  font-size:.78rem;
+  line-height:1.6;
 }
 
 .footer-note{
   margin-top:22px;
   color:var(--muted);
-  font-size:.72rem;
-  line-height:1.45;
+  font-size:.7rem;
+  line-height:1.5;
   text-transform:uppercase;
-  letter-spacing:.08em;
+  letter-spacing:.07em;
 }
+
+
+/* ============================================================
+   EMPTY / ERROR
+============================================================ */
 
 .empty-state{
   border:1px solid var(--line2);
-  padding:28px;
+  padding:32px;
   background:rgba(255,255,255,.035);
   text-align:center;
 }
@@ -439,22 +697,59 @@ a{
   margin:0 0 12px;
   color:var(--red);
   text-transform:uppercase;
+  font-size:1.4rem;
 }
 
+.empty-state p{
+  margin:0 auto;
+  max-width:700px;
+  color:var(--muted);
+  line-height:1.55;
+}
+
+.error-state{
+  border-color:rgba(255,107,107,.55);
+}
+
+.error-state h1{
+  color:var(--danger);
+}
+
+
+/* ============================================================
+   PRINT / RESPONSIVE
+============================================================ */
+
 @media print{
-  body{background:#fff;color:#111}
-  .top-actions{display:none}
-  .report-page{padding:0;width:100%}
-  .report{box-shadow:none;border:1px solid #aaa}
-  .report-body{color:#111}
+
+  body{
+    background:#fff;
+    color:#111;
+  }
+
+  .top-actions{
+    display:none;
+  }
+
+  .report-page{
+    padding:0;
+    width:100%;
+  }
+
+  .report{
+    box-shadow:none;
+    border:1px solid #aaa;
+  }
 }
 
 @media(max-width:900px){
+
   .report-header,
   .identity-grid,
   .score-strip,
   .recommendations,
-  .receipt{
+  .receipt,
+  .lineage-grid{
     grid-template-columns:1fr;
   }
 
@@ -468,257 +763,1561 @@ a{
 
   .row span{
     border-right:none;
-    border-bottom:1px solid rgba(255,255,255,.10);
+    border-bottom:
+      1px solid rgba(255,255,255,.10);
   }
 }
+
 </style>
+
 </head>
+
 
 <body>
 
 <div class="report-page">
 
- <div class="top-actions">
-  <a href="program.html">‹ Return to Program Room</a>
+  <div class="top-actions">
 
-  <a href="crystal-registry.html">Crystal Registry</a>
+    <div class="action-group">
 
-  <button type="button" onclick="window.print()">Print / Export PDF</button>
-</div> 
+      <a
+        id="returnWorkspaceLink"
+        href="role-dashboard.html"
+      >
+        ‹ Return to Workspace
+      </a>
 
-  <section class="report" id="reportRoot">
+      <a
+        id="registryLink"
+        href="crystal-registry.html"
+      >
+        Crystal Registry
+      </a>
+
+    </div>
+
+    <button
+      type="button"
+      id="printButton"
+    >
+      Print / Export PDF
+    </button>
+
+  </div>
+
+
+  <section
+    class="report"
+    id="reportRoot"
+  >
+
     <header class="report-header">
+
       <div class="logo-box">
-        <img src="sc_logo_black.png" alt="STATScore">
+        <img
+          src="sc_logo_black.png"
+          alt="STATS-CORE"
+        >
       </div>
 
       <div class="report-title-block">
-        <div class="report-kicker">Institutional Decision Intelligence Artifact</div>
-        <h1 class="report-title">Program Crystal Report™</h1>
-        <div class="report-subtitle">Generated From Program Health Signals</div>
+
+        <div class="report-kicker">
+          Governed Enterprise Intelligence Publication
+        </div>
+
+        <h1
+          class="report-title"
+          id="reportTitle"
+        >
+          Crystal Report™
+        </h1>
+
+        <div
+          class="report-subtitle"
+          id="reportSubtitle"
+        >
+          Awaiting Governed Report Contract
+        </div>
+
       </div>
+
     </header>
 
-    <main class="report-body" id="reportBody">
+
+    <main
+      class="report-body"
+      id="reportBody"
+    >
+
       <div class="empty-state">
-        <h1>No Report Payload Found</h1>
-        <p>Return to Program Operations and generate a Program Crystal Report™.</p>
+
+        <h1>
+          No Governed Report Loaded
+        </h1>
+
+        <p>
+          Crystal Report presentation requires a governed report contract
+          with authoritative intelligence lineage, disclosure scope,
+          version, and receipt references. This page will not reconstruct
+          Program Health or athlete intelligence from loose database fields.
+        </p>
+
       </div>
+
     </main>
+
   </section>
 
 </div>
 
+
+<!--
+Canonical STATS-CORE runtime/data layer should be loaded by the
+repository shell as applicable.
+
+This page intentionally does not create its own Supabase client.
+-->
+
+<script src="statscore-crystal-reports.js"></script>
+
 <script>
-const SUPABASE_URL = "https://oyjmpbuxvfxusmbouldi.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk";
+(function () {
+  "use strict";
 
-const supabaseClient = supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
-);
 
-const REPORT_KEY = "statscore_program_crystal_report_v1";
-const params = new URLSearchParams(window.location.search);
-const reportId = params.get("report_id"); 
+  /* ==========================================================
+     PAGE CONSTANTS
+  ========================================================== */
 
-function esc(v){
-  return String(v ?? "")
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-}
+  const PAGE_VERSION =
+    "CRYSTAL-REPORT-PAGE-V2-GOVERNED";
 
-function formatDate(v){
-  if(!v) return "Not timestamped";
-  try{
-    return new Date(v).toLocaleString();
-  }catch(e){
-    return v;
-  }
-}
 
-function buildSummary(data){
-  const score = Number(data.health_score || 0);
+  const params =
+    new URLSearchParams(
+      window.location.search
+    );
 
-  if(score >= 85){
-    return `${data.program_name} currently presents a strong operational health profile. The program shows favorable indicators across roster health, academic risk, exposure posture, recruiting need, and pathway outcomes. Current recommendation: preserve existing strengths while using benchmark intelligence to identify competitive improvement opportunities.`;
+
+  const reportId =
+    params.get("report_id");
+
+
+  /* ==========================================================
+     HELPERS
+  ========================================================== */
+
+  function byId(id) {
+    return document.getElementById(id);
   }
 
-  if(score >= 70){
-    return `${data.program_name} currently presents a monitor-level operational profile. The program is functional, but selected risk areas require review before expansion, exposure escalation, or heavy recruiting activity. Current recommendation: stabilize identified gaps and rerun the Program Health Check after corrective actions.`;
+
+  function esc(value) {
+    return String(value ?? "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
   }
 
-  return `${data.program_name} currently presents an elevated-risk operational profile. The program should prioritize intervention across the flagged risk categories before increasing exposure, recruiting volume, or competitive expectations. Current recommendation: move into corrective planning and targeted support.`;
-}
 
-function buildRecommendations(data){
-  const recs = [];
+  function clean(value) {
+    if (
+      value === null ||
+      value === undefined
+    ) {
+      return "";
+    }
 
-  recs.push({
-    title:"Operational Health",
-    body:`Current program score is ${data.health_score}. Maintain strengths and address any category that reduces long-term roster, academic, or pathway survivability.`
-  });
+    return String(value).trim();
+  }
 
-  recs.push({
-    title:"Benchmark Strategy",
-    body:`Use the ${data.benchmark_scope} benchmark view to compare the program against similar organizations and identify realistic competitive positioning.`
-  });
 
-  recs.push({
-    title:"Pathway Intelligence",
-    body:`Use pathway outcome signals to determine whether athletes are best served by D1, D2, D3, NAIA, JUCO, or developmental routes.`
-  });
+  function formatDate(value) {
+    if (!value) {
+      return "Not supplied";
+    }
 
-  return recs;
-}
+    const date =
+      new Date(value);
 
-function renderReport(data){
-  const body = document.getElementById("reportBody");
-  const recommendations = buildRecommendations(data);
+    if (
+      Number.isNaN(
+        date.getTime()
+      )
+    ) {
+      return clean(value);
+    }
 
-  body.innerHTML = `
-    <section class="identity-grid">
-      <div class="identity-card">
-        <span>Program / Organization</span>
-        <b>${esc(data.program_name || "Program")}</b>
+    return date.toLocaleString();
+  }
+
+
+  function getCanonicalClient() {
+    return (
+      window.STATScoreData
+        ?.getClient?.() ||
+
+      window.STATScoreCore
+        ?.getClient?.() ||
+
+      window.supabaseClient ||
+
+      window.STATScoreSupabase ||
+
+      null
+    );
+  }
+
+
+  function showError(
+    title,
+    message
+  ) {
+    const body =
+      byId("reportBody");
+
+    if (!body) {
+      return;
+    }
+
+    body.innerHTML = `
+      <div class="empty-state error-state">
+
+        <h1>
+          ${esc(title)}
+        </h1>
+
+        <p>
+          ${esc(message)}
+        </p>
+
       </div>
+    `;
+  }
 
-      <div class="identity-card">
-        <span>Sport Scope</span>
-        <b>${esc(data.sport_scope || "Multi-Sport")}</b>
+
+  /* ==========================================================
+     CONTEXT PRESERVATION
+  ========================================================== */
+
+  function preserveContext() {
+    const contextKeys = [
+      "workspace_id",
+      "role_context_id",
+      "program_id",
+      "athlete_id",
+      "snapshot_id"
+    ];
+
+
+    document
+      .querySelectorAll(
+        'a[href$=".html"]'
+      )
+      .forEach(link => {
+
+        const target =
+          new URL(
+            link.getAttribute("href"),
+            window.location.href
+          );
+
+
+        contextKeys.forEach(
+          key => {
+
+            const value =
+              params.get(key);
+
+            if (value) {
+              target.searchParams.set(
+                key,
+                value
+              );
+            }
+          }
+        );
+
+
+        link.href =
+          target.pathname
+            .split("/")
+            .pop() +
+          target.search;
+      });
+  }
+
+
+  /* ==========================================================
+     REPORT CONTRACT RETRIEVAL
+
+     Retrieval is persistence access only.
+
+     The row itself does NOT become authoritative merely because
+     it exists. It must contain/pass the governed report contract.
+  ========================================================== */
+
+  async function retrieveReportContract(
+    id
+  ) {
+    /*
+      Prefer an already-loaded governed contract.
+    */
+    const current =
+      window
+        .STATScoreCurrentCrystalReportContract ||
+      window
+        .__STATSCORE_CRYSTAL_REPORT_CONTRACT__ ||
+      null;
+
+
+    if (
+      current &&
+      (
+        !id ||
+        current.report_id === id
+      )
+    ) {
+      return {
+        ok:true,
+        source:"RUNTIME_CONTRACT",
+        contract:current
+      };
+    }
+
+
+    if (!id) {
+      return {
+        ok:false,
+
+        status:
+          "REPORT_ID_REQUIRED",
+
+        message:
+          "No report_id or governed runtime report contract was supplied."
+      };
+    }
+
+
+    const client =
+      getCanonicalClient();
+
+
+    if (!client) {
+      return {
+        ok:false,
+
+        status:
+          "ENTERPRISE_DATA_RUNTIME_UNAVAILABLE",
+
+        message:
+          "The governed STATS-CORE data runtime is unavailable. Crystal Report will not create a local database authority."
+      };
+    }
+
+
+    const {
+      data,
+      error
+    } = await client
+      .from("sc_crystal_reports")
+      .select("*")
+      .eq("report_id",id)
+      .maybeSingle();
+
+
+    if (
+      error ||
+      !data
+    ) {
+      return {
+        ok:false,
+
+        status:
+          "CRYSTAL_REPORT_NOT_FOUND",
+
+        message:
+          error?.message ||
+          "Crystal Report record was not found."
+      };
+    }
+
+
+    /*
+      Preferred persisted shape:
+        data.report_contract
+
+      Compatibility:
+        data.payload.report_contract
+
+      A loose payload is deliberately NOT reconstructed.
+    */
+    const contract =
+      data.report_contract ||
+      data.payload?.report_contract ||
+      null;
+
+
+    if (!contract) {
+      return {
+        ok:false,
+
+        status:
+          "GOVERNED_REPORT_CONTRACT_MISSING",
+
+        message:
+          "A Crystal Report persistence record exists, but it does not contain the governed report contract required by the V2 publication architecture."
+      };
+    }
+
+
+    return {
+      ok:true,
+      source:"PERSISTED_CONTRACT",
+      persistence_record:data,
+      contract
+    };
+  }
+
+
+  /* ==========================================================
+     REPORT COMPONENT ACCESS
+  ========================================================== */
+
+  function component(
+    contract,
+    domain
+  ) {
+    const key =
+      String(domain || "")
+        .toUpperCase();
+
+
+    return (
+      contract
+        ?.intelligence_components
+        ?.find(
+          item =>
+            String(
+              item.domain || ""
+            ).toUpperCase() ===
+            key
+        ) ||
+      null
+    );
+  }
+
+
+  function componentValue(
+    item,
+    key,
+    fallback = null
+  ) {
+    if (!item) {
+      return fallback;
+    }
+
+
+    if (
+      item.values &&
+      Object.prototype
+        .hasOwnProperty
+        .call(
+          item.values,
+          key
+        )
+    ) {
+      return item.values[key];
+    }
+
+
+    if (
+      Object.prototype
+        .hasOwnProperty
+        .call(
+          item,
+          key
+        )
+    ) {
+      return item[key];
+    }
+
+
+    return fallback;
+  }
+
+
+  /* ==========================================================
+     WHY
+  ========================================================== */
+
+  function collectWhy(
+    contract
+  ) {
+    const result = [];
+
+
+    (
+      contract
+        .intelligence_components ||
+      []
+    ).forEach(
+      item => {
+
+        const why =
+          Array.isArray(item.why)
+            ? item.why
+            : (
+                item.why
+                  ? [item.why]
+                  : []
+              );
+
+
+        why.forEach(
+          statement => {
+
+            result.push({
+              domain:
+                item.domain ||
+                "Intelligence",
+
+              statement,
+
+              authority:
+                item.intelligence_authority ||
+                "Not supplied",
+
+              receipt:
+                item.intelligence_receipt_id ||
+                "Not supplied"
+            });
+          }
+        );
+      }
+    );
+
+
+    return result;
+  }
+
+
+  /* ==========================================================
+     RECOMMENDATIONS
+
+     DISPLAY ONLY.
+
+     No recommendation is manufactured here.
+  ========================================================== */
+
+  function collectRecommendations(
+    contract
+  ) {
+    const recommendations = [];
+
+
+    (
+      contract
+        .intelligence_components ||
+      []
+    ).forEach(
+      item => {
+
+        const values =
+          item.values ||
+          {};
+
+
+        const candidates = [
+          values.recommendations,
+          values.recommended_actions,
+          item.recommendations,
+          item.recommended_actions
+        ];
+
+
+        candidates.forEach(
+          list => {
+
+            if (
+              !Array.isArray(list)
+            ) {
+              return;
+            }
+
+
+            list.forEach(
+              recommendation => {
+
+                recommendations.push({
+                  domain:
+                    item.domain ||
+                    "Recommendation",
+
+                  authority:
+                    item.intelligence_authority ||
+                    null,
+
+                  receipt_id:
+                    recommendation.receipt_id ||
+                    item.intelligence_receipt_id ||
+                    null,
+
+                  title:
+                    recommendation.title ||
+                    recommendation.category ||
+                    recommendation.priority ||
+                    "Governed Recommendation",
+
+                  body:
+                    recommendation.recommendation ||
+                    recommendation.action ||
+                    recommendation.summary ||
+                    "",
+
+                  why:
+                    recommendation.why ||
+                    null
+                });
+              }
+            );
+          }
+        );
+      }
+    );
+
+
+    return recommendations;
+  }
+
+
+  /* ==========================================================
+     LINEAGE
+  ========================================================== */
+
+  function renderLineage(
+    contract
+  ) {
+    const components =
+      contract.intelligence_components ||
+      [];
+
+
+    if (!components.length) {
+      return `
+        <div class="summary-box">
+          No governed intelligence lineage was supplied.
+        </div>
+      `;
+    }
+
+
+    return `
+      <div class="lineage-grid">
+
+        ${
+          components.map(
+            item => `
+
+              <div class="lineage-card">
+
+                <span>
+                  ${esc(item.domain || "Intelligence")}
+                </span>
+
+                <b>
+                  Authority:
+                  ${esc(
+                    item.intelligence_authority ||
+                    "Not supplied"
+                  )}
+                </b>
+
+                <b>
+                  Version:
+                  ${esc(
+                    item.authority_version ||
+                    item.rule_version ||
+                    "Not supplied"
+                  )}
+                </b>
+
+                <b>
+                  Effective:
+                  ${esc(
+                    formatDate(
+                      item.effective_at
+                    )
+                  )}
+                </b>
+
+                <b>
+                  Receipt:
+                  ${esc(
+                    item.intelligence_receipt_id ||
+                    "Not supplied"
+                  )}
+                </b>
+
+              </div>
+            `
+          ).join("")
+        }
+
       </div>
+    `;
+  }
 
-      <div class="identity-card">
-        <span>Benchmark Scope</span>
-        <b>${esc(data.benchmark_scope || "League")}</b>
-      </div>
 
-      <div class="identity-card">
-        <span>Generated</span>
-        <b>${esc(formatDate(data.generated_at))}</b>
-      </div>
-    </section>
+  /* ==========================================================
+     PROGRAM HEALTH PRESENTATION
 
-    <section class="score-strip">
-      <div class="score-main">
-        <span>Program Health Score</span>
-        <strong>${esc(data.health_score || "--")}</strong>
-      </div>
+     Values are consumed from governed Program Health
+     Intelligence.
 
-      <div class="score-card">
-        <span>Health Signal</span>
-        <b>${esc(data.health_signal || "Not Set")}</b>
-      </div>
+     NO THRESHOLDS.
+     NO LOCAL INTERPRETATION.
+  ========================================================== */
 
-      <div class="score-card">
-        <span>Program Lane</span>
-        <b>${esc(data.program_lane || "Crystal Report")}</b>
-      </div>
-    </section>
+  function buildProgramHealthRows(
+    health
+  ) {
+    if (!health) {
+      return `
+        <div class="summary-box">
+          No governed Program Health Intelligence component
+          was supplied for this report.
+        </div>
+      `;
+    }
 
-    <section class="section">
-      <h2>Executive Summary</h2>
-      <div class="summary-box">${esc(buildSummary(data))}</div>
-    </section>
 
-    <section class="section">
-      <h2>Operational Intelligence Table</h2>
+    const values =
+      health.values ||
+      {};
+
+
+    const fields = [
+      [
+        "Roster Risk",
+        values.roster_risk
+      ],
+      [
+        "Academic Risk",
+        values.academic_risk
+      ],
+      [
+        "Recruiting Need",
+        values.recruiting_need
+      ],
+      [
+        "Exposure Status",
+        values.exposure_status
+      ],
+      [
+        "Pathway Success",
+        values.pathway_success
+      ],
+      [
+        "Professional Effectiveness",
+        values.professional_effectiveness
+      ]
+    ];
+
+
+    return `
       <div class="table">
-        <div class="row"><span>Roster Risk</span><b>${esc(data.roster_risk || "Not Set")}</b></div>
-        <div class="row"><span>Academic Risk</span><b>${esc(data.academic_risk || "Not Set")}</b></div>
-        <div class="row"><span>Recruiting Need</span><b>${esc(data.recruiting_need || "Not Set")}</b></div>
-        <div class="row"><span>Exposure Status</span><b>${esc(data.exposure_status || "Not Set")}</b></div>
-        <div class="row"><span>Pathway Success</span><b>${esc(data.pathway_success || "Not Set")}</b></div>
+
+        ${
+          fields
+            .filter(
+              ([,value]) =>
+                value !== undefined &&
+                value !== null &&
+                value !== ""
+            )
+            .map(
+              ([label,value]) => `
+
+                <div class="row">
+
+                  <span>
+                    ${esc(label)}
+                  </span>
+
+                  <b>
+                    ${esc(value)}
+                  </b>
+
+                </div>
+              `
+            )
+            .join("")
+        }
+
       </div>
-    </section>
-
-    <section class="section">
-      <h2>Recommended Actions</h2>
-      <div class="recommendations">
-        ${recommendations.map(rec => `
-          <div class="rec-card">
-            <b>${esc(rec.title)}</b>
-            <p>${esc(rec.body)}</p>
-          </div>
-        `).join("")}
-      </div>
-    </section>
-
-    <section class="section">
-      <h2>Crystal Report Doctrine</h2>
-      <div class="summary-box">
-        This report is a governed STATScore™ intelligence artifact. It is generated from program health signals and is intended to support organizational decision-making, competitive benchmarking, athlete pathway realism, staff alignment, and operational improvement. It is not a replacement for official school, league, NCAA, NAIA, JUCO, or institutional records.
-      </div>
-    </section>
-
-    <section class="receipt">
-      <div>
-        <span>Report Type</span><br>
-        ${esc(data.report_type || "PROGRAM_CRYSTAL_REPORT")}
-      </div>
-
-      <div>
-        <span>Report Title</span><br>
-        ${esc(data.report_title || "Program Crystal Report™")}
-      </div>
-
-      <div>
-        <span>Source Room</span><br>
-        Program Operations Room
-      </div>
-
-      <div>
-        <span>Audit Reference</span><br>
-        Local report payload: ${REPORT_KEY}
-      </div>
-    </section>
-
-    <div class="footer-note">
-      STATScore Systems · Program Crystal Report™ · Generated for operational intelligence, pathway realism, competitive comparison, and organizational health review.
-    </div>
-  `;
-}
-
-document.addEventListener("DOMContentLoaded", async ()=>{
-  if(!reportId){
-    console.error("Missing report_id");
-    return;
+    `;
   }
 
-  const { data, error } = await supabaseClient
-    .from("sc_crystal_reports")
-    .select("*")
-    .eq("report_id", reportId)
-    .single();
 
-  if(error || !data){
-    console.error("Crystal Report fetch failure:", error);
-    return;
+  /* ==========================================================
+     REPORT RENDER
+  ========================================================== */
+
+  function renderReport(
+    contract
+  ) {
+    const engine =
+      window
+        .STATScoreCrystalReportEngine;
+
+
+    if (!engine) {
+      showError(
+        "Crystal Report Engine Unavailable",
+        "statscore-crystal-reports.js is required. This page will not reconstruct report intelligence locally."
+      );
+
+      return;
+    }
+
+
+    const validation =
+      engine
+        .validateReportContract?.(
+          contract
+        );
+
+
+    if (
+      !validation ||
+      !validation.ok
+    ) {
+      showError(
+        "Governed Report Contract Rejected",
+        (
+          validation?.errors ||
+          [
+            "The report contract did not pass governed validation."
+          ]
+        ).join(" ")
+      );
+
+      return;
+    }
+
+
+    const body =
+      byId("reportBody");
+
+
+    if (!body) {
+      return;
+    }
+
+
+    const programHealth =
+      component(
+        contract,
+        "PROGRAM_HEALTH"
+      );
+
+
+    const crystal =
+      component(
+        contract,
+        "CRYSTAL"
+      );
+
+
+    const program =
+      contract.program ||
+      {};
+
+
+    const healthValues =
+      programHealth?.values ||
+      {};
+
+
+    const title =
+      contract.report_title ||
+      (
+        contract.report_type ===
+        "PROGRAM_HEALTH"
+          ? "Program Crystal Report™"
+          : "Crystal Report™"
+      );
+
+
+    const subtitle =
+      contract.report_subtitle ||
+      (
+        programHealth
+          ? "Governed Program Health Publication"
+          : "Governed Intelligence Publication"
+      );
+
+
+    byId("reportTitle").textContent =
+      title;
+
+
+    byId("reportSubtitle").textContent =
+      subtitle;
+
+
+    const why =
+      collectWhy(
+        contract
+      );
+
+
+    const recommendations =
+      collectRecommendations(
+        contract
+      );
+
+
+    const summary =
+      programHealth?.summary ||
+      componentValue(
+        programHealth,
+        "summary",
+        null
+      ) ||
+      crystal?.summary ||
+      componentValue(
+        crystal,
+        "summary",
+        null
+      ) ||
+      "No governed executive summary was supplied.";
+
+
+    const healthScore =
+      componentValue(
+        programHealth,
+        "health_score",
+        componentValue(
+          programHealth,
+          "program_health_score",
+          "N/A"
+        )
+      );
+
+
+    const healthSignal =
+      componentValue(
+        programHealth,
+        "health_signal",
+        componentValue(
+          programHealth,
+          "status_label",
+          "N/A"
+        )
+      );
+
+
+    const confidence =
+      programHealth?.confidence ||
+      componentValue(
+        programHealth,
+        "confidence",
+        "N/A"
+      );
+
+
+    const publicationState =
+      contract.publication_state ||
+      "NOT_PUBLISHED";
+
+
+    body.innerHTML = `
+
+      <section class="state-banner">
+
+        <div>
+
+          <b>
+            Publication State
+          </b>
+
+          <strong>
+            ${esc(publicationState)}
+          </strong>
+
+        </div>
+
+        <div class="state-pill">
+          ${esc(contract.disclosure_scope)}
+        </div>
+
+      </section>
+
+
+      <section class="identity-grid">
+
+        <div class="identity-card">
+
+          <span>
+            Program / Organization
+          </span>
+
+          <b>
+            ${esc(
+              program.program_name ||
+              contract.source_entity_name ||
+              "Program"
+            )}
+          </b>
+
+        </div>
+
+
+        <div class="identity-card">
+
+          <span>
+            Sport Scope
+          </span>
+
+          <b>
+            ${esc(
+              program.sport_scope ||
+              healthValues.sport_scope ||
+              "Not supplied"
+            )}
+          </b>
+
+        </div>
+
+
+        <div class="identity-card">
+
+          <span>
+            Benchmark Scope
+          </span>
+
+          <b>
+            ${esc(
+              healthValues.benchmark_scope ||
+              "Not supplied"
+            )}
+          </b>
+
+        </div>
+
+
+        <div class="identity-card">
+
+          <span>
+            Intelligence Effective
+          </span>
+
+          <b>
+            ${esc(
+              formatDate(
+                programHealth?.effective_at ||
+                contract.report_effective_at
+              )
+            )}
+          </b>
+
+        </div>
+
+      </section>
+
+
+      <section class="score-strip">
+
+        <div class="score-main">
+
+          <span>
+            Governed Program Health
+          </span>
+
+          <strong>
+            ${esc(healthScore)}
+          </strong>
+
+        </div>
+
+
+        <div class="score-card">
+
+          <span>
+            Governed Health Signal
+          </span>
+
+          <b>
+            ${esc(healthSignal)}
+          </b>
+
+        </div>
+
+
+        <div class="score-card">
+
+          <span>
+            Confidence
+          </span>
+
+          <b>
+            ${esc(confidence)}
+          </b>
+
+        </div>
+
+      </section>
+
+
+      <section class="section">
+
+        <h2>
+          Executive Summary
+        </h2>
+
+        <div class="summary-box">
+          ${esc(summary)}
+        </div>
+
+      </section>
+
+
+      <section class="section">
+
+        <h2>
+          Program Health Intelligence
+        </h2>
+
+        ${
+          buildProgramHealthRows(
+            programHealth
+          )
+        }
+
+      </section>
+
+
+      <section class="section">
+
+        <h2>
+          WHY — Explainability
+        </h2>
+
+        ${
+          why.length
+            ? `
+              <div class="why-stack">
+
+                ${
+                  why.map(
+                    item => `
+
+                      <div class="why-item">
+
+                        <b>
+                          ${esc(item.domain)}
+                        </b>
+
+                        <p>
+                          ${esc(item.statement)}
+                        </p>
+
+                        <div class="rec-meta">
+                          Authority:
+                          ${esc(item.authority)}
+                          <br>
+                          Receipt:
+                          ${esc(item.receipt)}
+                        </div>
+
+                      </div>
+                    `
+                  ).join("")
+                }
+
+              </div>
+            `
+            : `
+              <div class="summary-box">
+                No governed WHY explanation was supplied.
+              </div>
+            `
+        }
+
+      </section>
+
+
+      <section class="section">
+
+        <h2>
+          Governed Recommendations
+        </h2>
+
+        ${
+          recommendations.length
+            ? `
+              <div class="recommendations">
+
+                ${
+                  recommendations.map(
+                    item => `
+
+                      <div class="rec-card">
+
+                        <b>
+                          ${esc(item.title)}
+                        </b>
+
+                        <p>
+                          ${esc(item.body)}
+                        </p>
+
+                        ${
+                          item.why
+                            ? `
+                              <div class="rec-meta">
+                                WHY:
+                                ${esc(
+                                  Array.isArray(
+                                    item.why
+                                  )
+                                    ? item.why.join(" ")
+                                    : item.why
+                                )}
+                              </div>
+                            `
+                            : ""
+                        }
+
+                        <div class="rec-meta">
+                          Authority:
+                          ${esc(
+                            item.authority ||
+                            "Not supplied"
+                          )}
+                          <br>
+                          Receipt:
+                          ${esc(
+                            item.receipt_id ||
+                            "Not supplied"
+                          )}
+                        </div>
+
+                      </div>
+                    `
+                  ).join("")
+                }
+
+              </div>
+            `
+            : `
+              <div class="summary-box">
+                No governed recommendations are included
+                in this report.
+              </div>
+            `
+        }
+
+      </section>
+
+
+      <section class="section">
+
+        <h2>
+          Intelligence Authority & Receipt Lineage
+        </h2>
+
+        ${
+          renderLineage(
+            contract
+          )
+        }
+
+      </section>
+
+
+      <section class="section">
+
+        <h2>
+          Crystal Publication Doctrine
+        </h2>
+
+        <div class="doctrine">
+
+          This report is a Stream 7 governed publication artifact.
+          Program Health Intelligence, athlete intelligence, Match
+          Intelligence, Pathway Intelligence, confidence, recommendations,
+          and other material conclusions originate from their designated
+          governing authorities.
+
+          <br><br>
+
+          Stream 7 preserves and publishes those governed results.
+          It does not recalculate or reinterpret them.
+
+          <br><br>
+
+          Program Health Intelligence ≠ Program Health Publication.
+          Report generation ≠ publication.
+          Valid intelligence ≠ public-disclosure authority.
+
+        </div>
+
+      </section>
+
+
+      <section class="receipt">
+
+        <div>
+
+          <span>
+            Report ID
+          </span>
+          <br>
+
+          ${esc(contract.report_id)}
+
+        </div>
+
+
+        <div>
+
+          <span>
+            Report Type
+          </span>
+          <br>
+
+          ${esc(contract.report_type)}
+
+        </div>
+
+
+        <div>
+
+          <span>
+            Report Version
+          </span>
+          <br>
+
+          ${esc(
+            contract.report_version ||
+            "Not supplied"
+          )}
+
+        </div>
+
+
+        <div>
+
+          <span>
+            Disclosure Scope
+          </span>
+          <br>
+
+          ${esc(contract.disclosure_scope)}
+
+        </div>
+
+
+        <div>
+
+          <span>
+            Report Composed At
+          </span>
+          <br>
+
+          ${esc(
+            formatDate(
+              contract.composed_at
+            )
+          )}
+
+        </div>
+
+
+        <div>
+
+          <span>
+            Publication State
+          </span>
+          <br>
+
+          ${esc(publicationState)}
+
+        </div>
+
+
+        <div>
+
+          <span>
+            Publication Receipt
+          </span>
+          <br>
+
+          ${esc(
+            contract.publication_receipt_id ||
+            "Not yet issued"
+          )}
+
+        </div>
+
+
+        <div>
+
+          <span>
+            Page Version
+          </span>
+          <br>
+
+          ${esc(PAGE_VERSION)}
+
+        </div>
+
+      </section>
+
+
+      <div class="footer-note">
+
+        STATS-CORE™ Crystal Report • Governed enterprise publication.
+        Every material intelligence result must remain traceable to its
+        authority, version, effective state, explanation, and receipt.
+
+      </div>
+    `;
   }
 
-  const payload = {
-    report_type: data.report_type,
-    report_title: "Program Crystal Report™",
-    program_name: data.source_entity_name,
-    sport_scope: data.payload?.sport_scope,
-    benchmark_scope: data.payload?.benchmark_scope,
-    health_score: data.payload?.health_score,
-    health_signal: data.payload?.health_signal,
-    program_lane: data.payload?.program_lane,
-    roster_risk: data.payload?.roster_risk,
-    academic_risk: data.payload?.academic_risk,
-    recruiting_need: data.payload?.recruiting_need,
-    exposure_status: data.payload?.exposure_status,
-    pathway_success: data.payload?.pathway_success,
-    generated_at: data.generated_at
-  };
 
-  renderReport(payload);
-}); 
+  /* ==========================================================
+     DISCLOSURE VALIDATION
 
+     Fail closed where a report explicitly requests a public
+     surface without public disclosure authority.
+  ========================================================== */
+
+  function validateDisclosure(
+    contract
+  ) {
+    const scope =
+      String(
+        contract.disclosure_scope ||
+        ""
+      ).toUpperCase();
+
+
+    if (
+      scope === "PUBLIC_MEDIA"
+    ) {
+      if (
+        contract
+          .public_disclosure_authorized !==
+          true
+      ) {
+        return {
+          ok:false,
+
+          message:
+            "PUBLIC_MEDIA disclosure was requested without explicit public-disclosure authorization."
+        };
+      }
+
+
+      if (
+        !contract
+          .disclosure_authority_reference
+      ) {
+        return {
+          ok:false,
+
+          message:
+            "PUBLIC_MEDIA disclosure requires a disclosure authority reference."
+        };
+      }
+    }
+
+
+    return {
+      ok:true
+    };
+  }
+
+
+  /* ==========================================================
+     INITIALIZATION
+  ========================================================== */
+
+  async function init() {
+    preserveContext();
+
+
+    const printButton =
+      byId("printButton");
+
+
+    if (printButton) {
+      printButton.addEventListener(
+        "click",
+        () => window.print()
+      );
+    }
+
+
+    const retrieval =
+      await retrieveReportContract(
+        reportId
+      );
+
+
+    if (!retrieval.ok) {
+      showError(
+        "Crystal Report Unavailable",
+        retrieval.message
+      );
+
+      return;
+    }
+
+
+    const disclosure =
+      validateDisclosure(
+        retrieval.contract
+      );
+
+
+    if (!disclosure.ok) {
+      showError(
+        "Report Visibility Restricted",
+        disclosure.message
+      );
+
+      return;
+    }
+
+
+    renderReport(
+      retrieval.contract
+    );
+  }
+
+
+  if (
+    document.readyState ===
+    "loading"
+  ) {
+    document.addEventListener(
+      "DOMContentLoaded",
+      init
+    );
+  } else {
+    init();
+  }
+
+})();
 </script>
 
 </body>
