@@ -1,4 +1,4 @@
-<!-- 
+<!--
 ==========================================================
 STATS-CORE™ OWNERSHIP HEADER
 ==========================================================
@@ -6,89 +6,132 @@ STATS-CORE™ OWNERSHIP HEADER
 File:
 player-profile.html
 
+Version:
+PLAYER-PROFILE-V3-GOVERNED-ATHLETE-PROJECTION
+
 Asset Type:
 HTML Presentation Page
 
 Owner Stream:
-Stream 3 — Athlete Intelligence
+Stream 3 — Athlete Intelligence / Athlete Workspace Presentation
 
 Primary Operational Authority:
-Stream 3 — Athlete Intelligence
+Stream 3 — Athlete Intelligence Presentation Authority
 
 System Layer:
-Explainable Athlete Intelligence Profile
+Governed Shared Athlete Intelligence Profile
 
 Primary Runtime:
-statscore-profile-engine.js
+Page-local governed presentation runtime
 
-Primary Intelligence Engine(s):
-statscore-profile-engine.js
-statscore-scoring-engine.js
-statscore-synthesis-engine.js
-statscore-consensus-engine.js
-statscore-pathway-engine.js
-statscore-recommendation-engine.js
-statscore-explainability-engine.js
+Primary Consumed Authorities:
+Stream 1 — Authentication / Session Authority
+Stream 2 — Athlete Source Record Authority
+Stream 3 — Athlete Intelligence Presentation Authority
+Stream 5 — Professional Workspace / Athlete Scope Authority
+Stream 6 — Communication Governance Authority
+Stream 7 — Publication / Exposure Authority
+Stream 9 — Enterprise Intelligence / Explainability Authority
+Stream 10 — Professional Certification / Trust Authority
 
 Previous Route:
 athlete-dashboard.html
-snapshot-intake.html
+professional workspace authorized athlete search
+authorized shared athlete route
 
 Current Route:
 player-profile.html
 
 Next Route(s):
 athlete-dashboard.html
-athlete-production-record.html
-crystal-report.html
+athletic-snapshot.html
+verification-request.html
+parent-approval.html
+crystal-registry.html
 multi-box.html
 
 Consumes:
-snapshot_id
+authenticated identity
 athlete_id
-profile intelligence
-production intelligence
-verification status
-explainability
-recommendations
+snapshot_id
+authorized workspace context
+canonical Stream 2 athlete source record
+governed Stream 9 intelligence package
+governed explainability
+parent/release state where authorized
+publication/exposure state where authorized
 
 Provides:
-Explainable athlete profile
-Public/private profile view
-Profile intelligence display
+shared athlete profile presentation
+role-safe athlete projection
+governed intelligence presentation
+cross-stream navigation context
 
 Primary IDs:
 athlete_id
 snapshot_id
+professional_id
+role_context_id
+role_instance_id
+workspace_id
+organization_id
+program_id
 
 Primary Database Tables:
 statscore_snapshots
-statscore_athlete_production_records
 sc_parent_approval_requests
 
-Cross-Stream Dependencies:
-Consumes Stream 2 snapshot data.
-Consumes Stream 3 intelligence.
-May provide profile context to Stream 7 Crystal and Stream 6 communication.
+Constitutional Doctrine:
+- Dashboard is the Workspace.
+- Athlete profile is a shared governed athlete intelligence page.
+- Stream 3 presents intelligence; it does not manufacture intelligence.
+- Stream 2 owns athlete source truth.
+- Stream 5 governs professional athlete relationship/scope access.
+- Stream 9 owns enterprise intelligence and explainability.
+- Stream 7 owns publication/exposure authority.
+- Stream 6 owns communication governance.
+- Stream 10 certification/trust does not independently grant athlete access.
+
+Permanent Distinctions:
+ROLE ≠ ATHLETE ACCESS
+CERTIFICATION ≠ AUTHORITY
+AUTHORITY ≠ PERMANENT ACCESS
+GUARDIAN APPROVAL ≠ PUBLICATION AUTHORITY
+GUARDIAN APPROVAL ≠ RECRUITER AUTHORITY
+SOURCE RECORD ≠ INTELLIGENCE
+PRESENTATION ≠ INTELLIGENCE CALCULATION
+MISSING AUTHORITY ≠ PERMISSION TO RECONSTRUCT AUTHORITY
+
+Fail-Closed Rules:
+- No athlete context → no profile.
+- No authenticated/self or governed professional access → no profile.
+- No canonical Stream 2 source record → no profile.
+- No governed Stream 9 intelligence → display PENDING / UNAVAILABLE.
+- No publication authority → do not infer public/media exposure.
+- No recruiting disclosure authority → do not infer recruiting interest/access.
 
 Does NOT:
-- Create snapshots
-- Own production editing
-- Own communication governance
-- Generate Crystal Reports
-- Perform login
-- Own source-record creation
+- Create or edit snapshots
+- Read intake fallback records as substitute authority
+- Calculate athlete scores
+- Calculate stars
+- Calculate readiness
+- Calculate pathway
+- Calculate ranking
+- Manufacture verification confidence
+- Manufacture recommendations
+- Manufacture Crystal intelligence
+- Authorize communication
+- Authorize publication
+- Treat URL/localStorage/sessionStorage as access authority
 
 Status:
-CANON LOCKED
-
-Last Governance Review:
-2026-06-27
+REVISION GENERATED — INSTALLATION PENDING
 
 ==========================================================
---> 
+-->
 
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -96,11 +139,26 @@ Last Governance Review:
 
 <title>STATS-CORE™ | Athlete Intelligence Profile</title>
 
-<meta name="title" content="STATS-CORE™ | Athlete Intelligence Profile" />
-<meta name="description" content="STATS-CORE™ explains athlete production, positional translatability, verification status, parent release governance, and evidence-supported football intelligence." />
+<meta
+  name="title"
+  content="STATS-CORE™ | Athlete Intelligence Profile"
+/>
 
-<link rel="icon" type="image/png" href="sc_emblem.png" />
-<link rel="apple-touch-icon" href="sc_emblem.png" />
+<meta
+  name="description"
+  content="Governed STATS-CORE™ athlete intelligence profile presenting canonical athlete identity, authorized intelligence, explainability, evidence state, verification state, and lifecycle context."
+/>
+
+<link
+  rel="icon"
+  type="image/png"
+  href="sc_emblem.png"
+/>
+
+<link
+  rel="apple-touch-icon"
+  href="sc_emblem.png"
+/>
 
 <style>
 :root{
@@ -119,45 +177,82 @@ Last Governance Review:
   --max:1536px;
 }
 
-*{box-sizing:border-box;}
+*{box-sizing:border-box}
 
 html,body{
   margin:0;
   background:#000;
   color:var(--text);
-  font-family:Arial, Helvetica, sans-serif;
+  font-family:Arial,Helvetica,sans-serif;
 }
 
-a{text-decoration:none;color:inherit;}
+a{
+  color:inherit;
+  text-decoration:none;
+}
+
+button,
+input{
+  font:inherit;
+}
 
 .page{
   width:min(var(--max),100%);
   margin:0 auto;
   min-height:100vh;
   background:
-    linear-gradient(90deg,rgba(0,0,0,.96),rgba(0,0,0,.78),rgba(0,0,0,.92)),
-    radial-gradient(circle at 55% 38%,rgba(40,120,170,.12),transparent 42%),
-    repeating-linear-gradient(135deg,rgba(255,255,255,.012) 0,rgba(255,255,255,.012) 1px,transparent 1px,transparent 8px),
+    linear-gradient(
+      90deg,
+      rgba(0,0,0,.96),
+      rgba(0,0,0,.78),
+      rgba(0,0,0,.92)
+    ),
+    radial-gradient(
+      circle at 55% 38%,
+      rgba(40,120,170,.12),
+      transparent 42%
+    ),
+    repeating-linear-gradient(
+      135deg,
+      rgba(255,255,255,.012) 0,
+      rgba(255,255,255,.012) 1px,
+      transparent 1px,
+      transparent 8px
+    ),
     #020407;
 }
 
-/* =========================
-   GEN-2 MASTER HEADER
-========================= */
+/* ==========================================================
+   HEADER
+========================================================== */
 
 .header{
-  min-height:92px;
-  background:linear-gradient(180deg,#ffffff,#ececec);
+  position:relative;
+  min-height:96px;
+  background:linear-gradient(180deg,#fff,#ececec);
   display:grid;
-  grid-template-columns:360px minmax(280px,1fr) 520px;
+  grid-template-columns:380px 1fr 620px;
   align-items:center;
   border-bottom:2px solid var(--red);
+  overflow:visible;
 }
 
 .logo-tab{
-  height:92px;
-  background:linear-gradient(145deg,#171717,#070707 65%,#000);
-  clip-path:polygon(0 0,78% 0,100% 100%,0 100%);
+  height:96px;
+  background:
+    linear-gradient(
+      145deg,
+      #171717,
+      #070707 65%,
+      #000
+    );
+  clip-path:
+    polygon(
+      0 0,
+      78% 0,
+      100% 100%,
+      0 100%
+    );
   display:flex;
   align-items:center;
   padding-left:26px;
@@ -172,7 +267,13 @@ a{text-decoration:none;color:inherit;}
   width:140px;
   height:16px;
   background:var(--red);
-  clip-path:polygon(0 0,92% 0,100% 100%,0 100%);
+  clip-path:
+    polygon(
+      0 0,
+      92% 0,
+      100% 100%,
+      0 100%
+    );
 }
 
 .logo-tab:after{
@@ -185,7 +286,10 @@ a{text-decoration:none;color:inherit;}
   background:var(--red);
 }
 
-.logo-tab img{width:270px;max-width:82%;}
+.logo-tab img{
+  width:270px;
+  max-width:82%;
+}
 
 .header-title{
   color:#111;
@@ -199,10 +303,11 @@ a{text-decoration:none;color:inherit;}
 }
 
 .header-tools{
-  display:grid;
-  grid-template-rows:auto auto;
-  gap:8px;
-  padding:12px 20px 10px 4px;
+  position:relative;
+  z-index:20;
+  overflow:visible;
+  display:block;
+  padding:10px 18px 0 0;
 }
 
 .utility-row{
@@ -210,6 +315,7 @@ a{text-decoration:none;color:inherit;}
   justify-content:flex-end;
   align-items:center;
   gap:10px;
+  margin-bottom:8px;
 }
 
 .utility-search{
@@ -226,7 +332,9 @@ a{text-decoration:none;color:inherit;}
   outline:none;
 }
 
-.utility-search::placeholder{color:#555;}
+.utility-search::placeholder{
+  color:#555;
+}
 
 .user-icon{
   width:30px;
@@ -235,56 +343,46 @@ a{text-decoration:none;color:inherit;}
   border-radius:50%;
 }
 
-.role-nav{
+.top-nav{
   display:flex;
-  align-items:center;
   justify-content:flex-end;
   gap:7px;
-  width:100%;
+  visibility:visible;
+  opacity:1;
+  overflow:visible;
+  white-space:nowrap;
+  position:relative;
+  z-index:30;
 }
 
-.role-tabs{
+.top-nav a{
   display:flex;
+  height:30px;
+  min-width:80px;
   align-items:center;
-  justify-content:flex-end;
-  gap:6px;
-  flex-wrap:wrap;
-}
-
-.role-tab{
+  justify-content:center;
+  padding:0 9px;
   color:#111;
-  border:1px solid rgba(0,0,0,.16);
-  background:rgba(255,255,255,.45);
-  padding:8px 9px;
+  border:1px solid rgba(0,0,0,.22);
+  background:rgba(255,255,255,.55);
   font-size:.56rem;
   font-weight:900;
-  letter-spacing:.10em;
   text-transform:uppercase;
 }
 
-.role-tab.active{
+.top-nav a.active{
   color:var(--red);
   border-color:var(--red);
   background:rgba(255,43,31,.08);
 }
 
-.multi-box-tab{
-  margin-left:18px;
-  color:#fff;
-  background:linear-gradient(145deg,#181818,#050505);
-  border:1px solid var(--red);
-  box-shadow:0 0 0 1px rgba(255,43,31,.18) inset;
-  padding:9px 12px;
-  font-size:.56rem;
-  font-weight:900;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  white-space:nowrap;
+/* ==========================================================
+   MAIN
+========================================================== */
+
+.main{
+  padding:18px 24px 0;
 }
-
-/* MAIN */
-
-.main{padding:18px 24px 0;}
 
 .record-header{
   display:flex;
@@ -307,7 +405,12 @@ a{text-decoration:none;color:inherit;}
 
 .record-title{
   margin:0;
-  font-family:"Arial Narrow","Helvetica Neue Condensed",Impact,Arial,sans-serif;
+  font-family:
+    "Arial Narrow",
+    "Helvetica Neue Condensed",
+    Impact,
+    Arial,
+    sans-serif;
   font-size:3.2rem;
   line-height:.9;
   letter-spacing:-.05em;
@@ -325,16 +428,71 @@ a{text-decoration:none;color:inherit;}
   background:rgba(255,255,255,.02);
 }
 
+.record-demo.denied{
+  color:#ff8d8d;
+  border-color:rgba(255,43,31,.5);
+}
+
+.record-demo.ready{
+  color:var(--green);
+  border-color:rgba(37,211,102,.45);
+}
+
+/* ==========================================================
+   ACCESS STATE
+========================================================== */
+
+.access-state{
+  display:none;
+  margin-bottom:16px;
+  border:1px solid rgba(255,43,31,.42);
+  border-left:4px solid var(--red);
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255,43,31,.12),
+      rgba(255,255,255,.015)
+    );
+  padding:18px;
+}
+
+.access-state.active{
+  display:block;
+}
+
+.access-state b{
+  display:block;
+  color:var(--red);
+  font-size:.76rem;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+}
+
+.access-state p{
+  margin:8px 0 0;
+  color:#e8f3f8;
+  font-size:.82rem;
+  line-height:1.5;
+  font-weight:800;
+}
+
+/* ==========================================================
+   HERO
+========================================================== */
+
 .hero-grid{
   display:grid;
   grid-template-columns:32% 43% 25%;
   gap:10px;
 }
 
-.panel,.block{
+.panel,
+.block{
   background:var(--panel);
   border:1px solid var(--line);
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.025);
+  box-shadow:
+    inset 0 0 0 1px
+    rgba(255,255,255,.025);
 }
 
 .label{
@@ -345,17 +503,29 @@ a{text-decoration:none;color:inherit;}
   text-transform:uppercase;
 }
 
-/* ATHLETE IMAGE */
+/* ==========================================================
+   IMAGE
+========================================================== */
 
-.image-card{padding:14px;}
+.image-card{
+  padding:14px;
+}
 
 .image-frame{
   margin-top:14px;
   height:290px;
   border:1px solid rgba(255,255,255,.16);
   background:
-    radial-gradient(circle at 50% 30%,rgba(126,216,255,.14),transparent 38%),
-    linear-gradient(180deg,rgba(255,255,255,.03),rgba(0,0,0,.34));
+    radial-gradient(
+      circle at 50% 30%,
+      rgba(126,216,255,.14),
+      transparent 38%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.03),
+      rgba(0,0,0,.34)
+    );
   display:flex;
   align-items:center;
   justify-content:center;
@@ -442,7 +612,9 @@ a{text-decoration:none;color:inherit;}
   line-height:1.22;
 }
 
-/* IDENTITY PANEL */
+/* ==========================================================
+   IDENTITY
+========================================================== */
 
 .identity-card{
   padding:16px 18px;
@@ -468,7 +640,12 @@ a{text-decoration:none;color:inherit;}
 
 .name{
   margin:16px 0 12px;
-  font-family:"Arial Narrow","Helvetica Neue Condensed",Impact,Arial,sans-serif;
+  font-family:
+    "Arial Narrow",
+    "Helvetica Neue Condensed",
+    Impact,
+    Arial,
+    sans-serif;
   font-size:clamp(2.4rem,3.3vw,3.3rem);
   line-height:.84;
   letter-spacing:-.05em;
@@ -514,7 +691,12 @@ a{text-decoration:none;color:inherit;}
 .projection{
   margin-top:14px;
   border-left:3px solid var(--red);
-  background:linear-gradient(90deg,rgba(255,43,31,.10),rgba(255,255,255,.015));
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255,43,31,.10),
+      rgba(255,255,255,.015)
+    );
   padding:14px;
 }
 
@@ -541,9 +723,13 @@ a{text-decoration:none;color:inherit;}
   font-size:.88rem;
 }
 
-/* RIGHT INTELLIGENCE */
+/* ==========================================================
+   SCORE / INTELLIGENCE
+========================================================== */
 
-.score-card{padding:14px 14px 16px;}
+.score-card{
+  padding:14px 14px 16px;
+}
 
 .score-ring{
   width:126px;
@@ -554,7 +740,14 @@ a{text-decoration:none;color:inherit;}
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  background:conic-gradient(from 220deg,var(--gold),var(--red),rgba(255,255,255,.08),var(--gold));
+  background:
+    conic-gradient(
+      from 220deg,
+      var(--gold),
+      var(--red),
+      rgba(255,255,255,.08),
+      var(--gold)
+    );
   position:relative;
 }
 
@@ -566,7 +759,8 @@ a{text-decoration:none;color:inherit;}
   background:#111822;
 }
 
-.score-ring span,.score-ring b{
+.score-ring span,
+.score-ring b{
   position:relative;
   z-index:2;
 }
@@ -581,7 +775,9 @@ a{text-decoration:none;color:inherit;}
   text-align:center;
 }
 
-.score-ring span:first-of-type{transform:translateY(4px);}
+.score-ring span:first-of-type{
+  transform:translateY(4px);
+}
 
 .score-ring b{
   font-size:2.8rem;
@@ -593,7 +789,7 @@ a{text-decoration:none;color:inherit;}
   color:var(--gold);
   font-size:.48rem;
   line-height:1.05;
-  max-width:78px;
+  max-width:82px;
   margin-top:4px;
 }
 
@@ -608,7 +804,12 @@ a{text-decoration:none;color:inherit;}
 .intelligence-status{
   margin-top:12px;
   border:1px solid rgba(255,255,255,.12);
-  background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.01));
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.02),
+      rgba(255,255,255,.01)
+    );
 }
 
 .intelligence-status-header{
@@ -654,9 +855,21 @@ a{text-decoration:none;color:inherit;}
   line-height:1.15;
 }
 
-.intelligence-row b.warning{color:var(--gold);}
-.intelligence-row b.locked{color:#ff7c7c;}
-.intelligence-row b.live{color:var(--green);}
+.intelligence-row b.warning{
+  color:var(--gold);
+}
+
+.intelligence-row b.locked{
+  color:#ff7c7c;
+}
+
+.intelligence-row b.live{
+  color:var(--green);
+}
+
+/* ==========================================================
+   ACTIONS
+========================================================== */
 
 .action-stack{
   display:grid;
@@ -675,7 +888,12 @@ a{text-decoration:none;color:inherit;}
   font-size:.60rem;
   font-weight:900;
   letter-spacing:.11em;
-  background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.01));
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.025),
+      rgba(255,255,255,.01)
+    );
   transition:.18s ease;
 }
 
@@ -687,27 +905,52 @@ a{text-decoration:none;color:inherit;}
 .action.primary{
   border-color:var(--red);
   color:var(--red);
-  background:linear-gradient(180deg,rgba(255,43,31,.10),rgba(255,255,255,.015));
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,43,31,.10),
+      rgba(255,255,255,.015)
+    );
 }
 
-.action.secondary{color:#e9eef2;}
+.action.secondary{
+  color:#e9eef2;
+}
 
 .action.locked{
   color:#6d7680;
   border-color:rgba(255,255,255,.08);
-  background:linear-gradient(180deg,rgba(255,255,255,.015),rgba(255,255,255,.008));
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.015),
+      rgba(255,255,255,.008)
+    );
   cursor:not-allowed;
 }
 
-.action.locked span{color:#ff9c9c;}
+.action.locked span{
+  color:#ff9c9c;
+}
 
 .action.approved{
   border-color:var(--green);
   color:var(--green);
-  background:linear-gradient(180deg,rgba(37,211,102,.10),rgba(255,255,255,.015));
+  background:
+    linear-gradient(
+      180deg,
+      rgba(37,211,102,.10),
+      rgba(255,255,255,.015)
+    );
 }
 
-/* METRICS */
+.action[aria-disabled="true"]{
+  pointer-events:none;
+}
+
+/* ==========================================================
+   METRICS
+========================================================== */
 
 .metric-row{
   display:grid;
@@ -744,7 +987,9 @@ a{text-decoration:none;color:inherit;}
   line-height:1.32;
 }
 
-/* LOWER GRID */
+/* ==========================================================
+   LOWER GRID
+========================================================== */
 
 .lower-grid{
   display:grid;
@@ -780,7 +1025,9 @@ a{text-decoration:none;color:inherit;}
   font-size:.78rem;
 }
 
-/* TRAITS */
+/* ==========================================================
+   TRAITS
+========================================================== */
 
 .traits{
   margin-top:12px;
@@ -833,6 +1080,16 @@ a{text-decoration:none;color:inherit;}
   box-shadow:0 0 10px rgba(244,197,66,.18);
 }
 
+.pending-fill{
+  opacity:.22;
+  background:
+    linear-gradient(
+      90deg,
+      #5f6772,
+      #8b95a1
+    );
+}
+
 .trait-score{
   font-weight:900;
   font-size:.70em;
@@ -842,25 +1099,24 @@ a{text-decoration:none;color:inherit;}
   text-transform:uppercase;
 }
 
-.pending-fill{
-  opacity:.22;
-  background:linear-gradient(90deg,#5f6772,#8b95a1);
-}
-
 .trait-score.pending{
   color:var(--gold);
   letter-spacing:.12em;
   font-size:.58rem;
 }
 
-/* EXPLAINABLE INTELLIGENCE PANEL */
+/* ==========================================================
+   EXPLAINABILITY
+========================================================== */
 
 .sc-intelligence-panel{
   margin-top:18px;
   border:1px solid rgba(255,255,255,.12);
   background:rgba(6,10,18,.70);
   padding:18px;
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.025);
+  box-shadow:
+    inset 0 0 0 1px
+    rgba(255,255,255,.025);
 }
 
 .sc-intel-header{
@@ -901,7 +1157,8 @@ a{text-decoration:none;color:inherit;}
 
 .sc-intel-grid{
   display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
+  grid-template-columns:
+    repeat(3,minmax(0,1fr));
   gap:10px;
 }
 
@@ -916,7 +1173,12 @@ a{text-decoration:none;color:inherit;}
 
 .sc-intel-card.primary{
   border-color:var(--red);
-  background:linear-gradient(180deg,rgba(255,43,31,.10),rgba(255,255,255,.018));
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,43,31,.10),
+      rgba(255,255,255,.018)
+    );
 }
 
 .sc-intel-card span{
@@ -932,7 +1194,8 @@ a{text-decoration:none;color:inherit;}
   display:block;
   margin-top:8px;
   color:#fff;
-  font-size:clamp(1rem,1.25vw,1.22rem);
+  font-size:
+    clamp(1rem,1.25vw,1.22rem);
   line-height:1.12;
   text-transform:uppercase;
 }
@@ -948,7 +1211,12 @@ a{text-decoration:none;color:inherit;}
 .sc-why-panel{
   margin-top:12px;
   border-left:3px solid var(--red);
-  background:linear-gradient(90deg,rgba(255,43,31,.10),rgba(255,255,255,.015));
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255,43,31,.10),
+      rgba(255,255,255,.015)
+    );
   padding:14px;
 }
 
@@ -973,13 +1241,18 @@ a{text-decoration:none;color:inherit;}
   font-weight:800;
 }
 
-/* FLOW */
+/* ==========================================================
+   FLOW
+========================================================== */
 
 .flow{
   margin-top:12px;
   min-height:70px;
   display:grid;
-  grid-template-columns:170px repeat(6,1fr) 190px;
+  grid-template-columns:
+    170px
+    repeat(6,1fr)
+    190px;
   align-items:stretch;
   border:1px solid rgba(255,255,255,.10);
   background:rgba(4,7,12,.60);
@@ -1019,18 +1292,31 @@ a{text-decoration:none;color:inherit;}
 
 .flow-step.clickable{
   border-left:1px solid rgba(126,216,255,.25);
-  background:linear-gradient(180deg,rgba(126,216,255,.07),rgba(255,255,255,.012));
+  background:
+    linear-gradient(
+      180deg,
+      rgba(126,216,255,.07),
+      rgba(255,255,255,.012)
+    );
   cursor:pointer;
 }
 
 .flow-step.clickable:hover{
   transform:translateY(-1px);
   border-color:var(--red);
-  box-shadow:0 0 0 1px rgba(255,43,31,.25) inset;
+  box-shadow:
+    0 0 0 1px
+    rgba(255,43,31,.25)
+    inset;
 }
 
-.flow-step.clickable b{color:#fff;}
-.flow-step.clickable span{color:var(--blue);}
+.flow-step.clickable b{
+  color:#fff;
+}
+
+.flow-step.clickable span{
+  color:var(--blue);
+}
 
 .flow .action{
   min-height:auto;
@@ -1039,14 +1325,20 @@ a{text-decoration:none;color:inherit;}
   border-bottom:0;
 }
 
-/* FOOTER */
+/* ==========================================================
+   FOOTER
+========================================================== */
 
 .footer{
   min-height:60px;
   margin-top:8px;
   border-top:1px solid rgba(255,255,255,.08);
   display:grid;
-  grid-template-columns:220px 1fr 300px 260px;
+  grid-template-columns:
+    220px
+    1fr
+    300px
+    260px;
   align-items:center;
   color:#cdd7df;
   font-size:.68rem;
@@ -1054,10 +1346,18 @@ a{text-decoration:none;color:inherit;}
   text-transform:uppercase;
 }
 
-.footer img{width:185px;}
-.demo-ok{color:var(--green);font-weight:900;}
+.footer img{
+  width:185px;
+}
 
-/* RESPONSIVE */
+.demo-ok{
+  color:var(--green);
+  font-weight:900;
+}
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
 
 @media(max-width:1180px){
   .header{
@@ -1070,21 +1370,36 @@ a{text-decoration:none;color:inherit;}
   }
 
   .header-tools{
-    grid-column:1 / -1;
+    grid-column:1/-1;
     padding:10px 18px 12px;
     border-top:1px solid rgba(0,0,0,.08);
   }
 
-  .role-nav,.utility-row{justify-content:center;}
+  .top-nav,
+  .utility-row{
+    justify-content:center;
+  }
 }
 
 @media(max-width:1100px){
-  .sc-intel-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .sc-intel-grid{
+    grid-template-columns:
+      repeat(2,minmax(0,1fr));
+  }
 }
 
 @media(max-width:900px){
-  .header,.hero-grid,.metric-row,.lower-grid,.flow,.footer{
+  .header,
+  .hero-grid,
+  .metric-row,
+  .lower-grid,
+  .flow,
+  .footer{
     grid-template-columns:1fr;
+  }
+
+  .header{
+    height:auto;
   }
 
   .logo-tab{
@@ -1097,7 +1412,9 @@ a{text-decoration:none;color:inherit;}
     padding:14px;
   }
 
-  .header-tools{padding:12px;}
+  .header-tools{
+    padding:12px;
+  }
 
   .utility-row{
     justify-content:space-between;
@@ -1107,102 +1424,59 @@ a{text-decoration:none;color:inherit;}
     width:calc(100% - 44px);
   }
 
-  .role-nav{
+  .top-nav{
     justify-content:flex-start;
     overflow-x:auto;
     padding-bottom:4px;
   }
 
-  .role-tabs{
-    flex-wrap:nowrap;
-    justify-content:flex-start;
+  .main{
+    padding:16px 12px 0;
   }
-
-  .multi-box-tab{
-    margin-left:18px;
-  }
-
-  .main{padding:16px 12px 0;}
 
   .record-header{
     flex-direction:column;
     align-items:flex-start;
   }
 
-  .record-title{font-size:2.5rem;}
-  .name{font-size:2.8rem;}
-  .image-frame{height:340px;}
+  .record-title{
+    font-size:2.5rem;
+  }
 
-  .sc-intel-grid{grid-template-columns:1fr;}
-  .sc-intel-header{flex-direction:column;}
-  .sc-badge{white-space:normal;}
+  .name{
+    font-size:2.8rem;
+  }
+
+  .image-frame{
+    height:340px;
+  }
+
+  .sc-intel-grid{
+    grid-template-columns:1fr;
+  }
+
+  .sc-intel-header{
+    flex-direction:column;
+  }
+
+  .sc-badge{
+    white-space:normal;
+  }
 
   .trait{
-    grid-template-columns:145px 1fr 66px;
+    grid-template-columns:
+      145px 1fr 66px;
   }
 
-  .flow-title,.flow-step,.flow .action{
+  .flow-title,
+  .flow-step,
+  .flow .action{
     border-left:0;
-    border-top:1px solid rgba(255,255,255,.08);
+    border-top:
+      1px solid
+      rgba(255,255,255,.08);
   }
 }
-
-/* HARD FORCE HEADER NAV VISIBILITY */
-.header{
-  position:relative !important;
-  height:96px !important;
-  min-height:96px !important;
-  grid-template-columns:380px 1fr 620px !important;
-  overflow:visible !important;
-}
-
-.header-tools{
-  position:relative !important;
-  z-index:20 !important;
-  overflow:visible !important;
-  display:block !important;
-  padding:10px 18px 0 0 !important;
-}
-
-.utility-row{
-  display:flex !important;
-  justify-content:flex-end !important;
-  margin-bottom:8px !important;
-}
-
-.top-nav{
-  display:flex !important;
-  justify-content:flex-end !important;
-  gap:7px !important;
-  visibility:visible !important;
-  opacity:1 !important;
-  overflow:visible !important;
-  white-space:nowrap !important;
-  position:relative !important;
-  z-index:30 !important;
-}
-
-.top-nav a{
-  display:flex !important;
-  height:30px !important;
-  min-width:80px !important;
-  align-items:center !important;
-  justify-content:center !important;
-  padding:0 9px !important;
-  color:#111 !important;
-  border:1px solid rgba(0,0,0,.22) !important;
-  background:rgba(255,255,255,.55) !important;
-  font-size:.56rem !important;
-  font-weight:900 !important;
-  text-transform:uppercase !important;
-}
-
-.top-nav a.active{
-  color:var(--red) !important;
-  border-color:var(--red) !important;
-  background:rgba(255,43,31,.08) !important;
-} 
-     
 </style>
 </head>
 
@@ -1210,8 +1484,15 @@ a{text-decoration:none;color:inherit;}
 <div class="page">
 
 <header class="header">
-  <a class="logo-tab" href="index.html">
-    <img src="sc_logo_i.png" alt="STATS-CORE Athlete Lifecycle System">
+
+  <a
+    class="logo-tab"
+    href="index.html"
+  >
+    <img
+      src="sc_logo_i.png"
+      alt="STATS-CORE Athlete Lifecycle System"
+    >
   </a>
 
   <div class="header-title">
@@ -1220,697 +1501,4313 @@ a{text-decoration:none;color:inherit;}
   </div>
 
   <div class="header-tools">
+
     <div class="utility-row">
-      <input class="utility-search" type="search" placeholder="Search athlete intelligence..." aria-label="Search athlete intelligence">
-      <div class="user-icon" aria-hidden="true"></div>
+      <input
+        class="utility-search"
+        type="search"
+        placeholder="Search athlete intelligence..."
+        aria-label="Search athlete intelligence"
+        disabled
+      >
+
+      <div
+        class="user-icon"
+        aria-hidden="true"
+      ></div>
     </div>
 
     <nav class="top-nav">
-  <a href="athlete-dashboard.html">⌂ Dashboard</a>
-  <a class="active" href="player-profile.html">♙ Profile</a>
-  <a href="crystal-report.html">▥ Reports</a>
-  <a href="multi-box.html">✉ Messages</a>
-  <a href="profile-access.html">⚙ Settings</a>
-  <a href="privacy.html">Privacy</a>
-  <a href="terms.html">Terms</a>
-</nav> 
+      <a
+        id="navDashboard"
+        href="athlete-dashboard.html"
+      >
+        ⌂ Dashboard
+      </a>
+
+      <a
+        class="active"
+        id="navProfile"
+        href="player-profile.html"
+      >
+        ♙ Profile
+      </a>
+
+      <a
+        id="navReports"
+        href="crystal-registry.html"
+      >
+        ▥ Reports
+      </a>
+
+      <a
+        id="navMessages"
+        href="multi-box.html"
+      >
+        ✉ Messages
+      </a>
+
+      <a
+        id="navSettings"
+        href="profile-access.html"
+      >
+        ⚙ Settings
+      </a>
+
+      <a href="privacy.html">
+        Privacy
+      </a>
+
+      <a href="terms.html">
+        Terms
+      </a>
+    </nav>
+
   </div>
-</header> 
-  
+
+</header>
+
 <main class="main">
 
 <section class="record-header">
+
   <div>
-    <div class="record-kicker">Explainable Athlete Intelligence Record</div>
-    <h1 class="record-title">Player Profile</h1>
+    <div class="record-kicker">
+      Explainable Athlete Intelligence Record
+    </div>
+
+    <h1 class="record-title">
+      Player Profile
+    </h1>
   </div>
-  <div class="record-demo" id="recordStatus">Snapshot Pending</div>
+
+  <div
+    class="record-demo"
+    id="recordStatus"
+  >
+    Authorization Pending
+  </div>
+
+</section>
+
+<section
+  class="access-state"
+  id="accessState"
+  aria-live="polite"
+>
+  <b id="accessStateTitle">
+    Athlete Profile State
+  </b>
+
+  <p id="accessStateMessage">
+    Governed athlete context is being resolved.
+  </p>
 </section>
 
 <section class="hero-grid">
 
   <aside class="panel image-card">
-    <div class="label">Athlete Image</div>
-    <div class="image-frame" id="athleteImageFrame">Athlete Image</div>
+
+    <div class="label">
+      Athlete Image
+    </div>
+
+    <div
+      class="image-frame"
+      id="athleteImageFrame"
+    >
+      Athlete Image Pending
+    </div>
 
     <div class="athlete-caption">
+
       <div>
-        <b id="captionName">Athlete Name</b>
-        <span id="captionMeta">Position · Class Year</span>
+        <b id="captionName">
+          Athlete Name
+        </b>
+
+        <span id="captionMeta">
+          Position · Class Year
+        </span>
       </div>
-      <div class="verified" id="verificationBadge">Pending</div>
+
+      <div
+        class="verified"
+        id="verificationBadge"
+      >
+        Pending
+      </div>
+
     </div>
 
     <section class="athlete-dossier">
-      <div class="dossier-row"><span>Archetype</span><b id="dossierArchetype">Pending</b></div>
-      <div class="dossier-row"><span>Production Signal</span><b id="dossierProductionSignal">Pending</b></div>
-      <div class="dossier-row"><span>Translation</span><b id="dossierTranslation">Pending</b></div>
-      <div class="dossier-row"><span>Athletic Evidence</span><b id="dossierAthleticSignal">Pending</b></div>
-      <div class="dossier-row"><span>Verification</span><b id="dossierVerification">Unverified</b></div>
-      <div class="dossier-row"><span>Visibility</span><b id="dossierVisibility">Limited</b></div>
+
+      <div class="dossier-row">
+        <span>Archetype</span>
+        <b id="dossierArchetype">
+          Pending
+        </b>
+      </div>
+
+      <div class="dossier-row">
+        <span>Production Signal</span>
+        <b id="dossierProductionSignal">
+          Pending
+        </b>
+      </div>
+
+      <div class="dossier-row">
+        <span>Translation</span>
+        <b id="dossierTranslation">
+          Pending
+        </b>
+      </div>
+
+      <div class="dossier-row">
+        <span>Athletic Intelligence</span>
+        <b id="dossierAthleticSignal">
+          Pending
+        </b>
+      </div>
+
+      <div class="dossier-row">
+        <span>Verification</span>
+        <b id="dossierVerification">
+          Unverified
+        </b>
+      </div>
+
+      <div class="dossier-row">
+        <span>Publication</span>
+        <b id="dossierVisibility">
+          Not Published
+        </b>
+      </div>
+
     </section>
+
   </aside>
 
   <article class="panel identity-card">
-    <div class="identity-kicker">Athlete Identity</div>
-    <div class="identity-sub" id="identitySub">Snapshot Pending</div>
 
-    <h2 class="name" id="athleteName">
+    <div class="identity-kicker">
+      Athlete Identity
+    </div>
+
+    <div
+      class="identity-sub"
+      id="identitySub"
+    >
+      Governed Snapshot Pending
+    </div>
+
+    <h2
+      class="name"
+      id="athleteName"
+    >
       Athlete
       <span>Profile</span>
     </h2>
 
     <div class="tags">
-      <div class="tag" id="tagPosition">Position</div>
-      <div class="tag" id="tagHeight">Height</div>
-      <div class="tag" id="tagWeight">Weight</div>
-      <div class="tag" id="tagCity">City, State</div>
-      <div class="tag" id="tagSchool">School / Program</div>
-      <div class="tag" id="tagClass">Class Year</div>
+
+      <div
+        class="tag"
+        id="tagPosition"
+      >
+        Position
+      </div>
+
+      <div
+        class="tag"
+        id="tagHeight"
+      >
+        Height
+      </div>
+
+      <div
+        class="tag"
+        id="tagWeight"
+      >
+        Weight
+      </div>
+
+      <div
+        class="tag"
+        id="tagCity"
+      >
+        City, State
+      </div>
+
+      <div
+        class="tag"
+        id="tagSchool"
+      >
+        School / Program
+      </div>
+
+      <div
+        class="tag"
+        id="tagClass"
+      >
+        Class Year
+      </div>
+
     </div>
 
     <div>
-      <span class="stars" id="starDisplay">☆☆☆☆☆</span>
-      <span class="signal" id="signalText">Evaluation Pending</span>
+      <span
+        class="stars"
+        id="starDisplay"
+      >
+        ☆☆☆☆☆
+      </span>
+
+      <span
+        class="signal"
+        id="signalText"
+      >
+        Intelligence Pending
+      </span>
     </div>
 
     <div class="projection">
-      <div class="small">Position Production Outlook</div>
-      <b id="evaluationStatus">Pending Snapshot Intelligence</b>
+
+      <div class="small">
+        Position Intelligence Outlook
+      </div>
+
+      <b id="evaluationStatus">
+        Governed Intelligence Pending
+      </b>
+
     </div>
 
-    <p class="bio" id="profileBio">
-      STATS-CORE evaluates the athlete through position-specific production intelligence, evidence support, verification status, and parent-controlled release governance.
+    <p
+      class="bio"
+      id="profileBio"
+    >
+      STATS-CORE presents governed athlete intelligence
+      produced by its constitutional authorities.
     </p>
+
   </article>
 
   <aside class="panel score-card">
-    <div class="label">STATS-CORE Intelligence</div>
 
-    <div class="score-ring">
-      <span>STATS-CORE</span>
-      <b id="scoreValue">--</b>
-      <span id="scoreStatus">Pending</span>
+    <div class="label">
+      STATS-CORE Intelligence
     </div>
 
-    <p class="score-note" id="scoreNote">
-      STATS-CORE score is evidence-supported and marked unverified until coach, evaluator, film, or trusted production verification is complete.
+    <div class="score-ring">
+
+      <span>
+        STATS-CORE
+      </span>
+
+      <b id="scoreValue">
+        --
+      </b>
+
+      <span id="scoreStatus">
+        Pending
+      </span>
+
+    </div>
+
+    <p
+      class="score-note"
+      id="scoreNote"
+    >
+      Official intelligence is shown only when supplied
+      by the governing Stream 9 authority.
     </p>
 
     <section class="intelligence-status">
-      <div class="intelligence-status-header">Governance Intelligence</div>
-      <div class="intelligence-status-body">
-        <div class="intelligence-row">
-          <span>Guardian Status</span>
-          <b class="warning" id="guardianStatus">Parent Approval Required</b>
-        </div>
-        <div class="intelligence-row">
-          <span>Visibility</span>
-          <b id="visibilityStatus">Limited</b>
-        </div>
-        <div class="intelligence-row">
-          <span>Recruiting</span>
-          <b class="locked" id="recruitingStatus">Locked</b>
-        </div>
+
+      <div class="intelligence-status-header">
+        Governance Intelligence
       </div>
+
+      <div class="intelligence-status-body">
+
+        <div class="intelligence-row">
+          <span>Guardian State</span>
+          <b
+            class="warning"
+            id="guardianStatus"
+          >
+            Governed State Pending
+          </b>
+        </div>
+
+        <div class="intelligence-row">
+          <span>Publication</span>
+          <b id="visibilityStatus">
+            Not Established
+          </b>
+        </div>
+
+        <div class="intelligence-row">
+          <span>Recruiting Disclosure</span>
+          <b
+            class="locked"
+            id="recruitingStatus"
+          >
+            Not Established
+          </b>
+        </div>
+
+      </div>
+
     </section>
 
     <div class="action-stack">
-      <a class="action primary" id="parentApprovalAction" href="#">Request Parent Approval <span>›</span></a>
-      <a class="action secondary" id="verificationAction" href="#">Request Verification <span>›</span></a>
-      <a class="action secondary" id="snapshotPathAction" href="snapshot-intake.html">View Snapshot Path <span>›</span></a>
-      <div class="action locked" id="shareProfileAction">🔒 Share Profile <span>Locked</span></div>
-      <div class="action locked" id="recruiterAccessAction">🔒 Recruiter Access <span>Locked</span></div>
+
+      <a
+        class="action primary"
+        id="parentApprovalAction"
+        href="parent-approval.html"
+      >
+        Parent Approval
+        <span>›</span>
+      </a>
+
+      <a
+        class="action secondary"
+        id="verificationAction"
+        href="verification-request.html"
+      >
+        Verification Request
+        <span>›</span>
+      </a>
+
+      <a
+        class="action secondary"
+        id="snapshotPathAction"
+        href="athletic-snapshot.html"
+      >
+        View Snapshot
+        <span>›</span>
+      </a>
+
+      <div
+        class="action locked"
+        id="shareProfileAction"
+      >
+        🔒 Share Profile
+        <span>Governed</span>
+      </div>
+
+      <div
+        class="action locked"
+        id="recruiterAccessAction"
+      >
+        🔒 Recruiting Disclosure
+        <span>Governed</span>
+      </div>
+
     </div>
+
   </aside>
 
 </section>
 
 <section class="metric-row">
-  <div class="metric"><h3>Speed / Separation</h3><b id="metricSpeed">--</b><p>Acceleration, vertical spacing, and separation potential by position.</p></div>
-  <div class="metric"><h3>Explosive Profile</h3><b id="metricExplosive">--</b><p>Burst, vertical threat, body control, and field-opening athletic evidence.</p></div>
-  <div class="metric"><h3>Production Readiness</h3><b id="metricReadiness">--</b><p>Current football-readiness stage based on submitted production evidence.</p></div>
-  <div class="metric"><h3>Release Status</h3><b id="metricVisibility">--</b><p>Parent release, profile visibility, recruiting access, and media permissions.</p></div>
+
+  <div class="metric">
+    <h3>Athletic Signal</h3>
+    <b id="metricSpeed">--</b>
+    <p>
+      Governed athletic-domain intelligence.
+    </p>
+  </div>
+
+  <div class="metric">
+    <h3>Production Signal</h3>
+    <b id="metricExplosive">--</b>
+    <p>
+      Governed production-domain intelligence.
+    </p>
+  </div>
+
+  <div class="metric">
+    <h3>Readiness</h3>
+    <b id="metricReadiness">--</b>
+    <p>
+      Governed readiness state from Stream 9.
+    </p>
+  </div>
+
+  <div class="metric">
+    <h3>Publication State</h3>
+    <b id="metricVisibility">--</b>
+    <p>
+      Governed publication/exposure state from Stream 7.
+    </p>
+  </div>
+
 </section>
 
 <section class="lower-grid">
+
   <article class="block">
-    <div class="label">Evidence Layer</div>
-    <h2>Proof Stack</h2>
-    <div class="list-item"><b>Game Film</b><span id="gameFilmStatus">Film evidence not submitted.</span></div>
-    <div class="list-item"><b>Camp / Combine</b><span id="campStatus">Event evidence pending.</span></div>
-    <div class="list-item"><b>Media Exposure</b><span id="mediaStatus">PHNX Sports media release requires parent approval.</span></div>
+
+    <div class="label">
+      Evidence Layer
+    </div>
+
+    <h2>
+      Proof Stack
+    </h2>
+
+    <div class="list-item">
+      <b>Evidence State</b>
+      <span id="gameFilmStatus">
+        Governed evidence state pending.
+      </span>
+    </div>
+
+    <div class="list-item">
+      <b>Verification Evidence</b>
+      <span id="campStatus">
+        Verification evidence state pending.
+      </span>
+    </div>
+
+    <div class="list-item">
+      <b>Media Publication</b>
+      <span id="mediaStatus">
+        Publication state pending Stream 7 authority.
+      </span>
+    </div>
+
   </article>
 
   <article class="block">
-    <div class="label">Release Governance</div>
-    <h2>Controlled Access</h2>
-    <div class="list-item"><b>Recruiter View</b><span id="recruiterViewStatus">Recruiter visibility is governed by parent release and verification status.</span></div>
-    <div class="list-item"><b>Contact Status</b><span id="contactStatusText">Communication routes through Multi-Box™ permissions.</span></div>
-    <div class="list-item"><b>Exposure Lane</b><span id="exposureLaneText">Exposure is based on parent release, evidence, and verification confidence.</span></div>
+
+    <div class="label">
+      Governance
+    </div>
+
+    <h2>
+      Controlled Access
+    </h2>
+
+    <div class="list-item">
+      <b>Recruiter View</b>
+      <span id="recruiterViewStatus">
+        Recruiting disclosure remains governed.
+      </span>
+    </div>
+
+    <div class="list-item">
+      <b>Communication</b>
+      <span id="contactStatusText">
+        Communication routes through Stream 6 Multi-Box™ governance.
+      </span>
+    </div>
+
+    <div class="list-item">
+      <b>Exposure Lane</b>
+      <span id="exposureLaneText">
+        Exposure state requires governed Stream 7 publication authority.
+      </span>
+    </div>
+
   </article>
 
   <article class="block">
-    <div class="label">Development Pathway</div>
-    <h2>Next Movement</h2>
-    <div class="list-item"><b>Primary Focus</b><span id="primaryFocus">Generated from production evidence and position matrix.</span></div>
-    <div class="list-item"><b>Verification Need</b><span id="verificationNeed">Coach confirmation, film review, evaluator input, or trusted metric evidence.</span></div>
-    <div class="list-item"><b>Next Snapshot</b><span id="nextSnapshotText">Update after verified production evidence is added.</span></div>
+
+    <div class="label">
+      Development Pathway
+    </div>
+
+    <h2>
+      Next Movement
+    </h2>
+
+    <div class="list-item">
+      <b>Priority</b>
+      <span id="primaryFocus">
+        Governed recommendation pending.
+      </span>
+    </div>
+
+    <div class="list-item">
+      <b>Evidence Need</b>
+      <span id="verificationNeed">
+        Governed evidence requirement pending.
+      </span>
+    </div>
+
+    <div class="list-item">
+      <b>Next Snapshot</b>
+      <span id="nextSnapshotText">
+        Historical snapshots remain immutable.
+      </span>
+    </div>
+
   </article>
+
 </section>
 
 <section class="traits">
-  <div class="label">Position Production Matrix</div>
-  <h2 style="margin:8px 0 4px;text-transform:uppercase;font-size:2.1rem;">Performance Traits</h2>
-  <p class="trait-subnote" id="traitSubnote">
-    Projected trait bars are derived from submitted snapshot metrics and position role logic. Official trait grades unlock after verification.
+
+  <div class="label">
+    Governed Position Intelligence
+  </div>
+
+  <h2 style="
+    margin:8px 0 4px;
+    text-transform:uppercase;
+    font-size:2.1rem;
+  ">
+    Performance Traits
+  </h2>
+
+  <p
+    class="trait-subnote"
+    id="traitSubnote"
+  >
+    Trait intelligence is presented only when supplied by
+    a governed Stream 9 intelligence package.
   </p>
+
   <div id="traitContainer"></div>
+
 </section>
 
 <section class="sc-intelligence-panel">
+
   <div class="sc-intel-header">
+
     <div>
-      <div class="sc-kicker">STATS-CORE Intelligence Layer</div>
-      <h2>Explainable Athlete Intelligence</h2>
+      <div class="sc-kicker">
+        STATS-CORE Intelligence Layer
+      </div>
+
+      <h2>
+        Explainable Athlete Intelligence
+      </h2>
     </div>
-    <div class="sc-badge" id="scMatrixVersion">MATRIX_PENDING</div>
+
+    <div
+      class="sc-badge"
+      id="scMatrixVersion"
+    >
+      INTELLIGENCE_PENDING
+    </div>
+
   </div>
 
   <div class="sc-intel-grid">
-    <div class="sc-intel-card primary"><span>Production Signal</span><strong id="scProductionSignal">--</strong><p id="scProductionExplanation">Awaiting position-specific production evidence.</p></div>
-    <div class="sc-intel-card"><span>Score Basis</span><strong id="scFinalScore">--</strong><p id="scScoreBasis">Score basis pending.</p></div>
-    <div class="sc-intel-card"><span>Evidence State</span><strong id="scEvidenceState">--</strong><p id="scEvidenceExplanation">Evidence support pending.</p></div>
-    <div class="sc-intel-card"><span>Translation Outlook</span><strong id="scTranslationOutlook">--</strong><p id="scTranslationExplanation">Translation analysis pending.</p></div>
-    <div class="sc-intel-card"><span>Verification Gaps</span><strong id="scVerificationGaps">--</strong><p id="scVerificationExplanation">Verification requirements pending.</p></div>
-    <div class="sc-intel-card"><span>Role Value</span><strong id="scRoleValue">--</strong><p id="scRoleValueExplanation">Role-specific value pending.</p></div>
+
+    <div class="sc-intel-card primary">
+      <span>Production Signal</span>
+      <strong id="scProductionSignal">--</strong>
+      <p id="scProductionExplanation">
+        Governed production intelligence pending.
+      </p>
+    </div>
+
+    <div class="sc-intel-card">
+      <span>Composite / Score State</span>
+      <strong id="scFinalScore">--</strong>
+      <p id="scScoreBasis">
+        Governed composite intelligence pending.
+      </p>
+    </div>
+
+    <div class="sc-intel-card">
+      <span>Evidence State</span>
+      <strong id="scEvidenceState">--</strong>
+      <p id="scEvidenceExplanation">
+        Governed evidence state pending.
+      </p>
+    </div>
+
+    <div class="sc-intel-card">
+      <span>Pathway / Translation</span>
+      <strong id="scTranslationOutlook">--</strong>
+      <p id="scTranslationExplanation">
+        Governed pathway intelligence pending.
+      </p>
+    </div>
+
+    <div class="sc-intel-card">
+      <span>Verification Gaps</span>
+      <strong id="scVerificationGaps">--</strong>
+      <p id="scVerificationExplanation">
+        Governed verification state pending.
+      </p>
+    </div>
+
+    <div class="sc-intel-card">
+      <span>Next Action</span>
+      <strong id="scRoleValue">--</strong>
+      <p id="scRoleValueExplanation">
+        Governed recommendation pending.
+      </p>
+    </div>
+
   </div>
 
   <div class="sc-why-panel">
-    <h3>Why This Signal</h3>
+
+    <h3>
+      Why This Signal
+    </h3>
+
     <ul id="scWhyList">
-      <li>Snapshot intelligence has not been generated yet.</li>
+      <li>
+        Governed explainability has not yet been supplied.
+      </li>
     </ul>
+
   </div>
+
 </section>
 
 <section class="flow">
-  <div class="flow-title">Visibility Path</div>
 
-  <a class="flow-step clickable" href="player-profile.html" id="flowProfile"><b>Profile</b><span>Public / Private View</span></a>
-  <a class="flow-step clickable" href="snapshot-intake.html" id="flowSnapshot"><b>Snapshot</b><span>Data Intake</span></a>
-  <a class="flow-step clickable" href="verification.html" id="flowVerification"><b>Verification</b><span>Trust Layer</span></a>
-  <a class="flow-step clickable" href="parent.html" id="flowParent"><b>Parent Gate</b><span>Release Approval</span></a>
-  <a class="flow-step clickable" href="multi-box.html" id="flowMultiBox"><b>Multi-Box™</b><span>Permissions</span></a>
-  <a class="flow-step clickable" href="crystal-registry.html" id="flowCrystal"><b>Crystal</b><span>Athlete Registry</span></a>
+  <div class="flow-title">
+    Athlete Lifecycle
+  </div>
 
-  <a class="action primary" id="footerParentApprovalAction" href="#">Request Approval ›</a>
+  <a
+    class="flow-step clickable"
+    href="player-profile.html"
+    id="flowProfile"
+  >
+    <b>Profile</b>
+    <span>Shared Athlete View</span>
+  </a>
+
+  <a
+    class="flow-step clickable"
+    href="athletic-snapshot.html"
+    id="flowSnapshot"
+  >
+    <b>Snapshot</b>
+    <span>Source / Presentation</span>
+  </a>
+
+  <a
+    class="flow-step clickable"
+    href="verification-request.html"
+    id="flowVerification"
+  >
+    <b>Verification</b>
+    <span>Evidence Request</span>
+  </a>
+
+  <a
+    class="flow-step clickable"
+    href="parent-approval.html"
+    id="flowParent"
+  >
+    <b>Parent Gate</b>
+    <span>Minor Governance</span>
+  </a>
+
+  <a
+    class="flow-step clickable"
+    href="multi-box.html"
+    id="flowMultiBox"
+  >
+    <b>Multi-Box™</b>
+    <span>Communication</span>
+  </a>
+
+  <a
+    class="flow-step clickable"
+    href="crystal-registry.html"
+    id="flowCrystal"
+  >
+    <b>Crystal</b>
+    <span>Publication Registry</span>
+  </a>
+
+  <a
+    class="action primary"
+    id="footerParentApprovalAction"
+    href="parent-approval.html"
+  >
+    Parent Approval ›
+  </a>
+
 </section>
 
 <footer class="footer">
-  <img src="sc_logo_i.png" alt="STATS-CORE">
-  <div>Governed Athlete Intelligence Infrastructure</div>
-  <div id="footerSnapshotState">Snapshot Intelligence Layer</div>
-  <div class="demo-ok">Operational Shell Active</div>
+
+  <div>
+    <img
+      src="sc_logo_i.png"
+      alt="STATS-CORE"
+    >
+  </div>
+
+  <div>
+    Governed Athlete Intelligence Infrastructure
+  </div>
+
+  <div id="footerSnapshotState">
+    Snapshot Context Pending
+  </div>
+
+  <div class="demo-ok">
+    Stream 3 Presentation Authority
+  </div>
+
 </footer>
 
 </main>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script>
-window.STATScoreSupabase = window.supabase.createClient(
-  "https://oyjmpbuxvfxusmbouldi.supabase.co",
-  "YOUR_SUPABASE_ANON_KEY_HERE"
-);
-</script>
+<!-- ==========================================================
+     SHARED DATA / PLATFORM AUTHORITIES
+========================================================== -->
 
 <script src="statscore-data.js"></script>
 
-<script src="statscore-stream-9-authority.js"></script>
-<script src="statscore-intelligence-doctrine.js"></script>
-<script src="statscore-score-doctrine.js"></script>
-<script src="statscore-matrix-doctrine.js"></script>
-<script src="statscore-matrix-registry.js"></script>
+<script src="phnx-session-engine.js"></script>
+<script src="phnx-professional-identity-engine.js"></script>
+<script src="phnx-workspace-runtime.js"></script>
 
-<script src="statscore-position-matrix-engine.js"></script>
-<script src="statscore-football-scoring-engine.js"></script>
+<script src="statscore-role-permission-engine.js"></script>
 
-<script src="statscore-basketball-position-matrix.js"></script>
-<script src="statscore-basketball-scoring-engine.js"></script>
+<!-- ==========================================================
+     STREAM 9 EXPLAINABILITY CONSUMER
 
-<script src="statscore-baseball-position-matrix.js"></script>
-<script src="statscore-baseball-scoring-engine.js"></script>
+     NOTE:
+     This page does NOT load sport scoring engines, matrices,
+     synthesis engines, or local scoring routers.
 
-<script src="statscore-track-position-matrix.js"></script>
-<script src="statscore-track-scoring-engine.js"></script>
+     It consumes already-governed intelligence.
+========================================================== -->
 
-<script src="statscore-sport-scoring-router.js"></script>
-
-<script src="statscore-verification-authority-engine.js"></script>
-<script src="statscore-score-authority-engine.js"></script>
-<script src="statscore-synthesis-engine.js"></script>
 <script src="statscore-explainability-engine.js"></script>
 
 <script>
 (function(){
   "use strict";
 
-  function setText(id, value, fallback = "--"){
-    const el = document.getElementById(id);
-    if(el) el.textContent = value === null || value === undefined || value === "" ? fallback : value;
+  /* ========================================================
+     PAGE IDENTITY
+  ======================================================== */
+
+  const PAGE_VERSION =
+    "PLAYER-PROFILE-V3-GOVERNED-ATHLETE-PROJECTION";
+
+
+  const ACCESS_MODE = Object.freeze({
+    ATHLETE_SELF:
+      "ATHLETE_SELF",
+
+    PROFESSIONAL_SCOPED:
+      "PROFESSIONAL_SCOPED"
+  });
+
+
+  const STATUS = Object.freeze({
+    AUTHORIZED:
+      "AUTHORIZED",
+
+    CONTEXT_REQUIRED:
+      "CONTEXT_REQUIRED",
+
+    AUTHENTICATION_REQUIRED:
+      "AUTHENTICATION_REQUIRED",
+
+    ACCESS_AUTHORITY_UNAVAILABLE:
+      "ACCESS_AUTHORITY_UNAVAILABLE",
+
+    ACCESS_DENIED:
+      "ACCESS_DENIED",
+
+    SOURCE_UNAVAILABLE:
+      "SOURCE_UNAVAILABLE",
+
+    CONTEXT_MISMATCH:
+      "CONTEXT_MISMATCH",
+
+    INTELLIGENCE_PENDING:
+      "INTELLIGENCE_PENDING",
+
+    READY:
+      "READY"
+  });
+
+
+  /* ========================================================
+     UTILITIES
+  ======================================================== */
+
+  function clean(value){
+    if(
+      value === null ||
+      value === undefined
+    ){
+      return "";
+    }
+
+    return String(value).trim();
   }
 
-  function escapeHTML(value){
-    return String(value || "")
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#039;");
+
+  function upper(value){
+    return clean(value).toUpperCase();
   }
 
-  function getSnapshotId(){
-    const params = new URLSearchParams(window.location.search);
-    return (
-      params.get("snapshot_id") ||
-      localStorage.getItem("STATSCORE_ACTIVE_SNAPSHOT_ID") ||
-      sessionStorage.getItem("STATSCORE_ACTIVE_SNAPSHOT_ID") ||
+
+  function lower(value){
+    return clean(value).toLowerCase();
+  }
+
+
+  function hasObject(value){
+    return Boolean(
+      value &&
+      typeof value === "object" &&
+      !Array.isArray(value)
+    );
+  }
+
+
+  function asArray(value){
+    return Array.isArray(value)
+      ? value
+      : [];
+  }
+
+
+  function firstDefined(){
+    for(
+      let i = 0;
+      i < arguments.length;
+      i++
+    ){
+      const value =
+        arguments[i];
+
+      if(
+        value !== undefined &&
+        value !== null &&
+        value !== ""
+      ){
+        return value;
+      }
+    }
+
+    return null;
+  }
+
+
+  function setText(
+    id,
+    value,
+    fallback = "--"
+  ){
+    const el =
+      document.getElementById(id);
+
+    if(!el){
+      return;
+    }
+
+    if(
+      value === null ||
+      value === undefined ||
+      value === ""
+    ){
+      el.textContent =
+        fallback;
+
+      return;
+    }
+
+    el.textContent =
+      String(value);
+  }
+
+
+  function showAccessState(
+    title,
+    message,
+    active = true
+  ){
+    const panel =
+      document.getElementById(
+        "accessState"
+      );
+
+    if(!panel){
+      return;
+    }
+
+    panel.classList.toggle(
+      "active",
+      Boolean(active)
+    );
+
+    setText(
+      "accessStateTitle",
+      title,
+      "Athlete Profile State"
+    );
+
+    setText(
+      "accessStateMessage",
+      message,
       ""
     );
   }
 
+
+  function setRecordStatus(
+    value,
+    className = ""
+  ){
+    const el =
+      document.getElementById(
+        "recordStatus"
+      );
+
+    if(!el){
+      return;
+    }
+
+    el.textContent =
+      value;
+
+    el.classList.remove(
+      "denied",
+      "ready"
+    );
+
+    if(className){
+      el.classList.add(
+        className
+      );
+    }
+  }
+
+
   function getDb(){
-    return window.STATScoreData?.getClient?.() || window.STATScoreSupabase || null;
+    return (
+      window.STATScoreData?.getClient?.() ||
+      window.STATScoreCore?.getClient?.() ||
+      null
+    );
   }
 
-  function n(value){
-    const num = Number(String(value ?? "").replace(/[^\d.-]/g, ""));
-    return Number.isFinite(num) ? num : null;
+
+  function nowISO(){
+    return new Date().toISOString();
   }
 
-  function storageUrl(value){
-    if(!value) return "";
-    const clean = String(value).trim();
-    if(clean.startsWith("http") || clean.startsWith("data:image")) return clean;
-    return `https://oyjmpbuxvfxusmbouldi.supabase.co/storage/v1/object/public/${clean.replace(/^\/+/,"")}`;
-  }
 
-  function splitName(fullName){
-    const parts = String(fullName || "Athlete Profile").trim().split(/\s+/);
+  /* ========================================================
+     ROUTE CONTEXT
+
+     URL parameters identify requested context.
+
+     They DO NOT establish authority.
+  ======================================================== */
+
+  function getRouteContext(){
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
     return {
-      first: parts[0] || "Athlete",
-      last: parts.slice(1).join(" ") || "Profile"
+      athlete_id:
+        clean(
+          params.get(
+            "athlete_id"
+          )
+        ),
+
+      snapshot_id:
+        clean(
+          params.get(
+            "snapshot_id"
+          )
+        ),
+
+      role:
+        clean(
+          params.get(
+            "role"
+          )
+        ),
+
+      role_id:
+        clean(
+          params.get(
+            "role_id"
+          )
+        ),
+
+      role_context_id:
+        clean(
+          params.get(
+            "role_context_id"
+          )
+        ),
+
+      role_instance_id:
+        clean(
+          params.get(
+            "role_instance_id"
+          )
+        ),
+
+      professional_id:
+        clean(
+          params.get(
+            "professional_id"
+          )
+        ),
+
+      workspace_id:
+        clean(
+          params.get(
+            "workspace_id"
+          )
+        ),
+
+      organization_id:
+        clean(
+          params.get(
+            "organization_id"
+          )
+        ),
+
+      program_id:
+        clean(
+          params.get(
+            "program_id"
+          )
+        ),
+
+      source:
+        clean(
+          params.get(
+            "source"
+          )
+        )
     };
   }
 
-  function normalizeSnapshot(row){
-    const raw = row?.raw_payload || {};
 
-    const first = row?.first_name || raw.firstName || raw.first_name || "";
-    const last = row?.last_name || raw.lastName || raw.last_name || "";
+  /* ========================================================
+     AUTHENTICATED CONTEXT
+  ======================================================== */
+
+  function getSession(){
+    return (
+      window.PHNXSessionEngine
+        ?.getCurrentSession?.() ||
+
+      window.PHNXSessionEngine
+        ?.getSession?.() ||
+
+      window.STATScoreAuthenticationContext
+        ?.getCurrent?.() ||
+
+      window.STATScoreCurrentSession ||
+
+      null
+    );
+  }
+
+
+  function getProfessionalIdentity(){
+    return (
+      window.PHNXProfessionalIdentityEngine
+        ?.getCurrentIdentity?.() ||
+
+      window.PHNXProfessionalIdentityEngine
+        ?.getIdentity?.() ||
+
+      window.STATScoreCurrentProfessionalIdentity ||
+
+      null
+    );
+  }
+
+
+  function getWorkspace(){
+    return (
+      window.PHNXWorkspaceRuntime
+        ?.getActiveWorkspace?.() ||
+
+      window.STATScore
+        ?.ActiveWorkspace
+        ?.get?.() ||
+
+      window.STATScoreCurrentWorkspace ||
+
+      null
+    );
+  }
+
+
+  /* ========================================================
+     MINIMUM SOURCE-IDENTITY RESOLUTION
+
+     Only canonical Stream 2 snapshot table is used.
+
+     No sc_snapshot_intakes fallback exists.
+  ======================================================== */
+
+  async function resolveCanonicalIdentity(
+    route
+  ){
+    const db =
+      getDb();
+
+    if(!db){
+      return {
+        ok:false,
+        status:
+          STATUS.SOURCE_UNAVAILABLE,
+        reason:
+          "Canonical Stream 2 data runtime is unavailable."
+      };
+    }
+
+
+    if(
+      !route.snapshot_id &&
+      !route.athlete_id
+    ){
+      return {
+        ok:false,
+        status:
+          STATUS.CONTEXT_REQUIRED,
+        reason:
+          "athlete_id or snapshot_id is required."
+      };
+    }
+
+
+    let query =
+      db
+        .from(
+          "statscore_snapshots"
+        )
+        .select(
+          [
+            "snapshot_id",
+            "athlete_id",
+            "created_at",
+            "updated_at"
+          ].join(",")
+        );
+
+
+    if(route.snapshot_id){
+      query =
+        query.eq(
+          "snapshot_id",
+          route.snapshot_id
+        );
+
+    }else{
+      query =
+        query
+          .eq(
+            "athlete_id",
+            route.athlete_id
+          )
+          .order(
+            "created_at",
+            {
+              ascending:false
+            }
+          )
+          .limit(1);
+    }
+
+
+    const {
+      data,
+      error
+    } =
+      await query
+        .maybeSingle();
+
+
+    if(error){
+      console.error(
+        "[Player Profile] Canonical identity resolution failed:",
+        error
+      );
+
+      return {
+        ok:false,
+        status:
+          STATUS.SOURCE_UNAVAILABLE,
+        reason:
+          "Canonical athlete identity could not be resolved."
+      };
+    }
+
+
+    if(!data){
+      return {
+        ok:false,
+        status:
+          STATUS.SOURCE_UNAVAILABLE,
+        reason:
+          "No canonical Stream 2 snapshot was found."
+      };
+    }
+
 
     return {
-      ...row,
-      raw_payload: raw,
+      ok:true,
 
-      snapshot_id: row?.snapshot_id || raw.snapshot_id || "",
-      athlete_id: row?.athlete_id || raw.athlete_id || "",
+      snapshot_id:
+        clean(
+          data.snapshot_id
+        ),
 
-      athlete_display_name:
-        row?.athlete_display_name ||
-        row?.athlete_name ||
-        raw.athlete_display_name ||
-        `${first} ${last}`.trim() ||
-        "Athlete Profile",
-
-      first_name: first,
-      last_name: last,
-
-      primary_sport:
-        row?.primary_sport ||
-        row?.sport ||
-        raw.primarySport ||
-        raw.primary_sport ||
-        raw.sport ||
-        "",
-
-      sport:
-        row?.primary_sport ||
-        row?.sport ||
-        raw.primarySport ||
-        raw.primary_sport ||
-        raw.sport ||
-        "",
-
-      primary_position:
-        row?.primary_position ||
-        row?.position ||
-        raw.primaryPosition ||
-        raw.primary_position ||
-        raw.position ||
-        "",
-
-      position:
-        row?.primary_position ||
-        row?.position ||
-        raw.primaryPosition ||
-        raw.primary_position ||
-        raw.position ||
-        "",
-
-      graduation_class:
-        row?.graduation_class ||
-        raw.graduationClass ||
-        raw.classYear ||
-        raw.class_year ||
-        "",
-
-      school_program:
-        row?.school_program ||
-        row?.school ||
-        raw.schoolProgram ||
-        raw.school ||
-        "",
-
-      city_state:
-        row?.city_state ||
-        raw.cityState ||
-        raw.city_state ||
-        [raw.city, raw.state].filter(Boolean).join(", ") ||
-        "",
-
-      height: row?.height || raw.height || "",
-      weight: row?.weight || raw.weight || "",
-
-      current_gpa:
-        row?.current_gpa ||
-        row?.gpa ||
-        raw.currentGpa ||
-        raw.gpa ||
-        "",
-
-      dash40: row?.dash40 || raw.dash40 || raw.forty || raw.fortyDash || "",
-      vertical_jump: row?.vertical_jump || raw.verticalJump || raw.vertical || "",
-      shuttle: row?.shuttle || raw.shuttle || "",
-      broad_jump: row?.broad_jump || raw.broadJump || raw.broad_jump || "",
-      strength_marker: row?.strength_marker || raw.strengthMarker || raw.strength_marker || "",
-
-      highlight_url: row?.highlight_url || raw.highlightUrl || raw.highlight_url || "",
-      game_film_url: row?.game_film_url || raw.gameFilmUrl || raw.game_film_url || "",
-      recruiting_profile_url: row?.recruiting_profile_url || raw.recruitingProfileUrl || raw.recruiting_profile_url || "",
-      social_profile_url: row?.social_profile_url || raw.socialProfileUrl || raw.social_profile_url || "",
-
-      headshot_url: storageUrl(
-        row?.headshot_public_url ||
-        row?.headshot_url ||
-        row?.headshot_path ||
-        raw.headshot_public_url ||
-        raw.headshotUrl ||
-        raw.headshot_url ||
-        raw.photo_url ||
-        ""
-      ),
-
-      verification_authority:
-        row?.verification_authority ||
-        raw.verification_authority ||
-        "SELF_REPORTED",
-
-      verification_status:
-        row?.verification_status ||
-        raw.verificationStatus ||
-        raw.verification_status ||
-        "UNVERIFIED",
-
-      verification_color:
-        row?.verification_color ||
-        raw.verification_color ||
-        "YELLOW"
+      athlete_id:
+        clean(
+          data.athlete_id
+        )
     };
   }
 
-  async function loadSnapshot(){
-    const db = getDb();
-    const snapshotId = getSnapshotId();
 
-    if(!db || !snapshotId) return null;
+  /* ========================================================
+     ATHLETE SELF AUTHORIZATION
+  ======================================================== */
 
-    const primary = await db
-      .from("statscore_snapshots")
-      .select("*")
-      .eq("snapshot_id", snapshotId)
-      .maybeSingle();
+  function sessionRole(session){
+    return lower(
+      firstDefined(
+        session?.role,
+        session?.user_role,
+        session?.account_role
+      )
+    );
+  }
 
-    if(primary.error){
-      console.error("Player Profile snapshot load failed:", primary.error);
+
+  function sessionAthleteId(session){
+    return clean(
+      firstDefined(
+        session?.athlete_id,
+        session?.subject_athlete_id,
+        session?.profile_athlete_id,
+        session?.subject_id
+      )
+    );
+  }
+
+
+  function authorizeAthleteSelf(
+    canonical,
+    session
+  ){
+    if(!session){
       return null;
     }
 
-    if(primary.data){
-      localStorage.setItem("STATSCORE_ACTIVE_SNAPSHOT_ID", primary.data.snapshot_id);
-      sessionStorage.setItem("STATSCORE_ACTIVE_SNAPSHOT_ID", primary.data.snapshot_id);
-      return normalizeSnapshot(primary.data);
+
+    if(
+      sessionRole(session) !==
+      "athlete"
+    ){
+      return null;
     }
 
-    const fallback = await db
-      .from("sc_snapshot_intakes")
-      .select("*")
-      .eq("snapshot_id", snapshotId)
-      .maybeSingle();
 
-    if(fallback.error || !fallback.data) return null;
+    const authenticatedAthleteId =
+      sessionAthleteId(
+        session
+      );
 
-    return normalizeSnapshot({
-      snapshot_id: fallback.data.snapshot_id,
-      athlete_id: fallback.data.athlete_id,
-      raw_payload: fallback.data.intake_payload || {}
-    });
-  }
 
-  async function loadParentGovernance(snapshotId){
-    const db = getDb();
-    if(!db || !snapshotId) return null;
-
-    const { data } = await db
-      .from("sc_parent_approval_requests")
-      .select("*")
-      .eq("snapshot_id", snapshotId)
-      .order("created_at", { ascending:false })
-      .limit(1)
-      .maybeSingle();
-
-    return data || null;
-  }
-
-  function getScoreModel(snapshot){
-    const authority = window.STATSCORE_SCORE_AUTHORITY_ENGINE;
-
-    if(authority?.getProfileScoreModel){
-      return authority.getProfileScoreModel(snapshot);
+    if(
+      !authenticatedAthleteId
+    ){
+      return {
+        ok:false,
+        status:
+          STATUS.ACCESS_DENIED,
+        reason:
+          "Authenticated athlete identity is incomplete."
+      };
     }
+
+
+    if(
+      authenticatedAthleteId !==
+      canonical.athlete_id
+    ){
+      return {
+        ok:false,
+        status:
+          STATUS.ACCESS_DENIED,
+        reason:
+          "Authenticated athlete identity does not match the requested athlete."
+      };
+    }
+
 
     return {
-      final_score: null,
-      position_score: "--",
-      athletic_score: "--",
-      production_score: "--",
-      academic_score: "--",
-      verification_score: 35,
-      score_status: "UNVERIFIED",
-      score_band: "PENDING",
-      matrix_code: "MATRIX_PENDING",
-      star_signal: null,
-      traits: [],
-      why_this_signal: ["Score Authority Engine unavailable."],
-      projection_lane: {
-        label: "Verification First",
-        explanation: "Profile signal remains limited until evidence is verified."
-      }
+      ok:true,
+      status:
+        STATUS.AUTHORIZED,
+      mode:
+        ACCESS_MODE.ATHLETE_SELF,
+      athlete_id:
+        canonical.athlete_id,
+      snapshot_id:
+        canonical.snapshot_id,
+      audience:
+        "ATHLETE"
     };
   }
 
-  function renderAthleteImage(src, fullName){
-    const frame = document.getElementById("athleteImageFrame");
-    if(!frame) return;
 
-    if(src){
-      frame.innerHTML = `<img src="${escapeHTML(src)}" alt="${escapeHTML(fullName)} athlete image">`;
-    }else{
-      frame.textContent = "Athlete Image Required";
+  /* ========================================================
+     PROFESSIONAL ACCESS AUTHORIZATION
+  ======================================================== */
+
+  async function authorizeProfessional(
+    canonical,
+    route
+  ){
+    const authority =
+      window.STATScoreRolePermissionEngine ||
+      window.STATScore
+        ?.RolePermissionEngine ||
+      null;
+
+
+    if(
+      !authority ||
+      typeof authority.canAccessAthlete !==
+        "function"
+    ){
+      return {
+        ok:false,
+
+        status:
+          STATUS.ACCESS_AUTHORITY_UNAVAILABLE,
+
+        reason:
+          "Governed professional athlete-access authority is unavailable."
+      };
+    }
+
+
+    const workspace =
+      getWorkspace() ||
+      {};
+
+
+    const identity =
+      getProfessionalIdentity() ||
+      {};
+
+
+    const result =
+      await authority
+        .canAccessAthlete({
+          athlete_id:
+            canonical.athlete_id,
+
+          snapshot_id:
+            canonical.snapshot_id,
+
+          professional_id:
+            firstDefined(
+              route.professional_id,
+              identity.professional_id,
+              identity.id,
+              workspace.professional_id
+            ),
+
+          role:
+            firstDefined(
+              route.role,
+              workspace.role,
+              identity.role
+            ),
+
+          role_id:
+            firstDefined(
+              route.role_id,
+              workspace.role_id,
+              identity.role_id
+            ),
+
+          role_context_id:
+            firstDefined(
+              route.role_context_id,
+              workspace.role_context_id,
+              identity.role_context_id
+            ),
+
+          role_instance_id:
+            firstDefined(
+              route.role_instance_id,
+              workspace.role_instance_id,
+              identity.role_instance_id
+            ),
+
+          workspace_id:
+            firstDefined(
+              route.workspace_id,
+              workspace.workspace_id,
+              workspace.id
+            ),
+
+          organization_id:
+            firstDefined(
+              route.organization_id,
+              workspace.organization_id,
+              identity.organization_id
+            ),
+
+          program_id:
+            firstDefined(
+              route.program_id,
+              workspace.program_id,
+              identity.program_id
+            )
+        });
+
+
+    if(!result?.ok){
+      return {
+        ok:false,
+
+        status:
+          STATUS.ACCESS_DENIED,
+
+        reason:
+          result?.reason ||
+          "No active governed relationship authorizes access to this athlete.",
+
+        authority_decision:
+          result ||
+          null
+      };
+    }
+
+
+    return {
+      ...result,
+
+      ok:true,
+
+      status:
+        STATUS.AUTHORIZED,
+
+      mode:
+        ACCESS_MODE.PROFESSIONAL_SCOPED,
+
+      audience:
+        upper(
+          result.role ||
+          route.role ||
+          workspace.role ||
+          identity.role ||
+          "PROFESSIONAL"
+        )
+    };
+  }
+
+
+  /* ========================================================
+     COMPLETE AUTHORIZATION
+  ======================================================== */
+
+  async function authorizeAccess(
+    canonical,
+    route
+  ){
+    const session =
+      getSession();
+
+
+    if(!session){
+      return {
+        ok:false,
+        status:
+          STATUS.AUTHENTICATION_REQUIRED,
+        reason:
+          "Authenticated session is required."
+      };
+    }
+
+
+    const selfDecision =
+      authorizeAthleteSelf(
+        canonical,
+        session
+      );
+
+
+    if(selfDecision){
+      return selfDecision;
+    }
+
+
+    return authorizeProfessional(
+      canonical,
+      route
+    );
+  }
+
+
+  /* ========================================================
+     FULL CANONICAL SOURCE LOAD
+
+     Only after authorization.
+  ======================================================== */
+
+  async function loadCanonicalSnapshot(
+    canonical
+  ){
+    const db =
+      getDb();
+
+    if(!db){
+      return null;
+    }
+
+
+    const {
+      data,
+      error
+    } =
+      await db
+        .from(
+          "statscore_snapshots"
+        )
+        .select("*")
+        .eq(
+          "snapshot_id",
+          canonical.snapshot_id
+        )
+        .eq(
+          "athlete_id",
+          canonical.athlete_id
+        )
+        .maybeSingle();
+
+
+    if(error){
+      console.error(
+        "[Player Profile] Canonical snapshot load failed:",
+        error
+      );
+
+      return null;
+    }
+
+
+    return data ||
+      null;
+  }
+
+
+  /* ========================================================
+     SOURCE NORMALIZATION
+
+     Only presentation-safe source identity fields are consumed.
+
+     raw_payload is NOT used as a fallback authority.
+  ======================================================== */
+
+  function normalizeSnapshot(
+    row
+  ){
+    if(!row){
+      return null;
+    }
+
+
+    const firstName =
+      clean(
+        row.first_name
+      );
+
+
+    const lastName =
+      clean(
+        row.last_name
+      );
+
+
+    const name =
+      clean(
+        row.athlete_display_name
+      ) ||
+      [firstName,lastName]
+        .filter(Boolean)
+        .join(" ") ||
+      "Athlete Profile";
+
+
+    return {
+      snapshot_id:
+        clean(
+          row.snapshot_id
+        ),
+
+      athlete_id:
+        clean(
+          row.athlete_id
+        ),
+
+      first_name:
+        firstName,
+
+      last_name:
+        lastName,
+
+      athlete_display_name:
+        name,
+
+      sport:
+        clean(
+          row.primary_sport
+        ),
+
+      position:
+        clean(
+          row.primary_position
+        ),
+
+      graduation_class:
+        clean(
+          row.graduation_class
+        ),
+
+      school_program:
+        clean(
+          row.school_program
+        ),
+
+      city_state:
+        clean(
+          row.city_state
+        ),
+
+      height:
+        clean(
+          row.height
+        ),
+
+      weight:
+        clean(
+          row.weight
+        ),
+
+      verification_status:
+        clean(
+          row.verification_status
+        ) ||
+        "UNVERIFIED",
+
+      headshot_public_url:
+        clean(
+          row.headshot_public_url
+        )
+    };
+  }
+
+
+  /* ========================================================
+     PARENT / GUARDIAN GOVERNANCE
+
+     This is NOT treated as publication or recruiting authority.
+  ======================================================== */
+
+  async function loadParentGovernance(
+    snapshotId
+  ){
+    const db =
+      getDb();
+
+    if(
+      !db ||
+      !snapshotId
+    ){
+      return null;
+    }
+
+
+    try{
+      const {
+        data,
+        error
+      } =
+        await db
+          .from(
+            "sc_parent_approval_requests"
+          )
+          .select(
+            [
+              "snapshot_id",
+              "request_type",
+              "status",
+              "approval_status",
+              "created_at",
+              "updated_at"
+            ].join(",")
+          )
+          .eq(
+            "snapshot_id",
+            snapshotId
+          )
+          .order(
+            "created_at",
+            {
+              ascending:false
+            }
+          )
+          .limit(1)
+          .maybeSingle();
+
+
+      if(error){
+        console.warn(
+          "[Player Profile] Parent governance unavailable:",
+          error
+        );
+
+        return null;
+      }
+
+
+      return data ||
+        null;
+
+    }catch(err){
+      console.warn(
+        "[Player Profile] Parent governance skipped:",
+        err
+      );
+
+      return null;
     }
   }
 
-  function renderTraits(scoreModel){
-    const container = document.getElementById("traitContainer");
-    if(!container) return;
 
-    const traits = Array.isArray(scoreModel.traits) ? scoreModel.traits : [];
+  /* ========================================================
+     GOVERNED INTELLIGENCE RESOLUTION
+
+     No local calculation fallback exists.
+  ======================================================== */
+
+  async function resolveGovernedIntelligence(
+    snapshot
+  ){
+    const globalPackage =
+      window.STATScoreCurrentIntelligencePackage ||
+      window.STATScore
+        ?.CurrentIntelligencePackage ||
+      window.STATSCORE_CURRENT_INTELLIGENCE_PACKAGE ||
+      null;
+
+
+    if(
+      globalPackage &&
+      clean(
+        globalPackage.athlete_id
+      ) ===
+        snapshot.athlete_id &&
+      clean(
+        globalPackage.snapshot_id
+      ) ===
+        snapshot.snapshot_id
+    ){
+      return globalPackage;
+    }
+
+
+    const providers = [
+      window.STATScoreIntelligenceAuthority,
+      window.STATScoreEnterpriseIntelligence,
+      window.STATScoreIntelligence
+    ]
+      .filter(Boolean);
+
+
+    for(
+      const provider of
+      providers
+    ){
+      try{
+
+        if(
+          typeof provider.getPublishedIntelligencePackage ===
+          "function"
+        ){
+          const result =
+            await provider
+              .getPublishedIntelligencePackage({
+                athlete_id:
+                  snapshot.athlete_id,
+                snapshot_id:
+                  snapshot.snapshot_id
+              });
+
+          if(result){
+            return result;
+          }
+        }
+
+
+        if(
+          typeof provider.getAthleteIntelligence ===
+          "function"
+        ){
+          const result =
+            await provider
+              .getAthleteIntelligence({
+                athlete_id:
+                  snapshot.athlete_id,
+                snapshot_id:
+                  snapshot.snapshot_id
+              });
+
+          if(result){
+            return result;
+          }
+        }
+
+      }catch(err){
+        console.warn(
+          "[Player Profile] Governed intelligence provider unavailable:",
+          err
+        );
+      }
+    }
+
+
+    return null;
+  }
+
+
+  /* ========================================================
+     STREAM 7 PUBLICATION STATE
+
+     Optional consumed projection.
+
+     Missing publication state remains UNKNOWN.
+  ======================================================== */
+
+  function resolvePublicationState(
+    snapshot
+  ){
+    const publication =
+      window.STATScoreCurrentPublicationState ||
+      window.STATScore
+        ?.CurrentPublicationState ||
+      null;
+
+
+    if(!publication){
+      return null;
+    }
+
+
+    if(
+      publication.athlete_id &&
+      clean(
+        publication.athlete_id
+      ) !==
+        snapshot.athlete_id
+    ){
+      return null;
+    }
+
+
+    if(
+      publication.snapshot_id &&
+      clean(
+        publication.snapshot_id
+      ) !==
+        snapshot.snapshot_id
+    ){
+      return null;
+    }
+
+
+    return publication;
+  }
+
+
+  /* ========================================================
+     RECRUITING DISCLOSURE STATE
+
+     Optional governed state only.
+
+     Exposure does NOT create recruiting interest.
+  ======================================================== */
+
+  function resolveRecruitingDisclosure(
+    snapshot
+  ){
+    const recruiting =
+      window.STATScoreCurrentRecruitingDisclosure ||
+      window.STATScore
+        ?.CurrentRecruitingDisclosure ||
+      null;
+
+
+    if(!recruiting){
+      return null;
+    }
+
+
+    if(
+      recruiting.athlete_id &&
+      clean(
+        recruiting.athlete_id
+      ) !==
+        snapshot.athlete_id
+    ){
+      return null;
+    }
+
+
+    return recruiting;
+  }
+
+
+  /* ========================================================
+     EXPLAINABILITY
+  ======================================================== */
+
+  function resolveExplainability(
+    intelligence,
+    audience
+  ){
+    if(!intelligence){
+      return null;
+    }
+
+
+    const engine =
+      window.STATSCORE_EXPLAINABILITY_ENGINE ||
+      window.STATScore
+        ?.ExplainabilityEngine ||
+      window.STATScore
+        ?.Explainability ||
+      null;
+
+
+    if(
+      !engine ||
+      typeof engine.explain !==
+        "function"
+    ){
+      return null;
+    }
+
+
+    try{
+      const result =
+        engine.explain({
+          intelligence_package:
+            intelligence,
+
+          audience:
+            audience ||
+            "ATHLETE"
+        });
+
+
+      return result?.ok
+        ? result
+        : null;
+
+    }catch(err){
+      console.warn(
+        "[Player Profile] Explainability unavailable:",
+        err
+      );
+
+      return null;
+    }
+  }
+
+
+  /* ========================================================
+     ROLE-SAFE PRESENTATION PROJECTION
+
+     This page does not manufacture authority.
+     It only determines which already-authorized presentation
+     blocks are appropriate for the current viewer.
+  ======================================================== */
+
+  function buildViewerProjection(
+    authorization
+  ){
+    const audience =
+      upper(
+        authorization?.audience ||
+        "ATHLETE"
+      );
+
+
+    const base = {
+      audience,
+
+      show_guardian_state:
+        false,
+
+      show_verification_action:
+        false,
+
+      show_parent_action:
+        false,
+
+      show_publication_state:
+        true,
+
+      show_recruiting_disclosure:
+        false,
+
+      show_next_action:
+        true
+    };
+
+
+    if(
+      authorization?.mode ===
+      ACCESS_MODE.ATHLETE_SELF
+    ){
+      return {
+        ...base,
+
+        show_guardian_state:
+          true,
+
+        show_verification_action:
+          true,
+
+        show_parent_action:
+          true,
+
+        show_recruiting_disclosure:
+          true
+      };
+    }
+
+
+    switch(audience){
+
+      case "PARENT":
+        return {
+          ...base,
+          show_guardian_state:true,
+          show_parent_action:true,
+          show_recruiting_disclosure:true
+        };
+
+
+      case "COACH":
+        return {
+          ...base,
+          show_verification_action:true
+        };
+
+
+      case "COUNSELOR":
+        return {
+          ...base,
+          show_guardian_state:true
+        };
+
+
+      case "RECRUITER":
+        return {
+          ...base,
+          show_recruiting_disclosure:true
+        };
+
+
+      case "EVALUATOR":
+        return {
+          ...base,
+          show_verification_action:true
+        };
+
+
+      case "TRAINER":
+        return base;
+
+
+      case "PROGRAM":
+        return {
+          ...base,
+          show_recruiting_disclosure:true
+        };
+
+
+      case "ADMIN":
+        return {
+          ...base,
+          show_guardian_state:true,
+          show_verification_action:true,
+          show_parent_action:true,
+          show_recruiting_disclosure:true
+        };
+
+
+      default:
+        return base;
+    }
+  }
+
+
+  /* ========================================================
+     SAFE IDENTITY RENDERING
+  ======================================================== */
+
+  function splitName(
+    fullName
+  ){
+    const parts =
+      clean(
+        fullName
+      )
+        .split(/\s+/)
+        .filter(Boolean);
+
+
+    return {
+      first:
+        parts[0] ||
+        "Athlete",
+
+      last:
+        parts.slice(1)
+          .join(" ") ||
+        "Profile"
+    };
+  }
+
+
+  function renderAthleteName(
+    fullName
+  ){
+    const target =
+      document.getElementById(
+        "athleteName"
+      );
+
+    if(!target){
+      return;
+    }
+
+
+    target.replaceChildren();
+
+
+    const parts =
+      splitName(
+        fullName
+      );
+
+
+    target.appendChild(
+      document.createTextNode(
+        parts.first
+      )
+    );
+
+
+    const last =
+      document.createElement(
+        "span"
+      );
+
+
+    last.textContent =
+      parts.last;
+
+
+    target.appendChild(
+      last
+    );
+  }
+
+
+  function renderAthleteImage(
+    snapshot
+  ){
+    const frame =
+      document.getElementById(
+        "athleteImageFrame"
+      );
+
+    if(!frame){
+      return;
+    }
+
+
+    frame.replaceChildren();
+
+
+    if(
+      !snapshot.headshot_public_url
+    ){
+      frame.textContent =
+        "Athlete Image Pending";
+
+      return;
+    }
+
+
+    const img =
+      document.createElement(
+        "img"
+      );
+
+
+    img.src =
+      snapshot.headshot_public_url;
+
+
+    img.alt =
+      `${snapshot.athlete_display_name} athlete profile image`;
+
+
+    img.referrerPolicy =
+      "no-referrer";
+
+
+    frame.appendChild(
+      img
+    );
+  }
+
+
+  function renderIdentity(
+    snapshot
+  ){
+    renderAthleteName(
+      snapshot.athlete_display_name
+    );
+
+
+    setText(
+      "captionName",
+      snapshot.athlete_display_name
+    );
+
+
+    setText(
+      "captionMeta",
+      [
+        snapshot.position,
+        snapshot.graduation_class
+      ]
+        .filter(Boolean)
+        .join(" · ")
+    );
+
+
+    setText(
+      "verificationBadge",
+      snapshot.verification_status
+    );
+
+
+    setText(
+      "identitySub",
+      `SNAPSHOT ${snapshot.snapshot_id} · ${snapshot.verification_status}`
+    );
+
+
+    setText(
+      "tagPosition",
+      snapshot.position
+    );
+
+
+    setText(
+      "tagHeight",
+      snapshot.height
+    );
+
+
+    setText(
+      "tagWeight",
+      snapshot.weight
+    );
+
+
+    setText(
+      "tagCity",
+      snapshot.city_state
+    );
+
+
+    setText(
+      "tagSchool",
+      snapshot.school_program
+    );
+
+
+    setText(
+      "tagClass",
+      snapshot.graduation_class
+    );
+
+
+    setText(
+      "dossierVerification",
+      snapshot.verification_status
+    );
+
+
+    setText(
+      "profileBio",
+      `${snapshot.athlete_display_name} is presented from the canonical STATS-CORE athlete source record. Intelligence, recommendations, publication state, recruiting disclosure, and explainability remain governed by their constitutional authorities.`
+    );
+
+
+    renderAthleteImage(
+      snapshot
+    );
+  }
+
+
+  /* ========================================================
+     DOMAIN HELPERS
+  ======================================================== */
+
+  function getDomain(
+    intelligence,
+    key
+  ){
+    const domain =
+      intelligence
+        ?.domains
+        ?.[key];
+
+
+    return hasObject(domain)
+      ? domain
+      : null;
+  }
+
+
+  function domainScore(
+    domain
+  ){
+    return firstDefined(
+      domain?.score,
+      domain?.domain_score,
+      domain?.value
+    );
+  }
+
+
+  function domainStatus(
+    domain
+  ){
+    return firstDefined(
+      domain?.status,
+      domain?.score_status,
+      domain?.official_status,
+      domain?.publication_status
+    );
+  }
+
+
+  function domainExplanation(
+    domain
+  ){
+    return firstDefined(
+      domain?.explanation,
+      domain?.why_this_signal,
+      domain?.why
+    );
+  }
+
+
+  function normalizeReason(
+    reason
+  ){
+    if(
+      typeof reason ===
+      "string"
+    ){
+      return reason;
+    }
+
+
+    if(hasObject(reason)){
+      return clean(
+        firstDefined(
+          reason.message,
+          reason.reason,
+          reason.explanation,
+          reason.action,
+          reason.label
+        )
+      ) ||
+      JSON.stringify(
+        reason
+      );
+    }
+
+
+    return clean(
+      reason
+    );
+  }
+
+
+  /* ========================================================
+     TRAIT RENDERING
+
+     Traits come only from governed intelligence.
+  ======================================================== */
+
+  function renderTraits(
+    intelligence
+  ){
+    const container =
+      document.getElementById(
+        "traitContainer"
+      );
+
+    if(!container){
+      return;
+    }
+
+
+    container.replaceChildren();
+
+
+    const athletic =
+      getDomain(
+        intelligence,
+        "athletic"
+      );
+
+
+    const evaluation =
+      getDomain(
+        intelligence,
+        "evaluation"
+      );
+
+
+    const traits =
+      asArray(
+        firstDefined(
+          athletic?.traits,
+          evaluation?.traits
+        )
+      );
+
 
     if(!traits.length){
-      container.innerHTML = `
-        <div class="trait">
-          <div class="trait-name">Traits Pending</div>
-          <div class="bar"><div class="fill pending-fill" style="width:18%"></div></div>
-          <div class="trait-score pending">--</div>
-        </div>
-      `;
+      const row =
+        document.createElement(
+          "div"
+        );
+
+      row.className =
+        "trait";
+
+
+      const name =
+        document.createElement(
+          "div"
+        );
+
+      name.className =
+        "trait-name";
+
+      name.textContent =
+        "Traits Pending";
+
+
+      const bar =
+        document.createElement(
+          "div"
+        );
+
+      bar.className =
+        "bar";
+
+
+      const fill =
+        document.createElement(
+          "div"
+        );
+
+      fill.className =
+        "fill pending-fill";
+
+      fill.style.width =
+        "18%";
+
+
+      bar.appendChild(
+        fill
+      );
+
+
+      const score =
+        document.createElement(
+          "div"
+        );
+
+      score.className =
+        "trait-score pending";
+
+      score.textContent =
+        "--";
+
+
+      row.append(
+        name,
+        bar,
+        score
+      );
+
+
+      container.appendChild(
+        row
+      );
+
       return;
     }
 
-    container.innerHTML = traits.map(trait => {
-      const name = trait.name || trait.label || trait.trait || "Trait";
-      const value = n(trait.value ?? trait.score ?? trait.rating);
-      const width = value !== null ? Math.max(5, Math.min(100, value)) : 18;
-      const label = value !== null ? `${value} U` : "--";
 
-      return `
-        <div class="trait">
-          <div class="trait-name">${escapeHTML(name)}</div>
-          <div class="bar">
-            <div class="fill unverified ${value !== null ? "" : "pending-fill"}" style="width:${width}%"></div>
-          </div>
-          <div class="trait-score ${value !== null ? "" : "pending"}">${escapeHTML(label)}</div>
-        </div>
-      `;
-    }).join("");
-  }
+    traits.forEach(
+      trait => {
 
-  function renderSTATScoreIntelligence(snapshot, scoreModel){
-    const score = scoreModel.final_score || scoreModel.position_score || "--";
-    const matrix = scoreModel.matrix_code || scoreModel.matrix_id || "MATRIX_PENDING";
+        const value =
+          Number(
+            firstDefined(
+              trait?.value,
+              trait?.score,
+              trait?.rating
+            )
+          );
 
-    setText("scMatrixVersion", matrix);
-    setText("scProductionSignal", `${snapshot.position || "POSITION"} SIGNAL`);
-    setText("scFinalScore", score !== "--" ? `${score} / ${scoreModel.score_status || "UNVERIFIED"}` : "--");
-    setText("scEvidenceState", scoreModel.score_status || "UNVERIFIED");
-    setText("scTranslationOutlook", scoreModel.projection_lane?.label || "Verification First");
-    setText("scVerificationGaps", scoreModel.verification_score >= 100 ? "NONE ACTIVE" : "FILM / COACH / EVALUATOR");
-    setText("scRoleValue", `${snapshot.position || "POSITION"} POSITIONAL VALUE`);
 
-    setText("scProductionExplanation", "Production signal is rendered from Stream 9 Score Authority.");
-    setText("scScoreBasis", scoreModel.display_rule || "Score basis rendered from governed authority model.");
-    setText("scEvidenceExplanation", "Evidence state reflects verification authority and source trust.");
-    setText("scTranslationExplanation", scoreModel.projection_lane?.explanation || "Translation analysis pending verification.");
-    setText("scVerificationExplanation", "Verification gaps remain until trusted evidence confirms submitted profile data.");
-    setText("scRoleValueExplanation", `Role value is evaluated through ${snapshot.position || "position"} matrix logic.`);
+        const valid =
+          Number.isFinite(
+            value
+          );
 
-    const reasons = Array.isArray(scoreModel.why_this_signal) && scoreModel.why_this_signal.length
-      ? scoreModel.why_this_signal
-      : ["Stream 9 Score Authority generated this profile signal."];
 
-    const list = document.getElementById("scWhyList");
-    if(list) list.innerHTML = reasons.map(reason => `<li>${escapeHTML(reason)}</li>`).join("");
-  }
+        const width =
+          valid
+            ? Math.max(
+                5,
+                Math.min(
+                  100,
+                  value
+                )
+              )
+            : 18;
 
-  function renderProfile(snapshot, governance){
-    const scoreModel = getScoreModel(snapshot);
-    const fullName = snapshot.athlete_display_name;
-    const nameParts = splitName(fullName);
 
-    const guardianApproved =
-      String(governance?.status || governance?.approval_status || "").toUpperCase() === "APPROVED";
+        const row =
+          document.createElement(
+            "div"
+          );
 
-    const score =
-      scoreModel.final_score ||
-      scoreModel.position_score ||
-      "--";
+        row.className =
+          "trait";
 
-    const status =
-      scoreModel.score_status ||
-      "UNVERIFIED";
 
-    const athleteName = document.getElementById("athleteName");
-    if(athleteName){
-      athleteName.innerHTML = `${escapeHTML(nameParts.first)}<span>${escapeHTML(nameParts.last)}</span>`;
-    }
+        const name =
+          document.createElement(
+            "div"
+          );
 
-    setText("captionName", fullName);
-    setText("captionMeta", `${snapshot.position} · ${snapshot.graduation_class}`);
-    setText("verificationBadge", status);
-    setText("recordStatus", "Snapshot Loaded");
-    setText("footerSnapshotState", `Snapshot ID: ${snapshot.snapshot_id}`);
+        name.className =
+          "trait-name";
 
-    setText("identitySub", `SNAPSHOT ACTIVE · ${status}`);
-    setText("tagPosition", snapshot.position);
-    setText("tagHeight", snapshot.height);
-    setText("tagWeight", snapshot.weight);
-    setText("tagCity", snapshot.city_state);
-    setText("tagSchool", snapshot.school_program);
-    setText("tagClass", snapshot.graduation_class);
+        name.textContent =
+          clean(
+            firstDefined(
+              trait?.name,
+              trait?.label,
+              trait?.trait
+            )
+          ) ||
+          "Trait";
 
-    setText("starDisplay", scoreModel.star_signal?.display || scoreModel.star_signal || scoreModel.star_projection || "☆☆☆☆☆");
-    setText("signalText", status);
-    setText("evaluationStatus", `${snapshot.position} SIGNAL · ${status}`);
 
-    setText("profileBio",
-      `${fullName} is a ${snapshot.graduation_class} ${snapshot.sport} athlete listed at ${snapshot.position}. STATS-CORE evaluates this profile through Stream 9 scoring authority, position matrix logic, evidence support, verification status, and parent-controlled release governance.`
+        const bar =
+          document.createElement(
+            "div"
+          );
+
+        bar.className =
+          "bar";
+
+
+        const fill =
+          document.createElement(
+            "div"
+          );
+
+        fill.className =
+          valid
+            ? "fill"
+            : "fill pending-fill";
+
+        fill.style.width =
+          `${width}%`;
+
+
+        bar.appendChild(
+          fill
+        );
+
+
+        const score =
+          document.createElement(
+            "div"
+          );
+
+        score.className =
+          valid
+            ? "trait-score"
+            : "trait-score pending";
+
+        score.textContent =
+          valid
+            ? String(value)
+            : "--";
+
+
+        row.append(
+          name,
+          bar,
+          score
+        );
+
+
+        container.appendChild(
+          row
+        );
+      }
     );
-
-    setText("scoreValue", score);
-    setText("scoreStatus", status);
-
-    setText("scoreNote",
-      `This ${status} STATS-CORE signal is generated from Stream 9 scoring authority. It is not official until verification gates are complete.`
-    );
-
-    setText("guardianStatus", guardianApproved ? "PARENT RELEASE APPROVED" : "PARENT RELEASE REQUIRED");
-    setText("visibilityStatus", guardianApproved ? "CONTROLLED RELEASE" : "LIMITED");
-    setText("recruitingStatus", guardianApproved && scoreModel.verification_score >= 100 ? "ENABLED" : "LOCKED");
-
-    setText("metricSpeed", snapshot.dash40);
-    setText("metricExplosive", snapshot.vertical_jump);
-    setText("metricReadiness", scoreModel.score_band || "PENDING");
-    setText("metricVisibility", guardianApproved ? "CONTROLLED" : "LIMITED");
-
-    setText("gameFilmStatus", snapshot.highlight_url || snapshot.game_film_url || "Film evidence not submitted.");
-    setText("campStatus", snapshot.verified_event_source || "Event evidence pending.");
-    setText("mediaStatus", snapshot.social_profile_url || snapshot.recruiting_profile_url || "PHNX Sports media release requires parent approval.");
-
-    setText("recruiterViewStatus", "Recruiter visibility is governed by parent release and verification status.");
-    setText("contactStatusText", "Communication routes through Multi-Box™ permissions.");
-    setText("exposureLaneText", guardianApproved ? "Controlled release available." : "Visibility is currently LIMITED. Recruiting is LOCKED.");
-    setText("primaryFocus", scoreModel.projection_lane?.label || "Generated from position matrix.");
-    setText("verificationNeed", "Coach confirmation, film review, evaluator input, or trusted metric evidence.");
-    setText("nextSnapshotText", "Update after verified production evidence is added.");
-
-    setText("dossierArchetype", scoreModel.matrix_code || "Matrix Pending");
-    setText("dossierProductionSignal", scoreModel.production_score || "--");
-    setText("dossierTranslation", scoreModel.projection_lane?.label || "Verification First");
-    setText("dossierAthleticSignal", scoreModel.athletic_score || "--");
-    setText("dossierVerification", status);
-    setText("dossierVisibility", guardianApproved ? "CONTROLLED" : "LIMITED");
-
-    renderAthleteImage(snapshot.headshot_url, fullName);
-    renderTraits(scoreModel);
-    renderSTATScoreIntelligence(snapshot, scoreModel);
-
-    console.log("STATS-CORE Player Profile rendered from Stream 9:", fullName, snapshot.snapshot_id, scoreModel);
   }
 
-  function renderNoSnapshot(){
-    setText("recordStatus", "No Snapshot Loaded");
-    setText("identitySub", "Awaiting Snapshot Intake");
-    setText("scoreStatus", "No Snapshot");
-    setText("profileBio", "No submitted Snapshot record was found.");
-  }
 
-  document.addEventListener("DOMContentLoaded", async function(){
-    const snapshot = await loadSnapshot();
+  /* ========================================================
+     EXPLAINABILITY LIST
+  ======================================================== */
 
-    if(!snapshot){
-      renderNoSnapshot();
+  function renderWhy(
+    explanation
+  ){
+    const list =
+      document.getElementById(
+        "scWhyList"
+      );
+
+    if(!list){
       return;
     }
 
-    const governance = await loadParentGovernance(snapshot.snapshot_id);
-    renderProfile(snapshot, governance);
-  });
+
+    list.replaceChildren();
+
+
+    const reasons = [];
+
+
+    if(
+      explanation
+        ?.explanations
+    ){
+      Object.values(
+        explanation.explanations
+      )
+        .forEach(
+          item => {
+
+            const value =
+              item?.explanation;
+
+            if(
+              Array.isArray(
+                value
+              )
+            ){
+              value.forEach(
+                entry => {
+                  const text =
+                    normalizeReason(
+                      entry
+                    );
+
+                  if(text){
+                    reasons.push(
+                      text
+                    );
+                  }
+                }
+              );
+
+            }else{
+              const text =
+                normalizeReason(
+                  value
+                );
+
+              if(text){
+                reasons.push(
+                  text
+                );
+              }
+            }
+          }
+        );
+    }
+
+
+    if(
+      explanation?.summary
+    ){
+      reasons.unshift(
+        clean(
+          explanation.summary
+        )
+      );
+    }
+
+
+    const unique =
+      Array.from(
+        new Set(
+          reasons
+            .filter(Boolean)
+        )
+      )
+        .slice(0,8);
+
+
+    if(!unique.length){
+      unique.push(
+        "Governed intelligence is available, but no additional explainability statement was supplied."
+      );
+    }
+
+
+    unique.forEach(
+      reason => {
+
+        const li =
+          document.createElement(
+            "li"
+          );
+
+        li.textContent =
+          reason;
+
+        list.appendChild(
+          li
+        );
+      }
+    );
+  }
+
+
+  /* ========================================================
+     INTELLIGENCE RENDERING
+
+     No calculations.
+  ======================================================== */
+
+  function renderIntelligencePending(){
+    setText(
+      "scoreValue",
+      "--"
+    );
+
+    setText(
+      "scoreStatus",
+      "PENDING"
+    );
+
+    setText(
+      "scoreNote",
+      "Governed Stream 9 intelligence has not been supplied. No local score is reconstructed."
+    );
+
+    setText(
+      "starDisplay",
+      "☆☆☆☆☆"
+    );
+
+    setText(
+      "signalText",
+      "INTELLIGENCE PENDING"
+    );
+
+    setText(
+      "evaluationStatus",
+      "Governed Intelligence Pending"
+    );
+
+    setText(
+      "metricSpeed",
+      "--"
+    );
+
+    setText(
+      "metricExplosive",
+      "--"
+    );
+
+    setText(
+      "metricReadiness",
+      "--"
+    );
+
+    setText(
+      "dossierArchetype",
+      "Pending"
+    );
+
+    setText(
+      "dossierProductionSignal",
+      "Pending"
+    );
+
+    setText(
+      "dossierTranslation",
+      "Pending"
+    );
+
+    setText(
+      "dossierAthleticSignal",
+      "Pending"
+    );
+
+    setText(
+      "scMatrixVersion",
+      "INTELLIGENCE_PENDING"
+    );
+
+    setText(
+      "scProductionSignal",
+      "--"
+    );
+
+    setText(
+      "scFinalScore",
+      "--"
+    );
+
+    setText(
+      "scEvidenceState",
+      "--"
+    );
+
+    setText(
+      "scTranslationOutlook",
+      "--"
+    );
+
+    setText(
+      "scVerificationGaps",
+      "--"
+    );
+
+    setText(
+      "scRoleValue",
+      "--"
+    );
+
+    setText(
+      "scProductionExplanation",
+      "Governed production intelligence pending."
+    );
+
+    setText(
+      "scScoreBasis",
+      "No composite intelligence has been supplied."
+    );
+
+    setText(
+      "scEvidenceExplanation",
+      "Evidence state remains pending its governing authority."
+    );
+
+    setText(
+      "scTranslationExplanation",
+      "Pathway/translation intelligence remains pending."
+    );
+
+    setText(
+      "scVerificationExplanation",
+      "Verification gaps remain pending governed intelligence."
+    );
+
+    setText(
+      "scRoleValueExplanation",
+      "No governed next action has been supplied."
+    );
+
+    renderTraits(
+      null
+    );
+
+    renderWhy(
+      null
+    );
+  }
+
+
+  function renderGovernedIntelligence(
+    intelligence,
+    explanation
+  ){
+    if(!intelligence){
+      renderIntelligencePending();
+      return;
+    }
+
+
+    const composite =
+      hasObject(
+        intelligence.composite
+      )
+        ? intelligence.composite
+        : {};
+
+
+    const athletic =
+      getDomain(
+        intelligence,
+        "athletic"
+      );
+
+
+    const production =
+      getDomain(
+        intelligence,
+        "production"
+      );
+
+
+    const readiness =
+      getDomain(
+        intelligence,
+        "readiness"
+      );
+
+
+    const verification =
+      getDomain(
+        intelligence,
+        "verification"
+      );
+
+
+    const pathway =
+      getDomain(
+        intelligence,
+        "pathway"
+      );
+
+
+    const compositeScore =
+      firstDefined(
+        composite.score,
+        composite.composite_score,
+        composite.value
+      );
+
+
+    const compositeStatus =
+      firstDefined(
+        composite.status,
+        composite.composite_status,
+        composite.publication_status,
+        "PENDING"
+      );
+
+
+    setText(
+      "scoreValue",
+      compositeScore
+    );
+
+
+    setText(
+      "scoreStatus",
+      compositeStatus
+    );
+
+
+    setText(
+      "scoreNote",
+      "Displayed intelligence is consumed from the governing Stream 9 package and is not recalculated by this page."
+    );
+
+
+    const ranking =
+      intelligence
+        ?.report_card
+        ?.ranking ||
+      intelligence
+        ?.ranking ||
+      null;
+
+
+    const starSignal =
+      firstDefined(
+        intelligence
+          ?.report_card
+          ?.star_signal,
+        intelligence
+          ?.star_signal
+      );
+
+
+    setText(
+      "starDisplay",
+      starSignal ||
+      "☆☆☆☆☆"
+    );
+
+
+    setText(
+      "signalText",
+      compositeStatus
+    );
+
+
+    setText(
+      "evaluationStatus",
+      firstDefined(
+        domainStatus(
+          production
+        ),
+        domainStatus(
+          readiness
+        ),
+        "GOVERNED INTELLIGENCE"
+      )
+    );
+
+
+    setText(
+      "metricSpeed",
+      domainScore(
+        athletic
+      )
+    );
+
+
+    setText(
+      "metricExplosive",
+      domainScore(
+        production
+      )
+    );
+
+
+    setText(
+      "metricReadiness",
+      firstDefined(
+        domainStatus(
+          readiness
+        ),
+        domainScore(
+          readiness
+        )
+      )
+    );
+
+
+    setText(
+      "dossierArchetype",
+      firstDefined(
+        intelligence
+          ?.report_card
+          ?.archetype,
+        athletic
+          ?.archetype,
+        "Governed"
+      )
+    );
+
+
+    setText(
+      "dossierProductionSignal",
+      firstDefined(
+        domainStatus(
+          production
+        ),
+        domainScore(
+          production
+        )
+      )
+    );
+
+
+    setText(
+      "dossierTranslation",
+      firstDefined(
+        pathway
+          ?.pathway_state,
+        pathway
+          ?.label,
+        domainStatus(
+          pathway
+        )
+      )
+    );
+
+
+    setText(
+      "dossierAthleticSignal",
+      firstDefined(
+        domainStatus(
+          athletic
+        ),
+        domainScore(
+          athletic
+        )
+      )
+    );
+
+
+    setText(
+      "scMatrixVersion",
+      firstDefined(
+        intelligence
+          ?.doctrine_version,
+        intelligence
+          ?.intelligence_version,
+        athletic
+          ?.matrix_version,
+        production
+          ?.matrix_version,
+        "GOVERNED"
+      )
+    );
+
+
+    setText(
+      "scProductionSignal",
+      firstDefined(
+        domainStatus(
+          production
+        ),
+        domainScore(
+          production
+        )
+      )
+    );
+
+
+    setText(
+      "scFinalScore",
+      compositeScore
+    );
+
+
+    setText(
+      "scEvidenceState",
+      firstDefined(
+        verification
+          ?.evidence_state,
+        verification
+          ?.confidence,
+        domainStatus(
+          verification
+        ),
+        "Pending"
+      )
+    );
+
+
+    setText(
+      "scTranslationOutlook",
+      firstDefined(
+        pathway
+          ?.label,
+        pathway
+          ?.pathway_state,
+        domainStatus(
+          pathway
+        )
+      )
+    );
+
+
+    const missingEvidence =
+      asArray(
+        verification
+          ?.missing_evidence
+      );
+
+
+    setText(
+      "scVerificationGaps",
+      missingEvidence.length
+        ? `${missingEvidence.length} ACTIVE`
+        : firstDefined(
+            domainStatus(
+              verification
+            ),
+            "NONE REPORTED"
+          )
+    );
+
+
+    const nextAction =
+      firstDefined(
+        intelligence
+          ?.recommendations
+          ?.next_best_action,
+        intelligence
+          ?.report_card
+          ?.next_best_action,
+        explanation
+          ?.next_best_action
+      );
+
+
+    const nextActionText =
+      hasObject(
+        nextAction
+      )
+        ? firstDefined(
+            nextAction.action,
+            nextAction.label,
+            nextAction.recommendation
+          )
+        : nextAction;
+
+
+    setText(
+      "scRoleValue",
+      nextActionText ||
+      "Pending"
+    );
+
+
+    setText(
+      "scProductionExplanation",
+      domainExplanation(
+        production
+      ) ||
+      "Governed production intelligence supplied."
+    );
+
+
+    setText(
+      "scScoreBasis",
+      firstDefined(
+        composite.explanation,
+        composite.why_this_signal,
+        composite.why,
+        "Governed composite state supplied by Stream 9."
+      )
+    );
+
+
+    setText(
+      "scEvidenceExplanation",
+      domainExplanation(
+        verification
+      ) ||
+      "Governed verification/evidence state supplied."
+    );
+
+
+    setText(
+      "scTranslationExplanation",
+      domainExplanation(
+        pathway
+      ) ||
+      "Governed pathway state supplied."
+    );
+
+
+    setText(
+      "scVerificationExplanation",
+      missingEvidence.length
+        ? missingEvidence
+            .map(
+              normalizeReason
+            )
+            .filter(Boolean)
+            .join(" · ")
+        : "No missing-evidence list was supplied."
+    );
+
+
+    setText(
+      "scRoleValueExplanation",
+      nextActionText
+        ? "Next action is consumed from governed recommendation authority."
+        : "No governed next action has been supplied."
+    );
+
+
+    setText(
+      "primaryFocus",
+      nextActionText ||
+      "Governed recommendation pending."
+    );
+
+
+    setText(
+      "verificationNeed",
+      missingEvidence.length
+        ? missingEvidence
+            .map(
+              normalizeReason
+            )
+            .filter(Boolean)
+            .join(" · ")
+        : "No governed verification requirement is currently available."
+    );
+
+
+    setText(
+      "gameFilmStatus",
+      firstDefined(
+        verification
+          ?.evidence_state,
+        production
+          ?.evidence_status,
+        "Governed evidence state available."
+      )
+    );
+
+
+    setText(
+      "campStatus",
+      firstDefined(
+        verification
+          ?.status,
+        verification
+          ?.score_status,
+        "Verification state available."
+      )
+    );
+
+
+    if(ranking){
+      /*
+        Ranking may be displayed only if it is explicitly
+        supplied by a governed authority.
+      */
+
+      const rankingText =
+        firstDefined(
+          ranking.label,
+          ranking.rank_label,
+          ranking.rank
+        );
+
+
+      if(rankingText){
+        setText(
+          "signalText",
+          `${compositeStatus} · ${rankingText}`
+        );
+      }
+    }
+
+
+    renderTraits(
+      intelligence
+    );
+
+
+    renderWhy(
+      explanation
+    );
+  }
+
+
+  /* ========================================================
+     GUARDIAN STATE
+  ======================================================== */
+
+  function renderGuardianState(
+    governance,
+    projection
+  ){
+    if(
+      !projection
+        .show_guardian_state
+    ){
+      setText(
+        "guardianStatus",
+        "ROLE-SAFE"
+      );
+
+      return;
+    }
+
+
+    const state =
+      upper(
+        firstDefined(
+          governance
+            ?.approval_status,
+          governance
+            ?.status
+        )
+      );
+
+
+    if(
+      state ===
+      "APPROVED"
+    ){
+      setText(
+        "guardianStatus",
+        "APPROVED"
+      );
+
+      const el =
+        document.getElementById(
+          "guardianStatus"
+        );
+
+      el?.classList.remove(
+        "warning"
+      );
+
+      el?.classList.add(
+        "live"
+      );
+
+    }else if(state){
+      setText(
+        "guardianStatus",
+        state
+      );
+
+    }else{
+      setText(
+        "guardianStatus",
+        "NO GOVERNED STATE"
+      );
+    }
+  }
+
+
+  /* ========================================================
+     PUBLICATION STATE
+  ======================================================== */
+
+  function renderPublicationState(
+    publication,
+    projection
+  ){
+    if(
+      !projection
+        .show_publication_state
+    ){
+      return;
+    }
+
+
+    const state =
+      upper(
+        firstDefined(
+          publication
+            ?.publication_state,
+          publication
+            ?.status,
+          publication
+            ?.publication_status
+        )
+      );
+
+
+    if(!state){
+      setText(
+        "visibilityStatus",
+        "NOT ESTABLISHED"
+      );
+
+      setText(
+        "metricVisibility",
+        "--"
+      );
+
+      setText(
+        "dossierVisibility",
+        "NOT PUBLISHED"
+      );
+
+      setText(
+        "mediaStatus",
+        "No governed Stream 7 publication state was supplied."
+      );
+
+      setText(
+        "exposureLaneText",
+        "Exposure state remains pending Stream 7 publication authority."
+      );
+
+      return;
+    }
+
+
+    setText(
+      "visibilityStatus",
+      state
+    );
+
+
+    setText(
+      "metricVisibility",
+      state
+    );
+
+
+    setText(
+      "dossierVisibility",
+      state
+    );
+
+
+    setText(
+      "mediaStatus",
+      `Governed publication state: ${state}.`
+    );
+
+
+    setText(
+      "exposureLaneText",
+      `Exposure presentation reflects Stream 7 publication state: ${state}.`
+    );
+  }
+
+
+  /* ========================================================
+     RECRUITING DISCLOSURE
+
+     No inference from exposure/profile views.
+  ======================================================== */
+
+  function renderRecruitingDisclosure(
+    recruiting,
+    projection
+  ){
+    if(
+      !projection
+        .show_recruiting_disclosure
+    ){
+      setText(
+        "recruitingStatus",
+        "ROLE-SAFE"
+      );
+
+      return;
+    }
+
+
+    const state =
+      upper(
+        firstDefined(
+          recruiting
+            ?.disclosure_state,
+          recruiting
+            ?.status,
+          recruiting
+            ?.visibility_status
+        )
+      );
+
+
+    if(!state){
+      setText(
+        "recruitingStatus",
+        "NOT ESTABLISHED"
+      );
+
+      setText(
+        "recruiterViewStatus",
+        "No governed recruiting disclosure authority was supplied."
+      );
+
+      return;
+    }
+
+
+    setText(
+      "recruitingStatus",
+      state
+    );
+
+
+    setText(
+      "recruiterViewStatus",
+      `Governed recruiting disclosure state: ${state}.`
+    );
+  }
+
+
+  /* ========================================================
+     ACTION VISIBILITY
+  ======================================================== */
+
+  function setActionEnabled(
+    id,
+    enabled
+  ){
+    const action =
+      document.getElementById(
+        id
+      );
+
+    if(!action){
+      return;
+    }
+
+
+    if(enabled){
+      action.classList.remove(
+        "locked"
+      );
+
+      action.removeAttribute(
+        "aria-disabled"
+      );
+
+    }else{
+      action.classList.add(
+        "locked"
+      );
+
+      action.setAttribute(
+        "aria-disabled",
+        "true"
+      );
+    }
+  }
+
+
+  function applyViewerProjection(
+    projection
+  ){
+    setActionEnabled(
+      "parentApprovalAction",
+      projection
+        .show_parent_action
+    );
+
+
+    setActionEnabled(
+      "footerParentApprovalAction",
+      projection
+        .show_parent_action
+    );
+
+
+    setActionEnabled(
+      "verificationAction",
+      projection
+        .show_verification_action
+    );
+  }
+
+
+  /* ========================================================
+     CROSS-STREAM ROUTE CONTEXT
+  ======================================================== */
+
+  function governedRouteContext(
+    route,
+    snapshot,
+    authorization
+  ){
+    return {
+      athlete_id:
+        snapshot.athlete_id,
+
+      snapshot_id:
+        snapshot.snapshot_id,
+
+      role:
+        clean(
+          authorization?.role ||
+          route.role
+        ),
+
+      role_id:
+        clean(
+          authorization?.role_id ||
+          route.role_id
+        ),
+
+      role_context_id:
+        clean(
+          authorization
+            ?.role_context_id ||
+          route.role_context_id
+        ),
+
+      role_instance_id:
+        clean(
+          authorization
+            ?.role_instance_id ||
+          route.role_instance_id
+        ),
+
+      professional_id:
+        clean(
+          authorization
+            ?.professional_id ||
+          route.professional_id
+        ),
+
+      workspace_id:
+        clean(
+          authorization
+            ?.workspace_id ||
+          route.workspace_id
+        ),
+
+      organization_id:
+        clean(
+          authorization
+            ?.organization_id ||
+          route.organization_id
+        ),
+
+      program_id:
+        clean(
+          authorization
+            ?.program_id ||
+          route.program_id
+        ),
+
+      source:
+        "player-profile"
+    };
+  }
+
+
+  function preserveContextOnLink(
+    link,
+    context
+  ){
+    if(
+      !link ||
+      link.tagName !==
+        "A"
+    ){
+      return;
+    }
+
+
+    const href =
+      clean(
+        link.getAttribute(
+          "href"
+        )
+      );
+
+
+    if(
+      !href ||
+      href === "#"
+    ){
+      return;
+    }
+
+
+    const url =
+      new URL(
+        href,
+        window.location.href
+      );
+
+
+    Object.entries(
+      context
+    )
+      .forEach(
+        ([key,value]) => {
+
+          if(value){
+            url.searchParams.set(
+              key,
+              value
+            );
+          }
+        }
+      );
+
+
+    link.href =
+      url.pathname
+        .split("/")
+        .pop() +
+      url.search;
+  }
+
+
+  function preserveRouteContext(
+    context
+  ){
+    [
+      "navDashboard",
+      "navProfile",
+      "navReports",
+      "navMessages",
+      "navSettings",
+      "parentApprovalAction",
+      "verificationAction",
+      "snapshotPathAction",
+      "flowProfile",
+      "flowSnapshot",
+      "flowVerification",
+      "flowParent",
+      "flowMultiBox",
+      "flowCrystal",
+      "footerParentApprovalAction"
+    ]
+      .forEach(
+        id => {
+          preserveContextOnLink(
+            document.getElementById(
+              id
+            ),
+            context
+          );
+        }
+      );
+  }
+
+
+  /* ========================================================
+     BLOCKED STATE
+  ======================================================== */
+
+  function renderBlocked(
+    status,
+    message
+  ){
+    setRecordStatus(
+      status,
+      "denied"
+    );
+
+
+    showAccessState(
+      status,
+      message,
+      true
+    );
+
+
+    setText(
+      "identitySub",
+      "PROFILE ACCESS NOT ESTABLISHED"
+    );
+
+
+    setText(
+      "scoreStatus",
+      "UNAVAILABLE"
+    );
+
+
+    setText(
+      "scoreValue",
+      "--"
+    );
+
+
+    setText(
+      "profileBio",
+      message
+    );
+
+
+    setText(
+      "footerSnapshotState",
+      "Governed Context Required"
+    );
+
+
+    console.warn(
+      "[STATS-CORE Player Profile] Access blocked:",
+      {
+        status,
+        message
+      }
+    );
+  }
+
+
+  /* ========================================================
+     INITIALIZATION
+  ======================================================== */
+
+  async function init(){
+    const route =
+      getRouteContext();
+
+
+    setRecordStatus(
+      "Resolving Context"
+    );
+
+
+    showAccessState(
+      "Authorization",
+      "Resolving canonical athlete identity and governed access.",
+      true
+    );
+
+
+    /* --------------------------------------------------------
+       1. Resolve canonical Stream 2 identity
+    -------------------------------------------------------- */
+
+    const canonical =
+      await resolveCanonicalIdentity(
+        route
+      );
+
+
+    if(!canonical.ok){
+      renderBlocked(
+        canonical.status,
+        canonical.reason
+      );
+
+      return;
+    }
+
+
+    /* --------------------------------------------------------
+       2. Detect conflicting URL context
+    -------------------------------------------------------- */
+
+    if(
+      route.athlete_id &&
+      route.athlete_id !==
+        canonical.athlete_id
+    ){
+      renderBlocked(
+        STATUS.CONTEXT_MISMATCH,
+        "Requested athlete_id does not match the canonical snapshot."
+      );
+
+      return;
+    }
+
+
+    if(
+      route.snapshot_id &&
+      route.snapshot_id !==
+        canonical.snapshot_id
+    ){
+      renderBlocked(
+        STATUS.CONTEXT_MISMATCH,
+        "Requested snapshot_id does not match the canonical athlete context."
+      );
+
+      return;
+    }
+
+
+    /* --------------------------------------------------------
+       3. Reauthorize destination access
+    -------------------------------------------------------- */
+
+    const authorization =
+      await authorizeAccess(
+        canonical,
+        route
+      );
+
+
+    if(!authorization.ok){
+      renderBlocked(
+        authorization.status ||
+        STATUS.ACCESS_DENIED,
+        authorization.reason ||
+        "Athlete access is not authorized."
+      );
+
+      return;
+    }
+
+
+    /* --------------------------------------------------------
+       4. Load full canonical source record
+    -------------------------------------------------------- */
+
+    const rawSnapshot =
+      await loadCanonicalSnapshot(
+        canonical
+      );
+
+
+    if(!rawSnapshot){
+      renderBlocked(
+        STATUS.SOURCE_UNAVAILABLE,
+        "The canonical Stream 2 athlete snapshot is unavailable."
+      );
+
+      return;
+    }
+
+
+    const snapshot =
+      normalizeSnapshot(
+        rawSnapshot
+      );
+
+
+    if(
+      !snapshot ||
+      snapshot.athlete_id !==
+        canonical.athlete_id ||
+      snapshot.snapshot_id !==
+        canonical.snapshot_id
+    ){
+      renderBlocked(
+        STATUS.CONTEXT_MISMATCH,
+        "Canonical athlete identity changed during profile resolution."
+      );
+
+      return;
+    }
+
+
+    /* --------------------------------------------------------
+       5. Build role-safe viewer projection
+    -------------------------------------------------------- */
+
+    const projection =
+      buildViewerProjection(
+        authorization
+      );
+
+
+    /* --------------------------------------------------------
+       6. Render canonical source identity
+    -------------------------------------------------------- */
+
+    renderIdentity(
+      snapshot
+    );
+
+
+    applyViewerProjection(
+      projection
+    );
+
+
+    /* --------------------------------------------------------
+       7. Consume governed intelligence
+    -------------------------------------------------------- */
+
+    const intelligence =
+      await resolveGovernedIntelligence(
+        snapshot
+      );
+
+
+    const explanation =
+      resolveExplainability(
+        intelligence,
+        projection.audience
+      );
+
+
+    renderGovernedIntelligence(
+      intelligence,
+      explanation
+    );
+
+
+    /* --------------------------------------------------------
+       8. Consume governance/publication projections
+    -------------------------------------------------------- */
+
+    const parentGovernance =
+      await loadParentGovernance(
+        snapshot.snapshot_id
+      );
+
+
+    renderGuardianState(
+      parentGovernance,
+      projection
+    );
+
+
+    const publication =
+      resolvePublicationState(
+        snapshot
+      );
+
+
+    renderPublicationState(
+      publication,
+      projection
+    );
+
+
+    const recruiting =
+      resolveRecruitingDisclosure(
+        snapshot
+      );
+
+
+    renderRecruitingDisclosure(
+      recruiting,
+      projection
+    );
+
+
+    /* --------------------------------------------------------
+       9. Preserve immutable-history messaging
+    -------------------------------------------------------- */
+
+    setText(
+      "nextSnapshotText",
+      "Create a new governed snapshot after new evidence or measurement. Historical snapshots remain immutable."
+    );
+
+
+    /* --------------------------------------------------------
+       10. Preserve governed route context
+    -------------------------------------------------------- */
+
+    const routeContext =
+      governedRouteContext(
+        route,
+        snapshot,
+        authorization
+      );
+
+
+    preserveRouteContext(
+      routeContext
+    );
+
+
+    /* --------------------------------------------------------
+       11. Final ready state
+    -------------------------------------------------------- */
+
+    setRecordStatus(
+      "Governed Profile Ready",
+      "ready"
+    );
+
+
+    showAccessState(
+      "Authorized",
+      authorization.mode ===
+        ACCESS_MODE.ATHLETE_SELF
+        ? "Authenticated athlete self-access confirmed."
+        : "Professional athlete relationship/scope authorization confirmed.",
+      false
+    );
+
+
+    setText(
+      "footerSnapshotState",
+      `Snapshot ID: ${snapshot.snapshot_id}`
+    );
+
+
+    console.info(
+      "[STATS-CORE] Governed Player Profile ready.",
+      {
+        page_version:
+          PAGE_VERSION,
+
+        athlete_id:
+          snapshot.athlete_id,
+
+        snapshot_id:
+          snapshot.snapshot_id,
+
+        access_mode:
+          authorization.mode,
+
+        audience:
+          projection.audience,
+
+        intelligence_present:
+          Boolean(
+            intelligence
+          ),
+
+        explainability_present:
+          Boolean(
+            explanation
+          ),
+
+        publication_present:
+          Boolean(
+            publication
+          ),
+
+        recruiting_disclosure_present:
+          Boolean(
+            recruiting
+          ),
+
+        ready_at:
+          nowISO()
+      }
+    );
+  }
+
+
+  if(
+    document.readyState ===
+    "loading"
+  ){
+    document.addEventListener(
+      "DOMContentLoaded",
+      init
+    );
+
+  }else{
+    init();
+  }
 
 })();
-</script> 
+</script>
 
 </body>
-</html> 
-
+</html>
