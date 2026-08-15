@@ -1,289 +1,1355 @@
 /* ============================================================
    STATS-CORE™ RECRUITING INTEREST REGISTRY
    File: statscore-recruiting-interest-registry.js
-   Version: STATSCORE-RECRUITING-INTEREST-REGISTRY-V1
-   Purpose:
-   Separates exposure signals from verified recruiting interest,
-   offers, and commitments.
+   Version: STATSCORE-RECRUITING-INTEREST-REGISTRY-V2-GOVERNED
 
-   Doctrine:
-   - Exposure is not interest.
-   - Interest is not communication.
-   - Communication is not an offer.
-   - Offer is not commitment.
-   - Viewed profile does NOT create false hope.
-   - Recruiter actions must be registered, classified, and explainable.
+   Owner:
+   Stream 7 — Exposure / Publication Event Registry
+   consuming governed recruiting, identity, communication,
+   verification, and disclosure authorities.
+
+   Purpose:
+   Preserve and classify governed recruiting lifecycle events
+   without converting exposure into interest, communication into
+   offer, or offer into commitment.
+
+   CONTROLLING DOCTRINES:
+
+   Exposure ≠ Interest
+   Interest ≠ Communication
+   Communication ≠ Offer
+   Offer ≠ Commitment
+
+   Recruiter View ≠ Recruiting Interest
+   Recruiter Save ≠ Offer
+   Program Match ≠ Program Interest
+   Program Interest ≠ Offer
+   Offer ≠ Commitment
+   Verification ≠ Public Disclosure
+   Recruiting Event ≠ Public Media Authority
+
+   IMPORTANT:
+   This registry classifies governed events.
+   It does NOT manufacture recruiting truth merely because a
+   caller supplies a signal label.
 ============================================================ */
 
-(function(){
+(function () {
   "use strict";
 
-  window.STATSCORE_RECRUITING_INTEREST_REGISTRY = {
-    version: "STATSCORE-RECRUITING-INTEREST-REGISTRY-V1",
-    locked: true,
+  const VERSION =
+    "STATSCORE-RECRUITING-INTEREST-REGISTRY-V2-GOVERNED";
 
-    INTEREST_LEVELS: {
-      VIEWED_PROFILE: {
-        rank: 1,
-        label: "Viewed Profile",
-        category: "EXPOSURE_SIGNAL",
-        creates_interest: false,
-        creates_offer: false,
-        meaning: "A recruiter or program viewed the athlete profile. This is exposure, not confirmed interest."
-      },
-      VIEWED_FILM: {
-        rank: 2,
-        label: "Viewed Film",
-        category: "EXPOSURE_SIGNAL",
-        creates_interest: false,
-        creates_offer: false,
-        meaning: "Film was viewed. This improves visibility but does not confirm recruiting interest."
-      },
-      FOLLOWED_ATHLETE: {
-        rank: 3,
-        label: "Followed Athlete",
-        category: "WATCH_SIGNAL",
-        creates_interest: false,
-        creates_offer: false,
-        meaning: "Athlete was followed or added to a watchlist. This is a tracking signal, not an offer."
-      },
-      REQUESTED_INFO: {
-        rank: 4,
-        label: "Requested Info",
-        category: "EARLY_INTEREST",
-        creates_interest: true,
-        creates_offer: false,
-        meaning: "Recruiter requested additional information. This is early verified interest."
-      },
-      MESSAGE_REQUEST: {
-        rank: 5,
-        label: "Message Request",
-        category: "COMMUNICATION_REQUEST",
-        creates_interest: true,
-        creates_offer: false,
-        meaning: "Recruiter requested communication access. Communication governance applies."
-      },
-      EVALUATION_REQUESTED: {
-        rank: 6,
-        label: "Evaluation Requested",
-        category: "EVALUATION_INTEREST",
-        creates_interest: true,
-        creates_offer: false,
-        meaning: "Recruiter requested athlete evaluation or verification review."
-      },
-      CAMP_INVITE: {
-        rank: 7,
-        label: "Camp Invite",
-        category: "ACTIVE_RECRUITING_SIGNAL",
-        creates_interest: true,
-        creates_offer: false,
-        meaning: "Athlete received a camp invite. This is active recruiting activity but not an offer."
-      },
-      VISIT_INVITE: {
-        rank: 8,
-        label: "Visit Invite",
-        category: "HIGH_INTEREST",
-        creates_interest: true,
-        creates_offer: false,
-        meaning: "Athlete received a visit invite. This indicates strong interest but is still not an offer."
-      },
-      OFFER: {
-        rank: 9,
-        label: "Offer",
-        category: "FORMAL_OFFER",
-        creates_interest: true,
-        creates_offer: true,
-        meaning: "Program has registered an offer. Offer must remain separate from commitment."
-      },
-      COMMITMENT: {
-        rank: 10,
-        label: "Commitment",
-        category: "COMMITMENT_STATUS",
-        creates_interest: true,
-        creates_offer: true,
-        creates_commitment: true,
-        meaning: "Athlete has committed. Commitment is the highest recruiting status."
+
+  /* ==========================================================
+     EVENT DEFINITIONS
+
+     progression_order is lifecycle ordering only.
+
+     IT IS NOT:
+     - recruiting score;
+     - athlete score;
+     - probability;
+     - program-fit score;
+     - offer probability.
+  ========================================================== */
+
+  const EVENT_TYPES = Object.freeze({
+
+    VIEWED_PROFILE: Object.freeze({
+      progression_order: 10,
+      label: "Viewed Profile",
+      lifecycle_class: "EXPOSURE",
+      establishes_interest: false,
+      establishes_communication: false,
+      establishes_offer: false,
+      establishes_commitment: false,
+
+      meaning:
+        "A governed recruiter/program profile-view event occurred. " +
+        "This is exposure only and does not establish recruiting interest."
+    }),
+
+    VIEWED_FILM: Object.freeze({
+      progression_order: 20,
+      label: "Viewed Film",
+      lifecycle_class: "EXPOSURE",
+      establishes_interest: false,
+      establishes_communication: false,
+      establishes_offer: false,
+      establishes_commitment: false,
+
+      meaning:
+        "A governed film-view event occurred. Film consumption is exposure, not confirmed recruiting interest."
+    }),
+
+    FOLLOWED_ATHLETE: Object.freeze({
+      progression_order: 30,
+      label: "Followed / Saved Athlete",
+      lifecycle_class: "WATCH",
+      establishes_interest: false,
+      establishes_communication: false,
+      establishes_offer: false,
+      establishes_commitment: false,
+
+      meaning:
+        "The athlete was followed, saved, or added to a governed watch context. This is a tracking signal, not an offer or commitment."
+    }),
+
+    REQUESTED_INFO: Object.freeze({
+      progression_order: 40,
+      label: "Information Requested",
+      lifecycle_class: "INTEREST",
+      establishes_interest: true,
+      establishes_communication: false,
+      establishes_offer: false,
+      establishes_commitment: false,
+
+      meaning:
+        "An authorized recruiter/program requested additional athlete information. When verified, this establishes recruiting interest but not an offer."
+    }),
+
+    MESSAGE_REQUEST: Object.freeze({
+      progression_order: 50,
+      label: "Communication Requested",
+      lifecycle_class: "COMMUNICATION_REQUEST",
+      establishes_interest: true,
+      establishes_communication: false,
+      establishes_offer: false,
+      establishes_commitment: false,
+
+      meaning:
+        "An authorized recruiter/program requested communication access. Communication itself remains governed by Stream 6."
+    }),
+
+    EVALUATION_REQUESTED: Object.freeze({
+      progression_order: 60,
+      label: "Evaluation Requested",
+      lifecycle_class: "EVALUATION_INTEREST",
+      establishes_interest: true,
+      establishes_communication: false,
+      establishes_offer: false,
+      establishes_commitment: false,
+
+      meaning:
+        "An authorized recruiter/program requested additional governed evaluation or verification review. This is recruiting interest, not an offer."
+    }),
+
+    CAMP_INVITE: Object.freeze({
+      progression_order: 70,
+      label: "Camp Invitation",
+      lifecycle_class: "ACTIVE_RECRUITING",
+      establishes_interest: true,
+      establishes_communication: false,
+      establishes_offer: false,
+      establishes_commitment: false,
+
+      meaning:
+        "A governed camp invitation was issued. It may represent active recruiting activity but does not establish an offer."
+    }),
+
+    VISIT_INVITE: Object.freeze({
+      progression_order: 80,
+      label: "Visit Invitation",
+      lifecycle_class: "HIGH_INTEREST",
+      establishes_interest: true,
+      establishes_communication: false,
+      establishes_offer: false,
+      establishes_commitment: false,
+
+      meaning:
+        "A governed visit invitation was issued. It may establish significant recruiting interest but remains distinct from an offer."
+    }),
+
+    OFFER: Object.freeze({
+      progression_order: 90,
+      label: "Formal Offer",
+      lifecycle_class: "FORMAL_OFFER",
+      establishes_interest: true,
+      establishes_communication: false,
+      establishes_offer: true,
+      establishes_commitment: false,
+      elevated_authority_required: true,
+
+      meaning:
+        "A formal offer may be represented only when authoritative offer evidence and verification are present. An offer is not a commitment."
+    }),
+
+    COMMITMENT: Object.freeze({
+      progression_order: 100,
+      label: "Commitment",
+      lifecycle_class: "COMMITMENT",
+      establishes_interest: true,
+      establishes_communication: false,
+      establishes_offer: false,
+      establishes_commitment: true,
+      elevated_authority_required: true,
+
+      meaning:
+        "A commitment may be represented only when authoritative commitment evidence and verification are present. It must not be inferred from interest, communication, or an offer."
+    })
+  });
+
+
+  /* ==========================================================
+     SEPARATE STATE DIMENSIONS
+
+     Do not collapse these into one status.
+  ========================================================== */
+
+  const VERIFICATION_STATES = Object.freeze({
+    UNVERIFIED: "UNVERIFIED",
+    PENDING: "PENDING",
+    VERIFIED: "VERIFIED",
+    REJECTED: "REJECTED"
+  });
+
+  const LIFECYCLE_STATES = Object.freeze({
+    ACTIVE: "ACTIVE",
+    EXPIRED: "EXPIRED",
+    REVOKED: "REVOKED",
+    WITHDRAWN: "WITHDRAWN",
+    SUPERSEDED: "SUPERSEDED",
+    HISTORICAL: "HISTORICAL"
+  });
+
+  const COMMUNICATION_STATES = Object.freeze({
+    NOT_APPLICABLE: "NOT_APPLICABLE",
+    UNKNOWN: "UNKNOWN",
+    REQUESTED: "REQUESTED",
+    ALLOWED: "ALLOWED",
+    RESTRICTED: "RESTRICTED",
+    PENDING_PERMISSION: "PENDING_PERMISSION"
+  });
+
+  const DISCLOSURE_SCOPES = Object.freeze({
+    PRIVATE: "PRIVATE",
+    ATHLETE_WORKSPACE: "ATHLETE_WORKSPACE",
+    PARENT_GUARDIAN: "PARENT_GUARDIAN",
+    PROFESSIONAL_WORKSPACE: "PROFESSIONAL_WORKSPACE",
+    RECRUITING: "RECRUITING",
+    PUBLIC_MEDIA: "PUBLIC_MEDIA"
+  });
+
+  const ESTABLISHMENT_STATES = Object.freeze({
+    ESTABLISHED: "ESTABLISHED",
+    UNESTABLISHED: "UNESTABLISHED",
+    HISTORICAL_ONLY: "HISTORICAL_ONLY"
+  });
+
+
+  /* ==========================================================
+     HELPERS
+  ========================================================== */
+
+  function normalize(value) {
+    return String(value || "")
+      .trim()
+      .toUpperCase()
+      .replace(/\s+/g, "_");
+  }
+
+  function clean(value) {
+    if (
+      value === null ||
+      value === undefined
+    ) {
+      return "";
+    }
+
+    return String(value).trim();
+  }
+
+  function nowISO() {
+    return new Date().toISOString();
+  }
+
+  function generateId(prefix = "recruiting_event") {
+    if (
+      globalThis.crypto &&
+      typeof globalThis.crypto.randomUUID === "function"
+    ) {
+      return `${prefix}:${globalThis.crypto.randomUUID()}`;
+    }
+
+    return (
+      `${prefix}:${Date.now()}:` +
+      Math.random().toString(36).slice(2)
+    );
+  }
+
+  function clone(value) {
+    try {
+      return JSON.parse(JSON.stringify(value));
+    } catch (_) {
+      return value;
+    }
+  }
+
+  function getDefinition(type) {
+    return EVENT_TYPES[
+      normalize(type)
+    ] || null;
+  }
+
+  function isVerified(state) {
+    return (
+      normalize(state) ===
+      VERIFICATION_STATES.VERIFIED
+    );
+  }
+
+  function isCurrentLifecycle(state) {
+    return (
+      normalize(state) ===
+      LIFECYCLE_STATES.ACTIVE
+    );
+  }
+
+
+  /* ==========================================================
+     AUTHORITY VALIDATION
+
+     A signal label cannot manufacture enterprise truth.
+  ========================================================== */
+
+  function validateAuthority(input = {}, definition = {}) {
+    const errors = [];
+
+    const sourceAuthority =
+      clean(
+        input.source_authority ||
+        input.governing_authority
+      );
+
+    const evidenceReference =
+      clean(
+        input.evidence_reference ||
+        input.event_reference ||
+        input.source_event_id
+      );
+
+    const receiptId =
+      clean(
+        input.receipt_id ||
+        input.verification_receipt_id
+      );
+
+    const verificationState =
+      normalize(
+        input.verification_state ||
+        VERIFICATION_STATES.UNVERIFIED
+      );
+
+    /*
+      All events need attribution sufficient to distinguish
+      registered event from arbitrary caller assertion.
+    */
+    if (!sourceAuthority) {
+      errors.push(
+        "source_authority is required."
+      );
+    }
+
+    /*
+      Elevated recruiting states require stronger evidence.
+    */
+    if (
+      definition.elevated_authority_required === true
+    ) {
+      if (!evidenceReference) {
+        errors.push(
+          "Formal Offer / Commitment requires authoritative evidence_reference."
+        );
       }
-    },
 
-    SIGNAL_STATUS: {
-      UNVERIFIED: "UNVERIFIED",
-      VERIFIED: "VERIFIED",
-      REVOKED: "REVOKED",
-      EXPIRED: "EXPIRED",
-      PENDING_PARENT_PERMISSION: "PENDING_PARENT_PERMISSION",
-      COMMUNICATION_ALLOWED: "COMMUNICATION_ALLOWED",
-      COMMUNICATION_RESTRICTED: "COMMUNICATION_RESTRICTED"
-    },
+      if (!receiptId) {
+        errors.push(
+          "Formal Offer / Commitment requires a governed receipt/reference."
+        );
+      }
 
-    normalize(value){
-      return String(value || "").trim().toUpperCase().replace(/\s+/g, "_");
-    },
+      if (
+        verificationState !==
+        VERIFICATION_STATES.VERIFIED
+      ) {
+        errors.push(
+          "Formal Offer / Commitment requires VERIFIED authority."
+        );
+      }
+    }
 
-    nowISO(){
-      return new Date().toISOString();
-    },
+    return {
+      ok: errors.length === 0,
+      errors
+    };
+  }
 
-    getLevel(level){
-      const key = this.normalize(level);
-      return this.INTEREST_LEVELS[key] || null;
-    },
 
-    createSignal(input = {}){
-      const levelKey = this.normalize(input.interest_level || input.signal_type);
-      const level = this.INTEREST_LEVELS[levelKey];
+  /* ==========================================================
+     EVENT ESTABLISHMENT
 
-      if(!level){
+     Distinguish "event was submitted" from
+     "enterprise meaning is established."
+  ========================================================== */
+
+  function determineEstablishment(
+    definition,
+    verificationState,
+    lifecycleState,
+    authorityValidation
+  ) {
+    if (
+      !isCurrentLifecycle(lifecycleState)
+    ) {
+      return {
+        state:
+          ESTABLISHMENT_STATES.HISTORICAL_ONLY,
+
+        reason:
+          `Lifecycle state is ${lifecycleState}. ` +
+          "The event remains historical evidence but does not establish current recruiting state."
+      };
+    }
+
+    if (!authorityValidation.ok) {
+      return {
+        state:
+          ESTABLISHMENT_STATES.UNESTABLISHED,
+
+        reason:
+          authorityValidation.errors.join(" ")
+      };
+    }
+
+    /*
+      Exposure events may be valid observed events without
+      becoming recruiting interest.
+
+      Interest/offer/commitment classifications require
+      verified authority before their higher-order meaning
+      is established.
+    */
+    if (
+      definition.establishes_interest === true ||
+      definition.establishes_offer === true ||
+      definition.establishes_commitment === true
+    ) {
+      if (!isVerified(verificationState)) {
         return {
-          ok: false,
-          error: "INVALID_INTEREST_LEVEL",
-          message: "Recruiting signal level is not recognized.",
-          received: input.interest_level || input.signal_type || null
+          state:
+            ESTABLISHMENT_STATES.UNESTABLISHED,
+
+          reason:
+            "Recruiting meaning is not established until the event is verified."
         };
       }
+    }
 
-      const parentPermissionRequired = Boolean(input.parent_permission_required);
-      const communicationAllowed = Boolean(input.communication_allowed);
+    return {
+      state:
+        ESTABLISHMENT_STATES.ESTABLISHED,
 
-      let signalStatus = input.signal_status || this.SIGNAL_STATUS.UNVERIFIED;
+      reason:
+        "Required event authority is established."
+    };
+  }
 
-      if(parentPermissionRequired && !communicationAllowed){
-        signalStatus = this.SIGNAL_STATUS.PENDING_PARENT_PERMISSION;
-      }
 
+  /* ==========================================================
+     GOVERNED EVENT CREATION
+
+     This creates a registry EVENT OBJECT.
+     It does not create the underlying recruiting truth.
+  ========================================================== */
+
+  function createSignal(input = {}) {
+    const typeKey =
+      normalize(
+        input.event_type ||
+        input.interest_level ||
+        input.signal_type
+      );
+
+    const definition =
+      EVENT_TYPES[typeKey];
+
+    if (!definition) {
       return {
-        ok: true,
-        registry_version: this.version,
-
-        signal_id: input.signal_id || crypto?.randomUUID?.() || `signal_${Date.now()}`,
-
-        program_id: input.program_id || null,
-        program_name: input.program_name || null,
-
-        recruiter_id: input.recruiter_id || null,
-        recruiter_name: input.recruiter_name || null,
-
-        athlete_id: input.athlete_id || null,
-        athlete_name: input.athlete_name || null,
-
-        interest_level: levelKey,
-        interest_rank: level.rank,
-        signal_label: level.label,
-        signal_category: level.category,
-
-        creates_interest: Boolean(level.creates_interest),
-        creates_offer: Boolean(level.creates_offer),
-        creates_commitment: Boolean(level.creates_commitment),
-
-        signal_status: signalStatus,
-        verified_at: input.verified_at || null,
-
-        communication_allowed: communicationAllowed,
-        parent_permission_required: parentPermissionRequired,
-
-        notes: input.notes || "",
-        meaning: level.meaning,
-
-        created_at: input.created_at || this.nowISO(),
-        updated_at: this.nowISO(),
-        locked: true
+        ok: false,
+        error: "INVALID_RECRUITING_EVENT_TYPE",
+        message:
+          "Recruiting event type is not recognized.",
+        received:
+          input.event_type ||
+          input.interest_level ||
+          input.signal_type ||
+          null
       };
-    },
+    }
 
-    classifySignal(input = {}){
-      const signal = this.createSignal(input);
-      if(!signal.ok) return signal;
+    const verificationState =
+      normalize(
+        input.verification_state ||
+        input.signal_status ||
+        VERIFICATION_STATES.UNVERIFIED
+      );
 
-      let publicLabel = "Exposure Signal";
-      let athleteMessage = "This signal should not be treated as confirmed recruiting interest.";
+    const lifecycleState =
+      normalize(
+        input.lifecycle_state ||
+        LIFECYCLE_STATES.ACTIVE
+      );
 
-      if(signal.creates_commitment){
-        publicLabel = "Commitment";
-        athleteMessage = "This signal indicates a commitment status.";
-      } else if(signal.creates_offer){
-        publicLabel = "Formal Offer";
-        athleteMessage = "This signal indicates an offer, but not a commitment.";
-      } else if(signal.creates_interest){
-        publicLabel = "Verified Recruiting Interest";
-        athleteMessage = "This signal indicates real recruiting interest, but not an offer.";
+    const communicationState =
+      normalize(
+        input.communication_state ||
+        (
+          typeKey === "MESSAGE_REQUEST"
+            ? COMMUNICATION_STATES.REQUESTED
+            : COMMUNICATION_STATES.NOT_APPLICABLE
+        )
+      );
+
+    const disclosureScope =
+      normalize(
+        input.disclosure_scope ||
+        DISCLOSURE_SCOPES.PRIVATE
+      );
+
+    const authorityValidation =
+      validateAuthority(
+        input,
+        definition
+      );
+
+    const establishment =
+      determineEstablishment(
+        definition,
+        verificationState,
+        lifecycleState,
+        authorityValidation
+      );
+
+    const established =
+      establishment.state ===
+      ESTABLISHMENT_STATES.ESTABLISHED;
+
+
+    /*
+      Only established events can create higher-order
+      recruiting meaning.
+    */
+    const establishesInterest =
+      established &&
+      definition.establishes_interest === true;
+
+    const establishesOffer =
+      established &&
+      definition.establishes_offer === true;
+
+    const establishesCommitment =
+      established &&
+      definition.establishes_commitment === true;
+
+
+    return {
+      ok: true,
+
+      registry_version:
+        VERSION,
+
+      event_id:
+        input.event_id ||
+        input.signal_id ||
+        generateId(),
+
+      event_type:
+        typeKey,
+
+      event_label:
+        definition.label,
+
+      lifecycle_class:
+        definition.lifecycle_class,
+
+      progression_order:
+        definition.progression_order,
+
+      metric_class:
+        "RECRUITING_LIFECYCLE_ORDER",
+
+      recruiting_score:
+        false,
+
+
+      /* ------------------------------------------------------
+         SUBJECTS
+      ------------------------------------------------------ */
+
+      athlete_id:
+        input.athlete_id || null,
+
+      athlete_name:
+        input.athlete_name ||
+        input.athlete_display_name ||
+        null,
+
+      snapshot_id:
+        input.snapshot_id || null,
+
+      program_id:
+        input.program_id || null,
+
+      program_name:
+        input.program_name || null,
+
+      recruiter_id:
+        input.recruiter_id || null,
+
+      recruiter_name:
+        input.recruiter_name || null,
+
+
+      /* ------------------------------------------------------
+         PROFESSIONAL / ORGANIZATIONAL ATTRIBUTION
+      ------------------------------------------------------ */
+
+      professional_id:
+        input.professional_id ||
+        input.recruiter_id ||
+        null,
+
+      certification_id:
+        input.certification_id ||
+        input.psc_certification_id ||
+        null,
+
+      certification_status_at_time_of_action:
+        input.certification_status_at_time_of_action ||
+        null,
+
+      organization_id:
+        input.organization_id ||
+        input.program_id ||
+        null,
+
+      organization_role:
+        input.organization_role ||
+        null,
+
+      authority_scope:
+        input.authority_scope ||
+        null,
+
+
+      /* ------------------------------------------------------
+         GOVERNING AUTHORITY / EVIDENCE
+      ------------------------------------------------------ */
+
+      source_authority:
+        input.source_authority ||
+        input.governing_authority ||
+        null,
+
+      source_event_id:
+        input.source_event_id ||
+        null,
+
+      evidence_reference:
+        input.evidence_reference ||
+        input.event_reference ||
+        null,
+
+      verification_receipt_id:
+        input.verification_receipt_id ||
+        null,
+
+      receipt_id:
+        input.receipt_id ||
+        null,
+
+      provenance:
+        clone(
+          input.provenance || {}
+        ),
+
+
+      /* ------------------------------------------------------
+         SEPARATE GOVERNANCE DIMENSIONS
+      ------------------------------------------------------ */
+
+      verification_state:
+        verificationState,
+
+      lifecycle_state:
+        lifecycleState,
+
+      communication_state:
+        communicationState,
+
+      communication_governance_reference:
+        input.communication_governance_reference ||
+        input.communication_receipt_id ||
+        null,
+
+      parent_guardian_permission_state:
+        normalize(
+          input.parent_guardian_permission_state ||
+          "UNKNOWN"
+        ),
+
+      parent_guardian_permission_reference:
+        input.parent_guardian_permission_reference ||
+        null,
+
+      disclosure_scope:
+        disclosureScope,
+
+      public_disclosure_authorized:
+        input.public_disclosure_authorized === true,
+
+      disclosure_authority_reference:
+        input.disclosure_authority_reference ||
+        null,
+
+
+      /* ------------------------------------------------------
+         ESTABLISHMENT
+      ------------------------------------------------------ */
+
+      establishment_state:
+        establishment.state,
+
+      establishment_reason:
+        establishment.reason,
+
+      establishes_interest:
+        establishesInterest,
+
+      establishes_communication:
+        false,
+
+      establishes_offer:
+        establishesOffer,
+
+      establishes_commitment:
+        establishesCommitment,
+
+
+      /* ------------------------------------------------------
+         EXPLAINABILITY
+      ------------------------------------------------------ */
+
+      meaning:
+        definition.meaning,
+
+      notes:
+        input.notes || "",
+
+      occurred_at:
+        input.occurred_at ||
+        input.created_at ||
+        nowISO(),
+
+      registered_at:
+        nowISO(),
+
+      locked:
+        true,
+
+      doctrine: {
+        exposure_is_not_interest: true,
+        interest_is_not_communication: true,
+        communication_is_not_offer: true,
+        offer_is_not_commitment: true,
+        verification_is_not_public_disclosure: true,
+        recruiting_event_is_not_media_authority: true,
+        progression_order_is_not_score: true
       }
+    };
+  }
 
-      return {
-        ...signal,
-        public_label: publicLabel,
-        athlete_message: athleteMessage,
-        explainability: this.explainSignal(signal)
-      };
-    },
 
-    explainSignal(signal){
-      return [
-        `Signal: ${signal.signal_label}.`,
-        `Category: ${signal.signal_category}.`,
-        `Creates interest: ${signal.creates_interest ? "Yes" : "No"}.`,
-        `Creates offer: ${signal.creates_offer ? "Yes" : "No"}.`,
-        `Creates commitment: ${signal.creates_commitment ? "Yes" : "No"}.`,
-        `Meaning: ${signal.meaning}`
-      ];
-    },
+  /* ==========================================================
+     PRESENTATION CLASSIFICATION
 
-    summarizeAthleteInterest(signals = []){
-      const classified = signals
-        .map(signal => this.classifySignal(signal))
+     IMPORTANT:
+     This produces a WORKSPACE-SAFE label.
+
+     It is not automatically a PUBLIC label.
+  ========================================================== */
+
+  function classifySignal(input = {}) {
+    const signal =
+      input?.registry_version === VERSION &&
+      input?.event_type
+        ? clone(input)
+        : createSignal(input);
+
+    if (!signal.ok) {
+      return signal;
+    }
+
+    let workspaceLabel =
+      "Exposure Signal";
+
+    let athleteMessage =
+      "This event should not be treated as confirmed recruiting interest.";
+
+    if (
+      signal.establishment_state !==
+      ESTABLISHMENT_STATES.ESTABLISHED
+    ) {
+      workspaceLabel =
+        "Unconfirmed Recruiting Event";
+
+      athleteMessage =
+        "A recruiting-related event is registered, but its higher-order meaning is not currently established.";
+    } else if (
+      signal.establishes_commitment
+    ) {
+      workspaceLabel =
+        "Verified Commitment";
+
+      athleteMessage =
+        "A governed commitment event is established.";
+    } else if (
+      signal.establishes_offer
+    ) {
+      workspaceLabel =
+        "Verified Formal Offer";
+
+      athleteMessage =
+        "A governed formal offer is established. An offer is not a commitment.";
+    } else if (
+      signal.establishes_interest
+    ) {
+      workspaceLabel =
+        "Verified Recruiting Interest";
+
+      athleteMessage =
+        "Governed recruiting interest is established, but this does not constitute an offer.";
+    } else if (
+      signal.lifecycle_class ===
+      "COMMUNICATION_REQUEST"
+    ) {
+      workspaceLabel =
+        "Communication Request";
+
+      athleteMessage =
+        "Communication was requested. Stream 6 communication governance determines whether communication may occur.";
+    }
+
+    const publicPresentationAllowed =
+      signal.public_disclosure_authorized === true &&
+      signal.disclosure_scope ===
+        DISCLOSURE_SCOPES.PUBLIC_MEDIA &&
+      Boolean(
+        signal.disclosure_authority_reference
+      );
+
+
+    return {
+      ...signal,
+
+      workspace_label:
+        workspaceLabel,
+
+      athlete_message:
+        athleteMessage,
+
+      public_presentation_allowed:
+        publicPresentationAllowed,
+
+      /*
+        Deliberately no generic `public_label`.
+        Recruiting privacy fails closed.
+      */
+      public_label:
+        publicPresentationAllowed
+          ? workspaceLabel
+          : null,
+
+      explainability:
+        explainSignal(signal)
+    };
+  }
+
+
+  /* ==========================================================
+     EXPLAINABILITY
+  ========================================================== */
+
+  function explainSignal(signal = {}) {
+    return [
+      `Event: ${signal.event_label || "Unknown"}.`,
+      `Lifecycle class: ${signal.lifecycle_class || "Unknown"}.`,
+      `Verification: ${signal.verification_state || "Unknown"}.`,
+      `Lifecycle state: ${signal.lifecycle_state || "Unknown"}.`,
+      `Establishment: ${signal.establishment_state || "Unknown"}.`,
+      `Establishes interest: ${signal.establishes_interest ? "Yes" : "No"}.`,
+      `Establishes offer: ${signal.establishes_offer ? "Yes" : "No"}.`,
+      `Establishes commitment: ${signal.establishes_commitment ? "Yes" : "No"}.`,
+      `Disclosure scope: ${signal.disclosure_scope || "PRIVATE"}.`,
+      `Meaning: ${signal.meaning || "No explanation supplied."}`
+    ];
+  }
+
+
+  /* ==========================================================
+     CURRENT-STATE ELIGIBILITY
+  ========================================================== */
+
+  function isCurrentEstablishedSignal(signal = {}) {
+    return (
+      signal.ok === true &&
+      signal.establishment_state ===
+        ESTABLISHMENT_STATES.ESTABLISHED &&
+      signal.lifecycle_state ===
+        LIFECYCLE_STATES.ACTIVE
+    );
+  }
+
+
+  /* ==========================================================
+     ATHLETE RECRUITING SUMMARY
+
+     Preserve:
+     - full event history;
+     - current established state;
+     - historical high-water state.
+
+     Do not collapse history into one mutable status.
+  ========================================================== */
+
+  function summarizeAthleteInterest(signals = []) {
+    const classified =
+      (Array.isArray(signals) ? signals : [])
+        .map(signal =>
+          classifySignal(signal)
+        )
         .filter(signal => signal.ok);
 
-      if(!classified.length){
-        return {
-          ok: true,
-          status: "NO_SIGNALS",
-          highest_level: null,
-          summary: "No recruiting signals registered.",
-          signals: []
-        };
-      }
 
-      const sorted = classified.sort((a,b) => b.interest_rank - a.interest_rank);
-      const highest = sorted[0];
-
+    if (!classified.length) {
       return {
         ok: true,
-        status: "SIGNALS_FOUND",
-        highest_level: highest.signal_label,
-        highest_category: highest.signal_category,
-        creates_interest: highest.creates_interest,
-        creates_offer: highest.creates_offer,
-        creates_commitment: highest.creates_commitment,
-        summary: this.buildSummary(highest),
-        signals: sorted,
-        generated_at: this.nowISO(),
-        locked: true
+        status: "NO_EVENTS",
+
+        current_state:
+          null,
+
+        historical_high_water:
+          null,
+
+        summary:
+          "No governed recruiting lifecycle events are registered.",
+
+        events: [],
+
+        generated_at:
+          nowISO()
       };
-    },
-
-    buildSummary(highest){
-      if(highest.creates_commitment){
-        return `${highest.athlete_name || "Athlete"} has a registered commitment signal with ${highest.program_name || "a program"}.`;
-      }
-
-      if(highest.creates_offer){
-        return `${highest.athlete_name || "Athlete"} has a registered offer signal from ${highest.program_name || "a program"}.`;
-      }
-
-      if(highest.creates_interest){
-        return `${highest.athlete_name || "Athlete"} has verified recruiting interest from ${highest.program_name || "a program"}, but this is not an offer.`;
-      }
-
-      return `${highest.athlete_name || "Athlete"} has exposure/watch signals, but no verified recruiting interest yet.`;
     }
+
+
+    /*
+      Immutable/historical ordering.
+    */
+    const historical =
+      [...classified]
+        .sort(
+          (a, b) =>
+            Number(
+              b.progression_order || 0
+            ) -
+            Number(
+              a.progression_order || 0
+            )
+        );
+
+
+    const currentEstablished =
+      historical.filter(
+        isCurrentEstablishedSignal
+      );
+
+
+    const current =
+      currentEstablished[0] ||
+      null;
+
+
+    const historicalHigh =
+      historical.find(
+        signal =>
+          signal.establishment_state ===
+          ESTABLISHMENT_STATES.ESTABLISHED ||
+          signal.establishment_state ===
+          ESTABLISHMENT_STATES.HISTORICAL_ONLY
+      ) ||
+      null;
+
+
+    return {
+      ok: true,
+
+      status:
+        current
+          ? "CURRENT_STATE_ESTABLISHED"
+          : "NO_CURRENT_ESTABLISHED_STATE",
+
+      current_state:
+        current
+          ? {
+              event_id:
+                current.event_id,
+
+              event_type:
+                current.event_type,
+
+              label:
+                current.workspace_label,
+
+              lifecycle_class:
+                current.lifecycle_class,
+
+              program_id:
+                current.program_id,
+
+              program_name:
+                current.program_name,
+
+              recruiter_id:
+                current.recruiter_id,
+
+              establishes_interest:
+                current.establishes_interest,
+
+              establishes_offer:
+                current.establishes_offer,
+
+              establishes_commitment:
+                current.establishes_commitment,
+
+              verification_state:
+                current.verification_state,
+
+              occurred_at:
+                current.occurred_at,
+
+              receipt_id:
+                current.receipt_id ||
+                current.verification_receipt_id ||
+                null
+            }
+          : null,
+
+
+      historical_high_water:
+        historicalHigh
+          ? {
+              event_id:
+                historicalHigh.event_id,
+
+              event_type:
+                historicalHigh.event_type,
+
+              label:
+                historicalHigh.workspace_label,
+
+              lifecycle_state:
+                historicalHigh.lifecycle_state,
+
+              occurred_at:
+                historicalHigh.occurred_at
+            }
+          : null,
+
+
+      summary:
+        buildSummary(
+          current,
+          historicalHigh
+        ),
+
+      events:
+        historical,
+
+      generated_at:
+        nowISO(),
+
+      locked:
+        true,
+
+      doctrine: {
+        current_state_is_not_historical_high_water:
+          true,
+
+        revoked_or_expired_event_does_not_create_current_state:
+          true,
+
+        exposure_is_not_interest:
+          true,
+
+        offer_is_not_commitment:
+          true
+      }
+    };
+  }
+
+
+  /* ==========================================================
+     SUMMARY COPY
+  ========================================================== */
+
+  function buildSummary(
+    current,
+    historicalHigh
+  ) {
+    if (!current) {
+      if (historicalHigh) {
+        return (
+          "Recruiting lifecycle history exists, but no current " +
+          "governed recruiting state is established."
+        );
+      }
+
+      return (
+        "No current governed recruiting state is established."
+      );
+    }
+
+    const athlete =
+      current.athlete_name ||
+      "Athlete";
+
+    const program =
+      current.program_name ||
+      "a program";
+
+
+    if (
+      current.establishes_commitment
+    ) {
+      return (
+        `${athlete} has a currently established governed ` +
+        `commitment event with ${program}.`
+      );
+    }
+
+
+    if (
+      current.establishes_offer
+    ) {
+      return (
+        `${athlete} has a currently established governed ` +
+        `formal offer from ${program}. ` +
+        `This does not establish commitment.`
+      );
+    }
+
+
+    if (
+      current.establishes_interest
+    ) {
+      return (
+        `${athlete} has currently established recruiting ` +
+        `interest from ${program}. ` +
+        `This does not establish an offer.`
+      );
+    }
+
+
+    return (
+      `${athlete} has governed exposure/watch activity involving ` +
+      `${program}, but no current verified recruiting interest is established.`
+    );
+  }
+
+
+  /* ==========================================================
+     PUBLIC-MEDIA ELIGIBILITY
+
+     Stream 7 may determine whether this REGISTRY OBJECT carries
+     sufficient disclosure authorization to be considered by the
+     publication lifecycle.
+
+     It does NOT itself publish the event.
+  ========================================================== */
+
+  function buildMediaCandidateReference(signalInput = {}) {
+    const signal =
+      classifySignal(signalInput);
+
+    if (!signal.ok) {
+      return signal;
+    }
+
+    if (
+      signal.public_presentation_allowed !==
+      true
+    ) {
+      return {
+        ok: false,
+
+        status:
+          "PUBLIC_DISCLOSURE_NOT_AUTHORIZED",
+
+        event_id:
+          signal.event_id,
+
+        reason:
+          "Recruiting event remains private/restricted. No PHNX Media Candidate may be created from this event without governed public-disclosure authority."
+      };
+    }
+
+
+    if (
+      signal.establishment_state !==
+      ESTABLISHMENT_STATES.ESTABLISHED
+    ) {
+      return {
+        ok: false,
+
+        status:
+          "RECRUITING_EVENT_NOT_ESTABLISHED",
+
+        event_id:
+          signal.event_id,
+
+        reason:
+          "Unestablished recruiting event cannot become a public media claim."
+      };
+    }
+
+
+    return {
+      ok: true,
+
+      candidate_reference_type:
+        "RECRUITING_EVENT_MEDIA_REFERENCE",
+
+      source_event_id:
+        signal.event_id,
+
+      source_authority:
+        signal.source_authority,
+
+      why:
+        (
+          `Governed ${signal.event_label} event is eligible ` +
+          `for editorial consideration under explicit public-disclosure authority.`
+        ),
+
+      disclosure_scope:
+        signal.disclosure_scope,
+
+      disclosure_authority_reference:
+        signal.disclosure_authority_reference,
+
+      receipt_id:
+        signal.receipt_id ||
+        signal.verification_receipt_id ||
+        null,
+
+      /*
+        Candidate reference ≠ publication approval.
+      */
+      publication_authorized:
+        false,
+
+      doctrine: {
+        media_candidate_is_not_publication:
+          true,
+
+        recruiting_event_is_not_automatic_public_media:
+          true
+      }
+    };
+  }
+
+
+  /* ==========================================================
+     REGISTRY OBJECT
+  ========================================================== */
+
+  const Registry = {
+    version:
+      VERSION,
+
+    locked:
+      true,
+
+    EVENT_TYPES,
+    INTEREST_LEVELS:
+      EVENT_TYPES,
+
+    VERIFICATION_STATES,
+    LIFECYCLE_STATES,
+    COMMUNICATION_STATES,
+    DISCLOSURE_SCOPES,
+    ESTABLISHMENT_STATES,
+
+    normalize,
+    nowISO,
+
+    getLevel:
+      getDefinition,
+
+    getDefinition,
+
+    validateAuthority,
+
+    createSignal,
+    classifySignal,
+    explainSignal,
+
+    summarizeAthleteInterest,
+    buildSummary,
+
+    isCurrentEstablishedSignal,
+
+    buildMediaCandidateReference
   };
 
-  window.STATSCORE_REGISTER_RECRUITING_SIGNAL = function(input){
-    return window.STATSCORE_RECRUITING_INTEREST_REGISTRY.classifySignal(input);
-  };
 
-  window.STATSCORE_SUMMARIZE_RECRUITING_INTEREST = function(signals){
-    return window.STATSCORE_RECRUITING_INTEREST_REGISTRY.summarizeAthleteInterest(signals);
-  };
+  /* ==========================================================
+     GLOBAL COMPATIBILITY API
+  ========================================================== */
 
-  console.info("STATS-CORE Recruiting Interest Registry loaded:", window.STATSCORE_RECRUITING_INTEREST_REGISTRY.version);
+  window.STATSCORE_RECRUITING_INTEREST_REGISTRY =
+    Registry;
+
+
+  window.STATSCORE_REGISTER_RECRUITING_SIGNAL =
+    function (input) {
+      return Registry.classifySignal(
+        input
+      );
+    };
+
+
+  window.STATSCORE_SUMMARIZE_RECRUITING_INTEREST =
+    function (signals) {
+      return Registry.summarizeAthleteInterest(
+        signals
+      );
+    };
+
+
+  window.STATSCORE_BUILD_RECRUITING_MEDIA_REFERENCE =
+    function (signal) {
+      return Registry.buildMediaCandidateReference(
+        signal
+      );
+    };
+
+
+  console.info(
+    "STATS-CORE Governed Recruiting Interest Registry loaded:",
+    VERSION
+  );
+
 })(); 
