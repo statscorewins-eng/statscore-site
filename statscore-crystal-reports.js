@@ -1,43 +1,645 @@
 /* ============================================================
-   STATScore™ Crystal Report Engine
-   FULL PRODUCTION FILE
-   Version: v1.0
-   Purpose:
-   Institutional Athlete Intelligence Report Generation
-   ============================================================ */
+   STATS-CORE™ CRYSTAL REPORT ENGINE
+   File: statscore-crystal-reports.js
+   Version: STATSCORE-CRYSTAL-REPORTS-V2-GOVERNED-PUBLICATION
+
+   Owner:
+   Stream 7 — Crystal Reports / Crystal Registry /
+   Enterprise Publication Authority
+
+   Constitutional Purpose:
+   Compose explainable, versioned, snapshot-bound Crystal Reports
+   from governed enterprise intelligence.
+
+   STREAM 7 MAY:
+   - consume governed Crystal publication objects;
+   - consume governed publication-safe intelligence references;
+   - preserve athlete/snapshot lineage;
+   - preserve WHY;
+   - preserve confidence;
+   - preserve authority/version/receipt lineage;
+   - preserve pathway constraints;
+   - preserve recommendation/action references;
+   - preserve eligibility rule/version references;
+   - compose institutional human-readable reports;
+   - prepare report publication records;
+   - hand report publication to the Publication Receipt lifecycle.
+
+   STREAM 7 SHALL NOT:
+   - calculate Athletic Score;
+   - calculate STATScore;
+   - calculate Evidence Strength;
+   - calculate Confidence;
+   - calculate Readiness;
+   - calculate Development Intelligence;
+   - prescribe development plans;
+   - calculate Pathway;
+   - calculate Eligibility;
+   - manufacture ranking;
+   - manufacture Match Intelligence;
+   - strengthen verification claims;
+   - combine intelligence from mismatched snapshots;
+   - publish restricted intelligence merely because it exists.
+
+   CONTROLLING DOCTRINES:
+
+   Crystal Report ≠ Intelligence Authority
+
+   Intelligence
+        ↓
+   Governed Intelligence Receipt
+        ↓
+   Crystal Composition
+        ↓
+   Crystal Report
+        ↓
+   Publication Receipt
+
+   Report Composition Time ≠ Intelligence Effective Time
+
+   Athletic Ceiling ≠ Current Reachable Pathway
+
+   Fact ≠ Evidence ≠ Authority ≠ Confidence ≠ Interpretation
+        ≠ Recommendation ≠ Action ≠ Outcome
+============================================================ */
 
 (function () {
   "use strict";
 
-  const ENGINE_ID = "statscore-crystal-report-engine";
-  const VERSION = "v1.0-output-layer";
+
+  const ENGINE_ID =
+    "statscore-crystal-report-engine";
+
+  const VERSION =
+    "STATSCORE-CRYSTAL-REPORTS-V2-GOVERNED-PUBLICATION";
+
+
+  const REPORT_TYPES = Object.freeze({
+    ATHLETE_INTELLIGENCE:
+      "ATHLETE_INTELLIGENCE",
+
+    CRYSTAL_MATCH:
+      "CRYSTAL_MATCH",
+
+    PATHWAY:
+      "PATHWAY",
+
+    DEVELOPMENT:
+      "DEVELOPMENT",
+
+    ELIGIBILITY:
+      "ELIGIBILITY",
+
+    LIFECYCLE:
+      "LIFECYCLE"
+  });
+
+
+  const DISCLOSURE_SCOPES = Object.freeze({
+    PRIVATE:
+      "PRIVATE",
+
+    ATHLETE_WORKSPACE:
+      "ATHLETE_WORKSPACE",
+
+    PARENT_GUARDIAN:
+      "PARENT_GUARDIAN",
+
+    PROFESSIONAL_WORKSPACE:
+      "PROFESSIONAL_WORKSPACE",
+
+    RECRUITING:
+      "RECRUITING",
+
+    PUBLIC_MEDIA:
+      "PUBLIC_MEDIA"
+  });
+
+
+  /* ==========================================================
+     LOGGING
+  ========================================================== */
 
   function log(message, payload) {
-    console.log(`[STATScore Crystal Reports] ${message}`, payload || "");
+    console.log(
+      `[STATS-CORE Crystal Reports] ${message}`,
+      payload || ""
+    );
   }
+
 
   function warn(message, payload) {
-    console.warn(`[STATScore Crystal Reports] ${message}`, payload || "");
+    console.warn(
+      `[STATS-CORE Crystal Reports] ${message}`,
+      payload || ""
+    );
   }
 
-  function normalize(value) {
-    return String(value || "").trim();
+
+  /* ==========================================================
+     UTILITIES
+  ========================================================== */
+
+  function clean(value) {
+    if (
+      value === null ||
+      value === undefined
+    ) {
+      return "";
+    }
+
+    return String(value).trim();
   }
+
+
+  function upper(value) {
+    return clean(value).toUpperCase();
+  }
+
 
   function safe(value, fallback = "N/A") {
-    return value === undefined || value === null || value === ""
+    return (
+      value === undefined ||
+      value === null ||
+      value === ""
+    )
       ? fallback
       : value;
   }
 
-  function nowString() {
-    return new Date().toLocaleString();
+
+  function clone(value) {
+    try {
+      return JSON.parse(
+        JSON.stringify(value)
+      );
+    } catch (_) {
+      return value;
+    }
   }
+
+
+  function nowISO() {
+    return new Date().toISOString();
+  }
+
+
+  function generateId(prefix = "crystal_report") {
+    if (
+      globalThis.crypto &&
+      typeof globalThis.crypto.randomUUID === "function"
+    ) {
+      return `${prefix}:${globalThis.crypto.randomUUID()}`;
+    }
+
+    return (
+      `${prefix}:${Date.now()}:` +
+      Math.random()
+        .toString(36)
+        .slice(2)
+    );
+  }
+
+
+  function escapeHTML(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+
+  function display(value, fallback = "N/A") {
+    return escapeHTML(
+      safe(value, fallback)
+    );
+  }
+
+
+  function formatTimestamp(value) {
+    if (!value) {
+      return "N/A";
+    }
+
+    const date =
+      new Date(value);
+
+    if (
+      Number.isNaN(
+        date.getTime()
+      )
+    ) {
+      return clean(value);
+    }
+
+    return date.toLocaleString();
+  }
+
+
+  /* ==========================================================
+     GOVERNED CONTRACT VALIDATION
+  ========================================================== */
+
+  function validateReportContract(contract = {}) {
+    const errors = [];
+
+    if (!clean(contract.report_id)) {
+      errors.push(
+        "report_id is required."
+      );
+    }
+
+    if (!clean(contract.report_type)) {
+      errors.push(
+        "report_type is required."
+      );
+    }
+
+    if (!clean(contract.athlete_id)) {
+      errors.push(
+        "athlete_id is required."
+      );
+    }
+
+    if (!clean(contract.snapshot_id)) {
+      errors.push(
+        "snapshot_id is required."
+      );
+    }
+
+    if (
+      !Array.isArray(
+        contract.intelligence_components
+      )
+    ) {
+      errors.push(
+        "intelligence_components array is required."
+      );
+    }
+
+    if (
+      !clean(
+        contract.disclosure_scope
+      )
+    ) {
+      errors.push(
+        "disclosure_scope is required."
+      );
+    }
+
+
+    /*
+      Every material intelligence component must carry lineage.
+    */
+    (
+      contract.intelligence_components ||
+      []
+    ).forEach(
+      (component, index) => {
+
+        if (!clean(component.domain)) {
+          errors.push(
+            `intelligence_components[${index}].domain is required.`
+          );
+        }
+
+        if (
+          !clean(
+            component.intelligence_authority
+          )
+        ) {
+          errors.push(
+            `intelligence_components[${index}].intelligence_authority is required.`
+          );
+        }
+
+        if (
+          !clean(
+            component.intelligence_receipt_id
+          )
+        ) {
+          errors.push(
+            `intelligence_components[${index}].intelligence_receipt_id is required.`
+          );
+        }
+
+        if (
+          component.snapshot_id &&
+          component.snapshot_id !==
+            contract.snapshot_id
+        ) {
+          errors.push(
+            `intelligence_components[${index}] references a different snapshot_id.`
+          );
+        }
+
+        if (
+          component.athlete_id &&
+          component.athlete_id !==
+            contract.athlete_id
+        ) {
+          errors.push(
+            `intelligence_components[${index}] references a different athlete_id.`
+          );
+        }
+      }
+    );
+
+
+    return {
+      ok:
+        errors.length === 0,
+
+      errors
+    };
+  }
+
+
+  /* ==========================================================
+     COMPONENT ACCESS
+
+     No intelligence is calculated here.
+  ========================================================== */
+
+  function getComponent(
+    contract,
+    domain
+  ) {
+    const key =
+      upper(domain);
+
+    return (
+      contract
+        ?.intelligence_components
+        ?.find(
+          component =>
+            upper(component.domain) ===
+            key
+        ) ||
+      null
+    );
+  }
+
+
+  function componentValue(
+    component,
+    key,
+    fallback = null
+  ) {
+    if (!component) {
+      return fallback;
+    }
+
+    if (
+      component.values &&
+      Object.prototype.hasOwnProperty.call(
+        component.values,
+        key
+      )
+    ) {
+      return component.values[key];
+    }
+
+    if (
+      Object.prototype.hasOwnProperty.call(
+        component,
+        key
+      )
+    ) {
+      return component[key];
+    }
+
+    return fallback;
+  }
+
+
+  /* ==========================================================
+     REPORT CONTRACT MANUFACTURE
+
+     This operation converts GOVERNED intelligence objects into
+     a Stream 7 report-composition contract.
+
+     It does NOT convert raw athlete data into intelligence.
+  ========================================================== */
+
+  function buildReportContract(input = {}) {
+    const athlete =
+      input.athlete || {};
+
+    const crystal =
+      input.crystal || null;
+
+    const intelligenceComponents =
+      Array.isArray(
+        input.intelligence_components
+      )
+        ? clone(
+            input.intelligence_components
+          )
+        : [];
+
+
+    /*
+      A governed Crystal object may itself be carried as one
+      report component.
+    */
+    if (
+      crystal?.ok &&
+      !intelligenceComponents.some(
+        item =>
+          upper(item.domain) ===
+          "CRYSTAL"
+      )
+    ) {
+      intelligenceComponents.push({
+        domain:
+          "CRYSTAL",
+
+        athlete_id:
+          crystal.athlete_id,
+
+        snapshot_id:
+          crystal.snapshot_id,
+
+        intelligence_authority:
+          crystal.intelligence_authority,
+
+        authority_version:
+          crystal.authority_version,
+
+        intelligence_receipt_id:
+          crystal.intelligence_receipt_id,
+
+        effective_at:
+          crystal.effective_at,
+
+        confidence:
+          crystal.confidence,
+
+        why:
+          clone(
+            crystal.why || []
+          ),
+
+        values: {
+          match_score:
+            crystal.match_score,
+
+          match_level:
+            crystal.match_level,
+
+          ranking_position:
+            crystal.ranking_position,
+
+          program_id:
+            crystal.program_id,
+
+          program_name:
+            crystal.program_name,
+
+          pathway:
+            clone(
+              crystal.pathway || {}
+            ),
+
+          strengths:
+            clone(
+              crystal.strengths || []
+            ),
+
+          constraints:
+            clone(
+              crystal.constraints || []
+            ),
+
+          gaps:
+            clone(
+              crystal.gaps || []
+            ),
+
+          opportunities:
+            clone(
+              crystal.opportunities || []
+            )
+        }
+      });
+    }
+
+
+    return {
+      report_id:
+        input.report_id ||
+        generateId(),
+
+      report_type:
+        upper(
+          input.report_type ||
+          REPORT_TYPES.ATHLETE_INTELLIGENCE
+        ),
+
+      report_version:
+        input.report_version ||
+        "CRYSTAL-REPORT-V2",
+
+      athlete_id:
+        input.athlete_id ||
+        athlete.athlete_id ||
+        crystal?.athlete_id ||
+        null,
+
+      snapshot_id:
+        input.snapshot_id ||
+        athlete.snapshot_id ||
+        crystal?.snapshot_id ||
+        null,
+
+      athlete: {
+        athlete_display_name:
+          athlete.athlete_display_name ||
+          athlete.athlete_name ||
+          [
+            athlete.first_name,
+            athlete.last_name
+          ]
+            .filter(Boolean)
+            .join(" ") ||
+          null,
+
+        primary_sport:
+          athlete.primary_sport ||
+          athlete.sport ||
+          null,
+
+        primary_position:
+          athlete.primary_position ||
+          athlete.position ||
+          null,
+
+        graduation_class:
+          athlete.graduation_class ||
+          null,
+
+        school_program:
+          athlete.school_program ||
+          athlete.school ||
+          null
+      },
+
+      intelligence_components:
+        intelligenceComponents,
+
+      disclosure_scope:
+        upper(
+          input.disclosure_scope ||
+          crystal?.disclosure?.scope ||
+          DISCLOSURE_SCOPES.PRIVATE
+        ),
+
+      disclosure_authority_reference:
+        input.disclosure_authority_reference ||
+        crystal
+          ?.disclosure
+          ?.disclosure_authority_reference ||
+        null,
+
+      publication_safe:
+        input.publication_safe === true,
+
+      public_disclosure_authorized:
+        input.public_disclosure_authorized === true,
+
+      report_effective_at:
+        input.report_effective_at ||
+        null,
+
+      composed_at:
+        nowISO(),
+
+      publication_state:
+        "NOT_PUBLISHED",
+
+      publication_receipt_id:
+        null,
+
+      locked:
+        true
+    };
+  }
+
+
+  /* ==========================================================
+     HTML COMPONENTS
+  ========================================================== */
 
   function createSection(title, body) {
     return `
       <section class="sc-crystal-section">
-        <div class="sc-crystal-section-title">${title}</div>
+        <div class="sc-crystal-section-title">
+          ${display(title)}
+        </div>
+
         <div class="sc-crystal-section-body">
           ${body}
         </div>
@@ -45,194 +647,747 @@
     `;
   }
 
-  function createMetric(label, value, accent = "") {
+
+  function createMetric(
+    label,
+    value,
+    meta = ""
+  ) {
     return `
-      <div class="sc-crystal-metric ${accent}">
-        <div class="sc-crystal-metric-label">${label}</div>
-        <div class="sc-crystal-metric-value">${safe(value)}</div>
+      <div class="sc-crystal-metric">
+
+        <div class="sc-crystal-metric-label">
+          ${display(label)}
+        </div>
+
+        <div class="sc-crystal-metric-value">
+          ${display(value)}
+        </div>
+
+        ${
+          meta
+            ? `
+              <div class="sc-crystal-metric-meta">
+                ${display(meta)}
+              </div>
+            `
+            : ""
+        }
+
       </div>
     `;
   }
 
-  function buildTraitTable(traits = []) {
-    if (!Array.isArray(traits) || !traits.length) {
-      return `
-        <div class="sc-crystal-empty">
-          No trait intelligence available.
-        </div>
-      `;
+
+  function emptyState(message) {
+    return `
+      <div class="sc-crystal-empty">
+        ${display(message)}
+      </div>
+    `;
+  }
+
+
+  /* ==========================================================
+     TRAIT INTELLIGENCE
+
+     Traits are displayed exactly as governed upstream.
+  ========================================================== */
+
+  function buildTraitTable(
+    traits = []
+  ) {
+    if (
+      !Array.isArray(traits) ||
+      !traits.length
+    ) {
+      return emptyState(
+        "No governed trait intelligence is available for this report."
+      );
     }
+
 
     return `
       <table class="sc-crystal-table">
+
         <thead>
           <tr>
             <th>Trait</th>
-            <th>Score</th>
+            <th>Result</th>
             <th>Status</th>
-            <th>Evidence</th>
+            <th>Evidence / Authority</th>
           </tr>
         </thead>
 
         <tbody>
-          ${traits.map((trait) => `
-            <tr>
-              <td>${safe(trait.name)}</td>
-              <td>${safe(trait.value)}</td>
-              <td>${safe(trait.status)}</td>
-              <td>${safe(trait.evidence_status || trait.scoring_source || "N/A")}</td>
-            </tr>
-          `).join("")}
+
+          ${
+            traits.map(
+              trait => `
+                <tr>
+                  <td>
+                    ${display(trait.name)}
+                  </td>
+
+                  <td>
+                    ${display(
+                      trait.value ??
+                      trait.result
+                    )}
+                  </td>
+
+                  <td>
+                    ${display(
+                      trait.status
+                    )}
+                  </td>
+
+                  <td>
+                    ${display(
+                      trait.evidence_status ||
+                      trait.scoring_source ||
+                      trait.intelligence_reference ||
+                      "N/A"
+                    )}
+                  </td>
+                </tr>
+              `
+            ).join("")
+          }
+
         </tbody>
+
       </table>
     `;
   }
 
-  function buildDevelopmentList(plan = []) {
-    if (!Array.isArray(plan) || !plan.length) {
-      return `
-        <div class="sc-crystal-empty">
-          No development priorities available.
-        </div>
-      `;
+
+  /* ==========================================================
+     GOVERNED RECOMMENDATIONS
+
+     Crystal renders recommendations.
+     It does not create them.
+  ========================================================== */
+
+  function buildRecommendationList(
+    recommendations = []
+  ) {
+    if (
+      !Array.isArray(
+        recommendations
+      ) ||
+      !recommendations.length
+    ) {
+      return emptyState(
+        "No governed recommendations are available."
+      );
     }
+
 
     return `
       <div class="sc-crystal-stack">
-        ${plan.map((item, index) => `
-          <div class="sc-dev-card">
 
-            <div class="sc-dev-priority">
-              PRIORITY ${index + 1}
-            </div>
+        ${
+          recommendations.map(
+            (item, index) => `
 
-            <div class="sc-dev-title">
-              ${safe(item.trait)}
-            </div>
+              <div class="sc-dev-card">
 
-            <div class="sc-dev-category">
-              ${safe(item.category)}
-            </div>
-
-            <div class="sc-dev-body">
-              ${safe(item.recommendation)}
-            </div>
-
-            <div class="sc-dev-drills">
-              ${(item.drills || []).map(drill => `
-                <div class="sc-dev-drill">
-                  ${drill}
+                <div class="sc-dev-priority">
+                  ${
+                    display(
+                      item.priority ||
+                      `PRIORITY ${index + 1}`
+                    )
+                  }
                 </div>
-              `).join("")}
-            </div>
 
-          </div>
-        `).join("")}
+                <div class="sc-dev-title">
+                  ${display(
+                    item.title ||
+                    item.trait ||
+                    item.category ||
+                    "Recommendation"
+                  )}
+                </div>
+
+                <div class="sc-dev-category">
+                  ${display(
+                    item.category ||
+                    item.domain ||
+                    "Governed Recommendation"
+                  )}
+                </div>
+
+                <div class="sc-dev-body">
+                  ${display(
+                    item.recommendation ||
+                    item.action ||
+                    item.summary
+                  )}
+                </div>
+
+                ${
+                  item.why
+                    ? `
+                      <div class="sc-why">
+                        <strong>WHY:</strong>
+                        ${display(
+                          Array.isArray(item.why)
+                            ? item.why.join(" ")
+                            : item.why
+                        )}
+                      </div>
+                    `
+                    : ""
+                }
+
+                ${
+                  item.receipt_id
+                    ? `
+                      <div class="sc-reference">
+                        Recommendation Receipt:
+                        ${display(item.receipt_id)}
+                      </div>
+                    `
+                    : ""
+                }
+
+              </div>
+            `
+          ).join("")
+        }
+
       </div>
     `;
   }
 
-  function buildCorrectionPlan(plan = []) {
-    if (!Array.isArray(plan) || !plan.length) {
-      return `
-        <div class="sc-crystal-empty">
-          No correction actions currently required.
-        </div>
-      `;
+
+  /* ==========================================================
+     PATHWAY
+
+     Preserve Athletic Ceiling != Current Reachable Pathway.
+  ========================================================== */
+
+  function buildPathwaySection(
+    pathway = {}
+  ) {
+    if (
+      !pathway ||
+      typeof pathway !== "object" ||
+      !Object.keys(pathway).length
+    ) {
+      return emptyState(
+        "No governed Pathway Intelligence is available."
+      );
     }
+
+
+    const constraints =
+      Array.isArray(
+        pathway.blocking_constraints
+      )
+        ? pathway.blocking_constraints
+        : [];
+
+
+    const bridge =
+      Array.isArray(
+        pathway.bridge_requirements
+      )
+        ? pathway.bridge_requirements
+        : [];
+
+
+    const actions =
+      Array.isArray(
+        pathway.recommended_actions
+      )
+        ? pathway.recommended_actions
+        : [];
+
+
+    return `
+      <div class="sc-pathway-summary">
+
+        ${createMetric(
+          "Athletic Ceiling",
+          pathway.athletic_ceiling
+        )}
+
+        ${createMetric(
+          "Current Reachable Pathway",
+          pathway.current_reachable_pathway
+        )}
+
+        ${createMetric(
+          "Target Pathway",
+          pathway.target_pathway
+        )}
+
+      </div>
+
+
+      <div class="sc-subsection">
+
+        <div class="sc-subsection-title">
+          Blocking Constraints
+        </div>
+
+        ${
+          constraints.length
+            ? `
+              <ul class="sc-list">
+                ${
+                  constraints
+                    .map(
+                      item =>
+                        `<li>${display(
+                          typeof item === "string"
+                            ? item
+                            : item.summary ||
+                              item.constraint ||
+                              item.reason
+                        )}</li>`
+                    )
+                    .join("")
+                }
+              </ul>
+            `
+            : emptyState(
+                "No blocking constraints supplied."
+              )
+        }
+
+      </div>
+
+
+      <div class="sc-subsection">
+
+        <div class="sc-subsection-title">
+          Bridge Requirements
+        </div>
+
+        ${
+          bridge.length
+            ? `
+              <ul class="sc-list">
+                ${
+                  bridge
+                    .map(
+                      item =>
+                        `<li>${display(
+                          typeof item === "string"
+                            ? item
+                            : item.summary ||
+                              item.requirement
+                        )}</li>`
+                    )
+                    .join("")
+                }
+              </ul>
+            `
+            : emptyState(
+                "No bridge requirements supplied."
+              )
+        }
+
+      </div>
+
+
+      <div class="sc-subsection">
+
+        <div class="sc-subsection-title">
+          Governed Next Actions
+        </div>
+
+        ${
+          buildRecommendationList(
+            actions
+          )
+        }
+
+      </div>
+
+
+      ${
+        pathway.pathway_receipt_id
+          ? `
+            <div class="sc-reference">
+              Pathway Receipt:
+              ${display(
+                pathway.pathway_receipt_id
+              )}
+            </div>
+          `
+          : ""
+      }
+    `;
+  }
+
+
+  /* ==========================================================
+     ELIGIBILITY / ACADEMIC
+
+     Preserve rule-set/version lineage.
+  ========================================================== */
+
+  function buildEligibilitySection(
+    component = null
+  ) {
+    if (!component) {
+      return emptyState(
+        "No governed Eligibility Intelligence is available."
+      );
+    }
+
+
+    const corrections =
+      componentValue(
+        component,
+        "correction_plan",
+        []
+      );
+
+
+    const value =
+      componentValue(
+        component,
+        "eligibility_status",
+        componentValue(
+          component,
+          "eligibility_label",
+          null
+        )
+      );
+
+
+    return `
+      <div class="sc-crystal-grid">
+
+        ${createMetric(
+          "Eligibility Status",
+          value
+        )}
+
+        ${createMetric(
+          "Authority",
+          component.intelligence_authority
+        )}
+
+        ${createMetric(
+          "Rule Set",
+          component.rule_set
+        )}
+
+        ${createMetric(
+          "Rule Version",
+          component.rule_version
+        )}
+
+      </div>
+
+
+      <div class="sc-subsection">
+
+        <div class="sc-subsection-title">
+          Correction / Recovery Actions
+        </div>
+
+        ${
+          buildRecommendationList(
+            Array.isArray(corrections)
+              ? corrections
+              : []
+          )
+        }
+
+      </div>
+
+
+      <div class="sc-reference">
+        Intelligence Receipt:
+        ${display(
+          component.intelligence_receipt_id
+        )}
+        ${
+          component.effective_at
+            ? ` • Effective: ${display(
+                formatTimestamp(
+                  component.effective_at
+                )
+              )}`
+            : ""
+        }
+      </div>
+    `;
+  }
+
+
+  /* ==========================================================
+     WHY / LINEAGE
+  ========================================================== */
+
+  function buildWhySection(
+    contract
+  ) {
+    const items = [];
+
+
+    contract.intelligence_components
+      .forEach(
+        component => {
+
+          const why =
+            Array.isArray(component.why)
+              ? component.why
+              : (
+                  component.why
+                    ? [component.why]
+                    : []
+                );
+
+
+          why.forEach(
+            statement => {
+              items.push({
+                domain:
+                  component.domain,
+
+                statement,
+
+                authority:
+                  component.intelligence_authority,
+
+                receipt:
+                  component.intelligence_receipt_id
+              });
+            }
+          );
+        }
+      );
+
+
+    if (!items.length) {
+      return emptyState(
+        "No governed WHY explanation was supplied."
+      );
+    }
+
 
     return `
       <div class="sc-crystal-stack">
-        ${plan.map(item => `
-          <div class="sc-correction-card">
 
-            <div class="sc-correction-category">
-              ${safe(item.category)}
-            </div>
+        ${
+          items.map(
+            item => `
+              <div class="sc-why-card">
 
-            <div class="sc-correction-issue">
-              ${safe(item.issue)}
-            </div>
+                <div class="sc-why-domain">
+                  ${display(item.domain)}
+                </div>
 
-            <div class="sc-correction-action">
-              ${safe(item.action)}
-            </div>
+                <div class="sc-why-text">
+                  ${display(item.statement)}
+                </div>
 
-          </div>
-        `).join("")}
+                <div class="sc-reference">
+                  Authority:
+                  ${display(item.authority)}
+                  • Receipt:
+                  ${display(item.receipt)}
+                </div>
+
+              </div>
+            `
+          ).join("")
+        }
+
       </div>
     `;
   }
 
-  function buildPathwayActions(actions = []) {
-    if (!Array.isArray(actions) || !actions.length) {
-      return `
-        <div class="sc-crystal-empty">
-          No pathway actions currently available.
-        </div>
-      `;
+
+  function buildLineageTable(
+    contract
+  ) {
+    if (
+      !contract
+        .intelligence_components
+        .length
+    ) {
+      return emptyState(
+        "No intelligence lineage available."
+      );
     }
 
+
     return `
-      <div class="sc-crystal-stack">
-        ${actions.map(item => `
-          <div class="sc-pathway-card">
+      <table class="sc-crystal-table">
 
-            <div class="sc-pathway-header">
-              ${safe(item.category)}
-            </div>
+        <thead>
+          <tr>
+            <th>Domain</th>
+            <th>Authority</th>
+            <th>Version</th>
+            <th>Effective</th>
+            <th>Receipt</th>
+          </tr>
+        </thead>
 
-            <div class="sc-pathway-priority">
-              ${safe(item.priority)}
-            </div>
+        <tbody>
 
-            <div class="sc-pathway-body">
-              ${safe(item.action)}
-            </div>
+          ${
+            contract
+              .intelligence_components
+              .map(
+                component => `
+                  <tr>
 
-          </div>
-        `).join("")}
-      </div>
+                    <td>
+                      ${display(
+                        component.domain
+                      )}
+                    </td>
+
+                    <td>
+                      ${display(
+                        component.intelligence_authority
+                      )}
+                    </td>
+
+                    <td>
+                      ${display(
+                        component.authority_version ||
+                        component.rule_version
+                      )}
+                    </td>
+
+                    <td>
+                      ${display(
+                        component.effective_at
+                          ? formatTimestamp(
+                              component.effective_at
+                            )
+                          : "N/A"
+                      )}
+                    </td>
+
+                    <td>
+                      ${display(
+                        component.intelligence_receipt_id
+                      )}
+                    </td>
+
+                  </tr>
+                `
+              )
+              .join("")
+          }
+
+        </tbody>
+
+      </table>
     `;
   }
 
-  function athleteHeader(athlete, score, readiness) {
+
+  /* ==========================================================
+     ATHLETE HEADER
+  ========================================================== */
+
+  function athleteHeader(
+    contract,
+    athleticComponent,
+    readinessComponent
+  ) {
+    const athlete =
+      contract.athlete || {};
+
+
+    const score =
+      componentValue(
+        athleticComponent,
+        "score_final",
+        componentValue(
+          athleticComponent,
+          "athletic_score",
+          "N/A"
+        )
+      );
+
+
+    const scoreLabel =
+      componentValue(
+        athleticComponent,
+        "score_label",
+        "Governed Athletic Result"
+      );
+
+
+    const readiness =
+      componentValue(
+        readinessComponent,
+        "readiness_label",
+        "N/A"
+      );
+
+
+    const archetype =
+      componentValue(
+        athleticComponent,
+        "archetype",
+        ""
+      );
+
+
     return `
       <div class="sc-crystal-hero">
 
         <div class="sc-crystal-watermark">
-          STATScore™
+          STATS-CORE™
         </div>
 
         <div class="sc-crystal-identity">
 
           <div class="sc-crystal-name">
-            ${safe(
-              athlete?.athlete_display_name ||
-              `${safe(athlete?.first_name, "")} ${safe(athlete?.last_name, "")}`
+            ${display(
+              athlete.athlete_display_name,
+              "Athlete"
             )}
           </div>
 
           <div class="sc-crystal-subline">
-            ${safe(athlete?.primary_sport || athlete?.sport)} ·
-            ${safe(athlete?.primary_position || athlete?.position)} ·
-            ${safe(score?.archetype)}
+            ${display(
+              athlete.primary_sport
+            )}
+            ·
+            ${display(
+              athlete.primary_position
+            )}
+
+            ${
+              archetype
+                ? ` · ${display(archetype)}`
+                : ""
+            }
           </div>
 
         </div>
 
+
         <div class="sc-crystal-score">
 
           <div class="sc-crystal-score-value">
-            ${safe(score?.score_final)}
+            ${display(score)}
           </div>
 
           <div class="sc-crystal-score-label">
-            VERIFIED SIGNAL
+            ${display(scoreLabel)}
           </div>
 
           <div class="sc-crystal-score-readiness">
-            ${safe(readiness?.readiness_label)}
+            ${display(readiness)}
           </div>
 
         </div>
@@ -241,23 +1396,189 @@
     `;
   }
 
-  function buildAthleteReport(data) {
-    const {
-      athlete,
-      score,
-      verification,
-      evidence,
-      readiness,
-      pathway,
-      eligibility
-    } = data;
 
-    return `
+  /* ==========================================================
+     REPORT HTML
+  ========================================================== */
+
+  function buildAthleteReport(
+    contract
+  ) {
+    const validation =
+      validateReportContract(
+        contract
+      );
+
+
+    if (!validation.ok) {
+      return {
+        ok: false,
+
+        status:
+          "INVALID_CRYSTAL_REPORT_CONTRACT",
+
+        errors:
+          validation.errors
+      };
+    }
+
+
+    const athletic =
+      getComponent(
+        contract,
+        "ATHLETIC"
+      );
+
+
+    const verification =
+      getComponent(
+        contract,
+        "VERIFICATION"
+      );
+
+
+    const evidence =
+      getComponent(
+        contract,
+        "EVIDENCE"
+      );
+
+
+    const readiness =
+      getComponent(
+        contract,
+        "READINESS"
+      );
+
+
+    const development =
+      getComponent(
+        contract,
+        "DEVELOPMENT"
+      );
+
+
+    const pathway =
+      getComponent(
+        contract,
+        "PATHWAY"
+      );
+
+
+    const eligibility =
+      getComponent(
+        contract,
+        "ELIGIBILITY"
+      );
+
+
+    const traits =
+      componentValue(
+        athletic,
+        "traits",
+        []
+      );
+
+
+    const recommendations =
+      componentValue(
+        development,
+        "recommendations",
+        componentValue(
+          readiness,
+          "development_plan",
+          []
+        )
+      );
+
+
+    const pathwayValue =
+      componentValue(
+        pathway,
+        "pathway",
+        pathway?.values || {}
+      );
+
+
+    const athleticMetric =
+      componentValue(
+        athletic,
+        "score_final",
+        componentValue(
+          athletic,
+          "athletic_score",
+          "N/A"
+        )
+      );
+
+
+    const verificationMetric =
+      componentValue(
+        verification,
+        "confidence",
+        verification?.confidence ||
+        "N/A"
+      );
+
+
+    const evidenceMetric =
+      componentValue(
+        evidence,
+        "evidence_sufficiency",
+        componentValue(
+          evidence,
+          "evidence_strength",
+          "N/A"
+        )
+      );
+
+
+    const readinessMetric =
+      componentValue(
+        readiness,
+        "readiness_label",
+        componentValue(
+          readiness,
+          "readiness_result",
+          "N/A"
+        )
+      );
+
+
+    const pathwayMetric =
+      pathwayValue
+        ?.current_reachable_pathway ||
+      "N/A";
+
+
+    const eligibilityMetric =
+      componentValue(
+        eligibility,
+        "eligibility_status",
+        componentValue(
+          eligibility,
+          "eligibility_label",
+          "N/A"
+        )
+      );
+
+
+    const html = `
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
-<title>STATScore Crystal Report</title>
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+  STATS-CORE™ Crystal Report
+</title>
 
 <style>
 
@@ -282,6 +1603,7 @@ body{
 .sc-crystal-topbar{
   display:flex;
   justify-content:space-between;
+  gap:20px;
   align-items:center;
   padding-bottom:18px;
   border-bottom:2px solid #ff3434;
@@ -290,7 +1612,7 @@ body{
 .sc-crystal-brand{
   font-size:28px;
   font-weight:1000;
-  letter-spacing:.18em;
+  letter-spacing:.16em;
 }
 
 .sc-crystal-report-type{
@@ -298,17 +1620,19 @@ body{
   font-size:12px;
   letter-spacing:.18em;
   text-transform:uppercase;
+  text-align:right;
 }
 
 .sc-crystal-hero{
   position:relative;
   margin-top:28px;
   border:1px solid rgba(255,255,255,.1);
-  background:linear-gradient(
-    135deg,
-    rgba(255,255,255,.04),
-    rgba(0,0,0,.28)
-  );
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255,255,255,.04),
+      rgba(0,0,0,.28)
+    );
   padding:28px;
   overflow:hidden;
 }
@@ -317,7 +1641,7 @@ body{
   position:absolute;
   right:18px;
   top:12px;
-  font-size:80px;
+  font-size:70px;
   opacity:.04;
   font-weight:1000;
   pointer-events:none;
@@ -367,7 +1691,8 @@ body{
 
 .sc-crystal-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  grid-template-columns:
+    repeat(auto-fit,minmax(190px,1fr));
   gap:14px;
   margin-top:24px;
 }
@@ -387,8 +1712,15 @@ body{
 
 .sc-crystal-metric-value{
   margin-top:10px;
-  font-size:28px;
+  font-size:25px;
   font-weight:1000;
+}
+
+.sc-crystal-metric-meta{
+  margin-top:6px;
+  color:#7f8a99;
+  font-size:10px;
+  line-height:1.4;
 }
 
 .sc-crystal-section{
@@ -431,6 +1763,7 @@ body{
   border-top:1px solid rgba(255,255,255,.06);
   color:#d6deea;
   font-size:13px;
+  vertical-align:top;
 }
 
 .sc-crystal-stack{
@@ -439,16 +1772,15 @@ body{
 }
 
 .sc-dev-card,
-.sc-correction-card,
-.sc-pathway-card{
+.sc-pathway-card,
+.sc-why-card{
   border:1px solid rgba(255,255,255,.08);
   background:rgba(0,0,0,.22);
   padding:14px;
 }
 
 .sc-dev-priority,
-.sc-correction-category,
-.sc-pathway-header{
+.sc-why-domain{
   color:#ff3434;
   font-size:11px;
   letter-spacing:.12em;
@@ -456,15 +1788,13 @@ body{
   font-weight:1000;
 }
 
-.sc-dev-title,
-.sc-correction-issue{
+.sc-dev-title{
   margin-top:6px;
   font-size:18px;
   font-weight:900;
 }
 
-.sc-dev-category,
-.sc-pathway-priority{
+.sc-dev-category{
   margin-top:4px;
   color:#9fe7ff;
   font-size:11px;
@@ -473,30 +1803,70 @@ body{
 }
 
 .sc-dev-body,
-.sc-correction-action,
-.sc-pathway-body{
+.sc-why-text{
   margin-top:10px;
   color:#d6deea;
-  line-height:1.5;
+  line-height:1.55;
   font-size:13px;
 }
 
-.sc-dev-drills{
-  margin-top:12px;
-  display:grid;
-  gap:6px;
+.sc-why{
+  margin-top:10px;
+  border-left:2px solid #46a8ff;
+  padding-left:10px;
+  color:#c8d8e8;
+  font-size:12px;
+  line-height:1.5;
 }
 
-.sc-dev-drill{
-  border-left:2px solid #ffb100;
-  padding-left:10px;
-  color:#b9c4d6;
-  font-size:12px;
+.sc-reference{
+  margin-top:10px;
+  color:#7f8a99;
+  font-size:10px;
+  overflow-wrap:anywhere;
+}
+
+.sc-pathway-summary{
+  display:grid;
+  grid-template-columns:
+    repeat(auto-fit,minmax(180px,1fr));
+  gap:12px;
+}
+
+.sc-subsection{
+  margin-top:20px;
+}
+
+.sc-subsection-title{
+  margin-bottom:10px;
+  color:#9fe7ff;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+
+.sc-list{
+  margin:0;
+  padding-left:20px;
+  color:#d6deea;
+  line-height:1.6;
+  font-size:13px;
 }
 
 .sc-crystal-empty{
   color:#9ea7b5;
   font-size:13px;
+}
+
+.sc-crystal-doctrine{
+  margin-top:28px;
+  border-left:3px solid #ffb100;
+  background:rgba(255,177,0,.06);
+  padding:14px 16px;
+  color:#f4e6b5;
+  font-size:12px;
+  line-height:1.55;
 }
 
 .sc-crystal-footer{
@@ -505,11 +1875,42 @@ body{
   padding-top:18px;
   color:#7f8a99;
   font-size:11px;
-  line-height:1.5;
+  line-height:1.6;
+}
+
+@media(max-width:700px){
+
+  .sc-crystal-shell{
+    padding:18px;
+  }
+
+  .sc-crystal-topbar{
+    display:block;
+  }
+
+  .sc-crystal-report-type{
+    margin-top:8px;
+    text-align:left;
+  }
+
+  .sc-crystal-name{
+    font-size:32px;
+  }
+
+  .sc-crystal-score-value{
+    font-size:48px;
+  }
+
+  .sc-crystal-table{
+    font-size:11px;
+  }
+
 }
 
 </style>
+
 </head>
+
 
 <body>
 
@@ -518,57 +1919,187 @@ body{
   <div class="sc-crystal-topbar">
 
     <div class="sc-crystal-brand">
-      STATScore™
+      STATS-CORE™
     </div>
 
     <div class="sc-crystal-report-type">
-      Crystal Athlete Intelligence Report
+      Crystal Athlete Intelligence Publication
     </div>
 
   </div>
 
-  ${athleteHeader(athlete, score, readiness)}
+
+  ${athleteHeader(
+    contract,
+    athletic,
+    readiness
+  )}
+
 
   <div class="sc-crystal-grid">
 
-    ${createMetric("Athletic Signal", score?.score_final)}
-    ${createMetric("Verification Confidence", verification?.confidence_score)}
-    ${createMetric("Evidence Strength", evidence?.evidence_score)}
-    ${createMetric("Readiness", readiness?.readiness_score)}
-    ${createMetric("Pathway Fit", pathway?.pathway_fit_score)}
-    ${createMetric("Academic Readiness", eligibility?.eligibility_score)}
+    ${createMetric(
+      "Athletic Intelligence",
+      athleticMetric,
+      athletic?.intelligence_authority || ""
+    )}
+
+    ${createMetric(
+      "Verification / Confidence",
+      verificationMetric,
+      verification?.intelligence_authority || ""
+    )}
+
+    ${createMetric(
+      "Evidence Sufficiency",
+      evidenceMetric,
+      evidence?.intelligence_authority || ""
+    )}
+
+    ${createMetric(
+      "Readiness",
+      readinessMetric,
+      readiness?.intelligence_authority || ""
+    )}
+
+    ${createMetric(
+      "Current Reachable Pathway",
+      pathwayMetric,
+      pathway?.intelligence_authority || ""
+    )}
+
+    ${createMetric(
+      "Eligibility",
+      eligibilityMetric,
+      eligibility?.intelligence_authority || ""
+    )}
 
   </div>
 
+
   ${createSection(
     "Athlete Intelligence Matrix",
-    buildTraitTable(score?.traits)
+    buildTraitTable(
+      Array.isArray(traits)
+        ? traits
+        : []
+    )
   )}
 
-  ${createSection(
-    "Development Priorities",
-    buildDevelopmentList(readiness?.development_plan)
-  )}
 
   ${createSection(
-    "Pathway Intelligence",
-    buildPathwayActions(pathway?.recommended_actions)
+    "Development Intelligence & Recommendations",
+    buildRecommendationList(
+      Array.isArray(recommendations)
+        ? recommendations
+        : []
+    )
   )}
 
+
   ${createSection(
-    "NCAA Eligibility Intelligence",
-    buildCorrectionPlan(eligibility?.correction_plan)
+    "College Pathway Intelligence",
+    buildPathwaySection(
+      pathwayValue || {}
+    )
   )}
+
+
+  ${createSection(
+    "Eligibility Intelligence",
+    buildEligibilitySection(
+      eligibility
+    )
+  )}
+
+
+  ${createSection(
+    "WHY — Explainability",
+    buildWhySection(
+      contract
+    )
+  )}
+
+
+  ${createSection(
+    "Intelligence Authority & Receipt Lineage",
+    buildLineageTable(
+      contract
+    )
+  )}
+
+
+  <div class="sc-crystal-doctrine">
+    This Crystal Report publishes governed intelligence.
+    It does not calculate Athletic Score, STATScore, Confidence,
+    Development Intelligence, Eligibility, Pathway, Match Intelligence,
+    ranking, or recruiting status. Historical athlete state remains
+    snapshot-bound and auditable.
+  </div>
+
 
   <div class="sc-crystal-footer">
 
-    Generated:
-    ${nowString()}
+    Report ID:
+    ${display(contract.report_id)}
+
+    <br>
+
+    Athlete ID:
+    ${display(contract.athlete_id)}
+
+    <br>
+
+    Snapshot ID:
+    ${display(contract.snapshot_id)}
+
+    <br>
+
+    Intelligence Effective At:
+    ${display(
+      contract.report_effective_at
+        ? formatTimestamp(
+            contract.report_effective_at
+          )
+        : "See component lineage"
+    )}
+
+    <br>
+
+    Report Composed At:
+    ${display(
+      formatTimestamp(
+        contract.composed_at
+      )
+    )}
+
+    <br>
+
+    Disclosure Scope:
+    ${display(
+      contract.disclosure_scope
+    )}
+
+    <br>
+
+    Publication State:
+    ${display(
+      contract.publication_state
+    )}
+
+    <br>
+
+    Publication Receipt:
+    ${display(
+      contract.publication_receipt_id
+    )}
+
     <br><br>
 
-    STATScore™ Crystal Reports are institutional intelligence outputs
-    designed to support athlete development, pathway navigation,
-    recruiter alignment, academic readiness, and ecosystem transparency.
+    STATS-CORE™ Crystal Reports are governed publication artifacts.
+    Every material intelligence statement must remain traceable to
+    its governing authority, version, evidence/intelligence lineage,
+    effective state, and receipt.
 
   </div>
 
@@ -577,49 +2108,172 @@ body{
 </body>
 </html>
     `;
-  }
 
-  function gatherCurrentData() {
+
     return {
-      athlete:
-        window.STATScoreCurrentAthlete ||
-        window.STATScoreCurrentSnapshot ||
-        window.__STATSCORE_CURRENT_ATHLETE__ ||
-        null,
-
-      score:
-        window.STATScoreCurrentFootballScore ||
-        null,
-
-      verification:
-        window.STATScoreCurrentVerification ||
-        null,
-
-      evidence:
-        window.STATScoreCurrentEvidence ||
-        null,
-
-      readiness:
-        window.STATScoreCurrentReadiness ||
-        null,
-
-      pathway:
-        window.STATScoreCurrentPathway ||
-        null,
-
-      eligibility:
-        window.STATScoreCurrentNCAAEligibility ||
-        null
+      ok: true,
+      html
     };
   }
 
+
+  /* ==========================================================
+     GOVERNED REPORT GENERATION
+  ========================================================== */
+
+  function generateAthleteCrystalReport(
+    input = {}
+  ) {
+    /*
+      Accept either:
+      1. an already-built report contract; or
+      2. governed input from which Stream 7 may build one.
+    */
+
+    const contract =
+      (
+        input.report_id &&
+        Array.isArray(
+          input.intelligence_components
+        )
+      )
+        ? clone(input)
+        : buildReportContract(input);
+
+
+    const validation =
+      validateReportContract(
+        contract
+      );
+
+
+    if (!validation.ok) {
+      warn(
+        "Crystal Report contract rejected.",
+        validation.errors
+      );
+
+      return {
+        ok: false,
+
+        status:
+          "INVALID_CRYSTAL_REPORT_CONTRACT",
+
+        errors:
+          validation.errors
+      };
+    }
+
+
+    const rendered =
+      buildAthleteReport(
+        contract
+      );
+
+
+    if (!rendered.ok) {
+      return rendered;
+    }
+
+
+    const result = {
+      ok: true,
+
+      engine_id:
+        ENGINE_ID,
+
+      version:
+        VERSION,
+
+      type:
+        "ATHLETE_CRYSTAL_REPORT",
+
+      report_id:
+        contract.report_id,
+
+      athlete_id:
+        contract.athlete_id,
+
+      snapshot_id:
+        contract.snapshot_id,
+
+      disclosure_scope:
+        contract.disclosure_scope,
+
+      publication_state:
+        contract.publication_state,
+
+      publication_receipt_id:
+        contract.publication_receipt_id,
+
+      report_contract:
+        contract,
+
+      html:
+        rendered.html,
+
+      composed_at:
+        contract.composed_at,
+
+      locked:
+        true
+    };
+
+
+    window.STATScoreCurrentCrystalReport =
+      result;
+
+    /*
+      Compatibility only.
+    */
+    window.STATScoreCurrentCrystalReportHTML =
+      result.html;
+
+
+    return result;
+  }
+
+
+  /* ==========================================================
+     LEGACY CURRENT-DATA GATHERING
+
+     Previous implementation gathered arbitrary loose global
+     intelligence. That behavior is no longer lawful.
+
+     This function now looks only for a governed report contract
+     or governed Crystal report input.
+  ========================================================== */
+
+  function gatherCurrentData() {
+    return (
+      window.STATScoreCurrentCrystalReportContract ||
+      window.__STATSCORE_CRYSTAL_REPORT_CONTRACT__ ||
+      window.STATScoreCurrentGovernedCrystalInput ||
+      null
+    );
+  }
+
+
+  /* ==========================================================
+     REPORT WINDOW
+  ========================================================== */
+
   function openCrystalReport(html) {
-    const reportWindow = window.open("", "_blank");
+    const reportWindow =
+      window.open(
+        "",
+        "_blank"
+      );
+
 
     if (!reportWindow) {
-      warn("Popup blocked.");
+      warn(
+        "Crystal Report popup blocked."
+      );
+
       return false;
     }
+
 
     reportWindow.document.open();
     reportWindow.document.write(html);
@@ -628,82 +2282,233 @@ body{
     return true;
   }
 
-  function generateAthleteCrystalReport() {
-    const data = gatherCurrentData();
 
-    if (!data.athlete) {
-      warn("No athlete available for report generation.");
-      return null;
+  function openAthleteCrystalReport(
+    input = null
+  ) {
+    const governedInput =
+      input ||
+      gatherCurrentData();
+
+
+    if (!governedInput) {
+      warn(
+        "No governed Crystal Report contract is available."
+      );
+
+      return {
+        ok: false,
+
+        status:
+          "GOVERNED_CRYSTAL_REPORT_CONTRACT_REQUIRED",
+
+        message:
+          "Crystal Reports will not reconstruct intelligence from loose global athlete state."
+      };
     }
 
-    const html = buildAthleteReport(data);
 
-    window.STATScoreCurrentCrystalReportHTML = html;
+    const result =
+      generateAthleteCrystalReport(
+        governedInput
+      );
 
-    return {
-      ok: true,
-      engine_id: ENGINE_ID,
-      version: VERSION,
-      type: "ATHLETE_CRYSTAL_REPORT",
-      html
-    };
-  }
-
-  function openAthleteCrystalReport() {
-    const result = generateAthleteCrystalReport();
 
     if (!result?.ok) {
-      warn("Crystal report generation failed.");
-      return null;
+      warn(
+        "Crystal Report generation failed.",
+        result
+      );
+
+      return result;
     }
 
-    openCrystalReport(result.html);
+
+    openCrystalReport(
+      result.html
+    );
+
 
     return result;
   }
 
-  function init() {
 
-    if (window.__STATSCORE_CRYSTAL_REPORT_ENGINE__) {
-      warn("Duplicate initialization blocked.");
+  /* ==========================================================
+     PUBLICATION HANDOFF
+
+     This prepares the report for the Stream 7 publication
+     lifecycle.
+
+     It does NOT itself claim PUBLISHED state.
+  ========================================================== */
+
+  function buildPublicationHandoff(
+    report
+  ) {
+    if (!report?.ok) {
+      return {
+        ok: false,
+
+        status:
+          "VALID_CRYSTAL_REPORT_REQUIRED"
+      };
+    }
+
+
+    return {
+      ok: true,
+
+      publication_type:
+        "CRYSTAL_REPORT",
+
+      report_id:
+        report.report_id,
+
+      athlete_id:
+        report.athlete_id,
+
+      snapshot_id:
+        report.snapshot_id,
+
+      disclosure_scope:
+        report.disclosure_scope,
+
+      report_version:
+        VERSION,
+
+      publication_state:
+        "DRAFT",
+
+      publication_authorized:
+        false,
+
+      source_receipts:
+        report
+          .report_contract
+          .intelligence_components
+          .map(
+            component =>
+              component
+                .intelligence_receipt_id
+          )
+          .filter(Boolean),
+
+      composed_at:
+        report.composed_at,
+
+      doctrine: {
+        report_generated_is_not_published:
+          true,
+
+        publication_receipt_required_for_published_state:
+          true
+      }
+    };
+  }
+
+
+  /* ==========================================================
+     INITIALIZATION
+  ========================================================== */
+
+  function init() {
+    if (
+      window
+        .__STATSCORE_CRYSTAL_REPORT_ENGINE__
+    ) {
+      warn(
+        "Duplicate initialization blocked."
+      );
+
       return;
     }
 
-    window.__STATSCORE_CRYSTAL_REPORT_ENGINE__ = true;
+
+    window
+      .__STATSCORE_CRYSTAL_REPORT_ENGINE__ =
+      true;
+
 
     window.STATScoreCrystalReportEngine = {
+      engine_id:
+        ENGINE_ID,
 
-      engine_id: ENGINE_ID,
-      version: VERSION,
+      version:
+        VERSION,
 
+      REPORT_TYPES,
+      DISCLOSURE_SCOPES,
+
+      validateReportContract,
+      buildReportContract,
+
+      getComponent,
+      componentValue,
+
+      buildAthleteReport,
       generateAthleteCrystalReport,
-      openAthleteCrystalReport
 
+      gatherCurrentData,
+
+      openCrystalReport,
+      openAthleteCrystalReport,
+
+      buildPublicationHandoff
     };
 
-    if (!window.STATScore) {
-      window.STATScore = {};
-    }
+
+    window.STATScore =
+      window.STATScore ||
+      {};
+
 
     window.STATScore.CrystalReportEngine =
       window.STATScoreCrystalReportEngine;
 
-    if (window.STATScoreEngineBus?.emit) {
-      window.STATScoreEngineBus.emit("engine_online", {
-        engine: ENGINE_ID,
-        version: VERSION,
-        status: "ONLINE"
-      });
+
+    if (
+      window.STATScoreEngineBus?.emit
+    ) {
+      window.STATScoreEngineBus.emit(
+        "engine_online",
+        {
+          engine:
+            ENGINE_ID,
+
+          version:
+            VERSION,
+
+          status:
+            "ONLINE",
+
+          authority_class:
+            "STREAM_7_CRYSTAL_REPORT_PUBLICATION"
+        }
+      );
     }
 
-    log("Engine online.", {
-      engine: ENGINE_ID,
-      version: VERSION
-    });
+
+    log(
+      "Governed Crystal Report Engine online.",
+      {
+        engine:
+          ENGINE_ID,
+
+        version:
+          VERSION
+      }
+    );
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
+
+  if (
+    document.readyState ===
+    "loading"
+  ) {
+    document.addEventListener(
+      "DOMContentLoaded",
+      init
+    );
   } else {
     init();
   }
