@@ -1,460 +1,2035 @@
 /* ============================================================
-   STATScore™ Event Engine
+   STATS-CORE™ STREAM 7 GOVERNED EVENT ENGINE
    File: statscore-event-engine.js
-   Version: STATSCORE-EVENT-ENGINE-V1
-   Purpose:
-   System heartbeat for event creation, state transitions,
-   audit receipts, room propagation, notification routing,
-   and governed operational updates.
+   Version: STATSCORE-EVENT-ENGINE-V2-GOVERNED-PUBLICATION
+
+   Owner:
+   Stream 7 — Crystal / Exposure / Media /
+   Enterprise Publication Authority
+
+   Constitutional Role:
+   Governed Stream 7 exposure/publication event adapter,
+   event registry, and downstream handoff manufacturer.
+
+   PURPOSE:
+
+   1. Originate ONLY Stream 7-owned publication/exposure events.
+   2. Consume governed cross-stream events without recreating them.
+   3. Preserve authority, provenance, receipts, and timestamps.
+   4. Determine whether an event is relevant to Stream 7.
+   5. Manufacture Stream 7 publication/exposure handoff records.
+   6. Preserve event history for audit and lifecycle return.
+   7. Return governed exposure/publication events to authorized
+      downstream authorities for interpretation.
+
+   STREAM 7 SHALL NOT:
+
+   - manufacture Verification events owned upstream;
+   - manufacture Eligibility events owned upstream;
+   - manufacture Athlete Intelligence;
+   - manufacture Recruiting Intelligence;
+   - manufacture Program Health Intelligence;
+   - assign confidence to foreign events;
+   - convert events into athlete scoring signals;
+   - determine communication recipients;
+   - directly insert Multi-Box / notification messages;
+   - mutate enterprise runtime state;
+   - recreate Stream 8 runtime authority;
+   - recreate Stream 6 communication authority;
+   - recreate Stream 9 intelligence authority;
+   - treat exposure as recruiting interest.
+
+   CONTROLLING DOCTRINES:
+
+   Event ≠ Intelligence
+
+   Event ≠ Recommendation
+
+   Event ≠ Communication Authority
+
+   Event ≠ State Authority
+
+   Publication Event ≠ Athlete Improvement
+
+   Exposure ≠ Interest ≠ Communication ≠ Offer ≠ Commitment
+
+   Media Asset
+      ≠
+   Media Candidate
+      ≠
+   Approval
+      ≠
+   Publication
+      ≠
+   Distribution
+      ≠
+   Exposure Receipt
+
+   Fact ≠ Evidence ≠ Authority ≠ Confidence ≠ Interpretation
+        ≠ Recommendation ≠ Action ≠ Outcome
 ============================================================ */
 
 (function () {
   "use strict";
 
-  window.STATScore = window.STATScore || {};
+  window.STATScore =
+    window.STATScore || {};
 
-  const EventEngine = {
 
-    version: "STATSCORE-EVENT-ENGINE-V1",
+  const ENGINE_ID =
+    "statscore-event-engine";
 
-    EVENT_TYPES: {
-      SNAPSHOT_CREATED: "snapshot.created",
-      PROFILE_LOADED: "profile.loaded",
-
-      VERIFICATION_REQUESTED: "verification.requested",
-      VERIFICATION_APPLIED: "verification.applied",
-      VERIFICATION_REJECTED: "verification.rejected",
-
-      ELIGIBILITY_WARNING: "eligibility.warning",
-      ELIGIBILITY_CLEARED: "eligibility.cleared",
-
-      MEDIA_ATTACHED: "media.attached",
-      MEDIA_QUEUED: "media.queued",
-      MEDIA_APPROVED: "media.approved",
-      MEDIA_PUBLISHED: "media.published",
-
-      RECRUITER_REQUEST: "recruiter.request",
-      RECRUITER_APPROVED: "recruiter.approved",
-      RECRUITER_RESTRICTED: "recruiter.restricted",
-
-      COUNSELOR_REVIEW: "counselor.review",
-      COACH_NOTE: "coach.note",
-      EVALUATOR_REVIEW: "evaluator.review",
-
-      STATE_UPDATED: "state.updated",
-      SYNTHESIS_UPDATED: "synthesis.updated",
-      SIGNAL_CREATED: "signal.created",
-
-      SYSTEM_ALERT: "system.alert"
-    },
-
-    EVENT_SEVERITY: {
-      INFO: "INFO",
-      NOTICE: "NOTICE",
-      WARNING: "WARNING",
-      CRITICAL: "CRITICAL"
-    },
-
-    nowISO() {
-      return new Date().toISOString();
-    },
-
-    uuid() {
-      if (window.crypto?.randomUUID) {
-        return window.crypto.randomUUID();
-      }
-
-      return "evt_" + Date.now() + "_" + Math.random().toString(36).slice(2);
-    },
-
-    core() {
-      return window.STATScoreCore || null;
-    },
-
-    stateEngine() {
-      return window.STATScore?.StateEngine || null;
-    },
-
-    synthesisEngine() {
-      return window.STATScore?.SynthesisEngine || null;
-    },
-
-    signalGovernance() {
-      return window.STATScoreSignalGovernance || null;
-    },
-
-    buildEvent(type, payload = {}) {
-      return {
-        event_id: this.uuid(),
-        event_type: type || this.EVENT_TYPES.SYSTEM_ALERT,
-        engine_version: this.version,
-
-        athlete_id: payload.athlete_id || payload.snapshot_id || null,
-        snapshot_id: payload.snapshot_id || null,
-
-        source_role: payload.source_role || "system",
-        source_room: payload.source_room || null,
-
-        severity: payload.severity || this.EVENT_SEVERITY.INFO,
-
-        payload,
-
-        created_at: this.nowISO(),
-        processed: false,
-        locked: true
-      };
-    },
-
-    classifyEvent(type) {
-      const t = String(type || "").toLowerCase();
-
-      if (t.includes("eligibility.warning")) {
-        return {
-          severity: this.EVENT_SEVERITY.WARNING,
-          routes: ["counselor", "parent", "athlete", "admin"],
-          state_transition: "eligibility.warning"
-        };
-      }
-
-      if (t.includes("verification.applied")) {
-        return {
-          severity: this.EVENT_SEVERITY.NOTICE,
-          routes: ["athlete", "parent", "coach", "evaluator", "admin"],
-          state_transition: "verification.applied"
-        };
-      }
-
-      if (t.includes("media")) {
-        return {
-          severity: this.EVENT_SEVERITY.NOTICE,
-          routes: ["athlete", "parent", "coach", "program", "admin"],
-          state_transition: "media.attached"
-        };
-      }
-
-      if (t.includes("recruiter.request")) {
-        return {
-          severity: this.EVENT_SEVERITY.NOTICE,
-          routes: ["parent", "athlete", "admin"],
-          state_transition: "recruiter.request"
-        };
-      }
-
-      if (t.includes("counselor.review")) {
-        return {
-          severity: this.EVENT_SEVERITY.NOTICE,
-          routes: ["counselor", "parent", "athlete", "admin"],
-          state_transition: "counselor.review"
-        };
-      }
-
-      return {
-        severity: this.EVENT_SEVERITY.INFO,
-        routes: ["admin"],
-        state_transition: null
-      };
-    },
-
-    buildReceipt(event, result = {}) {
-      return {
-        receipt_type: "STATSCORE_EVENT_RECEIPT",
-        event_id: event.event_id,
-        event_type: event.event_type,
-        engine_version: this.version,
-
-        athlete_id: event.athlete_id,
-        snapshot_id: event.snapshot_id,
-
-        source_role: event.source_role,
-        source_room: event.source_room,
-
-        severity: event.severity,
-
-        result,
-
-        created_at: this.nowISO(),
-        locked: true
-      };
-    },
-
-    buildNotification(event, role, message = "") {
-      return {
-        notification_id: this.uuid(),
-        event_id: event.event_id,
-        athlete_id: event.athlete_id,
-        snapshot_id: event.snapshot_id,
-
-        target_role: role,
-        message: message || this.defaultMessage(event),
-
-        read_status: "UNREAD",
-        created_at: this.nowISO(),
-        locked: true
-      };
-    },
-
-    defaultMessage(event) {
-      const type = String(event.event_type || "");
-
-      if (type === this.EVENT_TYPES.ELIGIBILITY_WARNING) {
-        return "Eligibility warning detected. Counselor review required.";
-      }
-
-      if (type === this.EVENT_TYPES.VERIFICATION_APPLIED) {
-        return "Verification has been applied to this athlete record.";
-      }
-
-      if (type === this.EVENT_TYPES.MEDIA_QUEUED) {
-        return "PHNX SPORTS media package has been queued.";
-      }
-
-      if (type === this.EVENT_TYPES.RECRUITER_REQUEST) {
-        return "Recruiter access request received. Guardian approval may be required.";
-      }
-
-      return "STATScore system event recorded.";
-    },
-
-    applyStateTransition(currentState, event) {
-      const stateEngine = this.stateEngine();
-
-      if (!stateEngine || !currentState) {
-        return currentState || null;
-      }
-
-      const classification = this.classifyEvent(event.event_type);
-
-      if (!classification.state_transition) {
-        return currentState;
-      }
-
-      return stateEngine.transitionState(currentState, {
-        type: classification.state_transition,
-        payload: event.payload
-      });
-    },
-
-    buildSignalFromEvent(event) {
-      const governance = this.signalGovernance();
-
-      if (!governance) return null;
-
-      let signalType = governance.SIGNAL_TYPES.PERFORMANCE;
-      let signalValue = governance.SIGNAL_STATUS.PENDING;
-      let confidence = 50;
-      let evidenceLevel = "documented";
-
-      switch (event.event_type) {
-        case this.EVENT_TYPES.VERIFICATION_APPLIED:
-          signalType = governance.SIGNAL_TYPES.PERFORMANCE;
-          signalValue = governance.SIGNAL_STATUS.GREEN;
-          confidence = 85;
-          evidenceLevel = "verified";
-          break;
-
-        case this.EVENT_TYPES.ELIGIBILITY_WARNING:
-          signalType = governance.SIGNAL_TYPES.ELIGIBILITY;
-          signalValue = governance.SIGNAL_STATUS.YELLOW;
-          confidence = 75;
-          evidenceLevel = "documented";
-          break;
-
-        case this.EVENT_TYPES.MEDIA_QUEUED:
-          signalType = governance.SIGNAL_TYPES.MEDIA;
-          signalValue = governance.SIGNAL_STATUS.GREEN;
-          confidence = 70;
-          evidenceLevel = "documented";
-          break;
-
-        case this.EVENT_TYPES.RECRUITER_REQUEST:
-          signalType = governance.SIGNAL_TYPES.COMMUNICATION;
-          signalValue = governance.SIGNAL_STATUS.PENDING;
-          confidence = 60;
-          evidenceLevel = "documented";
-          break;
-      }
-
-      return governance.normalizeSignal({
-        athlete_id: event.athlete_id,
-        source_role: event.source_role || "system",
-        signal_type: signalType,
-        signal_value: signalValue,
-        confidence,
-        evidence_level: evidenceLevel,
-        notes: `Generated from event: ${event.event_type}`,
-        created_at: event.created_at
-      });
-    },
-
-    async persistEvent(event) {
-      const db = this.core()?.getClient?.();
-
-      if (!db) {
-        return {
-          ok: false,
-          status: "NO_DB_CLIENT",
-          event
-        };
-      }
-
-      const { data, error } = await db
-        .from("statscore_events")
-        .insert(event)
-        .select("*")
-        .single();
-
-      if (error) {
-        console.error("STATScore event insert failed:", error);
-        return {
-          ok: false,
-          status: "EVENT_INSERT_FAILED",
-          error,
-          event
-        };
-      }
-
-      return {
-        ok: true,
-        status: "EVENT_INSERTED",
-        event: data
-      };
-    },
-
-    async persistReceipt(receipt) {
-      const db = this.core()?.getClient?.();
-
-      if (!db) {
-        return {
-          ok: false,
-          status: "NO_DB_CLIENT",
-          receipt
-        };
-      }
-
-      const { data, error } = await db
-        .from("statscore_event_receipts")
-        .insert(receipt)
-        .select("*")
-        .single();
-
-      if (error) {
-        console.error("STATScore event receipt insert failed:", error);
-        return {
-          ok: false,
-          status: "RECEIPT_INSERT_FAILED",
-          error,
-          receipt
-        };
-      }
-
-      return {
-        ok: true,
-        status: "RECEIPT_INSERTED",
-        receipt: data
-      };
-    },
-
-    async persistNotifications(notifications = []) {
-      const db = this.core()?.getClient?.();
-
-      if (!db || !notifications.length) {
-        return {
-          ok: false,
-          status: "NO_DB_OR_NO_NOTIFICATIONS",
-          notifications
-        };
-      }
-
-      const { data, error } = await db
-        .from("statscore_notifications")
-        .insert(notifications)
-        .select("*");
-
-      if (error) {
-        console.error("STATScore notifications insert failed:", error);
-        return {
-          ok: false,
-          status: "NOTIFICATION_INSERT_FAILED",
-          error,
-          notifications
-        };
-      }
-
-      return {
-        ok: true,
-        status: "NOTIFICATIONS_INSERTED",
-        notifications: data
-      };
-    },
-
-    processEvent(type, payload = {}, currentState = null) {
-      const classification = this.classifyEvent(type);
-
-      const event = this.buildEvent(type, {
-        ...payload,
-        severity: payload.severity || classification.severity
-      });
-
-      const nextState = this.applyStateTransition(currentState, event);
-
-      const signal = this.buildSignalFromEvent(event);
-
-      const notifications = classification.routes.map((role) =>
-        this.buildNotification(event, role)
-      );
-
-      const result = {
-        event,
-        next_state: nextState,
-        generated_signal: signal,
-        notifications,
-        routed_roles: classification.routes
-      };
-
-      const receipt = this.buildReceipt(event, result);
-
-      return {
-        ok: true,
-        status: "EVENT_PROCESSED",
-        ...result,
-        receipt
-      };
-    },
-
-    async processAndPersist(type, payload = {}, currentState = null) {
-      const processed = this.processEvent(type, payload, currentState);
-
-      const eventResult = await this.persistEvent(processed.event);
-      const receiptResult = await this.persistReceipt(processed.receipt);
-      const notificationResult = await this.persistNotifications(processed.notifications);
-
-      return {
-        ...processed,
-        persisted: {
-          event: eventResult,
-          receipt: receiptResult,
-          notifications: notificationResult
-        }
-      };
-    },
-
-    explain(processedEvent) {
-      if (!processedEvent) {
-        return "No event processed.";
-      }
-
-      return [
-        `Event: ${processedEvent.event?.event_type || "--"}`,
-        `Routes: ${(processedEvent.routed_roles || []).join(", ") || "--"}`,
-        `Signal: ${processedEvent.generated_signal?.signal_type || "--"}`,
-        `Receipt: ${processedEvent.receipt?.receipt_type || "--"}`
-      ].join(" | ");
+  const VERSION =
+    "STATSCORE-EVENT-ENGINE-V2-GOVERNED-PUBLICATION";
+
+
+  /* ==========================================================
+     STREAM 7 NATIVE EVENT TYPES
+
+     Stream 7 may originate these only when the corresponding
+     publication/media operation has lawful authority.
+  ========================================================== */
+
+  const STREAM7_EVENT_TYPES = Object.freeze({
+
+    MEDIA_ASSET_REGISTERED:
+      "media.asset.registered",
+
+    MEDIA_CANDIDATE_REGISTERED:
+      "media.candidate.registered",
+
+    MEDIA_RIGHTS_REVIEWED:
+      "media.rights.reviewed",
+
+    MEDIA_FACT_REVIEWED:
+      "media.fact.reviewed",
+
+    MEDIA_EDITORIAL_REVIEWED:
+      "media.editorial.reviewed",
+
+    MEDIA_APPROVED:
+      "media.publication.approved",
+
+    MEDIA_SCHEDULED:
+      "media.publication.scheduled",
+
+    MEDIA_PUBLISHED:
+      "media.publication.published",
+
+    MEDIA_UPDATED:
+      "media.publication.updated",
+
+    MEDIA_WITHDRAWN:
+      "media.publication.withdrawn",
+
+    MEDIA_ARCHIVED:
+      "media.publication.archived",
+
+    DISTRIBUTION_COMPLETED:
+      "media.distribution.completed",
+
+    EXPOSURE_EVENT_RECORDED:
+      "exposure.event.recorded",
+
+    EXPOSURE_RECEIPT_CREATED:
+      "exposure.receipt.created",
+
+    CRYSTAL_COMPOSED:
+      "crystal.report.composed",
+
+    CRYSTAL_REGISTERED:
+      "crystal.registry.registered",
+
+    CRYSTAL_PUBLISHED:
+      "crystal.report.published",
+
+    CRYSTAL_UPDATED:
+      "crystal.report.updated",
+
+    CRYSTAL_WITHDRAWN:
+      "crystal.report.withdrawn",
+
+    RANKING_PUBLICATION_CREATED:
+      "ranking.publication.created",
+
+    RANKING_PUBLICATION_PUBLISHED:
+      "ranking.publication.published",
+
+    PUBLICATION_RECEIPT_CREATED:
+      "publication.receipt.created"
+  });
+
+
+  /* ==========================================================
+     CROSS-STREAM EVENT CLASSES
+
+     These may be CONSUMED when accompanied by governing
+     authority/provenance.
+
+     Stream 7 does not originate their enterprise truth.
+  ========================================================== */
+
+  const CONSUMED_EVENT_CLASSES = Object.freeze({
+
+    SOURCE_RECORD:
+      "SOURCE_RECORD",
+
+    VERIFICATION:
+      "VERIFICATION",
+
+    INTELLIGENCE:
+      "INTELLIGENCE",
+
+    DEVELOPMENT:
+      "DEVELOPMENT",
+
+    PATHWAY:
+      "PATHWAY",
+
+    ELIGIBILITY:
+      "ELIGIBILITY",
+
+    RECRUITING:
+      "RECRUITING",
+
+    PROFESSIONAL:
+      "PROFESSIONAL",
+
+    COMMUNICATION:
+      "COMMUNICATION",
+
+    CERTIFICATION:
+      "CERTIFICATION",
+
+    RUNTIME:
+      "RUNTIME",
+
+    EVENT:
+      "EVENT"
+  });
+
+
+  const EVENT_ORIGINS = Object.freeze({
+    STREAM7_NATIVE:
+      "STREAM7_NATIVE",
+
+    CROSS_STREAM:
+      "CROSS_STREAM"
+  });
+
+
+  const EVENT_STATES = Object.freeze({
+    REGISTERED:
+      "REGISTERED",
+
+    CONSUMED:
+      "CONSUMED",
+
+    REJECTED:
+      "REJECTED",
+
+    HISTORICAL:
+      "HISTORICAL"
+  });
+
+
+  const DISCLOSURE_SCOPES = Object.freeze({
+    PRIVATE:
+      "PRIVATE",
+
+    ATHLETE_WORKSPACE:
+      "ATHLETE_WORKSPACE",
+
+    PARENT_GUARDIAN:
+      "PARENT_GUARDIAN",
+
+    PROFESSIONAL_WORKSPACE:
+      "PROFESSIONAL_WORKSPACE",
+
+    RECRUITING:
+      "RECRUITING",
+
+    PUBLIC_MEDIA:
+      "PUBLIC_MEDIA"
+  });
+
+
+  /* ==========================================================
+     HELPERS
+  ========================================================== */
+
+  function nowISO() {
+    return new Date().toISOString();
+  }
+
+
+  function clean(value) {
+    if (
+      value === null ||
+      value === undefined
+    ) {
+      return "";
     }
 
+    return String(value).trim();
+  }
+
+
+  function upper(value) {
+    return clean(value).toUpperCase();
+  }
+
+
+  function clone(value) {
+    try {
+      return JSON.parse(
+        JSON.stringify(value)
+      );
+    } catch (_) {
+      return value;
+    }
+  }
+
+
+  function uuid(prefix = "evt") {
+    if (
+      globalThis.crypto &&
+      typeof globalThis.crypto.randomUUID === "function"
+    ) {
+      return (
+        `${prefix}:` +
+        globalThis.crypto.randomUUID()
+      );
+    }
+
+    return (
+      `${prefix}:` +
+      Date.now() +
+      ":" +
+      Math.random()
+        .toString(36)
+        .slice(2)
+    );
+  }
+
+
+  function core() {
+    return (
+      window.STATScoreCore ||
+      null
+    );
+  }
+
+
+  function db() {
+    return (
+      window.STATScoreData
+        ?.getClient?.() ||
+
+      core()
+        ?.getClient?.() ||
+
+      window.supabaseClient ||
+
+      window.STATScoreSupabase ||
+
+      null
+    );
+  }
+
+
+  function isStream7NativeType(type) {
+    return Object
+      .values(
+        STREAM7_EVENT_TYPES
+      )
+      .includes(
+        clean(type)
+      );
+  }
+
+
+  /* ==========================================================
+     AUTHORITY VALIDATION
+  ========================================================== */
+
+  function validateCrossStreamAuthority(
+    input = {}
+  ) {
+    const errors = [];
+
+
+    if (
+      !clean(
+        input.source_authority
+      )
+    ) {
+      errors.push(
+        "source_authority is required for a cross-stream event."
+      );
+    }
+
+
+    if (
+      !clean(
+        input.source_stream
+      )
+    ) {
+      errors.push(
+        "source_stream is required for a cross-stream event."
+      );
+    }
+
+
+    if (
+      !clean(
+        input.source_event_id
+      )
+    ) {
+      errors.push(
+        "source_event_id is required for a cross-stream event."
+      );
+    }
+
+
+    if (
+      !clean(
+        input.source_receipt_id
+      )
+    ) {
+      errors.push(
+        "source_receipt_id is required for a cross-stream event."
+      );
+    }
+
+
+    return {
+      ok:
+        errors.length === 0,
+
+      errors
+    };
+  }
+
+
+  function validateStream7NativeAuthority(
+    input = {}
+  ) {
+    const errors = [];
+
+
+    if (
+      !isStream7NativeType(
+        input.event_type
+      )
+    ) {
+      errors.push(
+        "event_type is not a Stream 7 native event."
+      );
+    }
+
+
+    if (
+      !clean(
+        input.authority_reference ||
+        input.publication_authority_reference
+      )
+    ) {
+      errors.push(
+        "Stream 7 native event requires an authority reference."
+      );
+    }
+
+
+    return {
+      ok:
+        errors.length === 0,
+
+      errors
+    };
+  }
+
+
+  /* ==========================================================
+     GOVERNED EVENT BUILDERS
+  ========================================================== */
+
+  function buildStream7Event(
+    type,
+    payload = {}
+  ) {
+    const input = {
+      ...payload,
+      event_type:type
+    };
+
+
+    const validation =
+      validateStream7NativeAuthority(
+        input
+      );
+
+
+    if (!validation.ok) {
+      return {
+        ok:false,
+
+        status:
+          "STREAM7_EVENT_AUTHORITY_REQUIRED",
+
+        errors:
+          validation.errors
+      };
+    }
+
+
+    return {
+      ok:true,
+
+      event_id:
+        payload.event_id ||
+        uuid("s7evt"),
+
+      event_type:
+        type,
+
+      event_origin:
+        EVENT_ORIGINS
+          .STREAM7_NATIVE,
+
+      event_state:
+        EVENT_STATES.REGISTERED,
+
+      engine_id:
+        ENGINE_ID,
+
+      engine_version:
+        VERSION,
+
+
+      /* ------------------------------------------------------
+         SUBJECT
+      ------------------------------------------------------ */
+
+      athlete_id:
+        payload.athlete_id ||
+        null,
+
+      snapshot_id:
+        payload.snapshot_id ||
+        null,
+
+      program_id:
+        payload.program_id ||
+        null,
+
+      professional_id:
+        payload.professional_id ||
+        null,
+
+      organization_id:
+        payload.organization_id ||
+        null,
+
+
+      /* ------------------------------------------------------
+         STREAM 7 PUBLICATION / MEDIA IDS
+      ------------------------------------------------------ */
+
+      media_asset_id:
+        payload.media_asset_id ||
+        null,
+
+      media_candidate_id:
+        payload.media_candidate_id ||
+        null,
+
+      media_job_id:
+        payload.media_job_id ||
+        null,
+
+      publication_id:
+        payload.publication_id ||
+        null,
+
+      publication_receipt_id:
+        payload.publication_receipt_id ||
+        null,
+
+      crystal_id:
+        payload.crystal_id ||
+        null,
+
+      report_id:
+        payload.report_id ||
+        null,
+
+      ranking_publication_id:
+        payload.ranking_publication_id ||
+        null,
+
+      exposure_receipt_id:
+        payload.exposure_receipt_id ||
+        null,
+
+
+      /* ------------------------------------------------------
+         AUTHORITY
+      ------------------------------------------------------ */
+
+      source_stream:
+        "STREAM_7",
+
+      source_authority:
+        "STREAM_7_ENTERPRISE_PUBLICATION_AUTHORITY",
+
+      authority_reference:
+        payload.authority_reference ||
+        payload.publication_authority_reference,
+
+      authority_version:
+        payload.authority_version ||
+        null,
+
+
+      /* ------------------------------------------------------
+         DISCLOSURE
+      ------------------------------------------------------ */
+
+      disclosure_scope:
+        upper(
+          payload.disclosure_scope ||
+          DISCLOSURE_SCOPES.PRIVATE
+        ),
+
+      disclosure_authority_reference:
+        payload.disclosure_authority_reference ||
+        null,
+
+
+      /* ------------------------------------------------------
+         PROVENANCE
+      ------------------------------------------------------ */
+
+      source_event_id:
+        payload.source_event_id ||
+        null,
+
+      source_receipt_id:
+        payload.source_receipt_id ||
+        null,
+
+      evidence_references:
+        Array.isArray(
+          payload.evidence_references
+        )
+          ? clone(
+              payload.evidence_references
+            )
+          : [],
+
+      intelligence_references:
+        Array.isArray(
+          payload.intelligence_references
+        )
+          ? clone(
+              payload.intelligence_references
+            )
+          : [],
+
+
+      /* ------------------------------------------------------
+         EVENT PAYLOAD
+
+         Operational data only.
+         Does not manufacture intelligence.
+      ------------------------------------------------------ */
+
+      event_payload:
+        clone(
+          payload.event_payload ||
+          payload.payload ||
+          {}
+        ),
+
+
+      occurred_at:
+        payload.occurred_at ||
+        nowISO(),
+
+      registered_at:
+        nowISO(),
+
+      locked:
+        true,
+
+      doctrine: {
+        event_is_not_intelligence:
+          true,
+
+        publication_event_is_not_athlete_improvement:
+          true,
+
+        exposure_is_not_interest:
+          true
+      }
+    };
+  }
+
+
+  function consumeGovernedEvent(
+    input = {}
+  ) {
+    const validation =
+      validateCrossStreamAuthority(
+        input
+      );
+
+
+    if (!validation.ok) {
+      return {
+        ok:false,
+
+        status:
+          "CROSS_STREAM_EVENT_AUTHORITY_REQUIRED",
+
+        errors:
+          validation.errors
+      };
+    }
+
+
+    return {
+      ok:true,
+
+      event_id:
+        uuid("s7consumed"),
+
+      event_type:
+        clean(
+          input.event_type ||
+          "governed.event"
+        ),
+
+      event_class:
+        upper(
+          input.event_class ||
+          CONSUMED_EVENT_CLASSES.EVENT
+        ),
+
+      event_origin:
+        EVENT_ORIGINS.CROSS_STREAM,
+
+      event_state:
+        EVENT_STATES.CONSUMED,
+
+      engine_id:
+        ENGINE_ID,
+
+      engine_version:
+        VERSION,
+
+
+      athlete_id:
+        input.athlete_id ||
+        null,
+
+      snapshot_id:
+        input.snapshot_id ||
+        null,
+
+      program_id:
+        input.program_id ||
+        null,
+
+      professional_id:
+        input.professional_id ||
+        null,
+
+      organization_id:
+        input.organization_id ||
+        null,
+
+
+      source_stream:
+        input.source_stream,
+
+      source_authority:
+        input.source_authority,
+
+      source_event_id:
+        input.source_event_id,
+
+      source_receipt_id:
+        input.source_receipt_id,
+
+      authority_version:
+        input.authority_version ||
+        null,
+
+      effective_at:
+        input.effective_at ||
+        input.occurred_at ||
+        null,
+
+
+      disclosure_scope:
+        upper(
+          input.disclosure_scope ||
+          DISCLOSURE_SCOPES.PRIVATE
+        ),
+
+      disclosure_authority_reference:
+        input.disclosure_authority_reference ||
+        null,
+
+
+      /*
+        Preserve supplied authority/priority.
+        Stream 7 does not manufacture severity.
+      */
+      source_priority:
+        input.priority ||
+        input.severity ||
+        null,
+
+
+      event_payload:
+        clone(
+          input.event_payload ||
+          input.payload ||
+          {}
+        ),
+
+
+      evidence_references:
+        Array.isArray(
+          input.evidence_references
+        )
+          ? clone(
+              input.evidence_references
+            )
+          : [],
+
+      intelligence_references:
+        Array.isArray(
+          input.intelligence_references
+        )
+          ? clone(
+              input.intelligence_references
+            )
+          : [],
+
+
+      consumed_at:
+        nowISO(),
+
+      locked:
+        true,
+
+      doctrine: {
+        consumed_event_not_recreated:
+          true,
+
+        source_authority_preserved:
+          true,
+
+        event_not_reinterpreted_as_intelligence:
+          true
+      }
+    };
+  }
+
+
+  /* ==========================================================
+     STREAM 7 RELEVANCE CLASSIFICATION
+
+     This determines ONLY whether Stream 7 has a publication /
+     exposure reason to consume the event.
+
+     It does not assign athlete meaning.
+  ========================================================== */
+
+  function classifyForStream7(
+    event = {}
+  ) {
+    const type =
+      clean(
+        event.event_type
+      ).toLowerCase();
+
+
+    const eventClass =
+      upper(
+        event.event_class
+      );
+
+
+    const reasons = [];
+
+
+    if (
+      type.includes("media")
+    ) {
+      reasons.push(
+        "MEDIA_PUBLICATION_CONTEXT"
+      );
+    }
+
+
+    if (
+      type.includes("crystal")
+    ) {
+      reasons.push(
+        "CRYSTAL_PUBLICATION_CONTEXT"
+      );
+    }
+
+
+    if (
+      type.includes("ranking")
+    ) {
+      reasons.push(
+        "RANKING_PUBLICATION_CONTEXT"
+      );
+    }
+
+
+    if (
+      type.includes("exposure")
+    ) {
+      reasons.push(
+        "EXPOSURE_CONTEXT"
+      );
+    }
+
+
+    if (
+      eventClass ===
+        CONSUMED_EVENT_CLASSES.INTELLIGENCE
+    ) {
+      reasons.push(
+        "GOVERNED_INTELLIGENCE_MAY_SUPPORT_PUBLICATION"
+      );
+    }
+
+
+    if (
+      eventClass ===
+        CONSUMED_EVENT_CLASSES.DEVELOPMENT
+    ) {
+      reasons.push(
+        "GOVERNED_DEVELOPMENT_MAY_SUPPORT_MEDIA_CANDIDATE"
+      );
+    }
+
+
+    if (
+      eventClass ===
+        CONSUMED_EVENT_CLASSES.PATHWAY
+    ) {
+      reasons.push(
+        "GOVERNED_PATHWAY_MAY_SUPPORT_CRYSTAL_PUBLICATION"
+      );
+    }
+
+
+    if (
+      eventClass ===
+        CONSUMED_EVENT_CLASSES.RECRUITING
+    ) {
+      reasons.push(
+        "RECRUITING_EVENT_REQUIRES_DISCLOSURE_REVIEW_BEFORE_ANY_PUBLICATION"
+      );
+    }
+
+
+    return {
+      relevant:
+        reasons.length > 0,
+
+      reasons,
+
+      doctrine: {
+        relevance_does_not_equal_publication_authority:
+          true,
+
+        relevance_does_not_equal_media_candidate:
+          true
+      }
+    };
+  }
+
+
+  /* ==========================================================
+     MEDIA CANDIDATE HANDOFF
+
+     Governed source event may nominate content for editorial
+     consideration only.
+
+     Candidate ≠ Approval ≠ Publication.
+  ========================================================== */
+
+  function buildMediaCandidateHandoff(
+    event = {},
+    options = {}
+  ) {
+    if (!event?.ok) {
+      return {
+        ok:false,
+        status:"VALID_EVENT_REQUIRED"
+      };
+    }
+
+
+    const relevance =
+      classifyForStream7(event);
+
+
+    if (!relevance.relevant) {
+      return {
+        ok:false,
+
+        status:
+          "EVENT_NOT_RELEVANT_TO_STREAM7",
+
+        event_id:
+          event.event_id
+      };
+    }
+
+
+    /*
+      Recruiting events fail closed for public media unless
+      disclosure authority explicitly permits consideration.
+    */
+    if (
+      upper(event.event_class) ===
+        CONSUMED_EVENT_CLASSES.RECRUITING
+    ) {
+      if (
+        upper(event.disclosure_scope) !==
+          DISCLOSURE_SCOPES.PUBLIC_MEDIA ||
+        !event.disclosure_authority_reference
+      ) {
+        return {
+          ok:false,
+
+          status:
+            "RECRUITING_PUBLIC_DISCLOSURE_NOT_AUTHORIZED",
+
+          event_id:
+            event.event_id,
+
+          reason:
+            "Recruiting event cannot become a public-media candidate without explicit PUBLIC_MEDIA disclosure authority."
+        };
+      }
+    }
+
+
+    return {
+      ok:true,
+
+      handoff_type:
+        "STREAM7_MEDIA_CANDIDATE_HANDOFF",
+
+      handoff_id:
+        uuid("media_candidate_handoff"),
+
+      source_event_id:
+        event.event_id,
+
+      source_authority:
+        event.source_authority,
+
+      source_receipt_id:
+        event.source_receipt_id ||
+        event.publication_receipt_id ||
+        null,
+
+      athlete_id:
+        event.athlete_id ||
+        null,
+
+      snapshot_id:
+        event.snapshot_id ||
+        null,
+
+      program_id:
+        event.program_id ||
+        null,
+
+      candidate_reason:
+        options.why ||
+        relevance.reasons,
+
+      evidence_references:
+        clone(
+          event.evidence_references ||
+          []
+        ),
+
+      intelligence_references:
+        clone(
+          event.intelligence_references ||
+          []
+        ),
+
+      disclosure_scope:
+        event.disclosure_scope,
+
+      disclosure_authority_reference:
+        event.disclosure_authority_reference ||
+        null,
+
+      editorial_status:
+        "CANDIDATE",
+
+      publication_authorized:
+        false,
+
+      created_at:
+        nowISO(),
+
+      doctrine: {
+        candidate_is_not_approval:
+          true,
+
+        candidate_is_not_publication:
+          true
+      }
+    };
+  }
+
+
+  /* ==========================================================
+     COMMUNICATION HANDOFF
+
+     Stream 7 may request communication about a Stream 7 event.
+
+     Stream 6 determines lawful recipients and communication.
+  ========================================================== */
+
+  function buildCommunicationHandoff(
+    event = {},
+    options = {}
+  ) {
+    if (!event?.ok) {
+      return {
+        ok:false,
+
+        status:
+          "VALID_EVENT_REQUIRED"
+      };
+    }
+
+
+    return {
+      ok:true,
+
+      handoff_type:
+        "STREAM6_COMMUNICATION_GOVERNANCE_REQUEST",
+
+      request_id:
+        uuid("comm_handoff"),
+
+      source_stream:
+        "STREAM_7",
+
+      source_event_id:
+        event.event_id,
+
+      source_event_type:
+        event.event_type,
+
+      athlete_id:
+        event.athlete_id ||
+        null,
+
+      snapshot_id:
+        event.snapshot_id ||
+        null,
+
+      program_id:
+        event.program_id ||
+        null,
+
+      requested_purpose:
+        options.purpose ||
+        "STREAM7_EVENT_NOTIFICATION",
+
+      suggested_message_key:
+        options.message_key ||
+        null,
+
+      context:
+        clone(
+          options.context ||
+          {}
+        ),
+
+      /*
+        Stream 7 deliberately does NOT provide:
+        - target_roles;
+        - target recipients;
+        - communication_window;
+        - permission result.
+
+        Those belong to Stream 6.
+      */
+
+      communication_authorized:
+        false,
+
+      created_at:
+        nowISO(),
+
+      doctrine: {
+        stream7_does_not_determine_recipients:
+          true,
+
+        communication_handoff_is_not_message:
+          true
+      }
+    };
+  }
+
+
+  /* ==========================================================
+     INTELLIGENCE / LIFECYCLE RETURN HANDOFF
+
+     Stream 7 returns facts/events.
+     Stream 9 determines what they mean.
+  ========================================================== */
+
+  function buildLifecycleReturn(
+    event = {},
+    options = {}
+  ) {
+    if (!event?.ok) {
+      return {
+        ok:false,
+
+        status:
+          "VALID_EVENT_REQUIRED"
+      };
+    }
+
+
+    return {
+      ok:true,
+
+      handoff_type:
+        "STREAM7_LIFECYCLE_EVENT_RETURN",
+
+      return_id:
+        uuid("lifecycle_return"),
+
+      event_id:
+        event.event_id,
+
+      event_type:
+        event.event_type,
+
+      athlete_id:
+        event.athlete_id ||
+        null,
+
+      snapshot_id:
+        event.snapshot_id ||
+        null,
+
+      program_id:
+        event.program_id ||
+        null,
+
+      source_authority:
+        event.source_authority,
+
+      source_receipt_id:
+        event.source_receipt_id ||
+        event.publication_receipt_id ||
+        event.exposure_receipt_id ||
+        null,
+
+      event_payload:
+        clone(
+          event.event_payload ||
+          {}
+        ),
+
+      evidence_references:
+        clone(
+          event.evidence_references ||
+          []
+        ),
+
+      intelligence_references:
+        clone(
+          event.intelligence_references ||
+          []
+        ),
+
+      requested_consumer:
+        options.requested_consumer ||
+        "STREAM_9_ENTERPRISE_INTELLIGENCE_AUTHORITY",
+
+      /*
+        NO signal score.
+        NO confidence.
+        NO GREEN/YELLOW/RED.
+        NO athlete-score mutation.
+      */
+      intelligence_result:
+        null,
+
+      confidence:
+        null,
+
+      created_at:
+        nowISO(),
+
+      doctrine: {
+        event_return_is_not_intelligence:
+          true,
+
+        stream9_may_interpret_if_authorized:
+          true,
+
+        publication_activity_does_not_increase_athlete_score:
+          true
+      }
+    };
+  }
+
+
+  /* ==========================================================
+     EVENT RECEIPT
+
+     This receipt proves Stream 7 registration/consumption.
+
+     It does not supersede the upstream source receipt.
+  ========================================================== */
+
+  function buildReceipt(
+    event = {},
+    result = {}
+  ) {
+    if (!event?.ok) {
+      return {
+        ok:false,
+
+        status:
+          "VALID_EVENT_REQUIRED"
+      };
+    }
+
+
+    return {
+      ok:true,
+
+      receipt_id:
+        uuid("s7_event_receipt"),
+
+      receipt_type:
+        "STREAM7_GOVERNED_EVENT_RECEIPT",
+
+      event_id:
+        event.event_id,
+
+      event_type:
+        event.event_type,
+
+      event_origin:
+        event.event_origin,
+
+      engine_id:
+        ENGINE_ID,
+
+      engine_version:
+        VERSION,
+
+      athlete_id:
+        event.athlete_id ||
+        null,
+
+      snapshot_id:
+        event.snapshot_id ||
+        null,
+
+      program_id:
+        event.program_id ||
+        null,
+
+      source_stream:
+        event.source_stream ||
+        null,
+
+      source_authority:
+        event.source_authority ||
+        null,
+
+      upstream_source_event_id:
+        event.source_event_id ||
+        null,
+
+      upstream_source_receipt_id:
+        event.source_receipt_id ||
+        null,
+
+      publication_id:
+        event.publication_id ||
+        null,
+
+      publication_receipt_id:
+        event.publication_receipt_id ||
+        null,
+
+      exposure_receipt_id:
+        event.exposure_receipt_id ||
+        null,
+
+      disclosure_scope:
+        event.disclosure_scope ||
+        DISCLOSURE_SCOPES.PRIVATE,
+
+      result:
+        clone(result),
+
+      created_at:
+        nowISO(),
+
+      locked:
+        true,
+
+      doctrine: {
+        receipt_proves_stream7_event_handling:
+          true,
+
+        receipt_does_not_replace_upstream_truth:
+          true
+      }
+    };
+  }
+
+
+  /* ==========================================================
+     PERSISTENCE
+
+     Stream 7-specific event ledger only.
+
+     This does not claim universal enterprise-event ownership.
+  ========================================================== */
+
+  async function persistEvent(
+    event
+  ) {
+    if (!event?.ok) {
+      return {
+        ok:false,
+
+        status:
+          "VALID_EVENT_REQUIRED"
+      };
+    }
+
+
+    const client =
+      db();
+
+
+    if (!client) {
+      return {
+        ok:false,
+
+        status:
+          "ENTERPRISE_DATA_RUNTIME_UNAVAILABLE",
+
+        event
+      };
+    }
+
+
+    const row = {
+      event_id:
+        event.event_id,
+
+      event_type:
+        event.event_type,
+
+      event_origin:
+        event.event_origin,
+
+      athlete_id:
+        event.athlete_id,
+
+      snapshot_id:
+        event.snapshot_id,
+
+      program_id:
+        event.program_id,
+
+      source_stream:
+        event.source_stream,
+
+      source_authority:
+        event.source_authority,
+
+      source_event_id:
+        event.source_event_id,
+
+      source_receipt_id:
+        event.source_receipt_id,
+
+      disclosure_scope:
+        event.disclosure_scope,
+
+      event_payload:
+        clone(event),
+
+      occurred_at:
+        event.occurred_at ||
+        event.effective_at ||
+        nowISO(),
+
+      registered_at:
+        nowISO(),
+
+      engine_version:
+        VERSION
+    };
+
+
+    const {
+      data,
+      error
+    } = await client
+      .from(
+        "statscore_events"
+      )
+      .insert(row)
+      .select("*")
+      .single();
+
+
+    if (error) {
+      console.error(
+        "[Stream 7 Event Engine] Event insert failed:",
+        error
+      );
+
+
+      return {
+        ok:false,
+
+        status:
+          "STREAM7_EVENT_INSERT_FAILED",
+
+        error,
+
+        event
+      };
+    }
+
+
+    return {
+      ok:true,
+
+      status:
+        "STREAM7_EVENT_REGISTERED",
+
+      event:data
+    };
+  }
+
+
+  async function persistReceipt(
+    receipt
+  ) {
+    if (!receipt?.ok) {
+      return {
+        ok:false,
+
+        status:
+          "VALID_RECEIPT_REQUIRED"
+      };
+    }
+
+
+    const client =
+      db();
+
+
+    if (!client) {
+      return {
+        ok:false,
+
+        status:
+          "ENTERPRISE_DATA_RUNTIME_UNAVAILABLE",
+
+        receipt
+      };
+    }
+
+
+    const {
+      data,
+      error
+    } = await client
+      .from(
+        "statscore_event_receipts"
+      )
+      .insert({
+        receipt_id:
+          receipt.receipt_id,
+
+        receipt_type:
+          receipt.receipt_type,
+
+        event_id:
+          receipt.event_id,
+
+        event_type:
+          receipt.event_type,
+
+        athlete_id:
+          receipt.athlete_id,
+
+        snapshot_id:
+          receipt.snapshot_id,
+
+        program_id:
+          receipt.program_id,
+
+        receipt_payload:
+          clone(receipt),
+
+        created_at:
+          receipt.created_at
+      })
+      .select("*")
+      .single();
+
+
+    if (error) {
+      console.error(
+        "[Stream 7 Event Engine] Receipt insert failed:",
+        error
+      );
+
+
+      return {
+        ok:false,
+
+        status:
+          "STREAM7_EVENT_RECEIPT_INSERT_FAILED",
+
+        error,
+
+        receipt
+      };
+    }
+
+
+    return {
+      ok:true,
+
+      status:
+        "STREAM7_EVENT_RECEIPT_REGISTERED",
+
+      receipt:data
+    };
+  }
+
+
+  /* ==========================================================
+     PROCESS STREAM 7 NATIVE EVENT
+  ========================================================== */
+
+  function processStream7Event(
+    type,
+    payload = {}
+  ) {
+    const event =
+      buildStream7Event(
+        type,
+        payload
+      );
+
+
+    if (!event.ok) {
+      return event;
+    }
+
+
+    const relevance =
+      classifyForStream7(
+        event
+      );
+
+
+    const receipt =
+      buildReceipt(
+        event,
+        {
+          relevance
+        }
+      );
+
+
+    return {
+      ok:true,
+
+      status:
+        "STREAM7_EVENT_PROCESSED",
+
+      event,
+
+      relevance,
+
+      receipt,
+
+      generated_signal:
+        null,
+
+      notifications:
+        [],
+
+      next_state:
+        null,
+
+      doctrine: {
+        no_local_signal_manufacture:
+          true,
+
+        no_local_notification_routing:
+          true,
+
+        no_enterprise_state_transition:
+          true
+      }
+    };
+  }
+
+
+  /* ==========================================================
+     PROCESS CROSS-STREAM EVENT
+  ========================================================== */
+
+  function processGovernedEvent(
+    input = {}
+  ) {
+    const event =
+      consumeGovernedEvent(
+        input
+      );
+
+
+    if (!event.ok) {
+      return event;
+    }
+
+
+    const relevance =
+      classifyForStream7(
+        event
+      );
+
+
+    const receipt =
+      buildReceipt(
+        event,
+        {
+          relevance
+        }
+      );
+
+
+    return {
+      ok:true,
+
+      status:
+        "GOVERNED_EVENT_CONSUMED",
+
+      event,
+
+      relevance,
+
+      receipt,
+
+      generated_signal:
+        null,
+
+      notifications:
+        [],
+
+      next_state:
+        null
+    };
+  }
+
+
+  /* ==========================================================
+     PERSIST PROCESSED EVENT
+
+     No notifications are persisted here.
+  ========================================================== */
+
+  async function persistProcessed(
+    processed
+  ) {
+    if (!processed?.ok) {
+      return {
+        ok:false,
+
+        status:
+          "PROCESSED_EVENT_REQUIRED"
+      };
+    }
+
+
+    const eventResult =
+      await persistEvent(
+        processed.event
+      );
+
+
+    const receiptResult =
+      await persistReceipt(
+        processed.receipt
+      );
+
+
+    return {
+      ...processed,
+
+      persisted: {
+        event:
+          eventResult,
+
+        receipt:
+          receiptResult
+      }
+    };
+  }
+
+
+  /* ==========================================================
+     LEGACY COMPATIBILITY
+
+     Legacy processEvent() may still be called.
+
+     It is now allowed only for Stream 7-owned event types.
+
+     Foreign event types fail closed and require a governed
+     cross-stream event contract.
+  ========================================================== */
+
+  function processEvent(
+    type,
+    payload = {},
+    legacyCurrentState = null
+  ) {
+    if (
+      isStream7NativeType(type)
+    ) {
+      return processStream7Event(
+        type,
+        payload
+      );
+    }
+
+
+    return {
+      ok:false,
+
+      status:
+        "GOVERNED_CROSS_STREAM_EVENT_REQUIRED",
+
+      message:
+        "Stream 7 no longer manufactures enterprise events, state transitions, notifications, or intelligence signals for foreign authority domains. Supply a governed cross-stream event with source authority and receipt.",
+
+      received_event_type:
+        type || null,
+
+      legacy_current_state_ignored:
+        Boolean(
+          legacyCurrentState
+        ),
+
+      doctrine: {
+        stream7_is_not_enterprise_event_authority:
+          true
+      }
+    };
+  }
+
+
+  async function processAndPersist(
+    type,
+    payload = {},
+    legacyCurrentState = null
+  ) {
+    const processed =
+      processEvent(
+        type,
+        payload,
+        legacyCurrentState
+      );
+
+
+    if (!processed.ok) {
+      return processed;
+    }
+
+
+    return persistProcessed(
+      processed
+    );
+  }
+
+
+  /* ==========================================================
+     EXPLAINABILITY
+  ========================================================== */
+
+  function explain(
+    processedEvent
+  ) {
+    if (!processedEvent?.ok) {
+      return (
+        processedEvent?.message ||
+        "No governed Stream 7 event is available."
+      );
+    }
+
+
+    return [
+      `Event: ${
+        processedEvent
+          .event
+          ?.event_type ||
+        "--"
+      }`,
+
+      `Origin: ${
+        processedEvent
+          .event
+          ?.event_origin ||
+        "--"
+      }`,
+
+      `Authority: ${
+        processedEvent
+          .event
+          ?.source_authority ||
+        "--"
+      }`,
+
+      `Relevant to Stream 7: ${
+        processedEvent
+          .relevance
+          ?.relevant
+          ? "Yes"
+          : "No"
+      }`,
+
+      `Receipt: ${
+        processedEvent
+          .receipt
+          ?.receipt_id ||
+        "--"
+      }`
+    ].join(" | ");
+  }
+
+
+  /* ==========================================================
+     ENGINE EXPORT
+  ========================================================== */
+
+  const EventEngine = {
+    engine_id:
+      ENGINE_ID,
+
+    version:
+      VERSION,
+
+    locked:
+      true,
+
+    STREAM7_EVENT_TYPES,
+    EVENT_TYPES:
+      STREAM7_EVENT_TYPES,
+
+    CONSUMED_EVENT_CLASSES,
+    EVENT_ORIGINS,
+    EVENT_STATES,
+    DISCLOSURE_SCOPES,
+
+    nowISO,
+    uuid,
+
+    validateCrossStreamAuthority,
+    validateStream7NativeAuthority,
+
+    buildStream7Event,
+    consumeGovernedEvent,
+
+    classifyForStream7,
+
+    buildMediaCandidateHandoff,
+    buildCommunicationHandoff,
+    buildLifecycleReturn,
+
+    buildReceipt,
+
+    persistEvent,
+    persistReceipt,
+
+    processStream7Event,
+    processGovernedEvent,
+    persistProcessed,
+
+    processEvent,
+    processAndPersist,
+
+    explain,
+
+    doctrine: Object.freeze({
+      event_is_not_intelligence:
+        true,
+
+      stream7_is_not_communication_authority:
+        true,
+
+      stream7_is_not_runtime_state_authority:
+        true,
+
+      stream7_is_not_enterprise_event_authority:
+        true,
+
+      publication_activity_does_not_increase_athlete_score:
+        true,
+
+      exposure_is_not_interest:
+        true
+    })
   };
 
-  window.STATScore.EventEngine = EventEngine;
 
-  console.info("[STATScore] Event Engine Loaded:", EventEngine.version);
+  window.STATScore.EventEngine =
+    EventEngine;
+
+
+  window.STATScoreEventEngine =
+    EventEngine;
+
+
+  console.info(
+    "[STATS-CORE] Stream 7 Governed Event Engine Loaded:",
+    VERSION
+  );
 
 })(); 
