@@ -16,22 +16,31 @@
 *     Convert already-governed STATS-CORE intelligence into clear,
 *     audience-appropriate explanations while preserving the exact
 *     intelligence, confidence, evidence state, authority lineage,
-*     limitations, flags, and recommendations produced by the
-*     governing Stream 9 authorities.
+*     limitations, flags, recommendations, and receipts produced by
+*     the governing Stream 9 authorities.
+*
+* Supported Governed Subjects:
+*
+*     ATHLETE INTELLIGENCE
+*       athlete_id
+*       snapshot_id
+*
+*     PROGRAM / ORGANIZATION HEALTH INTELLIGENCE
+*       program_id and/or organization_id
+*       program_intelligence_id
+*       intelligence_receipt_id
 *
 * Constitutional Role:
 *
 *     Registered Domain Authorities
 *               ↓
-*     Score Authority
-*               ↓
-*     Composite Authority
+*     Score / Intelligence Authorities
 *               ↓
 *     Governed Intelligence Package
 *               ↓
 *     Explainability Authority
 *               ↓
-*     Consumer / Report Card / Presentation
+*     Consumer / Report Card / Presentation / Publication
 *
 * Core Doctrine:
 *
@@ -41,8 +50,10 @@
 *     Explainability MUST NOT:
 *
 *       - calculate an athlete score;
+*       - calculate a Program Health score;
 *       - recalculate a domain score;
 *       - calculate a composite score;
+*       - calculate confidence;
 *       - establish scoring thresholds;
 *       - manufacture missing intelligence;
 *       - infer an official ranking;
@@ -53,15 +64,22 @@
 *       - override confidence;
 *       - independently prioritize recommendations;
 *       - convert missing evidence into athlete performance;
-*       - treat arbitrary page values as official intelligence.
+*       - convert missing evidence into Program Health;
+*       - treat arbitrary page values as official intelligence;
+*       - authorize publication.
 *
 *     Missing Authority ≠ Permission to Reconstruct Authority.
 *
+*     Explainability Authority ≠ Publication Authority.
+*
+*     Program Health Explainability SHALL consume Program Health
+*     Intelligence. It SHALL NOT manufacture Program Health Intelligence.
+*
 * Version:
-*     STATSCORE-EXPLAINABILITY-ENGINE-V2
+*     STATSCORE-EXPLAINABILITY-ENGINE-V2.1-PROGRAM-COMPAT
 *
 * Status:
-*     RECONSTRUCTED — STREAM 9 GOVERNED
+*     STREAM 9 GOVERNED — PROGRAM COMPATIBILITY EXTENSION
 * =============================================================================
 */
 
@@ -72,10 +90,28 @@
         "statscore-explainability-engine.js";
 
     const VERSION =
-        "STATSCORE-EXPLAINABILITY-ENGINE-V2";
+        "STATSCORE-EXPLAINABILITY-ENGINE-V2.1-PROGRAM-COMPAT";
 
     const OWNER_STREAM =
         "STREAM_9_ENTERPRISE_INTELLIGENCE_AUTHORITY";
+
+
+    //----------------------------------------------------------------------
+    // Governed Subject Types
+    //----------------------------------------------------------------------
+
+    const SUBJECT_TYPES = Object.freeze({
+        ATHLETE:
+            "ATHLETE",
+
+        PROGRAM:
+            "PROGRAM"
+    });
+
+
+    //----------------------------------------------------------------------
+    // Status
+    //----------------------------------------------------------------------
 
     const STATUS = Object.freeze({
         EXPLAINED:
@@ -100,22 +136,58 @@
             "COMPOSITE_PENDING",
 
         EXPLANATION_BLOCKED:
-            "EXPLANATION_BLOCKED"
+            "EXPLANATION_BLOCKED",
+
+        SUBJECT_IDENTITY_REQUIRED:
+            "SUBJECT_IDENTITY_REQUIRED",
+
+        PROGRAM_INTELLIGENCE_RECEIPT_REQUIRED:
+            "PROGRAM_INTELLIGENCE_RECEIPT_REQUIRED",
+
+        PROGRAM_INTELLIGENCE_ID_REQUIRED:
+            "PROGRAM_INTELLIGENCE_ID_REQUIRED"
     });
+
+
+    //----------------------------------------------------------------------
+    // Audiences
+    //----------------------------------------------------------------------
 
     const AUDIENCES = Object.freeze({
-        ATHLETE: "ATHLETE",
-        PARENT: "PARENT",
-        COACH: "COACH",
-        COUNSELOR: "COUNSELOR",
-        RECRUITER: "RECRUITER",
-        EVALUATOR: "EVALUATOR",
-        TRAINER: "TRAINER",
-        PROGRAM: "PROGRAM",
-        ADMIN: "ADMIN"
+        ATHLETE:
+            "ATHLETE",
+
+        PARENT:
+            "PARENT",
+
+        COACH:
+            "COACH",
+
+        COUNSELOR:
+            "COUNSELOR",
+
+        RECRUITER:
+            "RECRUITER",
+
+        EVALUATOR:
+            "EVALUATOR",
+
+        TRAINER:
+            "TRAINER",
+
+        PROGRAM:
+            "PROGRAM",
+
+        ADMIN:
+            "ADMIN"
     });
 
-    const DOMAIN_KEYS = Object.freeze([
+
+    //----------------------------------------------------------------------
+    // Athlete Domain Registry
+    //----------------------------------------------------------------------
+
+    const ATHLETE_DOMAIN_KEYS = Object.freeze([
         "athletic",
         "production",
         "academic",
@@ -129,20 +201,21 @@
         "crystal"
     ]);
 
-    const OFFICIAL_STATUS_VALUES = Object.freeze([
-        "OFFICIAL",
-        "PUBLISHED",
-        "AUTHORIZED",
-        "VALID",
-        "SCORED",
-        "COMPLETE",
-        "PARTIAL",
-        "PENDING",
-        "INSUFFICIENT_EVIDENCE",
-        "UNAVAILABLE",
-        "UNVERIFIED",
-        "VERIFIED"
+
+    //----------------------------------------------------------------------
+    // Program Health Domain Registry
+    //----------------------------------------------------------------------
+
+    const PROGRAM_DOMAIN_KEYS = Object.freeze([
+        "roster",
+        "academic",
+        "development",
+        "recruiting",
+        "exposure",
+        "pathway",
+        "professional_effectiveness"
     ]);
+
 
     //----------------------------------------------------------------------
     // Basic Utilities
@@ -152,19 +225,27 @@
         return new Date().toISOString();
     }
 
+
     function normalize(value) {
         return String(value ?? "").trim();
     }
+
 
     function upper(value) {
         return normalize(value).toUpperCase();
     }
 
+
     function safeArray(value) {
         return Array.isArray(value)
-            ? value.filter(item => item !== null && item !== undefined)
+            ? value.filter(
+                item =>
+                    item !== null &&
+                    item !== undefined
+            )
             : [];
     }
+
 
     function uniqueArray(value) {
         return Array.from(
@@ -182,17 +263,21 @@
         );
     }
 
+
     function clone(value) {
         if (value === undefined) {
             return undefined;
         }
 
         try {
-            return JSON.parse(JSON.stringify(value));
+            return JSON.parse(
+                JSON.stringify(value)
+            );
         } catch (_) {
             return value;
         }
     }
+
 
     function firstDefined(...values) {
         for (const value of values) {
@@ -208,6 +293,7 @@
         return null;
     }
 
+
     function hasObject(value) {
         return Boolean(
             value &&
@@ -216,13 +302,19 @@
         );
     }
 
+
     function normalizeAudience(value) {
-        const audience = upper(value || "ATHLETE");
+        const audience =
+            upper(
+                value ||
+                "ATHLETE"
+            );
 
         return AUDIENCES[audience]
             ? audience
             : AUDIENCES.ATHLETE;
     }
+
 
     //----------------------------------------------------------------------
     // Stream 9 Authority Validation
@@ -235,12 +327,14 @@
         );
     }
 
+
     function getScoreDoctrine() {
         return (
             global.STATScoreScoreDoctrine ||
             null
         );
     }
+
 
     function getIntelligenceDoctrine() {
         return (
@@ -249,15 +343,19 @@
         );
     }
 
+
     function validateStream9Authority() {
-        const authority = getStream9Authority();
+        const authority =
+            getStream9Authority();
 
         return Boolean(
             authority &&
             authority.stream_number === 9 &&
-            authority.operational_state === "ACTIVE"
+            authority.operational_state ===
+                "ACTIVE"
         );
     }
+
 
     function validateDoctrineChain() {
         const scoreDoctrine =
@@ -286,6 +384,67 @@
         };
     }
 
+
+    //----------------------------------------------------------------------
+    // Subject Detection
+    //----------------------------------------------------------------------
+
+    function detectSubjectType(input = {}) {
+        const packageInput =
+            hasObject(input.intelligence_package)
+                ? input.intelligence_package
+                : input;
+
+        const explicit =
+            upper(
+                firstDefined(
+                    packageInput.subject_type,
+                    input.subject_type
+                )
+            );
+
+        if (
+            explicit ===
+            SUBJECT_TYPES.PROGRAM
+        ) {
+            return SUBJECT_TYPES.PROGRAM;
+        }
+
+        if (
+            explicit ===
+            SUBJECT_TYPES.ATHLETE
+        ) {
+            return SUBJECT_TYPES.ATHLETE;
+        }
+
+
+        const hasProgramIdentity =
+            Boolean(
+                packageInput.program_id ||
+                packageInput.organization_id ||
+                packageInput.program_intelligence_id ||
+                packageInput.intelligence_id
+            );
+
+
+        const hasAthleteIdentity =
+            Boolean(
+                packageInput.athlete_id ||
+                packageInput.snapshot_id
+            );
+
+
+        if (
+            hasProgramIdentity &&
+            !hasAthleteIdentity
+        ) {
+            return SUBJECT_TYPES.PROGRAM;
+        }
+
+        return SUBJECT_TYPES.ATHLETE;
+    }
+
+
     //----------------------------------------------------------------------
     // Governed Input Contract
     //----------------------------------------------------------------------
@@ -300,12 +459,26 @@
                 ? input.intelligence_package
                 : input;
 
+
+        const subjectType =
+            detectSubjectType(input);
+
+
         const domains =
             hasObject(packageInput.domains)
                 ? packageInput.domains
                 : {};
 
+
         return {
+            subject_type:
+                subjectType,
+
+
+            //--------------------------------------------------------------
+            // Athlete Identity
+            //--------------------------------------------------------------
+
             athlete_id:
                 firstDefined(
                     packageInput.athlete_id,
@@ -326,6 +499,52 @@
                     input.athlete_display_name
                 ),
 
+
+            //--------------------------------------------------------------
+            // Program / Organization Identity
+            //--------------------------------------------------------------
+
+            program_id:
+                firstDefined(
+                    packageInput.program_id,
+                    input.program_id
+                ),
+
+            organization_id:
+                firstDefined(
+                    packageInput.organization_id,
+                    input.organization_id
+                ),
+
+            program_name:
+                firstDefined(
+                    packageInput.program_name,
+                    packageInput.organization_name,
+                    input.program_name,
+                    input.organization_name
+                ),
+
+            program_intelligence_id:
+                firstDefined(
+                    packageInput.program_intelligence_id,
+                    packageInput.intelligence_id,
+                    input.program_intelligence_id,
+                    input.intelligence_id
+                ),
+
+            intelligence_receipt_id:
+                firstDefined(
+                    packageInput.intelligence_receipt_id,
+                    packageInput.receipt_id,
+                    input.intelligence_receipt_id,
+                    input.receipt_id
+                ),
+
+
+            //--------------------------------------------------------------
+            // Intelligence Metadata
+            //--------------------------------------------------------------
+
             intelligence_version:
                 firstDefined(
                     packageInput.intelligence_version,
@@ -339,12 +558,16 @@
                 ),
 
             generated_at:
-                packageInput.generated_at || null,
+                firstDefined(
+                    packageInput.generated_at,
+                    packageInput.effective_at
+                ),
 
             publisher:
                 firstDefined(
                     packageInput.publisher,
                     packageInput.authority,
+                    packageInput.intelligence_authority,
                     packageInput.authority_key
                 ),
 
@@ -353,6 +576,11 @@
                     packageInput.publication_status,
                     packageInput.status
                 ),
+
+
+            //--------------------------------------------------------------
+            // Governed State
+            //--------------------------------------------------------------
 
             domains,
 
@@ -367,7 +595,8 @@
                     : null,
 
             recommendations:
-                packageInput.recommendations || null,
+                packageInput.recommendations ||
+                null,
 
             report_card:
                 hasObject(packageInput.report_card)
@@ -380,14 +609,70 @@
                 ),
 
             flags:
-                safeArray(packageInput.flags),
+                safeArray(
+                    packageInput.flags
+                ),
+
+
+            //--------------------------------------------------------------
+            // Program Health Governed Outputs
+            //--------------------------------------------------------------
+
+            health_score:
+                firstDefined(
+                    packageInput.health_score,
+                    packageInput.program_health_score
+                ),
+
+            health_state:
+                firstDefined(
+                    packageInput.health_state,
+                    packageInput.health_signal
+                ),
+
+            confidence:
+                firstDefined(
+                    packageInput.confidence,
+                    packageInput.confidence_score
+                ),
+
+            evidence_sufficiency:
+                hasObject(
+                    packageInput.evidence_sufficiency
+                )
+                    ? packageInput.evidence_sufficiency
+                    : null,
+
+            priority_state:
+                firstDefined(
+                    packageInput.priority_state,
+                    packageInput.priority
+                ),
+
+            longitudinal:
+                hasObject(
+                    packageInput.longitudinal
+                )
+                    ? packageInput.longitudinal
+                    : null,
+
+            explainability_reference:
+                firstDefined(
+                    packageInput.explainability_reference,
+                    packageInput.explainability_receipt_id
+                ),
 
             raw:
                 packageInput
         };
     }
 
-    function hasIdentity(model) {
+
+    //----------------------------------------------------------------------
+    // Subject Identity Validation
+    //----------------------------------------------------------------------
+
+    function hasAthleteIdentity(model) {
         return Boolean(
             model &&
             model.athlete_id &&
@@ -395,9 +680,46 @@
         );
     }
 
+
+    function hasProgramIdentity(model) {
+        return Boolean(
+            model &&
+            (
+                model.program_id ||
+                model.organization_id
+            )
+        );
+    }
+
+
+    function hasProgramIntelligenceAuthority(model) {
+        return Boolean(
+            model &&
+            model.program_intelligence_id &&
+            model.intelligence_receipt_id
+        );
+    }
+
+
+    //----------------------------------------------------------------------
+    // Governed Structure Validation
+    //----------------------------------------------------------------------
+
     function hasGovernedStructure(model) {
         if (!model) {
             return false;
+        }
+
+        if (
+            model.subject_type ===
+            SUBJECT_TYPES.PROGRAM
+        ) {
+            return Boolean(
+                hasObject(model.domains) ||
+                model.health_score !== null ||
+                model.health_state ||
+                hasObject(model.report_card)
+            );
         }
 
         return Boolean(
@@ -407,13 +729,16 @@
         );
     }
 
+
     function isExplicitlyUnofficial(model) {
         if (!model) {
             return false;
         }
 
         const status =
-            upper(model.publication_status);
+            upper(
+                model.publication_status
+            );
 
         return (
             status === "UNOFFICIAL" ||
@@ -422,11 +747,31 @@
         );
     }
 
+
+    //----------------------------------------------------------------------
+    // Subject-Specific Domain Registry
+    //----------------------------------------------------------------------
+
+    function getDomainKeysForModel(model) {
+        if (
+            model?.subject_type ===
+            SUBJECT_TYPES.PROGRAM
+        ) {
+            return PROGRAM_DOMAIN_KEYS;
+        }
+
+        return ATHLETE_DOMAIN_KEYS;
+    }
+
+
     //----------------------------------------------------------------------
     // Authority Lineage
     //----------------------------------------------------------------------
 
-    function normalizeLineageEntry(entry, fallbackDomain = null) {
+    function normalizeLineageEntry(
+        entry,
+        fallbackDomain = null
+    ) {
         if (!hasObject(entry)) {
             return null;
         }
@@ -441,6 +786,7 @@
             authority:
                 firstDefined(
                     entry.authority,
+                    entry.intelligence_authority,
                     entry.authority_key,
                     entry.engine,
                     entry.publisher
@@ -467,40 +813,57 @@
                 ),
 
             doctrine_version:
-                entry.doctrine_version || null,
+                entry.doctrine_version ||
+                null,
 
             source_generated_at:
                 firstDefined(
                     entry.source_generated_at,
-                    entry.generated_at
+                    entry.generated_at,
+                    entry.effective_at
+                ),
+
+            intelligence_receipt_id:
+                firstDefined(
+                    entry.intelligence_receipt_id,
+                    entry.receipt_id
                 )
         };
     }
 
-    function getDomainLineage(domainKey, domain) {
+
+    function getDomainLineage(
+        domainKey,
+        domain
+    ) {
         const entries = [];
 
         if (!domain) {
             return entries;
         }
 
-        const direct = normalizeLineageEntry(
-            domain,
-            domainKey
-        );
+        const direct =
+            normalizeLineageEntry(
+                domain,
+                domainKey
+            );
 
         if (
             direct &&
             (
                 direct.authority ||
                 direct.matrix_key ||
-                direct.matrix_version
+                direct.matrix_version ||
+                direct.intelligence_receipt_id
             )
         ) {
             entries.push(direct);
         }
 
-        safeArray(domain.authority_lineage)
+
+        safeArray(
+            domain.authority_lineage
+        )
             .forEach(entry => {
                 const normalized =
                     normalizeLineageEntry(
@@ -509,37 +872,52 @@
                     );
 
                 if (normalized) {
-                    entries.push(normalized);
+                    entries.push(
+                        normalized
+                    );
                 }
             });
 
         return entries;
     }
 
+
     function collectAuthorityLineage(model) {
         const lineage = [];
 
-        safeArray(model?.authority_lineage)
+        safeArray(
+            model?.authority_lineage
+        )
             .forEach(entry => {
                 const normalized =
-                    normalizeLineageEntry(entry);
+                    normalizeLineageEntry(
+                        entry
+                    );
 
                 if (normalized) {
-                    lineage.push(normalized);
+                    lineage.push(
+                        normalized
+                    );
                 }
             });
 
-        DOMAIN_KEYS.forEach(domainKey => {
-            const domain =
-                model?.domains?.[domainKey];
 
-            getDomainLineage(
-                domainKey,
-                domain
-            ).forEach(entry => {
-                lineage.push(entry);
+        getDomainKeysForModel(model)
+            .forEach(domainKey => {
+                const domain =
+                    model?.domains?.[domainKey];
+
+                getDomainLineage(
+                    domainKey,
+                    domain
+                )
+                    .forEach(entry => {
+                        lineage.push(
+                            entry
+                        );
+                    });
             });
-        });
+
 
         if (model?.composite) {
             const compositeLineage =
@@ -549,18 +927,61 @@
                 );
 
             if (compositeLineage) {
-                lineage.push(compositeLineage);
+                lineage.push(
+                    compositeLineage
+                );
             }
+        }
+
+
+        if (
+            model?.subject_type ===
+            SUBJECT_TYPES.PROGRAM
+        ) {
+            lineage.push({
+                domain:
+                    "program_health",
+
+                authority:
+                    model.publisher ||
+                    "Stream 9 — Enterprise Intelligence Authority",
+
+                authority_version:
+                    model.intelligence_version ||
+                    null,
+
+                matrix_key:
+                    null,
+
+                matrix_version:
+                    null,
+
+                doctrine_version:
+                    model.doctrine_version ||
+                    null,
+
+                source_generated_at:
+                    model.generated_at ||
+                    null,
+
+                intelligence_receipt_id:
+                    model.intelligence_receipt_id ||
+                    null
+            });
         }
 
         return lineage;
     }
 
+
     //----------------------------------------------------------------------
     // Domain Contract Helpers
     //----------------------------------------------------------------------
 
-    function getDomain(model, domainKey) {
+    function getDomain(
+        model,
+        domainKey
+    ) {
         const domain =
             model?.domains?.[domainKey];
 
@@ -568,6 +989,7 @@
             ? domain
             : null;
     }
+
 
     function getDomainStatus(domain) {
         if (!domain) {
@@ -577,6 +999,7 @@
         return (
             firstDefined(
                 domain.status,
+                domain.state,
                 domain.score_status,
                 domain.official_status,
                 domain.publication_status
@@ -584,6 +1007,7 @@
             "AVAILABLE"
         );
     }
+
 
     function getDomainScore(domain) {
         if (!domain) {
@@ -595,6 +1019,7 @@
             domain.domain_score
         );
     }
+
 
     function getDomainConfidence(domain) {
         if (!domain) {
@@ -608,6 +1033,7 @@
         );
     }
 
+
     function getDomainEvidence(domain) {
         if (!domain) {
             return [];
@@ -617,10 +1043,12 @@
             firstDefined(
                 domain.evidence_used,
                 domain.evidence_references,
+                domain.evidence_receipt_ids,
                 domain.evidence
             ) || []
         );
     }
+
 
     function getMissingEvidence(domain) {
         if (!domain) {
@@ -635,6 +1063,7 @@
         );
     }
 
+
     function getDomainFlags(domain) {
         if (!domain) {
             return [];
@@ -648,6 +1077,7 @@
         );
     }
 
+
     function getDomainExplanation(domain) {
         if (!domain) {
             return null;
@@ -660,6 +1090,7 @@
             domain.why
         );
     }
+
 
     function getDomainRecommendations(domain) {
         if (!domain) {
@@ -675,14 +1106,22 @@
         );
     }
 
+
     //----------------------------------------------------------------------
     // Availability vs Risk Separation
     //----------------------------------------------------------------------
 
-    function buildAvailabilityFlag(domainKey, reason) {
+    function buildAvailabilityFlag(
+        domainKey,
+        reason,
+        subjectType
+    ) {
         return {
             type:
                 "EXPLAINABILITY_AVAILABILITY_FLAG",
+
+            subject_type:
+                subjectType,
 
             domain:
                 domainKey,
@@ -695,126 +1134,230 @@
                 `${domainKey} intelligence is unavailable.`,
 
             performance_inference:
+                false,
+
+            program_health_inference:
                 false
         };
     }
 
+
     function collectAvailabilityFlags(model) {
         const flags = [];
 
-        DOMAIN_KEYS.forEach(domainKey => {
-            const domain =
-                getDomain(model, domainKey);
+        getDomainKeysForModel(model)
+            .forEach(domainKey => {
+                const domain =
+                    getDomain(
+                        model,
+                        domainKey
+                    );
 
-            if (!domain) {
-                flags.push(
-                    buildAvailabilityFlag(
-                        domainKey,
-                        `${domainKey} domain intelligence was not supplied by the governed intelligence package.`
-                    )
-                );
+                if (!domain) {
+                    flags.push(
+                        buildAvailabilityFlag(
+                            domainKey,
+                            `${domainKey} domain intelligence was not supplied by the governed intelligence package.`,
+                            model.subject_type
+                        )
+                    );
 
-                return;
-            }
+                    return;
+                }
 
-            const status =
-                upper(getDomainStatus(domain));
+                const status =
+                    upper(
+                        getDomainStatus(
+                            domain
+                        )
+                    );
 
-            if (
-                status === "UNAVAILABLE" ||
-                status === "NOT_RUN" ||
-                status === "MISSING" ||
-                status === "INSUFFICIENT_EVIDENCE"
-            ) {
-                flags.push(
-                    buildAvailabilityFlag(
-                        domainKey,
-                        domain.message ||
-                        domain.explanation ||
-                        `${domainKey} intelligence is not currently available.`
-                    )
-                );
-            }
-        });
+                if (
+                    status === "UNAVAILABLE" ||
+                    status === "NOT_RUN" ||
+                    status === "MISSING" ||
+                    status ===
+                        "INSUFFICIENT_EVIDENCE" ||
+                    status === "NOT_MEASURED"
+                ) {
+                    flags.push(
+                        buildAvailabilityFlag(
+                            domainKey,
+                            domain.message ||
+                            domain.explanation ||
+                            `${domainKey} intelligence is not currently available.`,
+                            model.subject_type
+                        )
+                    );
+                }
+            });
 
         return flags;
     }
 
+
     function collectDomainRiskFlags(model) {
         const risks = [];
 
-        DOMAIN_KEYS.forEach(domainKey => {
-            const domain =
-                getDomain(model, domainKey);
+        getDomainKeysForModel(model)
+            .forEach(domainKey => {
+                const domain =
+                    getDomain(
+                        model,
+                        domainKey
+                    );
 
-            getDomainFlags(domain)
-                .forEach(flag => {
-                    risks.push({
-                        type:
-                            "DOMAIN_RISK_FLAG",
+                getDomainFlags(domain)
+                    .forEach(flag => {
+                        risks.push({
+                            type:
+                                "DOMAIN_RISK_FLAG",
 
-                        domain:
-                            domainKey,
+                            subject_type:
+                                model.subject_type,
 
-                        flag:
-                            clone(flag),
+                            domain:
+                                domainKey,
 
-                        authority_preserved:
-                            true
+                            flag:
+                                clone(flag),
+
+                            authority_preserved:
+                                true
+                        });
                     });
-                });
-        });
+            });
 
         return risks;
     }
 
+
     function collectConfidenceLimiters(model) {
         const limiters = [];
 
-        DOMAIN_KEYS.forEach(domainKey => {
-            const domain =
-                getDomain(model, domainKey);
+        getDomainKeysForModel(model)
+            .forEach(domainKey => {
+                const domain =
+                    getDomain(
+                        model,
+                        domainKey
+                    );
 
-            if (!domain) {
-                return;
-            }
+                if (!domain) {
+                    return;
+                }
 
-            safeArray(domain.confidence_limiters)
-                .forEach(limiter => {
-                    limiters.push({
-                        domain:
-                            domainKey,
+                safeArray(
+                    domain.confidence_limiters
+                )
+                    .forEach(limiter => {
+                        limiters.push({
+                            subject_type:
+                                model.subject_type,
 
-                        limiter:
-                            clone(limiter)
+                            domain:
+                                domainKey,
+
+                            limiter:
+                                clone(
+                                    limiter
+                                )
+                        });
                     });
-                });
 
-            getMissingEvidence(domain)
-                .forEach(item => {
-                    limiters.push({
-                        domain:
-                            domainKey,
 
-                        limiter: {
-                            type:
-                                "MISSING_EVIDENCE",
+                getMissingEvidence(domain)
+                    .forEach(item => {
+                        limiters.push({
+                            subject_type:
+                                model.subject_type,
 
-                            evidence:
-                                clone(item)
-                        }
+                            domain:
+                                domainKey,
+
+                            limiter: {
+                                type:
+                                    "MISSING_EVIDENCE",
+
+                                evidence:
+                                    clone(item)
+                            }
+                        });
                     });
-                });
-        });
+            });
+
+
+        if (
+            model.subject_type ===
+                SUBJECT_TYPES.PROGRAM &&
+            hasObject(
+                model.evidence_sufficiency
+            )
+        ) {
+            limiters.push({
+                subject_type:
+                    SUBJECT_TYPES.PROGRAM,
+
+                domain:
+                    "program_health",
+
+                limiter: {
+                    type:
+                        "EVIDENCE_SUFFICIENCY",
+
+                    evidence_sufficiency:
+                        clone(
+                            model.evidence_sufficiency
+                        )
+                }
+            });
+        }
 
         return limiters;
     }
+
 
     //----------------------------------------------------------------------
     // Audience Language
     //----------------------------------------------------------------------
 
-    function audienceLead(audience, domainLabel) {
+    function audienceLead(
+        audience,
+        domainLabel,
+        subjectType
+    ) {
+        if (
+            subjectType ===
+            SUBJECT_TYPES.PROGRAM
+        ) {
+            switch (audience) {
+                case AUDIENCES.PROGRAM:
+                    return `This explains the governed ${domainLabel} intelligence currently available for this program.`;
+
+                case AUDIENCES.ADMIN:
+                    return `This summarizes governed ${domainLabel} intelligence and authority lineage for program-level administrative review.`;
+
+                case AUDIENCES.COACH:
+                    return `This summarizes the governed ${domainLabel} intelligence available for authorized program coaching review.`;
+
+                case AUDIENCES.COUNSELOR:
+                    return `This summarizes the governed ${domainLabel} intelligence available for authorized program academic and pathway review.`;
+
+                case AUDIENCES.RECRUITER:
+                    return `This summarizes the governed ${domainLabel} intelligence lawfully available for authorized recruiting review.`;
+
+                case AUDIENCES.EVALUATOR:
+                    return `This summarizes the governed ${domainLabel} evidence, confidence, and authority state for authorized program evaluation review.`;
+
+                case AUDIENCES.TRAINER:
+                    return `This summarizes the governed ${domainLabel} intelligence available for authorized program development review.`;
+
+                default:
+                    return `This explains the governed ${domainLabel} intelligence currently available for this program.`;
+            }
+        }
+
+
         switch (audience) {
             case AUDIENCES.PARENT:
                 return `This explains the governed ${domainLabel} information currently available for the athlete.`;
@@ -846,6 +1389,7 @@
         }
     }
 
+
     //----------------------------------------------------------------------
     // Generic Domain Explanation
     //----------------------------------------------------------------------
@@ -856,17 +1400,26 @@
         audience
     ) {
         const domain =
-            getDomain(model, domainKey);
+            getDomain(
+                model,
+                domainKey
+            );
 
         const domainLabel =
             domainKey
                 .replace(/_/g, " ")
-                .replace(/\b\w/g, char =>
-                    char.toUpperCase()
+                .replace(
+                    /\b\w/g,
+                    char =>
+                        char.toUpperCase()
                 );
+
 
         if (!domain) {
             return {
+                subject_type:
+                    model.subject_type,
+
                 domain:
                     domainKey,
 
@@ -904,11 +1457,18 @@
                     [],
 
                 performance_inference:
+                    false,
+
+                program_health_inference:
                     false
             };
         }
 
+
         return {
+            subject_type:
+                model.subject_type,
+
             domain:
                 domainKey,
 
@@ -916,47 +1476,64 @@
                 `${domainLabel} Explanation`,
 
             status:
-                getDomainStatus(domain),
+                getDomainStatus(
+                    domain
+                ),
 
             score:
                 clone(
-                    getDomainScore(domain)
+                    getDomainScore(
+                        domain
+                    )
                 ),
 
             confidence:
                 clone(
-                    getDomainConfidence(domain)
+                    getDomainConfidence(
+                        domain
+                    )
                 ),
 
             summary:
                 audienceLead(
                     audience,
-                    domainLabel
+                    domainLabel,
+                    model.subject_type
                 ),
 
             evidence_used:
                 clone(
-                    getDomainEvidence(domain)
+                    getDomainEvidence(
+                        domain
+                    )
                 ),
 
             missing_evidence:
                 clone(
-                    getMissingEvidence(domain)
+                    getMissingEvidence(
+                        domain
+                    )
                 ),
 
             flags:
                 clone(
-                    getDomainFlags(domain)
+                    getDomainFlags(
+                        domain
+                    )
                 ),
 
             recommendations:
                 clone(
-                    getDomainRecommendations(domain)
+                    getDomainRecommendations(
+                        domain
+                    )
                 ),
 
             explanation:
                 clone(
-                    getDomainExplanation(domain)
+                    getDomainExplanation(
+                        domain
+                    )
                 ),
 
             authority_lineage:
@@ -966,23 +1543,68 @@
                 ),
 
             source_status:
-                getDomainStatus(domain),
+                getDomainStatus(
+                    domain
+                ),
 
             performance_inference:
+                false,
+
+            program_health_inference:
                 false
         };
     }
 
+
     //----------------------------------------------------------------------
-    // Composite Explanation
+    // Composite Explanation — Athlete Only
     //----------------------------------------------------------------------
 
-    function explainComposite(model, audience) {
+    function explainComposite(
+        model,
+        audience
+    ) {
+        if (
+            model.subject_type ===
+            SUBJECT_TYPES.PROGRAM
+        ) {
+            return {
+                subject_type:
+                    SUBJECT_TYPES.PROGRAM,
+
+                domain:
+                    "composite",
+
+                label:
+                    "Composite Intelligence Explanation",
+
+                status:
+                    STATUS.DOMAIN_UNAVAILABLE,
+
+                score:
+                    null,
+
+                confidence:
+                    null,
+
+                summary:
+                    "Athlete composite intelligence is not applicable to Program Health explainability.",
+
+                calculated_here:
+                    false
+            };
+        }
+
+
         const composite =
             model?.composite;
 
+
         if (!composite) {
             return {
+                subject_type:
+                    SUBJECT_TYPES.ATHLETE,
+
                 domain:
                     "composite",
 
@@ -1024,6 +1646,7 @@
             };
         }
 
+
         const status =
             firstDefined(
                 composite.status,
@@ -1032,7 +1655,11 @@
             ) ||
             STATUS.COMPOSITE_PENDING;
 
+
         return {
+            subject_type:
+                SUBJECT_TYPES.ATHLETE,
+
             domain:
                 "composite",
 
@@ -1061,7 +1688,8 @@
             summary:
                 audienceLead(
                     audience,
-                    "composite intelligence"
+                    "composite intelligence",
+                    SUBJECT_TYPES.ATHLETE
                 ),
 
             evidence_used:
@@ -1115,6 +1743,267 @@
         };
     }
 
+
+    //----------------------------------------------------------------------
+    // Program Health Explanation
+    //----------------------------------------------------------------------
+
+    function explainProgramHealth(
+        model,
+        audience
+    ) {
+        if (
+            !model ||
+            model.subject_type !==
+                SUBJECT_TYPES.PROGRAM
+        ) {
+            return {
+                ok:
+                    false,
+
+                status:
+                    STATUS.EXPLANATION_BLOCKED,
+
+                message:
+                    "A governed Program Health intelligence package is required.",
+
+                generated_at:
+                    nowISO()
+            };
+        }
+
+
+        if (
+            !hasProgramIdentity(model)
+        ) {
+            return {
+                ok:
+                    false,
+
+                status:
+                    STATUS.SUBJECT_IDENTITY_REQUIRED,
+
+                message:
+                    "program_id or organization_id is required for Program Health explainability.",
+
+                generated_at:
+                    nowISO()
+            };
+        }
+
+
+        if (
+            !model.program_intelligence_id
+        ) {
+            return {
+                ok:
+                    false,
+
+                status:
+                    STATUS.PROGRAM_INTELLIGENCE_ID_REQUIRED,
+
+                message:
+                    "program_intelligence_id is required. Explainability will not reconstruct Program Health authority.",
+
+                generated_at:
+                    nowISO()
+            };
+        }
+
+
+        if (
+            !model.intelligence_receipt_id
+        ) {
+            return {
+                ok:
+                    false,
+
+                status:
+                    STATUS.PROGRAM_INTELLIGENCE_RECEIPT_REQUIRED,
+
+                message:
+                    "intelligence_receipt_id is required. Program Health explainability must trace to governed intelligence.",
+
+                generated_at:
+                    nowISO()
+            };
+        }
+
+
+        const explanations = {};
+
+
+        PROGRAM_DOMAIN_KEYS
+            .forEach(domainKey => {
+                explanations[domainKey] =
+                    explainDomain(
+                        model,
+                        domainKey,
+                        audience
+                    );
+            });
+
+
+        const availableDomains =
+            PROGRAM_DOMAIN_KEYS.filter(
+                domainKey =>
+                    explanations[domainKey].status !==
+                        STATUS.DOMAIN_UNAVAILABLE
+            );
+
+
+        return {
+            ok:
+                true,
+
+            subject_type:
+                SUBJECT_TYPES.PROGRAM,
+
+            domain:
+                "program_health",
+
+            label:
+                "Program Health Explanation",
+
+            status:
+                availableDomains.length ===
+                    PROGRAM_DOMAIN_KEYS.length
+                    ? STATUS.EXPLAINED
+                    : STATUS.PARTIAL_EXPLANATION,
+
+            program_id:
+                model.program_id,
+
+            organization_id:
+                model.organization_id,
+
+            program_name:
+                model.program_name,
+
+            program_intelligence_id:
+                model.program_intelligence_id,
+
+            intelligence_receipt_id:
+                model.intelligence_receipt_id,
+
+            intelligence_version:
+                model.intelligence_version,
+
+            intelligence_authority:
+                model.publisher,
+
+            health_score:
+                clone(
+                    model.health_score
+                ),
+
+            health_state:
+                clone(
+                    model.health_state
+                ),
+
+            confidence:
+                clone(
+                    model.confidence
+                ),
+
+            evidence_sufficiency:
+                clone(
+                    model.evidence_sufficiency
+                ),
+
+            priority_state:
+                clone(
+                    model.priority_state
+                ),
+
+            longitudinal:
+                clone(
+                    model.longitudinal
+                ),
+
+            explanations,
+
+            availability_flags:
+                collectAvailabilityFlags(
+                    model
+                ),
+
+            risk_flags:
+                collectDomainRiskFlags(
+                    model
+                ),
+
+            confidence_limiters:
+                collectConfidenceLimiters(
+                    model
+                ),
+
+            recommended_actions:
+                collectGovernedRecommendations(
+                    model
+                ),
+
+            next_best_action:
+                getGovernedNextBestAction(
+                    model
+                ),
+
+            authority_lineage:
+                collectAuthorityLineage(
+                    model
+                ),
+
+            summary:
+                buildProgramHumanSummary(
+                    model,
+                    explanations
+                ),
+
+            constitutional_guards: {
+                calculates_program_health:
+                    false,
+
+                recalculates_program_health:
+                    false,
+
+                calculates_domain_scores:
+                    false,
+
+                calculates_confidence:
+                    false,
+
+                creates_recommendations:
+                    false,
+
+                prioritizes_recommendations:
+                    false,
+
+                creates_rankings:
+                    false,
+
+                authorizes_publication:
+                    false,
+
+                manufactures_missing_intelligence:
+                    false,
+
+                missing_data_equals_program_failure:
+                    false,
+
+                presentation_only_transformation:
+                    true
+            },
+
+            generated_at:
+                nowISO(),
+
+            locked:
+                true
+        };
+    }
+
+
     //----------------------------------------------------------------------
     // Recommendations
     //----------------------------------------------------------------------
@@ -1141,6 +2030,12 @@
         }
 
         return {
+            recommendation_id:
+                firstDefined(
+                    entry.recommendation_id,
+                    entry.id
+                ),
+
             action:
                 firstDefined(
                     entry.action,
@@ -1149,10 +2044,12 @@
                 ),
 
             priority:
-                entry.priority ?? null,
+                entry.priority ??
+                null,
 
             reason:
-                entry.reason ?? null,
+                entry.reason ??
+                null,
 
             authority:
                 firstDefined(
@@ -1169,15 +2066,18 @@
                 ),
 
             domain:
-                entry.domain ?? null
+                entry.domain ??
+                null
         };
     }
+
 
     function collectGovernedRecommendations(model) {
         const recommendations = [];
 
         const root =
             model?.recommendations;
+
 
         if (Array.isArray(root)) {
             root.forEach(entry => {
@@ -1194,56 +2094,67 @@
             });
         }
 
+
         if (
             hasObject(root) &&
-            Array.isArray(root.actions)
+            Array.isArray(
+                root.actions
+            )
         ) {
-            root.actions.forEach(entry => {
-                const normalized =
-                    normalizeRecommendationEntry(
-                        entry
-                    );
-
-                if (normalized) {
-                    recommendations.push(
-                        normalized
-                    );
-                }
-            });
-        }
-
-        DOMAIN_KEYS.forEach(domainKey => {
-            const domain =
-                getDomain(model, domainKey);
-
-            getDomainRecommendations(domain)
+            root.actions
                 .forEach(entry => {
                     const normalized =
                         normalizeRecommendationEntry(
                             entry
                         );
 
-                    if (!normalized) {
-                        return;
+                    if (normalized) {
+                        recommendations.push(
+                            normalized
+                        );
                     }
-
-                    if (!normalized.domain) {
-                        normalized.domain =
-                            domainKey;
-                    }
-
-                    recommendations.push(
-                        normalized
-                    );
                 });
-        });
+        }
+
+
+        getDomainKeysForModel(model)
+            .forEach(domainKey => {
+                const domain =
+                    getDomain(
+                        model,
+                        domainKey
+                    );
+
+                getDomainRecommendations(domain)
+                    .forEach(entry => {
+                        const normalized =
+                            normalizeRecommendationEntry(
+                                entry
+                            );
+
+                        if (!normalized) {
+                            return;
+                        }
+
+                        if (!normalized.domain) {
+                            normalized.domain =
+                                domainKey;
+                        }
+
+                        recommendations.push(
+                            normalized
+                        );
+                    });
+            });
 
         return recommendations;
     }
 
+
     function getGovernedNextBestAction(model) {
         const root =
             model?.recommendations;
+
 
         if (hasObject(root)) {
             const next =
@@ -1257,6 +2168,7 @@
             }
         }
 
+
         const reportCardNext =
             firstDefined(
                 model?.report_card?.next_best_action,
@@ -1264,15 +2176,18 @@
             );
 
         return reportCardNext
-            ? clone(reportCardNext)
+            ? clone(
+                reportCardNext
+            )
             : null;
     }
 
+
     //----------------------------------------------------------------------
-    // Human Summary
+    // Human Summaries
     //----------------------------------------------------------------------
 
-    function buildHumanSummary(
+    function buildAthleteHumanSummary(
         model,
         audience,
         explanations
@@ -1280,22 +2195,26 @@
         const athleteName =
             model.athlete_name ||
             (
-                audience === AUDIENCES.ATHLETE
+                audience ===
+                AUDIENCES.ATHLETE
                     ? "You"
                     : "The athlete"
             );
 
+
         const availableDomains =
-            DOMAIN_KEYS.filter(
+            ATHLETE_DOMAIN_KEYS.filter(
                 key =>
                     explanations[key] &&
                     explanations[key].status !==
                         STATUS.DOMAIN_UNAVAILABLE
             );
 
+
         const compositeStatus =
             explanations.composite?.status ||
             STATUS.COMPOSITE_PENDING;
+
 
         if (
             compositeStatus ===
@@ -1308,12 +2227,48 @@
             );
         }
 
+
         return (
             `${athleteName} has governed Stream 9 intelligence available across ` +
             `${availableDomains.length} domain(s). ` +
             `This explanation preserves the published intelligence and does not recalculate it.`
         );
     }
+
+
+    function buildProgramHumanSummary(
+        model,
+        explanations
+    ) {
+        const programName =
+            model.program_name ||
+            "The program";
+
+
+        const availableDomains =
+            PROGRAM_DOMAIN_KEYS.filter(
+                key =>
+                    explanations[key] &&
+                    explanations[key].status !==
+                        STATUS.DOMAIN_UNAVAILABLE
+            );
+
+
+        const healthState =
+            firstDefined(
+                model.health_state,
+                "PENDING"
+            );
+
+
+        return (
+            `${programName} currently has governed Program Health intelligence available across ` +
+            `${availableDomains.length} domain(s). ` +
+            `The governed Program Health state is ${healthState}. ` +
+            `This explanation preserves Stream 9 intelligence and does not recalculate Program Health.`
+        );
+    }
+
 
     //----------------------------------------------------------------------
     // Input Validation
@@ -1322,7 +2277,9 @@
     function validateInput(model) {
         if (!model) {
             return {
-                ok: false,
+                ok:
+                    false,
+
                 status:
                     STATUS.INTELLIGENCE_PACKAGE_REQUIRED,
 
@@ -1331,31 +2288,97 @@
             };
         }
 
-        if (!hasIdentity(model)) {
+
+        if (
+            model.subject_type ===
+            SUBJECT_TYPES.PROGRAM
+        ) {
+            if (
+                !hasProgramIdentity(model)
+            ) {
+                return {
+                    ok:
+                        false,
+
+                    status:
+                        STATUS.SUBJECT_IDENTITY_REQUIRED,
+
+                    message:
+                        "Program explainability requires program_id or organization_id."
+                };
+            }
+
+
+            if (
+                !model.program_intelligence_id
+            ) {
+                return {
+                    ok:
+                        false,
+
+                    status:
+                        STATUS.PROGRAM_INTELLIGENCE_ID_REQUIRED,
+
+                    message:
+                        "Program explainability requires program_intelligence_id."
+                };
+            }
+
+
+            if (
+                !model.intelligence_receipt_id
+            ) {
+                return {
+                    ok:
+                        false,
+
+                    status:
+                        STATUS.PROGRAM_INTELLIGENCE_RECEIPT_REQUIRED,
+
+                    message:
+                        "Program explainability requires intelligence_receipt_id."
+                };
+            }
+
+        } else if (
+            !hasAthleteIdentity(model)
+        ) {
             return {
-                ok: false,
+                ok:
+                    false,
+
                 status:
-                    STATUS.INTELLIGENCE_PACKAGE_REQUIRED,
+                    STATUS.SUBJECT_IDENTITY_REQUIRED,
 
                 message:
-                    "athlete_id and snapshot_id are required for governed explainability."
+                    "Athlete explainability requires athlete_id and snapshot_id."
             };
         }
 
-        if (!hasGovernedStructure(model)) {
+
+        if (
+            !hasGovernedStructure(model)
+        ) {
             return {
-                ok: false,
+                ok:
+                    false,
+
                 status:
                     STATUS.UNOFFICIAL_INPUT_REJECTED,
 
                 message:
-                    "Explainability requires normalized governed domain, composite, or report-card intelligence. Arbitrary page values are not accepted as official intelligence."
+                    "Explainability requires normalized governed intelligence. Arbitrary page values are not accepted as official intelligence."
             };
         }
 
-        if (isExplicitlyUnofficial(model)) {
+
+        if (
+            isExplicitlyUnofficial(model)
+        ) {
             return {
-                ok: false,
+                ok:
+                    false,
+
                 status:
                     STATUS.UNOFFICIAL_INPUT_REJECTED,
 
@@ -1364,11 +2387,16 @@
             };
         }
 
+
         return {
-            ok: true,
-            status: "VALID"
+            ok:
+                true,
+
+            status:
+                "VALID"
         };
     }
+
 
     //----------------------------------------------------------------------
     // Main Explainability Operation
@@ -1380,18 +2408,27 @@
                 input.audience
             );
 
+
         const model =
-            normalizePackage(input);
+            normalizePackage(
+                input
+            );
+
 
         const validation =
-            validateInput(model);
+            validateInput(
+                model
+            );
+
 
         const doctrine =
             validateDoctrineChain();
 
+
         if (!validation.ok) {
             return {
-                ok: false,
+                ok:
+                    false,
 
                 engine:
                     ENGINE,
@@ -1401,6 +2438,10 @@
 
                 owner_stream:
                     OWNER_STREAM,
+
+                subject_type:
+                    model?.subject_type ||
+                    null,
 
                 status:
                     validation.status,
@@ -1418,6 +2459,22 @@
                     model?.snapshot_id ||
                     null,
 
+                program_id:
+                    model?.program_id ||
+                    null,
+
+                organization_id:
+                    model?.organization_id ||
+                    null,
+
+                program_intelligence_id:
+                    model?.program_intelligence_id ||
+                    null,
+
+                intelligence_receipt_id:
+                    model?.intelligence_receipt_id ||
+                    null,
+
                 doctrine_validation:
                     doctrine,
 
@@ -1429,16 +2486,58 @@
             };
         }
 
-        const explanations = {};
 
-        DOMAIN_KEYS.forEach(domainKey => {
-            explanations[domainKey] =
-                explainDomain(
+        //--------------------------------------------------------------
+        // Program Health Explainability
+        //--------------------------------------------------------------
+
+        if (
+            model.subject_type ===
+            SUBJECT_TYPES.PROGRAM
+        ) {
+            const result =
+                explainProgramHealth(
                     model,
-                    domainKey,
                     audience
                 );
-        });
+
+            return {
+                ...result,
+
+                engine:
+                    ENGINE,
+
+                engine_version:
+                    VERSION,
+
+                owner_stream:
+                    OWNER_STREAM,
+
+                audience,
+
+                doctrine_validation:
+                    doctrine
+            };
+        }
+
+
+        //--------------------------------------------------------------
+        // Athlete Explainability
+        //--------------------------------------------------------------
+
+        const explanations = {};
+
+
+        ATHLETE_DOMAIN_KEYS
+            .forEach(domainKey => {
+                explanations[domainKey] =
+                    explainDomain(
+                        model,
+                        domainKey,
+                        audience
+                    );
+            });
+
 
         explanations.composite =
             explainComposite(
@@ -1446,55 +2545,82 @@
                 audience
             );
 
+
         const availabilityFlags =
-            collectAvailabilityFlags(model);
+            collectAvailabilityFlags(
+                model
+            );
+
 
         const riskFlags =
-            collectDomainRiskFlags(model);
+            collectDomainRiskFlags(
+                model
+            );
+
 
         const confidenceLimiters =
-            collectConfidenceLimiters(model);
+            collectConfidenceLimiters(
+                model
+            );
+
 
         const recommendations =
-            collectGovernedRecommendations(model);
+            collectGovernedRecommendations(
+                model
+            );
+
 
         const nextBestAction =
-            getGovernedNextBestAction(model);
+            getGovernedNextBestAction(
+                model
+            );
+
 
         const authorityLineage =
-            collectAuthorityLineage(model);
+            collectAuthorityLineage(
+                model
+            );
+
 
         const lineageMissing =
-            authorityLineage.length === 0;
+            authorityLineage.length ===
+            0;
+
 
         const availableCount =
-            DOMAIN_KEYS.filter(
+            ATHLETE_DOMAIN_KEYS.filter(
                 domainKey =>
                     explanations[domainKey].status !==
                         STATUS.DOMAIN_UNAVAILABLE
             ).length;
 
+
         let resultStatus =
             STATUS.EXPLAINED;
 
+
         if (
             availableCount <
-            DOMAIN_KEYS.length
+            ATHLETE_DOMAIN_KEYS.length
         ) {
             resultStatus =
                 STATUS.PARTIAL_EXPLANATION;
         }
 
+
         if (
             lineageMissing &&
-            resultStatus === STATUS.EXPLAINED
+            resultStatus ===
+                STATUS.EXPLAINED
         ) {
             resultStatus =
                 STATUS.AUTHORITY_LINEAGE_MISSING;
         }
 
+
         return {
-            ok: true,
+            ok:
+                true,
 
             engine:
                 ENGINE,
@@ -1504,6 +2630,9 @@
 
             owner_stream:
                 OWNER_STREAM,
+
+            subject_type:
+                SUBJECT_TYPES.ATHLETE,
 
             status:
                 resultStatus,
@@ -1558,13 +2687,17 @@
                 !lineageMissing,
 
             report_card:
-                clone(model.report_card),
+                clone(
+                    model.report_card
+                ),
 
             synthesis:
-                clone(model.synthesis),
+                clone(
+                    model.synthesis
+                ),
 
             summary:
-                buildHumanSummary(
+                buildAthleteHumanSummary(
                     model,
                     audience,
                     explanations
@@ -1578,6 +2711,9 @@
                     false,
 
                 calculates_composite:
+                    false,
+
+                calculates_program_health:
                     false,
 
                 creates_thresholds:
@@ -1613,6 +2749,9 @@
                 missing_data_equals_negative_performance:
                     false,
 
+                authorizes_publication:
+                    false,
+
                 presentation_only_transformation:
                     true
             },
@@ -1624,6 +2763,7 @@
                 true
         };
     }
+
 
     //----------------------------------------------------------------------
     // Focused Domain Explanation
@@ -1638,70 +2778,118 @@
                 input.audience
             );
 
+
         const model =
-            normalizePackage(input);
+            normalizePackage(
+                input
+            );
+
 
         const validation =
-            validateInput(model);
+            validateInput(
+                model
+            );
+
 
         if (!validation.ok) {
             return {
-                ok: false,
+                ok:
+                    false,
+
                 status:
                     validation.status,
+
                 message:
                     validation.message,
+
+                subject_type:
+                    model?.subject_type ||
+                    null,
+
                 domain:
-                    domainKey || null,
+                    domainKey ||
+                    null,
+
                 generated_at:
                     nowISO()
             };
         }
 
+
         const normalizedDomain =
-            normalize(domainKey)
+            normalize(
+                domainKey
+            )
                 .toLowerCase();
+
+
+        if (
+            normalizedDomain ===
+            "program_health"
+        ) {
+            return explainProgramHealth(
+                model,
+                audience
+            );
+        }
+
 
         if (
             normalizedDomain ===
             "composite"
         ) {
             return {
-                ok: true,
+                ok:
+                    true,
+
                 ...explainComposite(
                     model,
                     audience
                 ),
+
                 generated_at:
                     nowISO()
             };
         }
 
+
+        const domainKeys =
+            getDomainKeysForModel(
+                model
+            );
+
+
         if (
-            !DOMAIN_KEYS.includes(
+            !domainKeys.includes(
                 normalizedDomain
             )
         ) {
             return {
-                ok: false,
+                ok:
+                    false,
 
                 status:
                     STATUS.EXPLANATION_BLOCKED,
+
+                subject_type:
+                    model.subject_type,
 
                 domain:
                     normalizedDomain ||
                     null,
 
                 message:
-                    "Requested intelligence domain is not registered with this explainability authority.",
+                    "Requested intelligence domain is not registered with this explainability authority for the supplied subject type.",
 
                 generated_at:
                     nowISO()
             };
         }
 
+
         return {
-            ok: true,
+            ok:
+                true,
 
             ...explainDomain(
                 model,
@@ -1714,44 +2902,42 @@
         };
     }
 
+
     //----------------------------------------------------------------------
     // Compatibility Accessors
-    //
-    // These preserve callable names without restoring legacy authority.
-    // They explain only governed domain packages.
     //----------------------------------------------------------------------
 
     function explainRanking(input = {}) {
-        /*
-         * Ranking is not calculated here.
-         *
-         * If a governed ranking authority publishes ranking intelligence,
-         * it should be supplied through report_card or a governed domain
-         * extension. Production score is not automatically converted into
-         * ranking authority.
-         */
-
         const model =
-            normalizePackage(input);
+            normalizePackage(
+                input
+            );
+
 
         if (!model) {
             return {
-                ok: false,
+                ok:
+                    false,
+
                 status:
                     STATUS.INTELLIGENCE_PACKAGE_REQUIRED,
+
                 generated_at:
                     nowISO()
             };
         }
+
 
         const ranking =
             model.report_card?.ranking ||
             model.raw?.ranking ||
             null;
 
+
         if (!hasObject(ranking)) {
             return {
-                ok: false,
+                ok:
+                    false,
 
                 status:
                     STATUS.DOMAIN_UNAVAILABLE,
@@ -1760,7 +2946,7 @@
                     "ranking",
 
                 message:
-                    "Governed ranking intelligence was not supplied. Explainability will not derive ranking from production or other scores.",
+                    "Governed ranking intelligence was not supplied. Explainability will not derive ranking from scores or Program Health.",
 
                 calculated_here:
                     false,
@@ -1770,8 +2956,10 @@
             };
         }
 
+
         return {
-            ok: true,
+            ok:
+                true,
 
             domain:
                 "ranking",
@@ -1781,7 +2969,9 @@
                 "AVAILABLE",
 
             ranking:
-                clone(ranking),
+                clone(
+                    ranking
+                ),
 
             explanation:
                 clone(
@@ -1806,12 +2996,14 @@
         };
     }
 
+
     function explainAcademics(input = {}) {
         return explainDomainOnly(
             input,
             "academic"
         );
     }
+
 
     function explainPathway(input = {}) {
         return explainDomainOnly(
@@ -1820,6 +3012,7 @@
         );
     }
 
+
     function explainCrystalMatch(input = {}) {
         return explainDomainOnly(
             input,
@@ -1827,19 +3020,40 @@
         );
     }
 
+
+    function explainProgram(input = {}) {
+        const normalizedInput = {
+            ...input,
+            subject_type:
+                SUBJECT_TYPES.PROGRAM
+        };
+
+        return explain(
+            normalizedInput
+        );
+    }
+
+
     function explainRecruitingInterest(input = {}) {
         const model =
-            normalizePackage(input);
+            normalizePackage(
+                input
+            );
+
 
         if (!model) {
             return {
-                ok: false,
+                ok:
+                    false,
+
                 status:
                     STATUS.INTELLIGENCE_PACKAGE_REQUIRED,
+
                 generated_at:
                     nowISO()
             };
         }
+
 
         const recruiting =
             model.raw?.recruiting ||
@@ -1847,9 +3061,11 @@
             model.report_card?.recruiting ||
             null;
 
+
         if (!hasObject(recruiting)) {
             return {
-                ok: false,
+                ok:
+                    false,
 
                 status:
                     STATUS.DOMAIN_UNAVAILABLE,
@@ -1877,8 +3093,10 @@
             };
         }
 
+
         return {
-            ok: true,
+            ok:
+                true,
 
             domain:
                 "recruiting",
@@ -1888,7 +3106,9 @@
                 "AVAILABLE",
 
             recruiting:
-                clone(recruiting),
+                clone(
+                    recruiting
+                ),
 
             explanation:
                 clone(
@@ -1913,6 +3133,7 @@
         };
     }
 
+
     //----------------------------------------------------------------------
     // Public Authority
     //----------------------------------------------------------------------
@@ -1935,18 +3156,41 @@
             classification:
                 "SUPPORTING_EXPLAINABILITY_REPORT_CARD_AUTHORITY",
 
+            SUBJECT_TYPES,
             AUDIENCES,
-            DOMAIN_KEYS,
+
+            ATHLETE_DOMAIN_KEYS,
+            PROGRAM_DOMAIN_KEYS,
+
+            DOMAIN_KEYS:
+                ATHLETE_DOMAIN_KEYS,
+
             STATUS,
+
 
             doctrine: Object.freeze({
                 explains_governed_intelligence:
+                    true,
+
+                supports_athlete_intelligence:
+                    true,
+
+                supports_program_health_intelligence:
                     true,
 
                 calculates_scores:
                     false,
 
                 recalculates_scores:
+                    false,
+
+                calculates_program_health:
+                    false,
+
+                recalculates_program_health:
+                    false,
+
+                calculates_confidence:
                     false,
 
                 creates_thresholds:
@@ -1986,8 +3230,15 @@
                     true,
 
                 authority_lineage_required:
-                    true
+                    true,
+
+                authorizes_publication:
+                    false,
+
+                publication_authority:
+                    false
             }),
+
 
             explain,
 
@@ -2007,6 +3258,11 @@
 
             explainRecruitingInterest,
 
+            explainProgram,
+
+            explainProgramHealth:
+                explainProgram,
+
             collectAvailabilityFlags,
 
             collectDomainRiskFlags,
@@ -2023,6 +3279,7 @@
 
             validateDoctrineChain,
 
+
             getStatus() {
                 return {
                     engine:
@@ -2037,6 +3294,11 @@
                     status:
                         "ACTIVE",
 
+                    supported_subjects: [
+                        SUBJECT_TYPES.ATHLETE,
+                        SUBJECT_TYPES.PROGRAM
+                    ],
+
                     stream_9_authority_verified:
                         validateStream9Authority(),
 
@@ -2044,6 +3306,9 @@
                         validateDoctrineChain(),
 
                     calculates_scores:
+                        false,
+
+                    calculates_program_health:
                         false,
 
                     calculates_composite:
@@ -2059,10 +3324,14 @@
                         false,
 
                     creates_recruiting_interest:
+                        false,
+
+                    authorizes_publication:
                         false
                 };
             }
         });
+
 
     //----------------------------------------------------------------------
     // Namespace Publication
@@ -2071,6 +3340,7 @@
     global.STATSCORE_EXPLAINABILITY_ENGINE =
         ExplainabilityEngine;
 
+
     global.STATSCORE_EXPLAIN_DECISION =
         function (input) {
             return ExplainabilityEngine.explain(
@@ -2078,14 +3348,27 @@
             );
         };
 
+
+    global.STATSCORE_EXPLAIN_PROGRAM_HEALTH =
+        function (input) {
+            return ExplainabilityEngine.explainProgram(
+                input
+            );
+        };
+
+
     global.STATScore =
-        global.STATScore || {};
+        global.STATScore ||
+        {};
+
 
     global.STATScore.ExplainabilityEngine =
         ExplainabilityEngine;
 
+
     global.STATScore.Explainability =
         ExplainabilityEngine;
+
 
     console.info(
         "[STATS-CORE] Explainability Authority loaded:",
