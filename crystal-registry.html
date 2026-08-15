@@ -10,140 +10,212 @@ Asset Type:
 HTML Presentation Page
 
 Owner Stream:
-Stream 7 — Crystal / Exposure / Media
+Stream 7 — Crystal Reports / Crystal Registry /
+Enterprise Publication Authority
 
 Primary Operational Authority:
-Stream 7 — Crystal / Exposure / Media
+Stream 7 — Enterprise Publication Authority
 
 System Layer:
 Crystal Registry Presentation
 
 Primary Runtime:
 statscore-crystal-engine.js
-
-Primary Intelligence Engine(s):
-statscore-crystal-engine.js
 statscore-crystal-reports.js
-statscore-media-intelligence-engine.js
 
-Previous Route:
-athlete-dashboard.html
-player-profile.html
-crystal-report.html
-
-Current Route:
-crystal-registry.html
-
-Next Route(s):
-crystal-report.html
-athlete-dashboard.html
-player-profile.html
+Constitutional Purpose:
+Present the governed registry/index of Crystal publication
+artifacts and preserve their identity, authority, version,
+disclosure, publication state, receipt, and historical lineage.
 
 Consumes:
-athlete_id
-snapshot_id
-crystal inputs
-verified athlete intelligence
-media/exposure context
+workspace_id where applicable
+role_context_id where applicable
+program_id where applicable
+athlete_id where applicable
+snapshot_id where applicable
+crystal_id where applicable
+report_id where applicable
+governed Crystal Registry references
+governed Crystal Report contracts
+publication state
+publication receipt
+intelligence authority/version/receipt lineage
+disclosure scope
 
 Provides:
-Crystal Registry view
-Crystal record status
-Exposure/media registry context
-
-Primary IDs:
-athlete_id
-snapshot_id
-crystal_id
-
-Primary Database Tables:
-statscore_snapshots
-Crystal/report tables where applicable
-media/exposure records where applicable
-
-Cross-Stream Dependencies:
-Consumes Stream 3 athlete intelligence.
-May consume Stream 6 permission context.
-May provide visibility context to Stream 5.
+Crystal Registry presentation
+Crystal/report identity
+publication-state visibility
+publication-receipt visibility
+intelligence-lineage visibility
+version/history visibility
+authorized navigation to Crystal Report presentation
 
 Does NOT:
-- Calculate athlete scores
-- Create source records
-- Modify production records
-- Execute communication
-- Own role dashboards
+- Calculate Athlete Intelligence
+- Calculate Program Health
+- Calculate Match Intelligence
+- Calculate ranking
+- Calculate Pathway
+- Calculate confidence
+- Manufacture WHY
+- Manufacture recommendations
+- Infer publication status
+- Infer public-disclosure authority
+- Reconstruct loose legacy payloads
+- Directly rewrite publication history
+- Directly archive publication records
+- Own Professional Workspace
+- Own communication
+- Establish enterprise runtime
+
+Constitutional Doctrine:
+
+Registry Record ≠ Intelligence Authority
+
+Registry Record ≠ Public Disclosure Authority
+
+Report Exists ≠ Report Published
+
+Publication State Change
+    → Governed Publication Operation
+    → Receipt
+    → Registry History
+
+Historical Publication State Shall Not Be Silently Overwritten.
 
 Status:
-CANON LOCKED
-
-Last Governance Review:
-2026-06-27
+RECONCILED TO GOVERNED CRYSTAL REGISTRY MODEL
 
 ==========================================================
---> 
+-->
 
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>STATScore™ — Crystal Report Registry</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+/>
+
+<title>
+  STATS-CORE™ — Crystal Registry
+</title>
+
+<meta
+  name="description"
+  content="STATS-CORE™ Crystal Registry — governed Crystal publication identity, lineage, version, disclosure state, publication state, and receipt history."
+/>
 
 <style>
+
 :root{
   --red:#ff2b1f;
   --gold:#f4c542;
   --green:#25d366;
   --blue:#7ed8ff;
+  --danger:#ff7070;
   --text:#f4f4f1;
   --muted:#b8c3cc;
   --line:rgba(255,255,255,.18);
+  --line2:rgba(255,255,255,.30);
   --panel:rgba(6,10,18,.72);
   --max:1536px;
 }
 
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+}
 
-html,body{
+html,
+body{
   margin:0;
   background:#000;
   color:var(--text);
   font-family:Arial,Helvetica,sans-serif;
 }
 
-a{text-decoration:none;color:inherit}
+a{
+  text-decoration:none;
+  color:inherit;
+}
+
+button,
+input,
+select{
+  font-family:inherit;
+}
 
 .page{
   width:min(var(--max),100%);
   margin:0 auto;
   min-height:100vh;
   padding:28px;
+
   background:
-    linear-gradient(90deg,rgba(0,0,0,.94),rgba(0,0,0,.68),rgba(0,0,0,.9)),
-    radial-gradient(circle at 35% 20%,rgba(255,43,31,.12),transparent 34%),
-    radial-gradient(circle at 76% 70%,rgba(126,216,255,.12),transparent 34%),
+    linear-gradient(
+      90deg,
+      rgba(0,0,0,.94),
+      rgba(0,0,0,.68),
+      rgba(0,0,0,.9)
+    ),
+    radial-gradient(
+      circle at 35% 20%,
+      rgba(255,43,31,.12),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 76% 70%,
+      rgba(126,216,255,.12),
+      transparent 34%
+    ),
     #020202;
 }
+
+
+/* ============================================================
+   TOPBAR
+============================================================ */
 
 .topbar{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  gap:20px;
+  flex-wrap:wrap;
+  gap:12px;
   margin-bottom:24px;
+}
+
+.topbar-group{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
 }
 
 .back{
   border:1px solid var(--line);
   padding:12px 16px;
   text-transform:uppercase;
-  font-size:.72rem;
+  font-size:.7rem;
   font-weight:900;
-  letter-spacing:.16em;
+  letter-spacing:.14em;
   color:#fff;
   background:rgba(255,255,255,.03);
 }
+
+.back:hover{
+  border-color:var(--red);
+}
+
+
+/* ============================================================
+   TITLE
+============================================================ */
 
 .title-block{
   border-bottom:2px solid var(--red);
@@ -153,16 +225,21 @@ a{text-decoration:none;color:inherit}
 
 .kicker{
   color:var(--red);
-  font-size:.72rem;
+  font-size:.7rem;
   font-weight:900;
-  letter-spacing:.28em;
+  letter-spacing:.26em;
   text-transform:uppercase;
   margin-bottom:10px;
 }
 
 h1{
   margin:0;
-  font-family:"Arial Narrow","Helvetica Neue Condensed",Impact,Arial,sans-serif;
+  font-family:
+    "Arial Narrow",
+    "Helvetica Neue Condensed",
+    Impact,
+    Arial,
+    sans-serif;
   font-size:3.5rem;
   line-height:.92;
   letter-spacing:-.04em;
@@ -171,30 +248,59 @@ h1{
 
 .subline{
   margin-top:10px;
+  max-width:1000px;
   color:var(--muted);
   font-weight:800;
-  letter-spacing:.08em;
+  letter-spacing:.07em;
   text-transform:uppercase;
-  font-size:.78rem;
+  font-size:.76rem;
+  line-height:1.55;
 }
+
+
+/* ============================================================
+   DOCTRINE
+============================================================ */
+
+.doctrine{
+  margin-bottom:18px;
+  padding:16px;
+  border-left:4px solid var(--gold);
+  background:rgba(244,197,66,.055);
+  color:#f4e7ab;
+  font-size:.78rem;
+  line-height:1.6;
+}
+
+
+/* ============================================================
+   CONTROLS
+============================================================ */
 
 .controls{
   display:grid;
-  grid-template-columns:1fr 220px 220px 180px;
+  grid-template-columns:
+    minmax(260px,1fr)
+    220px
+    220px
+    220px
+    160px;
   gap:12px;
   margin-bottom:18px;
 }
 
-input,select,button{
+input,
+select,
+button{
   width:100%;
   min-height:48px;
   background:rgba(5,8,14,.78);
   border:1px solid rgba(255,255,255,.28);
   color:#fff;
   padding:12px;
-  font-size:.8rem;
+  font-size:.76rem;
   font-weight:900;
-  letter-spacing:.08em;
+  letter-spacing:.07em;
   text-transform:uppercase;
   outline:none;
 }
@@ -209,6 +315,59 @@ button.primary{
   background:rgba(255,43,31,.1);
 }
 
+
+/* ============================================================
+   MESSAGE
+============================================================ */
+
+.message{
+  margin:16px 0;
+  color:var(--green);
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+  line-height:1.5;
+}
+
+
+/* ============================================================
+   SUMMARY
+============================================================ */
+
+.registry-summary{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin-bottom:18px;
+}
+
+.summary-card{
+  border:1px solid var(--line);
+  background:var(--panel);
+  padding:15px;
+}
+
+.summary-card span{
+  display:block;
+  color:var(--blue);
+  font-size:.64rem;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+
+.summary-card b{
+  display:block;
+  margin-top:7px;
+  font-size:1.25rem;
+}
+
+
+/* ============================================================
+   REGISTRY GRID
+============================================================ */
+
 .registry-grid{
   display:grid;
   grid-template-columns:repeat(3,1fr);
@@ -219,46 +378,72 @@ button.primary{
   background:var(--panel);
   border:1px solid var(--line);
   padding:18px;
-  min-height:250px;
+  min-height:340px;
+
   display:flex;
   flex-direction:column;
   justify-content:space-between;
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.035);
+
+  box-shadow:
+    inset 0 0 0 1px
+    rgba(255,255,255,.035);
 }
 
 .card.archived{
-  opacity:.45;
+  opacity:.68;
+}
+
+.card.withdrawn{
+  border-color:rgba(255,112,112,.35);
+}
+
+.card.reconciliation{
+  border-color:rgba(244,197,66,.45);
 }
 
 .card-type{
   color:var(--blue);
-  font-size:.68rem;
+  font-size:.66rem;
   font-weight:900;
-  letter-spacing:.18em;
+  letter-spacing:.16em;
   text-transform:uppercase;
   margin-bottom:10px;
 }
 
 .card-title{
-  font-size:1.3rem;
+  font-size:1.25rem;
   font-weight:900;
   text-transform:uppercase;
   margin-bottom:12px;
+  line-height:1.15;
 }
+
+.card-description{
+  margin-bottom:14px;
+  color:var(--muted);
+  font-size:.76rem;
+  line-height:1.5;
+}
+
+
+/* ============================================================
+   METADATA
+============================================================ */
 
 .meta{
   display:grid;
   gap:8px;
-  margin-bottom:14px;
+  margin-bottom:16px;
 }
 
 .row{
   display:flex;
   justify-content:space-between;
   gap:14px;
-  border-bottom:1px solid rgba(255,255,255,.1);
+  border-bottom:
+    1px solid rgba(255,255,255,.1);
   padding-bottom:7px;
-  font-size:.72rem;
+  font-size:.69rem;
   text-transform:uppercase;
   font-weight:900;
 }
@@ -268,18 +453,52 @@ button.primary{
 }
 
 .row b{
-  color:var(--gold);
+  color:#fff;
   text-align:right;
+  overflow-wrap:anywhere;
 }
 
-.status{
-  color:var(--green)!important;
+.row b.gold{
+  color:var(--gold);
 }
+
+.row b.green{
+  color:var(--green);
+}
+
+.row b.red{
+  color:var(--danger);
+}
+
+
+/* ============================================================
+   WHY
+============================================================ */
+
+.why{
+  margin-top:12px;
+  padding:11px;
+  border-left:3px solid var(--blue);
+  background:rgba(126,216,255,.035);
+  color:#dff6ff;
+  font-size:.72rem;
+  line-height:1.5;
+}
+
+.why strong{
+  color:var(--blue);
+}
+
+
+/* ============================================================
+   ACTIONS
+============================================================ */
 
 .actions{
   display:grid;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns:1fr;
   gap:10px;
+  margin-top:16px;
 }
 
 .action{
@@ -288,9 +507,9 @@ button.primary{
   justify-content:center;
   align-items:center;
   border:1px solid var(--line);
-  font-size:.68rem;
+  font-size:.67rem;
   font-weight:900;
-  letter-spacing:.12em;
+  letter-spacing:.1em;
   text-transform:uppercase;
   cursor:pointer;
 }
@@ -300,19 +519,15 @@ button.primary{
   color:var(--green);
 }
 
-.archive{
-  border-color:var(--red);
-  color:var(--red);
+.lifecycle{
+  border-color:var(--gold);
+  color:var(--gold);
 }
 
-.message{
-  margin:16px 0;
-  color:var(--green);
-  font-size:.74rem;
-  font-weight:900;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-}
+
+/* ============================================================
+   EMPTY / LEGACY
+============================================================ */
 
 .empty{
   border:1px solid var(--line);
@@ -320,206 +535,1581 @@ button.primary{
   color:var(--muted);
   text-transform:uppercase;
   font-weight:900;
-  letter-spacing:.12em;
+  letter-spacing:.1em;
+  line-height:1.55;
 }
 
-@media(max-width:1000px){
-  .controls,.registry-grid{
+.legacy-warning{
+  color:#ffe394;
+  font-size:.7rem;
+  line-height:1.5;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@media(max-width:1200px){
+
+  .controls{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .registry-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
+}
+
+@media(max-width:800px){
+
+  .controls,
+  .registry-grid,
+  .registry-summary{
     grid-template-columns:1fr;
   }
 
   h1{
     font-size:2.7rem;
   }
+
 }
+
 </style>
+
 </head>
 
+
 <body>
+
 <div class="page">
 
+
   <div class="topbar">
-    <a class="back" href="program.html">‹ Return To Program Room</a>
-    <a class="back" href="system.html">System Home</a>
+
+    <div class="topbar-group">
+
+      <a
+        class="back"
+        id="returnWorkspaceLink"
+        href="role-dashboard.html"
+      >
+        ‹ Return To Workspace
+      </a>
+
+      <a
+        class="back"
+        id="reportsLink"
+        href="crystal-report.html"
+      >
+        Crystal Report
+      </a>
+
+    </div>
+
+    <a
+      class="back"
+      href="athlete-dashboard.html"
+      id="athleteWorkspaceLink"
+    >
+      Athlete Workspace
+    </a>
+
   </div>
 
+
   <section class="title-block">
-    <div class="kicker">STATScore™ Intelligence Archive</div>
-    <h1>Crystal Report Registry</h1>
-    <div class="subline">Persistent institutional intelligence artifacts · Report archive · Version-controlled registry</div>
+
+    <div class="kicker">
+      STATS-CORE™ Enterprise Publication Registry
+    </div>
+
+    <h1>
+      Crystal Registry
+    </h1>
+
+    <div class="subline">
+      Governed Crystal publication identity · Intelligence lineage ·
+      Version history · Disclosure scope · Publication state ·
+      Publication receipts
+    </div>
+
   </section>
+
+
+  <div class="doctrine">
+    Crystal Registry preserves governed publication history.
+    It does not calculate intelligence, infer publication authority,
+    reconstruct loose legacy payloads, or silently rewrite historical
+    publication state. Registered ≠ Published. Published ≠ Public.
+  </div>
+
 
   <section class="controls">
-    <input id="searchInput" type="text" placeholder="Search reports..." />
+
+    <input
+      id="searchInput"
+      type="text"
+      placeholder="Search governed registry metadata..."
+    />
+
     <select id="typeFilter">
-      <option value="">All Report Types</option>
-      <option value="PROGRAM_CRYSTAL_REPORT">Program Crystal Report</option>
+
+      <option value="">
+        All Report Types
+      </option>
+
+      <option value="PROGRAM_HEALTH">
+        Program Health
+      </option>
+
+      <option value="ATHLETE_INTELLIGENCE">
+        Athlete Intelligence
+      </option>
+
+      <option value="CRYSTAL_MATCH">
+        Crystal Match
+      </option>
+
+      <option value="PATHWAY">
+        Pathway
+      </option>
+
+      <option value="DEVELOPMENT">
+        Development
+      </option>
+
+      <option value="ELIGIBILITY">
+        Eligibility
+      </option>
+
+      <option value="LIFECYCLE">
+        Lifecycle
+      </option>
+
     </select>
+
+
     <select id="statusFilter">
-      <option value="">All Statuses</option>
-      <option value="ACTIVE">Active</option>
-      <option value="ARCHIVED">Archived</option>
+
+      <option value="">
+        All Publication States
+      </option>
+
+      <option value="DRAFT">
+        Draft
+      </option>
+
+      <option value="APPROVED">
+        Approved
+      </option>
+
+      <option value="SCHEDULED">
+        Scheduled
+      </option>
+
+      <option value="PUBLISHED">
+        Published
+      </option>
+
+      <option value="UPDATED">
+        Updated
+      </option>
+
+      <option value="WITHDRAWN">
+        Withdrawn
+      </option>
+
+      <option value="ARCHIVED">
+        Archived
+      </option>
+
+      <option value="REJECTED">
+        Rejected
+      </option>
+
     </select>
-    <button class="primary" id="refreshBtn">Refresh</button>
+
+
+    <select id="scopeFilter">
+
+      <option value="">
+        All Disclosure Scopes
+      </option>
+
+      <option value="PRIVATE">
+        Private
+      </option>
+
+      <option value="ATHLETE_WORKSPACE">
+        Athlete Workspace
+      </option>
+
+      <option value="PARENT_GUARDIAN">
+        Parent / Guardian
+      </option>
+
+      <option value="PROFESSIONAL_WORKSPACE">
+        Professional Workspace
+      </option>
+
+      <option value="RECRUITING">
+        Recruiting
+      </option>
+
+      <option value="PUBLIC_MEDIA">
+        Public Media
+      </option>
+
+    </select>
+
+
+    <button
+      class="primary"
+      id="refreshBtn"
+      type="button"
+    >
+      Refresh
+    </button>
+
   </section>
 
-  <div class="message" id="systemMessage">Registry loading...</div>
 
-  <section class="registry-grid" id="registryGrid"></section>
+  <div
+    class="message"
+    id="systemMessage"
+  >
+    Registry awaiting governed runtime...
+  </div>
+
+
+  <section
+    class="registry-summary"
+    id="registrySummary"
+  >
+
+    <div class="summary-card">
+      <span>Visible Records</span>
+      <b id="visibleCount">0</b>
+    </div>
+
+    <div class="summary-card">
+      <span>Published</span>
+      <b id="publishedCount">0</b>
+    </div>
+
+    <div class="summary-card">
+      <span>Archived / Withdrawn</span>
+      <b id="historicalCount">0</b>
+    </div>
+
+    <div class="summary-card">
+      <span>Reconciliation Required</span>
+      <b id="reconciliationCount">0</b>
+    </div>
+
+  </section>
+
+
+  <section
+    class="registry-grid"
+    id="registryGrid"
+  ></section>
+
 
 </div>
 
+
+<!--
+Canonical enterprise runtime/data layer is expected to provide
+the governed data client.
+
+No local Supabase bootstrap exists in this page.
+-->
+
+<script src="statscore-crystal-engine.js"></script>
+<script src="statscore-crystal-reports.js"></script>
+
 <script>
-const SUPABASE_URL = "https://oyjmpbuxvfxusmbouldi.supabase.co";
+(function () {
+  "use strict";
 
-/*
-  Paste the SAME anon key currently working in program.html below.
-  Do NOT use service_role.
-*/
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95am1wYnV4dmZ4dXNtYm91bGRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NDkxNTcsImV4cCI6MjA4NTAyNTE1N30.S4P98vRR8AS7vsg5W-Dxg_fEtVoSlKscMOWEsigo5Mk";
 
-const supabaseClient = supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
-);
+  const PAGE_VERSION =
+    "CRYSTAL-REGISTRY-PAGE-V2-GOVERNED";
 
-let REPORTS = [];
 
-function esc(v){
-  return String(v ?? "")
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-}
+  const params =
+    new URLSearchParams(
+      window.location.search
+    );
 
-function setMessage(msg,type="success"){
-  const el=document.getElementById("systemMessage");
-  el.textContent=msg || "";
-  el.style.color = type === "error" ? "var(--red)" : "var(--green)";
-}
 
-function fmtDate(v){
-  if(!v)return "—";
-  return new Date(v).toLocaleString();
-}
+  let REGISTRY_RECORDS = [];
 
-function reportName(row){
-  return row.source_entity_name ||
-    row.payload?.program_name ||
-    row.payload?.organization_name ||
-    "Unnamed Report";
-}
 
-function reportScore(row){
-  return row.payload?.health_score ??
-    row.payload?.score ??
-    "—";
-}
+  /* ==========================================================
+     HELPERS
+  ========================================================== */
 
-function renderReports(){
-  const grid=document.getElementById("registryGrid");
-  const search=document.getElementById("searchInput").value.toLowerCase().trim();
-  const type=document.getElementById("typeFilter").value;
-  const status=document.getElementById("statusFilter").value;
-
-  const filtered=REPORTS.filter(row=>{
-    const text=[
-      row.report_type,
-      row.source_room,
-      row.source_entity_name,
-      row.report_status,
-      row.sport_scope,
-      row.benchmark_scope,
-      JSON.stringify(row.payload || {})
-    ].join(" ").toLowerCase();
-
-    if(search && !text.includes(search))return false;
-    if(type && row.report_type !== type)return false;
-    if(status && row.report_status !== status)return false;
-    return true;
-  });
-
-  if(!filtered.length){
-    grid.innerHTML=`<div class="empty">No Crystal Reports found.</div>`;
-    return;
+  function byId(id) {
+    return document.getElementById(id);
   }
 
-  grid.innerHTML=filtered.map(row=>{
-    const archived=row.report_status==="ARCHIVED";
+
+  function clean(value) {
+    if (
+      value === null ||
+      value === undefined
+    ) {
+      return "";
+    }
+
+    return String(value).trim();
+  }
+
+
+  function upper(value) {
+    return clean(value).toUpperCase();
+  }
+
+
+  function esc(value) {
+    return String(value ?? "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+
+  function fmtDate(value) {
+    if (!value) {
+      return "—";
+    }
+
+    const date =
+      new Date(value);
+
+    if (
+      Number.isNaN(
+        date.getTime()
+      )
+    ) {
+      return clean(value);
+    }
+
+    return date.toLocaleString();
+  }
+
+
+  function setMessage(
+    message,
+    type = "success"
+  ) {
+    const el =
+      byId("systemMessage");
+
+    if (!el) {
+      return;
+    }
+
+    el.textContent =
+      message || "";
+
+    el.style.color =
+      type === "error"
+        ? "var(--red)"
+        : (
+            type === "warning"
+              ? "var(--gold)"
+              : "var(--green)"
+          );
+  }
+
+
+  function getCanonicalClient() {
+    return (
+      window.STATScoreData
+        ?.getClient?.() ||
+
+      window.STATScoreCore
+        ?.getClient?.() ||
+
+      window.supabaseClient ||
+
+      window.STATScoreSupabase ||
+
+      null
+    );
+  }
+
+
+  /* ==========================================================
+     WORKSPACE / CONTEXT
+  ========================================================== */
+
+  function preserveContext() {
+    const keys = [
+      "workspace_id",
+      "role_context_id",
+      "program_id",
+      "athlete_id",
+      "snapshot_id"
+    ];
+
+
+    document
+      .querySelectorAll(
+        'a[href$=".html"]'
+      )
+      .forEach(
+        link => {
+
+          const target =
+            new URL(
+              link.getAttribute("href"),
+              window.location.href
+            );
+
+
+          keys.forEach(
+            key => {
+
+              const value =
+                params.get(key);
+
+              if (value) {
+                target.searchParams.set(
+                  key,
+                  value
+                );
+              }
+            }
+          );
+
+
+          link.href =
+            target.pathname
+              .split("/")
+              .pop() +
+            target.search;
+        }
+      );
+  }
+
+
+  /* ==========================================================
+     AUTHORIZED QUERY SCOPE
+
+     Page-level scoping supplements, but never replaces, RLS
+     and enterprise permission governance.
+  ========================================================== */
+
+  function buildQueryScope() {
+    return {
+      workspace_id:
+        params.get("workspace_id"),
+
+      role_context_id:
+        params.get("role_context_id"),
+
+      program_id:
+        params.get("program_id"),
+
+      athlete_id:
+        params.get("athlete_id"),
+
+      snapshot_id:
+        params.get("snapshot_id")
+    };
+  }
+
+
+  /* ==========================================================
+     GOVERNED CONTRACT EXTRACTION
+
+     Legacy loose payloads are not reconstructed.
+  ========================================================== */
+
+  function extractGovernedContract(row = {}) {
+    return (
+      row.report_contract ||
+      row.payload?.report_contract ||
+      null
+    );
+  }
+
+
+  /* ==========================================================
+     REGISTRY REFERENCE NORMALIZATION
+
+     This is presentation normalization only.
+
+     No intelligence is calculated.
+  ========================================================== */
+
+  function buildRegistryRecord(
+    row = {}
+  ) {
+    const contract =
+      extractGovernedContract(row);
+
+
+    if (!contract) {
+      return {
+        valid:false,
+
+        reconciliation_required:true,
+
+        report_id:
+          row.report_id ||
+          null,
+
+        crystal_id:
+          row.crystal_id ||
+          null,
+
+        title:
+          row.source_entity_name ||
+          "Legacy Crystal Artifact",
+
+        report_type:
+          row.report_type ||
+          "LEGACY_CRYSTAL_RECORD",
+
+        publication_state:
+          row.report_status ||
+          "UNKNOWN",
+
+        disclosure_scope:
+          "UNKNOWN",
+
+        report_version:
+          row.report_version ||
+          "LEGACY",
+
+        generated_at:
+          row.generated_at ||
+          null,
+
+        reason:
+          "Persisted artifact does not contain the governed V2 report contract. CSE/Stream reconciliation is required; legacy payload will not be reinterpreted."
+      };
+    }
+
+
+    const reportEngine =
+      window
+        .STATScoreCrystalReportEngine;
+
+
+    const validation =
+      reportEngine
+        ?.validateReportContract?.(
+          contract
+        );
+
+
+    if (
+      !validation ||
+      !validation.ok
+    ) {
+      return {
+        valid:false,
+
+        reconciliation_required:true,
+
+        report_id:
+          contract.report_id ||
+          row.report_id ||
+          null,
+
+        crystal_id:
+          row.crystal_id ||
+          null,
+
+        title:
+          contract.report_title ||
+          row.source_entity_name ||
+          "Crystal Report",
+
+        report_type:
+          contract.report_type ||
+          row.report_type ||
+          "CRYSTAL_REPORT",
+
+        publication_state:
+          contract.publication_state ||
+          row.report_status ||
+          "UNKNOWN",
+
+        disclosure_scope:
+          contract.disclosure_scope ||
+          "UNKNOWN",
+
+        report_version:
+          contract.report_version ||
+          row.report_version ||
+          "UNKNOWN",
+
+        generated_at:
+          contract.composed_at ||
+          row.generated_at ||
+          null,
+
+        reason:
+          (
+            validation?.errors ||
+            [
+              "Governed report contract failed validation."
+            ]
+          ).join(" ")
+      };
+    }
+
+
+    const components =
+      contract.intelligence_components ||
+      [];
+
+
+    const primary =
+      components[0] ||
+      null;
+
+
+    const programHealth =
+      components.find(
+        item =>
+          upper(item.domain) ===
+          "PROGRAM_HEALTH"
+      ) ||
+      null;
+
+
+    const crystal =
+      components.find(
+        item =>
+          upper(item.domain) ===
+          "CRYSTAL"
+      ) ||
+      null;
+
+
+    const source =
+      programHealth ||
+      crystal ||
+      primary;
+
+
+    const why =
+      Array.isArray(source?.why)
+        ? source.why
+        : (
+            source?.why
+              ? [source.why]
+              : []
+          );
+
+
+    const program =
+      contract.program ||
+      {};
+
+
+    return {
+      valid:true,
+
+      reconciliation_required:false,
+
+      report_id:
+        contract.report_id,
+
+      crystal_id:
+        row.crystal_id ||
+        contract.crystal_id ||
+        crystal?.values?.crystal_id ||
+        null,
+
+      report_type:
+        contract.report_type,
+
+      report_title:
+        contract.report_title ||
+        "Crystal Report™",
+
+      title:
+        program.program_name ||
+        contract.athlete
+          ?.athlete_display_name ||
+        contract.source_entity_name ||
+        row.source_entity_name ||
+        "Crystal Report",
+
+      report_version:
+        contract.report_version ||
+        row.report_version ||
+        "UNKNOWN",
+
+      publication_state:
+        upper(
+          contract.publication_state ||
+          row.report_status ||
+          "NOT_PUBLISHED"
+        ),
+
+      disclosure_scope:
+        upper(
+          contract.disclosure_scope ||
+          "PRIVATE"
+        ),
+
+      publication_receipt_id:
+        contract.publication_receipt_id ||
+        row.publication_receipt_id ||
+        null,
+
+      intelligence_authority:
+        source?.intelligence_authority ||
+        null,
+
+      authority_version:
+        source?.authority_version ||
+        source?.rule_version ||
+        null,
+
+      intelligence_receipt_id:
+        source?.intelligence_receipt_id ||
+        null,
+
+      effective_at:
+        source?.effective_at ||
+        contract.report_effective_at ||
+        null,
+
+      composed_at:
+        contract.composed_at ||
+        row.generated_at ||
+        null,
+
+      publication_date:
+        contract.publication_date ||
+        row.published_at ||
+        null,
+
+      sport_scope:
+        program.sport_scope ||
+        programHealth
+          ?.values
+          ?.sport_scope ||
+        null,
+
+      benchmark_scope:
+        programHealth
+          ?.values
+          ?.benchmark_scope ||
+        null,
+
+      summary:
+        programHealth?.summary ||
+        crystal?.summary ||
+        source?.summary ||
+        null,
+
+      why,
+
+      athlete_id:
+        contract.athlete_id ||
+        null,
+
+      snapshot_id:
+        contract.snapshot_id ||
+        null,
+
+      program_id:
+        contract.program_id ||
+        program.program_id ||
+        null,
+
+      raw_contract:
+        contract
+    };
+  }
+
+
+  /* ==========================================================
+     QUERY
+
+     Only selects required registry/presentation fields.
+  ========================================================== */
+
+  async function fetchRegistryRows() {
+    const client =
+      getCanonicalClient();
+
+
+    if (!client) {
+      return {
+        ok:false,
+
+        status:
+          "ENTERPRISE_DATA_RUNTIME_UNAVAILABLE",
+
+        message:
+          "The governed enterprise data runtime is unavailable."
+      };
+    }
+
+
+    const scope =
+      buildQueryScope();
+
+
+    let query =
+      client
+        .from("sc_crystal_reports")
+        .select(
+          [
+            "report_id",
+            "crystal_id",
+            "report_type",
+            "report_version",
+            "report_status",
+            "source_entity_name",
+            "generated_at",
+            "published_at",
+            "publication_receipt_id",
+            "program_id",
+            "athlete_id",
+            "snapshot_id",
+            "report_contract",
+            "payload"
+          ].join(",")
+        );
+
+
+    /*
+      Preserve operational context where corresponding persisted
+      scope fields are available.
+
+      RLS remains the controlling security boundary.
+    */
+
+    if (scope.program_id) {
+      query =
+        query.eq(
+          "program_id",
+          scope.program_id
+        );
+    }
+
+
+    if (scope.athlete_id) {
+      query =
+        query.eq(
+          "athlete_id",
+          scope.athlete_id
+        );
+    }
+
+
+    if (scope.snapshot_id) {
+      query =
+        query.eq(
+          "snapshot_id",
+          scope.snapshot_id
+        );
+    }
+
+
+    const {
+      data,
+      error
+    } = await query.order(
+      "generated_at",
+      {
+        ascending:false
+      }
+    );
+
+
+    if (error) {
+      return {
+        ok:false,
+
+        status:
+          "REGISTRY_QUERY_FAILED",
+
+        message:
+          error.message ||
+          "Crystal Registry query failed."
+      };
+    }
+
+
+    return {
+      ok:true,
+      rows:
+        data || []
+    };
+  }
+
+
+  /* ==========================================================
+     PRESENTATION FILTERS
+  ========================================================== */
+
+  function matchesFilters(
+    record
+  ) {
+    const search =
+      byId("searchInput")
+        .value
+        .toLowerCase()
+        .trim();
+
+
+    const type =
+      upper(
+        byId("typeFilter")
+          .value
+      );
+
+
+    const status =
+      upper(
+        byId("statusFilter")
+          .value
+      );
+
+
+    const scope =
+      upper(
+        byId("scopeFilter")
+          .value
+      );
+
+
+    /*
+      Search approved registry metadata only.
+
+      Do not stringify arbitrary payload.
+    */
+    const searchable =
+      [
+        record.report_id,
+        record.crystal_id,
+        record.report_type,
+        record.report_title,
+        record.title,
+        record.publication_state,
+        record.disclosure_scope,
+        record.report_version,
+        record.intelligence_authority,
+        record.authority_version,
+        record.intelligence_receipt_id,
+        record.publication_receipt_id,
+        record.sport_scope,
+        record.benchmark_scope,
+        record.summary
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+
+    if (
+      search &&
+      !searchable.includes(search)
+    ) {
+      return false;
+    }
+
+
+    if (
+      type &&
+      upper(record.report_type) !==
+      type
+    ) {
+      return false;
+    }
+
+
+    if (
+      status &&
+      upper(record.publication_state) !==
+      status
+    ) {
+      return false;
+    }
+
+
+    if (
+      scope &&
+      upper(record.disclosure_scope) !==
+      scope
+    ) {
+      return false;
+    }
+
+
+    return true;
+  }
+
+
+  /* ==========================================================
+     SUMMARY COUNTS
+  ========================================================== */
+
+  function updateSummary(
+    records
+  ) {
+    const visible =
+      records.length;
+
+
+    const published =
+      records.filter(
+        item =>
+          item.valid &&
+          ["PUBLISHED","UPDATED"]
+            .includes(
+              upper(
+                item.publication_state
+              )
+            )
+      ).length;
+
+
+    const historical =
+      records.filter(
+        item =>
+          [
+            "ARCHIVED",
+            "WITHDRAWN"
+          ].includes(
+            upper(
+              item.publication_state
+            )
+          )
+      ).length;
+
+
+    const reconciliation =
+      records.filter(
+        item =>
+          item.reconciliation_required
+      ).length;
+
+
+    byId("visibleCount")
+      .textContent =
+      visible;
+
+
+    byId("publishedCount")
+      .textContent =
+      published;
+
+
+    byId("historicalCount")
+      .textContent =
+      historical;
+
+
+    byId("reconciliationCount")
+      .textContent =
+      reconciliation;
+  }
+
+
+  /* ==========================================================
+     OPEN URL
+
+     Preserve context and report identity.
+  ========================================================== */
+
+  function buildReportURL(
+    record
+  ) {
+    const target =
+      new URL(
+        "crystal-report.html",
+        window.location.href
+      );
+
+
+    target.searchParams.set(
+      "report_id",
+      record.report_id
+    );
+
+
+    [
+      "workspace_id",
+      "role_context_id",
+      "program_id",
+      "athlete_id",
+      "snapshot_id"
+    ].forEach(
+      key => {
+
+        const current =
+          params.get(key);
+
+
+        const value =
+          current ||
+          record[key];
+
+
+        if (value) {
+          target.searchParams.set(
+            key,
+            value
+          );
+        }
+      }
+    );
+
+
+    return (
+      target.pathname
+        .split("/")
+        .pop() +
+      target.search
+    );
+  }
+
+
+  /* ==========================================================
+     CARD
+  ========================================================== */
+
+  function renderRecord(
+    record
+  ) {
+    if (
+      record
+        .reconciliation_required
+    ) {
+      return `
+        <article class="card reconciliation">
+
+          <div>
+
+            <div class="card-type">
+              ${esc(record.report_type)}
+            </div>
+
+            <div class="card-title">
+              ${esc(record.title)}
+            </div>
+
+            <div class="card-description legacy-warning">
+              CSE / STREAM RECONCILIATION REQUIRED
+            </div>
+
+            <div class="meta">
+
+              <div class="row">
+                <span>Report ID</span>
+                <b>${esc(record.report_id || "—")}</b>
+              </div>
+
+              <div class="row">
+                <span>Status</span>
+                <b class="gold">
+                  ${esc(record.publication_state)}
+                </b>
+              </div>
+
+              <div class="row">
+                <span>Version</span>
+                <b>${esc(record.report_version)}</b>
+              </div>
+
+              <div class="row">
+                <span>Generated</span>
+                <b>${esc(fmtDate(record.generated_at))}</b>
+              </div>
+
+            </div>
+
+            <div class="why">
+              <strong>REASON:</strong><br>
+              ${esc(record.reason)}
+            </div>
+
+          </div>
+
+        </article>
+      `;
+    }
+
+
+    const state =
+      upper(
+        record.publication_state
+      );
+
+
+    const stateClass =
+      state === "ARCHIVED"
+        ? "archived"
+        : (
+            state === "WITHDRAWN"
+              ? "withdrawn"
+              : ""
+          );
+
+
+    const statusClass =
+      ["PUBLISHED","UPDATED"]
+        .includes(state)
+        ? "green"
+        : (
+            ["WITHDRAWN","REJECTED"]
+              .includes(state)
+              ? "red"
+              : "gold"
+          );
+
+
+    const whyText =
+      record.why?.length
+        ? record.why[0]
+        : "See governed report for complete explainability.";
+
+
     return `
-      <article class="card ${archived ? "archived" : ""}">
+      <article class="card ${stateClass}">
+
         <div>
-          <div class="card-type">${esc(row.report_type || "CRYSTAL_REPORT")}</div>
-          <div class="card-title">${esc(reportName(row))}</div>
+
+          <div class="card-type">
+            ${esc(record.report_type)}
+          </div>
+
+          <div class="card-title">
+            ${esc(record.title)}
+          </div>
+
+          <div class="card-description">
+            ${esc(
+              record.summary ||
+              "Governed Crystal publication record."
+            )}
+          </div>
+
 
           <div class="meta">
-            <div class="row"><span>Status</span><b class="status">${esc(row.report_status || "ACTIVE")}</b></div>
-            <div class="row"><span>Version</span><b>${esc(row.report_version || "CRYSTAL_REPORT_V1")}</b></div>
-            <div class="row"><span>Source</span><b>${esc(row.source_room || "—")}</b></div>
-            <div class="row"><span>Sport</span><b>${esc(row.sport_scope || row.payload?.sport_scope || "—")}</b></div>
-            <div class="row"><span>Benchmark</span><b>${esc(row.benchmark_scope || row.payload?.benchmark_scope || "—")}</b></div>
-            <div class="row"><span>Score</span><b>${esc(reportScore(row))}</b></div>
-            <div class="row"><span>Generated</span><b>${esc(fmtDate(row.generated_at))}</b></div>
+
+            <div class="row">
+              <span>Publication State</span>
+              <b class="${statusClass}">
+                ${esc(record.publication_state)}
+              </b>
+            </div>
+
+            <div class="row">
+              <span>Disclosure</span>
+              <b>
+                ${esc(record.disclosure_scope)}
+              </b>
+            </div>
+
+            <div class="row">
+              <span>Report Version</span>
+              <b>
+                ${esc(record.report_version)}
+              </b>
+            </div>
+
+            <div class="row">
+              <span>Authority</span>
+              <b>
+                ${esc(
+                  record.intelligence_authority ||
+                  "—"
+                )}
+              </b>
+            </div>
+
+            <div class="row">
+              <span>Authority Version</span>
+              <b>
+                ${esc(
+                  record.authority_version ||
+                  "—"
+                )}
+              </b>
+            </div>
+
+            <div class="row">
+              <span>Effective</span>
+              <b>
+                ${esc(
+                  fmtDate(
+                    record.effective_at
+                  )
+                )}
+              </b>
+            </div>
+
+            <div class="row">
+              <span>Intelligence Receipt</span>
+              <b>
+                ${esc(
+                  record.intelligence_receipt_id ||
+                  "—"
+                )}
+              </b>
+            </div>
+
+            <div class="row">
+              <span>Publication Receipt</span>
+              <b>
+                ${esc(
+                  record.publication_receipt_id ||
+                  "Not issued"
+                )}
+              </b>
+            </div>
+
+            <div class="row">
+              <span>Report ID</span>
+              <b>
+                ${esc(record.report_id)}
+              </b>
+            </div>
+
+            <div class="row">
+              <span>Crystal ID</span>
+              <b>
+                ${esc(
+                  record.crystal_id ||
+                  "—"
+                )}
+              </b>
+            </div>
+
           </div>
+
+
+          <div class="why">
+            <strong>WHY:</strong><br>
+            ${esc(whyText)}
+          </div>
+
         </div>
+
 
         <div class="actions">
-          <a class="action open" href="crystal-report.html?report_id=${esc(row.report_id)}">Open</a>
-          <div class="action archive" onclick="archiveReport('${esc(row.report_id)}')">Archive</div>
+
+          <a
+            class="action open"
+            href="${esc(
+              buildReportURL(record)
+            )}"
+          >
+            Open Governed Report
+          </a>
+
         </div>
+
       </article>
     `;
-  }).join("");
-}
-
-async function loadReports(){
-  setMessage("Loading Crystal Report Registry...");
-
-  const { data, error } = await supabaseClient
-    .from("sc_crystal_reports")
-    .select("*")
-    .order("generated_at", { ascending:false });
-
-  if(error){
-    console.error(error);
-    setMessage("Registry load failed. Check RLS/select policy.", "error");
-    return;
   }
 
-  REPORTS = data || [];
-  renderReports();
-  setMessage(`Registry loaded · ${REPORTS.length} reports found`);
-}
 
-async function archiveReport(reportId){
-  const { error } = await supabaseClient
-    .from("sc_crystal_reports")
-    .update({
-      report_status:"ARCHIVED",
-      archived_at:new Date().toISOString()
-    })
-    .eq("report_id", reportId);
+  /* ==========================================================
+     RENDER
+  ========================================================== */
 
-  if(error){
-    console.error(error);
-    setMessage("Archive failed. Check update RLS policy.", "error");
-    return;
+  function renderRegistry() {
+    const grid =
+      byId("registryGrid");
+
+
+    const filtered =
+      REGISTRY_RECORDS
+        .filter(
+          matchesFilters
+        );
+
+
+    updateSummary(
+      filtered
+    );
+
+
+    if (!filtered.length) {
+      grid.innerHTML = `
+        <div class="empty">
+          No governed Crystal Registry records are visible
+          within the current workspace/context and filter scope.
+        </div>
+      `;
+
+      return;
+    }
+
+
+    grid.innerHTML =
+      filtered
+        .map(renderRecord)
+        .join("");
   }
 
-  setMessage("Report archived");
-  loadReports();
-}
 
-document.addEventListener("DOMContentLoaded",()=>{
-  document.getElementById("refreshBtn").addEventListener("click",loadReports);
-  document.getElementById("searchInput").addEventListener("input",renderReports);
-  document.getElementById("typeFilter").addEventListener("change",renderReports);
-  document.getElementById("statusFilter").addEventListener("change",renderReports);
+  /* ==========================================================
+     LOAD
+  ========================================================== */
 
-  loadReports();
-});
+  async function loadRegistry() {
+    setMessage(
+      "Loading governed Crystal Registry..."
+    );
+
+
+    const result =
+      await fetchRegistryRows();
+
+
+    if (!result.ok) {
+      console.error(
+        "[Crystal Registry]",
+        result
+      );
+
+      REGISTRY_RECORDS = [];
+
+      renderRegistry();
+
+      setMessage(
+        result.message,
+        "error"
+      );
+
+      return;
+    }
+
+
+    REGISTRY_RECORDS =
+      result.rows
+        .map(
+          buildRegistryRecord
+        );
+
+
+    renderRegistry();
+
+
+    const reconciliationCount =
+      REGISTRY_RECORDS
+        .filter(
+          item =>
+            item.reconciliation_required
+        )
+        .length;
+
+
+    if (reconciliationCount) {
+      setMessage(
+        `Registry loaded · ${REGISTRY_RECORDS.length} visible records · ${reconciliationCount} require reconciliation.`,
+        "warning"
+      );
+    } else {
+      setMessage(
+        `Registry loaded · ${REGISTRY_RECORDS.length} governed records found.`
+      );
+    }
+  }
+
+
+  /* ==========================================================
+     PUBLICATION LIFECYCLE REQUEST
+
+     IMPORTANT:
+     No direct persistence update exists here.
+
+     Archive / withdraw / other lifecycle changes must be
+     performed through the governing Stream 7 Publication
+     Authority and must create receipts/history.
+
+     This page therefore intentionally provides no direct
+     Archive button until the canonical publication lifecycle
+     command is available to this surface.
+  ========================================================== */
+
+
+  /* ==========================================================
+     INITIALIZATION
+  ========================================================== */
+
+  function bindEvents() {
+    byId("refreshBtn")
+      ?.addEventListener(
+        "click",
+        loadRegistry
+      );
+
+
+    byId("searchInput")
+      ?.addEventListener(
+        "input",
+        renderRegistry
+      );
+
+
+    byId("typeFilter")
+      ?.addEventListener(
+        "change",
+        renderRegistry
+      );
+
+
+    byId("statusFilter")
+      ?.addEventListener(
+        "change",
+        renderRegistry
+      );
+
+
+    byId("scopeFilter")
+      ?.addEventListener(
+        "change",
+        renderRegistry
+      );
+  }
+
+
+  async function init() {
+    preserveContext();
+
+    bindEvents();
+
+    await loadRegistry();
+  }
+
+
+  if (
+    document.readyState ===
+    "loading"
+  ) {
+    document.addEventListener(
+      "DOMContentLoaded",
+      init
+    );
+  } else {
+    init();
+  }
+
+})();
 </script>
 
 </body>
