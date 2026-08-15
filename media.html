@@ -4,32 +4,39 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<title>STATScore™ — Athlete Media</title>
-<meta name="description" content="STATScore™ Athlete Media — athlete highlights, performance clips, verified media, recruiting visibility, and showcase content.">
+<title>STATS-CORE™ — PHNX Sports Media</title>
+<meta
+  name="description"
+  content="STATS-CORE™ PHNX Sports Media — governed athlete media publication, Player Cards, Highlight Reels, exposure, publication status, and receipts."
+>
 
 <style>
 :root{
   --red:#ff1f2d;
   --gold:#ffb100;
   --green:#2bdc65;
+  --blue:#4aa3ff;
   --bg:#000;
   --panel:#050505;
+  --panel-2:#090909;
   --text:#f4f4ef;
   --muted:#aeb4bd;
   --line:rgba(255,255,255,.14);
+  --line-soft:rgba(255,255,255,.08);
   --max:1536px;
 }
 
-*{box-sizing:border-box;}
+*{box-sizing:border-box}
 
 html,body{
   margin:0;
   background:#000;
   color:var(--text);
-  font-family:Arial, Helvetica, sans-serif;
+  font-family:Arial,Helvetica,sans-serif;
 }
 
-a{text-decoration:none;color:inherit;}
+a{text-decoration:none;color:inherit}
+button{font:inherit}
 
 .shell{
   width:min(var(--max),100%);
@@ -39,7 +46,7 @@ a{text-decoration:none;color:inherit;}
 }
 
 .header{
-  height:82px;
+  min-height:82px;
   background:linear-gradient(180deg,#fff,#e8e8e5);
   display:grid;
   grid-template-columns:390px 1fr 410px;
@@ -48,7 +55,7 @@ a{text-decoration:none;color:inherit;}
 }
 
 .logo-plate{
-  height:82px;
+  min-height:82px;
   background:linear-gradient(145deg,#171717,#050505 65%,#000);
   clip-path:polygon(0 0,78% 0,100% 100%,0 100%);
   display:flex;
@@ -56,7 +63,7 @@ a{text-decoration:none;color:inherit;}
   padding-left:26px;
 }
 
-.logo-plate img{width:292px;}
+.logo-plate img{width:292px;max-width:80%}
 
 .header-title{
   text-align:center;
@@ -70,6 +77,7 @@ a{text-decoration:none;color:inherit;}
 .header-nav{
   display:flex;
   justify-content:flex-end;
+  align-items:center;
   gap:22px;
   padding-right:24px;
   color:#111;
@@ -82,21 +90,29 @@ a{text-decoration:none;color:inherit;}
   letter-spacing:.12em;
 }
 
-.header-nav a.active{color:var(--red);}
+.header-nav a.active{color:var(--red)}
 
 .main{
   min-height:calc(100vh - 82px);
   padding:22px 16px 0;
   background:
     radial-gradient(circle at 50% 10%,rgba(255,255,255,.045),transparent 28%),
-    repeating-linear-gradient(135deg,rgba(255,255,255,.014) 0,rgba(255,255,255,.014) 1px,transparent 1px,transparent 8px),
+    repeating-linear-gradient(
+      135deg,
+      rgba(255,255,255,.014) 0,
+      rgba(255,255,255,.014) 1px,
+      transparent 1px,
+      transparent 8px
+    ),
     linear-gradient(180deg,#000,#030303 56%,#000);
 }
 
 .hero{
   padding:34px;
   border:1px solid var(--line);
-  background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.01)),#050505;
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.01)),
+    #050505;
   box-shadow:0 20px 44px rgba(0,0,0,.85);
 }
 
@@ -117,95 +133,290 @@ a{text-decoration:none;color:inherit;}
 }
 
 .hero p{
-  max-width:850px;
+  max-width:960px;
   color:#ddd;
-  line-height:1.55;
+  line-height:1.6;
   font-size:1rem;
 }
 
-.media-grid{
+.doctrine{
+  margin-top:18px;
+  padding:14px 16px;
+  border-left:3px solid var(--gold);
+  background:rgba(255,177,0,.06);
+  color:#f5e6b0;
+  font-size:.84rem;
+  font-weight:700;
+  line-height:1.55;
+}
+
+.context-grid{
   margin-top:18px;
   display:grid;
-  grid-template-columns:1.2fr .8fr;
-  gap:14px;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
 }
 
-.media-feature{
-  min-height:390px;
-  padding:26px;
+.context-card,
+.panel,
+.status-card,
+.product-card,
+.receipt-card,
+.rule{
   border:1px solid var(--line);
   background:
-    linear-gradient(145deg,rgba(255,255,255,.05),rgba(255,255,255,.01)),
-    #050505;
-  position:relative;
-  overflow:hidden;
+    linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.008)),
+    var(--panel);
 }
 
-.media-feature:before{
-  content:"";
-  position:absolute;
-  inset:24px;
-  border:1px solid rgba(255,255,255,.07);
-  pointer-events:none;
+.context-card{
+  padding:14px;
+  min-height:92px;
 }
 
-.media-feature b{
+.context-card b{
   display:block;
-  margin-bottom:14px;
-  font-size:1rem;
-  text-transform:uppercase;
-  letter-spacing:.14em;
-}
-
-.media-feature p{
+  margin-bottom:8px;
   color:var(--muted);
-  line-height:1.55;
-  max-width:660px;
-}
-
-.placeholder{
-  margin-top:28px;
-  min-height:210px;
-  border:1px dashed rgba(255,255,255,.22);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:rgba(255,255,255,.38);
-  font-size:.78rem;
-  font-weight:900;
-  letter-spacing:.18em;
+  font-size:.67rem;
+  letter-spacing:.14em;
   text-transform:uppercase;
 }
 
-.side{
-  display:grid;
-  gap:14px;
-}
-
-.media-card{
-  padding:20px;
-  border:1px solid var(--line);
-  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01)),#050505;
-}
-
-.media-card b{
+.context-card strong{
   display:block;
   color:#fff;
+  font-size:.92rem;
+  line-height:1.35;
+}
+
+.section{
+  margin-top:18px;
+}
+
+.section-head{
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  align-items:flex-end;
   margin-bottom:10px;
-  font-size:.86rem;
+}
+
+.section-head h2{
+  margin:0;
+  font-size:1rem;
+  text-transform:uppercase;
+  letter-spacing:.13em;
+}
+
+.section-head span{
+  color:var(--muted);
+  font-size:.75rem;
+  text-align:right;
+}
+
+.lifecycle{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+}
+
+.status-card{
+  padding:15px;
+  min-height:112px;
+}
+
+.status-card small{
+  display:block;
+  margin-bottom:9px;
+  color:var(--muted);
+  font-size:.63rem;
+  font-weight:900;
   letter-spacing:.13em;
   text-transform:uppercase;
 }
 
-.media-card span{
+.status-card strong{
   display:block;
+  font-size:.83rem;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+}
+
+.status-card p{
+  margin:8px 0 0;
   color:var(--muted);
-  font-size:.82rem;
+  font-size:.74rem;
   line-height:1.45;
 }
 
+.status-neutral{border-color:rgba(255,255,255,.14)}
+.status-warning{border-color:rgba(255,177,0,.45)}
+.status-good{border-color:rgba(43,220,101,.45)}
+.status-info{border-color:rgba(74,163,255,.45)}
+.status-blocked{border-color:rgba(255,31,45,.48)}
+
+.badge{
+  display:inline-flex;
+  align-items:center;
+  min-height:26px;
+  padding:5px 9px;
+  border:1px solid var(--line);
+  color:#ddd;
+  font-size:.64rem;
+  font-weight:900;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+
+.badge.red{
+  color:#ffb9be;
+  border-color:rgba(255,31,45,.42);
+  background:rgba(255,31,45,.08);
+}
+
+.badge.gold{
+  color:#ffe1a0;
+  border-color:rgba(255,177,0,.42);
+  background:rgba(255,177,0,.07);
+}
+
+.badge.green{
+  color:#adffc4;
+  border-color:rgba(43,220,101,.4);
+  background:rgba(43,220,101,.06);
+}
+
+.badge.blue{
+  color:#c8e3ff;
+  border-color:rgba(74,163,255,.4);
+  background:rgba(74,163,255,.06);
+}
+
+.two-col{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+
+.panel{
+  padding:20px;
+}
+
+.panel h3{
+  margin:0 0 8px;
+  font-size:.85rem;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+}
+
+.panel p{
+  margin:0;
+  color:var(--muted);
+  font-size:.8rem;
+  line-height:1.55;
+}
+
+.detail-list{
+  margin:16px 0 0;
+  padding:0;
+  list-style:none;
+  display:grid;
+  gap:8px;
+}
+
+.detail-list li{
+  display:grid;
+  grid-template-columns:150px 1fr;
+  gap:12px;
+  padding:10px 0;
+  border-top:1px solid var(--line-soft);
+}
+
+.detail-list b{
+  color:#ddd;
+  font-size:.69rem;
+  text-transform:uppercase;
+  letter-spacing:.09em;
+}
+
+.detail-list span{
+  color:var(--muted);
+  font-size:.76rem;
+  line-height:1.45;
+}
+
+.product-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+
+.product-card{
+  padding:18px;
+  min-height:180px;
+}
+
+.product-card h3{
+  margin:0 0 10px;
+  font-size:.84rem;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+}
+
+.product-card p{
+  color:var(--muted);
+  font-size:.78rem;
+  line-height:1.5;
+}
+
+.product-state{
+  margin-top:16px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+}
+
+.lineage{
+  margin-top:15px;
+  padding:15px;
+  border:1px dashed rgba(255,255,255,.18);
+  color:#c8ccd2;
+  font-size:.75rem;
+  line-height:1.7;
+}
+
+.lineage b{
+  color:#fff;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+
+.receipts{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+}
+
+.receipt-card{
+  padding:15px;
+}
+
+.receipt-card b{
+  display:block;
+  margin-bottom:7px;
+  font-size:.72rem;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+}
+
+.receipt-card span{
+  color:var(--muted);
+  font-size:.74rem;
+  line-height:1.4;
+}
+
 .rules{
-  margin-top:18px;
   display:grid;
   grid-template-columns:repeat(4,1fr);
   gap:10px;
@@ -214,8 +425,6 @@ a{text-decoration:none;color:inherit;}
 .rule{
   min-height:150px;
   padding:16px;
-  border:1px solid var(--line);
-  background:#030303;
 }
 
 .rule b{
@@ -230,36 +439,107 @@ a{text-decoration:none;color:inherit;}
 .rule span{
   color:var(--muted);
   font-size:.78rem;
-  line-height:1.42;
+  line-height:1.48;
 }
 
-.notice{
+.fail-closed{
   margin-top:18px;
   padding:18px;
-  border:1px solid rgba(255,177,0,.38);
-  background:rgba(255,177,0,.06);
-  color:#f4e6b5;
-  line-height:1.5;
-  font-size:.84rem;
+  border:1px solid rgba(255,31,45,.45);
+  background:rgba(255,31,45,.06);
+}
+
+.fail-closed b{
+  display:block;
+  color:#ffabb1;
+  margin-bottom:8px;
+  font-size:.78rem;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+}
+
+.fail-closed p{
+  margin:0;
+  color:#ddd;
+  line-height:1.55;
+  font-size:.82rem;
+}
+
+.workspace-actions{
+  margin-top:18px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+
+.action{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:42px;
+  padding:0 16px;
+  border:1px solid var(--line);
+  background:#080808;
+  color:#fff;
+  font-size:.7rem;
+  font-weight:900;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+
+.action.primary{
+  border-color:rgba(255,31,45,.6);
+  background:rgba(255,31,45,.11);
 }
 
 .footer{
-  margin-top:20px;
+  margin-top:24px;
   padding:18px 0;
   border-top:1px solid rgba(255,255,255,.12);
   color:var(--muted);
-  font-size:.72rem;
+  font-size:.68rem;
   letter-spacing:.1em;
   text-transform:uppercase;
   display:flex;
   justify-content:space-between;
+  gap:20px;
+}
+
+@media(max-width:1100px){
+  .context-grid,
+  .receipts{grid-template-columns:repeat(2,1fr)}
+
+  .lifecycle{grid-template-columns:repeat(2,1fr)}
+
+  .product-grid{grid-template-columns:1fr 1fr}
 }
 
 @media(max-width:900px){
-  .header{grid-template-columns:260px 1fr;}
-  .header-nav{display:none;}
-  .logo-plate img{width:220px;}
-  .media-grid,.rules{grid-template-columns:1fr;}
+  .header{grid-template-columns:260px 1fr}
+  .header-nav{display:none}
+  .logo-plate img{width:220px}
+
+  .two-col,
+  .rules,
+  .product-grid,
+  .context-grid,
+  .receipts,
+  .lifecycle{grid-template-columns:1fr}
+
+  .detail-list li{grid-template-columns:1fr}
+}
+
+@media(max-width:560px){
+  .header{grid-template-columns:180px 1fr}
+  .logo-plate{padding-left:14px}
+  .hero{padding:24px 20px}
+  .hero h1{font-size:2.55rem}
+  .section-head{display:block}
+  .section-head span{
+    display:block;
+    margin-top:6px;
+    text-align:left;
+  }
 }
 </style>
 </head>
@@ -268,16 +548,17 @@ a{text-decoration:none;color:inherit;}
 <div class="shell">
 
 <header class="header">
-  <a class="logo-plate" href="index.html">
-    <img src="sc_logo_black_v2.png" alt="STATScore">
+  <a class="logo-plate" href="athlete-dashboard.html" aria-label="Return to Athlete Workspace">
+    <img src="sc_logo_black_v2.png" alt="STATS-CORE">
   </a>
 
-  <div class="header-title">Athlete Media • Highlights & Exposure</div>
+  <div class="header-title">PHNX Sports Media • Governed Publication</div>
 
-  <nav class="header-nav">
-    <a href="system.html">System</a>
-    <a href="rankings.html">Rankings</a>
+  <nav class="header-nav" aria-label="PHNX Sports Media navigation">
+    <a href="athlete-dashboard.html">Workspace</a>
+    <a href="crystal-report.html">Reports</a>
     <a href="events.html">Events</a>
+    <a href="rankings.html">Rankings</a>
     <a class="active" href="media.html">Media</a>
   </nav>
 </header>
@@ -285,91 +566,605 @@ a{text-decoration:none;color:inherit;}
 <main class="main">
 
 <section class="hero">
-  <div class="label">Highlights · Performance Clips · Showcase Content</div>
-  <h1>Athlete Media</h1>
+  <div class="label">PHNX Sports Media · Publication & Exposure Authority</div>
+
+  <h1>PHNX Sports Media</h1>
+
   <p>
-    STATScore™ Athlete Media supports highlight clips, performance footage,
-    event content, verified media, and recruiting-safe visibility inside the
-    governed athlete profile ecosystem.
+    Governed Player Cards, Highlight Reels, athlete features, event media,
+    approved exposure products, publication status, distribution state, and
+    exposure receipts produced from authorized STATS-CORE™ lifecycle intelligence.
   </p>
+
+  <div class="doctrine">
+    Media possession does not establish publication authority.
+    Candidate ≠ Approved. Exposure ≠ Athletic Ability.
+    Engagement ≠ Recruiting Outcome.
+  </div>
 </section>
 
-<section class="media-grid">
 
-  <article class="media-feature">
-    <b>Featured Athlete Media</b>
-    <p>
-      Athlete media should support verified performance, recruiting clarity,
-      and exposure visibility — without bypassing parent approval, media exposure
-      settings, recruiter access controls, or profile governance.
-    </p>
+<!-- =========================================================
+     GOVERNED CONTEXT
+     These values are presentation hooks only.
+     Stream 7 MUST consume authoritative values from governing
+     upstream authorities and MUST NOT manufacture them locally.
+========================================================= -->
 
-    <div class="placeholder">
-      Media Showcase Placeholder
-    </div>
-  </article>
+<section class="context-grid" aria-label="Governed media context">
 
-  <aside class="side">
-
-    <div class="media-card">
-      <b>Highlights</b>
-      <span>Game clips, skill clips, and athlete highlight sequences connected to the athlete profile.</span>
-    </div>
-
-    <div class="media-card">
-      <b>Performance Clips</b>
-      <span>Verified movement, testing, drill, event, or combine footage supporting athletic evaluation.</span>
-    </div>
-
-    <div class="media-card">
-      <b>Showcase Content</b>
-      <span>Approved event or camp content used to increase visibility without opening unsafe access.</span>
-    </div>
-
-    <div class="media-card">
-      <b>Recruiting Visibility</b>
-      <span>Media shown to verified recruiters only when governance, permissions, and profile state allow.</span>
-    </div>
-
-  </aside>
-
-</section>
-
-<section class="rules">
-
-  <div class="rule">
-    <b>01 · Governed</b>
-    <span>Media exposure follows parent approval, athlete visibility state, and profile governance rules.</span>
+  <div class="context-card">
+    <b>Athlete</b>
+    <strong id="athleteContext">Context Required</strong>
   </div>
 
-  <div class="rule">
-    <b>02 · Verified</b>
-    <span>Performance media should connect to trusted context, events, coaches, evaluators, or evidence.</span>
+  <div class="context-card">
+    <b>Snapshot</b>
+    <strong id="snapshotContext">Context Required</strong>
   </div>
 
-  <div class="rule">
-    <b>03 · Recruiter-Safe</b>
-    <span>Recruiter access must remain controlled, permissioned, and auditable.</span>
+  <div class="context-card">
+    <b>Publication Authority</b>
+    <strong>Stream 7</strong>
   </div>
 
-  <div class="rule">
-    <b>04 · Athlete-First</b>
-    <span>Media should elevate the athlete’s pathway, readiness, performance, and opportunity positioning.</span>
+  <div class="context-card">
+    <b>Publication Readiness</b>
+    <strong id="publicationReadiness">Pending Authority</strong>
   </div>
 
 </section>
 
-<div class="notice">
-  Athlete Media is not a random video gallery. It is controlled exposure infrastructure
-  for highlights, verified performance, and recruiting-safe visibility.
+
+<!-- =========================================================
+     MEDIA CANDIDATE
+========================================================= -->
+
+<section class="section">
+
+  <div class="section-head">
+    <h2>Media Candidate</h2>
+    <span>Eligible for consideration ≠ approved for publication</span>
+  </div>
+
+  <div class="two-col">
+
+    <article class="panel">
+      <h3>Candidate State</h3>
+      <p>
+        A governed athlete, professional, program, event, achievement, or
+        development milestone may become a PHNX Sports media candidate only
+        through an authorized lifecycle source.
+      </p>
+
+      <ul class="detail-list">
+        <li>
+          <b>Candidate Status</b>
+          <span id="candidateStatus">No governed media candidate loaded.</span>
+        </li>
+        <li>
+          <b>Candidate Source</b>
+          <span id="candidateSource">Awaiting governed source authority.</span>
+        </li>
+        <li>
+          <b>WHY</b>
+          <span id="candidateWhy">No candidate explanation available.</span>
+        </li>
+        <li>
+          <b>Authority</b>
+          <span id="candidateAuthority">Not established.</span>
+        </li>
+      </ul>
+    </article>
+
+    <article class="panel">
+      <h3>Source Media / Provenance</h3>
+      <p>
+        Athlete-supplied source-media intake, provenance, source-record creation,
+        and initial handoff remain governed upstream by Stream 2.
+        Stream 7 consumes the resulting governed media context.
+      </p>
+
+      <ul class="detail-list">
+        <li>
+          <b>Media Asset</b>
+          <span id="mediaAssetState">No governed media asset loaded.</span>
+        </li>
+        <li>
+          <b>Provenance</b>
+          <span id="provenanceState">Unknown.</span>
+        </li>
+        <li>
+          <b>Verification</b>
+          <span id="verificationState">Unknown.</span>
+        </li>
+        <li>
+          <b>Lineage</b>
+          <span id="lineageState">No derivative lineage loaded.</span>
+        </li>
+      </ul>
+    </article>
+
+  </div>
+</section>
+
+
+<!-- =========================================================
+     RIGHTS / CONSENT / DISCLOSURE
+========================================================= -->
+
+<section class="section">
+
+  <div class="section-head">
+    <h2>Rights, Consent & Disclosure</h2>
+    <span>Unknown or insufficient authority fails closed</span>
+  </div>
+
+  <div class="lifecycle">
+
+    <article class="status-card status-neutral">
+      <small>Private</small>
+      <strong>PRIVATE</strong>
+      <p>Internal governed use only.</p>
+    </article>
+
+    <article class="status-card status-neutral">
+      <small>Development</small>
+      <strong>DEVELOPMENT</strong>
+      <p>Authorized development/evaluation use.</p>
+    </article>
+
+    <article class="status-card status-neutral">
+      <small>Recruiting</small>
+      <strong>RECRUITING</strong>
+      <p>Permissioned recruiting consumption only.</p>
+    </article>
+
+    <article class="status-card status-neutral">
+      <small>Public Media</small>
+      <strong>PUBLIC_MEDIA</strong>
+      <p>Requires affirmative publication authority.</p>
+    </article>
+
+    <article class="status-card status-blocked">
+      <small>Current Authority</small>
+      <strong id="rightsState">NOT ESTABLISHED</strong>
+      <p id="rightsMessage">
+        Public publication remains blocked until lawful rights and consent
+        authority are supplied.
+      </p>
+    </article>
+
+  </div>
+
+</section>
+
+
+<!-- =========================================================
+     PUBLICATION LIFECYCLE
+========================================================= -->
+
+<section class="section">
+
+  <div class="section-head">
+    <h2>Publication Lifecycle</h2>
+    <span>Official PHNX publication state</span>
+  </div>
+
+  <div class="lifecycle">
+
+    <article class="status-card status-neutral">
+      <small>Manufacturing</small>
+      <strong>DRAFT</strong>
+      <p>Candidate accepted into governed publication preparation.</p>
+    </article>
+
+    <article class="status-card status-info">
+      <small>Production</small>
+      <strong>IN_PRODUCTION</strong>
+      <p>Media product is being prepared.</p>
+    </article>
+
+    <article class="status-card status-warning">
+      <small>Review</small>
+      <strong>EDITORIAL / FACT</strong>
+      <p>Editorial claims and governed facts require review.</p>
+    </article>
+
+    <article class="status-card status-warning">
+      <small>Rights</small>
+      <strong>RIGHTS_REVIEW</strong>
+      <p>Publication and disclosure authority must be established.</p>
+    </article>
+
+    <article class="status-card status-good">
+      <small>Publication</small>
+      <strong id="publicationState">NOT PUBLISHED</strong>
+      <p id="publicationStateMessage">
+        No official PHNX Sports publication receipt is loaded.
+      </p>
+    </article>
+
+  </div>
+
+  <div class="lineage">
+    <b>Canonical state family:</b>
+    DRAFT → IN_PRODUCTION → EDITORIAL_REVIEW → FACT_REVIEW →
+    RIGHTS_REVIEW → CORRECTION_REQUIRED → APPROVED → SCHEDULED →
+    PUBLISHED → UPDATED / WITHDRAWN / ARCHIVED / REJECTED
+  </div>
+
+</section>
+
+
+<!-- =========================================================
+     GOVERNED MEDIA PRODUCTS
+========================================================= -->
+
+<section class="section">
+
+  <div class="section-head">
+    <h2>Governed Media Products</h2>
+    <span>Stream 7 publishes; upstream authorities supply claims</span>
+  </div>
+
+  <div class="product-grid">
+
+    <article class="product-card">
+      <h3>Player Card</h3>
+
+      <p>
+        Governed publication projection of authorized athlete intelligence.
+        Athletic Score, Stars, academics, eligibility, development, rankings,
+        pathway, measurements, and recruiting intelligence must originate from
+        their lawful authorities.
+      </p>
+
+      <div class="product-state">
+        <span class="badge gold" id="playerCardState">Not Ready</span>
+      </div>
+    </article>
+
+
+    <article class="product-card">
+      <h3>Highlight Reel</h3>
+
+      <p>
+        Governed derivative media product preserving source lineage,
+        editorial review, fact review, rights authority, publication version,
+        and receipt history.
+      </p>
+
+      <div class="product-state">
+        <span class="badge gold" id="highlightState">Pending</span>
+      </div>
+
+      <div class="lineage">
+        RAW MEDIA → SOURCE CLIPS → SELECTED ATHLETE CLIPS →
+        EDITED HIGHLIGHT → APPROVED HIGHLIGHT REEL → PUBLISHED VERSION
+      </div>
+    </article>
+
+
+    <article class="product-card">
+      <h3>Features & Recognition</h3>
+
+      <p>
+        Authorized athlete, development, academic, professional, program,
+        event, camp/combine, and milestone features may be published only from
+        governed source intelligence.
+      </p>
+
+      <div class="product-state">
+        <span class="badge blue">Governed Candidate Required</span>
+      </div>
+    </article>
+
+
+    <article class="product-card">
+      <h3>Academic Exposure</h3>
+
+      <p>
+        Scholar-Athlete features, Academic Leaderboards, improvement
+        recognition, eligibility milestones, and academic-athletic achievement
+        publications consume governed academic authority.
+      </p>
+
+      <div class="product-state">
+        <span class="badge blue">Academic Authority Required</span>
+      </div>
+    </article>
+
+
+    <article class="product-card">
+      <h3>Development Features</h3>
+
+      <p>
+        Baseline-to-current improvement, trainer-supported development,
+        evaluator-verified performance, and development milestones may be
+        published only after governed Development Intelligence establishes
+        the result.
+      </p>
+
+      <div class="product-state">
+        <span class="badge blue">Verified Development Required</span>
+      </div>
+    </article>
+
+
+    <article class="product-card">
+      <h3>Leaderboards</h3>
+
+      <p>
+        Athletic, Academic, Development, Verified Performance, and
+        Exposure/Viewership leaderboard classes remain distinct and consume
+        declared ranking criteria and lawful ranking authority.
+      </p>
+
+      <div class="product-state">
+        <span class="badge blue">Governed Ranking Required</span>
+      </div>
+    </article>
+
+  </div>
+
+</section>
+
+
+<!-- =========================================================
+     PHNX SPORTS DISTRIBUTION
+========================================================= -->
+
+<section class="section">
+
+  <div class="section-head">
+    <h2>PHNX Sports Distribution</h2>
+    <span>The channel distributes; it does not authorize or score</span>
+  </div>
+
+  <div class="two-col">
+
+    <article class="panel">
+      <h3>Distribution State</h3>
+
+      <ul class="detail-list">
+        <li>
+          <b>Approved Publication</b>
+          <span id="approvedPublicationState">Not established.</span>
+        </li>
+
+        <li>
+          <b>Distribution</b>
+          <span id="distributionState">Not scheduled.</span>
+        </li>
+
+        <li>
+          <b>Channel</b>
+          <span id="channelState">PHNX SPORTS destination available when authorized.</span>
+        </li>
+
+        <li>
+          <b>Published Asset</b>
+          <span id="publishedAssetState">No published asset loaded.</span>
+        </li>
+      </ul>
+    </article>
+
+    <article class="panel">
+      <h3>Recruiting Privacy</h3>
+
+      <p>
+        Private recruiting intelligence does not become public media merely
+        because it exists within STATS-CORE™.
+      </p>
+
+      <div class="lineage">
+        PROGRAM MATCH ≠ PROGRAM INTEREST<br>
+        RECRUITER VIEW ≠ RECRUITING OUTCOME<br>
+        RECRUITER SAVE ≠ PUBLIC DISCLOSURE<br>
+        OUTREACH ≠ PUBLIC ANNOUNCEMENT<br>
+        EXPOSURE ≠ OFFER ≠ COMMITMENT
+      </div>
+    </article>
+
+  </div>
+
+</section>
+
+
+<!-- =========================================================
+     EXPOSURE RECEIPTS
+========================================================= -->
+
+<section class="section">
+
+  <div class="section-head">
+    <h2>Exposure Receipts</h2>
+    <span>What happened after authorized publication?</span>
+  </div>
+
+  <div class="receipts">
+
+    <article class="receipt-card">
+      <b>Publication Receipt</b>
+      <span id="publicationReceipt">No publication receipt loaded.</span>
+    </article>
+
+    <article class="receipt-card">
+      <b>Distribution Receipt</b>
+      <span id="distributionReceipt">No distribution receipt loaded.</span>
+    </article>
+
+    <article class="receipt-card">
+      <b>Exposure Receipt</b>
+      <span id="exposureReceipt">No governed exposure receipt loaded.</span>
+    </article>
+
+    <article class="receipt-card">
+      <b>Lifecycle Return</b>
+      <span id="lifecycleReturn">No attributable lifecycle return loaded.</span>
+    </article>
+
+  </div>
+
+</section>
+
+
+<!-- =========================================================
+     GOVERNING RULES
+========================================================= -->
+
+<section class="section">
+
+  <div class="section-head">
+    <h2>Publication Governance</h2>
+    <span>PHNX Sports Media V1.0.0</span>
+  </div>
+
+  <div class="rules">
+
+    <div class="rule">
+      <b>01 · Governed</b>
+      <span>
+        Stream 7 consumes governed athlete, program, professional, academic,
+        development, ranking, pathway-safe, and Crystal intelligence.
+        It does not reconstruct those authorities.
+      </span>
+    </div>
+
+    <div class="rule">
+      <b>02 · Rights-Aware</b>
+      <span>
+        Possession of an asset does not establish publication authority.
+        Unknown or insufficient rights and consent fail closed.
+      </span>
+    </div>
+
+    <div class="rule">
+      <b>03 · Traceable</b>
+      <span>
+        Material claims, media derivatives, publication versions, authority,
+        WHY, and receipts must remain traceable to governed lineage.
+      </span>
+    </div>
+
+    <div class="rule">
+      <b>04 · Athlete-First</b>
+      <span>
+        Positive exposure may support athlete opportunity, but exposure,
+        engagement, rankings, and media popularity must never manufacture
+        athletic ability or recruiting outcomes.
+      </span>
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =========================================================
+     FAIL-CLOSED PRESENTATION
+========================================================= -->
+
+<div class="fail-closed">
+  <b>Fail-Closed Publication Rule</b>
+  <p>
+    NO RIGHTS AUTHORITY → DO NOT PUBLISH.
+    NO REQUIRED CONSENT → DO NOT PUBLISH.
+    NO GOVERNED RANKING → DO NOT INVENT RANKING.
+    NO VERIFIED DEVELOPMENT RESULT → DO NOT CLAIM VERIFIED IMPROVEMENT.
+    NO PROGRAM-MATCH AUTHORITY → DO NOT CLAIM PROGRAM FIT.
+    NO ATHLETIC SCORE AUTHORITY → DO NOT CALCULATE SCORE LOCALLY.
+    NO PUBLIC DISCLOSURE AUTHORITY → KEEP INFORMATION PRIVATE.
+  </p>
 </div>
 
+
+<!-- =========================================================
+     WORKSPACE INTEGRATION
+========================================================= -->
+
+<div class="workspace-actions">
+  <a class="action primary" href="athlete-dashboard.html">
+    Return to Athlete Workspace
+  </a>
+
+  <a class="action" href="crystal-report.html">
+    Crystal Reports
+  </a>
+
+  <a class="action" href="events.html">
+    Events
+  </a>
+
+  <a class="action" href="rankings.html">
+    Rankings
+  </a>
+</div>
+
+
 <footer class="footer">
-  <div>STATScore™ Athlete Media</div>
-  <div>Controlled Sports Visibility</div>
+  <div>STATS-CORE™ • PHNX Sports Media</div>
+  <div>Governed Publication • Exposure • Receipts</div>
 </footer>
 
 </main>
 </div>
+
+<script>
+/*
+  STREAM 7 — PHNX SPORTS MEDIA PRESENTATION CONTRACT
+
+  This page intentionally DOES NOT:
+  - ingest athlete-supplied source media;
+  - create Athlete Source Records;
+  - calculate Athletic Score or STATScore;
+  - calculate Stars;
+  - determine Academic standing or Eligibility;
+  - calculate Development Intelligence;
+  - determine Program Fit or College Pathway;
+  - manufacture Recruiting Interest;
+  - establish professional certification;
+  - establish rights/consent authority;
+  - establish verification authority.
+
+  The page is a governed Stream 7 publication/exposure presentation surface.
+  Authoritative state must be supplied by governing upstream engines/contracts.
+*/
+
+(function preserveWorkspaceContext(){
+  const params = new URLSearchParams(window.location.search);
+
+  const athleteId = params.get("athlete_id");
+  const snapshotId = params.get("snapshot_id");
+  const workspaceId = params.get("workspace_id");
+
+  const athleteContext = document.getElementById("athleteContext");
+  const snapshotContext = document.getElementById("snapshotContext");
+
+  if (athleteId) {
+    athleteContext.textContent = athleteId;
+  }
+
+  if (snapshotId) {
+    snapshotContext.textContent = snapshotId;
+  }
+
+  /*
+    Preserve known governed context on same-origin navigation.
+    This does not create or validate authority.
+  */
+  document.querySelectorAll('a[href$=".html"]').forEach(link => {
+    const target = new URL(link.getAttribute("href"), window.location.href);
+
+    if (athleteId) target.searchParams.set("athlete_id", athleteId);
+    if (snapshotId) target.searchParams.set("snapshot_id", snapshotId);
+    if (workspaceId) target.searchParams.set("workspace_id", workspaceId);
+
+    link.href = target.pathname.split("/").pop() + target.search;
+  });
+})();
+</script>
+
 </body>
 </html> 
