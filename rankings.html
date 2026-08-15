@@ -4,32 +4,42 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<title>STATScore™ — Athlete Rankings</title>
-<meta name="description" content="STATScore™ Athlete Rankings — verified athlete rankings, performance signals, readiness scores, exposure visibility, and competitive athlete positioning.">
+<title>STATS-CORE™ — PHNX Sports Rankings</title>
+
+<meta
+  name="description"
+  content="STATS-CORE™ PHNX Sports Rankings — governed athletic, academic, development, verified-performance, program, and exposure ranking publications."
+>
 
 <style>
 :root{
   --red:#ff1f2d;
   --gold:#ffb100;
   --green:#2bdc65;
+  --blue:#46a8ff;
   --bg:#000;
   --panel:#050505;
+  --panel2:#080808;
   --text:#f4f4ef;
   --muted:#aeb4bd;
   --line:rgba(255,255,255,.14);
+  --soft:rgba(255,255,255,.08);
   --max:1536px;
 }
 
-*{box-sizing:border-box;}
+*{box-sizing:border-box}
 
 html,body{
   margin:0;
   background:#000;
   color:var(--text);
-  font-family:Arial, Helvetica, sans-serif;
+  font-family:Arial,Helvetica,sans-serif;
 }
 
-a{text-decoration:none;color:inherit;}
+a{
+  text-decoration:none;
+  color:inherit;
+}
 
 .shell{
   width:min(var(--max),100%);
@@ -39,7 +49,7 @@ a{text-decoration:none;color:inherit;}
 }
 
 .header{
-  height:82px;
+  min-height:82px;
   background:linear-gradient(180deg,#fff,#e8e8e5);
   display:grid;
   grid-template-columns:390px 1fr 410px;
@@ -48,7 +58,7 @@ a{text-decoration:none;color:inherit;}
 }
 
 .logo-plate{
-  height:82px;
+  min-height:82px;
   background:linear-gradient(145deg,#171717,#050505 65%,#000);
   clip-path:polygon(0 0,78% 0,100% 100%,0 100%);
   display:flex;
@@ -56,7 +66,10 @@ a{text-decoration:none;color:inherit;}
   padding-left:26px;
 }
 
-.logo-plate img{width:292px;}
+.logo-plate img{
+  width:292px;
+  max-width:80%;
+}
 
 .header-title{
   text-align:center;
@@ -70,6 +83,7 @@ a{text-decoration:none;color:inherit;}
 .header-nav{
   display:flex;
   justify-content:flex-end;
+  align-items:center;
   gap:22px;
   padding-right:24px;
   color:#111;
@@ -82,21 +96,35 @@ a{text-decoration:none;color:inherit;}
   letter-spacing:.12em;
 }
 
-.header-nav a.active{color:var(--red);}
+.header-nav a.active{
+  color:var(--red);
+}
 
 .main{
   min-height:calc(100vh - 82px);
   padding:22px 16px 0;
   background:
     radial-gradient(circle at 50% 10%,rgba(255,255,255,.045),transparent 28%),
-    repeating-linear-gradient(135deg,rgba(255,255,255,.014) 0,rgba(255,255,255,.014) 1px,transparent 1px,transparent 8px),
+    repeating-linear-gradient(
+      135deg,
+      rgba(255,255,255,.014) 0,
+      rgba(255,255,255,.014) 1px,
+      transparent 1px,
+      transparent 8px
+    ),
     linear-gradient(180deg,#000,#030303 56%,#000);
 }
 
 .hero{
   padding:34px;
   border:1px solid var(--line);
-  background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.01)),#050505;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.045),
+      rgba(255,255,255,.01)
+    ),
+    #050505;
   box-shadow:0 20px 44px rgba(0,0,0,.85);
 }
 
@@ -109,7 +137,7 @@ a{text-decoration:none;color:inherit;}
 }
 
 .hero h1{
-  margin:14px 0 14px;
+  margin:14px 0;
   font-size:clamp(2.8rem,5vw,5.2rem);
   line-height:.9;
   letter-spacing:-.045em;
@@ -117,62 +145,187 @@ a{text-decoration:none;color:inherit;}
 }
 
 .hero p{
-  max-width:850px;
+  max-width:960px;
   color:#ddd;
-  line-height:1.55;
+  line-height:1.6;
   font-size:1rem;
 }
 
-.grid{
+.doctrine{
   margin-top:18px;
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr;
-  gap:14px;
+  padding:15px 17px;
+  border-left:3px solid var(--gold);
+  background:rgba(255,177,0,.06);
+  color:#f4e6b5;
+  font-size:.84rem;
+  line-height:1.55;
+  font-weight:700;
 }
 
-.card{
-  min-height:230px;
-  padding:22px;
-  border:1px solid var(--line);
-  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01)),#050505;
+.section{
+  margin-top:18px;
 }
 
-.card b{
-  display:block;
-  margin-bottom:12px;
-  font-size:.9rem;
+.section-head{
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  align-items:flex-end;
+  margin-bottom:10px;
+}
+
+.section-head h2{
+  margin:0;
+  font-size:1rem;
+  text-transform:uppercase;
   letter-spacing:.13em;
+}
+
+.section-head span{
+  color:var(--muted);
+  font-size:.74rem;
+  text-align:right;
+}
+
+.class-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+
+.class-card{
+  min-height:160px;
+  padding:18px;
+  border:1px solid var(--line);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.035),
+      rgba(255,255,255,.008)
+    ),
+    var(--panel);
+}
+
+.class-card b{
+  display:block;
+  color:#fff;
+  margin-bottom:8px;
+  font-size:.78rem;
+  letter-spacing:.11em;
   text-transform:uppercase;
 }
 
-.card p{
+.class-card span{
   color:var(--muted);
+  font-size:.76rem;
   line-height:1.5;
-  font-size:.86rem;
 }
 
-.rank-board{
-  margin-top:18px;
+.meta-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+}
+
+.meta{
+  min-height:88px;
+  padding:14px;
+  border:1px solid var(--line);
+  background:var(--panel);
+}
+
+.meta b{
+  display:block;
+  margin-bottom:7px;
+  color:var(--muted);
+  font-size:.63rem;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+
+.meta strong{
+  display:block;
+  font-size:.82rem;
+  line-height:1.35;
+  overflow-wrap:anywhere;
+}
+
+.criteria{
+  margin-top:10px;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+}
+
+.criteria div{
+  padding:11px 12px;
+  border:1px solid var(--soft);
+  background:#030303;
+}
+
+.criteria b{
+  display:block;
+  color:var(--muted);
+  margin-bottom:5px;
+  font-size:.59rem;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+
+.criteria span{
+  color:#ddd;
+  font-size:.72rem;
+  line-height:1.35;
+}
+
+.board-shell{
   border:1px solid var(--line);
   background:#030303;
 }
 
+.board-message{
+  padding:32px 20px;
+  text-align:center;
+}
+
+.board-message b{
+  display:block;
+  margin-bottom:8px;
+  color:#fff;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  font-size:.85rem;
+}
+
+.board-message span{
+  color:var(--muted);
+  font-size:.78rem;
+  line-height:1.5;
+}
+
 .rank-row{
   display:grid;
-  grid-template-columns:80px 1.2fr .9fr .8fr .8fr;
+  grid-template-columns:
+    72px
+    minmax(200px,1.5fr)
+    minmax(130px,.8fr)
+    minmax(110px,.7fr)
+    minmax(110px,.7fr);
   gap:12px;
   padding:16px 18px;
   border-bottom:1px solid rgba(255,255,255,.09);
   align-items:center;
 }
 
-.rank-row:last-child{border-bottom:none;}
+.rank-row:last-child{
+  border-bottom:none;
+}
 
 .rank-head{
   color:var(--red);
-  font-size:.7rem;
+  font-size:.68rem;
   font-weight:900;
-  letter-spacing:.16em;
+  letter-spacing:.14em;
   text-transform:uppercase;
 }
 
@@ -186,22 +339,57 @@ a{text-decoration:none;color:inherit;}
   display:block;
   margin-top:4px;
   color:var(--muted);
-  font-size:.72rem;
+  font-size:.71rem;
+  line-height:1.4;
 }
 
-.badge{
-  display:inline-flex;
-  min-height:28px;
-  padding:0 10px;
-  align-items:center;
-  justify-content:center;
-  border:1px solid rgba(43,220,101,.45);
-  color:var(--green);
-  background:rgba(43,220,101,.08);
-  font-size:.68rem;
+.rank-number{
+  color:var(--gold);
+  font-size:1.45rem;
+  font-weight:1000;
+}
+
+.movement{
+  color:var(--gold);
   font-weight:900;
-  letter-spacing:.12em;
+}
+
+.why{
+  margin-top:8px;
+  padding:9px 10px;
+  border-left:2px solid rgba(70,168,255,.55);
+  background:rgba(70,168,255,.04);
+  color:#c9d9e8;
+  font-size:.69rem;
+  line-height:1.4;
+}
+
+.governance-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+}
+
+.governance{
+  min-height:150px;
+  padding:16px;
+  border:1px solid var(--line);
+  background:#030303;
+}
+
+.governance b{
+  display:block;
+  margin-bottom:8px;
+  color:var(--red);
+  font-size:.72rem;
+  letter-spacing:.11em;
   text-transform:uppercase;
+}
+
+.governance span{
+  color:var(--muted);
+  font-size:.76rem;
+  line-height:1.48;
 }
 
 .notice{
@@ -210,28 +398,89 @@ a{text-decoration:none;color:inherit;}
   border:1px solid rgba(255,177,0,.38);
   background:rgba(255,177,0,.06);
   color:#f4e6b5;
+  line-height:1.55;
+  font-size:.82rem;
+}
+
+.error{
+  margin-top:18px;
+  display:none;
+  padding:18px;
+  border:1px solid rgba(255,31,45,.42);
+  background:rgba(255,31,45,.06);
+  color:#ffbec2;
   line-height:1.5;
-  font-size:.84rem;
+  font-size:.8rem;
 }
 
 .footer{
-  margin-top:20px;
+  margin-top:22px;
   padding:18px 0;
   border-top:1px solid rgba(255,255,255,.12);
   color:var(--muted);
-  font-size:.72rem;
+  font-size:.69rem;
   letter-spacing:.1em;
   text-transform:uppercase;
   display:flex;
   justify-content:space-between;
+  gap:20px;
+}
+
+@media(max-width:1100px){
+  .class-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .meta-grid,
+  .criteria,
+  .governance-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
 }
 
 @media(max-width:900px){
-  .header{grid-template-columns:260px 1fr;}
-  .header-nav{display:none;}
-  .logo-plate img{width:220px;}
-  .grid{grid-template-columns:1fr;}
-  .rank-row{grid-template-columns:1fr;}
+  .header{
+    grid-template-columns:260px 1fr;
+  }
+
+  .header-nav{
+    display:none;
+  }
+
+  .logo-plate img{
+    width:220px;
+  }
+
+  .rank-row{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:600px){
+  .class-grid,
+  .meta-grid,
+  .criteria,
+  .governance-grid{
+    grid-template-columns:1fr;
+  }
+
+  .hero{
+    padding:24px 20px;
+  }
+
+  .hero h1{
+    font-size:2.5rem;
+  }
+
+  .section-head{
+    display:block;
+  }
+
+  .section-head span{
+    display:block;
+    text-align:left;
+    margin-top:6px;
+  }
 }
 </style>
 </head>
@@ -240,98 +489,678 @@ a{text-decoration:none;color:inherit;}
 <div class="shell">
 
 <header class="header">
-  <a class="logo-plate" href="index.html">
-    <img src="sc_logo_black_v2.png" alt="STATScore">
+
+  <a
+    class="logo-plate"
+    href="athlete-dashboard.html"
+    aria-label="Return to Athlete Workspace"
+  >
+    <img
+      src="sc_logo_black_v2.png"
+      alt="STATS-CORE"
+    >
   </a>
 
-  <div class="header-title">Athlete Rankings • Verified Signals</div>
+  <div class="header-title">
+    PHNX Sports • Governed Ranking Publication
+  </div>
 
-  <nav class="header-nav">
-    <a href="system.html">System</a>
+  <nav
+    class="header-nav"
+    aria-label="PHNX Sports navigation"
+  >
+    <a href="athlete-dashboard.html">Workspace</a>
+    <a href="crystal-report.html">Reports</a>
     <a class="active" href="rankings.html">Rankings</a>
     <a href="events.html">Events</a>
     <a href="media.html">Media</a>
   </nav>
+
 </header>
 
 <main class="main">
 
 <section class="hero">
-  <div class="label">Competitive Athlete Positioning</div>
-  <h1>Athlete Rankings</h1>
+
+  <div class="label">
+    Governed Intelligence • Stream 7 Publication
+  </div>
+
+  <h1>PHNX Sports Rankings</h1>
+
   <p>
-    STATScore™ rankings are designed around verified athlete signals, sport-specific readiness,
-    profile completion, evidence quality, performance context, and controlled exposure visibility.
-    Rankings should feel earned, protected, and trusted — not farmed.
+    PHNX Sports publishes authorized ranking intelligence produced by the
+    governing STATS-CORE™ intelligence and ranking authorities. Stream 7
+    preserves ranking criteria, authority, version, explainability,
+    visibility governance, history, and publication evidence without
+    calculating the underlying score or official rank.
   </p>
-</section>
 
-<section class="grid">
-  <article class="card">
-    <b>Verified Signals</b>
-    <p>
-      Rankings prioritize verified athlete information, evidence-backed performance,
-      profile completion, and trusted evaluation inputs.
-    </p>
-  </article>
-
-  <article class="card">
-    <b>Sport-Specific Context</b>
-    <p>
-      Football, basketball, baseball, and track should each maintain separate ranking logic,
-      position/event context, and readiness interpretation.
-    </p>
-  </article>
-
-  <article class="card">
-    <b>Exposure Visibility</b>
-    <p>
-      Public ranking visibility must remain connected to profile governance, parent permissions,
-      recruiter access rules, and verification state.
-    </p>
-  </article>
-</section>
-
-<section class="rank-board">
-
-  <div class="rank-row rank-head">
-    <div>Rank</div>
-    <div>Athlete</div>
-    <div>Sport</div>
-    <div>Signal</div>
-    <div>Status</div>
+  <div class="doctrine">
+    Ranking Intelligence ≠ Ranking Publication.
+    Stream 9 / the designated governing authority produces ranking intelligence.
+    Stream 7 publishes it. Exposure/Viewership rankings never become evidence
+    of athletic ability merely because they appear on PHNX Sports.
   </div>
 
-  <div class="rank-row">
-    <div class="rank-cell"><b>01</b><span>Regional</span></div>
-    <div class="rank-cell"><b>Pending Athlete</b><span>Profile gated until verified release</span></div>
-    <div class="rank-cell"><b>Football</b><span>Position intelligence pending</span></div>
-    <div class="rank-cell"><b>Readiness</b><span>Evidence required</span></div>
-    <div><span class="badge">Locked</span></div>
+</section>
+
+<section class="section">
+
+  <div class="section-head">
+    <h2>Leaderboard Classes</h2>
+    <span>Classes remain constitutionally distinct</span>
   </div>
 
-  <div class="rank-row">
-    <div class="rank-cell"><b>02</b><span>Regional</span></div>
-    <div class="rank-cell"><b>Pending Athlete</b><span>Profile gated until verified release</span></div>
-    <div class="rank-cell"><b>Track</b><span>Event data pending</span></div>
-    <div class="rank-cell"><b>Performance</b><span>Verification required</span></div>
-    <div><span class="badge">Locked</span></div>
+  <div class="class-grid">
+
+    <article class="class-card">
+      <b>Athletic</b>
+      <span>
+        Publishes governed Athletic Intelligence rankings only.
+        Stream 7 does not determine Athletic Score or ranking science.
+      </span>
+    </article>
+
+    <article class="class-card">
+      <b>Academic</b>
+      <span>
+        Publishes governed Academic Intelligence rankings without
+        converting academic standing into athletic ability.
+      </span>
+    </article>
+
+    <article class="class-card">
+      <b>Development</b>
+      <span>
+        Publishes governed longitudinal Development Intelligence rankings
+        where the ranking authority has established improvement criteria.
+      </span>
+    </article>
+
+    <article class="class-card">
+      <b>Verified Performance</b>
+      <span>
+        Publishes rankings based upon declared verified-performance
+        criteria supplied by the governing authority.
+      </span>
+    </article>
+
+    <article class="class-card">
+      <b>Exposure / Viewership</b>
+      <span>
+        Publishes governed visibility or engagement rankings.
+        Exposure and engagement do not establish athlete ability.
+      </span>
+    </article>
+
+    <article class="class-card">
+      <b>Program</b>
+      <span>
+        Publishes governed Program Intelligence rankings, including
+        authorized Program Health or program-positioning products.
+      </span>
+    </article>
+
+  </div>
+
+</section>
+
+<section class="section">
+
+  <div class="section-head">
+    <h2>Governing Ranking Contract</h2>
+    <span>Current publication authority and lineage</span>
+  </div>
+
+  <div class="meta-grid">
+
+    <div class="meta">
+      <b>Board</b>
+      <strong id="boardLabel">No Governed Board Loaded</strong>
+    </div>
+
+    <div class="meta">
+      <b>Leaderboard Class</b>
+      <strong id="leaderboardClass">—</strong>
+    </div>
+
+    <div class="meta">
+      <b>Ranking Authority</b>
+      <strong id="rankingAuthority">—</strong>
+    </div>
+
+    <div class="meta">
+      <b>Ranking Version</b>
+      <strong id="rankingVersion">—</strong>
+    </div>
+
+    <div class="meta">
+      <b>Effective At</b>
+      <strong id="effectiveAt">—</strong>
+    </div>
+
+    <div class="meta">
+      <b>Publication Date</b>
+      <strong id="publicationDate">—</strong>
+    </div>
+
+    <div class="meta">
+      <b>Ranking Receipt</b>
+      <strong id="rankingReceipt">—</strong>
+    </div>
+
+    <div class="meta">
+      <b>Publication Receipt</b>
+      <strong id="publicationReceipt">—</strong>
+    </div>
+
+  </div>
+
+  <div class="criteria">
+
+    <div>
+      <b>Population</b>
+      <span id="criteriaPopulation">—</span>
+    </div>
+
+    <div>
+      <b>Age / Grade</b>
+      <span id="criteriaAgeGrade">—</span>
+    </div>
+
+    <div>
+      <b>Participation Level</b>
+      <span id="criteriaParticipation">—</span>
+    </div>
+
+    <div>
+      <b>Sport</b>
+      <span id="criteriaSport">—</span>
+    </div>
+
+    <div>
+      <b>Position / Event</b>
+      <span id="criteriaPositionEvent">—</span>
+    </div>
+
+    <div>
+      <b>Geography</b>
+      <span id="criteriaGeography">—</span>
+    </div>
+
+    <div>
+      <b>Time Period</b>
+      <span id="criteriaPeriod">—</span>
+    </div>
+
+    <div>
+      <b>Tie Behavior</b>
+      <span id="criteriaTie">—</span>
+    </div>
+
+    <div>
+      <b>Verification</b>
+      <span id="criteriaVerification">—</span>
+    </div>
+
+    <div>
+      <b>Minimum Evidence</b>
+      <span id="criteriaEvidence">—</span>
+    </div>
+
+    <div>
+      <b>Intelligence Source</b>
+      <span id="criteriaSource">—</span>
+    </div>
+
+    <div>
+      <b>Publication State</b>
+      <span id="publicationState">NOT PUBLISHED</span>
+    </div>
+
+  </div>
+
+</section>
+
+<section class="section">
+
+  <div class="section-head">
+    <h2>Ranking Board</h2>
+    <span>Official ranks are consumed, not calculated here</span>
+  </div>
+
+  <div
+    class="board-shell"
+    id="rankingBoardShell"
+  >
+
+    <div
+      class="board-message"
+      id="rankingEmpty"
+    >
+      <b>No Governed Ranking Publication Loaded</b>
+
+      <span>
+        This page will not manufacture ranking positions from athlete or
+        program records. A governed ranking contract from the designated
+        ranking authority is required.
+      </span>
+    </div>
+
+    <div
+      id="rankingRows"
+      hidden
+    >
+      <div class="rank-row rank-head">
+        <div>Rank</div>
+        <div>Entity</div>
+        <div>Classification</div>
+        <div>Governed Result</div>
+        <div>Movement</div>
+      </div>
+    </div>
+
+  </div>
+
+</section>
+
+<section class="section">
+
+  <div class="section-head">
+    <h2>Publication Governance</h2>
+    <span>Permanent ranking-publication boundaries</span>
+  </div>
+
+  <div class="governance-grid">
+
+    <div class="governance">
+      <b>01 · Authority</b>
+      <span>
+        Stream 7 consumes official rank, criteria, confidence, verification,
+        explanation, and version from the lawful ranking authority.
+      </span>
+    </div>
+
+    <div class="governance">
+      <b>02 · Explainability</b>
+      <span>
+        Published rankings preserve WHY and authoritative intelligence
+        references where disclosure governance allows.
+      </span>
+    </div>
+
+    <div class="governance">
+      <b>03 · Visibility</b>
+      <span>
+        A valid ranking does not automatically become public.
+        Publication and disclosure authority remain independently governed.
+      </span>
+    </div>
+
+    <div class="governance">
+      <b>04 · History</b>
+      <span>
+        Ranking versions and effective periods remain preserved.
+        Stream 7 never overwrites historical ranking truth to display
+        a newer board.
+      </span>
+    </div>
+
   </div>
 
 </section>
 
 <div class="notice">
-  Rankings are not final public outputs until verification, governance permissions,
-  and visibility rules are satisfied. STATScore™ ranking logic must remain sports-first,
-  athlete-safe, and trust-centered.
+  PHNX Sports does not calculate Athletic Score, STATScore, Stars,
+  Academic Intelligence, Development Intelligence, Program Health,
+  Pathway Intelligence, or official rank. It publishes governed ranking
+  products supplied by the designated authority. Athletic, Academic,
+  Development, Verified Performance, Program, and Exposure/Viewership
+  leaderboards remain separate intelligence classes.
 </div>
 
+<div
+  class="error"
+  id="rankingError"
+  role="alert"
+></div>
+
 <footer class="footer">
-  <div>STATScore™ Athlete Rankings</div>
-  <div>Verified Athlete Positioning</div>
+  <div>STATS-CORE™ • PHNX Sports Rankings</div>
+  <div>Governed Ranking Publication</div>
 </footer>
 
 </main>
 </div>
+
+<script src="statscore-phnx-ranking-engine.js"></script>
+
+<script>
+/*
+===============================================================
+STREAM 7 — RANKING PUBLICATION PRESENTATION
+
+This page does not:
+- calculate scores;
+- calculate rankings;
+- assign Stars;
+- select ranking science;
+- infer Rising status;
+- infer Verified status;
+- manufacture Program Intelligence;
+- manufacture athlete intelligence.
+
+It renders only a governed ranking contract accepted by
+statscore-phnx-ranking-engine.js.
+===============================================================
+*/
+
+(function () {
+  "use strict";
+
+  function byId(id) {
+    return document.getElementById(id);
+  }
+
+  function text(id, value, fallback = "—") {
+    const el = byId(id);
+
+    if (!el) return;
+
+    el.textContent =
+      value === null ||
+      value === undefined ||
+      value === ""
+        ? fallback
+        : String(value);
+  }
+
+  function escapeHTML(value) {
+    return String(value ?? "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  function showError(message) {
+    const el = byId("rankingError");
+
+    if (!el) return;
+
+    el.style.display = "block";
+    el.textContent = message;
+  }
+
+  function renderContractMeta(board) {
+    const criteria = board.criteria || {};
+
+    text("boardLabel", board.board_label);
+    text("leaderboardClass", board.leaderboard_class);
+    text("rankingAuthority", board.ranking_authority);
+    text("rankingVersion", board.ranking_version);
+    text("effectiveAt", board.effective_at);
+    text("publicationDate", board.publication_date);
+    text("rankingReceipt", board.ranking_receipt_id);
+    text(
+      "publicationReceipt",
+      board.publication?.publication_receipt_id
+    );
+
+    text("criteriaPopulation", criteria.population);
+    text("criteriaAgeGrade", criteria.age_grade);
+    text("criteriaParticipation", criteria.participation_level);
+    text("criteriaSport", criteria.sport);
+    text("criteriaPositionEvent", criteria.position_event);
+    text("criteriaGeography", criteria.geography);
+    text("criteriaPeriod", criteria.time_period);
+    text("criteriaTie", criteria.tie_behavior);
+    text("criteriaVerification", criteria.verification_requirements);
+    text("criteriaEvidence", criteria.minimum_evidence);
+    text("criteriaSource", criteria.intelligence_source);
+
+    text(
+      "publicationState",
+      board.publication?.state || "NOT PUBLISHED"
+    );
+  }
+
+  function renderBoard(board) {
+    const rows = byId("rankingRows");
+    const empty = byId("rankingEmpty");
+
+    if (!rows || !empty) return;
+
+    if (
+      !Array.isArray(board.board) ||
+      !board.board.length
+    ) {
+      empty.hidden = false;
+      rows.hidden = true;
+      return;
+    }
+
+    const generatedRows = board.board
+      .map(item => {
+
+        const classification = [
+          item.status_label,
+          item.sport,
+          item.position,
+          item.graduation_class
+        ]
+          .filter(Boolean)
+          .join(" • ");
+
+        const result =
+          item.governed_score !== null &&
+          item.governed_score !== undefined
+            ? `${item.score_label || "Governed Result"}: ${item.governed_score}`
+            : item.ranking_classification ||
+              "See governing ranking";
+
+        const why =
+          item.explanation
+            ? `
+              <div class="why">
+                <strong>WHY:</strong>
+                ${escapeHTML(item.explanation)}
+              </div>
+            `
+            : "";
+
+        return `
+          <div class="rank-row">
+
+            <div class="rank-number">
+              #${escapeHTML(item.rank)}
+            </div>
+
+            <div class="rank-cell">
+              <b>
+                ${escapeHTML(item.display_name)}
+              </b>
+
+              <span>
+                ${escapeHTML(
+                  item.entity_type ||
+                  "Ranked Entity"
+                )}
+              </span>
+
+              ${why}
+            </div>
+
+            <div class="rank-cell">
+              <b>
+                ${escapeHTML(
+                  classification ||
+                  board.leaderboard_class
+                )}
+              </b>
+
+              <span>
+                ${
+                  item.verification_state
+                    ? `Verification: ${escapeHTML(item.verification_state)}`
+                    : "Governed classification"
+                }
+              </span>
+            </div>
+
+            <div class="rank-cell">
+              <b>
+                ${escapeHTML(result)}
+              </b>
+
+              <span>
+                ${
+                  item.confidence
+                    ? `Confidence: ${escapeHTML(item.confidence)}`
+                    : "See governing intelligence"
+                }
+              </span>
+            </div>
+
+            <div class="rank-cell">
+              <b class="movement">
+                ${escapeHTML(item.movement_symbol || "—")}
+                ${escapeHTML(item.movement_label || "Unknown")}
+              </b>
+
+              <span>
+                ${
+                  item.previous_rank
+                    ? `Previous: #${escapeHTML(item.previous_rank)}`
+                    : "No prior published rank"
+                }
+              </span>
+            </div>
+
+          </div>
+        `;
+      })
+      .join("");
+
+    rows.innerHTML = `
+      <div class="rank-row rank-head">
+        <div>Rank</div>
+        <div>Entity</div>
+        <div>Classification</div>
+        <div>Governed Result</div>
+        <div>Movement</div>
+      </div>
+
+      ${generatedRows}
+    `;
+
+    empty.hidden = true;
+    rows.hidden = false;
+  }
+
+  function preserveWorkspaceContext() {
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+    const athleteId =
+      params.get("athlete_id");
+
+    const snapshotId =
+      params.get("snapshot_id");
+
+    const workspaceId =
+      params.get("workspace_id");
+
+    document
+      .querySelectorAll('a[href$=".html"]')
+      .forEach(link => {
+        const target =
+          new URL(
+            link.getAttribute("href"),
+            window.location.href
+          );
+
+        if (athleteId) {
+          target.searchParams.set(
+            "athlete_id",
+            athleteId
+          );
+        }
+
+        if (snapshotId) {
+          target.searchParams.set(
+            "snapshot_id",
+            snapshotId
+          );
+        }
+
+        if (workspaceId) {
+          target.searchParams.set(
+            "workspace_id",
+            workspaceId
+          );
+        }
+
+        link.href =
+          target.pathname.split("/").pop() +
+          target.search;
+      });
+  }
+
+  function initializeRankingPublication() {
+    preserveWorkspaceContext();
+
+    const engine =
+      window.STATScorePHNXRankingEngine;
+
+    if (!engine) {
+      showError(
+        "Governed PHNX Ranking Publication Engine is unavailable. No ranking will be reconstructed locally."
+      );
+
+      return;
+    }
+
+    const board =
+      engine.runCurrentBoard?.();
+
+    if (!board) {
+      return;
+    }
+
+    if (!board.ok) {
+      showError(
+        (
+          board.errors ||
+          [board.message || board.status]
+        ).join(" ")
+      );
+
+      return;
+    }
+
+    renderContractMeta(board);
+    renderBoard(board);
+  }
+
+  if (
+    document.readyState ===
+    "loading"
+  ) {
+    document.addEventListener(
+      "DOMContentLoaded",
+      initializeRankingPublication
+    );
+  } else {
+    initializeRankingPublication();
+  }
+
+})();
+</script>
+
 </body>
 </html> 
