@@ -1,400 +1,1832 @@
 /* ============================================================
-   STATScore™ Profile Engine
+   STATS-CORE™ PROFILE ENGINE
    File: statscore-profile-engine.js
-   Version: STATSCORE-PROFILE-ENGINE-V1
+   Version: STATSCORE-PROFILE-ENGINE-V2-GOVERNED-PROJECTION
+
+   Owner:
+   Stream 3 — Athlete Intelligence Presentation Authority
+
+   Classification:
+   Governed Athlete Profile Projection / Presentation Engine
+
    Purpose:
-   Assembles the living athlete profile from identity,
-   scoring, synthesis, state, consensus, pathway,
-   recommendations, eligibility, media, and evaluator intelligence.
+   Assemble presentation-safe athlete profile models from
+   already-governed identity, disclosure, intelligence,
+   explainability, and publication state.
+
+   Constitutional Boundaries:
+
+   Stream 2
+   → owns athlete source records and snapshot preservation.
+
+   Stream 3
+   → owns athlete profile presentation.
+
+   Stream 5
+   → owns professional workspace and operational permissions.
+
+   Stream 6
+   → owns communication governance.
+
+   Stream 7
+   → owns publication / exposure authority.
+
+   Stream 9
+   → owns governed athlete intelligence and explainability.
+
+   Stream 10
+   → owns professional certification / credential trust.
+
+   Core Doctrine:
+
+   PRESENTATION ≠ INTELLIGENCE AUTHORITY
+
+   SOURCE DATA ≠ GOVERNED INTELLIGENCE
+
+   IDENTITY ≠ DISCLOSURE AUTHORITY
+
+   ROLE ≠ ATHLETE SCOPE
+
+   MISSING AUTHORITY ≠ PERMISSION TO RECONSTRUCT AUTHORITY
+
+   Stream 3 may format, organize, label, and render
+   already-governed intelligence.
+
+   Stream 3 may not:
+   - calculate scores;
+   - recalculate domain intelligence;
+   - synthesize athlete state;
+   - create pathway intelligence;
+   - create recommendations;
+   - create evaluator drafts;
+   - manufacture verification;
+   - manufacture publication authority;
+   - infer recruiting interest;
+   - establish local thresholds;
+   - create athlete classifications from raw values;
+   - retain unrestricted source snapshots in profile outputs.
+
 ============================================================ */
 
-(function () {
+(function (global) {
   "use strict";
 
-  window.STATScore = window.STATScore || {};
+  global.STATScore =
+    global.STATScore || {};
 
-  const ProfileEngine = {
+  const ENGINE =
+    "statscore-profile-engine.js";
 
-    version: "STATSCORE-PROFILE-ENGINE-V1",
+  const VERSION =
+    "STATSCORE-PROFILE-ENGINE-V2-GOVERNED-PROJECTION";
 
-    nowISO() {
-      return new Date().toISOString();
-    },
+  const OWNER_STREAM =
+    "STREAM_3_ATHLETE_INTELLIGENCE_PRESENTATION";
 
-    core() {
-      return window.STATScoreCore || null;
-    },
+  const STATUS = Object.freeze({
+    READY:
+      "READY",
 
-    scoring() {
-      return window.STATScoreScoringEngine || null;
-    },
+    PROFILE_PACKAGE_REQUIRED:
+      "PROFILE_PACKAGE_REQUIRED",
 
-    intelligence() {
-      return window.STATScoreIntelligence || null;
-    },
+    DISCLOSURE_REQUIRED:
+      "DISCLOSURE_REQUIRED",
 
-    pathway() {
-      return window.STATScore?.PathwayEngine || null;
-    },
+    IDENTITY_UNAVAILABLE:
+      "IDENTITY_UNAVAILABLE",
 
-    recommendation() {
-      return window.STATScore?.RecommendationEngine || null;
-    },
+    INTELLIGENCE_UNAVAILABLE:
+      "INTELLIGENCE_UNAVAILABLE",
 
-    media() {
-      return window.STATScoreMediaRouting || null;
-    },
+    EXPLAINABILITY_UNAVAILABLE:
+      "EXPLAINABILITY_UNAVAILABLE",
 
-    stateEngine() {
-      return window.STATScore?.StateEngine || null;
-    },
+    PUBLICATION_UNAVAILABLE:
+      "PUBLICATION_UNAVAILABLE",
 
-    synthesis() {
-      return window.STATScore?.SynthesisEngine || null;
-    },
+    PARTIAL:
+      "PARTIAL",
 
-    evaluator() {
-      return window.STATScoreEvaluatorEngine || null;
-    },
+    BLOCKED:
+      "BLOCKED"
+  });
 
-    roleAccess() {
-      return window.STATScoreRoleAccess || null;
-    },
+  const AUDIENCE = Object.freeze({
+    ATHLETE: "athlete",
+    PARENT: "parent",
+    COACH: "coach",
+    COUNSELOR: "counselor",
+    RECRUITER: "recruiter",
+    EVALUATOR: "evaluator",
+    TRAINER: "trainer",
+    PROGRAM: "program",
+    ADMIN: "admin",
+    PROFESSIONAL: "professional"
+  });
 
-    safe(value, fallback = "") {
-      return this.core()?.safe?.(value, fallback) ?? (value || fallback);
-    },
+  /* ============================================================
+     UTILITIES
+  ============================================================ */
 
-    lower(value) {
-      return String(value || "").trim().toLowerCase();
-    },
+  function nowISO() {
+    return new Date().toISOString();
+  }
 
-    buildIdentity(snapshot) {
+  function normalize(value) {
+    return String(value ?? "").trim();
+  }
+
+  function lower(value) {
+    return normalize(value).toLowerCase();
+  }
+
+  function upper(value) {
+    return normalize(value).toUpperCase();
+  }
+
+  function hasObject(value) {
+    return Boolean(
+      value &&
+      typeof value === "object" &&
+      !Array.isArray(value)
+    );
+  }
+
+  function safeArray(value) {
+    return Array.isArray(value)
+      ? value.filter(
+          item =>
+            item !== undefined &&
+            item !== null
+        )
+      : [];
+  }
+
+  function clone(value) {
+    if (value === undefined) {
+      return undefined;
+    }
+
+    try {
+      return JSON.parse(
+        JSON.stringify(value)
+      );
+    } catch (_) {
+      return value;
+    }
+  }
+
+  function firstDefined(...values) {
+    for (const value of values) {
+      if (
+        value !== undefined &&
+        value !== null &&
+        value !== ""
+      ) {
+        return value;
+      }
+    }
+
+    return null;
+  }
+
+  function escapeHTML(value) {
+    return String(
+      value ?? ""
+    )
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function normalizeAudience(value) {
+    const role =
+      lower(
+        value ||
+        AUDIENCE.ATHLETE
+      );
+
+    return Object.values(
+      AUDIENCE
+    ).includes(role)
+      ? role
+      : AUDIENCE.ATHLETE;
+  }
+
+  /* ============================================================
+     INPUT CONTRACT
+
+     Expected upstream package:
+
+     {
+       identity,
+       disclosure,
+       intelligence,
+       explainability,
+       publication,
+       governance,
+       audience,
+       authority_lineage
+     }
+
+     No raw source record is required or accepted as authority.
+  ============================================================ */
+
+  function normalizeInput(input = {}) {
+    if (!hasObject(input)) {
+      return null;
+    }
+
+    const packageInput =
+      hasObject(
+        input.profile_package
+      )
+        ? input.profile_package
+        : input;
+
+    return {
+      audience:
+        normalizeAudience(
+          firstDefined(
+            packageInput.audience,
+            input.audience
+          )
+        ),
+
+      identity:
+        hasObject(
+          packageInput.identity
+        )
+          ? clone(
+              packageInput.identity
+            )
+          : null,
+
+      disclosure:
+        hasObject(
+          packageInput.disclosure
+        )
+          ? clone(
+              packageInput.disclosure
+            )
+          : null,
+
+      intelligence:
+        hasObject(
+          packageInput.intelligence
+        )
+          ? clone(
+              packageInput.intelligence
+            )
+          : null,
+
+      explainability:
+        hasObject(
+          packageInput.explainability
+        )
+          ? clone(
+              packageInput.explainability
+            )
+          : null,
+
+      publication:
+        hasObject(
+          packageInput.publication
+        )
+          ? clone(
+              packageInput.publication
+            )
+          : null,
+
+      governance:
+        hasObject(
+          packageInput.governance
+        )
+          ? clone(
+              packageInput.governance
+            )
+          : null,
+
+      authority_lineage:
+        safeArray(
+          packageInput.authority_lineage
+        ),
+
+      source_status:
+        firstDefined(
+          packageInput.status,
+          packageInput.source_status
+        ),
+
+      generated_at:
+        packageInput.generated_at ||
+        null
+    };
+  }
+
+  /* ============================================================
+     DISCLOSURE VALIDATION
+  ============================================================ */
+
+  function validateDisclosure(model) {
+    if (
+      !model ||
+      !hasObject(
+        model.disclosure
+      )
+    ) {
       return {
-        snapshot_id: snapshot?.snapshot_id || null,
-        athlete_id: snapshot?.athlete_id || null,
-        athlete_display_name: this.safe(snapshot?.athlete_display_name, "Athlete Profile"),
-
-        first_name: this.safe(snapshot?.first_name),
-        last_name: this.safe(snapshot?.last_name),
-
-        sport: this.safe(snapshot?.sport, "Sport"),
-        position: this.safe(snapshot?.position, "Position"),
-        secondary_position: this.safe(snapshot?.secondary_position),
-
-        graduation_class: this.safe(snapshot?.graduation_class, "Class Year"),
-        school: this.safe(snapshot?.school, "School / Program"),
-        city_state: this.safe(snapshot?.city_state, "City, State"),
-
-        height: this.safe(snapshot?.height, "--"),
-        weight: this.safe(snapshot?.weight, "--"),
-        jersey_number: this.safe(snapshot?.jersey_number, "--"),
-
-        headshot_public_url: this.safe(snapshot?.headshot_public_url),
-        verification_status: this.safe(snapshot?.verification_status, "UNVERIFIED"),
-        score_status: this.safe(snapshot?.score_status, "UNVERIFIED")
+        ok: false,
+        status:
+          STATUS.DISCLOSURE_REQUIRED,
+        message:
+          "A governed disclosure projection is required before profile presentation."
       };
-    },
+    }
 
-    buildProfileInputs(snapshot) {
-      const scoring = this.scoring()?.explainScore?.(snapshot);
-      const athleteIntel = this.intelligence()?.explainAthlete?.(snapshot);
-      const pathway = this.pathway()?.buildPathwayReport?.(snapshot);
-      const mediaPackage = this.media()?.buildMediaPackage?.(snapshot);
-      const recommendations = this.recommendation()?.buildFullRecommendationReport?.(snapshot);
-      const evaluatorDraft = this.evaluator()?.buildEvaluationDraft?.(snapshot, {
-        trust_tier: "STANDARD",
-        evaluator_name: "System Preview"
-      });
+    const disclosure =
+      model.disclosure;
 
+    if (
+      disclosure.authorized === false ||
+      upper(
+        disclosure.status
+      ) === "DENIED" ||
+      upper(
+        disclosure.status
+      ) === "BLOCKED"
+    ) {
       return {
-        scoring: scoring?.ok ? scoring : null,
-        athlete_intelligence: athleteIntel || null,
-        pathway: pathway?.ok ? pathway : null,
-        media: mediaPackage || null,
-        recommendations: recommendations?.ok ? recommendations : null,
-        evaluator_preview: evaluatorDraft || null
+        ok: false,
+        status:
+          STATUS.BLOCKED,
+        message:
+          "The current profile disclosure projection is not authorized."
       };
-    },
+    }
 
-    buildSyntheticInput(snapshot, profileInputs) {
+    return {
+      ok: true,
+      status:
+        "AUTHORIZED"
+    };
+  }
+
+  function validateIdentity(model) {
+    if (
+      !model ||
+      !hasObject(
+        model.identity
+      )
+    ) {
       return {
-        athlete_id: snapshot?.athlete_id || snapshot?.snapshot_id || null,
-        snapshot_id: snapshot?.snapshot_id || null,
-
-        profile_state: snapshot?.snapshot_status || "CREATED",
-        verification_state: snapshot?.verification_status || "UNVERIFIED",
-        readiness_state: profileInputs?.athlete_intelligence?.readiness?.status || "DEVELOPING",
-        eligibility_state: snapshot?.ncaa_status || "PARTIAL_REVIEW",
-        pathway_state: profileInputs?.pathway?.current_best_fit?.state || "PENDING",
-        media_state: profileInputs?.media?.readiness?.youtube_ready ? "READY" : "PENDING",
-        evaluator_state: profileInputs?.evaluator_preview?.evaluation_status || "IN_REVIEW",
-        coach_state: snapshot?.coach_name || snapshot?.coach_email ? "PRESENT" : "UNKNOWN",
-        counselor_state: snapshot?.ncaa_status || snapshot?.current_gpa ? "PRESENT" : "UNKNOWN",
-        recruiter_state: "CONTROLLED",
-        program_state: "PENDING",
-        competition_level: snapshot?.competition_level || snapshot?.raw?.competitionLevel || "UNVERIFIED"
+        ok: false,
+        status:
+          STATUS.IDENTITY_UNAVAILABLE,
+        message:
+          "Governed athlete identity is unavailable."
       };
-    },
+    }
 
-    buildLivingState(snapshot, profileInputs) {
-      const synthesisEngine = this.synthesis();
-      const stateEngine = this.stateEngine();
-
-      const synthesisInput = this.buildSyntheticInput(snapshot, profileInputs);
-
-      const synthesisState =
-        synthesisEngine?.synthesize?.(synthesisInput) || null;
-
-      const operationalState =
-        stateEngine?.buildStateFromSynthesis?.(synthesisState) || null;
-
+    if (
+      !model.identity.athlete_id ||
+      !model.identity.snapshot_id
+    ) {
       return {
-        synthesis_state: synthesisState,
-        operational_state: operationalState
+        ok: false,
+        status:
+          STATUS.IDENTITY_UNAVAILABLE,
+        message:
+          "athlete_id and snapshot_id are required for governed profile presentation."
       };
-    },
+    }
 
-    buildProfileBanner(livingState, profileInputs) {
-      const state = livingState?.operational_state;
-      const scoring = profileInputs?.scoring;
-      const pathway = profileInputs?.pathway;
+    return {
+      ok: true,
+      status:
+        "IDENTITY_VALID"
+    };
+  }
 
-      if (!state) {
-        return {
-          label: "PROFILE BUILDING",
-          tone: "yellow",
-          explanation: "Athlete profile is still assembling intelligence."
-        };
+  /* ============================================================
+     IDENTITY PRESENTATION MODEL
+  ============================================================ */
+
+  function buildIdentityPresentation(
+    identity = {}
+  ) {
+    return {
+      athlete_id:
+        identity.athlete_id ||
+        null,
+
+      snapshot_id:
+        identity.snapshot_id ||
+        null,
+
+      athlete_display_name:
+        firstDefined(
+          identity.athlete_display_name,
+          identity.athlete_name,
+          "Athlete"
+        ),
+
+      first_name:
+        firstDefined(
+          identity.first_name,
+          null
+        ),
+
+      last_name:
+        firstDefined(
+          identity.last_name,
+          null
+        ),
+
+      sport:
+        firstDefined(
+          identity.sport,
+          identity.primary_sport,
+          "Unavailable"
+        ),
+
+      position:
+        firstDefined(
+          identity.position,
+          identity.primary_position,
+          "Unavailable"
+        ),
+
+      secondary_position:
+        firstDefined(
+          identity.secondary_position,
+          null
+        ),
+
+      graduation_class:
+        firstDefined(
+          identity.graduation_class,
+          "Unavailable"
+        ),
+
+      school:
+        firstDefined(
+          identity.school,
+          identity.school_program,
+          "Unavailable"
+        ),
+
+      city_state:
+        firstDefined(
+          identity.city_state,
+          "Unavailable"
+        ),
+
+      height:
+        firstDefined(
+          identity.height,
+          "Unavailable"
+        ),
+
+      weight:
+        firstDefined(
+          identity.weight,
+          "Unavailable"
+        ),
+
+      jersey_number:
+        firstDefined(
+          identity.jersey_number,
+          null
+        ),
+
+      headshot_url:
+        firstDefined(
+          identity.headshot_url,
+          identity.headshot_public_url,
+          null
+        ),
+
+      verification_status:
+        firstDefined(
+          identity.verification_status,
+          "UNAVAILABLE"
+        ),
+
+      snapshot_status:
+        firstDefined(
+          identity.snapshot_status,
+          "UNAVAILABLE"
+        )
+    };
+  }
+
+  /* ============================================================
+     GOVERNED INTELLIGENCE PRESENTATION
+
+     No score or state calculation occurs here.
+  ============================================================ */
+
+  function buildIntelligencePresentation(
+    intelligence
+  ) {
+    if (
+      !hasObject(
+        intelligence
+      )
+    ) {
+      return {
+        available:
+          false,
+
+        status:
+          STATUS.INTELLIGENCE_UNAVAILABLE,
+
+        score:
+          null,
+
+        score_status:
+          "UNAVAILABLE",
+
+        star_signal:
+          null,
+
+        readiness:
+          null,
+
+        pathway:
+          null,
+
+        academic:
+          null,
+
+        development:
+          null,
+
+        verification:
+          null,
+
+        production:
+          null,
+
+        exposure:
+          null,
+
+        composite:
+          null,
+
+        recommendations:
+          [],
+
+        next_best_action:
+          null,
+
+        risk_flags:
+          [],
+
+        confidence_limiters:
+          [],
+
+        authority_lineage:
+          []
+      };
+    }
+
+    const domains =
+      hasObject(
+        intelligence.domains
+      )
+        ? intelligence.domains
+        : {};
+
+    return {
+      available:
+        true,
+
+      status:
+        firstDefined(
+          intelligence.status,
+          intelligence.publication_status,
+          "AVAILABLE"
+        ),
+
+      score:
+        clone(
+          firstDefined(
+            intelligence.final_score,
+            intelligence.score,
+            intelligence.composite?.score,
+            intelligence.composite?.composite_score
+          )
+        ),
+
+      score_status:
+        firstDefined(
+          intelligence.score_status,
+          intelligence.composite?.status,
+          intelligence.status,
+          "PENDING"
+        ),
+
+      star_signal:
+        clone(
+          firstDefined(
+            intelligence.star_signal,
+            intelligence.report_card?.star_signal
+          )
+        ),
+
+      readiness:
+        clone(
+          firstDefined(
+            domains.readiness,
+            intelligence.readiness
+          )
+        ),
+
+      pathway:
+        clone(
+          firstDefined(
+            domains.pathway,
+            intelligence.pathway
+          )
+        ),
+
+      academic:
+        clone(
+          firstDefined(
+            domains.academic,
+            intelligence.academic
+          )
+        ),
+
+      development:
+        clone(
+          firstDefined(
+            domains.training,
+            intelligence.development,
+            intelligence.training
+          )
+        ),
+
+      verification:
+        clone(
+          firstDefined(
+            domains.verification,
+            intelligence.verification
+          )
+        ),
+
+      production:
+        clone(
+          firstDefined(
+            domains.production,
+            intelligence.production
+          )
+        ),
+
+      exposure:
+        clone(
+          firstDefined(
+            domains.exposure,
+            intelligence.exposure
+          )
+        ),
+
+      composite:
+        clone(
+          intelligence.composite ||
+          null
+        ),
+
+      recommendations:
+        clone(
+          safeArray(
+            intelligence.recommendations?.actions ||
+            intelligence.recommendations
+          )
+        ),
+
+      next_best_action:
+        clone(
+          firstDefined(
+            intelligence.recommendations
+              ?.next_best_action,
+            intelligence.next_best_action,
+            intelligence.report_card
+              ?.next_best_action
+          )
+        ),
+
+      risk_flags:
+        clone(
+          safeArray(
+            intelligence.risk_flags ||
+            intelligence.flags
+          )
+        ),
+
+      confidence_limiters:
+        clone(
+          safeArray(
+            intelligence.confidence_limiters
+          )
+        ),
+
+      authority_lineage:
+        clone(
+          safeArray(
+            intelligence.authority_lineage
+          )
+        )
+    };
+  }
+
+  /* ============================================================
+     EXPLAINABILITY PRESENTATION
+  ============================================================ */
+
+  function buildExplainabilityPresentation(
+    explainability
+  ) {
+    if (
+      !hasObject(
+        explainability
+      )
+    ) {
+      return {
+        available:
+          false,
+
+        status:
+          STATUS.EXPLAINABILITY_UNAVAILABLE,
+
+        summary:
+          "Governed explainability is unavailable.",
+
+        explanations:
+          {},
+
+        availability_flags:
+          [],
+
+        risk_flags:
+          [],
+
+        confidence_limiters:
+          [],
+
+        recommended_actions:
+          [],
+
+        next_best_action:
+          null,
+
+        authority_lineage:
+          []
+      };
+    }
+
+    return {
+      available:
+        true,
+
+      status:
+        firstDefined(
+          explainability.status,
+          "AVAILABLE"
+        ),
+
+      summary:
+        firstDefined(
+          explainability.summary,
+          "Governed intelligence explanation available."
+        ),
+
+      explanations:
+        clone(
+          explainability.explanations ||
+          {}
+        ),
+
+      availability_flags:
+        clone(
+          safeArray(
+            explainability.availability_flags
+          )
+        ),
+
+      risk_flags:
+        clone(
+          safeArray(
+            explainability.risk_flags
+          )
+        ),
+
+      confidence_limiters:
+        clone(
+          safeArray(
+            explainability.confidence_limiters
+          )
+        ),
+
+      recommended_actions:
+        clone(
+          safeArray(
+            explainability.recommended_actions
+          )
+        ),
+
+      next_best_action:
+        clone(
+          explainability.next_best_action ||
+          null
+        ),
+
+      authority_lineage:
+        clone(
+          safeArray(
+            explainability.authority_lineage
+          )
+        )
+    };
+  }
+
+  /* ============================================================
+     PUBLICATION PRESENTATION
+
+     This engine does not determine publication permission.
+     It displays supplied Stream 7 publication state only.
+  ============================================================ */
+
+  function buildPublicationPresentation(
+    publication
+  ) {
+    if (
+      !hasObject(
+        publication
+      )
+    ) {
+      return {
+        available:
+          false,
+
+        status:
+          STATUS.PUBLICATION_UNAVAILABLE,
+
+        public_profile_authorized:
+          false,
+
+        media_publication_authorized:
+          false,
+
+        recruiting_disclosure_authorized:
+          false,
+
+        publication_state:
+          "UNAVAILABLE",
+
+        disclosure_class:
+          "UNAVAILABLE"
+      };
+    }
+
+    return {
+      available:
+        true,
+
+      status:
+        firstDefined(
+          publication.status,
+          publication.publication_state,
+          "AVAILABLE"
+        ),
+
+      public_profile_authorized:
+        publication.public_profile_authorized ===
+        true,
+
+      media_publication_authorized:
+        publication.media_publication_authorized ===
+        true,
+
+      recruiting_disclosure_authorized:
+        publication.recruiting_disclosure_authorized ===
+        true,
+
+      publication_state:
+        firstDefined(
+          publication.publication_state,
+          publication.status,
+          "UNAVAILABLE"
+        ),
+
+      disclosure_class:
+        firstDefined(
+          publication.disclosure_class,
+          publication.visibility_class,
+          "UNAVAILABLE"
+        ),
+
+      publication_id:
+        firstDefined(
+          publication.publication_id,
+          null
+        ),
+
+      authority_lineage:
+        clone(
+          safeArray(
+            publication.authority_lineage
+          )
+        )
+    };
+  }
+
+  /* ============================================================
+     PROFILE BANNER
+
+     IMPORTANT:
+     This does not derive status from score thresholds.
+     It only renders already-governed labels.
+  ============================================================ */
+
+  function buildBanner(
+    model,
+    intelligence,
+    publication
+  ) {
+    const governedBanner =
+      firstDefined(
+        model.intelligence
+          ?.report_card
+          ?.profile_banner,
+
+        model.intelligence
+          ?.profile_banner,
+
+        model.explainability
+          ?.report_card
+          ?.profile_banner,
+
+        model.publication
+          ?.profile_banner
+      );
+
+    if (
+      hasObject(
+        governedBanner
+      )
+    ) {
+      return {
+        label:
+          firstDefined(
+            governedBanner.label,
+            "ATHLETE PROFILE"
+          ),
+
+        tone:
+          firstDefined(
+            governedBanner.tone,
+            "neutral"
+          ),
+
+        explanation:
+          firstDefined(
+            governedBanner.explanation,
+            governedBanner.reason,
+            "Governed profile status supplied by upstream authority."
+          ),
+
+        authority:
+          firstDefined(
+            governedBanner.authority,
+            governedBanner.authority_key,
+            null
+          ),
+
+        generated_here:
+          false
+      };
+    }
+
+    if (
+      publication.public_profile_authorized
+    ) {
+      return {
+        label:
+          "GOVERNED ATHLETE PROFILE",
+
+        tone:
+          "neutral",
+
+        explanation:
+          "Profile is being rendered from authorized governed identity and intelligence.",
+
+        authority:
+          OWNER_STREAM,
+
+        generated_here:
+          false
+      };
+    }
+
+    return {
+      label:
+        "CONTROLLED ATHLETE PROFILE",
+
+      tone:
+        "neutral",
+
+      explanation:
+        intelligence.available
+          ? "Governed athlete intelligence is available. Public disclosure remains controlled by its publication authority."
+          : "Governed athlete intelligence is currently unavailable.",
+
+      authority:
+        OWNER_STREAM,
+
+      generated_here:
+        false
+    };
+  }
+
+  /* ============================================================
+     SUMMARY PRESENTATION
+
+     No public status is inferred.
+  ============================================================ */
+
+  function buildSummary(
+    identity,
+    intelligence,
+    banner
+  ) {
+    const starSignal =
+      intelligence.star_signal;
+
+    const signalLabel =
+      hasObject(
+        starSignal
+      )
+        ? firstDefined(
+            starSignal.label,
+            starSignal.display
+          )
+        : starSignal;
+
+    const pathwayLabel =
+      firstDefined(
+        intelligence.pathway?.label,
+        intelligence.pathway
+          ?.current_best_fit
+          ?.label,
+        intelligence.pathway
+          ?.status
+      );
+
+    return {
+      title:
+        `${identity.athlete_display_name} — ${identity.position} / ${identity.sport}`,
+
+      subtitle:
+        `${identity.school} • Class ${identity.graduation_class}`,
+
+      signal:
+        firstDefined(
+          signalLabel,
+          intelligence.score_status,
+          "Intelligence Pending"
+        ),
+
+      score:
+        intelligence.score ??
+        "—",
+
+      pathway:
+        pathwayLabel ||
+        "Pathway Unavailable",
+
+      banner:
+        banner.label,
+
+      explanation:
+        banner.explanation,
+
+      generated_here:
+        false
+    };
+  }
+
+  /* ============================================================
+     ROLE-SAFE VIEW
+
+     The profile engine consumes disclosure.
+     It does not invent a new access policy.
+  ============================================================ */
+
+  function buildRoleView(
+    profile,
+    model
+  ) {
+    const disclosure =
+      model.disclosure;
+
+    if (
+      !hasObject(
+        disclosure
+      )
+    ) {
+      return {
+        ok: false,
+        status:
+          STATUS.DISCLOSURE_REQUIRED,
+        message:
+          "Governed disclosure projection unavailable."
+      };
+    }
+
+    const allowedSections =
+      safeArray(
+        disclosure.allowed_sections
+      );
+
+    const deniedSections =
+      safeArray(
+        disclosure.denied_sections
+      );
+
+    function permitted(section) {
+      if (
+        deniedSections.includes(
+          section
+        )
+      ) {
+        return false;
       }
 
       if (
-        state.visibility_state === "VERIFIED_VISIBLE" &&
-        scoring?.final_score >= 85
+        allowedSections.length === 0
       ) {
-        return {
-          label: "VERIFIED RISING ATHLETE",
-          tone: "green",
-          explanation: "Athlete has verified intelligence, strong readiness, and controlled visibility clearance."
-        };
+        return Boolean(
+          disclosure.authorized === true
+        );
       }
 
-      if (state.eligibility_state === "NCAA_RISK" || state.eligibility_state === "PARTIAL_REVIEW") {
-        return {
-          label: "ELIGIBILITY REVIEW ACTIVE",
-          tone: "yellow",
-          explanation: "Athlete pathway is active but academic/eligibility review affects visibility."
-        };
-      }
-
-      if (pathway?.current_best_fit?.state === "ACADEMIC_BRIDGE_PATH") {
-        return {
-          label: "BRIDGE PATHWAY RECOMMENDED",
-          tone: "yellow",
-          explanation: "Athlete may require academic or developmental bridge routing before expanded exposure."
-        };
-      }
-
-      if (state.readiness_state === "READY" || state.readiness_state === "CONDITIONAL_READY") {
-        return {
-          label: "CONDITIONAL READINESS",
-          tone: "green",
-          explanation: "Athlete is approaching readiness but some governance checks may still apply."
-        };
-      }
-
-      return {
-        label: "DEVELOPMENT TRACK",
-        tone: "red",
-        explanation: "Athlete should remain in controlled development until more evidence, verification, or readiness is complete."
-      };
-    },
-
-    buildRoleView(profile, role = "athlete") {
-      const access = this.roleAccess();
-      const r = String(role || "athlete").toLowerCase();
-
-      const visibleSnapshot =
-        access?.filterSnapshotForRole?.(profile.identity, r) ||
-        profile.identity;
-
-      const base = {
-        role: r,
-        identity: visibleSnapshot,
-        banner: profile.banner,
-        public_summary: profile.public_summary,
-        operational_state: profile.operational_state,
-        recommendations: profile.recommendations
-      };
-
-      if (r === "recruiter") {
-        return {
-          ...base,
-          scoring: profile.scoring,
-          pathway: profile.pathway,
-          media: profile.media?.youtube_package || null,
-          private_notes_hidden: true
-        };
-      }
-
-      if (r === "counselor") {
-        return {
-          ...base,
-          academic: profile.academic,
-          pathway: profile.pathway,
-          eligibility_focus: true
-        };
-      }
-
-      if (r === "evaluator") {
-        return {
-          ...base,
-          scoring: profile.scoring,
-          evaluator_preview: profile.evaluator_preview,
-          consensus_focus: true
-        };
-      }
-
-      if (r === "parent") {
-        return {
-          ...base,
-          permissions: profile.permissions,
-          academic: profile.academic,
-          media: profile.media,
-          recommendations: profile.recommendations
-        };
-      }
-
-      if (r === "admin" || r === "program") {
-        return profile;
-      }
-
-      return base;
-    },
-
-    buildPublicSummary(identity, profileInputs, banner) {
-      const scoring = profileInputs?.scoring;
-      const pathway = profileInputs?.pathway;
-
-      return {
-        title: `${identity.athlete_display_name} — ${identity.position} / ${identity.sport}`,
-        subtitle: `${identity.school} • Class ${identity.graduation_class}`,
-        signal: scoring?.star_signal?.label || identity.score_status || "Scoring Pending",
-        score: scoring?.final_score || "--",
-        pathway: pathway?.current_best_fit?.label || "Pathway Pending",
-        banner: banner.label,
-        explanation: banner.explanation
-      };
-    },
-
-    buildAcademicSnapshot(snapshot) {
-      return {
-        current_gpa: this.safe(snapshot?.current_gpa, "--"),
-        ncaa_status: this.safe(snapshot?.ncaa_status, "Review Required"),
-        transcript_available: this.safe(snapshot?.transcript_available, "Pending"),
-        counselor_review: snapshot?.current_gpa || snapshot?.ncaa_status ? "Review Active" : "Review Needed"
-      };
-    },
-
-    buildPermissionSnapshot(snapshot) {
-      return {
-        guardian_name: this.safe(snapshot?.guardian_name),
-        guardian_email: this.safe(snapshot?.guardian_email),
-        guardian_lane_active: !!(snapshot?.guardian_name || snapshot?.guardian_email),
-        recruiter_contact_allowed: false,
-        media_approval_required: true,
-        visibility_control: "Controlled"
-      };
-    },
-
-    assembleProfile(snapshot, options = {}) {
-      if (!snapshot) {
-        return {
-          ok: false,
-          status: "NO_SNAPSHOT",
-          message: "No athlete snapshot loaded."
-        };
-      }
-
-      const identity = this.buildIdentity(snapshot);
-      const profileInputs = this.buildProfileInputs(snapshot);
-      const livingState = this.buildLivingState(snapshot, profileInputs);
-      const banner = this.buildProfileBanner(livingState, profileInputs);
-
-      const profile = {
-        ok: true,
-        engine_version: this.version,
-        generated_at: this.nowISO(),
-
-        identity,
-        banner,
-        public_summary: this.buildPublicSummary(identity, profileInputs, banner),
-
-        scoring: profileInputs.scoring,
-        athlete_intelligence: profileInputs.athlete_intelligence,
-        pathway: profileInputs.pathway,
-        media: profileInputs.media,
-        recommendations: profileInputs.recommendations,
-        evaluator_preview: profileInputs.evaluator_preview,
-
-        synthesis_state: livingState.synthesis_state,
-        operational_state: livingState.operational_state,
-
-        academic: this.buildAcademicSnapshot(snapshot),
-        permissions: this.buildPermissionSnapshot(snapshot),
-
-        source_snapshot: snapshot,
-        locked: true
-      };
-
-      if (options.role) {
-        return this.buildRoleView(profile, options.role);
-      }
-
-      return profile;
-    },
-
-    renderProfileSummary(targetId, profile) {
-      const el = document.getElementById(targetId);
-      if (!el || !profile?.ok) return;
-
-      const esc = this.core()?.escapeHTML || ((v) => v);
-
-      el.innerHTML = `
-        <div class="profile-engine-kicker">STATScore Living Profile</div>
-        <h2>${esc(profile.public_summary.title)}</h2>
-        <p>${esc(profile.public_summary.subtitle)}</p>
-
-        <div class="profile-engine-banner ${esc(profile.banner.tone)}">
-          <strong>${esc(profile.banner.label)}</strong>
-          <span>${esc(profile.banner.explanation)}</span>
-        </div>
-
-        <div class="profile-engine-grid">
-          <div><b>Signal</b><span>${esc(profile.public_summary.signal)}</span></div>
-          <div><b>Score</b><span>${esc(profile.public_summary.score)}</span></div>
-          <div><b>Pathway</b><span>${esc(profile.public_summary.pathway)}</span></div>
-          <div><b>Visibility</b><span>${esc(profile.operational_state?.visibility_state || "--")}</span></div>
-        </div>
-      `;
-    },
-
-    explain(profile) {
-      if (!profile?.ok) return "No living profile available.";
-
-      return [
-        `Athlete: ${profile.identity.athlete_display_name}`,
-        `Banner: ${profile.banner.label}`,
-        `Signal: ${profile.public_summary.signal}`,
-        `Pathway: ${profile.public_summary.pathway}`,
-        `Visibility: ${profile.operational_state?.visibility_state || "--"}`
-      ].join(" | ");
+      return allowedSections.includes(
+        section
+      );
     }
 
-  };
+    return {
+      ok:
+        true,
 
-  window.STATScore.ProfileEngine = ProfileEngine;
+      engine_version:
+        VERSION,
 
-  console.info("[STATScore] Profile Engine Loaded:", ProfileEngine.version);
+      role:
+        model.audience,
 
-})(); 
+      identity:
+        permitted("identity")
+          ? clone(
+              profile.identity
+            )
+          : null,
+
+      banner:
+        permitted("banner")
+          ? clone(
+              profile.banner
+            )
+          : null,
+
+      summary:
+        permitted("summary")
+          ? clone(
+              profile.summary
+            )
+          : null,
+
+      intelligence:
+        permitted("intelligence")
+          ? clone(
+              profile.intelligence
+            )
+          : null,
+
+      explainability:
+        permitted("explainability")
+          ? clone(
+              profile.explainability
+            )
+          : null,
+
+      publication:
+        permitted("publication")
+          ? clone(
+              profile.publication
+            )
+          : null,
+
+      governance:
+        permitted("governance")
+          ? clone(
+              profile.governance
+            )
+          : null,
+
+      disclosure:
+        clone(
+          disclosure
+        ),
+
+      authority_lineage:
+        clone(
+          profile.authority_lineage
+        ),
+
+      generated_at:
+        nowISO(),
+
+      locked:
+        true
+    };
+  }
+
+  /* ============================================================
+     PROFILE ASSEMBLY
+  ============================================================ */
+
+  function assembleProfile(
+    input = {},
+    options = {}
+  ) {
+    const model =
+      normalizeInput(
+        input
+      );
+
+    if (!model) {
+      return {
+        ok: false,
+        status:
+          STATUS.PROFILE_PACKAGE_REQUIRED,
+        message:
+          "A governed profile package is required.",
+        generated_at:
+          nowISO()
+      };
+    }
+
+    const identityValidation =
+      validateIdentity(
+        model
+      );
+
+    if (
+      !identityValidation.ok
+    ) {
+      return {
+        ok: false,
+        status:
+          identityValidation.status,
+        message:
+          identityValidation.message,
+        generated_at:
+          nowISO()
+      };
+    }
+
+    const disclosureValidation =
+      validateDisclosure(
+        model
+      );
+
+    if (
+      !disclosureValidation.ok
+    ) {
+      return {
+        ok: false,
+        status:
+          disclosureValidation.status,
+        message:
+          disclosureValidation.message,
+        athlete_id:
+          model.identity.athlete_id,
+        snapshot_id:
+          model.identity.snapshot_id,
+        generated_at:
+          nowISO()
+      };
+    }
+
+    const identity =
+      buildIdentityPresentation(
+        model.identity
+      );
+
+    const intelligence =
+      buildIntelligencePresentation(
+        model.intelligence
+      );
+
+    const explainability =
+      buildExplainabilityPresentation(
+        model.explainability
+      );
+
+    const publication =
+      buildPublicationPresentation(
+        model.publication
+      );
+
+    const banner =
+      buildBanner(
+        model,
+        intelligence,
+        publication
+      );
+
+    const summary =
+      buildSummary(
+        identity,
+        intelligence,
+        banner
+      );
+
+    const authorityLineage = [
+      ...safeArray(
+        model.authority_lineage
+      ),
+
+      ...safeArray(
+        intelligence.authority_lineage
+      ),
+
+      ...safeArray(
+        explainability.authority_lineage
+      ),
+
+      ...safeArray(
+        publication.authority_lineage
+      )
+    ];
+
+    const profile = {
+      ok:
+        true,
+
+      engine:
+        ENGINE,
+
+      engine_version:
+        VERSION,
+
+      owner_stream:
+        OWNER_STREAM,
+
+      status:
+        (
+          intelligence.available &&
+          explainability.available
+        )
+          ? STATUS.READY
+          : STATUS.PARTIAL,
+
+      audience:
+        model.audience,
+
+      athlete_id:
+        identity.athlete_id,
+
+      snapshot_id:
+        identity.snapshot_id,
+
+      identity,
+
+      banner,
+
+      summary,
+
+      intelligence,
+
+      explainability,
+
+      publication,
+
+      governance:
+        clone(
+          model.governance ||
+          null
+        ),
+
+      disclosure:
+        clone(
+          model.disclosure
+        ),
+
+      authority_lineage:
+        clone(
+          authorityLineage
+        ),
+
+      constitutional_guards: {
+        calculates_scores:
+          false,
+
+        recalculates_domains:
+          false,
+
+        synthesizes_state:
+          false,
+
+        creates_pathway:
+          false,
+
+        creates_recommendations:
+          false,
+
+        creates_evaluator_drafts:
+          false,
+
+        creates_verification:
+          false,
+
+        creates_publication_authority:
+          false,
+
+        creates_recruiting_interest:
+          false,
+
+        creates_thresholds:
+          false,
+
+        retains_source_snapshot:
+          false,
+
+        raw_payload_fallback:
+          false,
+
+        missing_authority_reconstruction:
+          false,
+
+        presentation_only:
+          true
+      },
+
+      generated_at:
+        nowISO(),
+
+      locked:
+        true
+    };
+
+    const role =
+      options.role ||
+      model.audience;
+
+    if (role) {
+      return buildRoleView(
+        profile,
+        {
+          ...model,
+          audience:
+            normalizeAudience(
+              role
+            )
+        }
+      );
+    }
+
+    return profile;
+  }
+
+  /* ============================================================
+     PRESENTATION RENDERER
+
+     Rendering only.
+  ============================================================ */
+
+  function renderProfileSummary(
+    targetId,
+    profile
+  ) {
+    const el =
+      document.getElementById(
+        targetId
+      );
+
+    if (
+      !el ||
+      !profile?.ok
+    ) {
+      return false;
+    }
+
+    const summary =
+      profile.summary ||
+      profile.public_summary ||
+      null;
+
+    const banner =
+      profile.banner ||
+      null;
+
+    if (
+      !summary ||
+      !banner
+    ) {
+      el.textContent =
+        "Governed profile presentation is unavailable.";
+
+      return false;
+    }
+
+    el.innerHTML = `
+      <div class="profile-engine-kicker">
+        STATS-CORE Governed Athlete Profile
+      </div>
+
+      <h2>
+        ${escapeHTML(summary.title)}
+      </h2>
+
+      <p>
+        ${escapeHTML(summary.subtitle)}
+      </p>
+
+      <div class="profile-engine-banner ${escapeHTML(
+        banner.tone ||
+        "neutral"
+      )}">
+        <strong>
+          ${escapeHTML(
+            banner.label
+          )}
+        </strong>
+
+        <span>
+          ${escapeHTML(
+            banner.explanation
+          )}
+        </span>
+      </div>
+
+      <div class="profile-engine-grid">
+        <div>
+          <b>Signal</b>
+          <span>
+            ${escapeHTML(
+              summary.signal
+            )}
+          </span>
+        </div>
+
+        <div>
+          <b>Score</b>
+          <span>
+            ${escapeHTML(
+              summary.score
+            )}
+          </span>
+        </div>
+
+        <div>
+          <b>Pathway</b>
+          <span>
+            ${escapeHTML(
+              summary.pathway
+            )}
+          </span>
+        </div>
+
+        <div>
+          <b>Publication</b>
+          <span>
+            ${escapeHTML(
+              profile.publication
+                ?.publication_state ||
+              "Unavailable"
+            )}
+          </span>
+        </div>
+      </div>
+    `;
+
+    return true;
+  }
+
+  /* ============================================================
+     EXPLANATION ACCESSOR
+
+     No new intelligence is created.
+  ============================================================ */
+
+  function explain(
+    profile
+  ) {
+    if (
+      !profile?.ok
+    ) {
+      return "No governed athlete profile is available.";
+    }
+
+    const identity =
+      profile.identity ||
+      {};
+
+    const summary =
+      profile.summary ||
+      {};
+
+    return [
+      `Athlete: ${
+        identity.athlete_display_name ||
+        "Unavailable"
+      }`,
+
+      `Profile: ${
+        summary.banner ||
+        "Unavailable"
+      }`,
+
+      `Signal: ${
+        summary.signal ||
+        "Unavailable"
+      }`,
+
+      `Pathway: ${
+        summary.pathway ||
+        "Unavailable"
+      }`,
+
+      `Publication: ${
+        profile.publication
+          ?.publication_state ||
+        "Unavailable"
+      }`
+    ].join(" | ");
+  }
+
+  /* ============================================================
+     PUBLIC AUTHORITY
+  ============================================================ */
+
+  const ProfileEngine =
+    Object.freeze({
+      engine:
+        ENGINE,
+
+      version:
+        VERSION,
+
+      owner_stream:
+        OWNER_STREAM,
+
+      status:
+        "ACTIVE",
+
+      classification:
+        "GOVERNED_PROFILE_PROJECTION_PRESENTATION_ENGINE",
+
+      STATUS,
+      AUDIENCE,
+
+      doctrine:
+        Object.freeze({
+          presentation_authority:
+            true,
+
+          intelligence_authority:
+            false,
+
+          calculates_scores:
+            false,
+
+          synthesizes_state:
+            false,
+
+          creates_pathway:
+            false,
+
+          creates_recommendations:
+            false,
+
+          creates_evaluator_drafts:
+            false,
+
+          creates_publication_authority:
+            false,
+
+          creates_recruiting_interest:
+            false,
+
+          creates_thresholds:
+            false,
+
+          consumes_raw_payload:
+            false,
+
+          retains_source_snapshot:
+            false,
+
+          fail_open_role_filtering:
+            false,
+
+          requires_governed_disclosure:
+            true,
+
+          missing_authority_allows_reconstruction:
+            false
+        }),
+
+      normalizeInput,
+
+      validateIdentity,
+
+      validateDisclosure,
+
+      buildIdentityPresentation,
+
+      buildIntelligencePresentation,
+
+      buildExplainabilityPresentation,
+
+      buildPublicationPresentation,
+
+      buildBanner,
+
+      buildSummary,
+
+      buildRoleView,
+
+      assembleProfile,
+
+      renderProfileSummary,
+
+      explain,
+
+      getStatus() {
+        return {
+          engine:
+            ENGINE,
+
+          version:
+            VERSION,
+
+          owner_stream:
+            OWNER_STREAM,
+
+          status:
+            "ACTIVE",
+
+          calculates_scores:
+            false,
+
+          synthesizes_state:
+            false,
+
+          creates_pathway:
+            false,
+
+          creates_recommendations:
+            false,
+
+          creates_evaluator_drafts:
+            false,
+
+          creates_publication_authority:
+            false,
+
+          retains_source_snapshot:
+            false,
+
+          consumes_raw_payload:
+            false,
+
+          requires_governed_disclosure:
+            true,
+
+          generated_at:
+            nowISO()
+        };
+      }
+    });
+
+  global.STATScore.ProfileEngine =
+    ProfileEngine;
+
+  global.STATSCORE_PROFILE_ENGINE =
+    ProfileEngine;
+
+  console.info(
+    "[STATS-CORE] Governed Profile Engine loaded:",
+    VERSION
+  );
+
+})(window); 
