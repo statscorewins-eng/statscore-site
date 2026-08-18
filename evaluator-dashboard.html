@@ -430,14 +430,28 @@ button,input{font-family:inherit}
 .ready{color:var(--green)}
 .info{color:var(--blue)}
 
+.hero-card:first-child{
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+.hero-card:first-child .hero-kicker{
+  flex:0 0 auto;
+}
+
 .assignment-window{
-  height:100%;
+  flex:1 1 auto;
+  min-height:0;
+  width:100%;
   border:1px solid rgba(255,255,255,.11);
   display:grid;
   place-items:center;
   text-align:center;
   padding:18px;
-  background:linear-gradient(135deg,rgba(126,216,255,.10),rgba(0,0,0,.46))
+  background:linear-gradient(135deg,rgba(126,216,255,.10),rgba(0,0,0,.46));
+  box-sizing:border-box;
+  overflow:hidden;
 }
 
 .assignment-window strong{
@@ -745,6 +759,7 @@ button,input{font-family:inherit}
 @media(max-width:900px){
   .page{min-width:1600px}
 }
+
 </style>
 </head>
 
