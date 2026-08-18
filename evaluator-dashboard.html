@@ -721,7 +721,7 @@ button,input{font-family:inherit}
 .footer{
   height:52px;
   display:grid;
-  grid-template-columns:1fr 1fr 1fr;
+  grid-template-columns:220px 1fr 1fr 1fr;
   align-items:center;
   border-top:1px solid rgba(255,255,255,.08);
   color:#c9d6df;
@@ -731,8 +731,15 @@ button,input{font-family:inherit}
   padding:0 16px
 }
 
-.footer div:nth-child(2){text-align:center}
-.footer div:nth-child(3){text-align:right}
+.footer img{
+  width:178px;
+  height:auto;
+  display:block;
+  object-fit:contain;
+}
+
+.footer div:nth-child(3){text-align:center}
+.footer div:nth-child(4){text-align:right}
 .footer .ok{color:var(--green);font-weight:950}
 
 @media(max-width:900px){
@@ -1203,6 +1210,7 @@ button,input{font-family:inherit}
 </section>
 
 <footer class="footer">
+  <img src="sc_logo_i.png" alt="STATS-CORE Athlete Lifecycle System">
   <div>STATS-CORE™ V1.0.0 — Evaluator Dashboard Shell</div>
   <div>National Athlete Infrastructure</div>
   <div class="ok">Shell Prototype Active</div>
