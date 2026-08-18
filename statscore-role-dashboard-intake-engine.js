@@ -6,7 +6,7 @@
    statscore-role-dashboard-intake-engine.js
 
    Version:
-   STREAM_4_ROLE_DASHBOARD_INTAKE_V2.3_PHYS_READY
+   STREAM_4_ROLE_DASHBOARD_INTAKE_V2.4_ROLE_ROUTING_LOCKED
 
    Owner Stream:
    Stream 4 — Professional Role Intake Authority
@@ -20,6 +20,28 @@
    approved Stream 1 Initial Authentication Context Authority
    has been successfully restored and consumed.
 
+   Dashboard Routing Rule:
+   Stream 4 SHALL route a completed Professional Role Intake
+   only to the CSE-locked physical dashboard assigned to the
+   authoritative authenticated role.
+
+   Role selection, query-string values, specialization, workflow,
+   requested tools, credential intent, localStorage, or user-entered
+   titles SHALL NOT determine dashboard authority.
+
+   Administrator Boundary:
+   Administrator access is NOT part of the shared Professional
+   Role Intake path and is intentionally excluded from this router.
+
+   Locked V1 Role Dashboard Routes:
+   parent     -> parent-dashboard.html
+   coach      -> coach-dashboard.html
+   counselor  -> counselor-dashboard.html
+   recruiter  -> recruiter-dashboard.html
+   evaluator  -> evaluator-dashboard.html
+   program    -> program-dashboard.html
+   trainer    -> trainer-dashboard.html
+
    Manufacturing Completion Rule:
    Professional Workspace / Dashboard traversal SHALL NOT be
    released until all of the following exist:
@@ -27,6 +49,7 @@
    1. Authoritative Professional Role Context
    2. Authoritative Stream 4 Manufacturing Receipt
    3. Completed Stream 4 Runtime Handoff
+   4. CSE-locked role dashboard route resolution
 
    Transaction Rule:
    A client-visible transport/RPC failure SHALL NOT be treated
@@ -44,7 +67,7 @@
    - Manufacturing is permanently marked complete
    - Stream 4 editable controls are locked
    - A second manufacturing submission is prohibited
-   - Dashboard is released
+   - Correct role dashboard is released
    - Automatic downstream navigation may occur
 
    Owns:
@@ -59,6 +82,7 @@
    - submission concurrency protection
    - successful-completion duplicate-submission protection
    - runtime handoff release
+   - role-to-dashboard route resolution
    - Dashboard release gate
 
    Depends On:
@@ -78,14 +102,15 @@
    - account creation
    - athlete source truth
    - athlete intelligence
-   - Professional Workspace runtime
+   - Professional Workspace runtime behavior
    - professional certification
    - communication execution
    - Crystal Reports
    - Stream 5 dashboard behavior
+   - Administrator access routing
 
    Manufacturing Status:
-   COMPLETE REPLACEMENT — PHYS READY
+   CONTROLLED REVISION — V1 ROLE ROUTING LOCKED
 
    ========================================================= */
 
@@ -98,16 +123,13 @@
      ========================================================= */
 
   const ENGINE_VERSION =
-    "STREAM_4_ROLE_DASHBOARD_INTAKE_V2.3_PHYS_READY";
+    "STREAM_4_ROLE_DASHBOARD_INTAKE_V2.4_ROLE_ROUTING_LOCKED";
 
   const PAGE =
     "role-dashboard-intake.html";
 
-  const NEXT_PAGE =
-    "role-dashboard.html";
-
   const PROFILE_VERSION =
-    "STREAM_4_PROFESSIONAL_OPERATING_PROFILE_V2.3_PHYS_READY";
+    "STREAM_4_PROFESSIONAL_OPERATING_PROFILE_V2.4_ROLE_ROUTING_LOCKED";
 
   const CREDENTIAL_STATUS =
     "pending_professional_credential_review";
@@ -122,40 +144,54 @@
     "commit_state_indeterminate";
 
 
+  /*
+   * CSE-LOCKED V1 PHYSICAL DASHBOARD ROUTES.
+   *
+   * These filenames are the canonical destinations for the
+   * shared non-athlete Professional Role Intake path.
+   *
+   * Administrator is intentionally excluded.
+   */
+  const ROLE_DASHBOARD_ROUTES =
+    Object.freeze({
+
+      parent:
+        "parent-dashboard.html",
+
+      coach:
+        "coach-dashboard.html",
+
+      counselor:
+        "counselor-dashboard.html",
+
+      recruiter:
+        "recruiter-dashboard.html",
+
+      evaluator:
+        "evaluator-dashboard.html",
+
+      program:
+        "program-dashboard.html",
+
+      trainer:
+        "trainer-dashboard.html"
+
+    });
+
+
   /* =========================================================
      GOVERNED CONTROLLER STATE
      ========================================================= */
 
-  /*
-   * Authentication admission into Stream 4.
-   *
-   * This does NOT mean manufacturing is complete.
-   */
   let INTAKE_ADMITTED =
     false;
 
-
-  /*
-   * Downstream Dashboard release authority.
-   */
   let DASHBOARD_RELEASED =
     false;
 
-
-  /*
-   * Protects against concurrent button clicks while an
-   * asynchronous manufacturing request is executing.
-   */
   let SUBMISSION_IN_PROGRESS =
     false;
 
-
-  /*
-   * Final manufacturing lifecycle state.
-   *
-   * Once TRUE, this intake instance may never manufacture a
-   * second Professional Role Context transaction.
-   */
   let MANUFACTURING_COMPLETE =
     false;
 
@@ -169,6 +205,7 @@
      ========================================================= */
 
   function val(id){
+
     const el =
       $(id);
 
@@ -176,10 +213,12 @@
       el?.value ||
       ""
     ).trim();
+
   }
 
 
   function selectedValues(id){
+
     const el =
       $(id);
 
@@ -197,6 +236,7 @@
           option.value
       )
       .filter(Boolean);
+
   }
 
 
@@ -204,6 +244,7 @@
     id,
     value
   ){
+
     const el =
       $(id);
 
@@ -216,6 +257,7 @@
       value === null
         ? ""
         : value;
+
   }
 
 
@@ -223,6 +265,7 @@
     id,
     value
   ){
+
     const el =
       $(id);
 
@@ -233,6 +276,7 @@
     el.textContent =
       value ||
       "Pending";
+
   }
 
 
@@ -240,6 +284,7 @@
     message,
     kind
   ){
+
     const el =
       $("systemMessage");
 
@@ -255,6 +300,7 @@
       kind === "error"
         ? "#ff2b1f"
         : "#25d366";
+
   }
 
 
@@ -263,51 +309,290 @@
      ========================================================= */
 
   function core(){
+
     if(
       !window
         .STATSCORE_ROLE_INTAKE_CORE
     ){
+
       throw new Error(
         "STATSCORE_ROLE_INTAKE_CORE is not loaded."
       );
+
     }
 
     return window
       .STATSCORE_ROLE_INTAKE_CORE;
+
   }
 
 
   function requireAdmission(){
+
     if(
       !INTAKE_ADMITTED
     ){
+
       throw new Error(
         "Professional Role Intake admission has not been established."
       );
+
     }
 
-    /*
-     * Reconfirm approved Stream 1 authority remains available
-     * through the Stream 4 Core consumer contract.
-     */
     core()
       .requireAuthenticationAuthority();
+
   }
 
 
   function getUser(){
+
     requireAdmission();
 
     return core()
       .getCurrentUser();
+
   }
 
 
   function getRole(){
+
     requireAdmission();
 
     return core()
       .getCurrentRole();
+
+  }
+
+
+  /* =========================================================
+     LOCKED ROLE DASHBOARD ROUTING
+     ========================================================= */
+
+  function normalizeRoleName(
+    value
+  ){
+
+    return String(
+      value ||
+      ""
+    )
+      .trim()
+      .toLowerCase()
+      .replace(
+        /\s+/g,
+        "_"
+      )
+      .replace(
+        /-/g,
+        "_"
+      );
+
+  }
+
+
+  function resolveDashboardRoute(
+    roleName
+  ){
+
+    const role =
+      normalizeRoleName(
+        roleName
+      );
+
+
+    /*
+     * Administrator has its own independent access path.
+     *
+     * Administrator SHALL NOT be routed through shared
+     * Professional Role Intake.
+     */
+    if(
+      role === "administrator" ||
+      role === "admin"
+    ){
+
+      return {
+
+        ok:
+          false,
+
+        status:
+          "ADMINISTRATOR_ROUTE_EXCLUDED",
+
+        role,
+
+        destination:
+          null,
+
+        message:
+          "Administrator access is not routed through Professional Role Intake."
+
+      };
+
+    }
+
+
+    if(
+      !Object.prototype
+        .hasOwnProperty
+        .call(
+          ROLE_DASHBOARD_ROUTES,
+          role
+        )
+    ){
+
+      return {
+
+        ok:
+          false,
+
+        status:
+          "ROLE_DASHBOARD_ROUTE_NOT_REGISTERED",
+
+        role,
+
+        destination:
+          null,
+
+        message:
+          `No CSE-locked Professional Dashboard route is registered for role: ${role || "unknown"}.`
+
+      };
+
+    }
+
+
+    return {
+
+      ok:
+        true,
+
+      status:
+        "ROLE_DASHBOARD_ROUTE_RESOLVED",
+
+      role,
+
+      destination:
+        ROLE_DASHBOARD_ROUTES[
+          role
+        ]
+
+    };
+
+  }
+
+
+  function requireDashboardRoute(
+    roleName
+  ){
+
+    const resolution =
+      resolveDashboardRoute(
+        roleName
+      );
+
+
+    if(
+      !resolution.ok
+    ){
+
+      throw new Error(
+        resolution.message ||
+        "Professional Dashboard route could not be resolved."
+      );
+
+    }
+
+
+    return resolution;
+
+  }
+
+
+  function buildDashboardUrl(
+    destination,
+    context,
+    profile
+  ){
+
+    if(
+      !destination
+    ){
+
+      throw new Error(
+        "Dashboard destination is required."
+      );
+
+    }
+
+
+    if(
+      !context?.role_context_id ||
+      !context?.role_instance_id
+    ){
+
+      throw new Error(
+        "Dashboard route requires authoritative Stream 4 role context identifiers."
+      );
+
+    }
+
+
+    const dashboardConfigKey =
+      profile
+        ?.workspace_context
+        ?.dashboard_config_key;
+
+
+    if(
+      !dashboardConfigKey
+    ){
+
+      throw new Error(
+        "Dashboard route requires dashboard_config_key."
+      );
+
+    }
+
+
+    /*
+     * role is included only as presentation / navigation context.
+     *
+     * It is NOT role authority.
+     */
+    return (
+
+      `${destination}` +
+
+      `?role=${encodeURIComponent(
+        context.role_name
+      )}` +
+
+      `&role_context_id=${encodeURIComponent(
+        context.role_context_id
+      )}` +
+
+      `&role_instance_id=${encodeURIComponent(
+        context.role_instance_id
+      )}` +
+
+      `&dashboard_config_key=${encodeURIComponent(
+        dashboardConfigKey
+      )}` +
+
+      `&credential_status=${encodeURIComponent(
+        CREDENTIAL_STATUS
+      )}` +
+
+      `&workspace_status=${encodeURIComponent(
+        WORKSPACE_STATUS
+      )}` +
+
+      `&from=role-dashboard-intake`
+
+    );
+
   }
 
 
@@ -318,15 +603,7 @@
   function setIntakeControlsEnabled(
     enabled
   ){
-    /*
-     * Explicit Stream 4 editable controls only.
-     *
-     * This replaces broad blanket unlocking of every
-     * input/select/textarea/button on the page.
-     *
-     * Read-only and independently governed controls remain
-     * outside this list.
-     */
+
     const editableIds = [
 
       "firstName",
@@ -364,27 +641,34 @@
       "submitRoleBtn",
       "saveDraftBtn",
       "previewBtn"
+
     ];
 
 
     editableIds
-      .forEach(id => {
+      .forEach(
+        id => {
 
-        const el =
-          $(id);
+          const el =
+            $(id);
 
-        if(el){
-          el.disabled =
-            !enabled;
+          if(el){
+
+            el.disabled =
+              !enabled;
+
+          }
+
         }
+      );
 
-      });
   }
 
 
   function setSubmissionLocked(
     locked
   ){
+
     SUBMISSION_IN_PROGRESS =
       Boolean(
         locked
@@ -401,9 +685,6 @@
       $("previewBtn");
 
 
-    /*
-     * Completed manufacturing may NEVER be re-enabled.
-     */
     const disabled =
       locked ||
       !INTAKE_ADMITTED ||
@@ -411,21 +692,28 @@
 
 
     if(submit){
+
       submit.disabled =
         disabled;
+
     }
 
 
     if(save){
+
       save.disabled =
         disabled;
+
     }
 
 
     if(preview){
+
       preview.disabled =
         disabled;
+
     }
+
   }
 
 
@@ -448,9 +736,6 @@
     }
 
 
-    /*
-     * Remove actual navigation authority.
-     */
     dashboard
       .removeAttribute(
         "href"
@@ -475,6 +760,7 @@
         "data-stream4-release-state",
         "locked"
       );
+
   }
 
 
@@ -485,9 +771,11 @@
     if(
       !MANUFACTURING_COMPLETE
     ){
+
       throw new Error(
         "Dashboard release attempted before Stream 4 manufacturing completion."
       );
+
     }
 
 
@@ -496,16 +784,20 @@
 
 
     if(!dashboard){
+
       throw new Error(
         "Dashboard release control is unavailable."
       );
+
     }
 
 
     if(!next){
+
       throw new Error(
         "Dashboard release requires a completed Stream 4 handoff destination."
       );
+
     }
 
 
@@ -535,6 +827,7 @@
         "data-stream4-release-state",
         "released"
       );
+
   }
 
 
@@ -598,6 +891,7 @@
       "Authenticated professional authority could not be established. Return to login.",
       "error"
     );
+
   }
 
 
@@ -606,9 +900,11 @@
     if(
       MANUFACTURING_COMPLETE
     ){
+
       throw new Error(
         "Completed Professional Role Intake cannot be reopened."
       );
+
     }
 
 
@@ -628,13 +924,8 @@
     );
 
 
-    /*
-     * Authentication admission is NOT manufacturing
-     * completion.
-     *
-     * Dashboard remains locked.
-     */
     lockDashboard();
+
   }
 
 
@@ -674,6 +965,7 @@
         fallback ||
         "general"
       );
+
   }
 
 
@@ -703,6 +995,7 @@
       ]
       ?.text ||
       "";
+
   }
 
 
@@ -728,6 +1021,7 @@
       ?.dataset
       ?.group ||
       "";
+
   }
 
 
@@ -763,6 +1057,7 @@
       return {};
 
     }
+
   }
 
 
@@ -803,6 +1098,7 @@
         )
       )
     );
+
   }
 
 
@@ -857,6 +1153,7 @@
       )
 
     ].join("_");
+
   }
 
 
@@ -912,41 +1209,22 @@
         PAGE,
 
 
-      /* -----------------------------------------------------
-         AUTHENTICATED USER CORRELATION
-         ----------------------------------------------------- */
-
       user_identity: {
 
-        /*
-         * user_id originates exclusively from the approved
-         * Stream 1 Initial Authentication Context Authority.
-         */
         user_id:
           user.user_id ||
           null,
 
-
-        /*
-         * Professional email is captured by Stream 4.
-         *
-         * It is NOT manufactured from Initial Authentication
-         * Context because that contract does not publish email.
-         */
         email:
           val(
             "email"
           ),
 
-
         display_name:
           name
+
       },
 
-
-      /* -----------------------------------------------------
-         PROFESSIONAL PROFILE
-         ----------------------------------------------------- */
 
       professional_identity: {
 
@@ -977,56 +1255,35 @@
           val(
             "officialTitle"
           )
+
       },
 
 
-      /* -----------------------------------------------------
-         AUTHENTICATED ROLE IDENTITY
-         ----------------------------------------------------- */
-
       role_identity: {
 
-        /*
-         * Role originates exclusively from Stream 1.
-         */
         role_name:
           role.role_name,
 
-
-        /*
-         * Stream 1 does not publish sc_role_id.
-         *
-         * Stream 4 Core resolves the enterprise role record
-         * from sc_roles during governed manufacture.
-         */
         sc_role_id:
           null,
-
 
         login_role_locked:
           true,
 
-
         authentication_authority_validated:
           true,
-
 
         specialization_key:
           specializationKey,
 
-
         specialization_label:
           specializationLabel,
 
-
         specialization_group:
           getSpecializationGroup()
+
       },
 
-
-      /* -----------------------------------------------------
-         ORGANIZATION CONTEXT
-         ----------------------------------------------------- */
 
       organization_context: {
 
@@ -1049,12 +1306,9 @@
           val(
             "organizationUrl"
           )
+
       },
 
-
-      /* -----------------------------------------------------
-         SPORT / POSITION / EVENT CONTEXT
-         ----------------------------------------------------- */
 
       scope_context: {
 
@@ -1073,12 +1327,9 @@
           val(
             "competitionContext"
           )
+
       },
 
-
-      /* -----------------------------------------------------
-         REQUESTED ACCESS
-         ----------------------------------------------------- */
 
       access_context: {
 
@@ -1091,12 +1342,9 @@
           val(
             "assignedAccessType"
           )
+
       },
 
-
-      /* -----------------------------------------------------
-         REQUESTED WORKSPACE CONFIGURATION
-         ----------------------------------------------------- */
 
       workspace_context: {
 
@@ -1110,12 +1358,9 @@
 
         workspace_status:
           WORKSPACE_STATUS
+
       },
 
-
-      /* -----------------------------------------------------
-         COMMUNICATION IDENTITY CONTEXT
-         ----------------------------------------------------- */
 
       communication_context: {
 
@@ -1126,12 +1371,9 @@
 
         multibox_from_identity:
           name
+
       },
 
-
-      /* -----------------------------------------------------
-         STREAM 10 REVIEW REQUEST CONTEXT
-         ----------------------------------------------------- */
 
       credential_review_context: {
 
@@ -1152,12 +1394,9 @@
           val(
             "credentialNotes"
           )
+
       },
 
-
-      /* -----------------------------------------------------
-         OPERATING NOTES
-         ----------------------------------------------------- */
 
       operating_context: {
 
@@ -1180,6 +1419,7 @@
 
 
     return profile;
+
   }
 
 
@@ -1314,8 +1554,11 @@
           val(
             "operatingNotes"
           )
+
       }
+
     };
+
   }
 
 
@@ -1343,13 +1586,27 @@
 
 
     /*
-     * URL role remains navigation / presentation context.
-     *
-     * It is NOT authentication authority.
+     * Route authority comes from the authenticated Stream 1
+     * role carried into the Stream 4 governed profile.
+     */
+    const routeResolution =
+      requireDashboardRoute(
+        profile
+          .role_identity
+          .role_name
+      );
+
+
+    /*
+     * Before persistence, context IDs do not yet exist, so this
+     * preliminary handoff destination intentionally carries only
+     * the dashboard_config_key and pending review state.
      */
     const nextPage =
 
-      `${NEXT_PAGE}?role=${encodeURIComponent(
+      `${routeResolution.destination}` +
+
+      `?role=${encodeURIComponent(
         profile.role_identity.role_name
       )}` +
 
@@ -1430,6 +1687,7 @@
         role_identity:
           profile
             .role_identity
+
       },
 
 
@@ -1462,6 +1720,7 @@
           profile
             .operating_context
             .operating_notes
+
       },
 
 
@@ -1476,7 +1735,10 @@
             .role_name,
 
         default_dashboard:
-          NEXT_PAGE,
+          routeResolution.destination,
+
+        dashboard_route_status:
+          routeResolution.status,
 
         primary_workflow:
           profile
@@ -1533,6 +1795,7 @@
 
         credential_status:
           CREDENTIAL_STATUS
+
       },
 
 
@@ -1565,6 +1828,7 @@
 
         source_page:
           PAGE
+
       },
 
 
@@ -1599,6 +1863,11 @@
             .role_identity
             .specialization_label,
 
+        /*
+         * Stream 4 publishes specialization defaults as request /
+         * configuration context only. These values are NOT
+         * operational permission authority.
+         */
         specialization_default_permissions:
           getSpecializationPermissions(),
 
@@ -1621,6 +1890,7 @@
           profile
             .workspace_context
             .requested_dashboard_modules
+
       },
 
 
@@ -1628,6 +1898,7 @@
         "professional_operating_profile_completed"
 
     };
+
   }
 
 
@@ -1653,19 +1924,26 @@
     }
 
 
+    /*
+     * Administrator does not traverse shared Professional Intake.
+     */
+    requireDashboardRoute(
+      role.role_name
+    );
+
+
     select.innerHTML =
       `<option value="">Select specialization</option>`;
 
 
-    /*
-     * This should be unreachable after approved admission.
-     */
     if(
       !role.role_name
     ){
+
       throw new Error(
         "Authenticated professional role unavailable after intake admission."
       );
+
     }
 
 
@@ -1710,6 +1988,7 @@
 
 
       return;
+
     }
 
 
@@ -1754,6 +2033,7 @@
 
       }
     );
+
   }
 
 
@@ -1798,6 +2078,7 @@
 
         }
       );
+
   }
 
 
@@ -1949,6 +2230,7 @@
       snapshot.requestedDashboardModules ||
       []
     );
+
   }
 
 
@@ -2008,6 +2290,7 @@
       );
 
     }
+
   }
 
 
@@ -2047,6 +2330,7 @@
       );
 
     }
+
   }
 
 
@@ -2070,9 +2354,11 @@
     if(
       MANUFACTURING_COMPLETE
     ){
+
       return (
         "Professional Role Intake manufacturing is already complete."
       );
+
     }
 
 
@@ -2090,8 +2376,26 @@
     if(
       !authorityValidation.ok
     ){
+
       return authorityValidation
         .message;
+
+    }
+
+
+    const routeResolution =
+      resolveDashboardRoute(
+        role.role_name
+      );
+
+
+    if(
+      !routeResolution.ok
+    ){
+
+      return routeResolution
+        .message;
+
     }
 
 
@@ -2147,13 +2451,16 @@
           id
         )
       ){
+
         return message;
+
       }
 
     }
 
 
     return "";
+
   }
 
 
@@ -2271,16 +2578,6 @@
       "Pending Credential Review"
     );
 
-
-    /*
-     * CRITICAL GOVERNANCE RULE:
-     *
-     * NO Dashboard URL is published here.
-     *
-     * "Profile Ready" means form readiness only.
-     *
-     * It does NOT mean manufacturing completion.
-     */
   }
 
 
@@ -2289,16 +2586,6 @@
      ========================================================= */
 
   async function completeProfile(){
-
-    /*
-     * =======================================================
-     * DUPLICATE / CONCURRENT MANUFACTURING GUARD
-     * =======================================================
-     *
-     * Prevent:
-     * - concurrent submissions;
-     * - second manufacturing after authoritative completion.
-     */
 
     if(
       SUBMISSION_IN_PROGRESS ||
@@ -2328,13 +2615,10 @@
 
 
         return;
+
       }
 
 
-      /*
-       * Manufacturing always begins with downstream release
-       * closed.
-       */
       lockDashboard();
 
 
@@ -2348,43 +2632,12 @@
       );
 
 
-      /*
-       * Stream 4 Core:
-       *
-       * Authentication authority
-       *       ↓
-       * registered role resolution
-       *       ↓
-       * manufacturing transaction UUID
-       *       ↓
-       * atomic PostgreSQL RPC
-       *       ↓
-       * authoritative context + receipt
-       */
       const result =
         await core()
           .createRoleContext(
             buildContextPayload()
           );
 
-
-      /* =====================================================
-         COMMIT STATE INDETERMINATE
-         =====================================================
-
-         Client cannot conclusively prove whether the database
-         transaction committed.
-
-         The Core retains the SAME transaction UUID.
-
-         Therefore:
-
-         - manufacturing remains incomplete locally;
-         - Dashboard remains locked;
-         - no runtime release occurs;
-         - controlled retry is permitted;
-         - retry resolves authoritative database truth.
-         ===================================================== */
 
       if(
         result
@@ -2402,12 +2655,9 @@
 
 
         return;
+
       }
 
-
-      /* =====================================================
-         UNKNOWN / UNGOVERNED TRANSACTION STATE
-         ===================================================== */
 
       if(
         result
@@ -2421,12 +2671,9 @@
         throw new Error(
           "Professional Role Intake returned an unknown transaction state."
         );
+
       }
 
-
-      /* =====================================================
-         AUTHORITATIVE MANUFACTURING UNIT
-         ===================================================== */
 
       const context =
         result.context;
@@ -2440,10 +2687,6 @@
         result.handoff;
 
 
-      /*
-       * A completed database response without all required
-       * authoritative manufacturing outputs remains blocked.
-       */
       if(
         !context ||
         !receipt ||
@@ -2456,36 +2699,40 @@
         throw new Error(
           "Professional Role Intake completed without authoritative context, receipt, and runtime handoff evidence."
         );
+
       }
 
 
-      /*
-       * Additional physical contract checks.
-       */
       if(
         !context.role_context_id
       ){
+
         throw new Error(
           "Authoritative Professional Role Context is missing role_context_id."
         );
+
       }
 
 
       if(
         !context.role_instance_id
       ){
+
         throw new Error(
           "Authoritative Professional Role Context is missing role_instance_id."
         );
+
       }
 
 
       if(
         !receipt.receipt_id
       ){
+
         throw new Error(
           "Authoritative Stream 4 Manufacturing Receipt is missing receipt_id."
         );
+
       }
 
 
@@ -2501,20 +2748,24 @@
           ?.workspace_context
           ?.dashboard_config_key
       ){
+
         throw new Error(
           "Completed Professional Operating Profile is missing dashboard configuration authority."
         );
+
       }
 
 
-      /* =====================================================
-         DOWNSTREAM STREAM 4 OPERATIONAL PUBLICATION
-         =====================================================
+      /*
+       * Resolve the final physical Dashboard strictly from the
+       * authoritative role carried by the completed Stream 4
+       * context.
+       */
+      const routeResolution =
+        requireDashboardRoute(
+          context.role_name
+        );
 
-         These are operational outputs.
-
-         NONE constitute authentication authority.
-         ===================================================== */
 
       localStorage.setItem(
         "STATSCORE_PROFESSIONAL_OPERATING_PROFILE",
@@ -2532,6 +2783,10 @@
       );
 
 
+      /*
+       * These are downstream operational presentation values.
+       * They are NOT credential / access authority.
+       */
       localStorage.setItem(
         "STATSCORE_CREDENTIAL_STATUS",
         CREDENTIAL_STATUS
@@ -2544,52 +2799,13 @@
       );
 
 
-      /* =====================================================
-         DOWNSTREAM ROUTE
-         ===================================================== */
-
       const next =
+        buildDashboardUrl(
+          routeResolution.destination,
+          context,
+          profile
+        );
 
-        `${NEXT_PAGE}?role=${encodeURIComponent(
-          context.role_name
-        )}` +
-
-        `&role_context_id=${encodeURIComponent(
-          context.role_context_id
-        )}` +
-
-        `&role_instance_id=${encodeURIComponent(
-          context.role_instance_id
-        )}` +
-
-        `&dashboard_config_key=${encodeURIComponent(
-          profile.workspace_context.dashboard_config_key
-        )}` +
-
-        `&credential_status=${encodeURIComponent(
-          CREDENTIAL_STATUS
-        )}` +
-
-        `&workspace_status=${encodeURIComponent(
-          WORKSPACE_STATUS
-        )}` +
-
-        `&from=role-dashboard-intake`;
-
-
-      /* =====================================================
-         AUTHORITATIVE MANUFACTURING COMPLETION
-         =====================================================
-
-         At this exact boundary Stream 4 has proven:
-
-         ✓ authoritative Professional Role Context
-         ✓ authoritative Manufacturing Receipt
-         ✓ completed Stream 4 runtime handoff
-
-         This intake instance may NEVER manufacture a second
-         transaction.
-         ===================================================== */
 
       MANUFACTURING_COMPLETE =
         true;
@@ -2602,9 +2818,6 @@
           "complete";
 
 
-      /*
-       * Permanently close all Stream 4 manufacturing controls.
-       */
       setIntakeControlsEnabled(
         false
       );
@@ -2616,10 +2829,6 @@
       );
 
 
-      /*
-       * Dashboard release occurs ONLY after manufacturing
-       * becomes permanently complete.
-       */
       releaseDashboard(
         next
       );
@@ -2636,9 +2845,6 @@
       );
 
 
-      /*
-       * Enterprise diagnostic / evidence event.
-       */
       document.dispatchEvent(
 
         new CustomEvent(
@@ -2676,6 +2882,14 @@
                 context
                   .role_name,
 
+              dashboard_destination:
+                routeResolution
+                  .destination,
+
+              dashboard_route_status:
+                routeResolution
+                  .status,
+
               user_id:
                 context
                   .user_id,
@@ -2695,12 +2909,6 @@
       );
 
 
-      /*
-       * Brief controlled transition interval.
-       *
-       * Manufacturing controls remain permanently locked
-       * throughout this interval.
-       */
       setTimeout(
         () => {
 
@@ -2726,10 +2934,6 @@
       );
 
 
-      /*
-       * Any non-complete manufacturing condition remains
-       * downstream fail-closed.
-       */
       lockDashboard();
 
 
@@ -2742,18 +2946,6 @@
 
     }finally{
 
-      /* =====================================================
-         POST-TRANSACTION CONTROL DISCIPLINE
-         =====================================================
-
-         FAILURE / INDETERMINATE:
-         Manufacturing is not locally complete.
-         Controlled retry is allowed.
-
-         SUCCESS:
-         MANUFACTURING_COMPLETE = true.
-         Manufacturing controls remain permanently locked.
-         ===================================================== */
 
       if(
         !MANUFACTURING_COMPLETE
@@ -2766,6 +2958,7 @@
       }
 
     }
+
   }
 
 
@@ -2815,6 +3008,7 @@
       );
 
     }
+
   }
 
 
@@ -2865,6 +3059,7 @@
 
         }
       );
+
   }
 
 
@@ -2874,33 +3069,12 @@
 
   async function init(){
 
-    /*
-     * =======================================================
-     * PHYSICAL STARTUP STATE
-     * =======================================================
-     *
-     * Professional Role Intake begins fail-closed.
-     */
-
     failClosed(
       "Establishing authenticated professional authority..."
     );
 
 
     try{
-
-      /* =====================================================
-         FIRST AUTHORITY OPERATION
-         =====================================================
-
-         Stream 1 owns:
-
-         - Initial Authentication Context validation
-         - sessionStorage restoration
-         - runtime / persisted authority precedence
-
-         Stream 4 merely consumes the approved authority.
-         ===================================================== */
 
       const authority =
         await Promise.resolve(
@@ -2924,19 +3098,9 @@
 
 
         return;
+
       }
 
-
-      /* =====================================================
-         STREAM 4 ADMISSION
-         =====================================================
-
-         Authentication authority is established.
-
-         Professional Intake may now initialize.
-
-         Dashboard remains locked.
-         ===================================================== */
 
       admitIntake();
 
@@ -2966,17 +3130,33 @@
 
 
         return;
+
       }
 
 
-      /* =====================================================
-         AUTHENTICATED ROLE PRESENTATION
-         =====================================================
+      /*
+       * Enforce the CSE-locked shared-role dashboard population
+       * before Stream 4 intake is allowed to proceed.
+       */
+      const routeResolution =
+        resolveDashboardRoute(
+          role.role_name
+        );
 
-         "Login Verified" is now truthful because this display
-         occurs only after approved Stream 1 authority has been
-         established and consumed.
-         ===================================================== */
+
+      if(
+        !routeResolution.ok
+      ){
+
+        failClosed(
+          routeResolution.message
+        );
+
+
+        return;
+
+      }
+
 
       setValue(
         "detectedRole",
@@ -2984,23 +3164,11 @@
       );
 
 
-      /*
-       * Stream 1 Initial Authentication Context intentionally
-       * does not publish professional email.
-       *
-       * Email remains empty unless:
-       * - restored from governed Stream 4 draft, or
-       * - entered by professional.
-       */
       setValue(
         "email",
         ""
       );
 
-
-      /* =====================================================
-         GOVERNED STREAM 4 INITIALIZATION
-         ===================================================== */
 
       await loadSpecializations();
 
@@ -3011,12 +3179,6 @@
 
       }catch(err){
 
-        /*
-         * Draft restoration failure is recoverable.
-         *
-         * It does not invalidate successful authenticated
-         * Stream 4 admission.
-         */
         console.warn(
           "Professional draft restore skipped:",
           err
@@ -3035,10 +3197,6 @@
         "Professional intake ready."
       );
 
-
-      /* =====================================================
-         PHYS / ENTERPRISE DIAGNOSTIC EVENT
-         ===================================================== */
 
       document.dispatchEvent(
 
@@ -3062,6 +3220,14 @@
 
               authentication_source:
                 authority.authentication_source,
+
+              dashboard_destination:
+                routeResolution
+                  .destination,
+
+              dashboard_route_status:
+                routeResolution
+                  .status,
 
               intake_admitted:
                 true,
@@ -3097,6 +3263,7 @@
       );
 
     }
+
   }
 
 
@@ -3115,6 +3282,18 @@
     buildDraftPayload,
 
     buildContextPayload,
+
+
+    resolveDashboardRoute,
+
+
+    getDashboardRoutes(){
+
+      return {
+        ...ROLE_DASHBOARD_ROUTES
+      };
+
+    },
 
 
     saveDraft,
@@ -3167,6 +3346,20 @@
 
     getRuntimeState(){
 
+      const role =
+        INTAKE_ADMITTED
+          ? getRole()
+          : null;
+
+
+      const route =
+        role
+          ? resolveDashboardRoute(
+              role.role_name
+            )
+          : null;
+
+
       return {
 
         engine_version:
@@ -3183,6 +3376,9 @@
 
         dashboard_released:
           DASHBOARD_RELEASED,
+
+        dashboard_route:
+          route,
 
         manufacturing_transaction_id:
           core()
