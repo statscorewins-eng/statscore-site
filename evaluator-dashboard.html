@@ -1,0 +1,1236 @@
+<!--
+==========================================================
+STATS-CORE™ V1.0.0
+NON-ATHLETE DASHBOARD SHELL — WORKING PROTOTYPE
+==========================================================
+
+File:
+evaluator-dashboard.html
+
+Asset Type:
+HTML Presentation / Operational Shell Prototype
+
+Role:
+PHNX Certified Evaluator
+
+Working Owner:
+Stream 5 — Professional Workspace / Role Operations
+
+Cross-Stream Dependencies:
+Stream 10 — PHNX Certification / Trust / Authority
+Stream 2  — Athlete Profile / Snapshot Intake
+Stream 8  — Runtime / Routing
+Stream 9  — Athletic Intelligence interpretation after governed evidence exists
+
+Purpose:
+Establish the approved V1 non-athlete dashboard shell using
+athlete-dashboard.html as the visual blueprint.
+
+This prototype validates:
+- shared non-athlete shell appearance
+- full-width white header
+- professional Name + PHNX ID placement
+- role-specific command title
+- plain-text navigation with no role icon
+- Evaluator-specific panel/window layout
+- route to existing snapshot-intake.html for new athlete setup
+
+This prototype DOES NOT:
+- render athlete intelligence
+- calculate Athletic Snapshot
+- calculate station scores
+- validate PHNX Certification
+- create Evaluator authority
+- create Camp/Combine station science
+- create production/verification intelligence
+- grant Administrative Identity or Administrative Authority
+
+CSE Rule:
+Shell validation only. No new V1 intelligence authority is created here.
+
+==========================================================
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>STATS-CORE™ | Evaluator Dashboard</title>
+<link rel="icon" type="image/png" href="sc_emblem.png" />
+
+<style>
+:root{
+  --red:#ff2b1f;
+  --red2:#b90710;
+  --gold:#f4c542;
+  --green:#25d366;
+  --blue:#7ed8ff;
+  --purple:#8b7cff;
+  --white:#f4f4ef;
+  --bg:#020407;
+  --panel:rgba(5,9,15,.90);
+  --panel2:rgba(8,13,20,.94);
+  --line:rgba(255,255,255,.10);
+  --text:#f4f4ef;
+  --muted:#aeb8c4;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  width:100%;
+  min-height:100%;
+  background:#000;
+  color:var(--text);
+  font-family:Arial,Helvetica,sans-serif
+}
+body{overflow:auto}
+a{text-decoration:none;color:inherit;display:block}
+button,input{font-family:inherit}
+
+.page{
+  width:1600px;
+  min-width:1600px;
+  min-height:100vh;
+  margin:0 auto;
+  background:
+    linear-gradient(90deg,rgba(0,0,0,.98),rgba(4,8,14,.94),rgba(0,0,0,.98)),
+    radial-gradient(circle at 52% 38%,rgba(0,140,255,.12),transparent 44%),
+    repeating-linear-gradient(
+      135deg,
+      rgba(255,255,255,.012) 0,
+      rgba(255,255,255,.012) 1px,
+      transparent 1px,
+      transparent 8px
+    ),
+    #020407;
+}
+
+/* ======================================================
+   V1 NON-ATHLETE HEADER
+   Full-width white header.
+   No STATS-CORE logo tab.
+   No role icon.
+   ====================================================== */
+.header{
+  height:104px;
+  background:linear-gradient(180deg,#fff,#ececec);
+  border-bottom:3px solid var(--red);
+  display:grid;
+  grid-template-columns:390px 1fr 520px;
+  align-items:center;
+  position:relative;
+  z-index:50;
+}
+
+.professional-identity{
+  height:104px;
+  padding:16px 26px 14px 30px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  border-right:1px solid rgba(0,0,0,.14);
+  color:#111;
+}
+
+.professional-name{
+  font-size:1.20rem;
+  line-height:1;
+  font-weight:950;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+  margin-bottom:7px;
+}
+
+.professional-id{
+  font-size:.68rem;
+  line-height:1.2;
+  font-weight:950;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--red2);
+}
+
+.professional-cert{
+  margin-top:5px;
+  font-size:.55rem;
+  line-height:1.2;
+  font-weight:900;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  color:#3d4650;
+}
+
+.header-title{
+  text-align:center;
+  color:#111;
+  font-weight:950;
+  font-size:.80rem;
+  letter-spacing:.24em;
+  text-transform:uppercase;
+  line-height:1.45;
+  padding:0 20px;
+}
+
+.header-tools{
+  position:relative;
+  padding:10px 20px 10px 0;
+  display:grid;
+  grid-template-rows:32px 36px;
+  gap:8px
+}
+
+.utility-row{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:10px
+}
+
+.utility-search{
+  width:305px;
+  height:32px;
+  border:1px solid rgba(0,0,0,.26);
+  background:rgba(255,255,255,.78);
+  color:#111;
+  padding:0 10px;
+  font-size:.62rem;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  outline:none;
+}
+
+.utility-status{
+  height:32px;
+  min-width:150px;
+  padding:0 10px;
+  border:1px solid rgba(0,0,0,.22);
+  color:#111;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:.54rem;
+  font-weight:950;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  background:rgba(255,255,255,.55);
+}
+
+.top-nav{
+  display:flex;
+  justify-content:flex-end;
+  gap:7px
+}
+
+.top-nav a{
+  height:30px;
+  min-width:80px;
+  border:1px solid rgba(0,0,0,.22);
+  color:#111;
+  background:rgba(255,255,255,.55);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:.56rem;
+  font-weight:950;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+
+.top-nav a.active{
+  color:var(--red);
+  border-color:var(--red);
+  background:rgba(255,43,31,.08)
+}
+
+.top-nav a.disabled{
+  opacity:.48;
+  cursor:not-allowed;
+  pointer-events:none;
+}
+
+/* LAYOUT */
+.main{padding:10px 8px 0}
+.shell{
+  display:grid;
+  grid-template-columns:190px minmax(0,1fr) 280px;
+  gap:8px;
+  align-items:stretch
+}
+
+.panel{
+  background:linear-gradient(180deg,var(--panel2),var(--panel));
+  border:1px solid var(--line);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.025)
+}
+
+.panel:hover{
+  border-color:rgba(126,216,255,.34);
+  box-shadow:0 0 0 1px rgba(126,216,255,.10), inset 0 0 0 1px rgba(255,255,255,.025)
+}
+
+.section-title{
+  color:var(--red);
+  font-size:.62rem;
+  font-weight:950;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  margin-bottom:10px
+}
+
+/* LEFT RAIL */
+.left-rail{
+  display:grid;
+  gap:8px;
+  align-content:start;
+  grid-template-rows:auto auto 1fr
+}
+
+.nav-box,.quick-box,.role-intel{padding:12px}
+
+.nav-item{
+  min-height:32px;
+  display:flex;
+  align-items:center;
+  padding:0 10px;
+  border:1px solid transparent;
+  color:#dce7ef;
+  font-size:.64rem;
+  font-weight:900;
+}
+
+.nav-item.active{
+  color:#fff;
+  background:linear-gradient(90deg,var(--red2),var(--red));
+  border-color:rgba(255,255,255,.14)
+}
+
+.nav-item.disabled{
+  opacity:.42;
+  pointer-events:none
+}
+
+.quick-btn{
+  min-height:30px;
+  margin-bottom:7px;
+  border:1px solid rgba(255,255,255,.10);
+  padding:7px 9px;
+  display:flex;
+  align-items:center;
+  color:#e7f6ff;
+  font-size:.60rem;
+  font-weight:900;
+}
+
+.quick-btn.red{
+  color:#fff;
+  background:linear-gradient(90deg,var(--red2),var(--red))
+}
+
+.role-intel{
+  border:2px solid var(--red)!important;
+  background:linear-gradient(180deg,rgba(8,13,20,.98),rgba(4,8,14,.95))!important;
+  box-shadow:inset 0 0 0 1px rgba(255,43,31,.18)!important;
+  min-height:260px
+}
+
+.intel-row{
+  display:grid;
+  grid-template-columns:10px 1fr auto;
+  gap:8px;
+  align-items:center;
+  margin:9px 0;
+  font-size:.60rem;
+  font-weight:900
+}
+
+.dot{width:8px;height:8px;border-radius:50%}
+.dot.red{background:var(--red)}
+.dot.gold{background:var(--gold)}
+.dot.green{background:var(--green)}
+
+.color-key{
+  border-top:1px solid rgba(255,255,255,.08);
+  margin-top:10px;
+  padding-top:8px;
+  display:grid;
+  gap:5px;
+  color:var(--muted);
+  font-size:.53rem;
+  font-weight:900;
+  line-height:1.4
+}
+
+/* CENTER */
+.center{display:grid;gap:8px}
+
+.hero{
+  display:grid;
+  grid-template-columns:300px minmax(0,1fr) 365px;
+  gap:8px
+}
+
+.hero-card{
+  height:236px;
+  min-height:236px;
+  padding:15px
+}
+
+.hero-kicker{
+  color:var(--red);
+  font-size:.62rem;
+  font-weight:950;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  margin-bottom:9px
+}
+
+.hero-title{
+  font-family:"Arial Narrow","Helvetica Neue Condensed",Impact,Arial,sans-serif;
+  color:var(--blue);
+  font-size:2.2rem;
+  line-height:.95;
+  letter-spacing:.015em;
+  text-transform:uppercase;
+  margin-bottom:12px;
+  text-shadow:0 0 14px rgba(126,216,255,.38)
+}
+
+.hero-copy{
+  color:var(--muted);
+  font-size:.64rem;
+  line-height:1.55;
+  max-width:95%
+}
+
+.status-stack{
+  display:grid;
+  gap:8px;
+  margin-top:15px
+}
+
+.status-line{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  padding-bottom:7px;
+  font-size:.60rem;
+  font-weight:900
+}
+
+.status-line span{color:#dcebf4}
+.status-line b{
+  font-size:.55rem;
+  text-transform:uppercase
+}
+
+.pending{color:var(--gold)}
+.ready{color:var(--green)}
+.info{color:var(--blue)}
+
+.assignment-window{
+  height:100%;
+  border:1px solid rgba(255,255,255,.11);
+  display:grid;
+  place-items:center;
+  text-align:center;
+  padding:18px;
+  background:linear-gradient(135deg,rgba(126,216,255,.10),rgba(0,0,0,.46))
+}
+
+.assignment-window strong{
+  display:block;
+  color:#fff;
+  font-size:1.10rem;
+  letter-spacing:.05em;
+  text-transform:uppercase
+}
+
+.assignment-window span{
+  display:block;
+  margin-top:8px;
+  color:var(--blue);
+  font-size:.60rem;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase
+}
+
+/* SUMMARY */
+.summary-grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px
+}
+
+.stat-card{
+  min-height:116px;
+  padding:13px
+}
+
+.stat-card h3{
+  color:#dfeaf1;
+  font-size:.62rem;
+  font-weight:950;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  margin-bottom:10px
+}
+
+.stat-card b{
+  display:block;
+  font-size:1.30rem;
+  margin:5px 0;
+  color:#fff
+}
+
+.stat-card p{
+  color:var(--muted);
+  font-size:.58rem;
+  line-height:1.45
+}
+
+/* MID */
+.mid-grid{
+  display:grid;
+  grid-template-columns:1.05fr 1fr 1fr 1fr;
+  gap:8px
+}
+
+.block{
+  padding:12px;
+  min-height:178px
+}
+
+.block h3{
+  color:var(--red);
+  font-size:.66rem;
+  font-weight:950;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  margin-bottom:10px
+}
+
+.empty-window{
+  min-height:88px;
+  border:1px solid rgba(255,255,255,.12);
+  background:linear-gradient(135deg,rgba(126,216,255,.08),rgba(0,0,0,.42));
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:12px;
+  text-align:center
+}
+
+.empty-window b{
+  color:#fff;
+  font-size:.70rem;
+  text-transform:uppercase
+}
+
+.empty-window span{
+  margin-top:6px;
+  color:var(--muted);
+  font-size:.55rem;
+  line-height:1.4
+}
+
+.action-btn{
+  min-height:30px;
+  margin-top:9px;
+  border:1px solid rgba(255,255,255,.14);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:7px 9px;
+  color:#fff;
+  font-size:.56rem;
+  font-weight:950;
+  text-transform:uppercase
+}
+
+.action-btn.red{
+  border-color:rgba(255,43,31,.72);
+  color:var(--red)
+}
+
+.action-btn.green{
+  border-color:rgba(37,211,102,.52);
+  color:var(--green)
+}
+
+.action-btn.disabled{
+  opacity:.45;
+  pointer-events:none
+}
+
+/* LOWER */
+.lower-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px
+}
+
+.list-row{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:10px;
+  align-items:center;
+  padding:8px 0;
+  border-bottom:1px solid rgba(255,255,255,.06)
+}
+
+.list-row b{
+  display:block;
+  font-size:.61rem
+}
+
+.list-row span{
+  display:block;
+  color:var(--muted);
+  font-size:.53rem;
+  margin-top:3px
+}
+
+.list-row time{
+  color:var(--blue);
+  font-size:.50rem;
+  font-weight:900
+}
+
+/* RIGHT RAIL */
+.right-rail{
+  display:grid;
+  gap:8px;
+  align-content:start;
+  width:280px
+}
+
+.side-card{padding:13px}
+
+.side-card h3{
+  color:var(--red);
+  font-size:.61rem;
+  letter-spacing:.10em;
+  text-transform:uppercase;
+  margin-bottom:12px;
+  white-space:nowrap
+}
+
+.gov-row{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:8px;
+  align-items:center;
+  padding:9px 0;
+  border-bottom:1px solid rgba(255,255,255,.06)
+}
+
+.gov-row span{
+  font-size:.61rem;
+  color:#dcebf4;
+  font-weight:800
+}
+
+.gov-row b{
+  font-size:.54rem;
+  text-transform:uppercase
+}
+
+.next-row{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:8px;
+  padding:8px 0;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  align-items:center
+}
+
+.next-row span{
+  color:#dcebf4;
+  font-size:.59rem
+}
+
+.next-row b{
+  font-size:.51rem;
+  text-transform:uppercase
+}
+
+/* FLOW */
+.flow{
+  margin-top:8px;
+  display:grid;
+  grid-template-columns:180px repeat(5,1fr) 220px;
+  min-height:58px;
+  border:1px solid var(--line);
+  background:rgba(5,9,15,.88)
+}
+
+.flow-title{
+  color:var(--red);
+  font-size:.72rem;
+  font-weight:950;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  display:flex;
+  align-items:center;
+  padding-left:18px;
+  background:linear-gradient(90deg,rgba(255,43,31,.10),transparent);
+  line-height:1.05
+}
+
+.flow-step{
+  border-left:1px solid rgba(255,255,255,.08);
+  display:flex;
+  align-items:center;
+  padding:0 14px
+}
+
+.flow-step b{
+  display:block;
+  font-size:.59rem;
+  text-transform:uppercase
+}
+
+.flow-step span{
+  color:var(--muted);
+  font-size:.51rem
+}
+
+.flow-step.disabled{
+  opacity:.42;
+  pointer-events:none
+}
+
+.request{
+  margin:8px;
+  border:1px solid var(--red);
+  color:var(--red);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:.63rem;
+  font-weight:950;
+  text-transform:uppercase
+}
+
+/* FOOTER */
+.footer{
+  height:52px;
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  align-items:center;
+  border-top:1px solid rgba(255,255,255,.08);
+  color:#c9d6df;
+  font-size:.60rem;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  padding:0 16px
+}
+
+.footer div:nth-child(2){text-align:center}
+.footer div:nth-child(3){text-align:right}
+.footer .ok{color:var(--green);font-weight:950}
+
+@media(max-width:900px){
+  .page{min-width:1600px}
+}
+</style>
+</head>
+
+<body>
+<div class="page">
+
+<header class="header">
+
+  <div class="professional-identity">
+    <div class="professional-name">Evaluator Name</div>
+    <div class="professional-id">PHNX ID — Pending</div>
+    <div class="professional-cert">PHNX Certified Evaluator — Authority Not Loaded</div>
+  </div>
+
+  <div class="header-title">
+    National Athlete Infrastructure<br>
+    Evaluator Intelligence Command
+  </div>
+
+  <div class="header-tools">
+    <div class="utility-row">
+      <input
+        class="utility-search"
+        type="search"
+        placeholder="Search athlete / event..."
+        aria-label="Search athlete or event"
+        disabled
+      >
+      <div class="utility-status">Shell Preview</div>
+    </div>
+
+    <nav class="top-nav">
+      <a class="active" href="evaluator-dashboard.html">Dashboard</a>
+      <a href="role-dashboard-intake.html">Profile</a>
+      <a class="disabled" href="#" aria-disabled="true">Reports</a>
+      <a href="multi-box.html">Messages</a>
+      <a class="disabled" href="#" aria-disabled="true">Settings</a>
+    </nav>
+  </div>
+</header>
+
+<main class="main">
+
+<div class="shell">
+
+<aside class="left-rail">
+
+  <section class="panel nav-box">
+    <div class="section-title">Evaluator Navigation</div>
+    <a class="nav-item active" href="evaluator-dashboard.html">Dashboard</a>
+    <a class="nav-item" href="role-dashboard-intake.html">Professional Profile</a>
+    <a class="nav-item disabled" href="#">Athlete Check-In</a>
+    <a class="nav-item disabled" href="#">Camp / Combine</a>
+    <a class="nav-item disabled" href="#">Evaluation Stations</a>
+    <a class="nav-item disabled" href="#">Evaluation Queue</a>
+    <a class="nav-item disabled" href="#">Evaluation Receipts</a>
+    <a class="nav-item" href="multi-box.html">Multi-Box™</a>
+  </section>
+
+  <section class="panel quick-box">
+    <div class="section-title">Quick Actions</div>
+    <a class="quick-btn red" href="snapshot-intake.html">Register New Athlete</a>
+    <a class="quick-btn disabled" href="#">Find Existing Athlete</a>
+    <a class="quick-btn disabled" href="#">Open Assigned Event</a>
+    <a class="quick-btn disabled" href="#">Open Station Queue</a>
+  </section>
+
+  <section class="panel role-intel">
+    <div class="section-title">Evaluator Workspace</div>
+
+    <div class="intel-row">
+      <span class="dot gold"></span>
+      <span>Certification</span>
+      <b class="pending">Pending</b>
+    </div>
+
+    <div class="intel-row">
+      <span class="dot gold"></span>
+      <span>Assigned Event</span>
+      <b class="pending">None</b>
+    </div>
+
+    <div class="intel-row">
+      <span class="dot gold"></span>
+      <span>Active Athlete</span>
+      <b class="pending">None</b>
+    </div>
+
+    <div class="color-key">
+      <span>V1 shell validation only.</span>
+      <span>No athlete intelligence is rendered.</span>
+      <span>No station scoring is executed.</span>
+    </div>
+  </section>
+
+</aside>
+
+<section class="center">
+
+  <section class="hero">
+
+    <section class="panel hero-card">
+      <div class="hero-kicker">Evaluator Workspace</div>
+      <div class="assignment-window">
+        <div>
+          <strong>No Event Loaded</strong>
+          <span>Camp / Combine Assignment Pending</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel hero-card">
+      <div class="hero-kicker">Professional Operating Profile</div>
+      <h1 class="hero-title">Evaluator Dashboard</h1>
+
+      <p class="hero-copy">
+        This shell is the V1 operating environment for a PHNX Certified Evaluator.
+        Live certification, event assignment, athlete lookup, station entry, receipts,
+        and governed scoring handoffs will be connected only after CSE shell approval.
+      </p>
+
+      <div class="status-stack">
+        <div class="status-line">
+          <span>PHNX Certification</span>
+          <b class="pending">Not Loaded</b>
+        </div>
+        <div class="status-line">
+          <span>Evaluator Scope</span>
+          <b class="pending">Not Loaded</b>
+        </div>
+        <div class="status-line">
+          <span>Sport / Event</span>
+          <b class="pending">Not Loaded</b>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel hero-card">
+      <div class="hero-kicker">Evaluation Session</div>
+
+      <div class="status-stack">
+        <div class="status-line">
+          <span>Session Status</span>
+          <b class="pending">Not Started</b>
+        </div>
+        <div class="status-line">
+          <span>Event</span>
+          <b class="pending">Not Loaded</b>
+        </div>
+        <div class="status-line">
+          <span>Station</span>
+          <b class="pending">Not Loaded</b>
+        </div>
+        <div class="status-line">
+          <span>Athlete</span>
+          <b class="pending">Not Selected</b>
+        </div>
+        <div class="status-line">
+          <span>Submission Receipt</span>
+          <b class="pending">Pending</b>
+        </div>
+      </div>
+    </section>
+
+  </section>
+
+  <section class="summary-grid">
+
+    <section class="panel stat-card">
+      <h3>Athlete Check-In</h3>
+      <b>Pending</b>
+      <p>No athlete selected.</p>
+      <p>Search / check-in runtime not connected.</p>
+    </section>
+
+    <section class="panel stat-card">
+      <h3>Assigned Event</h3>
+      <b>Pending</b>
+      <p>No PHNX Camp / Combine loaded.</p>
+      <p>Event authority not connected.</p>
+    </section>
+
+    <section class="panel stat-card">
+      <h3>Station Progress</h3>
+      <b>—</b>
+      <p>No station registry loaded.</p>
+      <p>Four-sport station runtime pending.</p>
+    </section>
+
+    <section class="panel stat-card">
+      <h3>Evaluation Queue</h3>
+      <b>0</b>
+      <p>No governed station submissions loaded.</p>
+    </section>
+
+    <section class="panel stat-card">
+      <h3>Evaluation Receipts</h3>
+      <b>0</b>
+      <p>No receipts loaded.</p>
+      <p>Provenance runtime pending.</p>
+    </section>
+
+  </section>
+
+  <section class="mid-grid">
+
+    <section class="panel block">
+      <h3>Athlete Search / Check-In</h3>
+      <div class="empty-window">
+        <b>No Athlete Selected</b>
+        <span>
+          Existing-athlete search will be connected after the Evaluator runtime is approved.
+        </span>
+      </div>
+      <a class="action-btn disabled" href="#">Find Existing Athlete</a>
+    </section>
+
+    <section class="panel block">
+      <h3>Camp / Combine Event</h3>
+      <div class="empty-window">
+        <b>No Event Loaded</b>
+        <span>
+          Event assignment, roster, sport and station context are not connected in this shell.
+        </span>
+      </div>
+      <a class="action-btn disabled" href="#">Open Event</a>
+    </section>
+
+    <section class="panel block">
+      <h3>Evaluation Stations</h3>
+      <div class="empty-window">
+        <b>Station System Not Loaded</b>
+        <span>
+          Football, Basketball, Baseball and Track station templates will render here.
+        </span>
+      </div>
+      <a class="action-btn disabled" href="#">Open Stations</a>
+    </section>
+
+    <section class="panel block">
+      <h3>Athlete Registration</h3>
+      <div class="empty-window">
+        <b>New Athlete?</b>
+        <span>
+          Use the existing Athlete Profile Setup when no Athlete ID / Snapshot ID exists.
+        </span>
+      </div>
+      <a class="action-btn green" href="snapshot-intake.html">Open Athlete Profile Setup</a>
+    </section>
+
+  </section>
+
+  <section class="lower-grid">
+
+    <section class="panel block">
+      <h3>Recent Evaluations</h3>
+      <div class="list-row">
+        <div>
+          <b>No Evaluation History Loaded</b>
+          <span>Live history will appear after runtime integration.</span>
+        </div>
+        <time>—</time>
+      </div>
+      <div class="list-row">
+        <div>
+          <b>Historical Attribution</b>
+          <span>Evaluator PHNX ID + time + event + station will be preserved.</span>
+        </div>
+        <time>—</time>
+      </div>
+    </section>
+
+    <section class="panel block">
+      <h3>Evaluation Receipts</h3>
+      <div class="list-row">
+        <div>
+          <b>Receipt Queue Empty</b>
+          <span>No governed submissions in shell preview.</span>
+        </div>
+        <time>—</time>
+      </div>
+      <div class="list-row">
+        <div>
+          <b>Provenance</b>
+          <span>Authority and attribution will be consumed from approved runtime.</span>
+        </div>
+        <time>—</time>
+      </div>
+    </section>
+
+    <section class="panel block">
+      <h3>Multi-Box™ Communication</h3>
+      <div class="list-row">
+        <div>
+          <b>Communication Window</b>
+          <span>Governed communication remains permission-controlled.</span>
+        </div>
+        <time>—</time>
+      </div>
+      <a class="action-btn" href="multi-box.html">Open Multi-Box</a>
+    </section>
+
+    <section class="panel block">
+      <h3>Schedule</h3>
+      <div class="list-row">
+        <div>
+          <b>No Event Schedule Loaded</b>
+          <span>Camp / Combine calendar runtime not connected.</span>
+        </div>
+        <time>—</time>
+      </div>
+      <div class="list-row">
+        <div>
+          <b>Station Assignment</b>
+          <span>Pending event authority.</span>
+        </div>
+        <time>—</time>
+      </div>
+    </section>
+
+  </section>
+
+</section>
+
+<aside class="right-rail">
+
+  <section class="panel side-card">
+    <h3>Credential & Authority</h3>
+
+    <div class="gov-row">
+      <span>Professional Identity</span>
+      <b class="pending">Pending</b>
+    </div>
+
+    <div class="gov-row">
+      <span>PHNX Evaluator Certification</span>
+      <b class="pending">Pending</b>
+    </div>
+
+    <div class="gov-row">
+      <span>Certification Scope</span>
+      <b class="pending">Pending</b>
+    </div>
+
+    <div class="gov-row">
+      <span>Event Authority</span>
+      <b class="pending">Pending</b>
+    </div>
+
+    <div class="gov-row">
+      <span>Station Authority</span>
+      <b class="pending">Pending</b>
+    </div>
+  </section>
+
+  <section class="panel side-card">
+    <h3>Evaluator Next Steps</h3>
+
+    <div class="next-row">
+      <span>Load Professional Credential</span>
+      <b class="pending">Required</b>
+    </div>
+
+    <div class="next-row">
+      <span>Load Camp / Combine Event</span>
+      <b class="pending">Pending</b>
+    </div>
+
+    <div class="next-row">
+      <span>Select Athlete</span>
+      <b class="pending">Pending</b>
+    </div>
+
+    <div class="next-row">
+      <span>Select Station</span>
+      <b class="pending">Pending</b>
+    </div>
+
+    <div class="next-row">
+      <span>Submit Evaluation</span>
+      <b class="pending">Blocked</b>
+    </div>
+  </section>
+
+  <section class="panel side-card">
+    <h3>V1 Shell Boundary</h3>
+
+    <div class="gov-row">
+      <span>Athlete Intelligence</span>
+      <b class="info">Not Rendered</b>
+    </div>
+
+    <div class="gov-row">
+      <span>Station Scoring</span>
+      <b class="info">Not Executed</b>
+    </div>
+
+    <div class="gov-row">
+      <span>Admin Authority</span>
+      <b class="info">Not Included</b>
+    </div>
+
+    <div class="gov-row">
+      <span>Evaluator Certification</span>
+      <b class="info">Stream 10</b>
+    </div>
+
+    <div class="gov-row">
+      <span>Athlete Profile Setup</span>
+      <b class="ready">Existing Route</b>
+    </div>
+  </section>
+
+</aside>
+
+</div>
+
+<section class="flow">
+
+  <div class="flow-title">
+    Evaluator<br>Operating Path
+  </div>
+
+  <a class="flow-step" href="role-dashboard-intake.html">
+    <div>
+      <b>Professional Profile</b>
+      <span>Role / Credential Intake</span>
+    </div>
+  </a>
+
+  <a class="flow-step disabled" href="#">
+    <div>
+      <b>Event Assignment</b>
+      <span>Camp / Combine Context</span>
+    </div>
+  </a>
+
+  <a class="flow-step disabled" href="#">
+    <div>
+      <b>Athlete Check-In</b>
+      <span>Existing Athlete Lookup</span>
+    </div>
+  </a>
+
+  <a class="flow-step" href="snapshot-intake.html">
+    <div>
+      <b>Athlete Registration</b>
+      <span>When No Athlete ID Exists</span>
+    </div>
+  </a>
+
+  <a class="flow-step disabled" href="#">
+    <div>
+      <b>Evaluation Stations</b>
+      <span>Four-Sport Station Runtime</span>
+    </div>
+  </a>
+
+  <a class="request disabled" href="#">
+    Submit Evaluation
+  </a>
+
+</section>
+
+<footer class="footer">
+  <div>STATS-CORE™ V1.0.0 — Evaluator Dashboard Shell</div>
+  <div>National Athlete Infrastructure</div>
+  <div class="ok">Shell Prototype Active</div>
+</footer>
+
+</main>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // Shell-only safeguard:
+  // no intelligence, scoring, certification, or station runtime is loaded here.
+  console.info(
+    "[STATS-CORE][V1 SHELL] evaluator-dashboard.html loaded — no intelligence runtime attached."
+  );
+
+  // Prevent disabled placeholders from changing location if keyboard activated.
+  document.querySelectorAll("a.disabled").forEach(function(link){
+    link.addEventListener("click", function(event){
+      event.preventDefault();
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
+
+ 
